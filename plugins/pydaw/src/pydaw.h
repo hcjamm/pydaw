@@ -73,6 +73,7 @@ extern "C" {
 //Reload entire region for per-audio-item-fx
 #define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX_REGION "par"
 #define PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL "pc"
+#define PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN "co"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -5143,6 +5144,44 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         f_instance->pluginControlIns[f_control_in] = f_value;
         //f_instance->pluginPortUpdated[f_control_in] = 1;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        g_free_1d_char_array(f_val_arr);
+    }    
+    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN)) //Configure plugin
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5, LMS_TINY_STRING);
+        int f_is_inst = atoi(f_val_arr->array[0]);
+        int f_track_type = atoi(f_val_arr->array[1]);
+        int f_track_num = atoi(f_val_arr->array[2]);
+        char * f_key = f_val_arr->array[3];
+        char * f_message = f_val_arr->array[4];
+                
+        t_pydaw_plugin * f_instance;
+        //pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        switch(f_track_type)
+        {
+            case 0:  //MIDI track
+                if(f_is_inst)
+                {
+                    f_instance = a_pydaw_data->track_pool[f_track_num]->instrument;
+                }
+                else
+                {
+                    f_instance = a_pydaw_data->track_pool[f_track_num]->effect;
+                }
+                break;
+            case 1:  //Bus track
+                f_instance = a_pydaw_data->bus_pool[f_track_num]->effect;
+                break;
+            case 2:  //Audio track
+                f_instance = a_pydaw_data->audio_track_pool[f_track_num]->effect;
+                break;
+        }        
+        
+        v_pydaw_plugin_configure_handler(f_instance, f_key, f_message);
+        //f_instance->pluginPortUpdated[f_control_in] = 1;
+        //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }

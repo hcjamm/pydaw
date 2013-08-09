@@ -5093,19 +5093,15 @@ class seq_track:
         f_index = self.instrument_combobox.currentIndex()
         if f_index == 0:
             pass
-        #elif f_index == 2 or f_index == 3:
         global_open_inst_ui(self.track_number, f_index, "MIDI Track: " + str(self.track_name_lineedit.text()) )
-        #else:
-        #    this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
+
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
             if self.is_instrument:
-                #this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 0)
-                global_open_fx_ui(self.track_number, pydaw_folder_instruments, 0, "MIDI Track: " + str(self.track_name_lineedit.text()))
+                if self.instrument_combobox.currentIndex() > 0:
+                    global_open_fx_ui(self.track_number, pydaw_folder_instruments, 0, "MIDI Track: " + str(self.track_name_lineedit.text()))
             else:
-                #this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 1)
                 global_open_fx_ui(self.track_number, pydaw_folder_busfx, 1, "Bus Track: " + str(self.track_name_lineedit.text()))
-                f_modulex.widget.show()
     def on_bus_changed(self, a_value=0):
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
@@ -5546,7 +5542,7 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
     global global_open_fx_ui_dicts
     if not a_track_num in global_open_fx_ui_dicts[a_track_type]:
         f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
-        this_pydaw_project, a_folder, a_track_type, a_title, this_main_window.styleSheet(), global_fx_closed_callback)
+        this_pydaw_project, a_folder, a_track_type, a_title, this_main_window.styleSheet(), global_fx_closed_callback, global_configure_plugin_callback)
         f_modulex.widget.show()
         global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
     else:
@@ -5558,13 +5554,15 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     if not a_track_num in global_open_inst_ui_dict:
         if a_plugin_type == 1:
             f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
-            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
+            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
         if a_plugin_type == 2:
             f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
-            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
+            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
         elif a_plugin_type == 3:
             f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
-            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
+            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
+        else:
+            return
         f_plugin.widget.show()
         global_open_inst_ui_dict[a_track_num] = f_plugin
     else:
@@ -5581,6 +5579,9 @@ def global_inst_closed_callback(a_track_num, a_track_type=None):
     global global_open_inst_ui_dict
     global_open_inst_ui_dict.pop(a_track_num)
     print(str(global_open_inst_ui_dict))
+
+def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num, a_key, a_message):
+    this_pydaw_project.this_dssi_gui.pydaw_configure_plugin(a_is_instrument, a_track_type, a_track_num, a_key, a_message)
 
 def global_close_all_plugin_windows():
     for f_dict in global_open_fx_ui_dicts:
@@ -6119,14 +6120,10 @@ class pydaw_main_window(QtGui.QMainWindow):
                     global_open_fx_ui_dicts[int(f_track_type)][int(f_track_num)].set_control_val(int(f_port), float(f_val))
 
     def closeEvent(self, event):
-        f_reply = QtGui.QMessageBox.question(self, 'Message',
-            "Save project before quitting?", QtGui.QMessageBox.Yes |
-            QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.No)
+        f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
+                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
 
-        if f_reply == QtGui.QMessageBox.Yes:
-            this_pydaw_project.save_project()
-            event.accept()
-        elif f_reply == QtGui.QMessageBox.Cancel:
+        if f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
             return
         else:

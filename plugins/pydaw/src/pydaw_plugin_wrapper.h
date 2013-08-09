@@ -219,6 +219,35 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_se
 }
 
 
+int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, const char *value)
+{    
+    char * message = 0;
+        
+    if(!strcmp(key, "load"))
+    {
+        instance->euphoria_load_set = 1;
+        strcpy(instance->euphoria_load, value);
+    }
+    /*else if(!strcmp(key, "lastdir"))
+    {
+        instance->euphoria_last_dir_set = 1;
+        strcpy(instance->euphoria_last_dir, value);
+    }*/
+    
+    if (instance->descriptor->configure) 
+    {
+        message = instance->descriptor->configure(instance->PYFX_handle, key, value);
+        if (message) 
+        {
+            printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);
+            free(message);
+        }    
+    }
+    
+    return 0;
+}
+
+
 t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 {
     t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));  //TODO: posix_memalign instead...

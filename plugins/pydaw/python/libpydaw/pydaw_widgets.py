@@ -1019,11 +1019,12 @@ class pydaw_per_audio_item_fx_widget:
                 f_knob.set_value(64)
 
 class pydaw_abstract_plugin_ui:
-    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback):
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback, a_configure_callback):
         self.track_num = int(a_track_num)
         self.pydaw_project = a_project
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
+        self.configure_callback = a_configure_callback
         self.track_type = int(a_track_type)
         self.widget = QtGui.QWidget()
         self.widget.setGeometry(0, 0, 10, 10)
@@ -1082,8 +1083,10 @@ class pydaw_abstract_plugin_ui:
 
 
 class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
-    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
-        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
+    a_close_callback, a_configure_callback):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyfx"
         self.track_name = str(a_track_name)
@@ -1229,8 +1232,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
 
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
-    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
-        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
+    a_close_callback, a_configure_callback):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.track_name = str(a_track_name)
@@ -1361,8 +1366,10 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 
 
 class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
-    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
-        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
+    a_close_callback, a_configure_callback):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.track_name = str(a_track_name)
@@ -1714,8 +1721,10 @@ SMP_TB_TUNE_INDEX  =  10
 SMP_TB_INTERPOLATION_MODE_INDEX  =  11
 
 class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
-    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
-        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
+    a_close_callback, a_configure_callback):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.track_name = str(a_track_name)
