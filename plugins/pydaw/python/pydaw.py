@@ -5555,7 +5555,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
         if a_plugin_type == 1:
             f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
             this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
-        if a_plugin_type == 2:
+        elif a_plugin_type == 2:
             f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
             this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
         elif a_plugin_type == 3:
@@ -6121,7 +6121,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
-                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
+                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 
         if f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
