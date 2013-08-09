@@ -288,7 +288,7 @@ class pydaw_checkbox_control(pydaw_abstract_ui_control):
 
 
 class pydaw_combobox_control(pydaw_abstract_ui_control):
-    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[], a_port_dict=None):
+    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[], a_port_dict=None, a_default_index=None):
         self.suppress_changes = True
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -304,6 +304,8 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
         if a_port_dict is not None:
             a_port_dict[self.port_num] = self
         self.value_label = None
+        if a_default_index is not None:
+            self.set_value(a_default_index)
 
     def control_value_changed(self, a_val):
         if not self.suppress_changes:
@@ -1976,7 +1978,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_sample_mode = pydaw_combobox_control(120, None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
-            f_interpolation_modes, self.port_dict)
+            f_interpolation_modes, self.port_dict, 1)
             self.sample_table.setCellWidget(f_i, 11, f_sample_mode.control)
             self.sample_vols.append(f_sample_mode)
 
