@@ -2210,7 +2210,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.generate_control_dict()
         self.open_plugin_file()
-        assert(False)
 
     def configure_plugin(self, a_key, a_message):
         self.configure_callback(True, 0, self.track_num, a_key, a_message)
