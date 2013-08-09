@@ -2014,6 +2014,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_tab_layout.addWidget(self.sample_tab_horizontal_splitter)
 
         self.file_browser =  pydaw_file_browser_widget()
+        self.file_browser.load_pushButton.pressed.connect(self.file_browser_load_button_pressed)
         self.preview_file = ""
         self.sample_tab_horizontal_splitter.addWidget(self.file_browser.file_browser_vsplitter)
 
@@ -2209,6 +2210,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.generate_control_dict()
         self.open_plugin_file()
+        assert(False)
+
+    def configure_plugin(self, a_key, a_message):
+        self.configure_callback(True, 0, self.track_num, a_key, a_message)
 
     def radiobutton_clicked(self, a_val=None):
         pass
@@ -2237,13 +2242,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         i_white_notes = 0
         f_white_notes = [2,2,1,2,2,2,1]
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            #((LMS_note_selector*)(self.sample_table.lms_mm_columns[SMP_TB_NOTE_INDEX].controls[f_i])).lms_set_value(f_current_note)
-            #((LMS_note_selector*)(self.sample_table.lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX].controls[f_i])).lms_set_value(f_current_note)
-            #((LMS_note_selector*)(self.sample_table.lms_mm_columns[SMP_TB_LOW_NOTE_INDEX].controls[f_i])).lms_set_value(f_current_note)
+            self.sample_base_pitches[f_i].set_value(f_current_note)
+            self.sample_high_notes[f_i].set_value(f_current_note)
+            self.sample_low_notes[f_i].set_value(f_current_note)
             f_current_note += f_white_notes[i_white_notes]
             i_white_notes+= 1
             if i_white_notes >= 7:
                 i_white_notes = 0
+
     def viewSampleSelectedIndexChanged(self, a_index):
         if(self.suppress_selected_sample_changed):
             return
@@ -2252,7 +2258,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def loopModeChanged(self, a_value):
         self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
-        self.sample_loop_modes[(self.sample_table.lms_selected_column)] = a_value
+        self.sample_loop_modes[self.sample_table.lms_selected_column] = a_value
 
     def setSampleFile(self, files):
         self.suppressHostUpdate = True
@@ -2392,7 +2398,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def file_browser_preview_button_pressed(self):
         f_list = self.file_browser.m_files_listWidget.selectedItems()
         if len(f_list) > 0:
-            preview_file = self.file_browser.m_folder_path_lineedit.text() + ("/") + f_list[0].text()
+            self.preview_file = self.file_browser.m_folder_path_lineedit.text() + ("/") + f_list[0].text()
             self.generate_files_string()
             #ifndef LMS_DEBUG_STANDALONE
             #lo_send(self.host, self.configurePath, "ss", "load", files_string.toLocal8Bit().data())
@@ -2409,33 +2415,23 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         if not f_selected_path.isEmpty():
             #TODO: check that the directory is empty...
             self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
-            f_current_radio_button = self.sample_table.lms_selected_column
             for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
                 f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX).text()
-                if(f_current_file_path.isNull()):
+                if f_current_file_path is None:
                     continue
                 if((f_current_file_path.isEmpty())):
                     continue
                 if(f_current_file_path.startsWith(f_selected_path, QtCore.Qt.CaseInsensitive)):
                     continue
-                f_current_file =  QtGui.QFile(f_current_file_path)
-                f_file_arr = f_current_file.fileName().split("/")
-                f__file = f_selected_path + ("/") + f_file_arr[(f_file_arr.count() - 1)]
-                #ifdef LMS_DEBUG_STANDALONE
-                f_string = f__file.toStdString()
-                #endif
-                f_current_file.copy(f__file)
+                f_file_arr = str(f_current_file_path).split("/")
+                f_new_file_path = f_selected_path + ("/") + f_file_arr[-1]
+                os.system('cp "' + '" "' + f_new_file_path + '"')
                 f_item =  QtGui.QTableWidgetItem()
-                f_item.setText(f__file)
+                f_item.setText(f_new_file_path)
                 f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
                 self.sample_table.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
-                #f_radio_button = (QRadioButton*)m_sample_table.cellWidget(i , SMP_TB_RADIOBUTTON_INDEX)
-                f_radio_button.setChecked(True)
                 self.generate_files_string()
-                #lo_send(self.host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data())
-            """Select the radio button that was originally selected"""
-            #f_radio_button = (QRadioButton*)m_sample_table.cellWidget(f_current_radio_button , SMP_TB_RADIOBUTTON_INDEX)
-            f_radio_button.setChecked(True)
+                self.configure_plugin("load", self.files_string)
 
     def sample_selected_monofx_groupChanged(self, a_value):
         self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
