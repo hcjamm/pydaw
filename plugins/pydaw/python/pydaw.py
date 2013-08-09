@@ -18,41 +18,10 @@ from time import sleep
 import time
 from PyQt4 import QtGui, QtCore
 from sys import argv
-from os.path import expanduser
 from libpydaw import *
 import liblo
 
-global_show_create_folder_error = False
-
-if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data"):
-    if not os.path.isdir("/media/pydaw_data"):
-        try:
-            os.system("gksudo mkdir /media/pydaw_data")
-            os.system("gksudo mount /dev/disk/by-label/pydaw_data /media/pydaw_data")
-        except:
-            print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive or permissions")
-    global_is_live_mode = True
-    global_home = "/media/pydaw_data"
-    global_pydaw_home = "/media/pydaw_data/" + global_pydaw_version_string
-    global_default_project_folder = global_home + "/" + global_pydaw_version_string + "_projects"
-    try:
-        if not os.path.isdir(global_pydaw_home):
-            os.mkdir(global_pydaw_home)
-        if not os.path.isdir(global_default_project_folder):
-            os.mkdir(global_default_project_folder)
-            pydaw_write_file_text(global_default_project_folder + "/README.txt", "Create subfolders in here and save your live projects to those subfolders.  Saving in the regular filesystem will not persist between live sessions.")
-    except:
-        global_show_create_folder_error = True
-        global_is_live_mode = False
-        global_home = expanduser("~")
-        global_default_project_folder = global_home
-        global_pydaw_home = expanduser("~") + "/" + global_pydaw_version_string
-else:
-    global_is_live_mode = False
-    global_home = expanduser("~")
-    global_default_project_folder = global_home
-    global_pydaw_home = expanduser("~") + "/" + global_pydaw_version_string
-
+from libpydaw.pydaw_util import *
 
 global_transport_is_playing = False
 global_region_lengths_dict = {}
@@ -2241,35 +2210,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_audio_item)
 
 global_audio_items_to_drop = []
-
-global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
-
-def global_get_file_bookmarks():
-    """ Get the bookmarks shared with Euphoria """
-    f_result = {}
-    if os.path.isfile(global_bookmarks_file_path):
-        f_text = pydaw_read_file_text(global_bookmarks_file_path)
-        f_arr = f_text.split("\n")
-        for f_line in f_arr:
-            f_line_arr = f_line.split("|||")
-            if len(f_line_arr) < 2:
-                break
-            f_full_path = f_line_arr[1] + "/" + f_line_arr[0]
-            if os.path.isdir(f_full_path):
-                f_result[f_line_arr[0]] = f_line_arr[1]
-            else:
-                print(("Warning:  Not loading bookmark '" + f_line_arr[0] + "' because the directory '" + f_full_path + "' does not exist."))
-    return f_result
-
-def global_add_file_bookmark(a_folder):
-    f_dict = global_get_file_bookmarks()
-    f_folder = str(a_folder)
-    f_folder_arr = f_folder.split("/")
-    f_dict[f_folder_arr[-1]] = "/".join(f_folder_arr[:-1])
-    f_result = ""
-    for k, v in list(f_dict.items()):
-        f_result += str(k) + "|||" + str(v) + "\n"
-    pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
 
 global_current_audio_item_index = None
 
@@ -6170,7 +6110,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         #print(str(a_val) + "|" + str(a_val))
         if a_key == "pc":
             f_is_inst, f_track_type, f_track_num, f_port, f_val = a_val.split("|")
-            if pydaw_util.int_to_bool(f_is_inst):
+            if int_to_bool(f_is_inst):
                 if int(f_track_num) in global_open_inst_ui_dict:
                     global_open_inst_ui_dict[int(f_track_num)].set_control_val(int(f_port), float(f_val))
             else:

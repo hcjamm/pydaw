@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import os
+import os, subprocess
 import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
@@ -480,9 +480,8 @@ class pydaw_file_select_widget:
             QtGui.QMessageBox.warning(self.file_path, ("No Wave Editor Found"), ("Could not locate ") + self.editor_path +
             (" or another suitable wave editor. Please edit ~/pydaw3/self.global_wave_editor.txt with your wave editor of choice, or install Audacity."))
             return
-        #TODO:  Write a way in Python to launch the editor using subprocess
-        assert(False)
-
+        f_cmd = [self.editor_path, str(self.file_path.text())]
+        subprocess.Popen(f_cmd)
 
 
 class pydaw_file_browser_widget:
@@ -503,6 +502,7 @@ class pydaw_file_browser_widget:
         self.folder_path_lineedit =  QtGui.QLineEdit()
         self.folder_path_lineedit.setReadOnly(True)
         self.bookmarks_listWidget =  QtGui.QListWidget()
+        self.bookmarks_listWidget.itemClicked.connect(self.bookmark_clicked)
         self.bookmarks_listWidget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.bookmarks_listWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.bookmarks_listWidget.setAcceptDrops(True)
@@ -525,12 +525,14 @@ class pydaw_file_browser_widget:
         self.folders_layout.addWidget(self.folder_path_lineedit)
         self.folders_listWidget =  QtGui.QListWidget()
         self.folders_listWidget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.folders_listWidget.itemClicked.connect(self.folder_item_clicked)
         self.folders_listWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.folders_listWidget.setDragDropMode(QtGui.QAbstractItemView.DragOnly)
         self.folders_layout.addWidget(self.folders_listWidget)
         self.folder_buttons_widget = QtGui.QWidget()
         self.folders_hlayout0 =  QtGui.QHBoxLayout(self.folder_buttons_widget)
         self.up_pushButton =  QtGui.QPushButton("Up")
+        self.up_pushButton.pressed.connect(self.up_button_pressed)
         self.folders_hlayout0.addWidget(self.up_pushButton)
         self.bookmark_button =  QtGui.QPushButton("Bookmark")
         self.folders_hlayout0.addWidget(self.bookmark_button)
@@ -556,9 +558,9 @@ class pydaw_file_browser_widget:
         self.folder_path_lineedit.setText(self.home_path)
 
         self.files_listWidget.setSortingEnabled(True)
-        f_global_config_path = self.home_path + ("/pydaw3/lms_file_browser_bookmarks.txt")
-        #TODO:
-        #assert(False)
+        self.set_folder(pydaw_util.global_home, True)
+        self.open_bookmarks()
+
 
     def folder_opened(self, a_folder, a_relative_path):
         if a_folder is None or a_folder == "":
@@ -571,23 +573,68 @@ class pydaw_file_browser_widget:
         else:
             self.enumerate_folders_and_files(a_folder)
 
-    def enumerate_folders_and_files(self, a_path):
-        pass #TODO
-
     def up_one_folder(self):
-        pass #TODO
-
-    def bookmark_button_pressed(self):
-        pass #TODO
-
-    def bookmark_clicked(self, a_key):
-        pass #TODO
+        self.set_folder("..")
 
     def bookmark_delete_button_pressed(self):
         pass #TODO
 
-    def write_hashtable_to_file(self):
-        pass #TODO
+    #def on_preview(self):
+    #    f_list = self.files_listWidget.selectedItems()
+    #    if len(f_list) > 0:
+    #        this_pydaw_project.this_dssi_gui.pydaw_preview_audio(self.last_open_dir + "/" + str(f_list[0].text()))
+
+    def open_bookmarks(self):
+        self.bookmarks_listWidget.clear()
+        f_dict = pydaw_util.global_get_file_bookmarks()
+        for k, v in list(f_dict.items()):
+            self.bookmarks_listWidget.addItem(str(k))
+
+    def bookmark_button_pressed(self):
+        pydaw_util.global_add_file_bookmark(self.last_open_dir)
+        self.open_bookmarks()
+
+    def bookmark_clicked(self, a_item):
+        f_dict = pydaw_util.global_get_file_bookmarks()
+        f_folder_name = str(a_item.text())
+        f_full_path = f_dict[f_folder_name] + "/" + f_folder_name
+        self.set_folder(f_full_path, True)
+
+    def file_mouse_press_event(self, a_event):
+        QtGui.QListWidget.mousePressEvent(self.files_listWidget, a_event)
+        global global_audio_items_to_drop
+        global_audio_items_to_drop = []
+        for f_item in self.files_listWidget.selectedItems():
+            global_audio_items_to_drop.append(self.last_open_dir + "/" + str(f_item.text()))
+
+    def folder_item_clicked(self, a_item):
+        self.set_folder(a_item.text())
+
+    def up_button_pressed(self):
+        self.set_folder("..")
+
+    def set_folder(self, a_folder, a_full_path=False):
+        self.files_listWidget.clear()
+        self.folders_listWidget.clear()
+        if a_full_path:
+            self.last_open_dir = str(a_folder)
+        else:
+            self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
+        self.last_open_dir = self.last_open_dir.replace("//", "/")
+        self.folder_path_lineedit.setText(self.last_open_dir)
+        f_list = os.listdir(self.last_open_dir)
+        f_list.sort(key=str.lower)
+        for f_file in f_list:
+            f_full_path = self.last_open_dir + "/" + f_file
+            if  not f_file.startswith("."):
+                if os.path.isdir(f_full_path):
+                    self.folders_listWidget.addItem(f_file)
+                elif f_file.upper().endswith(".WAV") and os.path.isfile(f_full_path):
+                    if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
+                        self.files_listWidget.addItem(f_file)
+                    else:
+                        print(("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:"))
+                        print(("\n".join(pydaw_util.pydaw_bad_chars)))
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name,  a_default_presets):
@@ -1510,8 +1557,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(4)
         self.mod_matrix.setColumnCount(12)
-        #self.polyfx_mod_matrix[0].lms_mod_matrix.setMinimumHeight(165)
-        #self.polyfx_mod_matrix[0].lms_mod_matrix.setMaximumHeight(165)
+        #self.polyfx_mod_matrix[0].setMinimumHeight(165)
+        #self.polyfx_mod_matrix[0].setMaximumHeight(165)
         self.mod_matrix.setHorizontalHeaderLabels(["FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3", "FX2\nCtrl1",
             "FX2\nCtrl2", "FX2\nCtrl3", "FX3\nCtrl1", "FX3\nCtrl2", "FX3\nCtrl3" ])
         self.mod_matrix.setVerticalHeaderLabels(["ADSR 1", "ADSR 2", "Ramp Env", "LFO"])
@@ -1967,7 +2014,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
         self.smp_tab_main_verticalLayout.addLayout(self.file_selector.layout)
-        #horizontalLayout.addLayout(self.smp_tab_main_verticalLayout)
         f_settings_and_logo_hlayout =  QtGui.QHBoxLayout()
         f_logo_label =  QtGui.QLabel("")
         #TODO:  Pixmap
@@ -1983,7 +2029,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.layout.addWidget(self.main_tab)
         self.main_tab.setCurrentIndex(0)
         self.sample_table.resizeColumnsToContents()
-        #m_sample_table.lms_mod_matrix.horizontalHeader().setStretchLastSection(True)
         #m_view_sample_tab
         self.view_sample_tab =  QtGui.QWidget()
         self.main_tab.addTab(self.view_sample_tab, "View")
@@ -2030,7 +2075,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_mode_label.setText(("Loop Mode"))
         self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_label, 0, 1, 1, 1)
         self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1, 1, 1)
-        #connect(self.loop_mode_combobox, SIGNAL(currentIndexChanged(int)), self, SLOT(loopModeChanged(int)))
         #The file select on the 'view' tab
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
         self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2044,13 +2088,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.view_sample_tab_lower_vspacer =  QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.view_sample_tab_main_vlayout.addItem(self.view_sample_tab_lower_vspacer)
         self.selected_sample_index_label.setText( "Selected Sample" )
-        #for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-        #    self.sample_starts[f_i] = 0
-        #    self.sample_ends[f_i] = 0
-        #    self.sample_loop_starts[f_i] = 0
-        #    self.sample_loop_ends[f_i] = 0
-        #    self.sample_loop_modes[f_i] = 0
-        #    self.sample_selected_monofx_groups[f_i] = 0
 
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
 
@@ -2071,8 +2108,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(4)
         self.mod_matrix.setColumnCount(12)
-        #self.polyfx_mod_matrix[0].lms_mod_matrix.setMinimumHeight(165)
-        #self.polyfx_mod_matrix[0].lms_mod_matrix.setMaximumHeight(165)
+        self.mod_matrix.setFixedHeight(165)
         self.mod_matrix.setHorizontalHeaderLabels(["FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3", "FX2\nCtrl1",
             "FX2\nCtrl2", "FX2\nCtrl3", "FX3\nCtrl1", "FX3\nCtrl2", "FX3\nCtrl3" ])
         self.mod_matrix.setVerticalHeaderLabels(["ADSR 1", "ADSR 2", "Ramp Env", "LFO"])
@@ -2175,7 +2211,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_item =  QtGui.QTableWidgetItem()
             f_item.setText((""))
             f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-            self.sample_table.lms_mod_matrix.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
+            self.sample_table.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
         self.generate_files_string()
         self.view_file_selector.lms_set_file((""))
         self.file_selector.lms_set_file((""))
@@ -2202,7 +2238,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def viewSampleSelectedIndexChanged(self, a_index):
         if(self.suppress_selected_sample_changed):
             return
-        #f_radio_button = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(a_index , SMP_TB_RADIOBUTTON_INDEX)
+        #f_radio_button = (QRadioButton*)m_sample_table.cellWidget(a_index , SMP_TB_RADIOBUTTON_INDEX)
         #f_radio_button.click()
 
     def loopModeChanged(self, a_value):
@@ -2221,13 +2257,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_item =  QtGui.QTableWidgetItem()
             f_item.setText(f_file_list[f_i])
             f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-            self.sample_table.lms_mod_matrix.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item)
+            self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item)
             if f_file_list[f_i] == "":
                 continue
             f_path_sections = f_file_list[f_i].split("/")
             self.set_selected_sample_combobox_item(f_i, f_path_sections[-1])
             self.sample_graph.generatePreview(f_file_list[f_i], f_i)
-        self.sample_table.lms_mod_matrix.resizeColumnsToContents()
+        self.sample_table.resizeColumnsToContents()
         self.selectionChanged()
         self.suppressHostUpdate = False
 
@@ -2270,7 +2306,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-                    self.sample_table.lms_mod_matrix.setItem(f_sample_index_to_load, SMP_TB_FILE_PATH_INDEX, f_item)
+                    self.sample_table.setItem(f_sample_index_to_load, SMP_TB_FILE_PATH_INDEX, f_item)
                     f_sample_index_to_load+= 1
                     if(f_sample_index_to_load >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
                         break
@@ -2280,18 +2316,18 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             #lo_send(self.host, self.configurePath, "ss", "load", files_string.toLocal8Bit().data())
             #lo_send(self.host, self.configurePath, "ss", "lastdir", self.file_selector.lms_last_directory.toLocal8Bit().data())
             #endif
-            self.sample_table.lms_mod_matrix.resizeColumnsToContents()
+            self.sample_table.resizeColumnsToContents()
             self.selectionChanged()
 
     def generate_files_string(self, a_index=-1):
-        files_string = ("")
+        self.files_string = ""
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            files_string.append(self.sample_table.lms_mod_matrix.item(f_i, SMP_TB_FILE_PATH_INDEX).text())
+            self.files_string += str(self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX).text())
             if((a_index != -1) and (f_i == a_index)):
-                files_string.append(pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER)
+                self.files_string.append(pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER)
             else:
-                files_string.append(pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
-        self.files_string.append(self.preview_file + pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
+                self.files_string.append(pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
+        self.files_string += str(self.preview_file + pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
 
     def clearFile(self):
         self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
@@ -2302,13 +2338,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_item =  QtGui.QTableWidgetItem()
         f_item.setText((""))
         f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-        self.sample_table.lms_mod_matrix.setItem((self.sample_table.lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item)
+        self.sample_table.setItem((self.sample_table.lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item)
         self.file_selector.clear_button_pressed()
         self.view_file_selector.clear_button_pressed()
-        generate_files_string()
-
-    def openInEditor(self):
-        self.file_selector.open_in_editor_button_pressed(self)
+        self.generate_files_string()
 
     def reloadSample(self):
         path = self.file_selector.lms_file_path.text()
@@ -2329,8 +2362,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.setCurrentIndex((self.sample_table.lms_selected_column))
         self.sample_graph.indexChanged((self.sample_table.lms_selected_column))
 
-        self.file_selector.lms_set_file(self.sample_table.lms_mod_matrix.item(self.sample_table.lms_selected_column, SMP_TB_FILE_PATH_INDEX).text())
-        self.view_file_selector.lms_set_file(self.sample_table.lms_mod_matrix.item(self.sample_table.lms_selected_column, SMP_TB_FILE_PATH_INDEX).text())
+        self.file_selector.lms_set_file(self.sample_table.item(self.sample_table.lms_selected_column, SMP_TB_FILE_PATH_INDEX).text())
+        self.view_file_selector.lms_set_file(self.sample_table.item(self.sample_table.lms_selected_column, SMP_TB_FILE_PATH_INDEX).text())
         self.suppressHostUpdate = True
         self.sample_start_hslider.setValue(self.sample_starts[(self.sample_table.lms_selected_column)])
         self.sample_end_hslider.setValue(self.sample_ends[(self.sample_table.lms_selected_column)])
@@ -2347,9 +2380,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_result.insert(f_i, f_temp)
         self.load_files(f_result)
 
-    def file_browser_up_button_pressed(self):
-        self.file_browser.up_one_folder()
-
     def file_browser_preview_button_pressed(self):
         f_list = self.file_browser.m_files_listWidget.selectedItems()
         if len(f_list) > 0:
@@ -2360,18 +2390,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             #lo_send(self.host, self.configurePath, "ss", "lastdir", self.file_browser.m_folder_path_lineedit.text().toLocal8Bit().data())
             #endif
             self.preview_file = ("")
-
-    def file_browser_folder_clicked(self, a_item):
-        self.file_browser.folder_opened(a_item.text(), True)
-
-    def file_browser_bookmark_clicked(self, a_item):
-        self.file_browser.bookmark_clicked(a_item.text())
-
-    def file_browser_bookmark_button_pressed(self):
-        self.file_browser.bookmark_button_pressed()
-
-    def file_browser_bookmark_delete_button_pressed(self):
-        self.file_browser.bookmark_delete_button_pressed()
 
     def moveSamplesToSingleDirectory(self):
         f_selected_path = ("")
@@ -2384,7 +2402,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
             f_current_radio_button = self.sample_table.lms_selected_column
             for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-                f_current_file_path = self.sample_table.lms_mod_matrix.item(i, SMP_TB_FILE_PATH_INDEX).text()
+                f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX).text()
                 if(f_current_file_path.isNull()):
                     continue
                 if((f_current_file_path.isEmpty())):
@@ -2401,13 +2419,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_item =  QtGui.QTableWidgetItem()
                 f_item.setText(f__file)
                 f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-                self.sample_table.lms_mod_matrix.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
-                #f_radio_button = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(i , SMP_TB_RADIOBUTTON_INDEX)
+                self.sample_table.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
+                #f_radio_button = (QRadioButton*)m_sample_table.cellWidget(i , SMP_TB_RADIOBUTTON_INDEX)
                 f_radio_button.setChecked(True)
                 self.generate_files_string()
                 #lo_send(self.host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data())
             """Select the radio button that was originally selected"""
-            #f_radio_button = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(f_current_radio_button , SMP_TB_RADIOBUTTON_INDEX)
+            #f_radio_button = (QRadioButton*)m_sample_table.cellWidget(f_current_radio_button , SMP_TB_RADIOBUTTON_INDEX)
             f_radio_button.setChecked(True)
 
     def sample_selected_monofx_groupChanged(self, a_value):
