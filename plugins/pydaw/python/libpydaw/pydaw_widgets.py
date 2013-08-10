@@ -1391,7 +1391,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/rayv.png").scaledToHeight(60)
+        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/rayv.png").scaled(120, 60)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
         self.hlayout0.addWidget(f_logo_label)
