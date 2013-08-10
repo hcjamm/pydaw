@@ -667,11 +667,8 @@ class pydaw_file_browser_widget:
                         print(("\n".join(pydaw_util.pydaw_bad_chars)))
 
 class pydaw_preset_manager_widget:
-    def __init__(self, a_plugin_name,  a_default_presets):
-        if os.path.isdir("/media/pydaw_data") and os.path.isdir("/home/ubuntu"):
-            self.preset_path = "/media/pydaw_data/pydaw3/" + str(a_plugin_name) + ".pypresets"
-        else:
-            self.preset_path = os.path.expanduser("~") + "/pydaw3/" + str(a_plugin_name) + ".pypresets"
+    def __init__(self, a_plugin_name):
+        self.preset_path = pydaw_util.global_pydaw_home + "/" + str(a_plugin_name) + ".pypreset2"
         self.group_box = QtGui.QGroupBox()
         self.layout = QtGui.QHBoxLayout(self.group_box)
         self.program_combobox = QtGui.QComboBox()
@@ -681,54 +678,62 @@ class pydaw_preset_manager_widget:
         self.save_button = QtGui.QPushButton("Save")
         self.save_button.pressed.connect(self.save_presets)
         self.layout.addWidget(self.save_button)
-        self.presets_tab_delimited = []
-        self.controls = []
-        self.load_presets(a_default_presets)
+        self.presets_delimited = []
+        self.controls = {}
+        self.load_presets()
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
 
-    def load_presets(self, a_text=None):
+    def load_presets(self):
         if os.path.isfile(self.preset_path):
             print("loading presets from file")
             f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
+            f_line_arr = f_text.split("\n")
         else:
-            print("loading presets from defaults")
-            f_text = str(a_text)
-        f_line_arr = f_text.split("\n")
-        print(str(len(f_line_arr)))
-        self.presets_tab_delimited = []
+        #    print("loading presets from defaults")
+        #    f_text = str(a_text)
+            f_line_arr = []
+
+        self.presets_delimited = []
         for f_i in range(128):
-            self.presets_tab_delimited.append(f_line_arr[f_i].split("\t"))
-            self.program_combobox.addItem(self.presets_tab_delimited[f_i][0])
+            if f_i >= len(f_line_arr):
+                self.program_combobox.addItem("empty")
+                self.presets_delimited.append(["empty"])
+            else:
+                self.presets_delimited.append(f_line_arr[f_i].split("|"))
+                self.program_combobox.setItemText(f_i, self.presets_delimited[f_i][0])
 
     def save_presets(self):
         print("saving preset")
-        if str(self.program_combobox.control.currentText()) == "empty":
+        if str(self.program_combobox.currentText()) == "empty":
             QtGui.QMessageBox.warning(self.group_box, "Error", "Preset name cannot be 'empty'")
             return
-        if self.program_combobox.control.currentIndex() == 0:
+        if self.program_combobox.currentIndex() == 0:
             QtGui.QMessageBox.warning(self.group_box, "Error", "The first preset must be empty")
             return
-        f_result_values = [str(self.program_combobox.control.currentText())]
-        for f_control in self.controls:
-            f_result_values.append(str(f_control.get_value()))
-        self.presets_tab_delimited[(self.program_combobox.control.currentIndex())] = f_result_values
+        f_result_values = [str(self.program_combobox.currentText())]
+        for k, f_control in self.controls.items():
+            f_result_values.append("%s:%s" % (f_control.port_num, f_control.get_value(),))
+        self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
         f_result = ""
-        for f_list in self.presets_tab_delimited:
-            f_result += "\t".join(f_list)
+        for f_list in self.presets_delimited:
+            f_result += "|".join(f_list) + "\n"
         pydaw_util.pydaw_write_file_text(self.preset_path, f_result)
+        self.load_presets()
 
     def program_changed(self, a_val=None):
         if str(self.program_combobox.currentText()) == "empty":
             print("empty")
         else:
-            f_preset = self.presets_tab_delimited[self.program_combobox.currentIndex()]
+            f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
             print("setting preset " + str(f_preset))
             for f_i in range(1, len(f_preset)):
-                self.controls[f_i - 1].set_value(f_preset[f_i])
-                self.controls[f_i - 1].control_value_changed(f_preset[f_i])
+                f_port, f_val = f_preset[f_i].split(":")
+                f_port = int(f_port)
+                self.controls[f_port].set_value(f_val)
+                self.controls[f_port].control_value_changed(f_val)
 
     def add_control(self, a_control):
-        self.controls.append(a_control)
+        self.controls[a_control.port_num] = a_control
 
 class pydaw_master_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_master_vol_port, a_master_glide_port, a_master_pitchbend_port, \
@@ -1160,9 +1165,6 @@ class pydaw_modulex_single:
         self.knobs[1].set_value(self.knobs[1].control.value())
         self.knobs[2].set_value(self.knobs[2].control.value())
 
-        #self.knobs[0].knob_value_changed(self.knobs[0].knob.value())
-        #self.knobs[1].knob_value_changed(self.knobs[1].knob.value())
-        #self.knobs[2].knob_value_changed(self.knobs[2].knob.value())
 
 class pydaw_per_audio_item_fx_widget:
     def __init__(self, a_rel_callback, a_val_callback):
@@ -1436,8 +1438,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.is_instrument = True
         f_osc_types = ["Saw" , "Square" , "Triangle" , "Sine" , "Off"]
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
-        f_default_presets = ("empty\nclassic 5th pad\t68\t95\t-8\t153\t90\t-15\t15\t94\t100\t4\t166\t-19\t36\t1\t0\t0\t0\t0\t0\t7\t0\t0\t-14\t5\t42\t1\t18\t38\t0\t10\t0\t0\t0\t0\t0\n303 acid lead\t41\t58\t-9\t47\t70\t0\t36\t37\t95\t1\t99\t-30\t36\t100\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t1\t10\t1\t18\t1\t0\t10\t0\t0\t0\t0\t0\nhoover\t39\t53\t-9\t45\t124\t-16\t15\t12\t29\t1\t99\t-12\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t4\t42\t1\t18\t73\t-26\t10\t0\t0\t0\t0\t0\nbendy saw\t10\t49\t-3\t16\t124\t-16\t15\t100\t100\t1\t162\t-60\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-16\t1\t42\t54\t36\t1\t0\t10\t0\t0\t0\t0\t0\nsupersaw lead\t10\t49\t-3\t61\t124\t-15\t36\t10\t33\t1\t162\t-12\t0\t1\t0\t0\t0\t-6\t4\t0\t0\t0\t-16\t5\t41\t1\t17\t1\t0\t10\t0\t0\t0\t0\t0\n3rd Plucks\t10\t49\t-20\t124\t90\t-9\t36\t10\t29\t1\t73\t-12\t36\t1\t0\t0\t0\t-6\t0\t5\t0\t0\t-16\t5\t50\t1\t17\t1\t0\t10\t0\t0\t0\t0\t0\nsquare lead\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-12\t36\t1\t1\t0\t0\t-6\t4\t0\t0\t0\t-16\t4\t50\t1\t17\t1\t0\t0\t0\t0\t0\t0\t0\ntriangle kick drum\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-37\t36\t1\t2\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t8\t-24\t0\t0\t0\t0\t0\t0\nnoise snare\t10\t51\t-30\t14\t99\t-6\t36\t21\t38\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\t10\t0\t0\t0\t0\t0\nelectro open hihat\t39\t49\t-30\t14\t95\t-3\t36\t36\t43\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\t10\t0\t0\t0\t0\t0\nSynchronize Me\t10\t32\t0\t57\t124\t-15\t15\t32\t32\t75\t57\t-60\t0\t99\t3\t0\t0\t0\t4\t0\t0\t0\t-6\t1\t50\t0\t18\t100\t-12\t205\t0\t0\t0\t0\t1\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty")
-        self.preset_manager =  pydaw_preset_manager_widget("LMS_RAYV", f_default_presets)
+        self.preset_manager =  pydaw_preset_manager_widget("RAYV")
         self.main_layout = QtGui.QVBoxLayout()
         self.layout.addLayout(self.main_layout)
         self.hlayout0 = QtGui.QHBoxLayout()
@@ -1581,7 +1582,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             , "Thick Bass" , "Rattler" , "Deep Saw" , "Sine"
         ]
         f_lfo_types = [ "Off" , "Sine" , "Triangle"]
-        f_default_presets = ("empty\nWaterfall Strings\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t407\t0\t-60\t0\t200\t1\t0\t0\t-9\t12\t12\t0\t-9\t-9\t0\t18\t0\t0\t63\t63\t63\t1\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t41\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t4\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t49\t0\t0\t0\t0\t0\t0\t0\nJP Pad\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t35\t1\t-16\t1\t100\t2\t0\t0\t0\t0\t0\t0\t0\t-9\t0\t18\t0\t0\t63\t63\t63\t8\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t27\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t4\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t0\t0\t0\t0\t0\t0\t0\t0\nCyborg Honeybee\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t407\t0\t-14\t1\t100\t17\t0\t0\t-10\t17\t0\t0\t-30\t-9\t45\t18\t0\t0\t63\t63\t127\t17\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t4\t50\t100\t6\t0\t0\t-7\t10\t32\t0\t57\t0\t4\t50\t0\t73\t0\t73\t0\t0\t43\t0\t0\nWeird FM Pluck\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t37\t-30\t57\t35\t1\t-60\t1\t100\t17\t0\t0\t-6\t17\t0\t0\t0\t-9\t0\t18\t0\t1\t63\t63\t63\t8\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t27\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t52\t0\t27\t0\t0\t0\t0\t0\nSlow Thunder\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t100\t-30\t57\t35\t0\t-60\t1\t200\t15\t0\t0\t-6\t15\t7\t0\t0\t-9\t0\t18\t0\t1\t123\t127\t0\t10\t102\t104\t63\t5\t63\t63\t63\t16\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-52\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t3\t50\t1\t50\t100\t15\t12\t0\t-30\t100\t32\t0\t57\t1\t4\t50\t0\t19\t0\t27\t0\t20\t25\t16\t0\nAlien Talk\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t1\t-60\t1\t200\t6\t0\t0\t-6\t15\t-12\t0\t-8\t-9\t0\t18\t0\t1\t58\t127\t0\t15\t127\t104\t63\t1\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t21\t0\t0\t0\t0\t0\t53\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t1\t50\t100\t0\t12\t0\t-30\t100\t32\t0\t57\t0\t4\t50\t0\t19\t0\t0\t0\t0\t25\t16\t0\nThick FM Bass\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-60\t1\t200\t17\t0\t0\t-6\t17\t-12\t0\t-8\t-9\t0\t18\t0\t1\t58\t127\t0\t0\t127\t104\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-15\t100\t32\t0\t57\t0\t4\t50\t0\t19\t0\t0\t0\t0\t25\t16\t0\nDubstep Apocalypse\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-60\t1\t200\t17\t0\t0\t-6\t17\t-12\t0\t-8\t-19\t0\t18\t0\t1\t58\t64\t0\t16\t66\t90\t63\t11\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-33\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t39\t0\t0\t0\t0\t57\t44\t0\nSoft Pluck\t25\t32\t-9\t153\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-9\t1\t11\t6\t0\t0\t0\t0\t-12\t0\t-8\t-8\t0\t18\t0\t0\t58\t64\t0\t0\t124\t90\t63\t2\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-59\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t1\t50\t100\t0\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t0\t0\t0\t0\t0\t0\t0\t0\nThin Reese\t25\t32\t-9\t84\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-9\t1\t11\t3\t0\t0\t0\t16\t-12\t0\t0\t-8\t0\t18\t0\t0\t85\t64\t116\t9\t124\t90\t0\t10\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t0\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t31\t0\t0\t0\t0\t0\t0\t0\nFM Percussion\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t47\t-30\t57\t407\t0\t-60\t0\t100\t17\t0\t0\t0\t17\t6\t0\t-30\t-9\t0\t18\t0\t1\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-30\t10\t32\t-30\t57\t1\t1\t50\t0\t17\t0\t0\t0\t42\t0\t0\t0\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty")
         self.tab_widget =  QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
         self.osc_tab =  QtGui.QWidget()
@@ -1589,7 +1589,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.poly_fx_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.poly_fx_tab, ("PolyFX"))
         self.oscillator_layout =  QtGui.QVBoxLayout(self.osc_tab)
-        self.program =  pydaw_preset_manager_widget("WAY_V", f_default_presets)
+        self.program =  pydaw_preset_manager_widget("WAYV")
         self.hlayout0 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout0)
         self.hlayout0.addWidget(self.program.group_box)
