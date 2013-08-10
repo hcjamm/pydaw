@@ -5140,6 +5140,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             case 2:  //Audio track
                 f_instance = a_pydaw_data->audio_track_pool[f_track_num]->effect;
                 break;
+            default:
+                assert(0);
+                break;
         }
         
         int f_control_in = f_instance->pluginPortControlInNumbers[f_port];        
