@@ -210,12 +210,20 @@ def global_get_file_bookmarks():
                 print(("Warning:  Not loading bookmark '" + f_line_arr[0] + "' because the directory '" + f_full_path + "' does not exist."))
     return f_result
 
+def global_write_file_bookmarks(a_dict):
+    f_result = ""
+    for k, v in list(a_dict.items()):
+        f_result += str(k) + "|||" + str(v) + "\n"
+    pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
+
 def global_add_file_bookmark(a_folder):
     f_dict = global_get_file_bookmarks()
     f_folder = str(a_folder)
     f_folder_arr = f_folder.split("/")
     f_dict[f_folder_arr[-1]] = "/".join(f_folder_arr[:-1])
-    f_result = ""
-    for k, v in list(f_dict.items()):
-        f_result += str(k) + "|||" + str(v) + "\n"
-    pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
+    global_write_file_bookmarks(f_dict)
+
+def global_delete_file_bookmark(a_key):
+    f_dict = global_get_file_bookmarks()
+    f_dict.pop(str(a_key))
+    global_write_file_bookmarks(f_dict)
