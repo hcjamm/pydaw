@@ -449,6 +449,7 @@ class pydaw_file_select_widget:
         self.clear_button =  QtGui.QPushButton("Clear")
         self.clear_button.setMaximumWidth(60)
         self.open_in_editor_button =  QtGui.QPushButton("Edit")
+        self.open_in_editor_button.pressed.connect(self.open_in_editor_button_pressed)
         self.open_in_editor_button.setMaximumWidth(60)
         self.reload_button =  QtGui.QPushButton("Reload")
         self.reload_button.setMaximumWidth(60)
@@ -1391,7 +1392,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/rayv.png").scaled(120, 60)
+        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/rayv.png").scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
         self.hlayout0.addWidget(f_logo_label)
@@ -1901,9 +1902,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_radiobutton = QtGui.QRadioButton(self.sample_table)
             self.selected_radiobuttons.append(f_radiobutton)
             self.sample_table.setCellWidget(f_i, 0, f_radiobutton)
-            f_radiobutton.clicked.connect(self.radiobutton_clicked)
-
-        self.selected_radiobuttons[0].setChecked(True)
+            f_radiobutton.clicked.connect(self.selectionChanged)
 
         self.sample_base_pitches = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN
@@ -2120,6 +2119,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.resizeRowsToContents()
 
         self.file_selector =  pydaw_file_select_widget()
+        self.file_selector.open_button.pressed.connect(self.fileSelect)
+        self.file_selector.clear_button.pressed.connect(self.clearFile)
+        self.file_selector.reload_button.pressed.connect(self.reloadSample)
         self.file_selector.file_path.setMinimumWidth(480)
         """Set all of the array variables that are per-sample"""
 
@@ -2178,14 +2180,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
         self.smp_tab_main_verticalLayout.addLayout(self.file_selector.layout)
-        #f_settings_and_logo_hlayout =  QtGui.QHBoxLayout()
 
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/euphoria.png").scaled(80, 80)
+        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/euphoria.png").scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
         self.file_selector.layout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
-        #self.smp_tab_main_verticalLayout.addLayout(f_settings_and_logo_hlayout, -1)
         self.main_tab.addTab(self.sample_tab, "Samples")
         self.poly_fx_tab =  QtGui.QWidget()
         self.main_tab.addTab(self.poly_fx_tab, "Poly FX")
@@ -2241,6 +2241,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_left_hspacer)
         self.view_file_selector =  pydaw_file_select_widget()
+        self.view_file_selector.open_button.pressed.connect(self.fileSelect)
+        self.view_file_selector.clear_button.pressed.connect(self.clearFile)
+        self.view_file_selector.reload_button.pressed.connect(self.reloadSample)
         self.view_file_selector.file_path.setMinimumWidth(400)
         self.sample_view_file_select_hlayout.addLayout(self.view_file_selector.layout)
         self.sample_view_file_select_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2416,6 +2419,20 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def open_plugin_file(self):
         pydaw_abstract_plugin_ui.open_plugin_file(self)
         self.sample_table.resizeColumnsToContents()
+        f_combobox_items = []
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_item = self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX)
+            if f_item is None or str(f_item.text()) == "":
+                f_combobox_items.append("")
+            else:
+                f_arr = str(f_item.text()).split("/")
+                f_combobox_items.append(f_arr[-1])
+        self.selected_sample_index_combobox.clear()
+        self.selected_sample_index_combobox.addItems(f_combobox_items)
+        self.mono_fx_tab_selected_sample.clear()
+        self.mono_fx_tab_selected_sample.addItems(f_combobox_items)
+        self.selected_radiobuttons[0].click()
+
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
@@ -2433,21 +2450,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         else:
             print("Unknown configure message '%s'" % (a_key))
 
-    def radiobutton_clicked(self, a_val=None):
-        for f_i in range(len(self.selected_radiobuttons)):
-            if self.selected_radiobuttons[f_i].isChecked():
-                break
-        self.suppress_selected_sample_changed = True
-        self.mono_fx_tab_selected_sample.setCurrentIndex(f_i)
-        self.selected_sample_index_combobox.setCurrentIndex(f_i)
-        self.suppress_selected_sample_changed = False
-        self.set_sample_graph()
 
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            self.set_selected_sample_combobox_item(i, (""))
-            #TODO:  Bring back when the sample graph is working
-            #self.sample_graph.clearPixmap(i)
+            self.set_selected_sample_combobox_item(i, "")
+            self.sample_graph.clear_drawn_items()
             f_item =  QtGui.QTableWidgetItem()
             f_item.setText((""))
             f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
@@ -2498,9 +2505,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.set_sample_graph()
 
     def loopModeChanged(self, a_value):
-        self.find_selected_radio_button()
-        self.sample_loop_modes[self.selected_row_index].set_value(a_value)
-        self.sample_loop_modes[self.selected_row_index].control_value_changed(a_value)
+        if not self.suppressHostUpdate:
+            self.find_selected_radio_button()
+            self.sample_loop_modes[self.selected_row_index].set_value(a_value)
+            self.sample_loop_modes[self.selected_row_index].control_value_changed(a_value)
 
     def setSampleFile(self, files):
         self.suppressHostUpdate = True
@@ -2535,8 +2543,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.suppress_selected_sample_changed = False
 
     def fileSelect(self):
-        paths = self.file_selector.open_button_pressed_multiple(self)
-        self.view_file_selector.lms_set_file(self.file_selector.lms_get_file())
+        paths = self.file_selector.open_button_pressed_multiple()
+        self.view_file_selector.set_file(self.file_selector.get_file())
         self.load_files(paths)
 
     def find_selected_radio_button(self):
@@ -2550,15 +2558,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.find_selected_radio_button()
             f_sample_index_to_load = (self.selected_row_index)
             for i in range(len(paths)):
-                path = paths[i]
+                path = str(paths[i])
                 if path != "":
                     if( not os.path.isfile(path)):
-                        QtGui.QMessageBox.warning(self, ("Error"), ("File cannot be read."))
+                        QtGui.QMessageBox.warning(self, "Error", "File cannot be read.")
                         continue
                     f_path_sections = path.split(("/"))
                     self.set_selected_sample_combobox_item(f_sample_index_to_load, f_path_sections[-1])
-                    #TODO:  Get the sample graph situation sorted out and add something back here
-                    #self.sample_graph.generatePreview(path, f_sample_index_to_load)
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
@@ -2569,10 +2575,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
             self.generate_files_string()
             self.configure_plugin("load", self.files_string)
-            #ifndef LMS_DEBUG_STANDALONE
-            #lo_send(self.host, self.configurePath, "ss", "load", files_string.toLocal8Bit().data())
-            #lo_send(self.host, self.configurePath, "ss", "lastdir", self.file_selector.lms_last_directory.toLocal8Bit().data())
-            #endif
             self.sample_table.resizeColumnsToContents()
             self.selectionChanged()
 
@@ -2589,9 +2591,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def clearFile(self):
         self.find_selected_radio_button()
-        self.sample_graph.clearPixmap((self.selected_row_index))
-        self.sample_start_hslider.setValue(0)
-        self.sample_end_hslider.setValue(0)
+        self.sample_graph.clear_drawn_items()
+        #self.sample_start_hslider.setValue(0)
+        #self.sample_end_hslider.setValue(0)
         self.set_selected_sample_combobox_item((self.selected_row_index), (""))
         f_item =  QtGui.QTableWidgetItem()
         f_item.setText((""))
@@ -2600,10 +2602,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.clear_button_pressed()
         self.view_file_selector.clear_button_pressed()
         self.generate_files_string()
+        self.configure_plugin("load", self.files_string)
+        self.sample_table.resizeColumnsToContents()
 
     def reloadSample(self):
         path = str(self.file_selector.file_path.text())
-        if path != "":
+        if path.strip() != "":
             self.find_selected_radio_button()
             self.generate_files_string((self.selected_row_index))
 
@@ -2624,15 +2628,15 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_file_path = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
         self.file_selector.set_file(f_file_path)
         self.view_file_selector.set_file(f_file_path)
+
         #TODO:  Add this back when the sample graphs are sorted out
-        #self.sample_graph.indexChanged((self.selected_row_index))
-        #self.suppressHostUpdate = True
+        self.suppressHostUpdate = True
         #self.sample_start_hslider.setValue(self.sample_starts[(self.selected_row_index)])
         #self.sample_end_hslider.setValue(self.sample_ends[(self.selected_row_index)])
         #self.sample_loop_start_hslider.setValue(self.sample_loop_starts[(self.selected_row_index)])
         #self.sample_loop_end_hslider.setValue(self.sample_loop_ends[(self.selected_row_index)])
-        #self.loop_mode_combobox.setCurrentIndex(self.sample_loop_modes[(self.selected_row_index)])
-        #self.suppressHostUpdate = False
+        self.loop_mode_combobox.setCurrentIndex(self.loop_modes[(self.selected_row_index)].get_value())
+        self.suppressHostUpdate = False
 
     def file_browser_load_button_pressed(self):
         f_result = self.file_browser.files_selected()
