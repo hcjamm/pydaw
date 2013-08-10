@@ -324,13 +324,13 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port, a_sustain_port, a_release_port, \
             a_label, a_rel_callback, a_val_callback, a_port_dict=None):
-        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_log_time, a_port_dict)
-        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 0, kc_log_time, a_port_dict)
+        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_decimal, a_port_dict)
+        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 0, kc_decimal, a_port_dict)
         if a_sustain_in_db:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -30, 0, 0, kc_integer, a_port_dict)
         else:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, 0, 100, 100, kc_decimal, a_port_dict)
-        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 400, 0, kc_log_time, a_port_dict)
+        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 400, 0, kc_decimal, a_port_dict)
         self.groupbox = QtGui.QGroupBox(a_label)
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.attack_knob.add_to_grid_layout(self.layout, 0)
@@ -2209,7 +2209,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_extra_controls_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.sample_view_select_sample_hlayout.addItem(self.sample_view_extra_controls_left_hspacer)
         self.sample_view_extra_controls_gridview =  QtGui.QGridLayout()
-        self.selected_sample_index_combobox =  QtGui.QComboBox(self.view_sample_tab)
+        self.selected_sample_index_combobox =  QtGui.QComboBox()
         sizePolicy1 = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -2218,6 +2218,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.selected_sample_index_combobox.setMinimumWidth(320)
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             self.selected_sample_index_combobox.addItem("")
+        self.selected_sample_index_combobox.currentIndexChanged.connect(self.viewSampleSelectedIndexChanged)
         self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_combobox, 1, 0, 1, 1)
         self.selected_sample_index_label =  QtGui.QLabel("Selected Sample")
         self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_label, 0, 0, 1, 1)
@@ -2229,7 +2230,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_mode_combobox =  QtGui.QComboBox(self.view_sample_tab)
         self.loop_mode_combobox.addItems(["Off", "On"])
         self.loop_mode_label =  QtGui.QLabel(self.view_sample_tab)
-        self.loop_mode_label.setText(("Loop Mode"))
+        self.loop_mode_label.setText("Loop Mode")
         self.loop_mode_combobox.currentIndexChanged.connect(self.loopModeChanged)
         self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_label, 0, 1, 1, 1)
         self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1, 1, 1)
@@ -2325,7 +2326,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             self.mono_fx_tab_selected_sample.addItem("")
         self.mono_fx_tab_selected_group.currentIndexChanged.connect(self.sample_selected_monofx_groupChanged)
-        self.mono_fx_tab_selected_sample.currentIndexChanged.connect(self.selectionChanged)
+        self.mono_fx_tab_selected_sample.currentIndexChanged.connect(self.monoFXSampleSelectedIndexChanged)
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample_label)
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample)
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group_label)
@@ -2379,16 +2380,24 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
 
     def sample_start_callback(self, a_val):
-        pass
+        f_index = self.selected_sample_index_combobox.currentIndex()
+        self.sample_starts[f_index].set_value(a_val)
+        self.sample_starts[f_index].control_value_changed(a_val)
 
     def sample_end_callback(self, a_val):
-        pass
+        f_index = self.selected_sample_index_combobox.currentIndex()
+        self.sample_ends[f_index].set_value(a_val)
+        self.sample_ends[f_index].control_value_changed(a_val)
 
     def loop_start_callback(self, a_val):
-        pass
+        f_index = self.selected_sample_index_combobox.currentIndex()
+        self.loop_starts[f_index].set_value(a_val)
+        self.loop_starts[f_index].control_value_changed(a_val)
 
     def loop_end_callback(self, a_val):
-        pass
+        f_index = self.selected_sample_index_combobox.currentIndex()
+        self.loop_ends[f_index].set_value(a_val)
+        self.loop_ends[f_index].control_value_changed(a_val)
 
 
     def open_plugin_file(self):
@@ -2411,9 +2420,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         else:
             print("Unknown configure message '%s'" % (a_key))
 
-
     def radiobutton_clicked(self, a_val=None):
-        pass
+        for f_i in range(len(self.selected_radiobuttons)):
+            if self.selected_radiobuttons[f_i].isChecked():
+                break
+        self.suppress_selected_sample_changed = True
+        self.mono_fx_tab_selected_sample.setCurrentIndex(f_i)
+        self.selected_sample_index_combobox.setCurrentIndex(f_i)
+        self.suppress_selected_sample_changed = False
 
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
@@ -2452,10 +2466,20 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 i_white_notes = 0
 
     def viewSampleSelectedIndexChanged(self, a_index):
-        if(self.suppress_selected_sample_changed):
+        if self.suppress_selected_sample_changed:
             return
-        #f_radio_button = (QRadioButton*)m_sample_table.cellWidget(a_index , SMP_TB_RADIOBUTTON_INDEX)
-        #f_radio_button.click()
+        self.suppress_selected_sample_changed = True
+        self.selected_radiobuttons[a_index].setChecked(True)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(a_index)
+        self.suppress_selected_sample_changed = False
+
+    def monoFXSampleSelectedIndexChanged(self, a_index):
+        if self.suppress_selected_sample_changed:
+            return
+        self.suppress_selected_sample_changed = True
+        self.selected_radiobuttons[a_index].setChecked(True)
+        self.selected_sample_index_combobox.setCurrentIndex(a_index)
+        self.suppress_selected_sample_changed = False
 
     def loopModeChanged(self, a_value):
         self.find_selected_radio_button()
@@ -2484,14 +2508,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.selectionChanged()
         self.suppressHostUpdate = False
 
-    def setSelection(self, a_value):
-        self.suppressHostUpdate = True
-        #m_selected_sample[a_value].setChecked(True)
-        self.suppressHostUpdate = False
-    """ def set_selected_sample_combobox_item(
-    * int a_index, #Currently, you should only set self to (self.selected_row_index), but I'm leaving it there for when it can be implemented to work otherwise
-    *  a_text) #The text of the  item
-    """
     def set_selected_sample_combobox_item(self, a_index,  a_text):
         self.suppress_selected_sample_changed = True
         self.selected_sample_index_combobox.removeItem(a_index)
