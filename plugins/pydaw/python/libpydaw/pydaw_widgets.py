@@ -2562,8 +2562,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def loopModeChanged(self, a_value):
         if not self.suppressHostUpdate:
             self.find_selected_radio_button()
-            self.sample_loop_modes[self.selected_row_index].set_value(a_value)
-            self.sample_loop_modes[self.selected_row_index].control_value_changed(a_value)
+            self.loop_modes[self.selected_row_index].set_value(a_value)
+            self.loop_modes[self.selected_row_index].control_value_changed(a_value)
 
     def setSampleFile(self, files):
         self.suppressHostUpdate = True
