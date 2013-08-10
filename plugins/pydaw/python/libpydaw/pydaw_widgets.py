@@ -780,18 +780,26 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.value = a_val
         if a_type == 0:
             self.y_pos = 0.0 + (a_offset * self.audio_item_marker_height)
-            self.setPos((a_val * 6.0), self.y_pos)
             self.line.setPos(0.0, 0.0)
             self.text_item = QtGui.QGraphicsTextItem("S")
         elif a_type == 1:
             self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
-            self.setPos((a_val * 6.0) - self.audio_item_marker_height, self.y_pos)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("E")
         self.setPen(a_pen)
         self.setBrush(a_brush)
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+
+
+    def set_pos(self):
+        if self.marker_type == 0:
+            f_new_val = self.value * 0.6
+        elif self.marker_type == 1:
+            f_new_val = (self.value + self.audio_item_marker_height) * 0.6
+            f_new_val = (f_new_val - 10000) * -1.0
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 10000.0)
+        self.setPos(self.y_pos, f_new_val)
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
@@ -822,7 +830,6 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
-        #self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -833,14 +840,14 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
     def clear_drawn_items(self):
         self.scene.clear()
 
-    def draw_item(self, a_path_list, a_start, a_end):
+    def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end):
         self.clear_drawn_items()
         f_path_inc = pydaw_audio_item_scene_height / len(a_path_list)
         f_path_y_pos = 0.0
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
             f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 6.0))
-            f_path_item.setBrush(pydaw_loop_gradient)
+            f_path_item.setBrush(pydaw_audio_item_gradient)
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
@@ -848,10 +855,14 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scene.addItem(self.start_marker)
         self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, 0, self.end_callback)
         self.scene.addItem(self.end_marker)
-        self.loop_start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_start_callback)
+        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
-        self.loop_end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_end_callback)
+        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
+        self.start_marker.set_pos()
+        self.end_marker.set_pos()
+        self.loop_start_marker.set_pos()
+        self.loop_end_marker.set_pos()
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
@@ -2003,7 +2014,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 10000, self.port_dict)
+            f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)  #TODO: at PyDAWv4 make it 10000
             self.sample_ends.append(f_sample_end)
 
         self.loop_starts = []
@@ -2021,7 +2032,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_loop_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 10000, self.port_dict)
+            f_loop_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict) #TODO: at PyDAWv4 make it 10000
             self.loop_ends.append(f_loop_end)
         #MonoFX0
         self.monofx0knob0_ctrls = []
@@ -2423,7 +2434,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_file_name = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
             if f_file_name != "":
                 f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
-                self.sample_graph.draw_item(f_graph.create_sample_graph(True), 0, 1000)
+                self.sample_graph.draw_item(f_graph.create_sample_graph(True), self.sample_starts[self.selected_row_index].get_value(), \
+                self.sample_ends[self.selected_row_index].get_value(), self.loop_starts[self.selected_row_index].get_value(), \
+                self.loop_ends[self.selected_row_index].get_value())
             else:
                 self.sample_graph.clear_drawn_items()
         else:
@@ -2642,12 +2655,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.set_file(f_file_path)
         self.view_file_selector.set_file(f_file_path)
 
-        #TODO:  Add this back when the sample graphs are sorted out
         self.suppressHostUpdate = True
-        #self.sample_start_hslider.setValue(self.sample_starts[(self.selected_row_index)])
-        #self.sample_end_hslider.setValue(self.sample_ends[(self.selected_row_index)])
-        #self.sample_loop_start_hslider.setValue(self.sample_loop_starts[(self.selected_row_index)])
-        #self.sample_loop_end_hslider.setValue(self.sample_loop_ends[(self.selected_row_index)])
+        self.set_sample_graph()
         self.loop_mode_combobox.setCurrentIndex(self.loop_modes[(self.selected_row_index)].get_value())
         self.suppressHostUpdate = False
 
@@ -2703,6 +2712,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx3.knobs[1].set_value(self.monofx3knob1_ctrls[a_value].get_value())
         self.mono_fx3.knobs[2].set_value(self.monofx3knob2_ctrls[a_value].get_value())
         self.mono_fx3.combobox.set_value(self.monofx3comboboxes[a_value].get_value())
+        self.find_selected_radio_button()
+        self.monofx_groups[self.selected_row_index].set_value(a_value)
+        self.monofx_groups[self.selected_row_index].control_value_changed(a_value)
 
 
     def setSelectedMonoFX(self):
