@@ -758,7 +758,7 @@ pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_wid
 pydaw_start_end_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
 pydaw_start_end_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 30, 30))
 pydaw_start_end_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 42, 42))
-pydaw_start_end_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30))
+pydaw_start_end_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 12.0)
 
 pydaw_audio_item_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
 pydaw_audio_item_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 246, 30))
@@ -767,7 +767,7 @@ pydaw_audio_item_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 226, 42))
 pydaw_loop_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
 pydaw_loop_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 180, 30))
 pydaw_loop_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
-pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30))
+pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30), 12.0)
 
 class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
     def __init__(self, a_type, a_val, a_pen, a_brush, a_offset=0, a_callback=None):
@@ -778,16 +778,19 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.callback = a_callback
         self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
         self.line.setParentItem(self)
-        self.line.setPen(QtGui.QPen(QtCore.Qt.red, 3.0))
+        self.line.setPen(a_pen)
         self.marker_type = a_type
         self.pos_x = 0.0
         self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
+        self.other = None
         if a_type == 0:
+            self.min_x = 0.0
             self.y_pos = 0.0 + (a_offset * self.audio_item_marker_height)
-            self.line.setPos(0.0, 0.0)
+            self.line.setPos(0.0, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("S")
         elif a_type == 1:
+            self.min_x = 66.0
             self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("E")
@@ -796,26 +799,25 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
-
     def set_pos(self):
         if self.marker_type == 0:
             f_new_val = self.value * 0.6
         elif self.marker_type == 1:
             f_new_val = ((10000 - self.value) * 0.6) - self.audio_item_marker_height
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, self.max_x)
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
+
+    def set_other(self, a_other):
+        self.other = a_other
+
+    def get_inverted_value(self, a_val):  #TODO:  Get rid of this inversion goofyness at PyDAWv4
+        return (a_val - 10000.0) * -1.0
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         self.pos_x = a_event.scenePos().x()
-        if self.pos_x < 0.0:
-            self.pos_x = 0.0
-        elif self.pos_x > self.max_x:
-            self.pos_x = self.max_x
+        self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
         self.setPos(self.pos_x, self.y_pos)
-
-    def mouseReleaseEvent(self, a_event):
-        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         if self.marker_type == 0:
             f_new_val = self.pos_x * 1.666666
         elif self.marker_type == 1:
@@ -823,8 +825,24 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             f_new_val = (f_new_val - 10000) * -1.0
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 10000.0)
         self.value = f_new_val
+        if self.other is not None:
+            if self.marker_type == 0:
+                f_inverted = self.get_inverted_value(self.other.value)
+                if self.value > f_inverted - 60:
+                    self.other.value = self.get_inverted_value(self.value) + 60
+                    self.other.set_pos()
+            elif self.marker_type == 1:
+                f_inverted = self.get_inverted_value(self.value)
+                if self.value < f_inverted + 60:
+                    self.other.value = self.get_inverted_value(self.value) - 60
+                    self.other.set_pos()
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         if self.callback is not None:
             self.callback(self.value)
+        if self.other.callback is not None:
+            self.other.callback(self.other.value)
 
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
@@ -866,6 +884,10 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scene.addItem(self.loop_start_marker)
         self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
+        self.start_marker.set_other(self.end_marker)
+        self.end_marker.set_other(self.start_marker)
+        self.loop_start_marker.set_other(self.loop_end_marker)
+        self.loop_end_marker.set_other(self.loop_start_marker)
         self.start_marker.set_pos()
         self.end_marker.set_pos()
         self.loop_start_marker.set_pos()
