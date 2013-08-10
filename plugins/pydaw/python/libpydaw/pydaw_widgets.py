@@ -798,8 +798,8 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         elif self.marker_type == 1:
             f_new_val = (self.value + self.audio_item_marker_height) * 0.6
             f_new_val = (f_new_val - 10000) * -1.0
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 10000.0)
-        self.setPos(self.y_pos, f_new_val)
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, self.max_x)
+        self.setPos(f_new_val, self.y_pos)
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
@@ -847,7 +847,6 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
             f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 6.0))
-            f_path_item.setBrush(pydaw_audio_item_gradient)
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
