@@ -480,8 +480,8 @@ class pydaw_file_select_widget:
 
     def open_button_pressed_multiple(self):
         f_result = QtGui.QFileDialog.getOpenFileNames(self.file_path, "Select one or more audio sample files", self.last_directory, "Audio files (*.wav)All files (*)")
-        if f_result is not None:
-            self.file_path.setText(f_result[(f_result.count() - 1)])
+        if len(f_result) > 0:
+            self.file_path.setText(str(f_result[-1]))
             self.last_directory = os.path.pardir(str(f_result))
         return f_result
 
@@ -829,12 +829,12 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             if self.marker_type == 0:
                 f_inverted = self.get_inverted_value(self.other.value)
                 if self.value > f_inverted - 60:
-                    self.other.value = self.get_inverted_value(self.value) + 60
+                    self.other.value = self.get_inverted_value(self.value) - 60
                     self.other.set_pos()
             elif self.marker_type == 1:
                 f_inverted = self.get_inverted_value(self.value)
-                if self.value < f_inverted + 60:
-                    self.other.value = self.get_inverted_value(self.value) - 60
+                if self.other.value > f_inverted - 60:
+                    self.other.value = f_inverted - 60
                     self.other.set_pos()
 
     def mouseReleaseEvent(self, a_event):
