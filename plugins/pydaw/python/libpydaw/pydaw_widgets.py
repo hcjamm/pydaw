@@ -833,6 +833,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.loop_end_callback = a_loop_end_callback
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
+        self.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -850,7 +851,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_path_y_pos = 0.0
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
-            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 6.0))
+            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 9.0))
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
