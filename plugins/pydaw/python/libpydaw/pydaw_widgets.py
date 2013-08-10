@@ -773,7 +773,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.setPen(QtCore.Qt.red)
             #self.setBrush(pydaw_track_gradients[1])
         elif a_type == 1:
-            self.y_pos = self.pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
+            self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
             self.setPos((a_val * 6.0) - self.audio_item_marker_height, self.y_pos)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("E")
@@ -1992,7 +1992,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 10000, self.port_dict)
-            self.sample_starts.append(f_sample_end)
+            self.sample_ends.append(f_sample_end)
 
         self.loop_starts = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN
@@ -2401,10 +2401,15 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_sample_graph(self):
         self.find_selected_radio_button()
-        if self.sample_table.itemAt(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
-            f_file_name = str(self.sample_table.itemAt(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
-            f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
-            self.sample_graph.draw_item(f_graph.create_sample_graph())
+        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
+            f_file_name = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
+            if f_file_name != "":
+                f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
+                self.sample_graph.draw_item(f_graph.create_sample_graph(True), 0, 1000)
+            else:
+                self.sample_graph.clear_drawn_items()
+        else:
+            self.sample_graph.clear_drawn_items()
 
     def open_plugin_file(self):
         pydaw_abstract_plugin_ui.open_plugin_file(self)
@@ -2434,6 +2439,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.setCurrentIndex(f_i)
         self.selected_sample_index_combobox.setCurrentIndex(f_i)
         self.suppress_selected_sample_changed = False
+        self.set_sample_graph()
 
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
@@ -2478,6 +2484,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.selected_radiobuttons[a_index].setChecked(True)
         self.mono_fx_tab_selected_sample.setCurrentIndex(a_index)
         self.suppress_selected_sample_changed = False
+        self.set_sample_graph()
 
     def monoFXSampleSelectedIndexChanged(self, a_index):
         if self.suppress_selected_sample_changed:
@@ -2486,6 +2493,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.selected_radiobuttons[a_index].setChecked(True)
         self.selected_sample_index_combobox.setCurrentIndex(a_index)
         self.suppress_selected_sample_changed = False
+        self.set_sample_graph()
 
     def loopModeChanged(self, a_value):
         self.find_selected_radio_button()

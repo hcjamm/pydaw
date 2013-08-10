@@ -36,25 +36,6 @@ class pydaw_track_type_enum:
     @staticmethod
     def audio():  return 2
 
-def pydaw_clip_value(a_val, a_min, a_max):
-    if a_val < a_min:
-        return a_min
-    if a_val > a_max:
-        return a_max
-    return a_val
-
-def pydaw_clip_min(a_val, a_min):
-    if a_val < a_min:
-        return a_min
-    else:
-        return a_val
-
-def pydaw_clip_max(a_val, a_max):
-    if a_val > a_max:
-        return a_max
-    else:
-        return a_val
-
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
     f_song = this_pydaw_project.get_song()
