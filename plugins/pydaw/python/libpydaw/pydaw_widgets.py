@@ -751,18 +751,30 @@ pydaw_audio_item_scene_height = 1200.0  #TODO:  merge this with the one in pydaw
 pydaw_audio_item_scene_width = 6000.0
 pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
 
+pydaw_start_end_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
+pydaw_start_end_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 30, 30))
+pydaw_start_end_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 42, 42))
+pydaw_start_end_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30))
+
+pydaw_audio_item_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
+pydaw_audio_item_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 246, 30))
+pydaw_audio_item_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 226, 42))
+
+pydaw_loop_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
+pydaw_loop_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 180, 30))
+pydaw_loop_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
+pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30))
+
 class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
-    def __init__(self, a_type, a_val, a_offset=0, a_callback=None):
+    def __init__(self, a_type, a_val, a_pen, a_brush, a_offset=0, a_callback=None):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         self.audio_item_marker_height = 66.0
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, self.audio_item_marker_height, self.audio_item_marker_height)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        #self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.callback = a_callback
         self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
         self.line.setParentItem(self)
         self.line.setPen(QtGui.QPen(QtCore.Qt.red, 3.0))
-        #self.line.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.marker_type = a_type
         self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
@@ -771,15 +783,13 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.setPos((a_val * 6.0), self.y_pos)
             self.line.setPos(0.0, 0.0)
             self.text_item = QtGui.QGraphicsTextItem("S")
-            self.setPen(QtCore.Qt.red)
-            #self.setBrush(pydaw_track_gradients[1])
         elif a_type == 1:
             self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
             self.setPos((a_val * 6.0) - self.audio_item_marker_height, self.y_pos)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("E")
-            self.setPen(QtCore.Qt.red)
-            #self.setBrush(pydaw_track_gradients[1])
+        self.setPen(a_pen)
+        self.setBrush(a_brush)
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
@@ -792,10 +802,11 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             f_pos_x = self.max_x
         self.setPos(f_pos_x, self.y_pos)
         if self.marker_type == 0:
-            f_new_val = a_event.scenePos().x() / 6.0
+            f_new_val = a_event.scenePos().x() * 1.666666 # / 6.0
         elif self.marker_type == 1:
-            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) / 6.0
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 1000.0)
+            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * 1.666666 # / 6.0
+            f_new_val = (f_new_val - 10000) * -1.0
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 10000.0)
         self.value = f_new_val
         if self.callback is not None:
             self.callback(self.value)
@@ -816,28 +827,30 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.scroll_bar_height = self.horizontalScrollBar().height()
-        f_rect = self.rect()
-        self.h_scale_factor = 1.0
-        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / pydaw_audio_item_scene_height
-        self.scale(self.last_x_scale, self.last_y_scale)
+        self.last_x_scale = 1.0
+        self.last_y_scale = 1.0
 
     def clear_drawn_items(self):
         self.scene.clear()
 
     def draw_item(self, a_path_list, a_start, a_end):
+        self.clear_drawn_items()
+        f_path_inc = pydaw_audio_item_scene_height / len(a_path_list)
+        f_path_y_pos = 0.0
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
-            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
-            #f_path_item.setBrush(pydaw_audio_item_editor_gradient)
+            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 6.0))
+            f_path_item.setBrush(pydaw_loop_gradient)
             self.scene.addItem(f_path_item)
-        self.start_marker = pydaw_audio_marker_widget(0, a_start, 0, self.start_callback)
+            f_path_item.setPos(0.0, f_path_y_pos)
+            f_path_y_pos += f_path_inc
+        self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient, 0, self.start_callback)
         self.scene.addItem(self.start_marker)
-        self.end_marker = pydaw_audio_marker_widget(1, a_end, 0, self.end_callback)
+        self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, 0, self.end_callback)
         self.scene.addItem(self.end_marker)
-        self.loop_start_marker = pydaw_audio_marker_widget(0, a_start, 1, self.loop_start_callback)
+        self.loop_start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
-        self.loop_end_marker = pydaw_audio_marker_widget(1, a_end, 1, self.loop_end_callback)
+        self.loop_end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
 
     def resizeEvent(self, a_resize_event):
