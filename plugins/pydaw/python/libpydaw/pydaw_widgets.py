@@ -780,6 +780,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.line.setParentItem(self)
         self.line.setPen(QtGui.QPen(QtCore.Qt.red, 3.0))
         self.marker_type = a_type
+        self.pos_x = 0.0
         self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
         if a_type == 0:
@@ -800,21 +801,23 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         if self.marker_type == 0:
             f_new_val = self.value * 0.6
         elif self.marker_type == 1:
-            f_new_val = (self.value + self.audio_item_marker_height) * 0.6
-            f_new_val = (f_new_val - 10000) * -1.0
+            f_new_val = ((10000 - self.value) * 0.6) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
-        f_pos_x = a_event.scenePos().x()
-        if f_pos_x < 0.0:
-            f_pos_x = 0.0
-        elif f_pos_x > self.max_x:
-            f_pos_x = self.max_x
-        self.setPos(f_pos_x, self.y_pos)
+        self.pos_x = a_event.scenePos().x()
+        if self.pos_x < 0.0:
+            self.pos_x = 0.0
+        elif self.pos_x > self.max_x:
+            self.pos_x = self.max_x
+        self.setPos(self.pos_x, self.y_pos)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         if self.marker_type == 0:
-            f_new_val = a_event.scenePos().x() * 1.666666 # / 6.0
+            f_new_val = self.pos_x * 1.666666
         elif self.marker_type == 1:
             f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * 1.666666 # / 6.0
             f_new_val = (f_new_val - 10000) * -1.0
@@ -2478,7 +2481,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_table_item = QtGui.QTableWidgetItem(f_arr[f_i])
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
-            print("Unknown configure message '%s'" % (a_key))
+            print("Unknown configure message '%s'" % (a_key,))
 
 
     def clearAllSamples(self):
