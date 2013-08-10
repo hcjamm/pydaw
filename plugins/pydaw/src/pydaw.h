@@ -5151,7 +5151,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }    
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN)) //Configure plugin
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str_remainder(a_value, '|', 5, LMS_TINY_STRING);
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);

@@ -2399,6 +2399,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_ends[f_index].set_value(a_val)
         self.loop_ends[f_index].control_value_changed(a_val)
 
+    def set_sample_graph(self):
+        self.find_selected_radio_button()
+        if self.sample_table.itemAt(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
+            f_file_name = str(self.sample_table.itemAt(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
+            f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
+            self.sample_graph.draw_item(f_graph.create_sample_graph())
 
     def open_plugin_file(self):
         pydaw_abstract_plugin_ui.open_plugin_file(self)
