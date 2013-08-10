@@ -2120,6 +2120,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.resizeRowsToContents()
 
         self.file_selector =  pydaw_file_select_widget()
+        self.file_selector.file_path.setMinimumWidth(480)
         """Set all of the array variables that are per-sample"""
 
         actionMove_files_to_single_directory =  QtGui.QAction(self.widget)
@@ -2177,13 +2178,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
         self.smp_tab_main_verticalLayout.addLayout(self.file_selector.layout)
-        f_settings_and_logo_hlayout =  QtGui.QHBoxLayout()
-        f_logo_label =  QtGui.QLabel("")
-        #TODO:  Pixmap
-        f_logo_label.setMinimumSize(90, 30)
+        #f_settings_and_logo_hlayout =  QtGui.QHBoxLayout()
+
+        f_logo_label =  QtGui.QLabel()
+        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/euphoria.png").scaled(80, 80)
+        f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
-        f_settings_and_logo_hlayout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
-        self.smp_tab_main_verticalLayout.addLayout(f_settings_and_logo_hlayout, -1)
+        self.file_selector.layout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
+        #self.smp_tab_main_verticalLayout.addLayout(f_settings_and_logo_hlayout, -1)
         self.main_tab.addTab(self.sample_tab, "Samples")
         self.poly_fx_tab =  QtGui.QWidget()
         self.main_tab.addTab(self.poly_fx_tab, "Poly FX")
