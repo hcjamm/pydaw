@@ -18,8 +18,9 @@ from libpydaw.pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
 
 global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
-global_knob_arc_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 255, 255))
-global_knob_arc_gradient.setColorAt(0.66, QtGui.QColor.fromRgb(255, 0, 0, 255))
+global_knob_arc_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(60, 60, 255, 255))
+global_knob_arc_gradient.setColorAt(0.25, QtGui.QColor.fromRgb(255, 120, 0, 255))
+global_knob_arc_gradient.setColorAt(0.75, QtGui.QColor.fromRgb(255, 0, 0, 255))
 global_knob_arc_pen = QtGui.QPen(global_knob_arc_gradient, 5.0, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 
 class pydaw_plugin_file:
