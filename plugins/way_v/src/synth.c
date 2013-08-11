@@ -824,7 +824,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_ATTACK_MAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[WAYV_ATTACK_MAIN] = "Master Attack";
 	port_range_hints[WAYV_ATTACK_MAIN].DefaultValue = 10.0f;
-	port_range_hints[WAYV_ATTACK_MAIN].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK_MAIN].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK_MAIN].UpperBound = 100.0f; 
         automatable[WAYV_ATTACK_MAIN] = 1;
         value_tranform_hints[WAYV_ATTACK_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
@@ -855,7 +855,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_ATTACK1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[WAYV_ATTACK1] = "Osc1 Attack";
 	port_range_hints[WAYV_ATTACK1].DefaultValue = 10.0f;
-	port_range_hints[WAYV_ATTACK1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK1].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK1].UpperBound = 100.0f; 
         automatable[WAYV_ATTACK1] = 1;
         value_tranform_hints[WAYV_ATTACK1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
@@ -886,7 +886,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_ATTACK2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[WAYV_ATTACK2] = "Osc2 Attack";
 	port_range_hints[WAYV_ATTACK2].DefaultValue = 10.0f;
-	port_range_hints[WAYV_ATTACK2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK2].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK2].UpperBound = 100.0f; 
         automatable[WAYV_ATTACK2] = 1;
         value_tranform_hints[WAYV_ATTACK2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
@@ -1004,7 +1004,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_ATTACK_PFX1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[WAYV_ATTACK_PFX1] = "ADSR1 Attack";
 	port_range_hints[WAYV_ATTACK_PFX1].DefaultValue = 10.0f;
-	port_range_hints[WAYV_ATTACK_PFX1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK_PFX1].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK_PFX1].UpperBound = 100.0f; 
         automatable[WAYV_ATTACK_PFX1] = 1;
         value_tranform_hints[WAYV_ATTACK_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
@@ -1035,7 +1035,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_ATTACK_PFX2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[WAYV_ATTACK_PFX2] = "ADSR2 Attack";
 	port_range_hints[WAYV_ATTACK_PFX2].DefaultValue = 10.0f;
-	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK_PFX2].UpperBound = 100.0f; 
         automatable[WAYV_ATTACK_PFX2] = 1;
         value_tranform_hints[WAYV_ATTACK_PFX2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
@@ -1552,7 +1552,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         port_descriptors[WAYV_ATTACK3] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[WAYV_ATTACK3] = "Osc3 Attack";
 	port_range_hints[WAYV_ATTACK3].DefaultValue = 10.0f;
-	port_range_hints[WAYV_ATTACK3].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK3].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK3].UpperBound = 100.0f; 
         automatable[WAYV_ATTACK3] = 1;
         value_tranform_hints[WAYV_ATTACK3] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;

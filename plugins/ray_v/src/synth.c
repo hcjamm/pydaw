@@ -509,7 +509,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_descriptors[RAYV_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[RAYV_ATTACK] = "Attack time (s)";
 	port_range_hints[RAYV_ATTACK].DefaultValue = 10.0f;
-	port_range_hints[RAYV_ATTACK].LowerBound = 10.0f; 
+	port_range_hints[RAYV_ATTACK].LowerBound = 0.0f; 
 	port_range_hints[RAYV_ATTACK].UpperBound = 100.0f;
         automatable[RAYV_ATTACK] = 1;
         value_tranform_hints[RAYV_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
@@ -562,7 +562,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_descriptors[RAYV_FILTER_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[RAYV_FILTER_ATTACK] = "Attack time (s) filter";
 	port_range_hints[RAYV_FILTER_ATTACK].DefaultValue = 10.0f;
-	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 10.0f;
+	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 0.0f;
 	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 100.0f;
         automatable[RAYV_FILTER_ATTACK] = 1;
         value_tranform_hints[RAYV_FILTER_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;

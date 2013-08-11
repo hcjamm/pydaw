@@ -1436,8 +1436,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	port_descriptors[EUPHORIA_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[EUPHORIA_ATTACK] = "Master Attack";
 	port_range_hints[EUPHORIA_ATTACK].DefaultValue = 10.0f;
-	port_range_hints[EUPHORIA_ATTACK].LowerBound = 10; 
-	port_range_hints[EUPHORIA_ATTACK].UpperBound = 100; 
+	port_range_hints[EUPHORIA_ATTACK].LowerBound = 0.0f; 
+	port_range_hints[EUPHORIA_ATTACK].UpperBound = 100.0f; 
         automatable[EUPHORIA_ATTACK] = 1;
         value_tranform_hints[EUPHORIA_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
@@ -1470,8 +1470,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	port_descriptors[EUPHORIA_FILTER_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[EUPHORIA_FILTER_ATTACK] = "ADSR2 Attack";
 	port_range_hints[EUPHORIA_FILTER_ATTACK].DefaultValue = 10.0f;
-	port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 10; 
-	port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 100; 
+	port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 0.0f; 
+	port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 100.0f; 
         automatable[EUPHORIA_FILTER_ATTACK] = 1;
         value_tranform_hints[EUPHORIA_FILTER_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
