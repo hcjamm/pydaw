@@ -132,41 +132,6 @@ class pydaw_project:
     def get_audio_fx_files(self):
         return os.listdir(self.audiofx_folder)
 
-    def save_plugin_state(self, a_old, a_new, a_folder, a_ext=None):
-        for k, v in list(a_new.items()):
-            if k in a_old:
-                f_existed = 1
-                f_old_text = a_old[k]
-            else:
-                f_existed = 0
-                f_old_text = ""
-            self.history_files.append(pydaw_history.pydaw_history_file(a_folder, k, v, f_old_text, f_existed))
-
-    def save_project(self):
-        f_old_inst = self.get_files_dict(self.instrument_folder, ".pyinst")
-        f_old_fx = self.get_files_dict(self.instrument_folder, ".pyfx")
-        f_old_audio_fx = self.get_files_dict(self.audiofx_folder)
-        f_old_bus_fx = self.get_files_dict(self.busfx_folder)
-
-        self.this_dssi_gui.pydaw_save_tracks()
-        f_tmp_file = self.project_folder + "/" + "tracks.finished"
-        if os.path.isfile(f_tmp_file):
-            os.remove(f_tmp_file)
-        pydaw_wait_for_finished_file(f_tmp_file)
-
-        f_new_inst = self.get_files_dict(self.instrument_folder, ".pyinst")
-        f_new_fx = self.get_files_dict(self.instrument_folder, ".pyfx")
-        f_new_audio_fx = self.get_files_dict(self.audiofx_folder)
-        f_new_bus_fx = self.get_files_dict(self.busfx_folder)
-
-        self.save_plugin_state(f_old_inst, f_new_inst, pydaw_folder_instruments, ".pyinst")
-        self.save_plugin_state(f_old_fx, f_new_fx, pydaw_folder_instruments, ".pyfx")
-        self.save_plugin_state(f_old_audio_fx, f_new_audio_fx, pydaw_folder_audiofx)
-        self.save_plugin_state(f_old_bus_fx, f_new_bus_fx, pydaw_folder_busfx)
-
-        self.commit("Saved plugin state")
-        self.flush_history()
-
     def delete_inst_file(self, a_track_num):
         f_file_path = self.instrument_folder + "/" + str(a_track_num) + ".pyinst"
         if os.path.isfile(f_file_path):
@@ -179,7 +144,6 @@ class pydaw_project:
         self.history_undo_cursor = 0
 
     def save_project_as(self, a_file_name):
-        self.save_project()  #This is necessary to capture the plugin states before copying everything over...  Otherwise the instruments and effects may not be what they were at this time...
         f_file_name = str(a_file_name)
         print(("Saving project as " + f_file_name + " ..."))
         f_new_project_folder = os.path.dirname(f_file_name)

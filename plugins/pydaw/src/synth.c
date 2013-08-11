@@ -63,8 +63,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     const char *method;
     unsigned int flen = 0;
     lo_message message;
-    lo_address source;
-    int send_to_ui = 0;
+    lo_address source;    
     char tmp[32];
     
     //printf("\npydaw_osc_message_handler: %s\n\n", path);
@@ -151,36 +150,13 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     
     message = (lo_message)data;
     source = lo_message_get_source(message);
-
-    if (instance->uiSource && instance->uiTarget) 
-    {
-	if (strcmp(lo_address_get_hostname(source),lo_address_get_hostname(instance->uiSource)) 
-                ||
-	    strcmp(lo_address_get_port(source), lo_address_get_port(instance->uiSource))) 
-        {
-	    /* This didn't come from our known UI for this plugin, so send an update to that as well */
-	    send_to_ui = 1;
-	}
-    }
     
     if (!strcmp(method, "configure") && argc == 2 && !strcmp(types, "ss")) 
     {
-	if (send_to_ui) 
-        {
-	    lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
-		    &argv[0]->s, &argv[1]->s);
-	}
-
         return pydaw_osc_configure_handler(instance, argv);
     } 
     else if (!strcmp(method, "control") && argc == 2 && !strcmp(types, "if")) 
     {
-	if (send_to_ui) 
-        {
-	    lo_send(instance->uiTarget, instance->ui_osc_control_path, "if",
-		    argv[0]->i, argv[1]->f);
-	}
-
         return pydaw_osc_control_handler(instance, argv);
 
     }
@@ -415,8 +391,7 @@ void v_pydaw_destructor()
 {
     if(pydaw_data)
     {
-        pydaw_data->audio_recording_quit_notifier = 1;
-        v_pydaw_close_all_uis(pydaw_data);   
+        pydaw_data->audio_recording_quit_notifier = 1;        
         lo_address_free(pydaw_data->uiTarget);
         
         sleep(2);

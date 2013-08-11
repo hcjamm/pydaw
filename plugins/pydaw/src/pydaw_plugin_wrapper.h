@@ -58,9 +58,7 @@ typedef struct st_pydaw_plugin
     int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
     int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */    
     PYINST_Program_Descriptor *pluginPrograms;
-        
-    lo_address       uiTarget;
-    lo_address       uiSource;
+    
     int              ui_initial_show_sent;    
     char            *ui_osc_control_path;
     char            *ui_osc_configure_path;
@@ -79,8 +77,6 @@ typedef struct st_pydaw_plugin
     int euphoria_load_set;
     //char euphoria_last_dir[512];
     //int euphoria_last_dir_set;    
-    
-    int showing_ui;  //Used to prevent a race condition where the UI can be shown twice
 }t_pydaw_plugin;
 
 #ifdef PYDAW_PLUGIN_MEMCHECK    
@@ -205,8 +201,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     f_result->euphoria_load_set = 0;
         
     f_result->pluginPrograms = NULL;    
-    f_result->uiTarget = NULL;
-    f_result->uiSource = NULL;
     f_result->ui_initial_show_sent = 0;
     f_result->ui_osc_control_path = NULL;
     f_result->ui_osc_configure_path = NULL;
@@ -214,9 +208,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     f_result->ui_osc_quit_path = NULL;
     f_result->ui_osc_rate_path = NULL;
     f_result->ui_osc_show_path = NULL;
-    
-    f_result->showing_ui = 0;
-        
+            
     //f_result->descfn = (PYINST_Descriptor_Function)dlsym(f_result->lib_handle, "PYINST_descriptor");
     
     f_result->descriptor = f_result->descfn(0);
@@ -362,17 +354,6 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 {    
     if(a_plugin)
     {
-        if (a_plugin->uiTarget) {
-        lo_send(a_plugin->uiTarget, a_plugin->ui_osc_quit_path, "");
-        lo_address_free(a_plugin->uiTarget);
-        a_plugin->uiTarget = NULL;
-        }
-
-        if (a_plugin->uiSource) {
-            lo_address_free(a_plugin->uiSource);
-            a_plugin->uiSource = NULL;
-        }
-
         if (a_plugin->descriptor->PYFX_Plugin->deactivate) 
         {
             a_plugin->descriptor->PYFX_Plugin->deactivate(a_plugin->PYFX_handle);

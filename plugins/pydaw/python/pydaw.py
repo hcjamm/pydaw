@@ -5590,6 +5590,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             return False
         else:
             return True
+
     def on_new(self):
         try:
             while True:
@@ -5604,6 +5605,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 break
         except Exception as ex:
                 pydaw_print_generic_exception(ex)
+
     def on_open(self):
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=global_default_project_folder, filter=global_pydaw_file_type_string)
@@ -5616,9 +5618,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
-    def on_save(self):
-        this_pydaw_project.save_project()
-
     def on_save_as(self):
         try:
             while True:
@@ -5629,6 +5628,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                         continue
                     if not f_new_file.endswith("." + global_pydaw_version_string):
                         f_new_file += "." + global_pydaw_version_string
+                    global_close_all_plugin_windows()
                     this_pydaw_project.save_project_as(f_new_file)
                     set_window_title()
                     set_default_project(f_new_file)

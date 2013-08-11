@@ -44,7 +44,6 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
 #define PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT "ci"
 #define PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI "su"
-#define PYDAW_CONFIGURE_KEY_SAVE_TRACKS "st"
 #define PYDAW_CONFIGURE_KEY_REC_ARM_TRACK "tr"
 #define PYDAW_CONFIGURE_KEY_SHOW_FX_UI "fx"
 #define PYDAW_CONFIGURE_KEY_TRACK_NAME "tn"
@@ -239,6 +238,8 @@ typedef struct
     t_pysong * pysong;
     t_pytrack * track_pool[PYDAW_MIDI_TRACK_COUNT];
     t_pytrack * record_armed_track;
+    int record_armed_track_type;
+    int record_armed_track_index;  //index within the track type
     int record_armed_track_index_all;  //index within track_pool_all
     t_pytrack * bus_pool[PYDAW_BUS_TRACK_COUNT];
     pthread_spinlock_t bus_spinlocks[PYDAW_BUS_TRACK_COUNT];
@@ -399,7 +400,6 @@ int i_get_song_index_from_region_uid(t_pydaw_data*, int);
 void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data);
 void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index);
 void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num);
-void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx, int a_type);
 void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx);
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
 t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
@@ -744,26 +744,6 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     pthread_attr_destroy(&threadAttr);*/
 }
 
-inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
-{
-    int f_i = 0;
-    while(f_i < (a_plugin->controlIns))
-    {
-        if (a_plugin->pluginPortUpdated[f_i]) 
-        {
-            int port = a_plugin->pluginControlInPortNumbers[f_i];
-            float value = a_plugin->pluginControlIns[f_i];
-
-            a_plugin->pluginPortUpdated[f_i] = 0;
-            if (a_plugin->uiTarget) 
-            {
-                lo_send(a_plugin->uiTarget, a_plugin->ui_osc_control_path, "if", port, value);
-            }
-        }
-        f_i++;
-    }
-}
-
 inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin * a_plugin, int a_track_type, int a_track_num, int a_is_inst)
 {
     int f_i = 0;    
@@ -1032,16 +1012,9 @@ void * v_pydaw_worker_thread(void* a_arg)
             
             if(f_item.track_type == 0)  //MIDI/plugin-instrument
             {
-                if(f_args->pydaw_data->track_pool[f_item.track_number]->plugin_index >= 2)
-                {
-                    v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->instrument, 0,
+                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->instrument, 0,
                         f_item.track_number, 1);
-                }
-                else
-                {
-                    v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->instrument);
-                }
-                
+                                
                 v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->effect, 0,
                         f_item.track_number, 0);
 
@@ -1427,7 +1400,11 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
             }
             f_i2++;
         }
-        v_pydaw_update_ports(a_pydaw_data->record_armed_track->effect);  //Ensure that the plugin GUI is updated for audio/bus tracks        
+        /*
+        v_pydaw_fx_update_ports(a_pydaw_data->record_armed_track->effect, 
+                a_pydaw_data->record_armed_track_type, a_pydaw_data->record_armed_track_index, 
+                0); //Ensure that the plugin GUI is updated for audio/bus tracks        
+        */
     }     
 }
 
@@ -3562,11 +3539,6 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
                 printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_instance->euphoria_load, message);
                 free(message);
             }
-
-            if(f_instance->uiTarget)
-            {
-                    lo_send(f_instance->uiTarget, f_instance->ui_osc_configure_path, "ss", "load", f_instance->euphoria_load);
-            }
         }
     }
 }
@@ -4225,335 +4197,6 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     pthread_mutex_unlock(&a_pydaw_data->main_mutex);
 }
 
-void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_type)
-{
-    if(a_track->plugin_index == 0)
-    {
-        return;  //Delete the file if exists?
-    }
-
-    //if(a_track->plugin_index != -1)    
-    //{
-        v_pydaw_save_plugin(a_pydaw_data, a_track, 0, a_type);
-    //}
-    
-    //Now being done through the UI
-    //v_pydaw_save_plugin(a_pydaw_data, a_track, 1, a_type);
-    
-#ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw_data);
-#endif
-}
-
-void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx, int a_type)
-{    
-    pthread_mutex_lock(&a_track->mutex);
-    char f_string[LMS_LARGE_STRING];
-    f_string[0] = '\0';
-    //sprintf(f_string, "");
-    
-    t_pydaw_plugin * f_instance;
-
-    if(a_is_fx)
-    {
-        f_instance = a_track->effect;
-    }
-    else
-    {
-        f_instance = a_track->instrument;
-    }
-    /*
-    if((a_is_fx == 0) && (a_track->plugin_index == 1))
-    {
-        if(a_track->instrument->euphoria_load_set)
-        {
-            char f_load[8192];
-            char f_temp[8192];
-            strcpy(f_temp, a_track->instrument->euphoria_load);
-            int f_i = 0;
-            while(1)
-            {
-                if(f_temp[f_i] == '\0')
-                {
-                    break;
-                }
-                else if((f_temp[f_i] == '|') || (f_temp[f_i] == '>'))  //'>' being the 'reload' character...
-                {
-                    f_temp[f_i] = '~';
-                }
-                f_i++;
-            }
-            sprintf(f_load, "load|%s\n", f_temp);
-            strcat(f_string, f_load);
-        }
-    }
-    */
-    int f_i2 = 0;
-
-    while(f_i2 < (f_instance->controlIns))
-    {
-        int in = f_i2 + f_instance->firstControlIn;
-	//int port = instance->pluginControlInPortNumbers[in];
-	        
-        char f_port_entry[64];
-        sprintf(f_port_entry, "%i|%f\n", in, //port,
-        f_instance->pluginControlIns[in]
-        );
-        strcat(f_string, f_port_entry);
-        f_i2++;
-    }
-
-    strcat(f_string, "\\");        
-    char f_file_name[512];
-        
-    if(a_is_fx)
-    {
-        switch(a_type)
-        {
-            case 0: //MIDI track
-                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track->track_num);
-                break;
-            case 1: //Bus track
-                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->busfx_folder, a_track->track_num);
-                break;
-            case 2: //audio track
-                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->audiofx_folder, a_track->track_num);
-                break;
-            default:
-                assert(0);
-                break;
-        }        
-    }
-    else
-    {
-        sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track->track_num);
-    }
-        
-    pthread_mutex_unlock(&a_track->mutex);
-
-    v_pydaw_write_to_file(f_file_name, f_string);
-}
-
-void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
-{
-    pthread_mutex_lock(&a_pydaw_data->quit_mutex);
-    
-    /*
-    int f_i = 0;
-     
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
-    {
-        if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
-        {
-            v_pydaw_save_track(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0);
-        }
-        f_i++;
-    }
-    
-    f_i = 0;
-    
-    while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {
-        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->bus_pool[f_i], 1);
-        f_i++;
-    }
-    
-    f_i = 0;
-    
-    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-    {
-        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 2);
-        f_i++;
-    }
-    */
-    printf("Saving tracks complete\n");
-    pthread_mutex_unlock(&a_pydaw_data->quit_mutex);
-    char f_tmp_file[512] = "\0";
-    sprintf(f_tmp_file, "%stracks.finished", a_pydaw_data->project_folder);
-    v_pydaw_write_to_file(f_tmp_file, "Finished");
-    
-#ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw_data);
-#endif
-}
-
-void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx)
-{   
-    pthread_mutex_lock(&a_track->mutex);
-        
-    if(a_track->plugin_index == 0)
-    {
-        pthread_mutex_unlock(&a_track->mutex);
-        return;
-    }
-    
-    if(a_is_fx)
-    {        
-        if(a_track->effect->uiTarget)
-        {
-            lo_send(a_track->effect->uiTarget, 
-                    a_track->effect->ui_osc_show_path, "");
-            pthread_mutex_unlock(&a_track->mutex);
-            return;
-        }
-                
-        if(a_track->effect->showing_ui)
-        {
-            pthread_mutex_unlock(&a_track->mutex);
-            return;
-        }
-        else
-        {
-            a_track->effect->showing_ui = 1;
-        }
-    }
-    else
-    {
-        if(a_track->instrument->uiTarget)
-        {
-            lo_send(a_track->instrument->uiTarget, 
-                    a_track->instrument->ui_osc_show_path, "");
-            pthread_mutex_unlock(&a_track->mutex);
-            return;
-        }
-        
-        if(a_track->instrument->showing_ui)
-        {
-            pthread_mutex_unlock(&a_track->mutex);
-            return;
-        }
-        else
-        {
-            a_track->instrument->showing_ui = 1;
-        }
-    }
-    
-    
-    pthread_mutex_unlock(&a_track->mutex);
-    
-    char * filename;
-    char oscUrl[256];    
-    char * dllName;
-    //char * label;
-     
-    
-    if(a_is_fx)
-    {
-        filename = "/usr/lib/pydaw3/lms_modulex/LMS_MODULEX_qt";
-        dllName = "lms_modulex.so";       
-    }
-    else
-    {
-        switch(a_track->plugin_index)
-        {
-            case 1:
-                filename = "/usr/lib/pydaw3/euphoria/LMS_EUPHORIA_qt";
-                dllName = "euphoria.so";
-                break;
-            case 2:
-                filename = "/usr/lib/pydaw3/ray_v/LMS_RAYV_qt";
-                dllName = "ray_v.so";
-                break;
-            case 3:
-                filename = "/usr/lib/pydaw3/way_v/WAY_V_qt";
-                dllName = "way_v.so";
-                break;
-            default:
-                return;
-        }
-
-    }
-    
-    char track_number_string[6];
-    sprintf(track_number_string, "%i", a_track->track_num);
-    
-    char f_track_str[256];
-    
-    if(a_is_fx)
-    {
-        switch(a_track->track_type)
-        {
-            case 0: //MIDI
-                sprintf(f_track_str, "[MIDI] %s", a_track->name);
-                sprintf(oscUrl, "%s/%i-mfx", a_pydaw_data->osc_url, a_track->track_num);
-                break;
-            case 1: //Bus
-                sprintf(f_track_str, "[Bus] %s", a_track->name);
-                sprintf(oscUrl, "%s/%i-bfx", a_pydaw_data->osc_url, a_track->track_num);
-                break;
-            case 2: //Audio
-                sprintf(f_track_str, "[Audio] %s", a_track->name);
-                sprintf(oscUrl, "%s/%i-afx", a_pydaw_data->osc_url, a_track->track_num);
-                break;
-        }        
-    }
-    else
-    {
-        sprintf(f_track_str, "%s", a_track->name);
-        sprintf(oscUrl, "%s/%i-mi", a_pydaw_data->osc_url, a_track->track_num);
-    }
-        
-#ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw_data);
-#endif
-    
-    if (fork() == 0) 
-    {
-        execlp(filename, filename, oscUrl, dllName, f_track_str, track_number_string, (char*)NULL);
-        perror("exec failed");
-        exit(1);  //TODO:  should be getting rid of this???
-    }    
-}
-
-void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
-{
-    int f_i = 0;
-    
-    if(a_pydaw_data)
-    {
-        while(f_i < PYDAW_MIDI_TRACK_COUNT)
-        {
-            if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->uiTarget)
-            {
-                lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
-                    a_pydaw_data->track_pool[f_i]->instrument->ui_osc_quit_path, "");
-            }
-
-            if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->uiTarget)
-            {
-                lo_send(a_pydaw_data->track_pool[f_i]->effect->uiTarget, 
-                    a_pydaw_data->track_pool[f_i]->effect->ui_osc_quit_path, "");
-            }
-
-            f_i++;
-        }
-        
-        f_i = 0;
-        
-        while(f_i < PYDAW_BUS_TRACK_COUNT)
-        {
-            if((a_pydaw_data->bus_pool[f_i]->effect) && a_pydaw_data->bus_pool[f_i]->effect->uiTarget)
-            {
-                lo_send(a_pydaw_data->bus_pool[f_i]->effect->uiTarget, 
-                    a_pydaw_data->bus_pool[f_i]->effect->ui_osc_quit_path, "");
-            }
-            f_i++;
-        }
-        
-        f_i = 0;
-        
-        while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-        {
-            if((a_pydaw_data->audio_track_pool[f_i]->effect) && a_pydaw_data->audio_track_pool[f_i]->effect->uiTarget)
-            {
-                lo_send(a_pydaw_data->audio_track_pool[f_i]->effect->uiTarget, 
-                    a_pydaw_data->audio_track_pool[f_i]->effect->ui_osc_quit_path, "");
-            }
-            f_i++;
-        }
-    }    
-}
-
 void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, float a_vol)
 {
     a_track->volume = a_vol;
@@ -4605,11 +4248,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         
         if(f_fx)
-        {        
-            if(f_fx->uiTarget)
-            {
-                lo_send(f_fx->uiTarget, f_fx->ui_osc_quit_path, "");
-            }
+        {
             v_free_pydaw_plugin(f_fx);
         }
     }
@@ -4704,20 +4343,12 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         
         if(f_inst)
-        {        
-            if(f_inst->uiTarget)
-            {
-                lo_send(f_inst->uiTarget, f_inst->ui_osc_quit_path, "");
-            }
+        {
             v_free_pydaw_plugin(f_inst);
         }
         
         if(f_fx)
-        {        
-            if(f_fx->uiTarget)
-            {
-                lo_send(f_fx->uiTarget, f_fx->ui_osc_quit_path, "");
-            }
+        {
             v_free_pydaw_plugin(f_fx);
         }
     }
@@ -5337,41 +4968,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         v_set_tempo(a_pydaw_data, atof(a_value));
         g_pysong_get(a_pydaw_data);  //To reload audio items when tempo has changed
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI))
-    {
-        int f_track_num = atoi(a_value);
-        v_show_plugin_ui(a_pydaw_data, a_pydaw_data->track_pool[f_track_num], 0);        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_FX_UI))
-    {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
-        int f_track_num = atoi(f_val_arr->array[0]);
-        int f_track_type = atoi(f_val_arr->array[1]);        
-        g_free_1d_char_array(f_val_arr);
-                
-        switch(f_track_type)
-        {
-            case 0:  //MIDI track
-                v_show_plugin_ui(a_pydaw_data, a_pydaw_data->track_pool[f_track_num], 1);
-                break;
-            case 1:  //Bus track
-                v_show_plugin_ui(a_pydaw_data, a_pydaw_data->bus_pool[f_track_num], 1);
-                break;
-            case 2:  //Audio track
-                v_show_plugin_ui(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_num], 1);
-                break;            
-            case 3:  //Audio Input
-                //TODO
-                break;
-            default:
-                assert(0);
-                break;
-        }                
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SAVE_TRACKS))
-    {
-        v_pydaw_save_tracks(a_pydaw_data);
-    }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
@@ -5475,11 +5071,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                     a_pydaw_data->record_armed_track_index_all = f_track_num + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
                     break;
             }
+            a_pydaw_data->record_armed_track_index = f_track_num;
+            a_pydaw_data->record_armed_track_type = f_type;
         }   
         else
         {
             a_pydaw_data->record_armed_track = 0;
             a_pydaw_data->record_armed_track_index_all = -1;
+            a_pydaw_data->record_armed_track_index = -1;
+            a_pydaw_data->record_armed_track_type = -1;
         }
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         g_free_1d_char_array(f_val_arr);
