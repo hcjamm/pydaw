@@ -6110,6 +6110,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         else:
             event.accept()
+            self.osc_timer.stop()
+
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
 global_plugin_numbers = [1, 3, 2, -1]
