@@ -372,17 +372,17 @@ void _init()
         {
             port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_AUDIO;
             port_names[f_i] = "Input ";  //TODO:  Give a more descriptive port name
-            port_range_hints[f_i].HintDescriptor = 0;
+            //port_range_hints[f_i].HintDescriptor = 0;
         }
                 
 	/* Parameters for output */
 	port_descriptors[PYDAW_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
 	port_names[PYDAW_OUTPUT0] = "Output 0";
-	port_range_hints[PYDAW_OUTPUT0].HintDescriptor = 0;
+	//port_range_hints[PYDAW_OUTPUT0].HintDescriptor = 0;
 
         port_descriptors[PYDAW_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
 	port_names[PYDAW_OUTPUT1] = "Output 1";
-	port_range_hints[PYDAW_OUTPUT1].HintDescriptor = 0;
+	//port_range_hints[PYDAW_OUTPUT1].HintDescriptor = 0;
                
         
 	LMSLDescriptor->activate = v_pydaw_activate;

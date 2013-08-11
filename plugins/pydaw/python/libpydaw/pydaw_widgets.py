@@ -331,13 +331,13 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port, a_sustain_port, a_release_port, \
             a_label, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None):
-        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_decimal, a_port_dict, a_preset_mgr)
-        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 0, kc_decimal, a_port_dict, a_preset_mgr)
+        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 10, kc_decimal, a_port_dict, a_preset_mgr)
+        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 50, kc_decimal, a_port_dict, a_preset_mgr)
         if a_sustain_in_db:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -30, 0, 0, kc_integer, a_port_dict, a_preset_mgr)
         else:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, 0, 100, 100, kc_decimal, a_port_dict, a_preset_mgr)
-        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 400, 0, kc_decimal, a_port_dict, a_preset_mgr)
+        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 400, 50, kc_decimal, a_port_dict, a_preset_mgr)
         self.groupbox = QtGui.QGroupBox(a_label)
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.attack_knob.add_to_grid_layout(self.layout, 0)
@@ -350,7 +350,7 @@ class pydaw_filter_widget:
         self.groupbox = QtGui.QGroupBox(str(a_label))
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.cutoff_knob = pydaw_knob_control(a_size, "Cutoff", a_cutoff_port, a_rel_callback, a_val_callback, \
-        20, 124, 96, kc_pitch, a_port_dict, a_preset_mgr)
+        20, 124, 124, kc_pitch, a_port_dict, a_preset_mgr)
         self.cutoff_knob.add_to_grid_layout(self.layout, 0)
         self.res_knob = pydaw_knob_control(a_size, "Res", a_res_port, a_rel_callback, a_val_callback, \
         -30, 0, -12, kc_integer, a_port_dict, a_preset_mgr)
@@ -764,7 +764,7 @@ class pydaw_master_widget:
             self.uni_spread_knob.add_to_grid_layout(self.layout, 2)
         self.glide_knob = pydaw_knob_control(a_size, "Glide", a_master_glide_port, a_rel_callback, a_val_callback, 0, 200, 0, kc_decimal, a_port_dict, a_preset_mgr)
         self.glide_knob.add_to_grid_layout(self.layout, 3)
-        self.pb_knob = pydaw_knob_control(a_size, "Pitchbend", a_master_pitchbend_port, a_rel_callback, a_val_callback, -36, 36, 0, kc_integer, \
+        self.pb_knob = pydaw_knob_control(a_size, "Pitchbend", a_master_pitchbend_port, a_rel_callback, a_val_callback, 1, 36, 18, kc_integer, \
         a_port_dict, a_preset_mgr)
         self.pb_knob.add_to_grid_layout(self.layout, 4)
 
@@ -1410,7 +1410,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.plugin_val_callback, 0, 100, 0, kc_decimal, self.port_dict)
         m_reverb_wet.add_to_grid_layout(self.reverb_groupbox_gridlayout, 1)
         m_reverb_color =  pydaw_knob_control(51, "Color", pydaw_ports.MODULEX_REVERB_COLOR, self.plugin_rel_callback, \
-        self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict)
+        self.plugin_val_callback, 0, 100, 50, kc_decimal, self.port_dict)
         m_reverb_color.add_to_grid_layout(self.reverb_groupbox_gridlayout, 2)
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
@@ -1873,7 +1873,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_sample_vol = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
-            -50, 36, -6, kc_none, self.port_dict)
+            -50.0, 36.0, 0.0, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 5, f_sample_vol.control)
             self.sample_vols.append(f_sample_vol)
 

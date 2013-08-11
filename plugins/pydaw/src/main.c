@@ -100,8 +100,6 @@ static int midiEventReadIndex = 0, midiEventWriteIndex = 0;
 
 static pthread_mutex_t midiEventBufferMutex = PTHREAD_MUTEX_INITIALIZER;
 
-PYFX_Data get_port_default(const PYFX_Descriptor *plugin, int port);
-
 void osc_error(int num, const char *m, const char *path);
 
 int osc_message_handler(const char *path, const char *types, lo_arg **argv, int
@@ -176,55 +174,7 @@ void midi_callback()
 void
 setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
 {
-    long port = pluginControlInPortNumbers[controlIn];
-
-    const PYFX_Descriptor *p = instance->plugin->descriptor->PYFX_Plugin;
-
-    PYFX_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
-
-    PYFX_Data lb = p->PortRangeHints[port].LowerBound *
-	(PYFX_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
-	 sample_rate : 1.0f);
-
-    PYFX_Data ub = p->PortRangeHints[port].UpperBound *
-	(PYFX_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
-	 sample_rate : 1.0f);
-
     float value = (float)event->data.control.value;
-
-    if (!PYFX_IS_HINT_BOUNDED_BELOW(d)) {
-	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
-	    /* unbounded: might as well leave the value alone. */
-            return;
-	} else {
-	    /* bounded above only. just shift the range. */
-	    value = ub - 127.0f + value;
-	}
-    } else {
-	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
-	    /* bounded below only. just shift the range. */
-	    value = lb + value;
-	} else {
-	    /* bounded both ends.  more interesting. */
-            if (PYFX_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
-		const float llb = logf(lb);
-		const float lub = logf(ub);
-
-		value = expf(llb + ((lub - llb) * value / 127.0f));
-	    } else {
-		value = lb + ((ub - lb) * value / 127.0f);
-	    }
-	}
-    }
-    if (PYFX_IS_HINT_INTEGER(d)) {
-        value = lrintf(value);
-    }
-
-    if (verbose) {
-	printf("%s: %s MIDI controller %d=%d -> control in %ld=%f\n", myName,
-	       instance->friendly_name, event->data.control.param,
-	       event->data.control.value, controlIn, value);
-    }
 
     pluginControlIns[controlIn] = value;
     pluginPortUpdated[controlIn] = 1;
@@ -1003,9 +953,6 @@ main(int argc, char **argv)
                     pluginControlInPortNumbers[controlIn] = j;
                     instance->pluginPortControlInNumbers[j] = controlIn;
 
-                    pluginControlIns[controlIn] = get_port_default
-                        (plugin->descriptor->PYFX_Plugin, j);
-
                     plugin->descriptor->PYFX_Plugin->connect_port
                         (instanceHandles[i], j, &pluginControlIns[controlIn++]);
 
@@ -1166,79 +1113,6 @@ main(int argc, char **argv)
    
     printf("PyDAW main() returning\n");
     return 0;
-}
-
-PYFX_Data get_port_default(const PYFX_Descriptor *plugin, int port)
-{
-    PYFX_PortRangeHint hint = plugin->PortRangeHints[port];
-    float lower = hint.LowerBound *
-	(PYFX_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
-    float upper = hint.UpperBound *
-	(PYFX_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
-
-    if (!PYFX_IS_HINT_HAS_DEFAULT(hint.HintDescriptor)) {
-	if (!PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor) ||
-	    !PYFX_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
-	    /* No hint, its not bounded, wild guess */
-	    return 0.0f;
-	}
-
-	if (lower <= 0.0f && upper >= 0.0f) {
-	    /* It spans 0.0, 0.0 is often a good guess */
-	    return 0.0f;
-	}
-
-	/* No clues, return minimum */
-	return lower;
-    }
-
-    /* Try all the easy ones */
-    
-    if (PYFX_IS_HINT_DEFAULT_0(hint.HintDescriptor)) {
-	return 0.0f;
-    } else if (PYFX_IS_HINT_DEFAULT_1(hint.HintDescriptor)) {
-	return 1.0f;
-    } else if (PYFX_IS_HINT_DEFAULT_100(hint.HintDescriptor)) {
-	return 100.0f;
-    } else if (PYFX_IS_HINT_DEFAULT_440(hint.HintDescriptor)) {
-	return 440.0f;
-    }
-
-    /* All the others require some bounds */
-
-    if (PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
-	if (PYFX_IS_HINT_DEFAULT_MINIMUM(hint.HintDescriptor)) {
-	    return lower;
-	}
-    }
-    if (PYFX_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
-	if (PYFX_IS_HINT_DEFAULT_MAXIMUM(hint.HintDescriptor)) {
-	    return upper;
-	}
-	if (PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
-            if (PYFX_IS_HINT_LOGARITHMIC(hint.HintDescriptor) &&
-                lower > 0.0f && upper > 0.0f) {
-                if (PYFX_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
-                    return expf(logf(lower) * 0.75f + logf(upper) * 0.25f);
-                } else if (PYFX_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
-                    return expf(logf(lower) * 0.5f + logf(upper) * 0.5f);
-                } else if (PYFX_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
-                    return expf(logf(lower) * 0.25f + logf(upper) * 0.75f);
-                }
-            } else {
-                if (PYFX_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
-                    return lower * 0.75f + upper * 0.25f;
-                } else if (PYFX_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
-                    return lower * 0.5f + upper * 0.5f;
-                } else if (PYFX_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
-                    return lower * 0.25f + upper * 0.75f;
-                }
-	    }
-	}
-    }
-
-    /* fallback */
-    return 0.0f;
 }
 
 void osc_error(int num, const char *msg, const char *path)

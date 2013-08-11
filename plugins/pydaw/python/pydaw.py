@@ -6101,6 +6101,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     global_open_fx_ui_dicts[int(f_track_type)][int(f_track_num)].set_control_val(int(f_port), float(f_val))
 
     def closeEvent(self, event):
+        global_close_all_plugin_windows()
         f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
                      QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 
@@ -6109,7 +6110,6 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         else:
             event.accept()
-        global_close_all_plugin_windows()
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
 global_plugin_numbers = [1, 3, 2, -1]

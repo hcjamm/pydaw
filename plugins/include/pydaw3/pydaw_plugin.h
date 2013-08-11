@@ -303,7 +303,9 @@ typedef int PYFX_PortRangeHintDescriptor;
 typedef struct _PYFX_PortRangeHint {
 
   /* Hints about the port. */
-  PYFX_PortRangeHintDescriptor HintDescriptor;
+  //PYFX_PortRangeHintDescriptor HintDescriptor;
+  
+  PYFX_Data DefaultValue;
 
   /* Meaningful when hint PYFX_HINT_BOUNDED_BELOW is active. When
      PYFX_HINT_SAMPLE_RATE is also active then this value should be
