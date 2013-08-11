@@ -6119,8 +6119,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.ignore()
             return
         else:
-            event.accept()
             self.osc_timer.stop()
+            self.osc_server.free()
+            event.accept()
 
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
