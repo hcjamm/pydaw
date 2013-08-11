@@ -3438,18 +3438,51 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_black_key_brush = QtGui.QBrush(QtGui.QColor(30, 30, 30, 90))
         f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 90))
         f_base_brush = QtGui.QBrush(QtGui.QColor(255, 255, 255, 120))
-        if self.first_open or this_piano_roll_editor_widget.scale_combobox.currentIndex() == 0:
+        if self.first_open or this_piano_roll_editor_widget.scale_combobox.currentIndex() == 0: #Major
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
             f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
             f_white_key_brush, f_black_key_brush, f_white_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 1:
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 1: #Melodic Minor
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
             f_white_key_brush, f_black_key_brush , f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
              f_white_key_brush, f_black_key_brush, f_white_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 2:
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 2: #Harmonic Minor
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush, \
             f_black_key_brush, f_black_key_brush, f_white_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 3: #Natural Minor
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 4: #Pentatonic Major
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 5: #Pentatonic Minor
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_black_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 6: #Dorian
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_white_key_brush, f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 7: #Phrygian
+            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 8: #Lydian
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 9: #Mixolydian
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_white_key_brush, f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 10: #Locrian
+            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush]
+
         f_current_key = 0
         if not self.first_open:
             f_index = 12 - this_piano_roll_editor_widget.scale_key_combobox.currentIndex()
@@ -3580,7 +3613,9 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(self.scale_key_combobox, 0, 4)
         self.scale_combobox = QtGui.QComboBox()
         self.scale_combobox.setMinimumWidth(172)
-        self.scale_combobox.addItems(["Major", "Melodic Minor", "Harmonic Minor"])
+        self.scale_combobox.addItems(["Major", "Melodic Minor", "Harmonic Minor", "Natural Minor",
+                                      "Pentatonic Major", "Pentatonic Minor", "Dorian", "Phrygian",
+                                      "Lydian", "Mixolydian", "Locrian"])
         self.scale_combobox.currentIndexChanged.connect(self.reload_handler)
         self.controls_grid_layout.addWidget(QtGui.QLabel("Scale:"), 0, 5)
         self.controls_grid_layout.addWidget(self.scale_combobox, 0, 6)
