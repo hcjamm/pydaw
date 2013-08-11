@@ -708,8 +708,8 @@ class pydaw_preset_manager_widget:
         self.presets_delimited = []
         for f_i in range(128):
             if f_i >= len(f_line_arr):
-                self.program_combobox.setItemText("empty")
                 self.presets_delimited.append(["empty"])
+                self.program_combobox.setItemText(f_i, "empty")
             else:
                 self.presets_delimited.append(f_line_arr[f_i].split("|"))
                 self.program_combobox.setItemText(f_i, self.presets_delimited[f_i][0])
