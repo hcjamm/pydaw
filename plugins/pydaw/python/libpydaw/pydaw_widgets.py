@@ -1580,7 +1580,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc1.osc_type_combobox.control.setCurrentIndex(1)
         self.osc1_uni_voices.add_to_grid_layout(self.osc1.grid_layout, 4)
         self.osc1_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC1_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
-        0, 100, 30, kc_decimal, self.port_dict, self.preset_manager)
+        0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         self.osc1_uni_spread.add_to_grid_layout(self.osc1.grid_layout, 5)
 
         self.hlayout1.addWidget(self.osc1.group_box)
@@ -1620,7 +1620,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         1, 7, 4, kc_integer, self.port_dict, self.preset_manager)
         self.osc2_uni_voices.add_to_grid_layout(self.osc2.grid_layout, 4)
         self.osc2_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC2_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
-        0, 100, 30, kc_decimal, self.port_dict, self.preset_manager)
+        0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         self.osc2_uni_spread.add_to_grid_layout(self.osc2.grid_layout, 5)
 
         self.hlayout2.addWidget(self.osc2.group_box)
@@ -1660,7 +1660,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         1, 7, 4, kc_integer, self.port_dict, self.preset_manager)
         self.osc3_uni_voices.add_to_grid_layout(self.osc3.grid_layout, 4)
         self.osc3_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC3_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
-        0, 100, 30, kc_decimal, self.port_dict, self.preset_manager)
+        0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         self.osc3_uni_spread.add_to_grid_layout(self.osc3.grid_layout, 5)
 
         self.hlayout3.addWidget(self.osc3.group_box)
@@ -2457,28 +2457,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.loop_modes[self.selected_row_index].set_value(a_value)
             self.loop_modes[self.selected_row_index].control_value_changed(a_value)
 
-    def setSampleFile(self, files):
-        self.suppressHostUpdate = True
-        pydaw_ports.EUPHORIA_cerr , "Calling setSampleFile with string:\n" , files , "\n"
-        self.files = files
-        files.replace((pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER), (pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER))
-        f_file_list = files.split((pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER))
-        for f_i in range(len(f_file_list)):
-            if f_i >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT:
-                break
-            f_item =  QtGui.QTableWidgetItem()
-            f_item.setText(f_file_list[f_i])
-            f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-            self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item)
-            if f_file_list[f_i] == "":
-                continue
-            f_path_sections = f_file_list[f_i].split("/")
-            self.set_selected_sample_combobox_item(f_i, f_path_sections[-1])
-            self.sample_graph.generatePreview(f_file_list[f_i], f_i)
-        self.sample_table.resizeColumnsToContents()
-        self.selectionChanged()
-        self.suppressHostUpdate = False
-
     def set_selected_sample_combobox_item(self, a_index,  a_text):
         self.suppress_selected_sample_changed = True
         self.selected_sample_index_combobox.removeItem(a_index)
@@ -2539,8 +2517,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def clearFile(self):
         self.find_selected_radio_button()
         self.sample_graph.clear_drawn_items()
-        #self.sample_start_hslider.setValue(0)
-        #self.sample_end_hslider.setValue(0)
         self.set_selected_sample_combobox_item((self.selected_row_index), (""))
         f_item =  QtGui.QTableWidgetItem()
         f_item.setText((""))
@@ -2568,14 +2544,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.suppress_selected_sample_changed = False
         self.setSelectedMonoFX()
         self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
-        self.mono_fx_tab_selected_sample.setCurrentIndex((self.selected_row_index))
         if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
             f_file_path = ""
         else:
             f_file_path = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
         self.file_selector.set_file(f_file_path)
         self.view_file_selector.set_file(f_file_path)
-
         self.suppressHostUpdate = True
         self.set_sample_graph()
         self.loop_mode_combobox.setCurrentIndex(self.loop_modes[(self.selected_row_index)].get_value())
