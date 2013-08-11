@@ -2163,32 +2163,37 @@ class pydaw_sample_graph:
 
         f_paths = []
 
-        if a_for_scene:
-            for f_i in range(self.channels):
-                f_result = QtGui.QPainterPath()
-                f_width_pos = 1.0
-                f_result.moveTo(f_width_pos, f_section_div2)
-                for f_i2 in range(len(self.high_peaks[f_i])):
-                    f_peak = self.high_peaks[f_i][f_i2]
-                    f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
-                    #f_peak = self.low_peaks[f_i][f_i2]
-                    #f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
-                    f_width_pos += f_width_inc
-                f_paths.append(f_result)
-        else:
-            for f_i in range(self.channels):
-                f_result = QtGui.QPainterPath()
-                f_width_pos = 1.0
-                f_result.moveTo(f_width_pos, f_section_div2)
-                for f_peak in self.high_peaks[f_i]:
-                    f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
-                    f_width_pos += f_width_inc
-                for f_peak in self.low_peaks[f_i]:
-                    f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
-                    f_width_pos -= f_width_inc
-                f_result.closeSubpath()
-                f_paths.append(f_result)
+        for f_i in range(self.channels):
+            f_result = QtGui.QPainterPath()
+            f_width_pos = 1.0
+            f_result.moveTo(f_width_pos, f_section_div2)
+            for f_peak in self.high_peaks[f_i]:
+                f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
+                f_width_pos += f_width_inc
+            for f_peak in self.low_peaks[f_i]:
+                f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
+                f_width_pos -= f_width_inc
+            f_result.closeSubpath()
+            f_paths.append(f_result)
+        return f_paths
 
+    def create_sample_graph_for_euphoria(self):
+        f_width_inc = pydaw_audio_item_scene_width / self.count
+        f_section = pydaw_audio_item_scene_height / float(self.channels)
+        f_section_div2 = f_section * 0.5
+        f_paths = []
+
+        for f_i in range(self.channels):
+            f_result = QtGui.QPainterPath()
+            f_width_pos = 1.0
+            f_result.moveTo(f_width_pos, f_section_div2)
+            for f_i2 in range(len(self.high_peaks[f_i])):
+                f_peak = self.high_peaks[f_i][f_i2]
+                f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
+                #f_peak = self.low_peaks[f_i][f_i2]
+                #f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
+                f_width_pos += f_width_inc
+            f_paths.append(f_result)
         return f_paths
 
     def check_mtime(self):

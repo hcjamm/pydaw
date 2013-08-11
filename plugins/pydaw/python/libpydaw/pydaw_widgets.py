@@ -788,7 +788,7 @@ pydaw_loop_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
 pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30), 12.0)
 
 class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
-    def __init__(self, a_type, a_val, a_pen, a_brush, a_offset=0, a_callback=None):
+    def __init__(self, a_type, a_val, a_pen, a_brush, a_label, a_offset=0, a_callback=None):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         self.audio_item_marker_height = 66.0
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, self.audio_item_marker_height, self.audio_item_marker_height)
@@ -806,14 +806,13 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.min_x = 0.0
             self.y_pos = 0.0 + (a_offset * self.audio_item_marker_height)
             self.line.setPos(0.0, self.y_pos * -1.0)
-            self.text_item = QtGui.QGraphicsTextItem("S")
         elif a_type == 1:
             self.min_x = 66.0
             self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
-            self.text_item = QtGui.QGraphicsTextItem("E")
         self.setPen(a_pen)
         self.setBrush(a_brush)
+        self.text_item = QtGui.QGraphicsTextItem(a_label)
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
@@ -841,18 +840,20 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         elif self.marker_type == 1:
             f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * 1.666666 # / 6.0
             f_new_val = (f_new_val - 10000) * -1.0
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 10000.0)
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 9940.0)
         self.value = f_new_val
         if self.other is not None:
             if self.marker_type == 0:
                 f_inverted = self.get_inverted_value(self.other.value)
                 if self.value > f_inverted - 60:
                     self.other.value = self.get_inverted_value(self.value) - 60
+                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 0.0, 9940.0)
                     self.other.set_pos()
             elif self.marker_type == 1:
                 f_inverted = self.get_inverted_value(self.value)
                 if self.other.value > f_inverted - 60:
                     self.other.value = f_inverted - 60
+                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 0.0, 9940.0)
                     self.other.set_pos()
 
     def mouseReleaseEvent(self, a_event):
@@ -894,13 +895,13 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
-        self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient, 0, self.start_callback)
+        self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient, "S", 0, self.start_callback)
         self.scene.addItem(self.start_marker)
-        self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, 0, self.end_callback)
+        self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, "E", 0, self.end_callback)
         self.scene.addItem(self.end_marker)
-        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_start_callback)
+        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, "L", 1, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
-        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, 1, self.loop_end_callback)
+        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, "L", 1, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
         self.start_marker.set_other(self.end_marker)
         self.end_marker.set_other(self.start_marker)
@@ -2351,7 +2352,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_file_name = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
             if f_file_name != "":
                 f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
-                self.sample_graph.draw_item(f_graph.create_sample_graph(True), self.sample_starts[self.selected_row_index].get_value(), \
+                self.sample_graph.draw_item(f_graph.create_sample_graph_for_euphoria(), self.sample_starts[self.selected_row_index].get_value(), \
                 self.sample_ends[self.selected_row_index].get_value(), self.loop_starts[self.selected_row_index].get_value(), \
                 self.loop_ends[self.selected_row_index].get_value())
             else:
