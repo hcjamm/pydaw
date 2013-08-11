@@ -1234,7 +1234,10 @@ class pydaw_abstract_plugin_ui:
         self.effects = []
         self.close_callback = a_close_callback
         self.configure_dict = {}
+        self.save_file_on_exit = True
 
+    def delete_plugin_file(self):
+        self.save_file_on_exit = False
 
     def open_plugin_file(self):
         f_file_path = self.pydaw_project.project_folder + "/" + self.folder + "/" + self.file
@@ -1253,7 +1256,8 @@ class pydaw_abstract_plugin_ui:
         self.pydaw_project.commit("Update controls for " + self.track_name)
 
     def widget_close_event(self, a_event):
-        self.save_plugin_file()
+        if self.save_file_on_exit:
+            self.save_plugin_file()
         self.close_callback(self.track_num, self.track_type)
         QtGui.QWidget.closeEvent(self.widget, a_event)
 

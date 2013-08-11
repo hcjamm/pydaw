@@ -167,6 +167,11 @@ class pydaw_project:
         self.commit("Saved plugin state")
         self.flush_history()
 
+    def delete_inst_file(self, a_track_num):
+        f_file_path = self.instrument_folder + "/" + str(a_track_num) + ".pyinst"
+        if os.path.isfile(f_file_path):
+            os.system("rm '%s'" % (f_file_path,))
+
     def flush_history(self):
         for f_commit in self.history_commits:
             self.history.commit(f_commit)

@@ -5067,8 +5067,9 @@ class seq_track:
     def on_instrument_change(self, selected_instrument):
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.delete_inst_file(self.track_number)
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
-            sleep(0.3)
+            global_close_inst_ui(self.track_number, True)
             this_pydaw_project.commit("Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
     def on_show_ui(self):
         f_index = self.instrument_combobox.currentIndex()
@@ -5532,24 +5533,33 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
 
 def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     global global_open_inst_ui_dict
-    if not a_track_num in global_open_inst_ui_dict:
+    f_track_num = int(a_track_num)
+    if not f_track_num in global_open_inst_ui_dict:
         if a_plugin_type == 1:
-            f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+            f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, f_track_num, \
             this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
         elif a_plugin_type == 2:
-            f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+            f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, f_track_num, \
             this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
         elif a_plugin_type == 3:
-            f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+            f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, f_track_num, \
             this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback, global_configure_plugin_callback)
         else:
             return
         f_plugin.widget.show()
-        global_open_inst_ui_dict[a_track_num] = f_plugin
+        global_open_inst_ui_dict[f_track_num] = f_plugin
     else:
-        global_open_inst_ui_dict[a_track_num].widget.raise_()
+        global_open_inst_ui_dict[f_track_num].widget.raise_()
     print(str(global_open_inst_ui_dict))
 
+def global_close_inst_ui(a_track_num, a_delete_file=False):
+    f_track_num = int(a_track_num)
+    global global_open_inst_ui_dict
+    if f_track_num in global_open_inst_ui_dict:
+        if a_delete_file:
+            global_open_inst_ui_dict[f_track_num].delete_plugin_file()
+        global_open_inst_ui_dict[f_track_num].widget.close()
+        #global_open_inst_ui_dict.pop(f_track_num) #Don't have to do this because the callback does it when close() is called
 
 def global_fx_closed_callback(a_track_num, a_track_type):
     global global_open_fx_ui_dicts
