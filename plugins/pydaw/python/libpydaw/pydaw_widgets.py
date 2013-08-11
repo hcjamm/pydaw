@@ -2435,6 +2435,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.suppress_selected_sample_changed = True
         self.selected_radiobuttons[a_index].setChecked(True)
         self.mono_fx_tab_selected_sample.setCurrentIndex(a_index)
+        self.mono_fx_tab_selected_group.setCurrentIndex(self.monofx_groups[a_index].get_value())
         self.suppress_selected_sample_changed = False
         self.set_sample_graph()
 
