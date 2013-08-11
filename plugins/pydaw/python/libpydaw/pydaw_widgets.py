@@ -2452,10 +2452,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.set_sample_graph()
 
     def loopModeChanged(self, a_value):
-        if not self.suppressHostUpdate:
-            self.find_selected_radio_button()
-            self.loop_modes[self.selected_row_index].set_value(a_value)
-            self.loop_modes[self.selected_row_index].control_value_changed(a_value)
+        self.find_selected_radio_button()
+        self.loop_modes[self.selected_row_index].set_value(a_value)
+        self.loop_modes[self.selected_row_index].control_value_changed(a_value)
 
     def set_selected_sample_combobox_item(self, a_index,  a_text):
         self.suppress_selected_sample_changed = True
@@ -2541,8 +2540,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.find_selected_radio_button()
         self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
         self.mono_fx_tab_selected_sample.setCurrentIndex((self.selected_row_index))
-        self.suppress_selected_sample_changed = False
         self.setSelectedMonoFX()
+        self.suppress_selected_sample_changed = False
         self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
         if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
             f_file_path = ""
@@ -2550,10 +2549,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_file_path = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
         self.file_selector.set_file(f_file_path)
         self.view_file_selector.set_file(f_file_path)
-        self.suppressHostUpdate = True
         self.set_sample_graph()
         self.loop_mode_combobox.setCurrentIndex(self.loop_modes[(self.selected_row_index)].get_value())
-        self.suppressHostUpdate = False
 
     def file_browser_load_button_pressed(self):
         f_result = self.file_browser.files_selected()
@@ -2564,7 +2561,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         if len(f_list) > 0:
             f_preview_file = str(self.file_browser.folder_path_lineedit.text()) + "/" + str(f_list[0].text())
             self.pydaw_project.this_dssi_gui.pydaw_preview_audio(f_preview_file)
-
 
     def moveSamplesToSingleDirectory(self):
         f_selected_path = ("")
@@ -2607,15 +2603,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx3.knobs[1].set_value(self.monofx3knob1_ctrls[a_value].get_value())
         self.mono_fx3.knobs[2].set_value(self.monofx3knob2_ctrls[a_value].get_value())
         self.mono_fx3.combobox.set_value(self.monofx3comboboxes[a_value].get_value())
-        self.find_selected_radio_button()
-        self.monofx_groups[self.selected_row_index].set_value(a_value)
-        self.monofx_groups[self.selected_row_index].control_value_changed(a_value)
+        if not self.suppress_selected_sample_changed:
+            self.monofx_groups[self.selected_row_index].set_value(a_value)
+            self.monofx_groups[self.selected_row_index].control_value_changed(a_value)
 
 
     def setSelectedMonoFX(self):
-        self.suppressHostUpdate = True
-        self.mono_fx_tab_selected_group.setCurrentIndex(self.selected_row_index)
-        self.suppressHostUpdate = False
+        self.mono_fx_tab_selected_group.setCurrentIndex(self.monofx_groups[self.selected_row_index].get_value())
 
     def saveToFile(self):
         pass
