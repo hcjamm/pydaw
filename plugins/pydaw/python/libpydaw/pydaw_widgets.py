@@ -1793,7 +1793,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout7.addWidget(self.lfo.groupbox)
 
         self.lfo_amount =  pydaw_knob_control(51, "Amount", pydaw_ports.WAYV_LFO_AMOUNT, self.plugin_rel_callback, self.plugin_val_callback, \
-        0, 100, 0, kc_decimal, self.port_dict, self.preset_manager)
+        0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
         self.lfo_amount.add_to_grid_layout(self.lfo.layout, 2)
 
         self.lfo_amp =  pydaw_knob_control(51, "Amp", pydaw_ports.WAYV_LFO_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
