@@ -5563,6 +5563,8 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
         f_modulex.widget.show()
         global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
     else:
+        if global_open_fx_ui_dicts[a_track_type][a_track_num].widget.isHidden():
+            global_open_fx_ui_dicts[a_track_type][a_track_num].widget.show()
         global_open_fx_ui_dicts[a_track_type][a_track_num].widget.raise_()
     print(str(global_open_fx_ui_dicts))
 
@@ -5584,6 +5586,8 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
         f_plugin.widget.show()
         global_open_inst_ui_dict[f_track_num] = f_plugin
     else:
+        if global_open_inst_ui_dict[f_track_num].widget.isHidden():
+            global_open_inst_ui_dict[f_track_num].widget.show()
         global_open_inst_ui_dict[f_track_num].widget.raise_()
     print(str(global_open_inst_ui_dict))
 
@@ -5594,16 +5598,16 @@ def global_close_inst_ui(a_track_num, a_delete_file=False):
         if a_delete_file:
             global_open_inst_ui_dict[f_track_num].delete_plugin_file()
         global_open_inst_ui_dict[f_track_num].widget.close()
-        #global_open_inst_ui_dict.pop(f_track_num) #Don't have to do this because the callback does it when close() is called
+        global_open_inst_ui_dict.pop(f_track_num)
 
 def global_fx_closed_callback(a_track_num, a_track_type):
     global global_open_fx_ui_dicts
-    global_open_fx_ui_dicts[a_track_type].pop(a_track_num)
+    #global_open_fx_ui_dicts[a_track_type].pop(a_track_num)  #Not doing anymore,just hiding
     print(str(global_open_fx_ui_dicts))
 
 def global_inst_closed_callback(a_track_num, a_track_type=None):
     global global_open_inst_ui_dict
-    global_open_inst_ui_dict.pop(a_track_num)
+    #global_open_inst_ui_dict.pop(a_track_num)  #Not doing anymore, just hiding
     print(str(global_open_inst_ui_dict))
 
 def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num, a_key, a_message):
@@ -5612,9 +5616,9 @@ def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num,
 def global_close_all_plugin_windows():
     for f_dict in global_open_fx_ui_dicts:
         for v in f_dict.values():
-            v.widget.close()
+            v.close_plugin()
     for v in global_open_inst_ui_dict.values():
-        v.widget.close()
+        v.close_plugin()
 
 class pydaw_main_window(QtGui.QMainWindow):
     def check_for_empty_directory(self, a_file):
