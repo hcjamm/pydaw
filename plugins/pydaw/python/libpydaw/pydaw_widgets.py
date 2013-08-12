@@ -1650,7 +1650,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.groupbox_osc2_fm =  QtGui.QGroupBox("Osc2 FM")
         self.groupbox_osc2_fm_layout = QtGui.QGridLayout(self.groupbox_osc2_fm)
 
-        self.osc2_fm1 =  pydaw_knob_control(51, "Osc2", pydaw_ports.WAYV_OSC2_FM1, self.plugin_rel_callback, self.plugin_val_callback, \
+        self.osc2_fm1 =  pydaw_knob_control(51, "Osc1", pydaw_ports.WAYV_OSC2_FM1, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict, self.preset_manager)
         self.osc2_fm1.add_to_grid_layout(self.groupbox_osc2_fm_layout, 0)
 
