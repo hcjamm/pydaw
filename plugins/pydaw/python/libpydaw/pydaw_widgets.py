@@ -1343,6 +1343,11 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.set_window_title(a_track_name)
         self.is_instrument = False
 
+        self.preset_manager =  pydaw_preset_manager_widget("MODULEX")
+        self.presets_hlayout = QtGui.QHBoxLayout()
+        self.presets_hlayout.addWidget(self.preset_manager.group_box)
+        self.presets_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.layout.addLayout(self.presets_hlayout)
         self.tab_widget = QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
 
@@ -1366,7 +1371,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         f_column = 0
         f_row = 0
         for f_i in range(8):
-            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
+            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, self.preset_manager)
             self.effects.append(f_effect)
             self.fx_layout.addWidget(f_effect.group_box, f_row, f_column)
             f_column += 1
@@ -1388,25 +1393,25 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         delay_gridlayout = QtGui.QGridLayout(delay_groupbox)
         self.delay_hlayout.addWidget(delay_groupbox)
         self.delay_time_knob =  pydaw_knob_control(51, "Time", pydaw_ports.MODULEX_DELAY_TIME, self.plugin_rel_callback, \
-        self.plugin_val_callback, 10, 100, 50, kc_decimal, self.port_dict)
+        self.plugin_val_callback, 10, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         self.delay_time_knob.add_to_grid_layout(delay_gridlayout, 0)
         m_feedback =  pydaw_knob_control(51, "Feedbk", pydaw_ports.MODULEX_FEEDBACK, self.plugin_rel_callback, \
-        self.plugin_val_callback, -20, 0, -12, kc_integer, self.port_dict)
+        self.plugin_val_callback, -20, 0, -12, kc_integer, self.port_dict, self.preset_manager)
         m_feedback.add_to_grid_layout(delay_gridlayout, 1)
         m_dry =  pydaw_knob_control(51, "Dry", pydaw_ports.MODULEX_DRY, self.plugin_rel_callback, \
-        self.plugin_val_callback, -30, 0, 0, kc_integer, self.port_dict)
+        self.plugin_val_callback, -30, 0, 0, kc_integer, self.port_dict, self.preset_manager)
         m_dry.add_to_grid_layout(delay_gridlayout, 2)
         m_wet =  pydaw_knob_control(51, "Wet", pydaw_ports.MODULEX_WET, self.plugin_rel_callback, \
-        self.plugin_val_callback, -30, 0, -30, kc_integer, self.port_dict)
+        self.plugin_val_callback, -30, 0, -30, kc_integer, self.port_dict, self.preset_manager)
         m_wet.add_to_grid_layout(delay_gridlayout, 3)
         m_duck =  pydaw_knob_control(51, "Duck", pydaw_ports.MODULEX_DUCK, self.plugin_rel_callback, \
-        self.plugin_val_callback, -40, 0, 0, kc_integer, self.port_dict)
+        self.plugin_val_callback, -40, 0, 0, kc_integer, self.port_dict, self.preset_manager)
         m_duck.add_to_grid_layout(delay_gridlayout, 4)
         m_cutoff =  pydaw_knob_control(51, "Cutoff", pydaw_ports.MODULEX_CUTOFF, self.plugin_rel_callback, \
-        self.plugin_val_callback, 20, 124, 66, kc_pitch, self.port_dict)
+        self.plugin_val_callback, 20, 124, 66, kc_pitch, self.port_dict, self.preset_manager)
         m_cutoff.add_to_grid_layout(delay_gridlayout, 5)
         m_stereo =  pydaw_knob_control(51, "Stereo", pydaw_ports.MODULEX_STEREO, self.plugin_rel_callback, \
-        self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict)
+        self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
         m_stereo.add_to_grid_layout(delay_gridlayout, 6)
         self.bpm_groupbox =  QtGui.QGroupBox()
         self.delay_hlayout.addWidget(self.bpm_groupbox)
@@ -1446,13 +1451,13 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.reverb_hlayout.addWidget(reverb_groupbox)
         self.reverb_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         m_reverb_time =  pydaw_knob_control(51, "Time", pydaw_ports.MODULEX_REVERB_TIME, self.plugin_rel_callback, \
-        self.plugin_val_callback, 0, 100, 50, kc_decimal, self.port_dict)
+        self.plugin_val_callback, 0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_time.add_to_grid_layout(self.reverb_groupbox_gridlayout, 0)
         m_reverb_wet =  pydaw_knob_control(51, "Wet", pydaw_ports.MODULEX_REVERB_WET, self.plugin_rel_callback, \
-        self.plugin_val_callback, 0, 100, 0, kc_decimal, self.port_dict)
+        self.plugin_val_callback, 0, 100, 0, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_wet.add_to_grid_layout(self.reverb_groupbox_gridlayout, 1)
         m_reverb_color =  pydaw_knob_control(51, "Color", pydaw_ports.MODULEX_REVERB_COLOR, self.plugin_rel_callback, \
-        self.plugin_val_callback, 0, 100, 50, kc_decimal, self.port_dict)
+        self.plugin_val_callback, 0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_color.add_to_grid_layout(self.reverb_groupbox_gridlayout, 2)
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
