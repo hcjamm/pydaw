@@ -1294,6 +1294,10 @@ class pydaw_abstract_plugin_ui:
             self.control_to_port_dict[f_index] = f_key
             f_index += 1
 
+    def set_window_title(self, a_track_name):
+        pass  #Override this function
+
+
 
 class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
@@ -1302,8 +1306,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyfx"
-        self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Modulex - " + self.track_name)
+        self.set_window_title(a_track_name)
         self.is_instrument = False
 
         self.tab_widget = QtGui.QTabWidget()
@@ -1443,6 +1446,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         f_result = (int)(f_seconds_per_beat * f_frac * 100)
         self.delay_time_knob.set_value(f_result)
 
+    def set_window_title(self, a_track_name):
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Modulex - " + self.track_name)
+
 
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
@@ -1451,8 +1458,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
-        self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Ray-V - " + self.track_name)
+        self.set_window_title(a_track_name)
         self.is_instrument = True
         f_osc_types = ["Saw" , "Square" , "Triangle" , "Sine" , "Off"]
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
@@ -1539,6 +1545,10 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.generate_control_dict()
         self.open_plugin_file()
 
+    def set_window_title(self, a_track_name):
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Ray-V - " + self.track_name)
+
 
 
 class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
@@ -1548,8 +1558,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
-        self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Way-V - " + self.track_name)
+        self.set_window_title(a_track_name)
         self.is_instrument = True
 
         f_osc_types = ["Off",
@@ -1793,6 +1802,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.generate_control_dict()
         self.open_plugin_file()
 
+    def set_window_title(self, a_track_name):
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Way-V - " + self.track_name)
+
 """Used for outputting sampler parameters to text files"""
 LMS_DELIMITER  =  "|"
 
@@ -1816,6 +1829,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
+        self.set_window_title(a_track_name)
         self.track_name = str(a_track_name)
         self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
         self.is_instrument = True
@@ -2377,6 +2391,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.addItems(f_combobox_items)
         self.selected_radiobuttons[0].click()
 
+    def set_window_title(self, a_track_name):
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message

@@ -2901,11 +2901,13 @@ class audio_track:
         self.volume_label.setText(str(value) + " dB")
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value(), 2)
+
     def on_vol_released(self):
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].vol = self.volume_slider.value()
         this_pydaw_project.save_audio_tracks(f_tracks)
         this_pydaw_project.commit("Set audio track " + str(self.track_number) + " to " + str(self.volume_slider.value()))
+
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 2)
@@ -2913,6 +2915,7 @@ class audio_track:
         f_tracks.tracks[self.track_number].solo = self.solo_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
         this_pydaw_project.commit("Set audio track " + str(self.track_number) + " soloed to " + str(self.solo_checkbox.isChecked()))
+
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 2)
@@ -2920,6 +2923,7 @@ class audio_track:
         f_tracks.tracks[self.track_number].mute = self.mute_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
         this_pydaw_project.commit("Set audio track " + str(self.track_number) + " muted to " + str(self.mute_checkbox.isChecked()))
+
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(2, self.track_number, self.record_radiobutton.isChecked())
@@ -2932,8 +2936,9 @@ class audio_track:
         this_pydaw_project.save_audio_tracks(f_tracks)
         global_update_audio_track_comboboxes(self.track_number, self.track_name_lineedit.text())
         this_pydaw_project.commit("Set audio track " + str(self.track_number) + " name to " + str(self.track_name_lineedit.text()))
+        global_fx_set_window_title(2, self.track_number, "Audio Track: " + str(self.track_name_lineedit.text()))
+
     def on_show_fx(self):
-        #this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
         global_open_fx_ui(self.track_number, pydaw_folder_audiofx, 2, "Audio Track: " + str(self.track_name_lineedit.text()))
 
     def on_bus_changed(self, a_value=0):
@@ -5099,6 +5104,9 @@ class seq_track:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
             this_pydaw_project.commit("Set name for MIDI track " + str(self.track_number) + " to " + str(self.track_name_lineedit.text()))
+            global_inst_set_window_title(self.track_number, "MIDI Track: " + str(self.track_name_lineedit.text()))
+            global_fx_set_window_title(0, self.track_number, "MIDI Track: " + str(self.track_name_lineedit.text()))
+
     def on_instrument_change(self, selected_instrument):
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
@@ -5106,6 +5114,7 @@ class seq_track:
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
             global_close_inst_ui(self.track_number, True)
             this_pydaw_project.commit("Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
+
     def on_show_ui(self):
         f_index = self.instrument_combobox.currentIndex()
         if f_index == 0:
@@ -5599,6 +5608,19 @@ def global_close_inst_ui(a_track_num, a_delete_file=False):
             global_open_inst_ui_dict[f_track_num].delete_plugin_file()
         global_open_inst_ui_dict[f_track_num].widget.close()
         global_open_inst_ui_dict.pop(f_track_num)
+
+def global_inst_set_window_title(a_track_num, a_track_name):
+    f_track_num = int(a_track_num)
+    global global_open_inst_ui_dict
+    if f_track_num in global_open_inst_ui_dict:
+        global_open_inst_ui_dict[f_track_num].set_window_title(a_track_name)
+
+def global_fx_set_window_title(a_track_type, a_track_num, a_track_name):
+    f_track_num = int(a_track_num)
+    f_track_type = int(a_track_type)
+    global global_open_fx_ui_dicts
+    if f_track_num in global_open_fx_ui_dicts[f_track_type]:
+        global_open_fx_ui_dicts[f_track_type][f_track_num].set_window_title(a_track_name)
 
 def global_fx_closed_callback(a_track_num, a_track_type):
     global global_open_fx_ui_dicts
