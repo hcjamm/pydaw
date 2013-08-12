@@ -108,7 +108,8 @@ kc_log_time = 6
 kc_127_zero_to_x_int = 7
 
 class pydaw_abstract_ui_control:
-    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none, a_port_dict=None, a_preset_mgr=None):
+    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none, a_port_dict=None, \
+    a_preset_mgr=None, a_default_value=None):
         if a_label is None:
             self.name_label = None
         else:
@@ -123,6 +124,12 @@ class pydaw_abstract_ui_control:
             a_port_dict[self.port_num] = self
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
+        self.default_value = a_default_value
+
+    def reset_default_value(self):
+        if self.default_value is not None:
+            self.set_value(self.default_value)
+            self.control_value_changed(self.default_value)
 
     def set_value(self, a_val):
         self.suppress_changes = True
@@ -194,8 +201,14 @@ class pydaw_null_control:
         self.suppress_changes = False
         self.value = a_default_val
         a_port_dict[self.port_num] = self
+        self.default_value = a_default_val
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
+
+    def reset_default_value(self):
+        if self.default_value is not None:
+            self.set_value(self.default_value)
+            self.control_value_changed(self.default_value)
 
     def get_value(self):
         return self.value
@@ -214,7 +227,8 @@ class pydaw_null_control:
 class pydaw_knob_control(pydaw_abstract_ui_control):
     def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
     a_default_val, a_val_conversion=kc_none, a_port_dict=None, a_preset_mgr=None):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict, a_preset_mgr)
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, \
+        a_port_dict, a_preset_mgr, a_default_val)
         self.control = pydaw_pixmap_knob(a_size, a_min_val, a_max_val)
         self.control.valueChanged.connect(self.control_value_changed)
         self.control.sliderReleased.connect(self.control_released)
@@ -226,7 +240,8 @@ class pydaw_knob_control(pydaw_abstract_ui_control):
 class pydaw_slider_control(pydaw_abstract_ui_control):
     def __init__(self, a_orientation, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
     a_default_val, a_val_conversion=kc_none, a_port_dict=None, a_preset_mgr=None):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict, a_preset_mgr)
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, \
+        a_port_dict, a_preset_mgr, a_default_val)
         self.control = QtGui.QSlider()
         self.control.setRange(a_min_val, a_max_val)
         self.control.valueChanged.connect(self.control_value_changed)
@@ -239,7 +254,8 @@ class pydaw_slider_control(pydaw_abstract_ui_control):
 class pydaw_spinbox_control(pydaw_abstract_ui_control):
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
     a_default_val, a_val_conversion=kc_none, a_port_dict=None, a_preset_mgr=None):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict, a_preset_mgr)
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, \
+        a_port_dict, a_preset_mgr, a_default_val)
         self.control = QtGui.QSpinBox()
         self.control.setRange(a_min_val, a_max_val)
         self.control.setKeyboardTracking(False)
@@ -252,7 +268,8 @@ class pydaw_spinbox_control(pydaw_abstract_ui_control):
 class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
     a_default_val, a_val_conversion=kc_none, a_port_dict=None, a_preset_mgr=None):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict, a_preset_mgr)
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, \
+        a_port_dict, a_preset_mgr, a_default_val)
         self.control = QtGui.QDoubleSpinBox()
         self.control.setRange(a_min_val, a_max_val)
         self.control.setKeyboardTracking(False)
@@ -264,7 +281,8 @@ class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
 
 class pydaw_checkbox_control(pydaw_abstract_ui_control):
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_port_dict=a_port_dict, \
+        a_preset_mgr=a_preset_mgr, a_default_value=0)
         self.control = QtGui.QCheckBox(a_label)
         self.control.stateChanged.connect(self.control_value_changed)
         self.control.stateChanged.connect(self.control_released)
@@ -293,7 +311,8 @@ class pydaw_checkbox_control(pydaw_abstract_ui_control):
 
 
 class pydaw_combobox_control(pydaw_abstract_ui_control):
-    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[], a_port_dict=None, a_default_index=None, a_preset_mgr=None):
+    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[], a_port_dict=None, \
+    a_default_index=None, a_preset_mgr=None):
         self.suppress_changes = True
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -309,6 +328,7 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
         if a_port_dict is not None:
             a_port_dict[self.port_num] = self
         self.value_label = None
+        self.default_value = a_default_index
         if a_default_index is not None:
             self.set_value(a_default_index)
         if a_preset_mgr is not None:
@@ -380,13 +400,14 @@ class pydaw_lfo_widget:
         self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port, a_rel_callback, a_val_callback, \
         10, 1600, 200, kc_decimal, a_port_dict, a_preset_mgr)
         self.freq_knob.add_to_grid_layout(self.layout, 0)
-        self.type_combobox = pydaw_combobox_control(120, "Type", a_type_port, a_rel_callback, a_val_callback, a_type_list, a_port_dict, a_preset_mgr=a_preset_mgr)
+        self.type_combobox = pydaw_combobox_control(120, "Type", a_type_port, a_rel_callback, a_val_callback, a_type_list, \
+        a_port_dict, 0, a_preset_mgr=a_preset_mgr)
         self.layout.addWidget(self.type_combobox.name_label, 0, 1)
         self.layout.addWidget(self.type_combobox.control, 1, 1)
 
 class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port, a_osc_types_list, \
-    a_rel_callback, a_val_callback, a_label, a_port_dict=None, a_preset_mgr=None):
+    a_rel_callback, a_val_callback, a_label, a_port_dict=None, a_preset_mgr=None, a_default_type=0):
         self.pitch_knob = pydaw_knob_control(a_size, "Pitch", a_pitch_port, a_rel_callback, a_val_callback, -36, 36, 0, \
         a_val_conversion=kc_integer, a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
         self.fine_knob = pydaw_knob_control(a_size, "Fine", a_fine_port, a_rel_callback, a_val_callback, -100, 100, 0, \
@@ -394,7 +415,7 @@ class pydaw_osc_widget:
         self.vol_knob = pydaw_knob_control(a_size, "Vol", a_vol_port, a_rel_callback, a_val_callback, -30, 0, -6, \
         a_val_conversion=kc_integer, a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
         self.osc_type_combobox = pydaw_combobox_control(114, "Type", a_type_port, a_rel_callback, a_val_callback, a_osc_types_list, a_port_dict, \
-        a_preset_mgr=a_preset_mgr)
+        a_preset_mgr=a_preset_mgr, a_default_index=a_default_type)
         self.grid_layout = QtGui.QGridLayout()
         self.group_box = QtGui.QGroupBox(str(a_label))
         self.group_box.setLayout(self.grid_layout)
@@ -688,12 +709,20 @@ class pydaw_preset_manager_widget:
         self.save_button = QtGui.QPushButton("Save")
         self.save_button.pressed.connect(self.save_presets)
         self.layout.addWidget(self.save_button)
+        self.reset_button = QtGui.QPushButton("Reset")
+        self.reset_button.setToolTip("Resets all controls to their default value")
+        self.reset_button.pressed.connect(self.reset_controls)
+        self.layout.addWidget(self.reset_button)
         self.presets_delimited = []
         self.controls = {}
         for f_i in range(128):
             self.program_combobox.addItem("empty")
         self.load_presets()
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
+
+    def reset_controls(self):
+        for k, v in self.controls.items():
+            v.reset_default_value()
 
     def load_presets(self):
         if os.path.isfile(self.preset_path):
@@ -939,7 +968,7 @@ class pydaw_modulex_single:
         self.combobox = pydaw_combobox_control(132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
                ["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
                 "Comb Filter", "Amp/Pan", "Limiter" , "Saturator", "Formant", "Chorus", "Glitch" , "RingMod",
-                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"], a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
+                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"], a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr, a_default_index=0)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
@@ -1505,8 +1534,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout2)
         self.osc2 =  pydaw_osc_widget(64, pydaw_ports.RAYV_OSC2_PITCH, pydaw_ports.RAYV_OSC2_TUNE, pydaw_ports.RAYV_OSC2_VOLUME, pydaw_ports.RAYV_OSC2_TYPE, \
-        f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 2", self.port_dict, self.preset_manager)
-        self.osc2.osc_type_combobox.set_value(4)
+        f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 2", self.port_dict, self.preset_manager, 4)
         self.hlayout2.addWidget(self.osc2.group_box)
         self.sync_groupbox =  QtGui.QGroupBox("Sync")
         self.hlayout2.addWidget(self.sync_groupbox)
@@ -1593,10 +1621,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout1 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout1)
         self.osc1 =  pydaw_osc_widget(51, pydaw_ports.WAYV_OSC1_PITCH, pydaw_ports.WAYV_OSC1_TUNE, pydaw_ports.WAYV_OSC1_VOLUME, \
-        pydaw_ports.WAYV_OSC1_TYPE, f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 1", self.port_dict, self.preset_manager)
+        pydaw_ports.WAYV_OSC1_TYPE, f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 1", self.port_dict, self.preset_manager, 1)
         self.osc1_uni_voices =  pydaw_knob_control(51, "Unison", pydaw_ports.WAYV_OSC1_UNISON_VOICES, self.plugin_rel_callback, self.plugin_val_callback, \
         1, 7, 4, kc_integer, self.port_dict, self.preset_manager)
-        self.osc1.osc_type_combobox.control.setCurrentIndex(1)
         self.osc1_uni_voices.add_to_grid_layout(self.osc1.grid_layout, 4)
         self.osc1_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC1_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
