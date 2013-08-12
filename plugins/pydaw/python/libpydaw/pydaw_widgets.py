@@ -71,7 +71,7 @@ class pydaw_pixmap_knob(QtGui.QDial):
         self.setFixedSize(a_size, a_size)
 
     def set_pixmap_knob(self, a_size):
-        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/pydaw-knob.png")
+        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/pydaw-knob.png")
         self.pixmap_size = a_size - 10
         self.pixmap = f_pixmap.scaled(self.pixmap_size, self.pixmap_size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
 
@@ -176,10 +176,10 @@ class pydaw_abstract_ui_control:
 
     def add_to_grid_layout(self, a_layout, a_x):
         if self.name_label is not None:
-            a_layout.addWidget(self.name_label, 0, a_x)
-        a_layout.addWidget(self.control, 1, a_x)
+            a_layout.addWidget(self.name_label, 0, a_x, alignment=QtCore.Qt.AlignCenter)
+        a_layout.addWidget(self.control, 1, a_x, alignment=QtCore.Qt.AlignCenter)
         if self.value_label is not None:
-            a_layout.addWidget(self.value_label, 2, a_x)
+            a_layout.addWidget(self.value_label, 2, a_x, alignment=QtCore.Qt.AlignCenter)
 
 class pydaw_null_control:
     """ For controls with no visual representation, ie: controls that share a UI widget
@@ -467,14 +467,12 @@ class pydaw_file_select_widget:
         self.file_path.setReadOnly(True)
         self.file_path.setMinimumWidth(360)
         self.last_directory = ("")
-        self.editor_path = ("/usr/bin/audacity")
-        f_global_config_path = os.path.expanduser("~") + ("/pydaw3/self.global_wave_editor.txt")
+        self.editor_path = ("audacity")
+        f_global_config_path = pydaw_util.global_pydaw_home + "/self.global_wave_editor.txt"
         if os.path.exists(f_global_config_path):
             self.editor_path = pydaw_util.pydaw_read_file_text(f_global_config_path)
-            if (( not os.path.isfile(self.editor_path)) and (os.path.exists(("/usr/bin/audacity")))):
-                self.editor_path = ("/usr/bin/audacity")
         else:
-            pydaw_util.pydaw_write_file_text(f_global_config_path, "/usr/bin/audacity")
+            pydaw_util.pydaw_write_file_text(f_global_config_path, "audacity")
         self.layout.addWidget(self.file_path)
         self.layout.addWidget(self.clear_button)
         self.layout.addWidget(self.open_button)
@@ -1472,7 +1470,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/rayv.png").scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
+        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/rayv.png").scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
         self.hlayout0.addWidget(f_logo_label)
@@ -2133,7 +2131,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.smp_tab_main_verticalLayout.addLayout(self.file_selector.layout)
 
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/euphoria.png").scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
+        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/euphoria.png").scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
         self.file_selector.layout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)

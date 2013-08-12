@@ -16,6 +16,13 @@ import random, os
 from time import sleep
 from math import log, pow
 
+if "plugins/pydaw/python/" in __file__:
+    global_pydaw_install_prefix = "/usr"
+else:
+    global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
+
+print("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,))
+
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
 def pydaw_remove_bad_chars(a_str):

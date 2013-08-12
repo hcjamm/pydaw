@@ -5857,7 +5857,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def on_open_theme(self):
         try:
-            f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", "/usr/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
+            f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
             if not f_file is None and not f_file == "":
                 f_style = pydaw_read_file_text(f_file)
                 pydaw_write_file_text(self.user_style_file, f_file)
@@ -5871,7 +5871,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setFixedSize(420, 90)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_version = QtGui.QLabel(pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
+        f_version = QtGui.QLabel(pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
         #f_git_version = QtGui.QLabel("git revision")
         f_layout.addWidget(f_version)
         #f_layout.addWidget(f_git_version)
@@ -5979,7 +5979,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
-        default_stylesheet_file = "/usr/lib/" + global_pydaw_version_string + "/themes/default/style.txt"
+        default_stylesheet_file = pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/themes/default/style.txt"
         self.user_style_file = global_pydaw_home + "/default-style.txt"
         if os.path.isfile(self.user_style_file):
             f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
@@ -6181,7 +6181,7 @@ class pydaw_controller_map_item:
 def pydaw_load_controller_maps():
     f_file_list = list(global_cc_names.keys())
     for f_file_name in f_file_list:
-        f_cc_map_text = pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
+        f_cc_map_text = pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
         f_cc_map_arr = f_cc_map_text.split("\n")
         for f_line in f_cc_map_arr:
             if f_line == "":
@@ -6677,7 +6677,7 @@ global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"t
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
 
-app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/" + global_pydaw_version_string + ".png'))
+app.setWindowIcon(QtGui.QIcon(pydaw_util.global_pydaw_install_prefix + "/share/pixmaps/" + global_pydaw_version_string + ".png"))
 app.aboutToQuit.connect(about_to_quit)
 
 this_pb_automation_viewer = automation_viewer(a_is_cc=False)
