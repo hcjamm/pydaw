@@ -676,6 +676,8 @@ class pydaw_file_browser_widget:
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name):
+        self.factory_preset_path = pydaw_util.global_pydaw_install_prefix + "/lib/" + pydaw_util.global_pydaw_version_string + \
+        "/presets/" + str(a_plugin_name) + ".pypreset2"
         self.preset_path = pydaw_util.global_pydaw_home + "/" + str(a_plugin_name) + ".pypreset2"
         self.group_box = QtGui.QGroupBox()
         self.layout = QtGui.QHBoxLayout(self.group_box)
@@ -698,9 +700,12 @@ class pydaw_preset_manager_widget:
             print("loading presets from file")
             f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
             f_line_arr = f_text.split("\n")
+        elif os.path.isfile(self.factory_preset_path):
+            os.system('cp "%s" "%s"' % (self.factory_preset_path, self.preset_path))
+            print("loading factory presets")
+            f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
+            f_line_arr = f_text.split("\n")
         else:
-        #    print("loading presets from defaults")
-        #    f_text = str(a_text)
             f_line_arr = []
 
         self.presets_delimited = []
