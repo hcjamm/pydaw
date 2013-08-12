@@ -5614,11 +5614,14 @@ def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num,
     this_pydaw_project.this_dssi_gui.pydaw_configure_plugin(a_is_instrument, a_track_type, a_track_num, a_key, a_message)
 
 def global_close_all_plugin_windows():
+    global global_open_fx_ui_dicts, global_open_inst_ui_dict
     for f_dict in global_open_fx_ui_dicts:
         for v in f_dict.values():
-            v.close_plugin()
+            v.widget.close()
     for v in global_open_inst_ui_dict.values():
-        v.close_plugin()
+        v.widget.close()
+    global_open_fx_ui_dicts = {}
+    global_open_inst_ui_dict = {}
 
 class pydaw_main_window(QtGui.QMainWindow):
     def check_for_empty_directory(self, a_file):
