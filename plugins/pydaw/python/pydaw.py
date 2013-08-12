@@ -5620,7 +5620,7 @@ def global_close_all_plugin_windows():
             v.widget.close()
     for v in global_open_inst_ui_dict.values():
         v.widget.close()
-    global_open_fx_ui_dicts = {}
+    global_open_fx_ui_dicts = [{}, {}, {}]
     global_open_inst_ui_dict = {}
 
 class pydaw_main_window(QtGui.QMainWindow):
