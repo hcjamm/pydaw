@@ -176,10 +176,10 @@ class pydaw_abstract_ui_control:
 
     def add_to_grid_layout(self, a_layout, a_x):
         if self.name_label is not None:
-            a_layout.addWidget(self.name_label, 0, a_x, alignment=QtCore.Qt.AlignCenter)
-        a_layout.addWidget(self.control, 1, a_x, alignment=QtCore.Qt.AlignCenter)
+            a_layout.addWidget(self.name_label, 0, a_x, alignment=QtCore.Qt.AlignHCenter)
+        a_layout.addWidget(self.control, 1, a_x, alignment=QtCore.Qt.AlignHCenter)
         if self.value_label is not None:
-            a_layout.addWidget(self.value_label, 2, a_x, alignment=QtCore.Qt.AlignCenter)
+            a_layout.addWidget(self.value_label, 2, a_x, alignment=QtCore.Qt.AlignHCenter)
 
 class pydaw_null_control:
     """ For controls with no visual representation, ie: controls that share a UI widget
