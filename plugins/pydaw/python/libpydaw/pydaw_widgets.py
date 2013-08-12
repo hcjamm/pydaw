@@ -156,7 +156,7 @@ class pydaw_abstract_ui_control:
             elif self.val_conversion == kc_decimal:
                 self.value_label.setText(str(f_value * .01))
             elif self.val_conversion == kc_integer:
-                self.value_label.setText(str(f_value))
+                self.value_label.setText(str(int(f_value)))
             elif self.val_conversion == kc_pitch:
                 self.value_label.setText(str(int(440.0 * pow(2.0,((float)(f_value - 57.0)) * 0.0833333))))
             elif self.val_conversion == kc_127_pitch:
