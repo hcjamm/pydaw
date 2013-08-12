@@ -171,8 +171,7 @@ void midi_callback()
     pthread_mutex_unlock(&midiEventBufferMutex);
 }
 
-void
-setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
+void setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
 {
     float value = (float)event->data.control.value;
 
@@ -413,101 +412,7 @@ audio_callback(jack_nframes_t nframes, void *arg)
 #define RTLD_LOCAL  (0)
 #endif
 
-char *
-load(const char *dllName, void **dll, int quiet) /* returns directory where dll found */
-{
-    static char *defaultDssiPath = 0;
-    const char *dssiPath = getenv("PYINST_PATH");
-    char *path, *origPath, *element, *message;
-    void *handle = 0;
-
-    /* If the dllName is an absolute path */
-    if (*dllName == '/') {
-	if ((handle = dlopen(dllName, RTLD_NOW |       /* real-time programs should not use RTLD_LAZY */
-                                      RTLD_LOCAL))) {  /* do not share symbols across plugins
-                                                        * (some systems (e.g. Mac OS X) default
-                                                        * to RTLD_GLOBAL!) */
-	    *dll = handle;
-            path = strdup(dllName);
-	    return dirname(path);
-	} else {
-	    if (!quiet) {
-		fprintf(stderr, "Cannot find DSSI or LADSPA plugin at '%s'\n", dllName);
-	    }
-	    return NULL;
-	}
-    }
-
-    if (!dssiPath) {
-	if (!defaultDssiPath) {
-	    const char *home = getenv("HOME");
-	    if (home) {
-		defaultDssiPath = malloc(strlen(home) + 60);
-		sprintf(defaultDssiPath, "/usr/local/lib/dssi:/usr/lib/dssi:%s/.dssi", home);
-	    } else {
-		defaultDssiPath = strdup("/usr/local/lib/dssi:/usr/lib/dssi");
-	    }
-	}
-	dssiPath = defaultDssiPath;
-	if (!quiet) {
-	    fprintf(stderr, "\n%s: Warning: DSSI path not set\n%s: Defaulting to \"%s\"\n\n", myName, myName, dssiPath);
-	}
-    }
-
-    path = strdup(dssiPath);
-    origPath = path;
-    *dll = 0;
-
-    while ((element = strtok(path, ":")) != 0) {
-
-	char *filePath;
-
-	path = 0;
-
-	if (element[0] != '/') {
-	    if (!quiet) {
-		fprintf(stderr, "%s: Ignoring relative element \"%s\" in path\n", myName, element);
-	    }
-	    continue;
-	}
-
-	if (!quiet && verbose) {
-	    fprintf(stderr, "%s: Looking for library \"%s\" in %s... ", myName, dllName, element);
-	}
-
-	filePath = (char *)malloc(strlen(element) + strlen(dllName) + 2);
-	sprintf(filePath, "%s/%s", element, dllName);
-
-	if ((handle = dlopen(filePath, RTLD_NOW |       /* real-time programs should not use RTLD_LAZY */
-                                       RTLD_LOCAL))) {  /* do not share symbols across plugins */
-	    if (!quiet && verbose) {
-		fprintf(stderr, "found\n");
-	    }
-	    *dll = handle;
-            free(filePath);
-            path = strdup(element);
-            free(origPath);
-	    return path;
-	}
-
-	if (!quiet && verbose) {
-	    message = dlerror();
-	    if (message) {
-		fprintf(stderr, "not found: %s\n", message);
-	    } else {
-		fprintf(stderr, "not found\n");
-	    }
-	}
-
-        free(filePath);
-    }
-
-    free(origPath);
-    return 0;
-}
-
-static int
-instance_sort_cmp(const void *a, const void *b)
+static int instance_sort_cmp(const void *a, const void *b)
 {
     d3h_instance_t *ia = (d3h_instance_t *)a;
     d3h_instance_t *ib = (d3h_instance_t *)b;
@@ -519,55 +424,7 @@ instance_sort_cmp(const void *a, const void *b)
     }
 }
 
-void query_programs(d3h_instance_t *instance)
-{
-    int i;
-
-    /* free old lot */
-    if (instance->pluginPrograms) {
-        for (i = 0; i < instance->pluginProgramCount; i++)
-            free((void *)instance->pluginPrograms[i].Name);
-	free((char *)instance->pluginPrograms);
-	instance->pluginPrograms = NULL;
-	instance->pluginProgramCount = 0;
-    }
-
-    instance->pendingBankLSB = -1;
-    instance->pendingBankMSB = -1;
-    instance->pendingProgramChange = -1;
-
-    if (instance->plugin->descriptor->get_program &&
-        instance->plugin->descriptor->select_program) {
-
-	/* Count the plugins first */
-	for (i = 0; instance->plugin->descriptor->
-                        get_program(instanceHandles[instance->number], i); ++i);
-
-	if (i > 0) {
-	    instance->pluginProgramCount = i;
-	    instance->pluginPrograms = (PYINST_Program_Descriptor *)
-		malloc(i * sizeof(PYINST_Program_Descriptor));
-	    while (i > 0) {
-		const PYINST_Program_Descriptor *descriptor;
-		--i;
-		descriptor = instance->plugin->descriptor->get_program(instanceHandles[instance->number], i);
-		instance->pluginPrograms[i].Bank = descriptor->Bank;
-		instance->pluginPrograms[i].Program = descriptor->Program;
-		instance->pluginPrograms[i].Name = strdup(descriptor->Name);
-		if (verbose) {
-		    printf("%s: %s program %d is MIDI bank %i program %i, named '%s'\n",
-			   myName, instance->friendly_name, i,
-			   instance->pluginPrograms[i].Bank,
-			   instance->pluginPrograms[i].Program,
-			   instance->pluginPrograms[i].Name);
-		}
-	    }
-	}
-    }
-}
-
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int portid;
     int npfd;
@@ -1121,70 +978,6 @@ void osc_error(int num, const char *msg, const char *path)
 	    myName, num, path, msg);
 }
 
-int osc_midi_handler(d3h_instance_t *instance, lo_arg **argv)
-{
-    static snd_midi_event_t *alsaCoder = NULL;
-    static snd_seq_event_t alsaEncodeBuffer[10];
-    long count;
-    snd_seq_event_t *ev = &alsaEncodeBuffer[0];
-
-    if (verbose) {
-	printf("%s: OSC: got midi request for %s "
-	       "(%02x %02x %02x %02x)\n", myName, instance->friendly_name,
-	       argv[0]->m[0], argv[0]->m[1], argv[0]->m[2], argv[0]->m[3]);
-    }
-
-    if (!alsaCoder) {
-        if (snd_midi_event_new(10, &alsaCoder)) {
-            fprintf(stderr, "%s: Failed to initialise ALSA MIDI coder!\n",
-		    myName);
-            return 0;
-        }
-    }
-
-    snd_midi_event_reset_encode(alsaCoder);
-
-    count = snd_midi_event_encode
-	(alsaCoder, (argv[0]->m) + 1, 3, alsaEncodeBuffer); /* ignore OSC "port id" in argv[0]->m[0] */
-
-    if (!count || !snd_seq_ev_is_channel_type(ev)) {
-        return 0;
-    }
-
-    /* substitute correct MIDI channel */
-    ev->data.note.channel = instance->channel;
-    
-    if (ev->type == SND_SEQ_EVENT_NOTEON && ev->data.note.velocity == 0) {
-        ev->type =  SND_SEQ_EVENT_NOTEOFF;
-    }
-        
-    pthread_mutex_lock(&midiEventBufferMutex);
-
-    if (midiEventReadIndex == midiEventWriteIndex + 1) {
-
-        fprintf(stderr, "%s: Warning: MIDI event buffer overflow!\n", myName);
-
-    } else if (ev->type == SND_SEQ_EVENT_CONTROLLER &&
-               (ev->data.control.param == 0 || ev->data.control.param == 32)) {
-
-        fprintf(stderr, "%s: Warning: %s UI sent bank select controller (should use /program OSC call), ignoring\n", myName, instance->friendly_name);
-
-    } else if (ev->type == SND_SEQ_EVENT_PGMCHANGE) {
-
-        fprintf(stderr, "%s: Warning: %s UI sent program change (should use /program OSC call), ignoring\n", myName, instance->friendly_name);
-
-    } else {
-
-        midiEventBuffer[midiEventWriteIndex] = *ev;
-        midiEventWriteIndex = (midiEventWriteIndex + 1) % EVENT_BUFFER_SIZE;
-
-    }
-
-    pthread_mutex_unlock(&midiEventBufferMutex);
-
-    return 0;
-}
-
 int osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     int port = argv[0]->i;
@@ -1294,11 +1087,7 @@ int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
 		lo_send(instances[n].uiTarget,
 			instances[n].ui_osc_configure_path, "ss", key, value);
 	    }
-		
-	    /* configure invalidates bank and program information, so
-	       we should do this again now: */
-	    query_programs(&instances[n]);
-
+	    
 	    ++n;
 	}	    
     }
@@ -1543,8 +1332,3 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
     return osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
-void jack_shutdown(void *arg)
-{
-	fprintf(stderr, "JACK shut down, exiting ...\n");
-	exit(1);
-}
