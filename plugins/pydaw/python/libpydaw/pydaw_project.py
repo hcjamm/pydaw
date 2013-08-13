@@ -31,7 +31,7 @@ pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
 pydaw_midi_track_count = 20
-pydaw_max_audio_item_count = 128
+pydaw_max_audio_item_count = 256
 pydaw_max_region_length = 32 #bars
 
 pydaw_folder_audio = "audio"

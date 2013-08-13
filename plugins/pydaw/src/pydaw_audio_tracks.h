@@ -28,7 +28,7 @@ extern "C" {
 #include "pydaw_files.h"
 #include "pydaw.h"
     
-#define PYDAW_MAX_AUDIO_ITEM_COUNT 128
+#define PYDAW_MAX_AUDIO_ITEM_COUNT 256
 #define PYDAW_MAX_WAV_POOL_ITEM_COUNT 500
 
 #define PYDAW_AUDIO_ITEM_PADDING 64
