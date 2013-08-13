@@ -57,8 +57,7 @@ typedef struct st_pydaw_plugin
     int    controlOuts;    
     int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
     int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */    
-    PYINST_Program_Descriptor *pluginPrograms;
-    
+        
     int              ui_initial_show_sent;    
     char            *ui_osc_control_path;
     char            *ui_osc_configure_path;
@@ -199,8 +198,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     //f_result->euphoria_last_dir_set = 0;
     f_result->euphoria_load_set = 0;
-        
-    f_result->pluginPrograms = NULL;    
+    
     f_result->ui_initial_show_sent = 0;
     f_result->ui_osc_control_path = NULL;
     f_result->ui_osc_configure_path = NULL;

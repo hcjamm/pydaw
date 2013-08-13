@@ -64,9 +64,7 @@ struct _d3h_instance_t {
     int             *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */
     long             controllerMap[MIDI_CONTROLLER_COUNT]; /* maps MIDI controller to global control in # */
 
-    int              pluginProgramCount;
-    PYINST_Program_Descriptor
-                    *pluginPrograms;
+    int              pluginProgramCount;    
     long             currentBank;
     long             currentProgram;
     int              pendingBankLSB;

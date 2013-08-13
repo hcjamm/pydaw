@@ -641,8 +641,6 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_modulex_instantiate;
 	LMSLDescriptor->run = v_modulex_run_wrapper;
-	LMSLDescriptor->run_adding = NULL;
-	LMSLDescriptor->set_run_adding_gain = NULL;
     }
         
     return LMSLDescriptor;    
@@ -659,13 +657,7 @@ PYINST_Descriptor *modulex_PYINST_descriptor(int index)
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = modulex_PYFX_descriptor(0);
 	LMSDDescriptor->configure = NULL;
-	LMSDDescriptor->get_program = NULL;
-	LMSDDescriptor->get_midi_controller_for_port = NULL;
-	LMSDDescriptor->select_program = NULL;
 	LMSDDescriptor->run_synth = v_modulex_run;
-	LMSDDescriptor->run_synth_adding = NULL;
-	LMSDDescriptor->run_multiple_synths = NULL;
-	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
         
     return LMSDDescriptor;    

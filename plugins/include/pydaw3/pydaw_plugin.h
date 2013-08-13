@@ -256,33 +256,6 @@ typedef struct _PYFX_Descriptor {
      within the run() or run_adding() functions (see above). */
   void (*run)(PYFX_Handle Instance, int SampleCount);
 
-  /* This method is a function pointer that runs an instance of a
-     plugin for a block. This has identical behaviour to run() except
-     in the way data is output from the plugin. When run() is used,
-     values are written directly to the memory areas associated with
-     the output ports. However when run_adding() is called, values
-     must be added to the values already present in the memory
-     areas. Furthermore, output values written must be scaled by the
-     current gain set by set_run_adding_gain() (see below) before
-     addition.
-
-     run_adding() is optional. When it is not provided by a plugin,
-     this function pointer must be set to NULL. When it is provided,
-     the function set_run_adding_gain() must be provided also. */
-  void (*run_adding)(PYFX_Handle Instance, int SampleCount);
-
-  /* This method is a function pointer that sets the output gain for
-     use when run_adding() is called (see above). If this function is
-     never called the gain is assumed to default to 1. Gain
-     information should be retained when activate() or deactivate()
-     are called.
-
-     This function should be provided by the plugin if and only if the
-     run_adding() function is provided. When it is absent this
-     function pointer must be set to NULL. */
-  void (*set_run_adding_gain)(PYFX_Handle Instance,
-                              PYFX_Data   Gain);
-
   /* This is the counterpart to activate() (see above). If there is
      nothing for deactivate() to do then the plugin writer may provide
      a NULL rather than an empty function.
@@ -343,28 +316,6 @@ typedef const PYFX_Descriptor *
 (*PYFX_Descriptor_Function)(int Index);
 
 /**********************************************************************/
-
-
-
-
-typedef struct _PYINST_Program_Descriptor {
-
-    /** Bank number for this program.  Note that DSSI does not support
-        MIDI-style separation of bank LSB and MSB values.  There is no
-        restriction on the set of available banks: the numbers do not
-        need to be contiguous, there does not need to be a bank 0, etc. */
-    int Bank;
-
-    /** Program number (unique within its bank) for this program.
-	There is no restriction on the set of available programs: the
-	numbers do not need to be contiguous, there does not need to
-	be a program 0, etc. */
-    int Program;
-
-    /** Name of the program. */
-    const char * Name;
-
-} PYINST_Program_Descriptor;
 
 
 typedef struct _PYINST_Descriptor {
@@ -465,89 +416,6 @@ typedef struct _PYINST_Descriptor {
 	PYINST_RESERVED_CONFIGURE_PREFIX "PROJECT_DIRECTORY"
 
     /**
-     * get_program()
-     *
-     * This member is a function pointer that provides a description
-     * of a program (named preset sound) available on this synth.  A
-     * plugin that does not support programs at all should set this
-     * member to NULL.
-     *
-     * The Index argument is an index into the plugin's list of
-     * programs, not a program number as represented by the Program
-     * field of the PYINST_Program_Descriptor.  (This distinction is
-     * needed to support synths that use non-contiguous program or
-     * bank numbers.)
-     *
-     * This function returns a PYINST_Program_Descriptor pointer that is
-     * guaranteed to be valid only until the next call to get_program,
-     * deactivate, or configure, on the same plugin instance.  This
-     * function must return NULL if passed an Index argument out of
-     * range, so that the host can use it to query the number of
-     * programs as well as their properties.
-     */
-    const PYINST_Program_Descriptor *(*get_program)(PYFX_Handle Instance, int Index);
-    
-    /**
-     * select_program()
-     *
-     * This member is a function pointer that selects a new program
-     * for this synth.  The program change should take effect
-     * immediately at the start of the next run_synth() call.  (This
-     * means that a host providing the capability of changing programs
-     * between any two notes on a track must vary the block size so as
-     * to place the program change at the right place.  A host that
-     * wanted to avoid this would probably just instantiate a plugin
-     * for each program.)
-     * 
-     * A plugin that does not support programs at all should set this
-     * member NULL.  Plugins should ignore a select_program() call
-     * with an invalid bank or program.
-     *
-     * A plugin is not required to select any particular default
-     * program on activate(): it's the host's duty to set a program
-     * explicitly.  The current program is invalidated by any call to
-     * configure().
-     *
-     * A plugin is permitted to re-write the values of its input
-     * control ports when select_program is called.  The host should
-     * re-read the input control port values and update its own
-     * records appropriately.  (This is the only circumstance in
-     * which a DSSI plugin is allowed to modify its own input ports.)
-     */
-    void (*select_program)(PYFX_Handle Instance,
-			   int Bank,
-			   int Program);
-
-    /**
-     * get_midi_controller_for_port()
-     *
-     * This member is a function pointer that returns the MIDI
-     * controller number or NRPN that should be mapped to the given
-     * input control port.  If the given port should not have any MIDI
-     * controller mapped to it, the function should return PYINST_NONE.
-     * The behaviour of this function is undefined if the given port
-     * number does not correspond to an input control port.  A plugin
-     * that does not want MIDI controllers mapped to ports at all may
-     * set this member NULL.
-     *
-     * Correct values can be got using the macros PYINST_CC(num) and
-     * PYINST_NRPN(num) as appropriate, and values can be combined using
-     * bitwise OR: e.g. PYINST_CC(23) | PYINST_NRPN(1069) means the port
-     * should respond to CC #23 and NRPN #1069.
-     *
-     * The host is responsible for doing proper scaling from MIDI
-     * controller and NRPN value ranges to port ranges according to
-     * the plugin's LADSPA port hints.  Hosts should not deliver
-     * through run_synth any MIDI controller events that have already
-     * been mapped to control port values.
-     *
-     * A plugin should not attempt to request mappings from
-     * controllers 0 or 32 (MIDI Bank Select MSB and LSB).
-     */
-    int (*get_midi_controller_for_port)(PYFX_Handle Instance,
-					int Port);
-
-    /**
      * run_synth()
      *
      * This member is a function pointer that runs a synth for a
@@ -599,73 +467,6 @@ typedef struct _PYINST_Descriptor {
 		      snd_seq_event_t *Events,
 		      int    EventCount);
 
-    /**
-     * run_synth_adding()
-     *
-     * This member is a function pointer that runs an instance of a
-     * synth for a block, adding its outputs to the values already
-     * present at the output ports.  This is provided for symmetry
-     * with LADSPA run_adding(), and is equally optional.  A plugin
-     * that does not provide it must set this member to NULL.
-     */
-    void (*run_synth_adding)(PYFX_Handle    Instance,
-			     int    SampleCount,
-			     snd_seq_event_t *Events,
-			     int    EventCount);
-
-    /**
-     * run_multiple_synths()
-     *
-     * This member is a function pointer that runs multiple synth
-     * instances for a block.  This is very similar to run_synth(),
-     * except that Instances, Events, and EventCounts each point to
-     * arrays that hold the LADSPA handles, event buffers, and
-     * event counts for each of InstanceCount instances.  That is,
-     * Instances points to an array of InstanceCount pointers to
-     * DSSI plugin instantiations, Events points to an array of
-     * pointers to each instantiation's respective event list, and
-     * EventCounts points to an array containing each instantiation's
-     * respective event count.
-     *
-     * A host using this function must guarantee that ALL active
-     * instances of the plugin are represented in each call to the
-     * function -- that is, a host may not call run_multiple_synths()
-     * for some instances of a given plugin and then call run_synth()
-     * as well for others.  'All .. instances of the plugin' means
-     * every instance sharing the same LADSPA label and shared object
-     * (*.so) file (rather than every instance sharing the same *.so).
-     * 'Active' means any instance for which activate() has been called
-     * but deactivate() has not.
-     *
-     * A plugin may provide this function, run_synths() (see above),
-     * both, or neither (if it not in fact a synth).  A plugin that
-     * does not provide this function must set this member to NULL.
-     * Plugin authors implementing run_multiple_synths are strongly
-     * encouraged to implement run_synth as well if at all possible,
-     * to aid simplistic hosts, even where it would be less efficient
-     * to use it.
-     */
-    void (*run_multiple_synths)(int     InstanceCount,
-                                PYFX_Handle    *Instances,
-                                int     SampleCount,
-                                snd_seq_event_t **Events,
-                                int    *EventCounts);
-
-    /**
-     * run_multiple_synths_adding()
-     *
-     * This member is a function pointer that runs multiple synth
-     * instances for a block, adding each synth's outputs to the
-     * values already present at the output ports.  This is provided
-     * for symmetry with both the DSSI run_multiple_synths() and LADSPA
-     * run_adding() functions, and is equally optional.  A plugin
-     * that does not provide it must set this member to NULL.
-     */
-    void (*run_multiple_synths_adding)(int     InstanceCount,
-                                       PYFX_Handle    *Instances,
-                                       int     SampleCount,
-                                       snd_seq_event_t **Events,
-                                       int    *EventCounts);
 } PYINST_Descriptor;
 
 /**

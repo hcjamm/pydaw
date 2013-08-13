@@ -1592,8 +1592,6 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_wayv_instantiate;
 	LMSLDescriptor->run = NULL;
-	LMSLDescriptor->run_adding = NULL;
-	LMSLDescriptor->set_run_adding_gain = NULL;
     }
 
     return LMSLDescriptor;
@@ -1609,14 +1607,8 @@ const PYINST_Descriptor *wayv_PYINST_descriptor(int index)
     {
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = wayv_PYFX_descriptor(0);
-	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
-	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
-	LMSDDescriptor->get_midi_controller_for_port = NULL;
-	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
+	LMSDDescriptor->configure = NULL;
 	LMSDDescriptor->run_synth = v_run_wayv;
-	LMSDDescriptor->run_synth_adding = NULL;
-	LMSDDescriptor->run_multiple_synths = NULL;
-	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
         
     return LMSDDescriptor;    

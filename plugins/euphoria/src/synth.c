@@ -2219,8 +2219,6 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	desc->deactivate = v_euphoria_activate;
 	desc->instantiate = instantiateSampler;
 	desc->run = NULL;
-	desc->run_adding = NULL;
-	desc->set_run_adding_gain = NULL;
     }
     
     return euphoriaLDescriptor;
@@ -2235,13 +2233,7 @@ const PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
     euphoriaDDescriptor->PYINST_API_Version = 1;
     euphoriaDDescriptor->PYFX_Plugin = euphoria_PYFX_descriptor(0);
     euphoriaDDescriptor->configure = c_euphoria_configure;
-    euphoriaDDescriptor->get_program = NULL;
-    euphoriaDDescriptor->get_midi_controller_for_port = NULL;
-    euphoriaDDescriptor->select_program = NULL;
     euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
-    euphoriaDDescriptor->run_synth_adding = NULL;
-    euphoriaDDescriptor->run_multiple_synths = NULL;
-    euphoriaDDescriptor->run_multiple_synths_adding = NULL;
     
     return euphoriaDDescriptor; 
 }

@@ -332,13 +332,6 @@ audio_callback(jack_nframes_t nframes, void *arg)
             instance->pendingProgramChange = -1;
             instance->pendingBankMSB = -1;
             instance->pendingBankLSB = -1;
-
-            if (instance->plugin->descriptor->select_program) {
-                instance->plugin->descriptor->
-                    select_program(instanceHandles[instance->number],
-                                   instance->currentBank,
-                                   instance->currentProgram);
-            }
         }
     }
 
@@ -371,15 +364,7 @@ audio_callback(jack_nframes_t nframes, void *arg)
 */
 	outCount += instances[i].plugin->outs;
 
-        if (instances[i].plugin->descriptor->run_multiple_synths) {
-            instances[i].plugin->descriptor->run_multiple_synths
-                (instances[i].plugin->instances,
-                 instanceHandles + i,
-                 nframes,
-                 instanceEventBuffers + i,
-                 instanceEventCounts + i);
-            i += instances[i].plugin->instances;
-        } else if (instances[i].plugin->descriptor->run_synth) {
+        if (instances[i].plugin->descriptor->run_synth) {
             instances[i].plugin->descriptor->run_synth(instanceHandles[i],
                                                        nframes,
                                                        instanceEventBuffers[i],
@@ -520,8 +505,7 @@ int main(int argc, char **argv)
         tmp = tmp + strlen(tmp);
     }
     sprintf(tmp, "/%s/chan%02d", plugin->label, instance->channel);
-    instance->pluginProgramCount = 0;
-    instance->pluginPrograms = NULL;
+    instance->pluginProgramCount = 0;    
     instance->currentBank = 0;
     instance->currentProgram = 0;
     instance->pendingBankLSB = -1;
@@ -789,23 +773,6 @@ int main(int argc, char **argv)
 
                 if (PYFX_IS_PORT_INPUT(pod)) {
 
-                    if (plugin->descriptor->get_midi_controller_for_port) {
-
-                        int controller = plugin->descriptor->
-                            get_midi_controller_for_port(instanceHandles[i], j);
-
-                        if (controller == 0) {
-                            MB_MESSAGE
-                                ("Buggy plugin: wants mapping for bank MSB\n");
-                        } else if (controller == 32) {
-                            MB_MESSAGE
-                                ("Buggy plugin: wants mapping for bank LSB\n");
-                        } else if (PYINST_IS_CC(controller)) {
-                            instance->controllerMap[PYINST_CC_NUMBER(controller)]
-                                = controlIn;
-                        }
-                    }
-
                     pluginControlInInstances[controlIn] = instance;
                     pluginControlInPortNumbers[controlIn] = j;
                     instance->pluginPortControlInNumbers[j] = controlIn;
@@ -999,39 +966,6 @@ int osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
 	       myName, instance->friendly_name, port, value);
     }
     
-    return 0;
-}
-
-int osc_program_handler(d3h_instance_t *instance, lo_arg **argv)
-{
-    int bank = argv[0]->i;
-    int program = argv[1]->i;
-    int i;
-    int found = 0;
-
-    for (i = 0; i < instance->pluginProgramCount; ++i) {
-	if (instance->pluginPrograms[i].Bank == bank &&
-	    instance->pluginPrograms[i].Program == program) {
-	    if (verbose) {
-		printf("%s: OSC: %s setting bank %d, program %d, name %s\n",
-		       myName,
-		       instance->friendly_name, bank, program,
-		       instance->pluginPrograms[i].Name);
-	    }
-	    found = 1;
-	    break;
-	}
-    }
-
-    if (!found) {
-	printf("%s: OSC: %s UI requested unknown program: bank %d, program %d: sending to plugin anyway (plugin should ignore it)\n",
-	       myName, instance->friendly_name, bank, program);
-    }
-
-    instance->pendingBankMSB = bank / 128;
-    instance->pendingBankLSB = bank % 128;
-    instance->pendingProgramChange = program;
-
     return 0;
 }
 

@@ -366,8 +366,6 @@ void _init()
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_pydaw_instantiate;
 	LMSLDescriptor->run = NULL;
-	LMSLDescriptor->run_adding = NULL;
-	LMSLDescriptor->set_run_adding_gain = NULL;
     }
 
     LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
@@ -375,13 +373,7 @@ void _init()
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
 	LMSDDescriptor->configure = c_pydaw_configure;
-	LMSDDescriptor->get_program = NULL;
-	LMSDDescriptor->get_midi_controller_for_port = i_pydaw_get_controller;
-	LMSDDescriptor->select_program = NULL;
 	LMSDDescriptor->run_synth = v_pydaw_run;
-	LMSDDescriptor->run_synth_adding = NULL;
-	LMSDDescriptor->run_multiple_synths = NULL;
-	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
 }
 
