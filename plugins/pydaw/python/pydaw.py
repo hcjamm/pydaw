@@ -3323,6 +3323,21 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.scene.selectionChanged.connect(self.highlight_selected)
         self.selected_note_strings = []
+        self.piano_keys = None
+
+    def highlight_keys(self, a_state, a_note):
+        f_note = int(a_note)
+        f_state = int(a_state)
+        if self.piano_keys is not None and self.piano_keys.has_key(f_note):
+            if f_state == 0:
+                if self.piano_keys[f_note].is_black:
+                    self.piano_keys[f_note].setBrush(QtGui.QColor(0, 0, 0))
+                else:
+                    self.piano_keys[f_note].setBrush(QtGui.QColor(255, 255, 255))
+            elif f_state == 1:
+                self.piano_keys[f_note].setBrush(QtGui.QColor(237, 150, 150))
+            else:
+                assert(False)
 
     def set_grid_div(self, a_div):
         self.grid_div = int(a_div)
@@ -3411,6 +3426,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.header.setZValue(1003.0)
 
     def draw_piano(self):
+        self.piano_keys = {}
         f_labels = ['B', 'Bb', 'A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C']
         f_black_notes = [2, 4, 6, 9, 11]
         f_piano_label = QtGui.QFont()
@@ -3424,19 +3440,24 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_label.setPos(4, 0)
         f_label.setFont(f_piano_label)
         f_key.setBrush(QtGui.QColor(255,255,255))
-        for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
+        f_note_index = 0
+        for i in range(self.end_octave - self.start_octave, self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
                 f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
+                self.piano_keys[f_note_index] = f_key
+                f_note_index += 1
                 f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
                 if j == 12:
-                    f_label = QtGui.QGraphicsSimpleTextItem("%s%d" % (f_labels[j-1], self.end_octave-i), f_key)
+                    f_label = QtGui.QGraphicsSimpleTextItem("%s%d" % (f_labels[j - 1], self.end_octave - i), f_key)
                     f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                     f_label.setPos(4, 0)
                     f_label.setFont(f_piano_label)
                 if j in f_black_notes:
                     f_key.setBrush(QtGui.QColor(0,0,0))
+                    f_key.is_black = True
                 else:
                     f_key.setBrush(QtGui.QColor(255,255,255))
+                    f_key.is_black = False
         self.piano.setZValue(1000.0)
 
     def draw_grid(self):
@@ -6164,6 +6185,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         elif a_key == "cur":
             f_region, f_bar = a_val.split("|")
             this_transport.set_pos_from_cursor(f_region, f_bar)
+        elif a_key == "ne":
+            f_state, f_note = a_val.split("|")
+            this_piano_roll_editor.highlight_keys(f_state, f_note)
 
     def closeEvent(self, event):
         global_close_all_plugin_windows()

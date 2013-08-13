@@ -1285,6 +1285,10 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     printf("\nRecording:  Initiating new note_on event\n\n");
 #endif
                 }
+                
+                sprintf(a_pydaw_data->osc_cursor_message, "1|%i", n.note);
+                lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "ne", a_pydaw_data->osc_cursor_message);
+                
             }
             else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
             {
@@ -1316,6 +1320,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     a_pydaw_data->recorded_notes_beat_tracker[n.note] = -1;
                     a_pydaw_data->recorded_notes_velocity_tracker[n.note] = -1;
                 }
+                
+                sprintf(a_pydaw_data->osc_cursor_message, "0|%i", n.note);
+                lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "ne", a_pydaw_data->osc_cursor_message);
             }
             else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
             {
