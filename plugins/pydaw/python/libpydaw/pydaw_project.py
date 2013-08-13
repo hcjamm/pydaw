@@ -2088,6 +2088,8 @@ class pydaw_sample_graph:
             return f_result
 
     def __init__(self, a_file_name):
+        self.sample_graph_cache = None
+        self.euphoria_cache = None
         f_file_name = str(a_file_name)
         self.file = None
         self.timestamp = None
@@ -2153,48 +2155,52 @@ class pydaw_sample_graph:
         return True
 
     def create_sample_graph(self, a_for_scene=False):
-        if a_for_scene:
-            f_width_inc = pydaw_audio_item_scene_width / self.count
-            f_section = pydaw_audio_item_scene_height / float(self.channels)
-        else:
-            f_width_inc = 98.0 / self.count
-            f_section = 100.0 / float(self.channels)
-        f_section_div2 = f_section * 0.5
+        if self.sample_graph_cache is None:
+            if a_for_scene:
+                f_width_inc = pydaw_audio_item_scene_width / self.count
+                f_section = pydaw_audio_item_scene_height / float(self.channels)
+            else:
+                f_width_inc = 98.0 / self.count
+                f_section = 100.0 / float(self.channels)
+            f_section_div2 = f_section * 0.5
 
-        f_paths = []
+            f_paths = []
 
-        for f_i in range(self.channels):
-            f_result = QtGui.QPainterPath()
-            f_width_pos = 1.0
-            f_result.moveTo(f_width_pos, f_section_div2)
-            for f_peak in self.high_peaks[f_i]:
-                f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
-                f_width_pos += f_width_inc
-            for f_peak in self.low_peaks[f_i]:
-                f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
-                f_width_pos -= f_width_inc
-            f_result.closeSubpath()
-            f_paths.append(f_result)
-        return f_paths
+            for f_i in range(self.channels):
+                f_result = QtGui.QPainterPath()
+                f_width_pos = 1.0
+                f_result.moveTo(f_width_pos, f_section_div2)
+                for f_peak in self.high_peaks[f_i]:
+                    f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
+                    f_width_pos += f_width_inc
+                for f_peak in self.low_peaks[f_i]:
+                    f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
+                    f_width_pos -= f_width_inc
+                f_result.closeSubpath()
+                f_paths.append(f_result)
+            self.sample_graph_cache = f_paths
+        return self.sample_graph_cache
 
     def create_sample_graph_for_euphoria(self):
-        f_width_inc = pydaw_audio_item_scene_width / self.count
-        f_section = pydaw_audio_item_scene_height / float(self.channels)
-        f_section_div2 = f_section * 0.5
-        f_paths = []
+        if self.euphoria_cache is None:
+            f_width_inc = pydaw_audio_item_scene_width / self.count
+            f_section = pydaw_audio_item_scene_height / float(self.channels)
+            f_section_div2 = f_section * 0.5
+            f_paths = []
 
-        for f_i in range(self.channels):
-            f_result = QtGui.QPainterPath()
-            f_width_pos = 1.0
-            f_result.moveTo(f_width_pos, f_section_div2)
-            for f_i2 in range(len(self.high_peaks[f_i])):
-                f_peak = self.high_peaks[f_i][f_i2]
-                f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
-                #f_peak = self.low_peaks[f_i][f_i2]
-                #f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
-                f_width_pos += f_width_inc
-            f_paths.append(f_result)
-        return f_paths
+            for f_i in range(self.channels):
+                f_result = QtGui.QPainterPath()
+                f_width_pos = 1.0
+                f_result.moveTo(f_width_pos, f_section_div2)
+                for f_i2 in range(len(self.high_peaks[f_i])):
+                    f_peak = self.high_peaks[f_i][f_i2]
+                    f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
+                    #f_peak = self.low_peaks[f_i][f_i2]
+                    #f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
+                    f_width_pos += f_width_inc
+                f_paths.append(f_result)
+            self.euphoria_cache = f_paths
+        return self.euphoria_cache
 
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time """
