@@ -6192,7 +6192,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def closeEvent(self, event):
         global_close_all_plugin_windows()
         f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
-                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
 
         if f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
