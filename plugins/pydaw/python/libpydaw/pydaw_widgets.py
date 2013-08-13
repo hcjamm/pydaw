@@ -2407,7 +2407,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_file_name = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
             if f_file_name != "":
                 f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
-                self.sample_graph.draw_item(f_graph.create_sample_graph_for_euphoria(), self.sample_starts[self.selected_row_index].get_value(), \
+                self.sample_graph.draw_item(f_graph.create_sample_graph(True), self.sample_starts[self.selected_row_index].get_value(), \
                 self.sample_ends[self.selected_row_index].get_value(), self.loop_starts[self.selected_row_index].get_value(), \
                 self.loop_ends[self.selected_row_index].get_value())
             else:
