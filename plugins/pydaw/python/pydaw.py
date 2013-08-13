@@ -5238,6 +5238,26 @@ class seq_track:
             return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
 
 class transport_widget:
+    def set_pos_from_cursor(self, a_region, a_bar):
+        if self.follow_checkbox.isChecked():
+            f_region = int(a_region)
+            self.region_spinbox.setValue(f_region)
+            f_bar = int(a_bar)
+            self.bar_spinbox.setValue(f_bar)
+            f_bar += 1
+            this_region_audio_editor.table_widget.selectColumn(f_bar)
+            this_region_editor.table_widget.selectColumn(f_bar)
+            this_region_bus_editor.table_widget.selectColumn(f_bar)
+            if f_region != self.last_region_num:
+                self.last_region_num = f_region
+                f_item = this_song_editor.table_widget.item(0, f_region)
+                this_song_editor.table_widget.selectColumn(f_region)
+                if not f_item is None and f_item.text() != "":
+                    this_region_settings.open_region(f_item.text())
+                else:
+                    this_region_settings.clear_items()
+                    this_audio_items_viewer.clear_drawn_items()
+
     def get_pos_in_seconds(self):
         f_bars = pydaw_get_pos_in_bars(self.region_spinbox.value(), self.bar_spinbox.value(), 0.0)
         f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
@@ -5293,9 +5313,6 @@ class transport_widget:
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
-        f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
-        self.beat_timer.stop()
-        self.beat_timer.start(f_playback_inc)
         self.trigger_audio_playback()
         this_ab_widget.on_play()
         this_audio_items_viewer.set_playback_clipboard()
@@ -5320,7 +5337,6 @@ class transport_widget:
         self.region_spinbox.setEnabled(True)
         self.overdub_checkbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
-        self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
         if self.is_recording:
@@ -5381,8 +5397,6 @@ class transport_widget:
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
-        f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
-        self.beat_timer.start(f_playback_inc)
         self.trigger_audio_playback()
         this_audio_items_viewer.set_playback_clipboard()
 
@@ -5399,21 +5413,25 @@ class transport_widget:
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
+
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
         if not self.suppress_osc:
             f_midi_keybd = str(self.keybd_combobox.currentText())
             this_pydaw_project.save_midi_device(f_midi_keybd)
             this_pydaw_project.commit("Set project MIDI in device to " + f_midi_keybd)
+
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
             this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+
     def on_region_changed(self, a_region):
         self.bar_spinbox.setRange(0, pydaw_get_region_length(a_region) - 1)
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
@@ -5431,33 +5449,6 @@ class transport_widget:
             this_region_editor.table_widget.clearSelection()
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
-    def beat_timeout(self):
-        if self.loop_mode_combobox.currentIndex() == 1:
-            self.trigger_audio_playback()
-            return  #Looping a single bar doesn't require these values to update
-        f_new_bar_value = self.bar_spinbox.value() + 1
-        f_region_length = pydaw_get_region_length(self.region_spinbox.value())
-        if f_new_bar_value >= f_region_length:
-            if self.loop_mode_combobox.currentIndex() == 0:
-                self.region_spinbox.setValue(self.region_spinbox.value() + 1)
-                self.bar_spinbox.setMaximum(pydaw_get_region_length(self.region_spinbox.value()))
-                if self.follow_checkbox.isChecked():
-                    f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
-                    if not f_item is None and f_item.text() != "":
-                        this_region_settings.open_region(f_item.text())
-                    else:
-                        this_region_settings.clear_items()
-                        this_audio_items_viewer.clear_drawn_items()
-            f_new_bar_value = 0
-            self.bar_spinbox.setValue(f_new_bar_value) #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
-        self.bar_spinbox.setValue(f_new_bar_value)
-        if self.follow_checkbox.isChecked():
-            this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
-            this_region_bus_editor.table_widget.selectColumn(f_new_bar_value + 1)
-            this_region_audio_editor.table_widget.selectColumn(f_new_bar_value + 1)
-            if self.loop_mode_combobox.currentIndex() == 0:
-                this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
-            self.trigger_audio_playback()
 
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
@@ -5557,8 +5548,6 @@ class transport_widget:
         f_lower_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
-        self.beat_timer = QtCore.QTimer()
-        self.beat_timer.timeout.connect(self.beat_timeout)
         self.suppress_osc = False
 
 global_open_fx_ui_dicts = [{}, {}, {}]
@@ -6164,7 +6153,6 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def configure_callback(self, path, args):
         a_key, a_val = args
-        #print(str(a_val) + "|" + str(a_val))
         if a_key == "pc":
             f_is_inst, f_track_type, f_track_num, f_port, f_val = a_val.split("|")
             if int_to_bool(f_is_inst):
@@ -6173,6 +6161,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             else:
                 if int(f_track_num) in global_open_fx_ui_dicts[int(f_track_type)]:
                     global_open_fx_ui_dicts[int(f_track_type)][int(f_track_num)].set_control_val(int(f_port), float(f_val))
+        elif a_key == "cur":
+            f_region, f_bar = a_val.split("|")
+            this_transport.set_pos_from_cursor(f_region, f_bar)
 
     def closeEvent(self, event):
         global_close_all_plugin_windows()

@@ -369,6 +369,7 @@ typedef struct
     int preview_max_sample_count;        
     char * per_audio_item_fx_folder;
     lo_address uiTarget;
+    char * osc_cursor_message;
 }t_pydaw_data;
 
 typedef struct 
@@ -757,7 +758,7 @@ inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin 
             a_plugin->pluginPortUpdated[f_i] = 0;
             char a_value[256];
             sprintf(a_value, "%i|%i|%i|%i|%f", a_is_inst, a_track_type, a_track_num, port, value);            
-            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "pc", a_value);            
+            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "pc", a_value);
         }
         f_i++;
     }
@@ -2176,6 +2177,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
     }
     
+    if(a_pydaw_data->ml_starting_new_bar && !a_pydaw_data->is_offline_rendering)
+    {                    
+        sprintf(a_pydaw_data->osc_cursor_message, "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
+        lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "cur", a_pydaw_data->osc_cursor_message);
+    }
+    
     //We run everything else as normal to prevent hung notes and other oddities, even though the buffer is overwritten...
     if(a_pydaw_data->is_ab_ing)
     {
@@ -3410,6 +3417,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     free(tmp);
 
     f_result->uiTarget = lo_address_new_from_url("osc.udp://localhost:30321/");
+    f_result->osc_cursor_message = (char*)malloc(sizeof(char) * 1024);
     
     return f_result;
 }
