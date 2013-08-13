@@ -1390,7 +1390,6 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
 	desc->UniqueID = channels;
 	desc->Label = EUPHORIA_PLUGIN_NAME;
-	desc->Properties = PYFX_PROPERTY_REALTIME; // | PYFX_PROPERTY_HARD_RT_CAPABLE;
 	desc->Name =  EUPHORIA_PLUGIN_LONG_NAME;
 	desc->Maker = EUPHORIA_PLUGIN_DEV;
 	desc->Copyright = "GPL";

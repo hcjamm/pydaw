@@ -469,8 +469,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = RAYV_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	LMSLDescriptor->Label = RAYV_PLUGIN_NAME;
-	LMSLDescriptor->Properties = PYFX_PROPERTY_REALTIME | PYFX_PROPERTY_HARD_RT_CAPABLE; //0;
+	LMSLDescriptor->Label = RAYV_PLUGIN_NAME;	
 	LMSLDescriptor->Name = RAYV_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = RAYV_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";

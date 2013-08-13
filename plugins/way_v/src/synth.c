@@ -785,7 +785,6 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = WAYV_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
 	LMSLDescriptor->Label = WAYV_PLUGIN_NAME;
-	LMSLDescriptor->Properties = PYFX_PROPERTY_REALTIME | PYFX_PROPERTY_HARD_RT_CAPABLE; //0;
 	LMSLDescriptor->Name = WAYV_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = WAYV_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";

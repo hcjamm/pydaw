@@ -296,7 +296,6 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     {
         LMSLDescriptor->UniqueID = MODULEX_PLUGIN_UUID;
 	LMSLDescriptor->Label = MODULEX_PLUGIN_NAME;
-	LMSLDescriptor->Properties = PYFX_PROPERTY_HARD_RT_CAPABLE;
 	LMSLDescriptor->Name = MODULEX_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = MODULEX_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";

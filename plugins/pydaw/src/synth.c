@@ -319,8 +319,7 @@ void _init()
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = PYDAW_PLUGIN_UUID;
-	LMSLDescriptor->Label = PYDAW_PLUGIN_NAME;
-	LMSLDescriptor->Properties = PYFX_PROPERTY_REALTIME;
+	LMSLDescriptor->Label = PYDAW_PLUGIN_NAME;	
 	LMSLDescriptor->Name = PYDAW_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = PYDAW_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";

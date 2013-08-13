@@ -1,19 +1,14 @@
-/* -*- c-basic-offset: 4 -*- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
 
-/* pydaw_plugin.h
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
 
-   PyDAW Draft Plugin Format, pre-1.0
-   Copyright (c) 2013 Jeff Hubbard
-   
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public License
-   as published by the Free Software Foundation; either version 2.1 of
-   the License, or (at your option) any later version.
-   
-   This library is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-   Lesser General Public License for more details.   
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 */
 
 #ifndef PYDAW_PLUGIN_HEADER_INCLUDED
@@ -44,58 +39,6 @@ extern "C" {
    amplitude and is a `normal' signal level. */
 
 typedef float PYFX_Data;
-
-/*****************************************************************************/
-
-/* Special Plugin Properties: 
- 
-   Optional features of the plugin type are encapsulated in the
-   PYFX_Properties type. This is assembled by ORing individual
-   properties together. */
-
-typedef int PYFX_Properties;
-
-/* Property PYFX_PROPERTY_REALTIME indicates that the plugin has a
-   real-time dependency (e.g. listens to a MIDI device) and so its
-   output must not be cached or subject to significant latency. */
-#define PYFX_PROPERTY_REALTIME        0x1
-
-/* Property PYFX_PROPERTY_INPLACE_BROKEN indicates that the plugin
-   may cease to work correctly if the host elects to use the same data
-   location for both input and output (see connect_port()). This
-   should be avoided as enabling this flag makes it impossible for
-   hosts to use the plugin to process audio `in-place.' */
-#define PYFX_PROPERTY_INPLACE_BROKEN  0x2
-
-/* Property PYFX_PROPERTY_HARD_RT_CAPABLE indicates that the plugin
-   is capable of running not only in a conventional host but also in a
-   `hard real-time' environment. To qualify for this the plugin must
-   satisfy all of the following:
-
-   (1) The plugin must not use malloc(), free() or other heap memory
-   management within its run() or run_adding() functions. All new
-   memory used in run() must be managed via the stack. These
-   restrictions only apply to the run() function.
-
-   (2) The plugin will not attempt to make use of any library
-   functions with the exceptions of functions in the ANSI standard C
-   and C maths libraries, which the host is expected to provide.
-
-   (3) The plugin will not access files, devices, pipes, sockets, IPC
-   or any other mechanism that might result in process or thread
-   blocking.
-      
-   (4) The plugin will take an amount of time to execute a run() or
-   run_adding() call approximately of form (A+B*SampleCount) where A
-   and B depend on the machine and host in use. This amount of time
-   may not depend on input signals or plugin state. The host is left
-   the responsibility to perform timings to estimate upper bounds for
-   A and B. */
-#define PYFX_PROPERTY_HARD_RT_CAPABLE 0x4
-
-#define PYFX_IS_REALTIME(x)        ((x) & PYFX_PROPERTY_REALTIME)
-#define PYFX_IS_INPLACE_BROKEN(x)  ((x) & PYFX_PROPERTY_INPLACE_BROKEN)
-#define PYFX_IS_HARD_RT_CAPABLE(x) ((x) & PYFX_PROPERTY_HARD_RT_CAPABLE)
 
 /*****************************************************************************/
 
@@ -133,168 +76,6 @@ typedef int PYFX_PortDescriptor;
 #define PYFX_IS_PORT_AUDIO(x)   ((x) & PYFX_PORT_AUDIO)
 
 /*****************************************************************************/
-
-/* Plugin Port Range Hints: 
-
-   The host may wish to provide a representation of data entering or
-   leaving a plugin (e.g. to generate a GUI automatically). To make
-   this more meaningful, the plugin should provide `hints' to the host
-   describing the usual values taken by the data.
-   
-   Note that these are only hints. The host may ignore them and the
-   plugin must not assume that data supplied to it is meaningful. If
-   the plugin receives invalid input data it is expected to continue
-   to run without failure and, where possible, produce a sensible
-   output (e.g. a high-pass filter given a negative cutoff frequency
-   might switch to an all-pass mode).
-    
-   Hints are meaningful for all input and output ports but hints for
-   input control ports are expected to be particularly useful.
-   
-   More hint information is encapsulated in the
-   PYFX_PortRangeHintDescriptor type which is assembled by ORing
-   individual hint types together. Hints may require further
-   LowerBound and UpperBound information.
-
-   All the hint information for a particular port is aggregated in the
-   PYFX_PortRangeHint structure. */
-
-typedef int PYFX_PortRangeHintDescriptor;
-
-/* Hint PYFX_HINT_BOUNDED_BELOW indicates that the LowerBound field
-   of the PYFX_PortRangeHint should be considered meaningful. The
-   value in this field should be considered the (inclusive) lower
-   bound of the valid range. If PYFX_HINT_SAMPLE_RATE is also
-   specified then the value of LowerBound should be multiplied by the
-   sample rate. */
-#define PYFX_HINT_BOUNDED_BELOW   0x1
-
-/* Hint PYFX_HINT_BOUNDED_ABOVE indicates that the UpperBound field
-   of the PYFX_PortRangeHint should be considered meaningful. The
-   value in this field should be considered the (inclusive) upper
-   bound of the valid range. If PYFX_HINT_SAMPLE_RATE is also
-   specified then the value of UpperBound should be multiplied by the
-   sample rate. */
-#define PYFX_HINT_BOUNDED_ABOVE   0x2
-
-/* Hint PYFX_HINT_TOGGLED indicates that the data item should be
-   considered a Boolean toggle. Data less than or equal to zero should
-   be considered `off' or `false,' and data above zero should be
-   considered `on' or `true.' PYFX_HINT_TOGGLED may not be used in
-   conjunction with any other hint except PYFX_HINT_DEFAULT_0 or
-   PYFX_HINT_DEFAULT_1. */
-#define PYFX_HINT_TOGGLED         0x4
-
-/* Hint PYFX_HINT_SAMPLE_RATE indicates that any bounds specified
-   should be interpreted as multiples of the sample rate. For
-   instance, a frequency range from 0Hz to the Nyquist frequency (half
-   the sample rate) could be requested by this hint in conjunction
-   with LowerBound = 0 and UpperBound = 0.5. Hosts that support bounds
-   at all must support this hint to retain meaning. */
-#define PYFX_HINT_SAMPLE_RATE     0x8
-
-/* Hint PYFX_HINT_LOGARITHMIC indicates that it is likely that the
-   user will find it more intuitive to view values using a logarithmic
-   scale. This is particularly useful for frequencies and gains. */
-#define PYFX_HINT_LOGARITHMIC     0x10
-
-/* Hint PYFX_HINT_INTEGER indicates that a user interface would
-   probably wish to provide a stepped control taking only integer
-   values. Any bounds set should be slightly wider than the actual
-   integer range required to avoid floating point rounding errors. For
-   instance, the integer set {0,1,2,3} might be described as [-0.1,
-   3.1]. */
-#define PYFX_HINT_INTEGER         0x20
-
-/* The various PYFX_HINT_HAS_DEFAULT_* hints indicate a `normal'
-   value for the port that is sensible as a default. For instance,
-   this value is suitable for use as an initial value in a user
-   interface or as a value the host might assign to a control port
-   when the user has not provided one. Defaults are encoded using a
-   mask so only one default may be specified for a port. Some of the
-   hints make use of lower and upper bounds, in which case the
-   relevant bound or bounds must be available and
-   PYFX_HINT_SAMPLE_RATE must be applied as usual. The resulting
-   default must be rounded if PYFX_HINT_INTEGER is present. Default
-   values were introduced in LADSPA v1.1. */
-#define PYFX_HINT_DEFAULT_MASK    0x3C0
-
-/* This default values indicates that no default is provided. */
-#define PYFX_HINT_DEFAULT_NONE    0x0
-
-/* This default hint indicates that the suggested lower bound for the
-   port should be used. */
-#define PYFX_HINT_DEFAULT_MINIMUM 0x40
-
-/* This default hint indicates that a low value between the suggested
-   lower and upper bounds should be chosen. For ports with
-   PYFX_HINT_LOGARITHMIC, this should be exp(log(lower) * 0.75 +
-   log(upper) * 0.25). Otherwise, this should be (lower * 0.75 + upper
-   * 0.25). */
-#define PYFX_HINT_DEFAULT_LOW     0x80
-
-/* This default hint indicates that a middle value between the
-   suggested lower and upper bounds should be chosen. For ports with
-   PYFX_HINT_LOGARITHMIC, this should be exp(log(lower) * 0.5 +
-   log(upper) * 0.5). Otherwise, this should be (lower * 0.5 + upper *
-   0.5). */
-#define PYFX_HINT_DEFAULT_MIDDLE  0xC0
-
-/* This default hint indicates that a high value between the suggested
-   lower and upper bounds should be chosen. For ports with
-   PYFX_HINT_LOGARITHMIC, this should be exp(log(lower) * 0.25 +
-   log(upper) * 0.75). Otherwise, this should be (lower * 0.25 + upper
-   * 0.75). */
-#define PYFX_HINT_DEFAULT_HIGH    0x100
-
-/* This default hint indicates that the suggested upper bound for the
-   port should be used. */
-#define PYFX_HINT_DEFAULT_MAXIMUM 0x140
-
-/* This default hint indicates that the number 0 should be used. Note
-   that this default may be used in conjunction with
-   PYFX_HINT_TOGGLED. */
-#define PYFX_HINT_DEFAULT_0       0x200
-
-/* This default hint indicates that the number 1 should be used. Note
-   that this default may be used in conjunction with
-   PYFX_HINT_TOGGLED. */
-#define PYFX_HINT_DEFAULT_1       0x240
-
-/* This default hint indicates that the number 100 should be used. */
-#define PYFX_HINT_DEFAULT_100     0x280
-
-/* This default hint indicates that the Hz frequency of `concert A'
-   should be used. This will be 440 unless the host uses an unusual
-   tuning convention, in which case it may be within a few Hz. */
-#define PYFX_HINT_DEFAULT_440     0x2C0
-
-#define PYFX_IS_HINT_BOUNDED_BELOW(x)   ((x) & PYFX_HINT_BOUNDED_BELOW)
-#define PYFX_IS_HINT_BOUNDED_ABOVE(x)   ((x) & PYFX_HINT_BOUNDED_ABOVE)
-#define PYFX_IS_HINT_TOGGLED(x)         ((x) & PYFX_HINT_TOGGLED)
-#define PYFX_IS_HINT_SAMPLE_RATE(x)     ((x) & PYFX_HINT_SAMPLE_RATE)
-#define PYFX_IS_HINT_LOGARITHMIC(x)     ((x) & PYFX_HINT_LOGARITHMIC)
-#define PYFX_IS_HINT_INTEGER(x)         ((x) & PYFX_HINT_INTEGER)
-
-#define PYFX_IS_HINT_HAS_DEFAULT(x)     ((x) & PYFX_HINT_DEFAULT_MASK)
-#define PYFX_IS_HINT_DEFAULT_MINIMUM(x) (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_MINIMUM)
-#define PYFX_IS_HINT_DEFAULT_LOW(x)     (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_LOW)
-#define PYFX_IS_HINT_DEFAULT_MIDDLE(x)  (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_MIDDLE)
-#define PYFX_IS_HINT_DEFAULT_HIGH(x)    (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_HIGH)
-#define PYFX_IS_HINT_DEFAULT_MAXIMUM(x) (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_MAXIMUM)
-#define PYFX_IS_HINT_DEFAULT_0(x)       (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_0)
-#define PYFX_IS_HINT_DEFAULT_1(x)       (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_1)
-#define PYFX_IS_HINT_DEFAULT_100(x)     (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                           == PYFX_HINT_DEFAULT_100)
-#define PYFX_IS_HINT_DEFAULT_440(x)     (((x) & PYFX_HINT_DEFAULT_MASK)   \
-                                            == PYFX_HINT_DEFAULT_440)
 
 #define PYDAW_PLUGIN_HINT_TRANSFORM_NONE 0 //Display the data without transforming
 #define PYDAW_PLUGIN_HINT_TRANSFORM_PITCH_TO_HZ 1//Convert MIDI note number to hz
@@ -352,10 +133,7 @@ typedef struct _PYFX_Descriptor {
      or plugin name, which may be changed in new plugin
      versions. Labels must not contain white-space characters. */
   const char * Label;
-    
-  /* This indicates a number of properties of the plugin. */
-  PYFX_Properties Properties;
-
+  
   /* This member points to the null-terminated name of the plugin
      (e.g. "Sine Oscillator"). */
   const char * Name;
