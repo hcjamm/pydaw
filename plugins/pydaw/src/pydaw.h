@@ -46,7 +46,6 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI "su"
 #define PYDAW_CONFIGURE_KEY_REC_ARM_TRACK "tr"
 #define PYDAW_CONFIGURE_KEY_SHOW_FX_UI "fx"
-#define PYDAW_CONFIGURE_KEY_TRACK_NAME "tn"
     
 #define PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE "preview"
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
@@ -214,8 +213,7 @@ typedef struct
     int current_period_event_index;
     t_pydaw_plugin * instrument;
     t_pydaw_plugin * effect;
-    pthread_mutex_t mutex;
-    char name[64];
+    pthread_mutex_t mutex;    
     int track_num;  //Track number for the pool of tracks it is in, for example: 0-15 for midi tracks
     int track_type;  //0 == MIDI/plugin-instrument, 1 == Bus, 2 == Audio
     
@@ -3208,8 +3206,7 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);    
     f_result->bus_num = 0;
-    f_result->name[0] = '\0';
-            
+                
     f_result->bus_buffer_state = 0;
     f_result->bus_count = 0;
     f_result->bus_counter = 0;
@@ -3380,14 +3377,11 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     {
         pthread_spin_init(&f_result->bus_spinlocks[f_i], 0);
         f_result->bus_pool[f_i] = g_pytrack_get(f_i, 1);    
-        f_result->track_pool_all[f_track_total] = f_result->bus_pool[f_i];
-        sprintf(f_result->bus_pool[f_i]->name, "Bus%i", f_i);        
+        f_result->track_pool_all[f_track_total] = f_result->bus_pool[f_i];              
         f_i++;
         f_track_total++;
     }
-    
-    sprintf(f_result->bus_pool[0]->name, "Master");
-    
+            
     f_i = 0;
     
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
@@ -3604,8 +3598,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             int f_vol = atoi(f_vol_str);
             free(f_vol_str);
             assert(f_vol < 24 && f_vol > -150);
-                        
-            sprintf(a_pydaw_data->track_pool[f_track_index]->name, "%s", f_name_str);
+            
             free(f_name_str);
             
             int f_plugin_index = atoi(f_plugin_index_str);
@@ -3644,7 +3637,6 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             
             a_pydaw_data->track_pool[f_i]->solo = 0;
             a_pydaw_data->track_pool[f_i]->mute = 0;
-            sprintf(a_pydaw_data->track_pool[f_i]->name, "track%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0.0f);            
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->track_pool[f_i]);
             
@@ -3699,13 +3691,11 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             
             a_pydaw_data->bus_pool[f_i]->solo = 0;
             a_pydaw_data->bus_pool[f_i]->mute = 0;
-            sprintf(a_pydaw_data->bus_pool[f_i]->name, "Bus%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_i], 0.0f);            
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->bus_pool[f_i]);
             
             f_i++;
-        }
-        sprintf(a_pydaw_data->bus_pool[0]->name, "Master");
+        }        
     }    
     
     sprintf(f_file_name, "%sdefault.pyaudio", a_pydaw_data->project_folder);
@@ -3747,8 +3737,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             int f_vol = atoi(f_vol_str);
             free(f_vol_str);
             assert(f_vol < 24 && f_vol > -150);
-                        
-            strcpy(a_pydaw_data->audio_track_pool[f_track_index]->name, f_name_str);
+            
             free(f_name_str);
             
             int f_bus_num = atoi(f_bus_num_str);
@@ -3771,13 +3760,10 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
         
         while(f_i < PYDAW_AUDIO_TRACK_COUNT)
         {
-            //a_pydaw_data->audio_track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
-            
-            v_set_plugin_index(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 0, 0);
-            
+            //a_pydaw_data->audio_track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted            
+            v_set_plugin_index(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 0, 0);            
             a_pydaw_data->audio_track_pool[f_i]->solo = 0;
             a_pydaw_data->audio_track_pool[f_i]->mute = 0;
-            sprintf(a_pydaw_data->audio_track_pool[f_i]->name, "track%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 0.0f);            
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i]);
             
@@ -5036,28 +5022,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 break;
         }        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        g_free_1d_char_array(f_val_arr);
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TRACK_NAME)) //Set track name
-    {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
-        int f_track_num = atoi(f_val_arr->array[0]);
-        int f_track_type = atoi(f_val_arr->array[2]);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        switch(f_track_type)
-        {
-            case 0:
-                strcpy(a_pydaw_data->track_pool[f_track_num]->name, f_val_arr->array[1]);
-                break;
-            case 2:
-                strcpy(a_pydaw_data->audio_track_pool[f_track_num]->name, f_val_arr->array[1]);
-                break;
-            default:
-                assert(0);
-                break;
-        }
-        
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }

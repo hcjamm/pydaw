@@ -38,7 +38,6 @@ OSC configure message keys/values:
 	"st"	""	Save tracks
 	"tr"	int|int	Record arm a track, int:track#|int:0-not-armed/1-armed
 	"fx"	int|int	show FX GUI for track(int)|track_type
-	"tn"	int|string|int	Set track[int]->name to string of track_type(int)
 
 	"preview" path	Preview a .wav or other supported sample format
 	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
