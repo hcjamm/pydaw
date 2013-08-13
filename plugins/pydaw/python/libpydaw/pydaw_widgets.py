@@ -707,6 +707,7 @@ class pydaw_preset_manager_widget:
         self.program_combobox.setMinimumWidth(190)
         self.layout.addWidget(self.program_combobox)
         self.save_button = QtGui.QPushButton("Save")
+        self.save_button.setToolTip("Save the current settings to a preset.  Plugin settings are saved to the project automatically\nwhen you close the plugin window, this button is only for presets.")
         self.save_button.pressed.connect(self.save_presets)
         self.layout.addWidget(self.save_button)
         self.reset_button = QtGui.QPushButton("Reset")
@@ -1546,7 +1547,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.sync_gridlayout = QtGui.QGridLayout(self.sync_groupbox)
         self.hard_sync =  pydaw_checkbox_control("On", pydaw_ports.RAYV_OSC_HARD_SYNC, self.plugin_rel_callback, self.plugin_val_callback, \
         self.port_dict, self.preset_manager)
-        self.hard_sync.control.setToolTip(("Setting self hard sync's Osc1 to Osc2. Usually you would want to distort and pitchbend self."))
+        self.hard_sync.control.setToolTip("Setting self hard sync's Osc1 to Osc2. Usually you would want to distort and pitchbend if this is enabled.")
         self.sync_gridlayout.addWidget(self.hard_sync.control, 1, 0, QtCore.Qt.AlignCenter)
         self.adsr_filter =  pydaw_adsr_widget(64, False, pydaw_ports.RAYV_FILTER_ATTACK, pydaw_ports.RAYV_FILTER_DECAY, pydaw_ports.RAYV_FILTER_SUSTAIN, \
         pydaw_ports.RAYV_FILTER_RELEASE, "ADSR Filter", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, self.preset_manager)
