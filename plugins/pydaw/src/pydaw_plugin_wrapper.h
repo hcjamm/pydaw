@@ -84,7 +84,7 @@ void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
 
 void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_seq_event_t *event, int a_ci_is_port)
 {
-    int port;
+    /*int port;
     if(a_ci_is_port)
     {
         port = controlIn;
@@ -92,7 +92,7 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_se
     else
     {
         port = instance->pluginControlInPortNumbers[controlIn];
-    }
+    }*/
     
     //const PYFX_Descriptor *p = instance->descriptor->PYFX_Plugin;
     

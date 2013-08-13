@@ -24,7 +24,6 @@ GNU General Public License for more details.
 #include <alsa/asoundlib.h>
 #include <alsa/seq.h>
 #include <jack/jack.h>
-#include <jack/session.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
