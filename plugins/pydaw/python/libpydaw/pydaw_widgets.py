@@ -1784,8 +1784,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(4)
         self.mod_matrix.setColumnCount(12)
-        #self.polyfx_mod_matrix[0].setMinimumHeight(165)
-        #self.polyfx_mod_matrix[0].setMaximumHeight(165)
+        self.mod_matrix.setFixedHeight(172)
+        self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setHorizontalHeaderLabels(["FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3", "FX2\nCtrl1",
             "FX2\nCtrl2", "FX2\nCtrl3", "FX3\nCtrl1", "FX3\nCtrl2", "FX3\nCtrl3" ])
         self.mod_matrix.setVerticalHeaderLabels(["ADSR 1", "ADSR 2", "Ramp Env", "LFO"])
@@ -2262,7 +2263,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(4)
         self.mod_matrix.setColumnCount(12)
-        self.mod_matrix.setFixedHeight(165)
+        self.mod_matrix.setFixedHeight(172)
+        self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setHorizontalHeaderLabels(["FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3", "FX2\nCtrl1",
             "FX2\nCtrl2", "FX2\nCtrl3", "FX3\nCtrl1", "FX3\nCtrl2", "FX3\nCtrl3" ])
         self.mod_matrix.setVerticalHeaderLabels(["ADSR 1", "ADSR 2", "Ramp Env", "LFO"])
