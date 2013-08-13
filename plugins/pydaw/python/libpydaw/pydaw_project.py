@@ -2155,7 +2155,7 @@ class pydaw_sample_graph:
 
     def create_sample_graph(self, a_for_scene=False):
         if self.sample_graph_cache is None:
-            if self.length_in_seconds > 1.0:
+            if self.length_in_seconds > 0.5:
                 if a_for_scene:
                     f_width_inc = pydaw_audio_item_scene_width / self.count
                     f_section = pydaw_audio_item_scene_height / float(self.channels)
@@ -2171,10 +2171,12 @@ class pydaw_sample_graph:
                     f_width_pos = 1.0
                     f_result.moveTo(f_width_pos, f_section_div2)
                     for f_peak in self.high_peaks[f_i]:
-                        f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2))
+                        f_peak_clipped = pydaw_clip_value(f_peak, 0.01, 0.99)
+                        f_result.lineTo(f_width_pos, f_section_div2 - (f_peak_clipped * f_section_div2))
                         f_width_pos += f_width_inc
                     for f_peak in self.low_peaks[f_i]:
-                        f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2)
+                        f_peak_clipped = pydaw_clip_value(f_peak, -0.99, -0.01)
+                        f_result.lineTo(f_width_pos, (f_peak_clipped * -1.0 * f_section_div2) + f_section_div2)
                         f_width_pos -= f_width_inc
                     f_result.closeSubpath()
                     f_paths.append(f_result)
