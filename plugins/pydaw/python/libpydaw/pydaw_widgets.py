@@ -906,7 +906,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.loop_end_callback = a_loop_end_callback
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
-        self.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -914,6 +914,11 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scroll_bar_height = self.horizontalScrollBar().height()
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
+        self.waveform_brush = QtGui.QLinearGradient(0.0, 0.0, 1200.0, 6000.0)
+        self.waveform_brush.setColorAt(0.0, QtGui.QColor(140, 140, 240))
+        self.waveform_brush.setColorAt(0.5, QtGui.QColor(240, 190, 140))
+        self.waveform_brush.setColorAt(1.0, QtGui.QColor(140, 140, 240))
+        self.waveform_pen = QtGui.QPen(QtCore.Qt.white, 6.0)
 
     def clear_drawn_items(self):
         self.scene.clear()
@@ -924,7 +929,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_path_y_pos = 0.0
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
-            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 9.0))
+            f_path_item.setPen(self.waveform_pen)
+            f_path_item.setBrush(self.waveform_brush)
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
