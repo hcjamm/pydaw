@@ -5585,7 +5585,7 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
         if global_open_fx_ui_dicts[a_track_type][a_track_num].widget.isHidden():
             global_open_fx_ui_dicts[a_track_type][a_track_num].widget.show()
         global_open_fx_ui_dicts[a_track_type][a_track_num].widget.raise_()
-    print(str(global_open_fx_ui_dicts))
+
 
 def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     global global_open_inst_ui_dict
@@ -5608,7 +5608,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
         if global_open_inst_ui_dict[f_track_num].widget.isHidden():
             global_open_inst_ui_dict[f_track_num].widget.show()
         global_open_inst_ui_dict[f_track_num].widget.raise_()
-    print(str(global_open_inst_ui_dict))
+
 
 def global_close_inst_ui(a_track_num, a_delete_file=False):
     f_track_num = int(a_track_num)
@@ -5633,14 +5633,14 @@ def global_fx_set_window_title(a_track_type, a_track_num, a_track_name):
         global_open_fx_ui_dicts[f_track_type][f_track_num].set_window_title(a_track_name)
 
 def global_fx_closed_callback(a_track_num, a_track_type):
-    global global_open_fx_ui_dicts
+    pass
+    #global global_open_fx_ui_dicts
     #global_open_fx_ui_dicts[a_track_type].pop(a_track_num)  #Not doing anymore,just hiding
-    print(str(global_open_fx_ui_dicts))
 
 def global_inst_closed_callback(a_track_num, a_track_type=None):
-    global global_open_inst_ui_dict
+    pass
+    #global global_open_inst_ui_dict
     #global_open_inst_ui_dict.pop(a_track_num)  #Not doing anymore, just hiding
-    print(str(global_open_inst_ui_dict))
 
 def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num, a_key, a_message):
     this_pydaw_project.this_dssi_gui.pydaw_configure_plugin(a_is_instrument, a_track_type, a_track_num, a_key, a_message)
