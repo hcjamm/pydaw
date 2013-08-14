@@ -6190,6 +6190,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             this_piano_roll_editor.highlight_keys(f_state, f_note)
 
     def closeEvent(self, event):
+        if global_transport_is_playing:
+            event.ignore()
+            return
         global_close_all_plugin_windows()
         f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
                      QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
@@ -6198,9 +6201,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.ignore()
             return
         else:
+            this_pydaw_project.quit_handler()
+            sleep(0.5)
             self.osc_timer.stop()
             self.osc_server.free()
+            sleep(0.5)
             event.accept()
+            QtGui.QMainWindow.closeEvent(self, event)
 
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
@@ -6699,9 +6706,6 @@ def global_new_project(a_project_file):
     global_update_audio_track_comboboxes()
     set_window_title()
 
-def about_to_quit():
-    this_pydaw_project.quit_handler()
-
 this_pydaw_project = pydaw_project()
 
 app = QtGui.QApplication(sys.argv)
@@ -6718,7 +6722,6 @@ global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
 
 app.setWindowIcon(QtGui.QIcon(pydaw_util.global_pydaw_install_prefix + "/share/pixmaps/" + global_pydaw_version_string + ".png"))
-app.aboutToQuit.connect(about_to_quit)
 
 this_pb_automation_viewer = automation_viewer(a_is_cc=False)
 this_cc_automation_viewers = []
