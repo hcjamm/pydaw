@@ -5649,8 +5649,10 @@ def global_close_all_plugin_windows():
     global global_open_fx_ui_dicts, global_open_inst_ui_dict
     for f_dict in global_open_fx_ui_dicts:
         for v in f_dict.values():
+            v.is_quitting = True
             v.widget.close()
     for v in global_open_inst_ui_dict.values():
+        v.is_quitting = True
         v.widget.close()
     global_open_fx_ui_dicts = [{}, {}, {}]
     global_open_inst_ui_dict = {}
@@ -6161,8 +6163,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.osc_timer.setSingleShot(False)
             self.osc_timer.timeout.connect(self.osc_time_callback)
             self.osc_timer.start(20)
-
         self.show()
+        self.ignore_close_event = True
 
     def osc_time_callback(self):
         self.osc_server.recv(1)
@@ -6189,26 +6191,31 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_state, f_note = a_val.split("|")
             this_piano_roll_editor.highlight_keys(f_state, f_note)
 
-    def closeEvent(self, event):
-        if global_transport_is_playing:
-            event.ignore()
-            return
-        global_close_all_plugin_windows()
-        sleep(1.0)
-        f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
-                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
 
-        if f_reply == QtGui.QMessageBox.Cancel:
+    def closeEvent(self, event):
+        if self.ignore_close_event:
             event.ignore()
-            return
+            if global_transport_is_playing:
+                return
+            self.setEnabled(False)
+            f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
+                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
+            if f_reply == QtGui.QMessageBox.Cancel:
+                self.setEnabled(True)
+                return
+            else:
+                this_pydaw_project.quit_handler()
+                sleep(0.5)
+                global_close_all_plugin_windows()
+                self.osc_timer.stop()
+                self.osc_server.free()
+                self.ignore_close_event = False
+                f_quit_timer = QtCore.QTimer(self)
+                f_quit_timer.setSingleShot(True)
+                f_quit_timer.timeout.connect(self.close)
+                f_quit_timer.start(1000)
         else:
-            this_pydaw_project.quit_handler()
-            sleep(0.5)
-            self.osc_timer.stop()
-            self.osc_server.free()
-            sleep(0.5)
             event.accept()
-            QtGui.QMainWindow.closeEvent(self, event)
 
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]

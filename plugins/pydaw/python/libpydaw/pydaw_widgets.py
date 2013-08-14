@@ -1275,6 +1275,7 @@ class pydaw_abstract_plugin_ui:
         self.close_callback = a_close_callback
         self.configure_dict = {}
         self.save_file_on_exit = True
+        self.is_quitting = False
 
 
     def delete_plugin_file(self):
@@ -1299,8 +1300,12 @@ class pydaw_abstract_plugin_ui:
     def widget_close_event(self, a_event):
         if self.save_file_on_exit:
             self.save_plugin_file()
-        self.widget.hide()
-        self.close_callback(self.track_num, self.track_type)
+        if self.is_quitting:
+            a_event.accept()
+        else:
+            self.widget.hide()
+            self.close_callback(self.track_num, self.track_type)
+            a_event.ignore()
         #QtGui.QWidget.closeEvent(self.widget, a_event)
 
     def plugin_rel_callback(self, a_port, a_val):
