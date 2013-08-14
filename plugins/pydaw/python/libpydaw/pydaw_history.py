@@ -28,10 +28,11 @@ class pydaw_history:
             f_conn.close()
 
     def get_latest_version_of_file(self, a_folder, a_file):
-        f_query_result = self.db_exec("SELECT text_new, existed FROM pydaw_diffs WHERE commit_file = '" + str(a_file) + \
-        "' AND commit_folder = '" + str(a_folder) + "' ORDER BY commit_timestamp DESC LIMIT 1", True)
-        #if f_query_result[0][1] == 0 or len(f_query_result) == 0:
+        f_query = "SELECT text_new, existed FROM pydaw_diffs WHERE commit_file = '" + str(a_file) + \
+        "' AND commit_folder = '" + str(a_folder) + "' ORDER BY commit_timestamp DESC LIMIT 1"
+        f_query_result = self.db_exec(f_query, True)
         if len(f_query_result) == 0:
+            print("get_latest_version_of_file:  len(f_query_result) == 0 for \n\n%s\n\n" % (f_query,))
             return None
         else:
             return f_query_result[0][0]
@@ -167,3 +168,43 @@ class pydaw_history_log_widget(QtGui.QWidget):
         if self.ui_callback is not None:
             self.ui_callback(True)
         self.populate_table()
+
+# Unit test a project by reconstructing it from project history and printing the diff, any detected
+# difference likely constitutes a bug
+if __name__ == "__main__":
+    def _history_unit_test():
+        import sys
+        import pydaw_util
+        if len(sys.argv) != 2:
+            print("Usage:  python2 history.py [project folder]")
+            sys.exit(96)
+        if not os.path.isdir(sys.argv[1]):
+            print('"%s" does not exist' % sys.argv[1])
+            sys.exit(99)
+        f_history_db = sys.argv[1] + "/history.db"
+        if not os.path.isfile(f_history_db):
+            print('"%s" does not contain a history.db database.' % sys.argv[1])
+            sys.exit(66)
+        f_root_dir_name = sys.argv[1].split("/")[-1]
+        f_history = pydaw_history(sys.argv[1])
+        f_result = ""
+        for root, dirs, files in os.walk(sys.argv[1]):
+            for f_file in files:
+                if f_file == "history.db" or f_file.endswith(".wav") or root.endswith("samplegraph"):
+                    continue
+                f_current_file = root + "/" + f_file
+                f_current_text = pydaw_util.pydaw_read_file_text(f_current_file)
+                f_dir_name = root.split("/")[-1]
+                if f_dir_name == f_root_dir_name:
+                    f_dir_name = ""
+                f_history_text = f_history.get_latest_version_of_file(f_dir_name, f_file)
+                if f_current_text != f_history_text:
+                    if f_history_text is None:
+                        f_history_arr = []
+                    else:
+                        f_history_arr = f_history_text.split("\n")
+                    for f_line in difflib.unified_diff(f_current_text.split("\n"), f_history_arr, f_current_file, "History version"):
+                        f_result += f_line + "\n"
+        print(f_result)
+
+    _history_unit_test()
