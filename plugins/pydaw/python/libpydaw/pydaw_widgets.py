@@ -2443,7 +2443,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
 
     def configure_plugin(self, a_key, a_message):
-        self.configure_dict[a_key] = a_message
+        self.configure_dict[a_key] = a_message.replace(">", "~")
         self.configure_callback(True, 0, self.track_num, a_key, a_message.replace("~", "|"))  #TODO:  Get rid of this at PyDAWv4 and use a single delimiter
 
     def set_configure(self, a_key, a_message):
@@ -2457,7 +2457,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
             print("Unknown configure message '%s'" % (a_key,))
-
 
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
@@ -2595,6 +2594,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         if path.strip() != "":
             self.find_selected_radio_button()
             self.generate_files_string((self.selected_row_index))
+            self.configure_plugin("load", self.files_string)
+            self.sample_graph.clear_drawn_items()
+            self.set_sample_graph()
+
 
     def selectionChanged(self):
         if(self.suppress_selected_sample_changed):
