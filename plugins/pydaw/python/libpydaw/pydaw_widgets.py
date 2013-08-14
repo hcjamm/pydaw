@@ -1296,6 +1296,7 @@ class pydaw_abstract_plugin_ui:
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
         self.pydaw_project.commit("Update controls for " + self.track_name)
+        self.pydaw_project.flush_history()
 
     def widget_close_event(self, a_event):
         if self.save_file_on_exit:
