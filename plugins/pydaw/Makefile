@@ -48,4 +48,4 @@ install:
 	cp -R python $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
 
 clean:
-	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw3 core *~ src/*~
+	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw3 core python/core *~ src/*~
