@@ -1301,7 +1301,7 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths)
     int f_samples_loaded_count = 0;
     int f_current_string_index = 0;
     
-    char * f_result_string = malloc(256);    
+    char * f_result_string = (char*)malloc(sizeof(char) * 1024);
     
     while (f_samples_loaded_count < EUPHORIA_TOTAL_SAMPLE_COUNT)
     {    
