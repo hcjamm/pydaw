@@ -6194,6 +6194,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.ignore()
             return
         global_close_all_plugin_windows()
+        sleep(1.0)
         f_reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure you want to quit?",
                      QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
 
