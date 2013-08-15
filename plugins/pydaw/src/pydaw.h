@@ -415,7 +415,6 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count,
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out);
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
-void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data);
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
