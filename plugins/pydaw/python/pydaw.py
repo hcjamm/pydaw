@@ -1994,6 +1994,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
             global_current_audio_item_index = None
             this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
 
+        this_audio_items_viewer_widget.set_paif_buttons_enabled(len(f_selected_items))
+
         this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
         f_timestretch_checked = True
         if len( f_selected_items) > 1:
@@ -2255,20 +2257,27 @@ class audio_items_viewer_widget():
         self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, "Edit")
 
         self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback, global_paif_val_callback)
-        self.folders_tab_widget.addTab(self.modulex.scroll_area, "Per-Item FX")
+        self.modulex_widget = QtGui.QWidget()
+        self.modulex_vlayout = QtGui.QVBoxLayout(self.modulex_widget)
+        self.folders_tab_widget.addTab(self.modulex_widget, "Per-Item FX")
         self.modulex.widget.setDisabled(True)
 
         self.modulex_copy_button = QtGui.QPushButton("Copy")
+        self.modulex_copy_button.setFixedWidth(105)
         self.modulex_copy_button.pressed.connect(self.on_modulex_copy)
         self.modulex_paste_button = QtGui.QPushButton("Paste")
+        self.modulex_paste_button.setFixedWidth(105)
         self.modulex_paste_button.pressed.connect(self.on_modulex_paste)
         self.modulex_clear_button = QtGui.QPushButton("Clear")
+        self.modulex_clear_button.setFixedWidth(105)
         self.modulex_clear_button.pressed.connect(self.on_modulex_clear)
         self.modulex_hlayout = QtGui.QHBoxLayout()
         self.modulex_hlayout.addWidget(self.modulex_copy_button)
         self.modulex_hlayout.addWidget(self.modulex_paste_button)
         self.modulex_hlayout.addWidget(self.modulex_clear_button)
-        self.modulex.layout.insertLayout(0, self.modulex_hlayout)
+        self.modulex_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.modulex_vlayout.addLayout(self.modulex_hlayout)
+        self.modulex_vlayout.addWidget(self.modulex.scroll_area)
 
         self.file_vlayout = QtGui.QVBoxLayout()
         self.file_widget = QtGui.QWidget()
@@ -2327,24 +2336,41 @@ class audio_items_viewer_widget():
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
 
+    def set_paif_buttons_enabled(self, a_count):
+        if a_count == 0:
+            self.modulex_copy_button.setEnabled(False)
+            self.modulex_paste_button.setEnabled(False)
+            self.modulex_clear_button.setEnabled(False)
+        elif a_count == 1:
+            self.modulex_copy_button.setEnabled(True)
+            self.modulex_paste_button.setEnabled(True)
+            self.modulex_clear_button.setEnabled(True)
+        elif a_count > 1:
+            self.modulex_copy_button.setEnabled(False)
+            self.modulex_paste_button.setEnabled(True)
+            self.modulex_clear_button.setEnabled(True)
+
     def on_modulex_copy(self):
         if global_current_audio_item_index is not None and global_current_region is not None:
             f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
             self.modulex_clipboard = f_paif.get_row(global_current_audio_item_index)
 
     def on_modulex_paste(self):
-        if self.modulex_clipboard is not None and \
-        global_current_audio_item_index is not None and global_current_region is not None:
+        if self.modulex_clipboard is not None and global_current_region is not None:
             f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
-            this_audio_items_viewer_widget.modulex.set_from_list(self.modulex_clipboard)
-            f_paif.set_row(global_current_audio_item_index, self.modulex_clipboard)
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_paif.set_row(f_item.track_num, self.modulex_clipboard)
             this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
             this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+            this_audio_items_viewer_widget.modulex.set_from_list(self.modulex_clipboard)
 
     def on_modulex_clear(self):
-        if global_current_audio_item_index is not None and global_current_region is not None:
+        if global_current_region is not None:
             f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
-            f_paif.clear_row(global_current_audio_item_index)
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_paif.clear_row(f_item.track_num)
             this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
             this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
             self.modulex.clear_effects()
