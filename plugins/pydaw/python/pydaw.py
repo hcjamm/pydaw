@@ -1598,6 +1598,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             return
 
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
+            f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
             f_item = self.audio_item
             f_item_old = f_item.clone()
             f_index = global_audio_items.get_next_index()
@@ -1606,6 +1607,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 return
             else:
                 global_audio_items.add_item(f_index, f_item_old)
+                f_per_item_fx = f_per_item_fx_dict.get_row(self.track_num)
+                if f_per_item_fx is not None:
+                    f_per_item_fx_dict.set_row(f_index, f_per_item_fx)
+                    f_save_paif = True
+                else:
+                    f_save_paif = False
+
             f_event_pos = a_event.pos().x()
             f_pos = f_event_pos - (f_event_pos - self.quantize(f_event_pos))
             f_scene_pos = self.quantize(a_event.scenePos().x())
@@ -1621,6 +1629,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item_old.end_bar = f_musical_pos[0]
                 f_item_old.end_beat = f_musical_pos[1]
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+            if f_save_paif:
+                this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
+                this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
             this_pydaw_project.commit("Split audio item")
             global_open_audio_items(True)
         else:
