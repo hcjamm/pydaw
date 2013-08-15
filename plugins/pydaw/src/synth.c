@@ -407,7 +407,7 @@ void v_pydaw_destructor()
             f_i++;
         }
         
-        f_i = 0;
+        f_i = 1;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
             //pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
@@ -416,7 +416,7 @@ void v_pydaw_destructor()
             f_i++;
         }
         
-        f_i = 0;
+        f_i = 1;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
             pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
@@ -427,7 +427,7 @@ void v_pydaw_destructor()
 
         sleep(2);
         
-        f_i = 0;
+        f_i = 1;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
             assert(pydaw_data->track_thread_quit_notifier[f_i] == 2);  //abort the application rather than hang indefinitely

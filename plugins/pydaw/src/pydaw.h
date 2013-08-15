@@ -368,6 +368,7 @@ typedef struct
     char * per_audio_item_fx_folder;
     lo_address uiTarget;
     char * osc_cursor_message;
+    void * main_thread_args;
 }t_pydaw_data;
 
 typedef struct 
@@ -673,9 +674,7 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
 }
 
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
-{
-    int f_i = 0;
-    
+{        
     a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );
     
     if((a_pydaw_data->track_worker_thread_count) > 4)
@@ -701,12 +700,10 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     //a_pydaw_data->track_cond_mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t) * (a_pydaw_data->track_worker_thread_count));
     
-    while(f_i < (a_pydaw_data->track_worker_thread_count))
-    {
-        //pthread_mutex_init(&a_pydaw_data->track_cond_mutex[f_i], NULL);
-        pthread_cond_init(&a_pydaw_data->track_cond[f_i], NULL);
+    int f_i = 0;
     
-        pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
+    while(f_i < (a_pydaw_data->track_worker_thread_count))
+    {        
         a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * PYDAW_MAX_WORK_ITEMS_PER_THREAD);
         a_pydaw_data->track_work_queue_counts[f_i] = 0;
         a_pydaw_data->track_thread_is_finished[f_i] = 0;
@@ -715,16 +712,26 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
         f_args->pydaw_data = a_pydaw_data;
         f_args->thread_num = f_i;     
         
-        pthread_attr_t threadAttr;
-        struct sched_param param;
-        param.__sched_priority = 90;
-        pthread_attr_init(&threadAttr);
-        pthread_attr_setschedparam(&threadAttr, &param);
-        pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
-        pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
-        pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
-        pthread_attr_destroy(&threadAttr);
-        
+        if(f_i > 0)
+        {
+            //pthread_mutex_init(&a_pydaw_data->track_cond_mutex[f_i], NULL);
+            pthread_cond_init(&a_pydaw_data->track_cond[f_i], NULL);    
+            pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
+
+            pthread_attr_t threadAttr;
+            struct sched_param param;
+            param.__sched_priority = 90;
+            pthread_attr_init(&threadAttr);
+            pthread_attr_setschedparam(&threadAttr, &param);
+            pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
+            pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+            pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
+            pthread_attr_destroy(&threadAttr);
+        }
+        else
+        {
+            a_pydaw_data->main_thread_args = (void*)f_args;
+        }
         f_i++;
     }
     
@@ -968,6 +975,135 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
     return (void*)1;
 }
 
+
+
+inline void v_pydaw_process(t_pydaw_thread_args * f_args)
+{
+    int f_i = 0;
+    while(f_i < f_args->pydaw_data->track_work_queue_counts[f_args->thread_num])
+    {
+        t_pydaw_work_queue_item f_item = f_args->pydaw_data->track_work_queues[f_args->thread_num][f_i];
+
+        if(f_item.track_type == 0)  //MIDI/plugin-instrument
+        {
+            v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->instrument, 0,
+                    f_item.track_number, 1);
+
+            v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->effect, 0,
+                    f_item.track_number, 0);
+
+            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
+
+            v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]);
+
+            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
+
+            f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
+
+            v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number],
+                    f_args->pydaw_data->track_pool[f_item.track_number]->bus_num);
+        }
+        else if(f_item.track_type == 2)  //Audio track
+        {
+            int f_i2 = 0;
+
+            while(f_i2 < f_args->pydaw_data->sample_count)
+            {
+                f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
+                f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
+                f_i2++;
+            }
+
+            v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, 2,
+                    f_item.track_number, 0);
+
+            if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
+                ((!f_args->pydaw_data->is_soloed) ||
+                ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
+            {                    
+                if(v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
+                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0],
+                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1],
+                        f_item.track_number))
+                {
+                    v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
+                    v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
+                    f_args->pydaw_data->audio_track_pool[f_item.track_number]->event_buffer, 
+                    f_args->pydaw_data->audio_track_pool[f_item.track_number]->current_period_event_index);
+
+                    v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number],
+                            f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num);
+                }
+                else
+                {
+                    f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter = 
+                            (f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter) - 1;
+                }
+            }
+            else
+            {
+                f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter = 
+                        (f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter) - 1;
+            }
+        }
+        else if(f_item.track_type == 1)  //Bus track
+        {
+            //Not necessary because it's assigned by the first plugin that writes to it...
+            /*
+            int f_i2 = 0;                
+            while(f_i2 < f_args->pydaw_data->sample_count)
+            {
+                f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
+                f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
+                f_i2++;
+            }
+            */
+
+            if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count) == 0)
+            {
+                f_args->pydaw_data->bus_pool[0]->bus_counter = (f_args->pydaw_data->bus_pool[0]->bus_counter) - 1;
+            }
+            else
+            {   
+                while(1)
+                {
+                    pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
+                    if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_counter) <= 0)
+                    {
+                        break;
+                    }
+                    pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
+                }
+
+                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]->effect, 1, 
+                        f_item.track_number, 0);
+
+                v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]);
+
+                v_run_plugin(f_args->pydaw_data->bus_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
+                        f_args->pydaw_data->bus_pool[f_item.track_number]->event_buffer, 
+                        f_args->pydaw_data->bus_pool[f_item.track_number]->current_period_event_index);
+
+                v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number],
+                        0);
+            }                
+
+            f_args->pydaw_data->bus_pool[f_item.track_number]->bus_buffer_state = 0;
+            f_args->pydaw_data->bus_pool[f_item.track_number]->bus_counter = (f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count);
+            pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);                
+        }
+
+        f_i++;
+    }
+
+    f_args->pydaw_data->track_thread_is_finished[f_args->thread_num] = 1;
+}
+
+
 void * v_pydaw_worker_thread(void* a_arg)
 {
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
@@ -1004,132 +1140,12 @@ void * v_pydaw_worker_thread(void* a_arg)
             break;
         }
         
-        int f_i = 0;
-        while(f_i < f_args->pydaw_data->track_work_queue_counts[f_args->thread_num])
-        {
-            t_pydaw_work_queue_item f_item = f_args->pydaw_data->track_work_queues[f_args->thread_num][f_i];
-            
-            if(f_item.track_type == 0)  //MIDI/plugin-instrument
-            {
-                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->instrument, 0,
-                        f_item.track_number, 1);
-                                
-                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->effect, 0,
-                        f_item.track_number, 0);
-
-                v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
-                        f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
-                        f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
-
-                v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]);
-                
-                v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
-                        f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
-                        f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
-
-                f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
-                
-                v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number],
-                        f_args->pydaw_data->track_pool[f_item.track_number]->bus_num);
-            }
-            else if(f_item.track_type == 2)  //Audio track
-            {
-                int f_i2 = 0;
-                
-                while(f_i2 < f_args->pydaw_data->sample_count)
-                {
-                    f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
-                    f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
-                    f_i2++;
-                }
-                
-                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, 2,
-                        f_item.track_number, 0);
-                
-                if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
-                    ((!f_args->pydaw_data->is_soloed) ||
-                    ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
-                {                    
-                    if(v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
-                            f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0],
-                            f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1],
-                            f_item.track_number))
-                    {
-                        v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
-                        v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
-                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->event_buffer, 
-                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->current_period_event_index);
-                
-                        v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number],
-                                f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num);
-                    }
-                    else
-                    {
-                        f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter = 
-                                (f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter) - 1;
-                    }
-                }
-                else
-                {
-                    f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter = 
-                            (f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter) - 1;
-                }
-            }
-            else if(f_item.track_type == 1)  //Bus track
-            {
-                //Not necessary because it's assigned by the first plugin that writes to it...
-                /*
-                int f_i2 = 0;                
-                while(f_i2 < f_args->pydaw_data->sample_count)
-                {
-                    f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
-                    f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
-                    f_i2++;
-                }
-                */
-
-                if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count) == 0)
-                {
-                    f_args->pydaw_data->bus_pool[0]->bus_counter = (f_args->pydaw_data->bus_pool[0]->bus_counter) - 1;
-                }
-                else
-                {   
-                    while(1)
-                    {
-                        pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
-                        if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_counter) <= 0)
-                        {
-                            break;
-                        }
-                        pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
-                    }
-                    
-                    v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]->effect, 1, 
-                            f_item.track_number, 0);
-
-                    v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]);
-                    
-                    v_run_plugin(f_args->pydaw_data->bus_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
-                            f_args->pydaw_data->bus_pool[f_item.track_number]->event_buffer, 
-                            f_args->pydaw_data->bus_pool[f_item.track_number]->current_period_event_index);
-
-                    v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number],
-                            0);
-                }                
-                
-                f_args->pydaw_data->bus_pool[f_item.track_number]->bus_buffer_state = 0;
-                f_args->pydaw_data->bus_pool[f_item.track_number]->bus_counter = (f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count);
-                pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);                
-            }
-            
-            f_i++;
-        }
-        
-        f_args->pydaw_data->track_thread_is_finished[f_args->thread_num] = 1;        
+        v_pydaw_process(f_args);
     }
     
     return (void*)1;
 }
+
 
 t_py_cc_map_item * g_py_cc_map_item_get(int a_effects_only, int a_rayv_port, int a_wayv_port, int a_euphoria_port, int a_modulex_port)
 {
@@ -2129,7 +2145,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     }
 
                      
-    f_i = 0;
+    f_i = 1;
 
     while(f_i < (a_pydaw_data->track_worker_thread_count))
     {
@@ -2137,7 +2153,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         f_i++;
     }
     //notify the worker threads
-    f_i = 0;
+    f_i = 1;
     while(f_i < a_pydaw_data->track_worker_thread_count)
     {
         pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
@@ -2146,9 +2162,9 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         f_i++;
     }
     
-    v_pydaw_fx_update_ports(a_pydaw_data, a_pydaw_data->bus_pool[0]->effect, 1, 0, 0);
+    v_pydaw_process((t_pydaw_thread_args*)a_pydaw_data->main_thread_args);
     
-    f_i = 0;
+    f_i = 1;
     //A ghetto pthread_join for threads that never finish...
     while(f_i < (a_pydaw_data->track_worker_thread_count))
     {        
@@ -2161,6 +2177,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     }
     
     //Run the master channels effects
+    v_pydaw_fx_update_ports(a_pydaw_data, a_pydaw_data->bus_pool[0]->effect, 1, 0, 0);
     v_run_plugin(a_pydaw_data->bus_pool[0]->effect, sample_count, a_pydaw_data->bus_pool[0]->event_buffer, a_pydaw_data->bus_pool[0]->current_period_event_index);
     
     int f_i2 = 0;
