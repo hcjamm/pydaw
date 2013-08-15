@@ -2143,18 +2143,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         f_i++;
     }
 
-                     
-    f_i = 1;
-
-    while(f_i < (a_pydaw_data->track_worker_thread_count))
-    {
-        a_pydaw_data->track_thread_is_finished[f_i] = 0;
-        f_i++;
-    }
+    
     //notify the worker threads
     f_i = 1;
     while(f_i < a_pydaw_data->track_worker_thread_count)
     {
+        a_pydaw_data->track_thread_is_finished[f_i] = 0;
         pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
         pthread_cond_broadcast(&a_pydaw_data->track_cond[f_i]);
         pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
