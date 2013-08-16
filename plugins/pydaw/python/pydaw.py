@@ -750,29 +750,22 @@ class region_list_editor:
                     QtGui.QMessageBox.warning(self.table_widget, "Error", "An item named '" + f_cell_text + "' already exists.")
                     return
                 f_uid = this_pydaw_project.create_empty_item(f_cell_text)
-                global_open_items([f_cell_text])
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
-                this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
                 f_name_suffix = 1
                 f_cell_text = str(f_new_lineedit.text())
-                f_item_list = []
                 for i in range(f_item_count.value()):
                     while this_pydaw_project.item_exists(f_cell_text + "-" + str(f_name_suffix)):
                         f_name_suffix += 1
                     f_item_name = f_cell_text + "-" + str(f_name_suffix)
-                    f_item_list.append(f_item_name)
                     f_uid = this_pydaw_project.create_empty_item(f_item_name)
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
                     global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1 + i, f_uid)
-                global_open_items(f_item_list)
-                this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 global_current_region.add_item_ref_by_name(x + self.track_offset, y - 1, f_cell_text, this_pydaw_project.get_items_dict())
-                this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             elif f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 f_copy_from_text = str(f_copy_combobox.currentText())
@@ -782,8 +775,7 @@ class region_list_editor:
                 f_uid = this_pydaw_project.copy_item(f_copy_from_text, f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
-                this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
-
+            this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             this_pydaw_project.commit("Add reference(s) to item (group) '" + f_cell_text + "' in region '" + str(this_region_settings.region_name_lineedit.text()))
             self.last_item_copied = f_cell_text
 
