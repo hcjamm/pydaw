@@ -1949,6 +1949,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.reselect_on_stop = []
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
+    def prepare_to_quit(self):
+        self.scene.clearSelection()
+        self.scene.clear()
+
     def set_tooltips(self, a_on):
         for f_item in self.audio_items:
             f_item.set_tooltips(a_on)
@@ -3363,6 +3367,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.selected_note_strings = []
         self.piano_keys = None
 
+    def prepare_to_quit(self):
+        self.scene.clearSelection()
+        self.scene.clear()
+
     def highlight_keys(self, a_state, a_note):
         f_note = int(a_note)
         f_state = int(a_state)
@@ -3856,6 +3864,10 @@ class automation_viewer(QtGui.QGraphicsView):
         self.plugin_index = 0
         self.last_x_scale = 1.0
 
+    def prepare_to_quit(self):
+        self.scene.clearSelection()
+        self.scene.clear()
+
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
         if not this_item_editor.enabled:
@@ -4143,6 +4155,7 @@ def global_open_items(a_items=None):
     global global_open_items_uids
 
     if a_items is not None:
+        this_piano_roll_editor.selected_note_strings = []
         f_index = this_item_editor.zoom_combobox.currentIndex()
         if f_index == 1:
             this_item_editor.zoom_combobox.setCurrentIndex(0)
@@ -6243,10 +6256,10 @@ class pydaw_main_window(QtGui.QMainWindow):
                 return
             else:
                 this_pydaw_project.quit_handler()
-                this_audio_items_viewer.scene.clear()
-                this_piano_roll_editor.scene.clear()
+                this_audio_items_viewer.prepare_to_quit()
+                this_piano_roll_editor.prepare_to_quit()
                 for f_viewer in this_cc_automation_viewers:
-                    f_viewer.scene.clear()
+                    f_viewer.prepare_to_quit()
                 sleep(0.5)
                 global_close_all_plugin_windows()
                 self.osc_timer.stop()
