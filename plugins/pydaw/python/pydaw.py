@@ -6242,6 +6242,10 @@ class pydaw_main_window(QtGui.QMainWindow):
                 return
             else:
                 this_pydaw_project.quit_handler()
+                this_audio_items_viewer.scene.clear()
+                this_piano_roll_editor.scene.clear()
+                for f_viewer in this_cc_automation_viewers:
+                    f_viewer.scene.clear()
                 sleep(0.5)
                 global_close_all_plugin_windows()
                 self.osc_timer.stop()
