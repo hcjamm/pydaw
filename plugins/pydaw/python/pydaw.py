@@ -3281,15 +3281,16 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_item.fix_overlaps()
         global_selected_piano_note = None
         this_piano_roll_editor.selected_note_strings = []
+        if self.is_copying:
+            for f_new_item in f_new_selection:
+                this_piano_roll_editor.selected_note_strings.append(str(f_new_item))
+        else:
+            for f_item in this_piano_roll_editor.note_items:
+                if f_item.isSelected():
+                    this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
-            if self.is_copying:
-                for f_new_item in f_new_selection:
-                    this_piano_roll_editor.selected_note_strings.append(str(f_new_item))
-            else:
-                if f_item.isSelected():
-                    this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
         global_save_and_reload_items()  #<Was above the loop before, but I'm not sure why...
         QtGui.QApplication.restoreOverrideCursor()
         self.showing_resize_cursor = False
