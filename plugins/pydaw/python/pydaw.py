@@ -2278,6 +2278,7 @@ class audio_items_viewer_widget():
         self.modulex_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.modulex_vlayout.addLayout(self.modulex_hlayout)
         self.modulex_vlayout.addWidget(self.modulex.scroll_area)
+        self.set_paif_buttons_enabled(0)
 
         self.file_vlayout = QtGui.QVBoxLayout()
         self.file_widget = QtGui.QWidget()

@@ -384,7 +384,7 @@ QMenu::item:selected
 color: #000000;
 }
 
-QWidget:disabled
+QPushButton:disabled, QComboBox:disabled
 {
 /*color: #404040;*/
 color: white;
