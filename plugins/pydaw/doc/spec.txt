@@ -61,6 +61,7 @@ OSC configure message keys/values:
 	"par" region-uid	Reload the per-audio-item effects for region-uid
 	"pc" is_instrument|track_type|track_num|port|val Update a plugins control from a PyQt GUI
 	"co" is_instrument|track_type|track_num|message	Send a configure message to a plugin
+	"ga" file|region|start-bar|end-bar|index|index|index|...  Create "glued" audio item by offline rendering only the audio item indexes specified
 
 
 Project structure:

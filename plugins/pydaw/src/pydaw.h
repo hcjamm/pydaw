@@ -28,8 +28,6 @@ extern "C" {
 //Print detailed information about the MIDI data being sent from PyDAW, or alternately pass in from 'make' with -DPYDAW_PRINT_DEBUG_INFO
 //#define PYDAW_PRINT_DEBUG_INFO
     
-//#define PYDAW_DEBUG_RECORDING
-    
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
 #define PYDAW_CONFIGURE_KEY_SI "si"
@@ -72,6 +70,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX_REGION "par"
 #define PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL "pc"
 #define PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN "co"
+#define PYDAW_CONFIGURE_KEY_GLUE_AUDIO_ITEMS "ga"
+    
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -369,6 +369,8 @@ typedef struct
     lo_address uiTarget;
     char * osc_cursor_message;
     void * main_thread_args;
+    int audio_glue_indexes[PYDAW_MAX_AUDIO_ITEM_COUNT];
+    int ml_cur_loop_prevent;
 }t_pydaw_data;
 
 typedef struct 
@@ -413,12 +415,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count,
         snd_seq_event_t *events, int event_count, long f_next_current_sample, 
         PYFX_Data *output0, PYFX_Data *output1, PYFX_Data **a_input_buffers);
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
-        int a_end_bar, char * a_file_out);
+        int a_end_bar, char * a_file_out, int a_is_audio_glue);
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
-        float* a_output1, int a_audio_track_num);
+        float* a_output1, int a_audio_track_num, int a_is_audio_glue);
 void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
 void * v_pydaw_audio_recording_thread(void* a_arg);
@@ -1027,7 +1029,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                 if(v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0],
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1],
-                        f_item.track_number))
+                        f_item.track_number, 0))
                 {
                     v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
                     v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
@@ -1547,6 +1549,103 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     }    
 }
 
+inline void v_pydaw_set_time_params(t_pydaw_data * a_pydaw_data, int sample_count)
+{
+    a_pydaw_data->ml_sample_period_inc = ((a_pydaw_data->playback_inc) * ((double)(sample_count)));
+    a_pydaw_data->ml_sample_period_inc_beats = (a_pydaw_data->ml_sample_period_inc) * 4.0f;
+    a_pydaw_data->ml_next_playback_cursor = (a_pydaw_data->playback_cursor) + (a_pydaw_data->ml_sample_period_inc);
+    a_pydaw_data->ml_current_period_beats = (a_pydaw_data->playback_cursor) * 4.0f;
+    a_pydaw_data->ml_next_period_beats = (a_pydaw_data->ml_next_playback_cursor) * 4.0f;
+
+    a_pydaw_data->ml_current_region = (a_pydaw_data->current_region);
+    a_pydaw_data->ml_current_bar = (a_pydaw_data->current_bar);
+    a_pydaw_data->ml_current_beat = (a_pydaw_data->ml_current_period_beats);
+
+    a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar);
+    a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
+
+    if((a_pydaw_data->ml_next_period_beats) > 4.0f)  //Should it be >= ???
+    {
+        a_pydaw_data->ml_starting_new_bar = 1;
+        a_pydaw_data->ml_next_beat = (a_pydaw_data->ml_next_period_beats) - 4.0f;            
+
+        if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+        {
+            a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar) + 1;
+
+            int f_region_length = 8;
+            if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
+            {
+                f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
+            }
+
+            if(f_region_length == 0)
+            {
+                f_region_length = 8;
+            }
+
+            if((a_pydaw_data->ml_next_bar) >= f_region_length)
+            {
+                a_pydaw_data->ml_next_bar = 0;
+                if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                {
+                    a_pydaw_data->ml_next_region = (a_pydaw_data->ml_next_region) + 1;
+                }
+                else
+                {
+                    a_pydaw_data->ml_is_looping = 1;
+                }
+            }                
+        }
+        else
+        {
+            a_pydaw_data->ml_is_looping = 1;
+        }
+    }
+    else
+    {
+        a_pydaw_data->ml_is_looping = 0;
+        a_pydaw_data->ml_starting_new_bar = 0;
+        a_pydaw_data->ml_next_region = a_pydaw_data->current_region;
+        a_pydaw_data->ml_next_bar = a_pydaw_data->current_bar;
+        a_pydaw_data->ml_next_beat = a_pydaw_data->ml_next_period_beats;
+    }
+}
+
+inline void v_pydaw_finish_time_params(t_pydaw_data * a_pydaw_data, int a_region_length_bars)
+{
+    a_pydaw_data->playback_cursor = (a_pydaw_data->ml_next_playback_cursor);
+
+    if((a_pydaw_data->playback_cursor) >= 1.0f)
+    {
+        a_pydaw_data->recording_in_current_bar = 0;
+        a_pydaw_data->recorded_note_current_beat = (a_pydaw_data->recorded_note_current_beat) + 4;
+
+        a_pydaw_data->playback_cursor = (a_pydaw_data->playback_cursor) - 1.0f;                
+
+        if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+        {
+            a_pydaw_data->current_bar = (a_pydaw_data->current_bar) + 1;
+
+            if((a_pydaw_data->current_bar) >= a_region_length_bars)
+            {
+                a_pydaw_data->current_bar = 0;
+
+                if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                {
+                    a_pydaw_data->current_region = (a_pydaw_data->current_region) + 1;
+
+                    if((a_pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
+                    {
+                        a_pydaw_data->playback_mode = 0;
+                        a_pydaw_data->current_region = 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
 inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count, 
         snd_seq_event_t *events, int event_count, long f_next_current_sample, 
         PYFX_Data *output0, PYFX_Data *output1, PYFX_Data **a_input_buffers)
@@ -1556,68 +1655,9 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     
     if((a_pydaw_data->playback_mode) > 0)
     {
-        a_pydaw_data->ml_sample_period_inc = ((a_pydaw_data->playback_inc) * ((double)(sample_count)));
-        a_pydaw_data->ml_sample_period_inc_beats = (a_pydaw_data->ml_sample_period_inc) * 4.0f;
-        a_pydaw_data->ml_next_playback_cursor = (a_pydaw_data->playback_cursor) + (a_pydaw_data->ml_sample_period_inc);
-        a_pydaw_data->ml_current_period_beats = (a_pydaw_data->playback_cursor) * 4.0f;
-        a_pydaw_data->ml_next_period_beats = (a_pydaw_data->ml_next_playback_cursor) * 4.0f;
-        
-        a_pydaw_data->ml_current_region = (a_pydaw_data->current_region);
-        a_pydaw_data->ml_current_bar = (a_pydaw_data->current_bar);
-        a_pydaw_data->ml_current_beat = (a_pydaw_data->ml_current_period_beats);
-        
-        a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar);
-        a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
-                        
-        if((a_pydaw_data->ml_next_period_beats) > 4.0f)  //Should it be >= ???
-        {
-            a_pydaw_data->ml_starting_new_bar = 1;
-            a_pydaw_data->ml_next_beat = (a_pydaw_data->ml_next_period_beats) - 4.0f;            
-            
-            if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
-            {
-                a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar) + 1;
-                
-                int f_region_length = 8;
-                if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
-                {
-                    f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
-                }
+        v_pydaw_set_time_params(a_pydaw_data, sample_count);
 
-                if(f_region_length == 0)
-                {
-                    f_region_length = 8;
-                }
-
-                if((a_pydaw_data->ml_next_bar) >= f_region_length)
-                {
-                    a_pydaw_data->ml_next_bar = 0;
-                    if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
-                    {
-                        a_pydaw_data->ml_next_region = (a_pydaw_data->ml_next_region) + 1;
-                    }
-                    else
-                    {
-                        a_pydaw_data->ml_is_looping = 1;
-                    }
-                }                
-            }
-            else
-            {
-                a_pydaw_data->ml_is_looping = 1;
-            }
-        }
-        else
-        {
-            a_pydaw_data->ml_is_looping = 0;
-            a_pydaw_data->ml_starting_new_bar = 0;
-            a_pydaw_data->ml_next_region = a_pydaw_data->current_region;
-            a_pydaw_data->ml_next_bar = a_pydaw_data->current_bar;
-            a_pydaw_data->ml_next_beat = a_pydaw_data->ml_next_period_beats;
-        }
-        
-
-        int f_region_length_bars = a_pydaw_data->default_region_length_bars;        
+        int f_region_length_bars = a_pydaw_data->default_region_length_bars;
         //double f_bar_length = (double)(a_pydaw_data->default_bar_length);
         
         if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
@@ -2069,39 +2109,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 
         v_pydaw_process_external_midi(a_pydaw_data, sample_count, events, event_count);
 
-        a_pydaw_data->playback_cursor = (a_pydaw_data->ml_next_playback_cursor);
-
-        if((a_pydaw_data->playback_cursor) >= 1.0f)
-        {
-            a_pydaw_data->recording_in_current_bar = 0;
-            a_pydaw_data->recorded_note_current_beat = (a_pydaw_data->recorded_note_current_beat) + 4;
-
-            a_pydaw_data->playback_cursor = (a_pydaw_data->playback_cursor) - 1.0f;                
-
-            if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
-            {
-                a_pydaw_data->current_bar = (a_pydaw_data->current_bar) + 1;
-
-                if((a_pydaw_data->current_bar) >= f_region_length_bars)
-                {
-                    a_pydaw_data->current_bar = 0;
-
-                    if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
-                    {
-                        a_pydaw_data->current_region = (a_pydaw_data->current_region) + 1;
-
-                        if((a_pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
-                        {
-                            a_pydaw_data->playback_mode = 0;
-                            a_pydaw_data->current_region = 0;
-                        }
-                    }
-                }
-            }
-#ifdef PYDAW_PRINT_DEBUG_INFO
-            printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (a_pydaw_data->current_region), (a_pydaw_data->current_bar));                
-#endif
-        }
+        v_pydaw_finish_time_params(a_pydaw_data, f_region_length_bars);
     } //If playback_mode > 0
     else
     {
@@ -2192,8 +2200,10 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
     }
     
-    if(a_pydaw_data->ml_starting_new_bar && !a_pydaw_data->is_offline_rendering)
-    {                    
+    if(a_pydaw_data->ml_starting_new_bar && !a_pydaw_data->is_offline_rendering && 
+            a_pydaw_data->ml_cur_loop_prevent != a_pydaw_data->ml_next_bar)
+    {       
+        a_pydaw_data->ml_cur_loop_prevent = a_pydaw_data->ml_next_bar;
         sprintf(a_pydaw_data->osc_cursor_message, "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
         lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "cur", a_pydaw_data->osc_cursor_message);
     }
@@ -2333,7 +2343,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 
 
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
-        float* a_output1, int a_audio_track_num)
+        float* a_output1, int a_audio_track_num, int a_is_audio_glue)
 {    
     /*
     if((a_pydaw_data->playback_mode) == PYDAW_PLAYBACK_MODE_OFF)
@@ -2372,7 +2382,14 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             continue;
         }
         
-        if((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->audio_track_output) == a_audio_track_num)
+        if(a_is_audio_glue  && !a_pydaw_data->audio_glue_indexes[f_i])
+        {
+            f_i++;
+            continue;
+        }
+        
+        if(a_is_audio_glue || 
+                ((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->audio_track_output) == a_audio_track_num))
         {              
             f_return_value = 1;
             
@@ -3306,6 +3323,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_next_bar = 0;
     f_result->ml_next_beat = 0.0;
     f_result->ml_starting_new_bar = 0;
+    f_result->ml_cur_loop_prevent = 0;
     f_result->ml_is_looping = 0;
     
     f_result->rec_region_current_uid = 10000000;
@@ -3411,6 +3429,14 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_result->recorded_notes_start_tracker[f_i] = 0.0f;
         f_result->recorded_notes_velocity_tracker[f_i] = -1;
         
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        f_result->audio_glue_indexes[f_i] = 0;
         f_i++;
     }
     
@@ -4522,7 +4548,7 @@ inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data, int a_start_region
 }
 
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
-        int a_end_bar, char * a_file_out)
+        int a_end_bar, char * a_file_out, int a_is_audio_glue)
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     a_pydaw_data->is_offline_rendering = 1;
@@ -4564,21 +4590,9 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     int f_old_loop_mode = a_pydaw_data->loop_mode;  //We must set it back afterwards, or the UI will be wrong...
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
-    
-#ifdef PYDAW_DEBUG_RECORDING
-    f_i = 0;
-    a_pydaw_data->input_buffers = (float**)malloc(sizeof(float*) * PYDAW_AUDIO_INPUT_TRACK_COUNT);
-    
-    while(f_i < (PYDAW_AUDIO_INPUT_TRACK_COUNT * 2))
-    {
-        a_pydaw_data->input_buffers[f_i] = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);        
-        f_i++;
-    }
-    a_pydaw_data->input_buffers_active = 1;
-    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_REC, a_start_region, a_start_bar);
-#else    
+ 
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
-#endif   
+
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
     f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
@@ -4610,11 +4624,18 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;        
-#ifdef PYDAW_DEBUG_RECORDING        
-        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, a_pydaw_data->input_buffers);
-#else
-        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, 0);
-#endif
+
+        if(a_is_audio_glue)
+        {
+            v_pydaw_set_time_params(a_pydaw_data, f_block_size);
+            v_pydaw_audio_items_run(a_pydaw_data, f_block_size, f_buffer0, f_buffer1, -1, 1);
+            v_pydaw_finish_time_params(a_pydaw_data, 999999);
+        }
+        else
+        {        
+            v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, 0);
+        }
+
         a_pydaw_data->current_sample = f_next_sample_block;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         
@@ -5098,7 +5119,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_end_bar = atoi(f_val_arr->array[3]);
         char * f_file_out = f_val_arr->array[4];
         
-        v_pydaw_offline_render(a_pydaw_data, f_start_region, f_start_bar, f_end_region, f_end_bar, f_file_out);
+        v_pydaw_offline_render(a_pydaw_data, f_start_region, f_start_bar, f_end_region, f_end_bar, f_file_out, 0);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_TRACK_BUS)) //Set the bus number for specified track
@@ -5242,6 +5263,31 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         
         f_arr->array = 0;
         g_free_2d_char_array(f_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_GLUE_AUDIO_ITEMS))
+    {
+        t_pydaw_line_split * f_val_arr = g_split_line('|', a_value);
+        char * f_path = f_val_arr->str_arr[0];  //Don't free this
+        int f_region_index = atoi(f_val_arr->str_arr[1]);
+        int f_start_bar = atoi(f_val_arr->str_arr[2]);
+        int f_end_bar = atoi(f_val_arr->str_arr[3]);
+        int f_i = 0;
+        while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+        {
+            a_pydaw_data->audio_glue_indexes[f_i] = 0;
+            f_i++;
+        }
+        
+        f_i = 4;
+        while(f_i < f_val_arr->count)
+        {
+            int f_index = atoi(f_val_arr->str_arr[f_i]);
+            a_pydaw_data->audio_glue_indexes[f_index] = 1;
+            f_i++;
+        }
+        
+        v_pydaw_offline_render(a_pydaw_data, f_region_index, f_start_bar, f_region_index, f_end_bar, f_path, 1);
+        
     }
     else
     {

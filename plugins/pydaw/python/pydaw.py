@@ -221,6 +221,8 @@ def global_plugin_rel_callback(a_is_instrument, a_track_type, a_track_num, a_por
 def global_plugin_val_callback(a_is_instrument, a_track_type, a_track_num, a_port, a_val):
     this_pydaw_project.this_dssi_gui.pydaw_update_plugin_control(a_is_instrument, a_track_type, a_track_num, a_port, a_val)
 
+global_current_song_index = None
+
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
         """ Adds a properly formatted item.  This is not for creating empty items... """
@@ -252,7 +254,7 @@ class song_editor:
             this_transport.follow_checkbox.setChecked(False)
             this_region_editor.table_widget.clearSelection()
         f_cell = self.table_widget.item(x, y)
-
+        global global_current_song_index
         if f_cell is None:
             def song_ok_handler():
                 if f_new_radiobutton.isChecked():
@@ -264,6 +266,8 @@ class song_editor:
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                 self.song.add_region_ref_by_uid(y, f_uid)
                 this_region_settings.open_region(f_new_lineedit.text())
+                global_current_song_index = y
+                print(str(global_current_song_index))
                 this_pydaw_project.save_song(self.song)
                 this_pydaw_project.commit(f_msg)
                 if not f_is_playing:
@@ -308,6 +312,7 @@ class song_editor:
             f_window.exec_()
         else:
             this_region_settings.open_region(str(f_cell.text()))
+            global_current_song_index = y
             if not f_is_playing:
                 this_region_editor.table_widget.clearSelection()
                 this_transport.region_spinbox.setValue(y)
@@ -1445,7 +1450,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
+            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\n" + \
+            "Shift+click to split items\nCtrl+drag to copy selected items\n" + \
+            "You can glue together multiple items by selecting items and pressing CTRL+G")
             self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
             self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
             self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
@@ -2092,7 +2099,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
                     f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_lane_num=f_lane_num, a_end_mode=1, a_end_bar=f_length_bars, a_end_beat=3.99)
-
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
@@ -2110,6 +2116,44 @@ class audio_items_viewer(QtGui.QGraphicsView):
             this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
             this_pydaw_project.commit("Delete audio item(s)")
             global_open_audio_items(True)
+        if a_event.key() == QtCore.Qt.Key_G and a_event.modifiers() == QtCore.Qt.ControlModifier:
+            f_indexes = []
+            f_start_bar = None
+            f_end_bar = None
+            f_lane = None
+            for f_item in self.audio_items:
+                if f_item.isSelected():
+                    f_indexes.append(f_item.track_num)
+                    if f_start_bar is None or f_start_bar > f_item.audio_item.start_bar:
+                        f_start_bar = f_item.audio_item.start_bar
+                        f_lane = f_item.audio_item.lane_num
+                    f_end, f_beat = f_item.pos_to_musical_time(f_item.pos().x() + f_item.rect().width())
+                    if f_beat > 0.0:
+                        f_end += 1
+                    if f_end_bar is None or f_end_bar < f_end:
+                        f_end_bar = f_end
+            if len(f_indexes) == 0:
+                print("No audio items selected, not glueing")
+                return
+            f_path = this_pydaw_project.get_next_glued_file_name()
+            this_pydaw_project.this_dssi_gui.pydaw_glue_audio(f_path, global_current_song_index, f_start_bar, \
+            f_end_bar, f_indexes)
+            f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
+            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+            for f_index in f_indexes:
+                f_items.remove_item(f_index)
+                f_paif.clear_row_if_exists(f_index)
+            f_index = f_items.get_next_index()
+            f_uid = this_pydaw_project.get_wav_uid_by_name(f_path)
+            f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane, a_end_mode=1, a_end_bar=f_end_bar, a_end_beat=0.0)
+            f_items.add_item(f_index, f_item)
+
+            this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
+            this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
+            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+            this_pydaw_project.commit("Glued audio items")
+            global_open_audio_items()
+
 
     def set_playback_pos(self, a_bar=None):
         pass
@@ -5613,6 +5657,7 @@ class transport_widget:
         f_lower_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
+        self.last_region_num = -99
         self.suppress_osc = False
 
 global_open_fx_ui_dicts = [{}, {}, {}]

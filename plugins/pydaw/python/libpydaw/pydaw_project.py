@@ -45,6 +45,7 @@ pydaw_folder_regions_audio = "regions_audio"
 pydaw_folder_samplegraph = "samplegraph"
 pydaw_folder_samples = "samples"
 pydaw_folder_timestretch = "timestretch"
+pydaw_folder_glued = "glued"
 
 pydaw_file_pyregions = "default.pyregions"
 pydaw_file_pyitems = "default.pyitems"
@@ -174,6 +175,7 @@ class pydaw_project:
         self.busfx_folder = self.project_folder + "/" + pydaw_folder_busfx
         self.samplegraph_folder = self.project_folder + "/" + pydaw_folder_samplegraph
         self.timestretch_folder = self.project_folder + "/" + pydaw_folder_timestretch
+        self.glued_folder = self.project_folder + "/" + pydaw_folder_glued
         #files
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
@@ -202,7 +204,7 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.audio_per_item_fx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder]
+            self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder, self.glued_folder]
 
         for project_dir in project_folders:
             print(project_dir)
@@ -237,6 +239,16 @@ class pydaw_project:
         self.commit("Created project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
+
+    def get_next_glued_file_name(self):
+        if not os.path.isdir(self.glued_folder):  #TODO:  Remove at PyDAWv4
+            os.mkdir(self.glued_folder)
+        while True:
+            self.glued_name_index += 1
+            f_path = "%s/glued-%s.wav" % (self.glued_folder, self.glued_name_index)
+            if not os.path.isfile(f_path):
+                break
+        return f_path
 
     def open_stretch_dicts(self):
         self.timestretch_cache = {}
@@ -892,6 +904,7 @@ class pydaw_project:
         self.history_commits = []
         self.history_undo_cursor = 0
         self.this_dssi_gui = dssi_gui(a_osc_url)
+        self.glued_name_index = 0
         self.suppress_updates = False
 
 class pydaw_song:
@@ -1915,6 +1928,10 @@ class pydaw_audio_item_fx_region:
 
     def clear_row(self, a_row_index):
         self.fx_list.pop(a_row_index)
+
+    def clear_row_if_exists(self, a_row_index):
+        if a_row_index in self.fx_list:
+            self.fx_list.pop(a_row_index)
 
     def get_row(self, a_row_index, a_return_none=False):
         if int(a_row_index) in self.fx_list:

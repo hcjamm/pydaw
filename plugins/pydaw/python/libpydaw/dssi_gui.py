@@ -238,3 +238,11 @@ class dssi_gui(ServerThread):
     def pydaw_configure_plugin(self, a_is_instrument, a_track_type, a_track_num, a_key, a_message):
         self.send_configure("co", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_key) + "|" + str(a_message))
 
+    def pydaw_glue_audio(self, a_file_name, a_region_index, a_start_bar_index, a_end_bar_index, a_item_indexes):
+        f_index_arr = []
+        for f_index in a_item_indexes:
+            f_index_arr.append(str(f_index))
+        self.send_configure("ga", "%s|%s|%s|%s|%s" % (a_file_name, a_region_index, a_start_bar_index, a_end_bar_index, "|".join(f_index_arr)))
+        if self.with_osc:
+            f_wait_file = pydaw_get_wait_file_path(a_file_name)
+            pydaw_wait_for_finished_file(f_wait_file)
