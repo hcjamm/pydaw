@@ -45,6 +45,7 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
 	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
 	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
+	install -m 755 pydaw3-project-recover $(DESTDIR)$(PREFIX)/bin
 	cp -R python $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
 
 clean:

@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 
@@ -202,3 +203,26 @@ class pydaw_history_log_widget(QtGui.QWidget):
             self.ui_callback(True)
         self.populate_table()
 
+
+if __name__ == "__main__":
+    def _main():
+        import sys
+        from pydaw_util import global_pydaw_file_type_string
+        app = QtGui.QApplication(sys.argv)
+        f_window = QtGui.QWidget()
+        f_file = QtGui.QFileDialog.getOpenFileName(caption='Open Project', filter=global_pydaw_file_type_string)
+        if f_file is not None:
+            f_file = str(f_file)
+            if f_file != "":
+                f_history = pydaw_history(os.path.dirname(f_file))
+                f_window.setWindowTitle("Undo history")
+                f_layout = QtGui.QVBoxLayout()
+                f_window.setLayout(f_layout)
+                f_widget = pydaw_history_log_widget(f_history)
+                f_widget.populate_table()
+                f_layout.addWidget(f_widget)
+                f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
+                f_window.show()
+        sys.exit(app.exec_())
+
+    _main()
