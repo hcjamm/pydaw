@@ -5991,6 +5991,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
         f_window.exec_()
 
+    def on_verify_history(self):
+        f_str = this_pydaw_project.verify_history()
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Verify Project History Database")
+        f_window.setFixedSize(800, 600)
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_text = QtGui.QTextEdit(f_str)
+        f_text.setReadOnly(True)
+        f_layout.addWidget(f_text)
+        f_window.exec_()
+
     def on_open_theme(self):
         try:
             f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
@@ -6190,6 +6202,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.undo_history_action = QtGui.QAction("Undo History...", self)
         self.menu_edit.addAction(self.undo_history_action)
         self.undo_history_action.triggered.connect(self.on_undo_history)
+
+        self.verify_history_action = QtGui.QAction("Verify History DB...", self)
+        self.menu_edit.addAction(self.verify_history_action)
+        self.verify_history_action.triggered.connect(self.on_verify_history)
 
         self.menu_appearance = self.menu_bar.addMenu("&Appearance")
 

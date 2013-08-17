@@ -691,6 +691,10 @@ class pydaw_project:
         print((str(a_uid)))
         raise Exception
 
+    def verify_history(self):
+        self.flush_history()
+        return self.history.verify_history()
+
     def get_transport(self):
         try:
             f_file = open(self.project_folder + "/default.pytransport", "r")
