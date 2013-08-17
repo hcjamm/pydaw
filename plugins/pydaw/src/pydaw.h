@@ -2345,13 +2345,11 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
         float* a_output1, int a_audio_track_num, int a_is_audio_glue)
 {    
-    /*
     if((a_pydaw_data->playback_mode) == PYDAW_PLAYBACK_MODE_OFF)
     {
-        return;
+        return 0;
     }
-    */
-    
+        
     if(!a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region])
     {
         return 0;  //TODO:  Check if next period has one -- TODO:  Return zero or one?
