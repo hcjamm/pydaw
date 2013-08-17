@@ -2135,7 +2135,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     if f_start_bar is None or f_start_bar > f_item.audio_item.start_bar:
                         f_start_bar = f_item.audio_item.start_bar
                         f_lane = f_item.audio_item.lane_num
-                        f_audio_track_num = f_item_audio_item.output_track
+                        f_audio_track_num = f_item.audio_item.output_track
                     f_end, f_beat = f_item.pos_to_musical_time(f_item.pos().x() + f_item.rect().width())
                     if f_beat > 0.0:
                         f_end += 1
