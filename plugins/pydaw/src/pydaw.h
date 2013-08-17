@@ -4553,7 +4553,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     a_pydaw_data->is_offline_rendering = 1;
     a_pydaw_data->input_buffers_active = 0;
-    int f_ab_old = a_pydaw_data->ab_mode;
+    int f_ab_old = a_pydaw_data->ab_mode;       
     a_pydaw_data->ab_mode = 0;
     
     int f_bar_count = a_end_bar - a_start_bar;
@@ -4591,8 +4591,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     int f_old_loop_mode = a_pydaw_data->loop_mode;  //We must set it back afterwards, or the UI will be wrong...
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
  
-    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
-
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);
+    
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
     f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
@@ -4672,6 +4672,9 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     FILE * f_finished = fopen(f_tmp_finished, "w");    
     fclose(f_finished);
+    
+    v_set_playback_cursor(a_pydaw_data, a_start_region, a_start_bar);
+    v_pydaw_set_time_params(a_pydaw_data, f_block_size);
     
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;

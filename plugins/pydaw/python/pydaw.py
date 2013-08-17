@@ -254,7 +254,6 @@ class song_editor:
             this_transport.follow_checkbox.setChecked(False)
             this_region_editor.table_widget.clearSelection()
         f_cell = self.table_widget.item(x, y)
-        global global_current_song_index
         if f_cell is None:
             def song_ok_handler():
                 if f_new_radiobutton.isChecked():
@@ -266,8 +265,8 @@ class song_editor:
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                 self.song.add_region_ref_by_uid(y, f_uid)
                 this_region_settings.open_region(f_new_lineedit.text())
+                global global_current_song_index
                 global_current_song_index = y
-                print(str(global_current_song_index))
                 this_pydaw_project.save_song(self.song)
                 this_pydaw_project.commit(f_msg)
                 if not f_is_playing:
@@ -312,11 +311,13 @@ class song_editor:
             f_window.exec_()
         else:
             this_region_settings.open_region(str(f_cell.text()))
+            global global_current_song_index
             global_current_song_index = y
             if not f_is_playing:
                 this_region_editor.table_widget.clearSelection()
                 this_transport.region_spinbox.setValue(y)
                 this_transport.bar_spinbox.setValue(0)
+        print(str(global_current_song_index))
 
     def __init__(self):
         self.song = pydaw_song()
@@ -436,11 +437,16 @@ class song_editor:
         """ Flush the edited content of the QTableWidget back to the native song class... """
         self.song.regions = {}
         f_uid_dict = this_pydaw_project.get_regions_dict()
+        global global_current_song_index
+        global_current_song_index = None
         for f_i in range(0, 300):
             f_item = self.table_widget.item(0, f_i)
             if not f_item is None:
-                if f_item.text() != "":
+                if str(f_item.text()) != "":
                     self.song.add_region_ref_by_name(f_i, f_item.text(), f_uid_dict)
+                if str(f_item.text()) == global_current_region_name:
+                    global_current_song_index = f_i
+                    print(str(f_i))
         this_pydaw_project.save_song(self.song)
         self.open_song()
 
@@ -2117,6 +2123,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             this_pydaw_project.commit("Delete audio item(s)")
             global_open_audio_items(True)
         if a_event.key() == QtCore.Qt.Key_G and a_event.modifiers() == QtCore.Qt.ControlModifier:
+            f_region_uid = global_current_region.uid
             f_indexes = []
             f_start_bar = None
             f_end_bar = None
@@ -2138,8 +2145,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_path = this_pydaw_project.get_next_glued_file_name()
             this_pydaw_project.this_dssi_gui.pydaw_glue_audio(f_path, global_current_song_index, f_start_bar, \
             f_end_bar, f_indexes)
-            f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
-            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+            f_items = this_pydaw_project.get_audio_region(f_region_uid)
+            f_paif = this_pydaw_project.get_audio_per_item_fx_region(f_region_uid)
             for f_index in f_indexes:
                 f_items.remove_item(f_index)
                 f_paif.clear_row_if_exists(f_index)
@@ -2148,9 +2155,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane, a_end_mode=1, a_end_bar=f_end_bar, a_end_beat=0.0)
             f_items.add_item(f_index, f_item)
 
-            this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
-            this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
-            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+            this_pydaw_project.save_audio_region(f_region_uid, f_items)
+            this_pydaw_project.save_audio_per_item_fx_region(f_region_uid, f_paif)
+            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(f_region_uid)
             this_pydaw_project.commit("Glued audio items")
             global_open_audio_items()
 
@@ -5348,7 +5355,7 @@ class seq_track:
 
 class transport_widget:
     def set_pos_from_cursor(self, a_region, a_bar):
-        if self.follow_checkbox.isChecked():
+        if self.follow_checkbox.isChecked() and (self.is_playing or self.is_recording):
             f_region = int(a_region)
             self.region_spinbox.setValue(f_region)
             f_bar = int(a_bar)
