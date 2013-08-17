@@ -2128,12 +2128,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_start_bar = None
             f_end_bar = None
             f_lane = None
+            f_audio_track_num = None
             for f_item in self.audio_items:
                 if f_item.isSelected():
                     f_indexes.append(f_item.track_num)
                     if f_start_bar is None or f_start_bar > f_item.audio_item.start_bar:
                         f_start_bar = f_item.audio_item.start_bar
                         f_lane = f_item.audio_item.lane_num
+                        f_audio_track_num = f_item_audio_item.output_track
                     f_end, f_beat = f_item.pos_to_musical_time(f_item.pos().x() + f_item.rect().width())
                     if f_beat > 0.0:
                         f_end += 1
@@ -2152,7 +2154,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 f_paif.clear_row_if_exists(f_index)
             f_index = f_items.get_next_index()
             f_uid = this_pydaw_project.get_wav_uid_by_name(f_path)
-            f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane, a_end_mode=1, a_end_bar=f_end_bar, a_end_beat=0.0)
+            f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane, a_end_mode=1, a_output_track=f_audio_track_num, \
+            a_end_bar=f_end_bar, a_end_beat=0.0)
             f_items.add_item(f_index, f_item)
 
             this_pydaw_project.save_audio_region(f_region_uid, f_items)
