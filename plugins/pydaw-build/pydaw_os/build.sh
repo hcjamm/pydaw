@@ -8,11 +8,11 @@
 
 sudo apt-get install squashfs-tools genisoimage
 
-if [ $1 == "saucy" ]; then
-	ISO_NAME="saucy-desktop-amd64.iso"
-else
-	ISO_NAME="ubuntu-12.04.2-desktop-amd64.iso"
+if [ $# != 1 ]; then
+	echo "usage:  ./build.sh [input .iso file]"
 fi
+
+ISO_NAME=$1
 
 if [ ! -f $ISO_NAME ]; then
 	echo "You must place $ISO_NAME in this directory before continuing"
