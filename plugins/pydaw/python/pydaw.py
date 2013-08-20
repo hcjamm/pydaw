@@ -6123,6 +6123,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
 
+    def on_collapse_splitters(self):
+        self.song_region_splitter.setSizes([0, 9999])
+        self.transport_splitter.setSizes([0, 9999])
+
+    def on_restore_splitters(self):
+        self.song_region_splitter.setSizes([100, 9999])
+        self.transport_splitter.setSizes([100, 9999])
 
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -6208,6 +6215,16 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.verify_history_action.triggered.connect(self.on_verify_history)
 
         self.menu_appearance = self.menu_bar.addMenu("&Appearance")
+
+        self.collapse_splitters_action = QtGui.QAction("Collapse transport and song editor", self)
+        self.menu_appearance.addAction(self.collapse_splitters_action)
+        self.collapse_splitters_action.triggered.connect(self.on_collapse_splitters)
+        self.collapse_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Up"))
+
+        self.restore_splitters_action = QtGui.QAction("Restore transport and song editor", self)
+        self.menu_appearance.addAction(self.restore_splitters_action)
+        self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
+        self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
 
         self.open_theme_action = QtGui.QAction("Open Theme...", self)
         self.menu_appearance.addAction(self.open_theme_action)
