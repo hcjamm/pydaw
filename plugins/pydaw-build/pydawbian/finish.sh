@@ -1,41 +1,40 @@
+# Pretty much copied and pasted from here:
+# http://blog.willhaley.com/create-a-custom-debian-live-environment/
+
 #check for root
 if [ "$(id -u)" != "0" ]; then
-   echo "Error:  This script must be run as root, use sudo" 1>&2
+   echo "Error:  This script must be run as root, use su" 1>&2
    exit 1
 fi
 
-#Regenerate the manifest
-chmod +w extract-cd/casper/filesystem.manifest
-chroot edit dpkg-query -W --showformat='${Package} ${Version}\n' > extract-cd/casper/filesystem.manifest
-cp extract-cd/casper/filesystem.manifest extract-cd/casper/filesystem.manifest-desktop
-sed -i '/ubiquity/d' extract-cd/casper/filesystem.manifest-desktop
-sed -i '/casper/d' extract-cd/casper/filesystem.manifest-desktop
-
-#Compress the filesystem
-rm extract-cd/casper/filesystem.squashfs  #<- Didn't exist?
-mksquashfs edit extract-cd/casper/filesystem.squashfs  #-comp xz -e edit/boot
-
-#Update the filesystem size
-printf $(du -sx --block-size=1 edit | cut -f1) > extract-cd/casper/filesystem.size
-#Set an image name
-#nano extract-cd/README.diskdefines
-echo "pydaw_os" > extract-cd/README.diskdefines
-
-# Regenerate md5sums
-cd extract-cd
-rm md5sum.txt
-find -type f -print0 | xargs -0 md5sum | grep -v isolinux/boot.cat | tee md5sum.txt
-
-if [ $# = 0 ]; then
-	PYDAW_ISO_NAME=pydaw-os-$(cat ../../../pydaw3-version.txt).iso
-else:
-	PYDAW_ISO_NAME=$1-$(cat ../../../pydaw3-version.txt).iso
+if [ -d image ]; then
+	rm -rf image
 fi
 
-#Create the .iso image
-mkisofs -D -r -V "$IMAGE_NAME" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o ../$PYDAW_ISO_NAME .
+mkdir -p image/{live,isolinux}
+mksquashfs chroot image/live/filesystem.squashfs -e boot
+cp chroot/boot/vmlinuz-* image/live/vmlinuz1 && 
+cp chroot/boot/initrd.img* image/live/initrd1
+cp isolinux.cfg image/isolinux
 
-umount mnt   #I guess it's OK if this fails... TODO:  move it to the build script
+cp /usr/lib/syslinux/isolinux.bin image/isolinux/ && 
+cp /usr/lib/syslinux/menu.c32 image/isolinux/ && 
+cp /usr/lib/syslinux/hdt.c32 image/isolinux/ && 
+cp /boot/memtest86+.bin image/live/memtest
+
+#cp /usr/lib/syslinux/menu.c32 image/isolinux && 
+#cp /usr/lib/syslinux/hdt.c32 image/isolinux 
+
+cd image
+
+mv isolinux syslinux
+cd syslinux
+mv isolinux.bin syslinux.bin
+mv isolinux.cfg syslinux.cfg
 
 cd ..
-md5sum $PYDAW_ISO_NAME > md5sum.txt
+
+genisoimage -rational-rock -volid "Debian Live" -cache-inodes -joliet -full-iso9660-filenames -b syslinux/syslinux.bin -c syslinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -output ../pydawbian.iso .
+
+cd ..
+
