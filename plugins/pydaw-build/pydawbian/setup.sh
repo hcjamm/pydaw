@@ -1,21 +1,19 @@
-mount -t proc none /proc
-mount -t sysfs none /sys
-mount -t devpts none /dev/pts
-export HOME=/root
-export LC_ALL=C
+mount none -t proc /proc && 
+mount none -t sysfs /sys && 
+mount none -t devpts /dev/pts && 
+export HOME=/root && 
+export LC_ALL=C && 
+apt-get install dialog dbus --yes && 
+dbus-uuidgen > /var/lib/dbus/machine-id && 
+apt-get update --yes
+echo "debian-live" > /etc/hostname
 
-# dbus-uuidgen > /var/lib/dbus/machine-id
-# dpkg-divert --local --rename --add /sbin/initctl
-# ln -s /bin/true /sbin/initctl
+apt-get install --yes \
+linux-image-amd64 live-boot network-manager net-tools \
+wireless-tools wpagui tcpdump wget openssh-client \
+blackbox xserver-xorg-core xserver-xorg xinit xterm \
+pciutils usbutils gparted ntfsprogs hfsprogs rsync \
+dosfstools syslinux partclone nano pv rtorrent iceweasel \
+chntpw lxde audacity mixxx iceweasel nano makepasswd
 
-apt-get update
-#apt-get upgrade -y
-#This fails to install when a dependency of another package,
-#hence we install manually first
-apt-get install -y audacity
-apt-get install -y mixxx
-#Here either wget a .deb, or (preferably) have deb.pl move it here when building...
-
-#dpkg -i pydaw*.deb
-#Due the WTF normally encountered when doing this, it's often necessary to run:
-#apt-get install -f
+id -u pydaw &>/dev/null || useradd -p $(echo "pydaw" | makepasswd) pydaw
