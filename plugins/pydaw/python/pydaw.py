@@ -5420,7 +5420,7 @@ class transport_widget:
             self.rec_button.setChecked(True)
             return
         if self.is_playing:
-            self.region_spinbox.setValue(self.last_region_num)
+            self.region_spinbox.setValue(self.start_region)
             self.bar_spinbox.setValue(self.last_bar)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
@@ -5430,6 +5430,7 @@ class transport_widget:
         self.is_playing = True
         self.init_playback_cursor()
         self.last_region_num = self.region_spinbox.value()
+        self.start_region = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
         self.trigger_audio_playback()
@@ -5456,8 +5457,9 @@ class transport_widget:
         self.region_spinbox.setEnabled(True)
         self.overdub_checkbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
+        sleep(0.1)
         self.bar_spinbox.setValue(self.last_bar)
-        self.region_spinbox.setValue(self.last_region_num)
+        self.region_spinbox.setValue(self.start_region)
         if self.is_recording:
             self.is_recording = False
             this_pydaw_project.flush_history() #As the history will be referenced when the recorded items are added to history
@@ -5514,6 +5516,7 @@ class transport_widget:
         self.is_recording = True
         self.init_playback_cursor()
         self.last_region_num = self.region_spinbox.value()
+        self.start_region = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
         self.trigger_audio_playback()
@@ -5590,6 +5593,7 @@ class transport_widget:
         self.suppress_osc = True
         self.is_recording = False
         self.is_playing = False
+        self.start_region = 0
         self.last_bar = 0
         self.last_open_dir = global_home
         self.transport = pydaw_transport()
