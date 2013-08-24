@@ -56,6 +56,13 @@ void v_app_run(t_amp_and_panner* a_app, float a_in0, float a_in1)
     a_app->output1 = a_in1 * (a_app->amp_linear1);
 }
 
+void v_app_run_monofier(t_amp_and_panner* a_app, float a_in0, float a_in1)
+{
+    v_app_run(a_app, a_in0, a_in1);
+    a_app->output0 = a_app->output0 + a_app->output1;
+    a_app->output1 = a_app->output0;
+}
+
 t_amp_and_panner * g_app_get()
 {
     t_amp_and_panner * f_result;

@@ -975,7 +975,7 @@ class pydaw_modulex_single:
         self.combobox = pydaw_combobox_control(132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
                ["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
                 "Comb Filter", "Amp/Pan", "Limiter" , "Saturator", "Formant", "Chorus", "Glitch" , "RingMod",
-                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"], a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr, a_default_index=0)
+                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet", "Monofier"], a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr, a_default_index=0)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
@@ -1212,6 +1212,17 @@ class pydaw_modulex_single:
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
+            self.knobs[2].value_label.setText((""))
+        elif a_val == 23: #Monofier
+            self.knobs[0].name_label.setText(("Pan"))
+            self.knobs[1].name_label.setText(("Amp"))
+            self.knobs[2].name_label.setText(("unused"))
+            self.knobs[0].val_conversion = kc_none
+            self.knobs[1].val_conversion = kc_127_zero_to_x
+            self.knobs[1].set_127_min_max(-30.0, 6.0)
+            self.knobs[2].val_conversion = kc_none
+            self.knobs[0].value_label.setText((""))
+            self.knobs[1].value_label.setText((""))
             self.knobs[2].value_label.setText((""))
 
         self.knobs[0].set_value(self.knobs[0].control.value())
