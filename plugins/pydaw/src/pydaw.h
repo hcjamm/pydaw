@@ -695,10 +695,10 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     a_pydaw_data->track_worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_work_queues = (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_work_queue_counts = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
-    a_pydaw_data->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
-    a_pydaw_data->track_thread_is_finished = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
+    
+    posix_memalign((void**)&a_pydaw_data->track_thread_quit_notifier, 16, (sizeof(int) * (a_pydaw_data->track_worker_thread_count)));
+    posix_memalign((void**)&a_pydaw_data->track_thread_is_finished, 16, (sizeof(int) * (a_pydaw_data->track_worker_thread_count)));
 
-    //a_pydaw_data->track_cond_mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t) * (a_pydaw_data->track_worker_thread_count));
     
     int f_i = 0;
