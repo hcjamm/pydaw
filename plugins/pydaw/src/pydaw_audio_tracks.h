@@ -527,14 +527,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         char * f_reversed_char = c_iterate_2d_char_array(f_current_string);
         f_result->is_reversed = atoi(f_reversed_char);
         free(f_reversed_char);
-        /*
-        if(f_result->is_reversed)
-        {
-            f_result->sample_start_offset = f_result->wav_pool_item->length - f_result->sample_start_offset;
-            f_result->sample_start_offset_float = (float)(f_result->sample_start_offset);
-            f_result->sample_end_offset = f_result->wav_pool_item->length - f_result->sample_end_offset;
-        }
-        */
+                
         //Not used in the back-end
         char * f_crispness_char = c_iterate_2d_char_array(f_current_string);
         free(f_crispness_char);
@@ -549,6 +542,16 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         {
             f_result->sample_end_offset = f_samples_total;
         }
+    }
+    
+    
+    if(f_result->is_reversed)
+    {
+        int f_old_start = f_result->sample_start_offset;
+        int f_old_end = f_result->sample_end_offset - PYDAW_AUDIO_ITEM_PADDING_DIV2;
+        f_result->sample_start_offset = f_result->wav_pool_item->length - f_old_end;
+        f_result->sample_start_offset_float = (float)(f_result->sample_start_offset);
+        f_result->sample_end_offset = f_result->wav_pool_item->length - f_old_start;
     }
     
     f_result->sample_fade_in_end = f_result->sample_end_offset - f_result->sample_start_offset;
