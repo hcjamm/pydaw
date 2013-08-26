@@ -209,6 +209,7 @@ void v_ifh_run(t_int_frac_read_head* a_ifh, float a_ratio)
     {
         a_ifh->int_increment = (int)a_ratio;
         a_ifh->float_increment = a_ratio - ((float)(a_ifh->int_increment));
+        a_ifh->last_increment = a_ratio;
     }
     
     a_ifh->whole_number = (a_ifh->whole_number) + (a_ifh->int_increment);
@@ -227,6 +228,7 @@ void v_ifh_run_reverse(t_int_frac_read_head* a_ifh, float a_ratio)
     {
         a_ifh->int_increment = (int)a_ratio;
         a_ifh->float_increment = a_ratio - ((float)(a_ifh->int_increment));
+        a_ifh->last_increment = a_ratio;
     }
     
     a_ifh->whole_number = (a_ifh->whole_number) - (a_ifh->int_increment);
