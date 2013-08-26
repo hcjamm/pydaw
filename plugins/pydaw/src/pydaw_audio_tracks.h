@@ -544,11 +544,10 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         }
     }
     
-    
     if(f_result->is_reversed)
     {
         int f_old_start = f_result->sample_start_offset;
-        int f_old_end = f_result->sample_end_offset - PYDAW_AUDIO_ITEM_PADDING_DIV2;
+        int f_old_end = f_result->sample_end_offset; // - PYDAW_AUDIO_ITEM_PADDING_DIV2;
         f_result->sample_start_offset = f_result->wav_pool_item->length - f_old_end;
         f_result->sample_start_offset_float = (float)(f_result->sample_start_offset);
         f_result->sample_end_offset = f_result->wav_pool_item->length - f_old_start;
@@ -564,7 +563,15 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_in_divisor = (float)(f_result->sample_fade_in_end - f_result->sample_start_offset - (PYDAW_AUDIO_ITEM_PADDING_DIV2));
     
     f_result->sample_fade_out_divisor = (float)(f_result->sample_end_offset - f_result->sample_fade_out_start);
-            
+    
+    if(f_result->is_reversed)
+    {
+        int f_old_start = f_result->sample_fade_out_start;
+        int f_old_end = f_result->sample_fade_in_end;
+        f_result->sample_fade_in_end = f_result->wav_pool_item->length - f_old_end;
+        f_result->sample_fade_out_start = f_result->wav_pool_item->length - f_old_start;
+    }
+    
     f_result->ratio = f_result->wav_pool_item->ratio_orig;
     
     switch(f_result->timestretch_mode)
@@ -622,26 +629,52 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
 
 void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
 {
-    if(a_audio_item->sample_read_head->whole_number < a_audio_item->sample_fade_in_end)
+    if(a_audio_item->is_reversed)
     {
-        a_audio_item->fade_vol = ((float)(a_audio_item->sample_fade_in_end - a_audio_item->sample_read_head->whole_number))
-                / a_audio_item->sample_fade_in_divisor;        
-        a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
-        //a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
-        a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
-    }
-    else if(a_audio_item->sample_read_head->whole_number >= a_audio_item->sample_fade_out_start)
-    {
-        a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number) - a_audio_item->sample_fade_out_start) 
-                / a_audio_item->sample_fade_out_divisor;
-        a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
-        //a_audio_item->fade_vol = (a_audio_item->fade_vol * 40.0f) - 40.0f;
-        a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
+        if(a_audio_item->sample_read_head->whole_number > a_audio_item->sample_fade_in_end && a_audio_item->sample_fade_in_divisor != 0.0f)
+        {
+            a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number) - a_audio_item->sample_fade_in_end) 
+                    / a_audio_item->sample_fade_in_divisor;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            //a_audio_item->fade_vol = (a_audio_item->fade_vol * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
+        }
+        else if(a_audio_item->sample_read_head->whole_number <= a_audio_item->sample_fade_out_start && a_audio_item->sample_fade_out_divisor != 0.0f)
+        {
+            a_audio_item->fade_vol = ((float)(a_audio_item->sample_fade_out_start - a_audio_item->sample_read_head->whole_number))
+                    / a_audio_item->sample_fade_out_divisor;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            //a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);            
+        }
+        else
+        {
+            a_audio_item->fade_vol = 1.0f;
+        }
     }
     else
     {
-        a_audio_item->fade_vol = 1.0f;
-    }        
+        if(a_audio_item->sample_read_head->whole_number < a_audio_item->sample_fade_in_end && a_audio_item->sample_fade_in_divisor != 0.0f)
+        {
+            a_audio_item->fade_vol = ((float)(a_audio_item->sample_fade_in_end - a_audio_item->sample_read_head->whole_number))
+                    / a_audio_item->sample_fade_in_divisor;        
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            //a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
+        }
+        else if(a_audio_item->sample_read_head->whole_number >= a_audio_item->sample_fade_out_start && a_audio_item->sample_fade_out_divisor != 0.0f)
+        {
+            a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number) - a_audio_item->sample_fade_out_start) 
+                    / a_audio_item->sample_fade_out_divisor;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            //a_audio_item->fade_vol = (a_audio_item->fade_vol * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
+        }
+        else
+        {
+            a_audio_item->fade_vol = 1.0f;
+        }
+    }
 }
 
 void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
