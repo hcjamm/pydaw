@@ -1438,7 +1438,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_y_inc = 0.0
             f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
-                f_path_item.setPos(self.sample_start_offset_px, f_y_offset + f_y_inc * f_i)
+                if self.audio_item.reversed:
+                    f_path_item.setPos(self.sample_start_offset_px + self.length_seconds_orig_px, (self.y_inc * 0.5) + f_y_offset + (f_y_inc * f_i))
+                    f_path_item.rotate(-180.0)
+                else:
+                    f_path_item.setPos(self.sample_start_offset_px, f_y_offset + (f_y_inc * f_i))
                 f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
                 f_y_scale *= self.vol_linear
                 f_path_item.scale(f_x_scale, f_y_scale)
@@ -2040,6 +2044,16 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_vol_checked = False
                     break
         this_audio_item_editor_widget.vol_checkbox.setChecked(f_vol_checked)
+
+        f_reverse_checked = True
+        if len( f_selected_items) > 1:
+            f_reverse_val = f_selected_items[0].audio_item.reversed
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.reversed != f_reverse_val:
+                    f_reverse_checked = False
+                    break
+        this_audio_item_editor_widget.reversed_checkbox.setChecked(f_reverse_checked)
+
         if len(f_selected_items) > 0:
             if f_end_mode_checked:
                 if f_selected_items[0].audio_item.end_mode == 1:
@@ -2068,6 +2082,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 this_audio_item_editor_widget.output_combobox.setCurrentIndex(f_selected_items[0].audio_item.output_track)
             if f_vol_checked:
                 this_audio_item_editor_widget.sample_vol_slider.setValue(f_selected_items[0].audio_item.vol)
+            if f_reverse_checked:
+                this_audio_item_editor_widget.is_reversed_checkbox.setChecked(f_selected_items[0].audio_item.reversed)
 
     def sceneDragEnterEvent(self, a_event):
         a_event.setAccepted(True)
@@ -2702,8 +2718,18 @@ class audio_item_editor_widget:
         self.output_combobox.currentIndexChanged.connect(self.output_changed)
         self.output_hlayout.addWidget(self.output_combobox)
         self.vlayout2.addLayout(self.output_hlayout)
-        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
+        self.reversed_layout = QtGui.QHBoxLayout()
+        self.reversed_checkbox = QtGui.QCheckBox()
+        self.reversed_layout.addWidget(self.reversed_checkbox)
+        self.is_reversed_checkbox = QtGui.QCheckBox("Reverse")
+        self.is_reversed_checkbox.clicked.connect(self.reverse_changed)
+        self.reversed_layout.addWidget(self.is_reversed_checkbox)
+        self.reversed_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
+        self.vlayout2.addLayout(self.reversed_layout)
+
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
         self.ok_layout = QtGui.QHBoxLayout()
         self.ok = QtGui.QPushButton("Save Changes")
         self.ok.pressed.connect(self.ok_handler)
@@ -2737,6 +2763,7 @@ class audio_item_editor_widget:
             "processed on a single core")
             self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n" +\
             "use the fade-in/fade-out handles, or automate the volume on the audio track specified in the Output: combobox.")
+            self.is_reversed_checkbox.setToolTip("Checking this causes the sample to play backwards")
         else:
             self.timestretch_amt_end.setToolTip("")
             self.pitch_shift_end.setToolTip("")
@@ -2746,6 +2773,10 @@ class audio_item_editor_widget:
             self.timestretch_mode.setToolTip("")
             self.output_combobox.setToolTip("")
             self.sample_vol_slider.setToolTip("")
+            self.is_reversed_checkbox.setToolTip("")
+
+    def reverse_changed(self, a_val=None):
+        self.reversed_checkbox.setChecked(True)
 
     def timestretch_end_mode_changed(self, a_val=None):
         if not self.timestretch_amt_end_checkbox.isChecked():
@@ -2870,7 +2901,7 @@ class audio_item_editor_widget:
             self.pitch_shift_end.setValue(a_item.pitch_shift_end)
             self.timestretch_amt_end.setValue(a_item.timestretch_amt_end)
             self.crispness_combobox.setCurrentIndex(a_item.crispness)
-
+            self.is_reversed_checkbox.setChecked(a_item.reversed)
 
     def ok_handler(self):
         if global_transport_is_playing:
@@ -2939,6 +2970,8 @@ class audio_item_editor_widget:
                         f_item.audio_item.end_bar = f_region_length
                         f_item.audio_item.end_beat = 3.99
                     f_item.audio_item.end_mode = self.end_mode
+                if self.reversed_checkbox.isChecked():
+                    f_item.audio_item.reversed = self.is_reversed_checkbox.isChecked()
                 f_item.draw()
                 f_selected_count += 1
         if f_selected_count == 0:

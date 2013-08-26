@@ -200,6 +200,7 @@ typedef struct st_int_frac_read_head
 
 t_int_frac_read_head * g_ifh_get();
 void v_ifh_run(t_int_frac_read_head*, float);
+void v_ifh_run_reverse(t_int_frac_read_head*, float);
 void v_ifh_retrigger(t_int_frac_read_head*, int);
 
 void v_ifh_run(t_int_frac_read_head* a_ifh, float a_ratio)
@@ -217,6 +218,24 @@ void v_ifh_run(t_int_frac_read_head* a_ifh, float a_ratio)
     {
         a_ifh->fraction = (a_ifh->fraction) - 1.0f;
         a_ifh->whole_number = (a_ifh->whole_number) + 1;
+    }
+}
+
+void v_ifh_run_reverse(t_int_frac_read_head* a_ifh, float a_ratio)
+{
+    if((a_ratio) != (a_ifh->last_increment))
+    {
+        a_ifh->int_increment = (int)a_ratio;
+        a_ifh->float_increment = a_ratio - ((float)(a_ifh->int_increment));
+    }
+    
+    a_ifh->whole_number = (a_ifh->whole_number) - (a_ifh->int_increment);
+    a_ifh->fraction = (a_ifh->fraction) - (a_ifh->float_increment);
+    
+    if((a_ifh->fraction) < 0.0f)
+    {
+        a_ifh->fraction = (a_ifh->fraction) + 1.0f;
+        a_ifh->whole_number = (a_ifh->whole_number) - 1;
     }
 }
 
