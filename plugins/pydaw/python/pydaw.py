@@ -1950,9 +1950,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.snap_extra_lines_div = global_audio_px_per_8th
         self.snap_extra_lines_range = 8
         self.draw_headers()
-        self.setAlignment(QtCore.Qt.AlignTop)
+        self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-        self.setAlignment(QtCore.Qt.AlignLeft)
         self.is_playing = False
         self.last_x_scale = 1.0
         self.reselect_on_stop = []
