@@ -1945,7 +1945,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.track = 0
         self.gradient_index = 0
         self.playback_px = 0.0
-        self.set_playback_pos(0)
         self.snap_draw_extra_lines = False
         self.snap_extra_lines_div = global_audio_px_per_8th
         self.snap_extra_lines_range = 8
@@ -1955,6 +1954,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.is_playing = False
         self.last_x_scale = 1.0
         self.reselect_on_stop = []
+        self.playback_timer = QtCore.QTimer()
+        self.playback_timer.setSingleShot(False)
+        self.playback_timer.timeout.connect(self.playback_timeout)
+        self.playback_cursor = None
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
     def prepare_to_quit(self):
@@ -2180,8 +2183,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
             global_open_audio_items()
 
 
-    def set_playback_pos(self, a_bar=None):
-        pass
+    def set_playback_pos(self, a_bar=0):
+        self.playback_cursor.setPos(a_bar * global_audio_px_per_bar, 0.0)
 
     def set_playback_clipboard(self):
         self.reselect_on_stop = []
@@ -2191,10 +2194,19 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def start_playback(self, a_bars, a_bpm):
         self.is_playing = True
+        f_interval = ((1.0 / (a_bpm / 60.0)) / global_audio_px_per_bar) * 1000.0 * 4.0
+        print("f_interval: %s" % (f_interval,))
+        self.playback_timer.start(f_interval)
 
     def stop_playback(self):
+        self.playback_timer.stop()
         self.is_playing = False
         self.reset_selection()
+
+    def playback_timeout(self):
+        if self.is_playing:
+            f_new_pos = self.playback_cursor.pos().x() + 1.0
+            self.playback_cursor.setPos(f_new_pos, 0.0)
 
     def reset_selection(self):
         for f_item in self.audio_items:
@@ -2238,6 +2250,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (12.0 * (global_audio_item_height)) + global_audio_ruler_height
+        self.playback_cursor = self.scene.addLine(0.0, 0.0, 0.0, f_total_height, QtGui.QPen(QtCore.Qt.red, 2.0))
         i3 = 0.0
         for i in range(f_region_length):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
@@ -2262,10 +2275,15 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def clear_drawn_items(self):
         if self.is_playing:
-            self.stop_playback()
+            f_was_playing = True
+            self.is_playing = False
+        else:
+            f_was_playing = False
         self.audio_items = []
         self.scene.clear()
         self.draw_headers()
+        if f_was_playing:
+            self.is_playing = True
 
     def draw_item(self, a_audio_item_index, a_audio_item, a_sample_length):
         '''a_start in seconds, a_length in seconds'''
@@ -5400,6 +5418,7 @@ class transport_widget:
             self.region_spinbox.setValue(f_region)
             f_bar = int(a_bar)
             self.bar_spinbox.setValue(f_bar)
+            this_audio_items_viewer.set_playback_pos(f_bar)
             f_bar += 1
             this_region_audio_editor.table_widget.selectColumn(f_bar)
             this_region_editor.table_widget.selectColumn(f_bar)
