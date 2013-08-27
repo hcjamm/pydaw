@@ -2219,6 +2219,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         else:
             global_open_audio_items(True)
 
+    def ruler_click_event(self, a_event):
+        f_val = int(a_event.pos().x() / global_audio_px_per_bar)
+        this_transport.bar_spinbox.setValue(f_val)
+
     def draw_headers(self):
         if global_current_region is None or global_current_region.region_length_bars == 0:
             f_region_length = 8
@@ -2227,6 +2231,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
         f_size = global_audio_px_per_bar * f_region_length
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
+        f_ruler.mousePressEvent = self.ruler_click_event
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_beat_pen = QtGui.QPen(QtGui.QColor(210, 210, 210))
