@@ -2251,6 +2251,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (12.0 * (global_audio_item_height)) + global_audio_ruler_height
         self.playback_cursor = self.scene.addLine(0.0, 0.0, 0.0, f_total_height, QtGui.QPen(QtCore.Qt.red, 2.0))
+        self.playback_cursor.setZValue(1000.0)
         i3 = 0.0
         for i in range(f_region_length):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
