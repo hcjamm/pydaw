@@ -2232,8 +2232,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
             global_open_audio_items(True)
 
     def ruler_click_event(self, a_event):
-        f_val = int(a_event.pos().x() / global_audio_px_per_bar)
-        this_transport.bar_spinbox.setValue(f_val)
+        if not global_transport_is_playing:
+            f_val = int(a_event.pos().x() / global_audio_px_per_bar)
+            this_transport.bar_spinbox.setValue(f_val)
 
     def draw_headers(self):
         if global_current_region is None or global_current_region.region_length_bars == 0:
