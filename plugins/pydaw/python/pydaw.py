@@ -2197,7 +2197,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             if f_item.isSelected():
                 self.reselect_on_stop.append(str(f_item.audio_item))
 
-    def start_playback(self, a_bars, a_bpm):
+    def start_playback(self, a_bpm):
         self.is_playing = True
         f_interval = ((1.0 / (a_bpm / 60.0)) / global_audio_px_per_bar) * 1000.0 * 4.0
         self.playback_timer.start(f_interval)
@@ -5503,12 +5503,8 @@ class transport_widget:
     def trigger_audio_playback(self):
         if not self.follow_checkbox.isChecked():
             return
-        if self.loop_mode_combobox.currentIndex() == 1:
-            f_bar_count = 1
-        else:
-            f_bar_count = pydaw_get_region_length(self.region_spinbox.value()) - self.bar_spinbox.value()
         this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
-        this_audio_items_viewer.start_playback(f_bar_count, self.tempo_spinbox.value())
+        this_audio_items_viewer.start_playback(self.tempo_spinbox.value())
 
     def on_stop(self):
         if not self.is_playing and not self.is_recording:
@@ -5630,10 +5626,14 @@ class transport_widget:
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value())
             this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value())
             this_region_bus_editor.table_widget.selectColumn(self.bar_spinbox.value())
+            if self.is_playing or self.is_recording:
+                self.trigger_audio_playback()
         else:
             this_region_editor.table_widget.clearSelection()
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
+            if self.is_playing or self.is_recording:
+                this_audio_items_viewer.stop_playback()
 
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
