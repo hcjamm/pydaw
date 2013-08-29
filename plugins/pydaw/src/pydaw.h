@@ -2615,7 +2615,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                                 double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->ratio);
                                 v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head, test2 + 
                                         a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_start_offset_float); //PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);                                
-                                //v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);                                
+                                v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);                                
                             }                            
                         }
                         else
