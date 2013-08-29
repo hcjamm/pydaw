@@ -2195,7 +2195,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def start_playback(self, a_bars, a_bpm):
         self.is_playing = True
         f_interval = ((1.0 / (a_bpm / 60.0)) / global_audio_px_per_bar) * 1000.0 * 4.0
-        print("f_interval: %s" % (f_interval,))
         self.playback_timer.start(f_interval)
 
     def stop_playback(self):

@@ -2200,8 +2200,10 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
     }
     
-    if(a_pydaw_data->ml_starting_new_bar && !a_pydaw_data->is_offline_rendering && 
-            a_pydaw_data->ml_cur_loop_prevent != a_pydaw_data->ml_next_bar)
+    if(a_pydaw_data->playback_mode != PYDAW_PLAYBACK_MODE_OFF && 
+            a_pydaw_data->ml_starting_new_bar && !a_pydaw_data->is_offline_rendering && 
+            ((a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR) ||
+            (a_pydaw_data->ml_cur_loop_prevent != a_pydaw_data->ml_next_bar)))
     {       
         a_pydaw_data->ml_cur_loop_prevent = a_pydaw_data->ml_next_bar;
         sprintf(a_pydaw_data->osc_cursor_message, "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
