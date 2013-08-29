@@ -1948,7 +1948,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.snap_draw_extra_lines = False
         self.snap_extra_lines_div = global_audio_px_per_8th
         self.snap_extra_lines_range = 8
-        self.draw_headers()
+        self.draw_headers(0)
         self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.is_playing = False
@@ -2183,8 +2183,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
             global_open_audio_items()
 
 
-    def set_playback_pos(self, a_bar=0):
-        self.playback_cursor.setPos(a_bar * global_audio_px_per_bar, 0.0)
+    def set_playback_pos(self, a_bar=None):
+        if a_bar is None:
+            f_bar = this_transport.bar_spinbox.value()
+        else:
+            f_bar = a_bar
+        self.playback_cursor.setPos(f_bar * global_audio_px_per_bar, 0.0)
 
     def set_playback_clipboard(self):
         self.reselect_on_stop = []
@@ -2201,6 +2205,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_timer.stop()
         self.is_playing = False
         self.reset_selection()
+        self.set_playback_pos()
 
     def playback_timeout(self):
         if self.is_playing:
@@ -2235,7 +2240,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_val = int(a_event.pos().x() / global_audio_px_per_bar)
             this_transport.bar_spinbox.setValue(f_val)
 
-    def draw_headers(self):
+    def draw_headers(self, a_cursor_pos=None):
         if global_current_region is None or global_current_region.region_length_bars == 0:
             f_region_length = 8
         else:
@@ -2272,7 +2277,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         for i2 in range(12):
             f_y = ((global_audio_item_height) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
-        self.set_playback_pos()
+        self.set_playback_pos(a_cursor_pos)
 
     def clear_drawn_items(self):
         if self.is_playing:
