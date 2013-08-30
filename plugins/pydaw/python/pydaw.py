@@ -2099,9 +2099,16 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_max_start = 8
         else:
             f_max_start = global_current_region.region_length_bars - 1
-        f_bar_frac = f_x / global_audio_px_per_bar
-        f_pos_bars = int(f_bar_frac)
+
+        f_pos_bars = int(f_x / global_audio_px_per_bar)
         f_pos_bars = pydaw_clip_value(f_pos_bars, 0, f_max_start)
+        f_beat_frac = (f_x % global_audio_px_per_bar)
+
+        if global_audio_quantize:
+            f_beat_frac = int(f_beat_frac / global_audio_quantize_px) * global_audio_quantize_px
+
+        f_beat_frac /= global_audio_px_per_bar
+        f_beat_frac *= 4.0
 
         f_y = pydaw_clip_value(f_y, global_audio_ruler_height, global_audio_ruler_height + (12.0 * global_audio_item_height))
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
@@ -2119,7 +2126,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     break
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
-                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_lane_num=f_lane_num, a_end_mode=1, a_end_bar=f_length_bars, a_end_beat=3.99)
+                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_start_beat=f_beat_frac, a_lane_num=f_lane_num, a_end_mode=1, a_end_bar=f_length_bars, a_end_beat=3.99)
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
@@ -2396,6 +2403,7 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+        self.snap_combobox.setCurrentIndex(2)
 
         self.clone_button = QtGui.QPushButton("Clone")
         self.clone_button.pressed.connect(self.on_clone)
