@@ -239,10 +239,6 @@ class song_editor:
         f_region_dict = this_pydaw_project.get_regions_dict()
         for f_pos, f_region in list(self.song.regions.items()):
             self.add_qtablewidgetitem(f_region_dict.get_name_by_uid(f_region), f_pos)
-        f_headers_arr = []
-        for f_i in range(0, 300):
-            f_headers_arr.append(str(f_i))
-        self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
         pydaw_update_region_lengths_dict()
         #global_open_audio_items()
         self.clipboard = []
@@ -270,8 +266,8 @@ class song_editor:
                 this_pydaw_project.save_song(self.song)
                 this_pydaw_project.commit(f_msg)
                 if not f_is_playing:
-                    this_transport.region_spinbox.setValue(y)
-                    this_transport.bar_spinbox.setValue(0)
+                    this_transport.set_region_value(y)
+                    this_transport.set_bar_value(0)
                 f_window.close()
 
             def song_cancel_handler():
@@ -315,8 +311,8 @@ class song_editor:
             global_current_song_index = y
             if not f_is_playing:
                 this_region_editor.table_widget.clearSelection()
-                this_transport.region_spinbox.setValue(y)
-                this_transport.bar_spinbox.setValue(0)
+                this_transport.set_region_value(y)
+                this_transport.set_bar_value(0)
         print(str(global_current_song_index))
 
     def __init__(self):
@@ -573,13 +569,13 @@ class region_settings:
             for f_editor in global_region_editors:
                 f_editor.set_region_length(global_current_region.region_length_bars)
             self.length_alternate_spinbox.setValue(global_current_region.region_length_bars)
-            this_transport.bar_spinbox.setRange(0, (global_current_region.region_length_bars) - 1)
+            this_transport.bar_spinbox.setRange(1, (global_current_region.region_length_bars))
             self.length_alternate_radiobutton.setChecked(True)
         else:
             for f_editor in global_region_editors:
                 f_editor.set_region_length()
             self.length_alternate_spinbox.setValue(8)
-            this_transport.bar_spinbox.setRange(0, 7)
+            this_transport.bar_spinbox.setRange(1, 8)
             self.length_default_radiobutton.setChecked(True)
         self.enabled = True
         for f_editor in global_region_editors:
@@ -685,7 +681,7 @@ class region_list_editor:
         f_headers = ['Tracks']
         for i in range(0, a_length):
             self.table_widget.setColumnWidth(i + 1, 100)
-            f_headers.append(str(i))
+            f_headers.append(str(i + 1))
         self.table_widget.setHorizontalHeaderLabels(f_headers)
         self.table_widget.resizeRowsToContents()
         self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
@@ -856,7 +852,7 @@ class region_list_editor:
         if this_transport.is_playing or this_transport.is_recording:
             return
         if a_val > 0:
-            this_transport.bar_spinbox.setValue(a_val - 1)
+            this_transport.set_bar_value(a_val - 1)
 
     def __init__(self, a_track_type):
         self.enabled = False #Prevents user from editing a region before one has been selected
@@ -2186,7 +2182,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def set_playback_pos(self, a_bar=None):
         if a_bar is None:
-            f_bar = this_transport.bar_spinbox.value()
+            f_bar = this_transport.get_bar_value()
         else:
             f_bar = a_bar
         self.playback_cursor.setPos(f_bar * global_audio_px_per_bar, 0.0)
@@ -2239,7 +2235,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def ruler_click_event(self, a_event):
         if not global_transport_is_playing:
             f_val = int(a_event.pos().x() / global_audio_px_per_bar)
-            this_transport.bar_spinbox.setValue(f_val)
+            this_transport.set_bar_value(f_val)
 
     def draw_headers(self, a_cursor_pos=None):
         if global_current_region is None or global_current_region.region_length_bars == 0:
@@ -2260,7 +2256,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_cursor.setZValue(1000.0)
         i3 = 0.0
         for i in range(f_region_length):
-            f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
+            f_number = QtGui.QGraphicsSimpleTextItem("%d" % (i + 1,), f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
             self.scene.addLine(i3, 0.0, i3, f_total_height, f_v_pen)
@@ -3700,7 +3696,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
-                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.header)
+                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number + 1), self.header)
                 f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
@@ -5419,12 +5415,24 @@ class seq_track:
             return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
 
 class transport_widget:
+    def set_region_value(self, a_val):
+        self.region_spinbox.setValue(int(a_val) + 1)
+
+    def set_bar_value(self, a_val):
+        self.bar_spinbox.setValue(int(a_val) + 1)
+
+    def get_region_value(self):
+        return self.region_spinbox.value() - 1
+
+    def get_bar_value(self):
+        return self.bar_spinbox.value() - 1
+
     def set_pos_from_cursor(self, a_region, a_bar):
         if self.follow_checkbox.isChecked() and (self.is_playing or self.is_recording):
             f_region = int(a_region)
-            self.region_spinbox.setValue(f_region)
+            self.set_region_value(f_region)
             f_bar = int(a_bar)
-            self.bar_spinbox.setValue(f_bar)
+            self.set_bar_value(f_bar)
             this_audio_items_viewer.set_playback_pos(f_bar)
             f_bar += 1
             this_region_audio_editor.table_widget.selectColumn(f_bar)
@@ -5441,7 +5449,7 @@ class transport_widget:
                     this_audio_items_viewer.clear_drawn_items()
 
     def get_pos_in_seconds(self):
-        f_bars = pydaw_get_pos_in_bars(self.region_spinbox.value(), self.bar_spinbox.value(), 0.0)
+        f_bars = pydaw_get_pos_in_bars(self.get_region_value(), self.get_bar_value(), 0.0)
         f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
         return f_bars * f_seconds_per_bar
 
@@ -5449,14 +5457,14 @@ class transport_widget:
         f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
         f_bars_total = int(a_seconds / f_seconds_per_bar)
         f_region, f_bar = pydaw_bars_to_pos(f_bars_total)
-        self.region_spinbox.setValue(f_region)
-        self.bar_spinbox.setValue(f_bar)
+        self.set_region_value(f_region)
+        self.set_bar_value(f_bar)
 
     def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked():
             return
-        if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
-            f_region_name = str(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        if this_song_editor.table_widget.item(0, self.get_region_value()) is not None:
+            f_region_name = str(this_song_editor.table_widget.item(0, self.get_region_value()).text())
             if not a_start or (global_current_region_name is not None and f_region_name != global_current_region_name) or global_current_region is None:
                 this_region_settings.open_region(f_region_name)
         else:
@@ -5465,14 +5473,14 @@ class transport_widget:
             this_region_bus_editor.clear_items()
             this_audio_items_viewer.clear_drawn_items()
         if a_start:
-            this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
-            this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
-            this_region_bus_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
+            this_region_editor.table_widget.selectColumn(self.get_bar_value() + 1)
+            this_region_audio_editor.table_widget.selectColumn(self.get_bar_value() + 1)
+            this_region_bus_editor.table_widget.selectColumn(self.get_bar_value() + 1)
         else:
             this_region_editor.table_widget.clearSelection()
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
-        this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+        this_song_editor.table_widget.selectColumn(self.get_region_value())
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
             self.stop_button.click()
@@ -5483,8 +5491,8 @@ class transport_widget:
             self.rec_button.setChecked(True)
             return
         if self.is_playing:
-            self.region_spinbox.setValue(self.start_region)
-            self.bar_spinbox.setValue(self.last_bar)
+            self.set_region_value(self.start_region)
+            self.set_bar_value(self.last_bar)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
@@ -5492,10 +5500,10 @@ class transport_widget:
         global_transport_is_playing = True
         self.is_playing = True
         self.init_playback_cursor()
-        self.last_region_num = self.region_spinbox.value()
-        self.start_region = self.region_spinbox.value()
-        self.last_bar = self.bar_spinbox.value()
-        this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
+        self.last_region_num = self.get_region_value()
+        self.start_region = self.get_region_value()
+        self.last_bar = self.get_bar_value()
+        this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_ab_widget.on_play()
         this_audio_items_viewer.set_playback_clipboard()
@@ -5503,7 +5511,7 @@ class transport_widget:
     def trigger_audio_playback(self):
         if not self.follow_checkbox.isChecked():
             return
-        this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+        this_audio_items_viewer.set_playback_pos(self.get_bar_value())
         this_audio_items_viewer.start_playback(self.tempo_spinbox.value())
 
     def on_stop(self):
@@ -5517,8 +5525,8 @@ class transport_widget:
         self.overdub_checkbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
         sleep(0.1)
-        self.bar_spinbox.setValue(self.last_bar)
-        self.region_spinbox.setValue(self.start_region)
+        self.set_bar_value(self.last_bar)
+        self.set_region_value(self.start_region)
         if self.is_recording:
             self.is_recording = False
             this_pydaw_project.flush_history() #As the history will be referenced when the recorded items are added to history
@@ -5530,10 +5538,10 @@ class transport_widget:
             this_pydaw_project.commit("Recording")
         self.init_playback_cursor(a_start=False)
         self.is_playing = False
-        #if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
-        #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        #if not this_song_editor.table_widget.item(0, self.get_region_value()) is None:
+        #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.get_region_value()).text())
         this_audio_items_viewer.stop_playback()
-        this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+        this_audio_items_viewer.set_playback_pos(self.get_bar_value())
         this_ab_widget.on_stop()
 
     def show_save_items_dialog(self):
@@ -5574,10 +5582,10 @@ class transport_widget:
         global_transport_is_playing = True
         self.is_recording = True
         self.init_playback_cursor()
-        self.last_region_num = self.region_spinbox.value()
-        self.start_region = self.region_spinbox.value()
-        self.last_bar = self.bar_spinbox.value()
-        this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
+        self.last_region_num = self.get_region_value()
+        self.start_region = self.get_region_value()
+        self.last_bar = self.get_bar_value()
+        this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_audio_items_viewer.set_playback_clipboard()
 
@@ -5605,27 +5613,27 @@ class transport_widget:
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
-            this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+            this_audio_items_viewer.set_playback_pos(self.get_bar_value())
 
     def on_region_changed(self, a_region):
-        self.bar_spinbox.setRange(0, pydaw_get_region_length(a_region) - 1)
+        self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region))
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
-            this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+            this_audio_items_viewer.set_playback_pos(self.get_bar_value())
 
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
-            f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+            f_item = this_song_editor.table_widget.item(0, self.get_region_value())
             if not f_item is None and f_item.text() != "":
                 this_region_settings.open_region(f_item.text())
             else:
                 this_region_editor.clear_items()
                 this_region_audio_editor.clear_items()
                 this_region_bus_editor.clear_items()
-            this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
-            this_region_editor.table_widget.selectColumn(self.bar_spinbox.value())
-            this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value())
-            this_region_bus_editor.table_widget.selectColumn(self.bar_spinbox.value())
+            this_song_editor.table_widget.selectColumn(self.get_region_value())
+            this_region_editor.table_widget.selectColumn(self.get_bar_value())
+            this_region_audio_editor.table_widget.selectColumn(self.get_bar_value())
+            this_region_bus_editor.table_widget.selectColumn(self.get_bar_value())
             if self.is_playing or self.is_recording:
                 self.trigger_audio_playback()
         else:
@@ -5689,13 +5697,13 @@ class transport_widget:
         self.hlayout1.addWidget(QtGui.QLabel("Region:"))
         self.region_spinbox = QtGui.QSpinBox()
         self.region_spinbox.setObjectName("large_spinbox")
-        self.region_spinbox.setRange(0, 300)
+        self.region_spinbox.setRange(1, 300)
         self.region_spinbox.valueChanged.connect(self.on_region_changed)
         self.hlayout1.addWidget(self.region_spinbox)
         self.hlayout1.addWidget(QtGui.QLabel("Bar:"))
         self.bar_spinbox = QtGui.QSpinBox()
         self.bar_spinbox.setObjectName("large_spinbox")
-        self.bar_spinbox.setRange(0, 7)
+        self.bar_spinbox.setRange(1, 8)
         self.bar_spinbox.valueChanged.connect(self.on_bar_changed)
         self.hlayout1.addWidget(self.bar_spinbox)
         f_loop_midi_gridlayout = QtGui.QGridLayout()
