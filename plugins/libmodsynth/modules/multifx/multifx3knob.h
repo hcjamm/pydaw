@@ -19,7 +19,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 25
+#define MULTIFX3KNOB_MAX_INDEX 26
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf_stereo.h"
@@ -65,6 +65,7 @@ typedef struct st_mf3_multi
     t_rmd_ring_mod * ring_mod;
     t_lfi_lofi * lofi;
     t_sah_sample_and_hold * s_and_h;
+    t_grw_growl_filter * growl_filter;
 }t_mf3_multi;
 
 /*A function pointer for switching between effect types*/
@@ -99,6 +100,7 @@ inline void v_mf3_run_hp_dw(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_dw(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_monofier(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_hp(t_mf3_multi*,float,float);
+inline void v_mf3_run_growl_filter(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -134,7 +136,8 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_run_lp_dw, //21
         v_mf3_run_hp_dw, //22
         v_mf3_run_lp_monofier, //23
-        v_mf3_run_lp_hp //24
+        v_mf3_run_lp_hp, //24
+        v_mf3_run_growl_filter //25
 };
 
 /* void v_mf3_set(t_fx3_multi* a_mf3, int a_fx_index)  
@@ -521,6 +524,20 @@ inline void v_mf3_run_lp_hp(t_mf3_multi*__restrict a_mf3, float a_in0, float a_i
     a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_mf3->svf->filter_kernels[0][1]->lp, a_mf3->svf->filter_kernels[0][1]->hp);
 }
 
+inline void v_mf3_run_growl_filter(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.0390625f);
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016f);
+    a_mf3->control_value[2] = ((a_mf3->control[2]) * 0.15625f);
+    
+    v_grw_growl_filter_set(a_mf3->growl_filter, a_mf3->control_value[0], a_mf3->control_value[1], a_mf3->control_value[2]);
+    v_grw_growl_filter_run(a_mf3->growl_filter, a_in0, a_in1);
+    
+    a_mf3->output0 = a_mf3->growl_filter->output0;
+    a_mf3->output1 = a_mf3->growl_filter->output1;
+}
+
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
  */
@@ -564,6 +581,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->ring_mod = g_rmd_ring_mod_get(a_sample_rate);
     f_result->lofi = g_lfi_lofi_get();
     f_result->s_and_h = g_sah_sample_and_hold_get(a_sample_rate);
+    f_result->growl_filter = g_grw_growl_filter_get(a_sample_rate);
         
     return f_result;
 }
@@ -580,6 +598,7 @@ void v_mf3_free(t_mf3_multi * a_mf3 )
         v_cmb_free(a_mf3->comb_filter1);
         v_pkq_free(a_mf3->eq0);
         //a_mf3->formant_filter
+        //a_mf3->growl_filter
         //a_mf3->glitch
         //a_mf3->limiter
         free(a_mf3->lofi);
