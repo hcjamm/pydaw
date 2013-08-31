@@ -242,14 +242,15 @@ void v_grw_growl_filter_set(t_grw_growl_filter* a_grw, float a_pos, float a_wet,
         a_grw->last_pos = a_pos;
         a_grw->last_type = a_type;
         a_grw->iter = 0;
-        int f_pos = (int)a_pos + (int)a_type;
+        float f_pos_f = a_pos + a_type;
+        int f_pos = (int)f_pos_f;
         int f_pos_plus_one = f_pos + 1;
         if(f_pos_plus_one > 24)
         {
             f_pos_plus_one = 24;
         }
         
-        float f_pos_frac = a_pos - (float)f_pos;
+        float f_pos_frac = f_pos_f - (float)f_pos;
 
         while(a_grw->iter < 5)
         {
