@@ -5948,7 +5948,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 return
 
             #TODO:  Check that the end is actually after the start....
-            this_pydaw_project.this_dssi_gui.pydaw_offline_render(f_start_region.value(), f_start_bar.value(), f_end_region.value(), f_end_bar.value(), f_name.text())
+            this_pydaw_project.this_dssi_gui.pydaw_offline_render(f_start_region.value() - 1, f_start_bar.value() - 1,
+                                                                  f_end_region.value() - 1, f_end_bar.value() - 1, f_name.text())
             self.start_reg = f_start_region.value()
             self.end_reg = f_end_region.value()
             self.start_bar = f_start_bar.value()
@@ -5976,21 +5977,21 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         if self.first_offline_render:
             self.first_offline_render = False
-            self.start_reg = 0
-            self.end_reg = 0
-            self.start_bar = 0
-            self.end_bar = 1
+            self.start_reg = 1
+            self.end_reg = 1
+            self.start_bar = 1
+            self.end_bar = 2
 
             for i in range(300):
                 f_item = this_song_editor.table_widget.item(0, i)
                 if not f_item is None and f_item.text() != "":
-                    self.start_reg = i
+                    self.start_reg = i + 1
                     break
 
             for i in range(self.start_reg + 1, 300):
                 f_item = this_song_editor.table_widget.item(0, i)
                 if f_item is None or f_item.text() == "":
-                    self.end_reg = i
+                    self.end_reg = i + 1
                     break
 
         f_window = QtGui.QDialog(this_main_window)
@@ -6012,12 +6013,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addLayout(f_start_hlayout, 1, 1)
         f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
         f_start_region = QtGui.QSpinBox()
-        f_start_region.setRange(0, 298)
+        f_start_region.setRange(1, 299)
         f_start_region.setValue(self.start_reg)
         f_start_hlayout.addWidget(f_start_region)
         f_start_hlayout.addWidget(QtGui.QLabel("Bar:"))
         f_start_bar = QtGui.QSpinBox()
-        f_start_bar.setRange(0, 8)
+        f_start_bar.setRange(1, 8)
         f_start_bar.setValue(self.start_bar)
         f_start_hlayout.addWidget(f_start_bar)
 
@@ -6026,12 +6027,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addLayout(f_end_hlayout, 2, 1)
         f_end_hlayout.addWidget(QtGui.QLabel("Region:"))
         f_end_region = QtGui.QSpinBox()
-        f_end_region.setRange(0, 298)
+        f_end_region.setRange(1, 299)
         f_end_region.setValue(self.end_reg)
         f_end_hlayout.addWidget(f_end_region)
         f_end_hlayout.addWidget(QtGui.QLabel("Bar:"))
         f_end_bar = QtGui.QSpinBox()
-        f_end_bar.setRange(0, 8)
+        f_end_bar.setRange(1, 8)
         f_end_bar.setValue(self.end_bar)
         f_end_hlayout.addWidget(f_end_bar)
         f_layout.addWidget(QtGui.QLabel("File is exported to 32 bit .wav at the sample rate Jack is running at.\nYou can convert the format using other programs such as Audacity"), 3, 1)
