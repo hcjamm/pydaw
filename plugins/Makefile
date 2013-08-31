@@ -29,8 +29,8 @@ debug:
 	#make -C lms_modulex CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C way_v CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C pydaw_jack_oscrolloscope
-        cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
-        cd pydaw_sbsms/cli && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ..
+	cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
+	cd pydaw_sbsms/cli && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ..
 	cd pydaw_rubberband && make distclean && ./configure --prefix=$(RUBBERBAND_PREFIX) && make && cd ..
 
 # --------------------------------------------------------------
