@@ -3035,11 +3035,22 @@ def global_open_audio_items(a_update_viewer=True):
                 f_selected_list.append(str(f_item.audio_item))
         this_audio_items_viewer.clear_drawn_items()
         for k, v in list(global_audio_items.items.items()):
+            try:
                 f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
                 if f_graph is None:
                     print(("Error drawing item for " + str(v.uid) + ", could not get sample graph object"))
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
+            except:
+                if global_transport_is_playing:
+                    print("Exception while loading %s" % (v.uid,))
+                else:
+                    f_path = this_pydaw_project.get_wav_path_by_uid(v.uid)
+                    if os.path.isfile(f_path):
+                        f_error_msg = "Unknown error loading sample f_path %s, \n\n%s" % (f_path, locals())
+                    else:
+                        f_error_msg = "Error loading '%s', file does not exist." % (f_path,)
+                    QtGui.QMessageBox.warning(this_main_window, "Error", f_error_msg)
         for f_item in this_audio_items_viewer.audio_items:
             if str(f_item.audio_item) in f_selected_list:
                 f_item.setSelected(True)

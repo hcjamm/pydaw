@@ -303,7 +303,7 @@ t_wav_pool_item * g_wav_pool_get_item_by_uid(t_wav_pool* a_wav_pool, int a_uid)
     int f_i = 0;
     while(f_i < a_wav_pool->count)
     {
-        if(a_wav_pool->items[f_i]->uid == a_uid)
+        if(a_wav_pool->items[f_i] && a_wav_pool->items[f_i]->uid == a_uid)
         {
             return a_wav_pool->items[f_i];
         }        
