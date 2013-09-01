@@ -26,6 +26,7 @@ if [ ! -d extract-cd ]; then
 	sudo rsync --exclude=/casper/filesystem.squashfs -a mnt/ extract-cd
 	sudo unsquashfs mnt/casper/filesystem.squashfs
 	sudo mv squashfs-root edit
+	sudo umount -lf mnt
 else
 	echo "extract-cd directory exists, not extracting from live DVD"
 fi

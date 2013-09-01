@@ -13,6 +13,6 @@ umount /dev/pts
 echo
 echo "#######Now run:#######"
 echo "exit"
-echo "sudo umount edit/dev"
+echo "sudo umount -lf edit/dev"
 echo "sudo ./finish.sh"
 echo
