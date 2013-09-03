@@ -1584,7 +1584,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def save_a_copy(self):
         global global_last_audio_item_dir
-        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_audio_items_viewer ,caption='New Project', directory=global_last_audio_item_dir, filter=global_pydaw_file_type_string)
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_audio_items_viewer, caption='Save audio item as .wav', directory=global_last_audio_item_dir)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             if not f_file.endswith(".wav"):
