@@ -34,7 +34,7 @@ def load_wav(filename):
     try:
         wavedata=scipy.io.wavfile.read(filename)
         samplerate=int(wavedata[0])
-        smp=wavedata[1]*(1.0/32768.0)
+        smp = normalize(wavedata[1]) # * (1.0 / 32768.0)
         smp=smp.transpose()
         if len(smp.shape)==1: #convert to stereo
             smp=tile(smp,(2,1))
@@ -60,6 +60,17 @@ def optimize_windowsize(n):
             break
         orig_n+=1
     return orig_n
+
+def normalize(output):
+    f_max = output.max()
+    f_min = abs(output.min())
+    if f_min > f_max:
+        f_max = f_min
+    if f_max > 0.5:
+        f_normalize = 0.5 / f_max
+        return output * f_normalize
+    else:
+        return output
 
 def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfilename, a_start_pitch, a_end_pitch, a_in_file, a_delete=False):
 
@@ -168,16 +179,9 @@ def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfi
         #remove the resulted amplitude modulation
         output*=hinv_buf
 
-        f_max = output.max()
-        f_min = abs(output.min())
-        if f_min > f_max:
-            f_max = f_min
+        output = normalize(output)
 
-        if f_max > 0.75:
-            f_normalize = 0.75 / f_max
-            output *= f_normalize
-
-        outfile.writeframes(int16(output.ravel(1)*32767.0).tostring())
+        outfile.writeframes(int16(output.ravel(1) * 30000.0).tostring()) #32767.0
 
         if get_next_buf:
             start_pos+=displace_pos
