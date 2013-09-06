@@ -5748,9 +5748,9 @@ class transport_widget:
         self.overdub_checkbox.clicked.connect(self.on_overdub_changed)
         self.overdub_checkbox.setToolTip("Checking this box causes recording to unlink existing items and append new events to the existing events")
         f_lower_ctrl_layout.addWidget(self.overdub_checkbox)
-        self.scope_button = QtGui.QPushButton("Scope")
-        self.scope_button.pressed.connect(launch_jack_oscrolloscope)
-        f_lower_ctrl_layout.addWidget(self.scope_button)
+        #self.scope_button = QtGui.QPushButton("Scope")
+        #self.scope_button.pressed.connect(launch_jack_oscrolloscope)
+        #f_lower_ctrl_layout.addWidget(self.scope_button)
         self.panic_button = QtGui.QPushButton("!")
         self.panic_button.setToolTip("Panic button:   Sends a note-off signal on every note to every instrument")
         self.panic_button.pressed.connect(self.on_panic)
@@ -6046,7 +6046,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_end_bar.setRange(1, 8)
         f_end_bar.setValue(self.end_bar)
         f_end_hlayout.addWidget(f_end_bar)
-        f_layout.addWidget(QtGui.QLabel("File is exported to 32 bit .wav at the sample rate Jack is running at.\nYou can convert the format using other programs such as Audacity"), 3, 1)
+        f_layout.addWidget(QtGui.QLabel("File is exported to 32 bit .wav at the sample rate your audio interface is running at.\nYou can convert the format using other programs such as Audacity"), 3, 1)
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton("OK")
@@ -6097,6 +6097,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_text.setReadOnly(True)
         f_layout.addWidget(f_text)
         f_window.exec_()
+
+    def on_change_audio_settings(self):
+        f_path = global_pydaw_home + "/device.txt"
+        if os.path.isfile(f_path):
+            os.system('rm "%s"' % (f_path,))
+        QtGui.QMessageBox.warning(self, "", "Audio device setttings have been cleared, you will be prompted to select a device next time you start PyDAW.")
 
     def on_open_theme(self):
         try:
@@ -6288,6 +6294,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.import_midi_action = QtGui.QAction("Import MIDI File...", self)
         self.menu_file.addAction(self.import_midi_action)
         self.import_midi_action.triggered.connect(self.on_import_midi)
+
+        self.audio_device_action = QtGui.QAction("Change audio settings...", self)
+        self.menu_file.addAction(self.audio_device_action)
+        self.audio_device_action.triggered.connect(self.on_change_audio_settings)
 
         self.menu_edit = self.menu_bar.addMenu("&Edit")
 

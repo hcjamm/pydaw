@@ -16,7 +16,7 @@ all:
 	#make -C ray_v CFLAGS+=" -O3 "
 	#make -C lms_modulex CFLAGS+=" -O3 "
 	#make -C way_v CFLAGS+=" -O3 "
-	make -C pydaw_jack_oscrolloscope
+	#make -C pydaw_jack_oscrolloscope
 	cd pydaw_sbsms && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
 	cd pydaw_sbsms/cli && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ../..
 	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make && cd ..
@@ -28,7 +28,7 @@ debug:
 	#make -C ray_v CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C lms_modulex CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C way_v CFLAGS+=" -O0 -g -gdwarf-3 "
-	make -C pydaw_jack_oscrolloscope
+	#make -C pydaw_jack_oscrolloscope
 	cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
 	cd pydaw_sbsms/cli && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ..
 	cd pydaw_rubberband && make distclean && ./configure --prefix=$(RUBBERBAND_PREFIX) && make && cd ..
@@ -41,7 +41,7 @@ strip:
 	#make -C ray_v strip
 	#make -C lms_modulex strip
 	#make -C way_v strip
-	make -C pydaw_jack_oscrolloscope strip
+	#make -C pydaw_jack_oscrolloscope strip
 
 # --------------------------------------------------------------
 install:
@@ -53,7 +53,7 @@ install:
 	#make -C ray_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C lms_modulex PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C way_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
-	make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
+	#make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	cp -r share $(DESTDIR)$(PREFIX)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
@@ -76,7 +76,7 @@ clean:
 	#make -C ray_v clean
 	#make -C lms_modulex clean
 	#make -C way_v clean
-	make -C pydaw_jack_oscrolloscope clean
+	#make -C pydaw_jack_oscrolloscope clean
 	#make -C pydaw_sbsms clean
 	#make -C pydaw_sbsms/cli clean
 	#make -C pydaw_rubberband clean

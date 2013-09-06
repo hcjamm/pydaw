@@ -1,5 +1,10 @@
 #dependencies
-sudo yum install qjackctl PyQt4 pyliblo gcc alsa-lib-devel liblo-devel libsndfile-devel gcc-c++ audacity SDL-devel jack-audio-connection-kit-devel git libmad-devel numpy scipy ladspa-devel vamp-plugin-sdk-devel fftw-devel
+sudo yum install PyQt4 pyliblo gcc alsa-lib-devel liblo-devel libsndfile-devel gcc-c++ audacity git libmad-devel numpy scipy ladspa-devel vamp-plugin-sdk-devel fftw-devel
+
+#TODO:  What is the name of Fedora's Portaudio(19?) package?
+
+#deprecated:
+#SDL-devel
 
 #Now run:
 #make clean

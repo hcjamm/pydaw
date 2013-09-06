@@ -21,8 +21,10 @@ extern "C" {
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
-
+#include <assert.h>
+    
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
 #define LMS_LARGE_STRING  65536 //1048576 

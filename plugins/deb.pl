@@ -71,6 +71,8 @@ $size = `du -s pydaw-build/debian/usr`;
 $size = (split(" ", $size))[0];
 chomp($size);
 
+#libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server,
+
 $debian_control = "
 Package: $short_name
 Priority: extra
@@ -79,7 +81,7 @@ Installed-Size: $size
 Maintainer: PyDAW Team <pydawteam\@users.sf.net>
 Architecture: $arch
 Version: $version
-Depends: liblo-dev, libasound2-dev, libsndfile1-dev, qjackctl, alsa-utils, python-liblo, python-qt4, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python2.7, libmad0-dev, python-scipy, python-numpy, libsamplerate0-dev, libfftw3-dev
+Depends: liblo-dev, libasound2-dev, libsndfile1-dev, portaudio19-dev, alsa-utils, python-liblo, python-qt4, audacity, python2.7, libmad0-dev, python-scipy, python-numpy, libsamplerate0-dev, libfftw3-dev
 Provides: $short_name
 Conflicts: 
 Replaces: 

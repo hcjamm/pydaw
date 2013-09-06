@@ -20,10 +20,11 @@ GNU General Public License for more details.
 #include <config.h>
 #endif
 
+#include "pydaw_files.h"
 #include "../../include/pydaw3/pydaw_plugin.h"
 #include <alsa/asoundlib.h>
 #include <alsa/seq.h>
-#include <jack/jack.h>
+#include <portaudio.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +41,10 @@ GNU General Public License for more details.
 #include <time.h>
 #include <libgen.h>
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <lo/lo.h>
 
 #include "main.h"
@@ -50,8 +55,11 @@ GNU General Public License for more details.
 
 static snd_seq_t *alsaClient;
 
-static jack_client_t *jackClient;
-static jack_port_t **inputPorts, **outputPorts;
+#define SAMPLE_RATE (44100)
+#define PA_SAMPLE_TYPE paFloat32
+#define FRAMES_PER_BUFFER (512)
+
+typedef float SAMPLE;
 
 //static d3h_dll_t     *dlls;
 
@@ -72,7 +80,6 @@ static float **pluginInputBuffers, **pluginOutputBuffers;
 
 static int controlInsTotal, controlOutsTotal;
 static float *pluginControlIns, *pluginControlOuts;
-static d3h_instance_t *channel2instance[D3H_MAX_CHANNELS]; /* maps MIDI channel to instance */
 static d3h_instance_t **pluginControlInInstances;          /* maps global control in # to instance */
 static unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
 static int *pluginPortUpdated;                             /* indexed by global control in # */
@@ -89,8 +96,6 @@ static sigset_t _signals;
 
 int exiting = 0;
 static int verbose = 0;
-static int autoconnect = 1;
-//static int load_guis = 1;
 const char *myName = "pydaw";
 
 #define EVENT_BUFFER_SIZE 1024
@@ -178,14 +183,22 @@ void setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event
     pluginPortUpdated[controlIn] = 1;
 }
 
-int
-audio_callback(jack_nframes_t nframes, void *arg)
+static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
+                           unsigned long framesPerBuffer,
+                           const PaStreamCallbackTimeInfo* timeInfo,
+                           PaStreamCallbackFlags statusFlags,
+                           void *userData )
 {
     int i;
-    int outCount, inCount;
+    int outCount; 
+    //int inCount;
     d3h_instance_t *instance;
     struct timeval tv, evtv, diff;
     long framediff;
+    
+    float *out = (float*)outputBuffer;
+    
+    (void) inputBuffer; //Prevent unused variable warning.
 
     gettimeofday(&tv, NULL);
 
@@ -205,15 +218,9 @@ audio_callback(jack_nframes_t nframes, void *arg)
             continue;
         }
 
-        instance = channel2instance[ev->data.note.channel];
-        if (!instance
-	    /* || instance->inactive */) /* no -- see comment in osc_exiting_handler */
-	{
-            /* discard messages intended for channels we aren't using or
-	       absent or exited plugins */
-            continue;
-        }
-        i = instance->number;
+        instance = &instances[0];
+        
+        i = 0; //instance->number;
 
         /* Stop processing incoming MIDI if an instance's event buffer is
          * full. */
@@ -249,32 +256,28 @@ audio_callback(jack_nframes_t nframes, void *arg)
 	    ((diff.tv_usec / 1000) * sample_rate) / 1000 +
 	    ((diff.tv_usec - 1000 * (diff.tv_usec / 1000)) * sample_rate) / 1000000;
 
-	if (framediff >= nframes) framediff = nframes - 1;
+	if (framediff >= framesPerBuffer) framediff = framesPerBuffer - 1;
 	else if (framediff < 0) framediff = 0;
 
-	ev->time.tick = nframes - framediff - 1;
+	ev->time.tick = framesPerBuffer - framediff - 1;
 
 	if (ev->type == SND_SEQ_EVENT_CONTROLLER) {
 	    
 	    int controller = ev->data.control.param;
-#ifdef DEBUG
-	    MB_MESSAGE("%s CC %d(0x%02x) = %d\n", instance->friendly_name,
-                       controller, controller, ev->data.control.value);
-#endif
 
-	    if (controller == 0) { // bank select MSB
-
+	    if (controller == 0) 
+            { // bank select MSB                
 		instance->pendingBankMSB = ev->data.control.value;
-
-	    } else if (controller == 32) { // bank select LSB
-
+                
+	    } else if (controller == 32) 
+            { // bank select LSB
 		instance->pendingBankLSB = ev->data.control.value;
 
-	    } else if (controller > 0 && controller < MIDI_CONTROLLER_COUNT) {
-
+	    } else if (controller > 0 && controller < MIDI_CONTROLLER_COUNT) 
+            {
 		long controlIn = instance->controllerMap[controller];
-		if (controlIn >= 0) {
-
+		if (controlIn >= 0) 
+                {
                     /* controller is mapped to LADSPA port, update the port */
 		    setControl(instance, controlIn, ev);
 
@@ -285,111 +288,35 @@ audio_callback(jack_nframes_t nframes, void *arg)
                     instanceEventCounts[i]++;
                 }
 	    }
-
-	} else if (ev->type == SND_SEQ_EVENT_PGMCHANGE) {
-	    
-	    instance->pendingProgramChange = ev->data.control.value;
-	    instance->uiNeedsProgramUpdate = 1;
-
-	} else {
-
+	} 
+        else 
+        {
             instanceEventBuffers[i][instanceEventCounts[i]] = *ev;
             instanceEventCounts[i]++;
 	}
     }
 
-    /* process pending program changes */
-    for (i = 0; i < instance_count; i++) {
-        instance = &instances[i];
-
-	/* no -- see comment in osc_exiting_handler */
-	/* if (instance->inactive) continue; */
-
-        if (instance->pendingProgramChange >= 0) {
-
-            int pc = instance->pendingProgramChange;
-            int msb = instance->pendingBankMSB;
-            int lsb = instance->pendingBankLSB;
-
-            //!!! gosh, I don't know this -- need to check with the specs:
-            // if you only send one of MSB/LSB controllers, should the
-            // other go to zero or remain as it was?  Assume it remains as
-            // it was, for now.
-
-            if (lsb >= 0) {
-                if (msb >= 0) {
-                    instance->currentBank = lsb + 128 * msb;
-                } else {
-                    instance->currentBank = lsb + 128 * (instance->currentBank / 128);
-                }
-            } else if (msb >= 0) {
-                instance->currentBank = (instance->currentBank % 128) + 128 * msb;
-            }
-
-            instance->currentProgram = pc;
-
-            instance->pendingProgramChange = -1;
-            instance->pendingBankMSB = -1;
-            instance->pendingBankLSB = -1;
-        }
-    }
-
-    for (inCount = 0; inCount < insTotal; ++inCount) {
-
-	jack_default_audio_sample_t *buffer =
-	    jack_port_get_buffer(inputPorts[inCount], nframes);
-	
-	memcpy(pluginInputBuffers[inCount], buffer, nframes * sizeof(PYFX_Data));
-    }
-
-    /* call run_synth() or run_multiple_synths() for all instances */
-
     i = 0;
     outCount = 0;
+    outCount += instances[i].plugin->outs;
 
-    while (i < instance_count) {
-
-	/* no -- see comment in osc_exiting_handler */
-/*
-	if (instances[i].inactive) {
-	    int j;
-	    for (j = 0; j < instances[i].plugin->outs; ++j) {
-		memset(pluginOutputBuffers[outCount + j], 0, nframes * sizeof(PYFX_Data));
-	    }
-	    outCount += j;
-	    ++i;
-	    continue;
-	}
-*/
-	outCount += instances[i].plugin->outs;
-
-        if (instances[i].plugin->descriptor->run_synth) {
-            instances[i].plugin->descriptor->run_synth(instanceHandles[i],
-                                                       nframes,
-                                                       instanceEventBuffers[i],
-                                                       instanceEventCounts[i]);
-            i++;
-        } else if (instances[i].plugin->descriptor->PYFX_Plugin->run) {
-	    instances[i].plugin->descriptor->PYFX_Plugin->run(instanceHandles[i],
-								nframes);
-	    i++;
-	} else {
-	    fprintf(stderr, "DSSI plugin %d has no run_multiple_synths, run_synth or run method!\n", i);
-	    i++;
-	}
+    if (instances[i].plugin->descriptor->run_synth) 
+    {
+        instances[i].plugin->descriptor->run_synth(instanceHandles[i],  framesPerBuffer, instanceEventBuffers[i],
+                                                   instanceEventCounts[i]);
+    } 
+    else if (instances[i].plugin->descriptor->PYFX_Plugin->run) 
+    {
+        instances[i].plugin->descriptor->PYFX_Plugin->run(instanceHandles[i], framesPerBuffer);
+    }
+        
+    for( i=0; i < framesPerBuffer; i++ )    
+    {
+        *out++ = pluginOutputBuffers[0][i];  // left
+        *out++ = pluginOutputBuffers[1][i];  // right        
     }
 
-    assert(sizeof(PYFX_Data) == sizeof(jack_default_audio_sample_t));
-
-    for (outCount = 0; outCount < outsTotal; ++outCount) {
-
-	jack_default_audio_sample_t *buffer =
-	    jack_port_get_buffer(outputPorts[outCount], nframes);
-	
-	memcpy(buffer, pluginOutputBuffers[outCount], nframes * sizeof(PYFX_Data));
-    }
-
-    return 0;
+    return paContinue;
 }
 
 #ifndef RTLD_LOCAL
@@ -417,19 +344,13 @@ int main(int argc, char **argv)
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
     d3h_instance_t *instance;
-    /*void *pluginObject;
-    char *dllName;
-    char *label;*/
-    const char **ports;
+    
     char *tmp;
     char *url;
     int i, reps, j;
     int in, out, controlIn, controlOut;
-    clientName = (char*)malloc(sizeof(char) * 33);
-    int haveClientName = 0;
-    const int clientLen = 32;
-    jack_status_t status = 0;
-
+    clientName = "PyDAWv3";    
+        
     setsid();
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
@@ -442,7 +363,6 @@ int main(int argc, char **argv)
     pthread_sigmask(SIG_BLOCK, &_signals, 0);
 
     insTotal = outsTotal = controlInsTotal = controlOutsTotal = 0;
-
 
     plugin = (d3h_plugin_t *)calloc(1, sizeof(d3h_plugin_t));
     plugin->number = plugin_count;
@@ -535,45 +455,7 @@ int main(int argc, char **argv)
     if (instance_count > 1) {
         qsort(instances, instance_count, sizeof(d3h_instance_t), instance_sort_cmp);
     }
-
-    /* build channel2instance[] while showing what our instances are */
-    for (i = 0; i < D3H_MAX_CHANNELS; i++)
-        channel2instance[i] = NULL;
-    for (i = 0; i < instance_count; i++) {
-        instance = &instances[i];
-        instance->number = i;
-        channel2instance[instance->channel] = instance;
-	if (verbose) {
-	    fprintf(stderr, "%s: instance %2d on channel %2d, plugin %2d is \"%s\"\n",
-		    myName, i, instance->channel, instance->plugin->number,
-		    instance->friendly_name);
-	}
-    }
-
-    /* Create buffers and JACK client and ports */
-
-    if (!haveClientName) {
-	if (instance_count > 1) strcpy(clientName, "jack-dssi-host");
-	else {
-	    strncpy(clientName, instances[0].plugin->descriptor->PYFX_Plugin->Name, clientLen);
-	    clientName[clientLen] = '\0';
-	}
-    }
-
-    if ((jackClient = jack_client_open(clientName, JackNullOption, &status)) == 0) {
-        fprintf(stderr, "\n%s: Error: Failed to connect to JACK server\n",
-            myName);
-        system("python -c \"from PyQt4 import QtGui ; import sys ; app = QtGui.QApplication(sys.argv) ; QtGui.QMessageBox.warning(None, 'Error', 'Failed to start Jack server.  Please ensure that you have properly configured your soundcard in QJackCtl, and are able to start Jack manually from the QJackCtl panel.\\n\\nIf you are trying to use realtime mode, you may need to open a terminal first, run the following command, and then reboot:\\n\\nsudo usermod -g audio $USER\\n\\nAlternately, if you are having problems with jackd, you may need to kill the Jack daemon with\\n\\nps -ef | grep jackd\\nkill -9 [PID of jackd from the first command]') ; sys.exit()\"");
-        return 1;
-    }
-    if (status & JackNameNotUnique) {
-        strncpy(clientName, jack_get_client_name(jackClient), clientLen);
-	clientName[clientLen] = '\0';
-    }
     
-    sample_rate = jack_get_sample_rate(jackClient);
-
-    inputPorts = (jack_port_t **)malloc(insTotal * sizeof(jack_port_t *));
     pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));
     pluginControlIns = (float *)calloc(controlInsTotal, sizeof(float));
     pluginControlInInstances =
@@ -582,7 +464,6 @@ int main(int argc, char **argv)
         (unsigned long *)malloc(controlInsTotal * sizeof(unsigned long));
     pluginPortUpdated = (int *)malloc(controlInsTotal * sizeof(int));
 
-    outputPorts = (jack_port_t **)malloc(outsTotal * sizeof(jack_port_t *));
     pluginOutputBuffers = (float **)malloc(outsTotal * sizeof(float *));
     pluginControlOuts = (float *)calloc(controlOutsTotal, sizeof(float));
 
@@ -598,6 +479,160 @@ int main(int argc, char **argv)
         instances[i].pluginPortControlInNumbers =
             (int *)malloc(instances[i].plugin->descriptor->PYFX_Plugin->PortCount *
                           sizeof(int));
+    }
+        
+    int f_frame_count = 8192; //FRAMES_PER_BUFFER;
+    sample_rate = 44100.0f;
+    
+        /*Start Portaudio*/
+    PaStreamParameters inputParameters, outputParameters;
+    PaStream *stream;
+    PaError err;
+    
+    err = Pa_Initialize();
+    //if( err != paNoError ) goto error;
+
+    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+    
+    char f_device_file_path[2048];
+    char * f_home = getenv("HOME");
+    if(!strcmp(f_home, "/home/ubuntu") && i_pydaw_file_exists("/media/pydaw_data"))
+    {
+        sprintf(f_device_file_path, "/media/pydaw_data/pydaw3/device.txt");
+    }
+    else
+    {
+        sprintf(f_device_file_path, "%s/pydaw3/device.txt", f_home);
+    }
+    
+    char * f_show_dialog_cmd = "python2.7 /usr/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py";
+    char f_cmd_buffer[10000];
+    f_cmd_buffer[0] = '\0';
+    char f_device_name[1024];
+    f_device_name[0] = '\0';
+    
+    f_frame_count = FRAMES_PER_BUFFER;
+    
+    while(1)
+    {
+        if(i_pydaw_file_exists(f_device_file_path))
+        {
+            printf("device.txt exists\n");
+            t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_device_file_path, LMS_LARGE_STRING); 
+            
+            while(1)
+            {            
+                char * f_key_char = c_iterate_2d_char_array(f_current_string);
+                if(f_current_string->eof)
+                {
+                    break;
+                }                
+                if(!strcmp(f_key_char, "") || f_current_string->eol)
+                {
+                    continue;
+                }
+                
+                char * f_value_char = c_iterate_2d_char_array_to_next_line(f_current_string);
+                
+                if(!strcmp(f_key_char, "name"))
+                {
+                    sprintf(f_device_name, "%s", f_value_char);
+                    printf("device name: %s\n", f_device_name);
+                }
+                else if(!strcmp(f_key_char, "bufferSize"))
+                {                    
+                    f_frame_count = atoi(f_value_char);
+                    printf("bufferSize: %i\n", f_frame_count);
+                }
+                else if(!strcmp(f_key_char, "sampleRate"))
+                {                    
+                    sample_rate = atof(f_value_char);
+                    printf("sampleRate: %i\n", f_frame_count);
+                }
+                else
+                {
+                    printf("Unknown key|value pair: %s|%s\n", f_key_char, f_value_char);
+                }
+            }
+        }
+        else
+        {
+            printf("device.txt does not exist\n");
+            f_device_name[0] = '\0';
+            system(f_show_dialog_cmd);
+            if(i_pydaw_file_exists(f_device_file_path))
+            {
+                continue;  //If not, just go with the default device
+            }
+        }
+        
+        if (inputParameters.device == paNoDevice)
+        {
+          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default input device.\n");
+          system(f_cmd_buffer);
+          continue;
+        }
+        inputParameters.channelCount = 0;
+        inputParameters.sampleFormat = PA_SAMPLE_TYPE;
+        inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
+        inputParameters.hostApiSpecificStreamInfo = NULL;
+
+        if (outputParameters.device == paNoDevice) 
+        {
+          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default output device.\n");
+          system(f_cmd_buffer);
+          continue;
+        }
+        
+        outputParameters.channelCount = 2; /* stereo output */
+        outputParameters.sampleFormat = PA_SAMPLE_TYPE;
+        outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
+        outputParameters.hostApiSpecificStreamInfo = NULL;
+        
+        if(f_device_name[0] == '\0')
+        {
+            outputParameters.device = Pa_GetDefaultOutputDevice();
+        }
+        else
+        {
+            int f_i = 0;
+            while(f_i < Pa_GetDeviceCount())
+            {
+                const PaDeviceInfo * f_padevice = Pa_GetDeviceInfo(f_i);  //I guess that this is not supposed to be free'd?
+                if(!strcmp(f_padevice->name, f_device_name))
+                {
+                    outputParameters.device = f_i;
+                    break;
+                }
+                f_i++;
+            }
+        }
+
+        err = Pa_OpenStream(
+                  &stream,
+                  0, //&inputParameters,
+                  &outputParameters,
+                  44100.0f, //SAMPLE_RATE,
+                  f_frame_count, //FRAMES_PER_BUFFER,
+                  0, /* paClipOff, */ /* we won't output out of range samples so don't bother clipping them */
+                  portaudioCallback,
+                  NULL );
+        if( err != paNoError )
+        {
+            sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while opening device.");
+            system(f_cmd_buffer);
+            continue;
+        }
+
+        err = Pa_StartStream( stream );
+        if( err != paNoError )
+        {
+            sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while starting device.  Please re-configure your device and try starting PyDAW again.");
+            system(f_cmd_buffer);
+            continue;
+        }
+        
+        break;
     }
 
     in = 0;
@@ -615,29 +650,10 @@ int main(int argc, char **argv)
 	} else {
 	    reps = 0;
 	}
-	for (j = 0; j < instances[i].plugin->ins; ++j) {
-	    char portName[40];
-	    if (haveClientName) {
-		/* if we're given a specific client name for the whole
-		   application, just name our individual ports by
-		   number rather than by instance
-		*/
-		sprintf(portName, "in_%d", in);
-	    } else {
-		strncpy(portName, instances[i].plugin->descriptor->PYFX_Plugin->Name, 30);
-		if (reps > 0) {
-		    portName[25] = '\0';
-		    sprintf(portName + strlen(portName), " %d in_%d", reps, j + 1);
-		} else {
-		    portName[30] = '\0';
-		    sprintf(portName + strlen(portName), " in_%d", j + 1);
-		}
-	    }
-	    inputPorts[in] = jack_port_register(jackClient, portName,
-						JACK_DEFAULT_AUDIO_TYPE,
-						JackPortIsInput, 0);
+	for (j = 0; j < instances[i].plugin->ins; ++j) 
+        {
+            //Port naming code was here
             
-            jack_nframes_t f_frame_count = jack_get_buffer_size(jackClient);
             if(posix_memalign((void**)(&pluginInputBuffers[in]), 16, (sizeof(float) * f_frame_count)) != 0)
             {
                 return 0;
@@ -648,35 +664,13 @@ int main(int argc, char **argv)
             {
                 pluginInputBuffers[in][f_i] = 0.0f;
                 f_i++;
-            }
-	    /*pluginInputBuffers[in] =
-		(float *)calloc(jack_get_buffer_size(jackClient), sizeof(float));*/
+            }	    
 	    ++in;
 	}
-	for (j = 0; j < instances[i].plugin->outs; ++j) {
-	    char portName[40];
-	    if (haveClientName) {
-		/* if we're given a specific client name for the whole
-		   application, just name our individual ports by
-		   number rather than by instance
-		*/
-		sprintf(portName, "out_%d", out);
-	    } else {
-		strncpy(portName, instances[i].plugin->descriptor->PYFX_Plugin->Name, 30);
-		if (reps > 0) {
-		    portName[25] = '\0';
-		    sprintf(portName + strlen(portName), " %d out_%d", reps, j + 1);
-		} else {
-		    portName[30] = '\0';
-		    sprintf(portName + strlen(portName), " out_%d", j + 1);
-		}
-	    }
-	    outputPorts[out] = jack_port_register(jackClient, portName,
-						  JACK_DEFAULT_AUDIO_TYPE,
-						  JackPortIsOutput, 0);
-	    
-            
-            jack_nframes_t f_frame_count = jack_get_buffer_size(jackClient);
+	for (j = 0; j < instances[i].plugin->outs; ++j) 
+        {
+	    //Port naming code was here            
+	                
             if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16, (sizeof(float) * f_frame_count)) != 0)
             {
                 return 0;
@@ -689,14 +683,10 @@ int main(int argc, char **argv)
                 f_i++;
             }
             
-            /*pluginOutputBuffers[out] =
-		(float *)calloc(jack_get_buffer_size(jackClient), sizeof(float));*/
 	    ++out;
 	}
     }
     
-    jack_set_process_callback(jackClient, audio_callback, 0);
-
     /* Instantiate plugins */
 
     for (i = 0; i < instance_count; i++) {
@@ -799,7 +789,6 @@ int main(int argc, char **argv)
 
     /* Create ALSA MIDI port */
 
-
     if (snd_seq_open(&alsaClient, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
 	fprintf(stderr, "\n%s: Error: Failed to open ALSA sequencer interface\n",
 		myName);
@@ -821,36 +810,15 @@ int main(int argc, char **argv)
     snd_seq_poll_descriptors(alsaClient, pfd, npfd, POLLIN);
 
     mb_init("host: ");
-
-    /* activate JACK and connect ports */
-    if (jack_activate(jackClient)) {
-        fprintf (stderr, "cannot activate jack client");
-        exit(1);
-    }
-
-    if (autoconnect) {
-        /* !FIX! this to more intelligently connect ports: */
-        ports = jack_get_ports(jackClient, NULL,
-                               "^" JACK_DEFAULT_AUDIO_TYPE "$",
-                               JackPortIsPhysical|JackPortIsInput);
-        if (ports && ports[0]) {
-            for (i = 0, j = 0; i < outsTotal; ++i) {
-                if (jack_connect(jackClient, jack_port_name(outputPorts[i]),
-                                 ports[j])) {
-                    fprintf (stderr, "cannot connect output port %d\n", i);
-                }
-                if (!ports[++j]) j = 0;
-            }
-            free(ports);
-        }
-    }
-
+    
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGHUP, signalHandler);
     signal(SIGQUIT, signalHandler);
     pthread_sigmask(SIG_UNBLOCK, &_signals, 0);
+    
 
+    /*Start the UI*/
     snprintf(osc_path_tmp, 1024, "%s/%s", url, "pydaw"); //instances[i].friendly_name);
     
     printf("\n%s: OSC URL is:\n%s\n\n", myName, osc_path_tmp);
@@ -861,44 +829,19 @@ int main(int argc, char **argv)
 
     exiting = 0;
 
-    while (!exiting) {
-
-
-	if (poll(pfd, npfd, 100) > 0) {
+    while (!exiting)
+    {
+	if (poll(pfd, npfd, 100) > 0)
+        {
 	    midi_callback();
 	}
-
-
-	/* Race conditions here, because the programs and ports are
-	   updated from the audio thread.  We at least try to minimise
-	   trouble by copying out before the expensive OSC call */
-
-        for (i = 0; i < instance_count; i++) {
-            instance = &instances[i];
-            if (instance->uiNeedsProgramUpdate && instance->pendingProgramChange < 0) {
-                int bank = instance->currentBank;
-                int program = instance->currentProgram;
-                instance->uiNeedsProgramUpdate = 0;
-                if (instance->uiTarget) {
-                    lo_send(instance->uiTarget, instance->ui_osc_program_path, "ii", bank, program);
-                }
-            }
-        }
-
-	for (i = 0; i < controlInsTotal; ++i) {
-	    if (pluginPortUpdated[i]) {
-		int port = pluginControlInPortNumbers[i];
-		float value = pluginControlIns[i];
-                instance = pluginControlInInstances[i];
-		pluginPortUpdated[i] = 0;
-		if (instance->uiTarget) {
-		    lo_send(instance->uiTarget, instance->ui_osc_control_path, "if", port, value);
-		}
-	    }
-	}
+        
+        //Pa_Sleep(2000);
     }
 
-    jack_client_close(jackClient);
+    err = Pa_CloseStream( stream );
+    //if( err != paNoError ) goto error;    
+    Pa_Terminate();
 
     /* cleanup plugins */
     for (i = 0; i < instance_count; i++) {

@@ -8,8 +8,8 @@ MOC ?= moc-qt4
 PREFIX = /usr
 
 BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -funroll-loops -Wall -Isrc -I. -fstrength-reduce -fstrict-aliasing -finline-functions
-BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa jack liblo)
-LINK_CFLAGS    = -lm -ldl $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile jack)
+BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa liblo)
+LINK_CFLAGS    = -lm -ldl -lportaudio $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile)
 
 C_OBJS   = src/main.o src/message_buffer.o
 

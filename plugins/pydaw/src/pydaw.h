@@ -230,7 +230,7 @@ typedef struct
 
 typedef struct
 {
-    int sample_count;   //set from the Jack buffer size every time the main loop is called..
+    int sample_count;   //set from the audio device buffer size every time the main loop is called..
     float tempo;
     pthread_mutex_t main_mutex;
     t_pysong * pysong;
