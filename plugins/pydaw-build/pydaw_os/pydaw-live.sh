@@ -1,6 +1,5 @@
 if [ -d /home/ubuntu ]; then
 	cp /usr/share/applications/pydaw* /home/ubuntu/Desktop
-	cp /usr/share/applications/qjackctl* /home/ubuntu/Desktop
 	cp /usr/share/applications/audacity* /home/ubuntu/Desktop
 	cp /usr/share/applications/mixxx* /home/ubuntu/Desktop
 	cp /usr/share/doc/pydaw3/readme.txt /home/ubuntu/Desktop	

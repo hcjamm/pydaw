@@ -519,6 +519,7 @@ int main(int argc, char **argv)
         {
             printf("device.txt exists\n");
             t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_device_file_path, LMS_LARGE_STRING); 
+            f_device_name[0] = '\0';
             
             while(1)
             {            
@@ -547,7 +548,7 @@ int main(int argc, char **argv)
                 else if(!strcmp(f_key_char, "sampleRate"))
                 {                    
                     sample_rate = atof(f_value_char);
-                    printf("sampleRate: %i\n", f_frame_count);
+                    printf("sampleRate: %i\n", (int)sample_rate);
                 }
                 else
                 {
@@ -596,15 +597,24 @@ int main(int argc, char **argv)
         else
         {
             int f_i = 0;
+            int f_found_index = 0;
             while(f_i < Pa_GetDeviceCount())
             {
                 const PaDeviceInfo * f_padevice = Pa_GetDeviceInfo(f_i);  //I guess that this is not supposed to be free'd?
                 if(!strcmp(f_padevice->name, f_device_name))
                 {
                     outputParameters.device = f_i;
+                    f_found_index = 1;
                     break;
                 }
                 f_i++;
+            }
+            
+            if(!f_found_index)
+            {                
+                sprintf(f_cmd_buffer, "%s \"Did not find device '%s' on this system.\"", f_show_dialog_cmd, f_device_name);
+                system(f_cmd_buffer);
+                continue;
             }
         }
 
