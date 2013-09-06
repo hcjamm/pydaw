@@ -6102,7 +6102,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_path = global_pydaw_home + "/device.txt"
         if os.path.isfile(f_path):
             os.system('rm "%s"' % (f_path,))
-        QtGui.QMessageBox.warning(self, "", "Audio device setttings have been cleared, you will be prompted to select a device next time you start PyDAW.")
+        QtGui.QMessageBox.warning(self, "Settings cleared", "Audio device setttings have been cleared, you will be prompted to select a device next time you start PyDAW.")
 
     def on_open_theme(self):
         try:
