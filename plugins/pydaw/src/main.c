@@ -841,7 +841,7 @@ int main(int argc, char **argv)
     {
         while (!exiting)
         {
-            if (poll(pfd, npfd, 100) > 0)
+            if (poll(pfd, npfd, 1000) > 0)
             {
                 midi_callback();
             }
