@@ -64,18 +64,27 @@ class pydaw_device_dialog:
         f_ok_cancel_layout.addWidget(f_cancel_button)
 
         f_pyaudio = pyaudio.PyAudio()
-        f_count = f_pyaudio.get_device_count()
+
+        f_count = f_pyaudio.get_host_api_count()
+
+        f_api_list = ["ALSA"]
 
         f_result_dict = {}
         f_index_dict = {}
+        f_device_index = 0
 
         for i in range(f_count):
-            f_dev = f_pyaudio.get_device_info_by_index(i)
-            print("\n\n\n")
-            for k, v in f_dev.items():
-                print("%s : %s" % (k, v))
-            f_result_dict[f_dev["name"]] = f_dev
-            f_index_dict[f_dev["name"]] = i
+            f_api_dict = f_pyaudio.get_host_api_info_by_index(i)
+            if f_api_dict["name"] in f_api_list:
+                f_count = f_api_dict["deviceCount"]
+                for i2 in range(f_count):
+                    f_dev = f_pyaudio.get_device_info_by_host_api_device_index(i, i2)
+                    print("\n\n\n")
+                    for k, v in f_dev.items():
+                        print("%s : %s" % (k, v))
+                    f_result_dict[f_dev["name"]] = f_dev
+                    f_index_dict[f_dev["name"]] = f_device_index
+                    f_device_index += 1
 
         def latency_changed(a_self=None, a_val=None):
             f_sample_rate = float(str(f_samplerate_combobox.currentText()))
