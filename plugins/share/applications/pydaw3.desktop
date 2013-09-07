@@ -1,10 +1,12 @@
 
 [Desktop Entry]
 Name=PyDAW3
-Comment=PyDAW3 is a digital audio workstation with a full suite of instrument and effects plugins
-Exec=pasuspender pydaw3
+Version=3.0
+GenericName=A DAW and plugin suite
+Comment=PyDAW is a digital audio workstation and plugin suite
+Exec=pasuspender -- pydaw3
 Icon=pydaw3.png
 Terminal=false
 Type=Application
-Categories=Audio;AudioEditing;
+Categories=Qt;AudioVideo;Audio;AudioEditing;
 Name[en_US]=pydaw3

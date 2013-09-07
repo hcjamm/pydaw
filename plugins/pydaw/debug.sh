@@ -3,4 +3,5 @@ if [ -f ./core ]; then
 fi
 
 ulimit -c unlimited
-make clean && make debug && sudo make install && pasuspender ./pydaw3
+make clean && make debug && sudo make install && pasuspender -- ./pydaw3
+
