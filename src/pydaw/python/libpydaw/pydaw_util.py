@@ -16,7 +16,7 @@ import random, os
 from time import sleep
 from math import log, pow
 
-if "plugins/pydaw/python/" in __file__:
+if "src/pydaw/python/" in __file__:
     global_pydaw_install_prefix = "/usr"
 else:
     global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
