@@ -20,6 +20,8 @@ class pydaw_device_dialog:
     def __init__(self, a_home_folder):
         self.device_name = None
         self.home_folder = str(a_home_folder)
+        if not os.path.exists(self.home_folder):
+            os.mkdir(self.home_folder)
         self.device_file = "%s/device.txt" % (self.home_folder,)
         self.sample_rates = ["44100", "48000", "88200", "96000"]
         self.buffer_sizes = ["64", "128", "256", "512", "1024", "2048"]
