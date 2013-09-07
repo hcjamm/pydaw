@@ -633,15 +633,7 @@ int main(int argc, char **argv)
             system(f_cmd_buffer);
             continue;
         }
-
-        err = Pa_StartStream( stream );
-        if( err != paNoError )
-        {
-            sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while starting device.  Please re-configure your device and try starting PyDAW again.");
-            system(f_cmd_buffer);
-            continue;
-        }
-        
+       
         break;
     }
 
@@ -838,19 +830,25 @@ int main(int argc, char **argv)
     MB_MESSAGE("Ready\n");
 
     exiting = 0;
-
-    while (!exiting)
+    
+    err = Pa_StartStream( stream );
+    if( err != paNoError )
     {
-	if (poll(pfd, npfd, 100) > 0)
-        {
-	    midi_callback();
-	}
-        
-        //Pa_Sleep(2000);
+        sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while starting device.  Please re-configure your device and try starting PyDAW again.");
+        system(f_cmd_buffer);        
     }
-
-    err = Pa_CloseStream( stream );
-    //if( err != paNoError ) goto error;    
+    else
+    {
+        while (!exiting)
+        {
+            if (poll(pfd, npfd, 100) > 0)
+            {
+                midi_callback();
+            }
+        }
+    }
+    
+    err = Pa_CloseStream( stream );    
     Pa_Terminate();
 
     /* cleanup plugins */
