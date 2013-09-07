@@ -6099,10 +6099,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_change_audio_settings(self):
-        f_path = global_pydaw_home + "/device.txt"
-        if os.path.isfile(f_path):
-            os.system('rm "%s"' % (f_path,))
-        QtGui.QMessageBox.warning(self, "Settings cleared", "Audio device setttings have been cleared, you will be prompted to select a device next time you start PyDAW.")
+        f_dialog = pydaw_portaudio.pydaw_device_dialog(global_pydaw_home, True)
+        f_dialog.show_device_dialog()
+        QtGui.QMessageBox.warning(self, "Settings cleared", "Audio device setttings have been changed, and will be applied next time you start PyDAW.")
 
     def on_open_theme(self):
         try:

@@ -17,7 +17,8 @@ from PyQt4 import QtGui
 import pydaw_util
 
 class pydaw_device_dialog:
-    def __init__(self, a_home_folder):
+    def __init__(self, a_home_folder, a_is_running=False):
+        self.is_running = a_is_running
         self.device_name = None
         self.home_folder = str(a_home_folder)
         if not os.path.isdir(self.home_folder):
@@ -37,7 +38,10 @@ class pydaw_device_dialog:
     def show_device_dialog(self, a_msg=None):
         f_stylesheet = pydaw_util.pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + \
         pydaw_util.global_pydaw_version_string + "/themes/default/style.txt")
-        f_window = QtGui.QWidget()
+        if self.is_running:
+            f_window = QtGui.QDialog()
+        else:
+            f_window = QtGui.QWidget()
         f_window.setStyleSheet(f_stylesheet)
         f_window.setWindowTitle("Please select an audio device")
         f_window_layout = QtGui.QGridLayout(f_window)
@@ -70,8 +74,6 @@ class pydaw_device_dialog:
         f_api_list = ["ALSA"]
 
         f_result_dict = {}
-        f_index_dict = {}
-        f_device_index = 0
 
         for i in range(f_count):
             f_api_dict = f_pyaudio.get_host_api_info_by_index(i)
@@ -83,8 +85,6 @@ class pydaw_device_dialog:
                     for k, v in f_dev.items():
                         print("%s : %s" % (k, v))
                     f_result_dict[f_dev["name"]] = f_dev
-                    f_index_dict[f_dev["name"]] = f_device_index
-                    f_device_index += 1
 
         def latency_changed(a_self=None, a_val=None):
             f_sample_rate = float(str(f_samplerate_combobox.currentText()))
@@ -102,26 +102,27 @@ class pydaw_device_dialog:
                 f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(f_samplerate))
 
         def on_ok(a_self=None):
-            f_index = f_index_dict[self.device_name]
+            f_device = f_result_dict[self.device_name]
             f_buffer_size = int(str(f_buffer_size_combobox.currentText()))
             f_samplerate = int(str(f_samplerate_combobox.currentText()))
             try:
-                f_stream = f_pyaudio.open(rate=f_samplerate, output_device_index=f_index, output=True,
-                                          format=f_pyaudio.get_format_from_width(2), channels=2,
-                                          frames_per_buffer=f_buffer_size)
-                f_stream.start_stream()
-                time.sleep(0.5)
-                f_stream.stop_stream()
-                f_stream.close()
-                f_window.close()
+                #This doesn't work if the device is open already, so skip the test, and if it fails the
+                #user will be prompted again next time PyDAW starts
+                if not self.is_running or "name" not in self.val_dict or self.val_dict["name"] != self.device_name:
+                    f_supported = f_pyaudio.is_format_supported(f_samplerate, output_device=f_device["index"],
+                                                  output_format=f_pyaudio.get_format_from_width(2), output_channels=2)
+                    if not f_supported:
+                        raise Exception()
                 f_file = open(self.device_file, "w")
                 f_file.write("name|%s\n" % (self.device_name,))
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))
                 f_file.close()
-                time.sleep(0.5)
+                time.sleep(0.2)
+                f_window.close()
             except Exception as ex:
-                QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s" % ex)
+                QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s\n\n%s" % (ex,
+                        "This could be because the device already open by PyDAW or another application."))
 
         def on_cancel(a_self=None):
             f_window.close()
@@ -150,15 +151,21 @@ class pydaw_device_dialog:
         f_vpos = ( f_screen.height() - f_size.height() ) / 2
         f_window.move(f_hpos, f_vpos)
         latency_changed()
-        f_window.show()
+        if self.is_running:
+            f_window.exec_()
+        else:
+            f_window.show()
 
 if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    if len(sys.argv) == 2:
-        f_msg = sys.argv[1]
-    else:
-        f_msg = None
+    def _pydaw_portaudio_standalone():
+        app = QtGui.QApplication(sys.argv)
+        if len(sys.argv) == 2:
+            f_msg = sys.argv[1]
+        else:
+            f_msg = None
 
-    f_pydaw_device_dialog = pydaw_device_dialog(pydaw_util.global_pydaw_home)
-    f_pydaw_device_dialog.show_device_dialog(f_msg)
-    sys.exit(app.exec_())
+        f_pydaw_device_dialog = pydaw_device_dialog(pydaw_util.global_pydaw_home)
+        f_pydaw_device_dialog.show_device_dialog(f_msg)
+        sys.exit(app.exec_())
+
+    _pydaw_portaudio_standalone()

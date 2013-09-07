@@ -18,3 +18,4 @@ from libpydaw.pydaw_gradients import *
 from libpydaw.pydaw_history import *
 from libpydaw.pydaw_util import *
 from libpydaw.pydaw_widgets import *
+import pydaw_portaudio
