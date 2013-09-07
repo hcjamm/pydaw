@@ -197,7 +197,7 @@ else:
     global_home = os.path.expanduser("~")
     global_default_project_folder = global_home
     global_pydaw_home = os.path.expanduser("~") + "/" + global_pydaw_version_string
-    if not os.path.exists(global_pydaw_home):
+    if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
 
 global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
