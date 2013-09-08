@@ -122,7 +122,7 @@ class pydaw_device_dialog:
                 f_window.close()
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s\n\n%s" % (ex,
-                        "This could be because the device already open by PyDAW or another application."))
+                        "This may (or may not) be because the device already open by PyDAW or another application."))
 
         def on_cancel(a_self=None):
             f_window.close()
