@@ -3,7 +3,7 @@
 # Paul's Extreme Sound Stretch (Paulstretch) - Python version
 # originally by Nasca Octavian PAUL, Targu Mures, Romania
 #
-# Forked to allow better integration with PyDAW
+# Forked to allow better integration with PyDAW, fixes, improvements, etc...
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 
@@ -36,29 +36,27 @@ def load_wav(filename):
         samplerate=int(wavedata[0])
         smp = normalize(wavedata[1]) # * (1.0 / 32768.0)
         smp=smp.transpose()
-        if len(smp.shape)==1: #convert to stereo
-            smp=tile(smp,(2,1))
-        return (samplerate,smp)
+        if len(smp.shape) == 1: #convert to stereo
+            smp=tile(smp,(2, 1))
+        return (samplerate, smp)
     except:
         print(("Error loading wav: " + filename))
         return None
 
 
-
 def optimize_windowsize(n):
-    orig_n=n
+    orig_n = n
     while True:
         n=orig_n
-        while (n%2)==0:
-            n/=2
-        while (n%3)==0:
-            n/=3
-        while (n%5)==0:
-            n/=5
-
-        if n<2:
+        while (n % 2) == 0:
+            n /= 2
+        while (n % 3) == 0:
+            n /= 3
+        while (n % 5) == 0:
+            n /= 5
+        if n < 2:
             break
-        orig_n+=1
+        orig_n += 1
     return orig_n
 
 def normalize(output):
@@ -72,7 +70,13 @@ def normalize(output):
     else:
         return output
 
-def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfilename, a_start_pitch, a_end_pitch, a_in_file, a_delete=False):
+def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename, a_start_pitch, a_end_pitch, a_in_file, a_delete=False):
+    f_tuple = load_wav(file_path)
+    if f_tuple is None:
+        print("Error loading wav file, returned None")
+        return
+    else:
+        samplerate, smp = f_tuple
 
     if plot_onsets:
         onsets=[]
@@ -252,10 +256,6 @@ if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
 print(("stretch amount =" + str(options.stretch)))
 print(("window size =" + str(options.window_size) + "seconds"))
 print(("onset sensitivity =" + str(options.onset)))
-f_tuple = load_wav(args[0])
-if f_tuple is None:
-    print("Error loading wav file, returned None")
-    sys.exit(9999)
 
-paulstretch(f_tuple[0], f_tuple[1], double(options.stretch), double(options.window_size), double(options.onset), \
+paulstretch(args[0], double(options.stretch), double(options.window_size), double(options.onset), \
 args[1], options.start_pitch, options.end_pitch, args[0], options.delete)
