@@ -3,7 +3,6 @@
 
 CC  ?= gcc
 CXX ?= g++
-MOC ?= moc-qt4
 
 PREFIX = /usr
 
@@ -50,3 +49,4 @@ install:
 
 clean:
 	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw3 core python/core *~ src/*~
+
