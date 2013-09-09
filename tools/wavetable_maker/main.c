@@ -16,13 +16,13 @@ GNU General Public License for more details.
 #include <unistd.h>
 #include <sndfile.h>
 #include <string.h>
-#include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
-#include "../../plugins/libmodsynth/modules/oscillator/noise.h"
-#include "../../plugins/libmodsynth/modules/filter/svf.h"
-#include "../../plugins/libmodsynth/modules/filter/peak_eq.h"
-#include "../../plugins/libmodsynth/lib/pitch_core.h"
-#include "../../plugins/libmodsynth/modules/distortion/clipper.h"
-#include "../../plugins/libmodsynth/modules/distortion/saturator.h"
+#include "../../src/libmodsynth/modules/oscillator/osc_simple.h"
+#include "../../src/libmodsynth/modules/oscillator/noise.h"
+#include "../../src/libmodsynth/modules/filter/svf.h"
+#include "../../src/libmodsynth/modules/filter/peak_eq.h"
+#include "../../src/libmodsynth/lib/pitch_core.h"
+#include "../../src/libmodsynth/modules/distortion/clipper.h"
+#include "../../src/libmodsynth/modules/distortion/saturator.h"
 
 #define FLOATS_PER_LINE 12
 #define WT_HZ 40.0f

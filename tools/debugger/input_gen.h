@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 
-#include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
-#include "../../plugins/libmodsynth/lib/amp.h"
-#include "../../plugins/libmodsynth/lib/pitch_core.h"
+#include "../../src/libmodsynth/modules/oscillator/osc_simple.h"
+#include "../../src/libmodsynth/lib/amp.h"
+#include "../../src/libmodsynth/lib/pitch_core.h"
 #include <ladspa.h>
     
 PYFX_Data * g_get_input(int,float);

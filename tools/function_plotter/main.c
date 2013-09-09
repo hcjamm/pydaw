@@ -13,9 +13,9 @@ GNU General Public License for more details.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../plugins/libmodsynth/lib/amp.h"
-#include "../../plugins/libmodsynth/lib/pitch_core.h"
-#include "../../plugins/libmodsynth/modules/modulation/adsr.h"
+#include "../../src/libmodsynth/lib/amp.h"
+#include "../../src/libmodsynth/lib/pitch_core.h"
+#include "../../src/libmodsynth/modules/modulation/adsr.h"
 #include <math.h>
 
 void print_help()

@@ -14,8 +14,8 @@ GNU General Public License for more details.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../plugins/pydaw/src/synth.c"
-#include "../../plugins/include/pydaw3/pydaw_plugin.h"
+#include "../../src/pydaw/src/synth.c"
+#include "../../src/include/pydaw3/pydaw_plugin.h"
 #include "pyfx_ports.h"
 #include <unistd.h>
 #include <alsa/asoundlib.h>

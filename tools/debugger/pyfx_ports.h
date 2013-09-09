@@ -18,7 +18,7 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include "../../plugins/include/pydaw3/pydaw_plugin.h"
+#include "../../src/include/pydaw3/pydaw_plugin.h"
 #include <math.h>
     
 PYFX_Data get_port_default(const PYFX_Descriptor *plugin, int port, int sample_rate)
