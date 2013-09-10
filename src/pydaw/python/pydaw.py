@@ -5748,9 +5748,6 @@ class transport_widget:
         self.overdub_checkbox.clicked.connect(self.on_overdub_changed)
         self.overdub_checkbox.setToolTip("Checking this box causes recording to unlink existing items and append new events to the existing events")
         f_lower_ctrl_layout.addWidget(self.overdub_checkbox)
-        #self.scope_button = QtGui.QPushButton("Scope")
-        #self.scope_button.pressed.connect(launch_jack_oscrolloscope)
-        #f_lower_ctrl_layout.addWidget(self.scope_button)
         self.panic_button = QtGui.QPushButton("!")
         self.panic_button.setToolTip("Panic button:   Sends a note-off signal on every note to every instrument")
         self.panic_button.pressed.connect(self.on_panic)
@@ -6108,6 +6105,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
             if not f_file is None and not f_file == "":
                 f_style = pydaw_read_file_text(f_file)
+                f_style = pydaw_escape_stylesheet(f_style)
                 pydaw_write_file_text(self.user_style_file, f_file)
                 self.setStyleSheet(f_style)
         except Exception as ex:
@@ -6245,6 +6243,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         else:
             f_style = pydaw_read_file_text(default_stylesheet_file)
 
+        f_style = pydaw_escape_stylesheet(f_style)
         self.setStyleSheet(f_style)
         self.first_offline_render = True
         self.last_offline_dir = global_home

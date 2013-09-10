@@ -28,8 +28,7 @@ typedef struct _d3h_dll_t d3h_dll_t;
 
 struct _d3h_dll_t {
     d3h_dll_t               *next;
-    char                    *name;
-    char                    *directory;
+    char                    *name;    
     int                      is_PYINST_dll;
     PYINST_Descriptor_Function descfn;      /* if is_PYINST_dll is false, this is a PYFX_Descriptor_Function */
 };

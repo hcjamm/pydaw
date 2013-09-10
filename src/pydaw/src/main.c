@@ -53,6 +53,13 @@ GNU General Public License for more details.
 
 #include "synth.c"
 
+//Pass this in with -DPYDAW_PREFIX to change the
+#ifndef PYDAW_PREFIX
+
+#define PYDAW_PREFIX "/usr"
+
+#endif
+
 static snd_seq_t *alsaClient;
 
 #define SAMPLE_RATE (44100)
@@ -116,7 +123,9 @@ void start_gui()
     if (fork() == 0) 
     {
         printf("start_gui with osc path %s\n", osc_path_tmp);
-        execlp("/usr/lib/pydaw3/pydaw/PYDAW_qt", "/usr/lib/pydaw3/pydaw/PYDAW_qt", osc_path_tmp, "pydaw.so", "pydaw3", "pydaw", (char*)NULL);
+        char f_tmp[1024];
+        sprintf(f_tmp, "%s/lib/pydaw3/pydaw/PYDAW_qt", PYDAW_PREFIX);
+        execlp(f_tmp, f_tmp, osc_path_tmp, "pydaw.so", "pydaw3", "pydaw", (char*)NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }
@@ -369,7 +378,6 @@ int main(int argc, char **argv)
     plugin->label = "pydaw";
     dll = (d3h_dll_t *)calloc(1, sizeof(d3h_dll_t));
     dll->name = "pydaw";
-    dll->directory = "/usr/lib/pydaw3";
     dll->descfn = (PYINST_Descriptor_Function)PYINST_descriptor; 
     j = 0;
     
@@ -505,7 +513,8 @@ int main(int argc, char **argv)
         sprintf(f_device_file_path, "%s/pydaw3/device.txt", f_home);
     }
     
-    char * f_show_dialog_cmd = "python2.7 /usr/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py";
+    char f_show_dialog_cmd[1024];
+    sprintf(f_show_dialog_cmd, "python2.7 %s/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py", PYDAW_PREFIX);
     char f_cmd_buffer[10000];
     f_cmd_buffer[0] = '\0';
     char f_device_name[1024];

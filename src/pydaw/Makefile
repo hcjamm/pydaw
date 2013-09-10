@@ -4,7 +4,7 @@
 CC  ?= gcc
 CXX ?= g++
 
-PREFIX = /usr
+PREFIX ?= /usr
 
 BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -funroll-loops -Wall -Isrc -I. -fstrength-reduce -fstrict-aliasing -finline-functions
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa liblo)
@@ -28,7 +28,7 @@ pydaw3: $(C_OBJS)
 # --------------------------------------------------------------
 
 .c.o:
-	$(CC) -c $< $(BUILD_CFLAGS) -o $@
+	$(CC) -DPYDAW_PREFIX='"$(PREFIX)"' -c $< $(BUILD_CFLAGS) -o $@
 
 # --------------------------------------------------------------
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 

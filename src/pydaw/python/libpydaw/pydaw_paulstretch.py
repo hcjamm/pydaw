@@ -22,6 +22,7 @@ from numpy import *
 import scipy.io.wavfile
 import wave
 from optparse import OptionParser
+from pydaw_util import *
 
 global_pydaw_version_string = "pydaw3"
 
@@ -224,7 +225,7 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
         print((f_src_path, "\n", f_dest_path))
         os.rename(f_dest_path, f_src_path)
         if a_end_pitch is not None:
-            f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms", f_src_path, f_dest_path,
+            f_cmd = [global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms", f_src_path, f_dest_path,
                      "1.0", "1.0", str(a_start_pitch), str(a_end_pitch)]
         else:
             f_cmd = ["rubberband", "-p", str(a_start_pitch), "-R", "--pitch-hq", f_src_path, f_dest_path]

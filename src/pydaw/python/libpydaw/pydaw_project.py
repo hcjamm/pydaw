@@ -65,9 +65,9 @@ pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a t
 
 pydaw_terminating_char = "\\"
 
-pydaw_rubberband_util = "/usr/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
-pydaw_sbsms_util = "/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
-pydaw_paulstretch_util = "/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
+pydaw_rubberband_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
+pydaw_sbsms_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
+pydaw_paulstretch_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
 
 class pydaw_project:
     def create_file(self, a_folder, a_file, a_text):
@@ -213,7 +213,7 @@ class pydaw_project:
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
         self.create_file("", "version.txt", "Created with " + global_pydaw_version_string + "-" + \
-        pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
+        pydaw_read_file_text(global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
         self.create_file("", os.path.basename(a_project_file), "This file is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
         self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)

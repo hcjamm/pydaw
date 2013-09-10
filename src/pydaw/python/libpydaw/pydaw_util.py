@@ -21,6 +21,9 @@ if "src/pydaw/python/" in __file__:
 else:
     global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
 
+def pydaw_escape_stylesheet(a_stylesheet):
+    return a_stylesheet.replace("$PYDAW_PREFIX", global_pydaw_install_prefix)
+
 print("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,))
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
