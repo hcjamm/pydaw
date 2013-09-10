@@ -223,6 +223,8 @@ if __name__ == "__main__":
                 f_layout.addWidget(f_widget)
                 f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
                 f_window.show()
-        sys.exit(app.exec_())
+                sys.exit(app.exec_())
+        else:
+            sys.exit(1)
 
     _main()
