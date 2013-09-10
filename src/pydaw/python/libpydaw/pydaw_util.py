@@ -169,11 +169,19 @@ global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
 global_show_create_folder_error = False
 
-if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data"):
+global_pydaw_sudo_command = None
+if os.path.exists("/usr/bin/gksudo"):
+    global_pydaw_sudo_command = "gksudo"
+elif os.path.exists("/usr/bin/sudo"):
+    print("Warning, gksudo not found.  If the GUI hangs before opening, this could be the reason why")
+    global_pydaw_sudo_command = "sudo"
+
+if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
     if not os.path.isdir("/media/pydaw_data"):
+        print("Attempting to mount /media/pydaw_data.  If this causes the GUI to hang, please try mounting the pydaw_data partition before starting")
         try:
-            os.system("gksudo mkdir /media/pydaw_data")
-            os.system("gksudo mount /dev/disk/by-label/pydaw_data /media/pydaw_data")
+            os.system("%s mkdir /media/pydaw_data" % (global_pydaw_sudo_command,))
+            os.system("%s mount /dev/disk/by-label/pydaw_data /media/pydaw_data" % (global_pydaw_sudo_command,))
         except:
             print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive or permissions")
     global_is_live_mode = True
