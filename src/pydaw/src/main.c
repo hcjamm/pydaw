@@ -346,6 +346,7 @@ static int instance_sort_cmp(const void *a, const void *b)
 
 int main(int argc, char **argv)
 {
+    v_pydaw_constructor();
     int portid;
     int npfd;
     struct pollfd *pfd;

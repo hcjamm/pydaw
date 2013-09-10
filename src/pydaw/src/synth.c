@@ -305,11 +305,8 @@ int i_pydaw_get_controller(PYFX_Handle instance, int port)
     return -1;     
 }
 
-#ifdef __GNUC__
-__attribute__((constructor)) void v_pydaw_constructor()
-#else
-void _init()
-#endif
+
+void v_pydaw_constructor()
 {
     char **port_names;
     PYFX_PortDescriptor *port_descriptors;
