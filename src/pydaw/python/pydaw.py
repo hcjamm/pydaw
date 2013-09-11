@@ -6991,7 +6991,6 @@ if global_pydaw_with_audio:
     print("Starting audio engine")
     import subprocess
     subprocess.Popen([global_pydaw_bin_path])
-    sleep(2.0) #Giving the ALSA port time to register, this will eventually be replaced with a saner connection mechanism
 else:
     print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
 
