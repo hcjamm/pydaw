@@ -16,10 +16,6 @@ GNU General Public License for more details.
 #define _SVID_SOURCE   1
 #define _ISOC99_SOURCE 1
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "pydaw_files.h"
 #include "../../include/pydaw3/pydaw_plugin.h"
 #include <alsa/asoundlib.h>
@@ -91,7 +87,7 @@ static d3h_instance_t **pluginControlInInstances;          /* maps global contro
 static unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
 static int *pluginPortUpdated;                             /* indexed by global control in # */
 
-static char osc_path_tmp[1024];
+//static char * osc_path_tmp = "osc.udp://localhost:19271/dssi/pydaw";
 
 static char *projectDirectory;
 
@@ -103,7 +99,7 @@ static sigset_t _signals;
 
 int exiting = 0;
 static int verbose = 0;
-const char *myName = "pydaw";
+const char *myName = "PyDAW";
 
 #define EVENT_BUFFER_SIZE 1024
 static snd_seq_event_t midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
@@ -117,19 +113,6 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv, int
 		      argc, void *data, void *user_data) ;
 int osc_debug_handler(const char *path, const char *types, lo_arg **argv, int
 		      argc, void *data, void *user_data) ;
-
-void start_gui()
-{
-    if (fork() == 0) 
-    {
-        printf("start_gui with osc path %s\n", osc_path_tmp);
-        char f_tmp[1024];
-        sprintf(f_tmp, "%s/lib/pydaw3/pydaw/PYDAW_qt", PYDAW_PREFIX);
-        execlp(f_tmp, f_tmp, osc_path_tmp, "pydaw.so", "pydaw3", "pydaw", (char*)NULL);
-        perror("exec failed");
-        exit(1);  //TODO:  should be getting rid of this???
-    }
-}
 
 void signalHandler(int sig)
 {
@@ -355,8 +338,6 @@ int main(int argc, char **argv)
     d3h_plugin_t *plugin;
     d3h_instance_t *instance;
     
-    char *tmp;
-    char *url;
     int i, reps, j;
     int in, out, controlIn, controlOut;
     clientName = "PyDAWv3";    
@@ -421,18 +402,8 @@ int main(int argc, char **argv)
 
     instance->plugin = plugin;
     instance->channel = instance_count;
-    instance->inactive = 1;
-    tmp = (char *)malloc(strlen(plugin->dll->name) +
-                         strlen(plugin->label) + 9);
-    instance->friendly_name = tmp;
-    strcpy(tmp, plugin->dll->name);
-    if (strlen(tmp) > 3 &&
-        !strcasecmp(tmp + strlen(tmp) - 3, ".so")) {
-        tmp = tmp + strlen(tmp) - 3;
-    } else {
-        tmp = tmp + strlen(tmp);
-    }
-    sprintf(tmp, "/%s/chan%02d", plugin->label, instance->channel);
+    instance->inactive = 1;    
+    instance->friendly_name = "pydaw"; //tmp;    
     instance->pluginProgramCount = 0;    
     instance->currentBank = 0;
     instance->currentProgram = 0;
@@ -458,7 +429,6 @@ int main(int argc, char **argv)
     instance_count++;
 
     reps = 1;
-
 
     /* sort array of instances to group them by plugin */
     if (instance_count > 1) {
@@ -493,7 +463,7 @@ int main(int argc, char **argv)
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
     
-        /*Start Portaudio*/
+    /*Start Portaudio*/
     PaStreamParameters inputParameters, outputParameters;
     PaStream *stream;
     PaError err;
@@ -722,16 +692,8 @@ int main(int argc, char **argv)
 
     /* Create OSC thread */
 
-    serverThread = lo_server_thread_new(NULL, osc_error);
-    snprintf((char *)osc_path_tmp, 31, "/dssi");
-    tmp = lo_server_thread_get_url(serverThread);
-    url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
-    sprintf(url, "%s%s", tmp, osc_path_tmp + 1);
+    serverThread = lo_server_thread_new("19271", osc_error);
     
-    printf("Registering %s\n", url);
-    
-    free(tmp);
-
     lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler, NULL);
     lo_server_thread_start(serverThread);
 
@@ -829,14 +791,6 @@ int main(int argc, char **argv)
     signal(SIGQUIT, signalHandler);
     pthread_sigmask(SIG_UNBLOCK, &_signals, 0);
     
-
-    /*Start the UI*/
-    snprintf(osc_path_tmp, 1024, "%s/%s", url, "pydaw"); //instances[i].friendly_name);
-    
-    printf("\n%s: OSC URL is:\n%s\n\n", myName, osc_path_tmp);
-    
-    start_gui();
-
     MB_MESSAGE("Ready\n");
 
     exiting = 0;

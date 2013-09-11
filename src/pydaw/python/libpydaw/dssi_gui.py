@@ -14,18 +14,12 @@ GNU General Public License for more details.
 import sys
 import liblo
 from liblo import *
-from urlparse import urlparse
 from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 
 class dssi_gui(ServerThread):
-    def __init__(self, a_url=None, a_pc_func=None):
-        """
-        a_url:  The OSC URL to send to.  Format will be something like osc.udp://localhostname:12345/dssi/pydaw/...
-        a_pc_func:  The function with signature(int, int) to be called when the engine returns a playback cursor configure message
-        """
-        self.pc_func = a_pc_func
-        if a_url is None:
+    def __init__(self, a_with_audio=False):
+        if not a_with_audio:
             self.with_osc = False
             return
         else:
@@ -35,20 +29,17 @@ class dssi_gui(ServerThread):
             ServerThread.__init__(self, None)
             self.start()
 
-            o = urlparse(a_url)
-
             try:
-                self.target = liblo.Address(o.port)
+                self.target = liblo.Address(19271)
             except liblo.AddressError as err:
                 print((str(err)))
                 sys.exit()
             except:
-                print(("Unable to start OSC with " + str(o.port)))
+                print(("Unable to start OSC with %s" % (19271,) ))
                 self.with_osc = False
                 return
 
-            self.base_path = str.split(a_url, str(o.port))[1]
-            print(("base_path = " + self.base_path))
+            self.base_path = "/dssi/pydaw"
 
             self.control_path = self.base_path + "/control"
             self.program_path = self.base_path + "/program"

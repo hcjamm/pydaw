@@ -36,10 +36,6 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/rubberband
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
-	cp -r share $(DESTDIR)$(PREFIX)
-	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
-	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
-	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r mixxx $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	install -m 755 $(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	make -C pydaw_sbsms DESTDIR=$(DESTDIR) install

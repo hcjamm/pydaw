@@ -51,7 +51,7 @@ class alsa_ports:
                     if not "System" in client_name:
                         f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
             except:
-                print(("Error parsing '" + line + "', this device will not be available, please report this bug at https://pydaw.org/forum"))
+                print(("Error parsing '" + line + "', this device will not be available"))
         return f_result
 
     def connect_to_pydaw(self, a_string):
@@ -79,10 +79,6 @@ class alsa_ports:
         for port in self.output_ports:
             f_result.append(port.fqname)
         return f_result
-
-    def connect_ports(a_port_out_name, a_port_in_name):
-        #command will be aconnect [client#]:[port#] [client#]:[port#], like aconnect 23:0 44:1 , where the first is sender, and 2nd receiver
-        pass
 
     def __init__(self):
         input_str = getoutput("aconnect -o")

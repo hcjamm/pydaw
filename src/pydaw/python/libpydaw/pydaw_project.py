@@ -911,13 +911,13 @@ class pydaw_project:
         f_file.write(a_message)
         f_file.close()
 
-    def __init__(self, a_osc_url=None):
+    def __init__(self, a_with_audio):
         self.last_item_number = 1
         self.last_region_number = 1
         self.history_files = []
         self.history_commits = []
         self.history_undo_cursor = 0
-        self.this_dssi_gui = dssi_gui(a_osc_url)
+        self.this_dssi_gui = dssi_gui(a_with_audio)
         self.glued_name_index = 0
         self.suppress_updates = False
 

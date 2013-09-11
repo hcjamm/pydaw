@@ -6917,10 +6917,7 @@ def set_window_title():
 def global_open_project(a_project_file, a_notify_osc=True):
     global_close_all()
     global this_pydaw_project
-    if(len(argv) >= 2):
-        this_pydaw_project = pydaw_project((argv[1]))
-    else:
-        this_pydaw_project = pydaw_project()
+    this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.suppress_updates = True
     this_pydaw_project.open_project(a_project_file, a_notify_osc)
     this_song_editor.open_song()
@@ -6940,10 +6937,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
 def global_new_project(a_project_file):
     global_close_all()
     global this_pydaw_project
-    if(len(argv) >= 2):
-        this_pydaw_project = pydaw_project(argv[1])
-    else:
-        this_pydaw_project = pydaw_project()
+    this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.new_project(a_project_file)
     this_pydaw_project.save_transport(this_transport.transport)
     this_song_editor.open_song()
@@ -6953,7 +6947,7 @@ def global_new_project(a_project_file):
     global_update_audio_track_comboboxes()
     set_window_title()
 
-this_pydaw_project = pydaw_project()
+this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
 app = QtGui.QApplication(sys.argv)
 
@@ -6992,6 +6986,15 @@ this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_audio_items_viewer = audio_items_viewer()
+
+if global_pydaw_with_audio:
+    print("Starting audio engine")
+    import subprocess
+    subprocess.Popen([global_pydaw_bin_path])
+    sleep(2.0) #Giving the ALSA port time to register, this will eventually be replaced with a saner connection mechanism
+else:
+    print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
+
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
 
@@ -7032,5 +7035,6 @@ if os.path.isfile(global_pydaw_home + "/" + "tooltips.txt"):
         this_transport.tooltips_checkbox.setChecked(True)
 else:
     this_transport.tooltips_checkbox.setChecked(True)
+
 
 sys.exit(app.exec_())
