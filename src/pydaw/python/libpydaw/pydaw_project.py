@@ -61,10 +61,11 @@ pydaw_file_pywavs = "default.pywavs"
 pydaw_file_pystretch = "default.pystretch"
 pydaw_file_pystretch_map = "map.pystretch"
 
-pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a transform
+pydaw_min_note_length = 4.0/128.0  #Anything smaller gets deleted when doing a transform
 
 pydaw_terminating_char = "\\"
 
+#if not os.path.exists usually indicates that PyDAW is being run in debug mode, so just use the default installed version
 pydaw_rubberband_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
 if not os.path.exists(pydaw_rubberband_util):
     pydaw_rubberband_util = "/usr/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"

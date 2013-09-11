@@ -3282,7 +3282,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         return (a_pos.x() > (self.rect().width() * 0.8))
 
     def hoverMoveEvent(self, a_event):
-        QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
+        #QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
         if not self.is_resizing:
             this_piano_roll_editor.click_enabled = False
             self.show_resize_cursor(a_event)
@@ -3423,8 +3423,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_item.is_resizing = False
             f_item.is_copying = False
         global_save_and_reload_items()  #<Was above the loop before, but I'm not sure why...
-        QtGui.QApplication.restoreOverrideCursor()
         self.showing_resize_cursor = False
+        QtGui.QApplication.restoreOverrideCursor()
         this_piano_roll_editor.click_enabled = True
 
 class piano_key_item(QtGui.QGraphicsRectItem):
@@ -3558,7 +3558,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
             return
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            pass
+            self.hover_restore_cursor_event()
         elif self.click_enabled and this_item_editor.enabled:
             self.scene.clearSelection()
             f_pos_x = a_event.scenePos().x()
@@ -3586,8 +3586,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
         a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
 
+    def hover_restore_cursor_event(self, a_event=None):
+        QtGui.QApplication.restoreOverrideCursor()
+
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
+        self.header.hoverEnterEvent = self.hover_restore_cursor_event
         self.header.setBrush(QtGui.QColor.fromRgb(60, 60, 60, 255))
         self.scene.addItem(self.header)
         self.header.mapToScene(self.piano_width + self.padding, 0.0)
@@ -3685,6 +3689,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_octave_brushes = f_octave_brushes[f_index:] + f_octave_brushes[:f_index]
         self.first_open = False
         f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
+        f_note_bar.hoverMoveEvent = self.hover_restore_cursor_event
         f_note_bar.setBrush(f_base_brush)
         f_note_bar.setPos(self.piano_width + self.padding,  0.0)
         for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
@@ -3698,20 +3703,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_bar.setPos(self.piano_width + self.padding,  self.note_height * (j) + self.octave_height * (i-1))
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
-        f_bar_pen = QtGui.QPen()
-        f_bar_pen.setWidth(6.0)
-        f_bar_pen.setColor(QtGui.QColor(240, 30, 30))
-        f_line_pen = QtGui.QPen()
-        f_line_pen.setColor(QtGui.QColor(0, 0, 0))
+        f_bar_pen = QtGui.QPen(QtGui.QColor(240, 30, 30), 12.0)
+        f_line_pen = QtGui.QPen(QtGui.QColor(0, 0, 0))
         f_beat_y = self.piano_height + self.header_height + self.note_height
         for i in range(0, int(self.item_length) + 1):
             f_beat_x = (self.beat_width * i) + self.piano_width
             f_beat = self.scene.addLine(f_beat_x, 0, f_beat_x, f_beat_y)
-            #f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_beat_number = i % 4
             if f_beat_number == 0 and not i == 0:
                 f_beat.setPen(f_bar_pen)
-                #f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
