@@ -33,6 +33,17 @@ typedef struct
 t_rmd_ring_mod * g_rmd_ring_mod_get(float);
 void v_rmd_ring_mod_set(t_rmd_ring_mod*, float, float);
 void v_rmd_ring_mod_run(t_rmd_ring_mod*, float, float);
+void v_rmd_ring_mod_free(t_rmd_ring_mod*);
+
+void v_rmd_ring_mod_free(t_rmd_ring_mod* a_rmd)
+{
+    if(a_rmd)
+    {
+        v_amp_free(a_rmd->amp);
+        //TODO:  Free the unison osc
+        free(a_rmd);
+    }
+}
 
 t_rmd_ring_mod * g_rmd_ring_mod_get(float a_sr)
 {

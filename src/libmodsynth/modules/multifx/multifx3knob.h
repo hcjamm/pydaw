@@ -597,12 +597,12 @@ void v_mf3_free(t_mf3_multi * a_mf3 )
         v_cmb_free(a_mf3->comb_filter0);
         v_cmb_free(a_mf3->comb_filter1);
         v_pkq_free(a_mf3->eq0);
-        //a_mf3->formant_filter
-        //a_mf3->growl_filter
-        //a_mf3->glitch
-        //a_mf3->limiter
+        v_for_formant_filter_free(a_mf3->formant_filter);  //TODO:  this one's not finished yet
+        v_grw_growl_filter_free(a_mf3->growl_filter);
+        v_glc_glitch_free(a_mf3->glitch);
+        v_lim_free(a_mf3->limiter);
         free(a_mf3->lofi);
-        //a_mf3->ring_mod
+        v_rmd_ring_mod_free(a_mf3->ring_mod);  //TODO: this one is not finished yet either...
         v_sah_free(a_mf3->s_and_h);
         v_sat_free(a_mf3->saturator);
         v_svf2_free(a_mf3->svf);

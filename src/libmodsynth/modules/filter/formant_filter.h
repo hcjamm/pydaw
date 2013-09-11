@@ -74,6 +74,18 @@ typedef struct
 t_for_formant_filter * g_for_formant_filter_get(float);
 void v_for_formant_filter_set(t_for_formant_filter*, float, float);
 void v_for_formant_filter_run(t_for_formant_filter*, float, float);
+void v_for_formant_filter_free(t_for_formant_filter*);
+
+void v_for_formant_filter_free(t_for_formant_filter * a_for)
+{
+    if(a_for)
+    {
+        free(a_for->lin);
+        free(a_for->xfade);        
+        //TODO:  Free the filters, after replacing with the stereo version
+        free(a_for);
+    }
+}
 
 t_for_formant_filter * g_for_formant_filter_get(float a_sr)
 {
@@ -203,6 +215,7 @@ typedef struct
 t_grw_growl_filter * g_grw_growl_filter_get(float);
 void v_grw_growl_filter_set(t_grw_growl_filter*, float, float, float);
 void v_grw_growl_filter_run(t_grw_growl_filter*, float, float);
+void v_grw_growl_filter_free(t_grw_growl_filter*);
 
 t_grw_growl_filter * g_grw_growl_filter_get(float a_sr)
 {
@@ -291,6 +304,22 @@ void v_grw_growl_filter_run(t_grw_growl_filter* a_grw, float a_input0, float a_i
     
     a_grw->output0 = f_axf_run_xfade(a_grw->xfade, a_input0, a_grw->output0);
     a_grw->output1 = f_axf_run_xfade(a_grw->xfade, a_input1, a_grw->output1);
+}
+
+void v_grw_growl_filter_free(t_grw_growl_filter *a_grw)
+{
+    if(a_grw)
+    {
+         free(a_grw->lin);
+         free(a_grw->xfade);
+         int f_i = 0;
+         while(f_i < 5)
+         {
+            v_svf2_free(a_grw->filters[f_i]);
+            f_i++;
+         }
+         free(a_grw);
+    }
 }
 
 #ifdef	__cplusplus

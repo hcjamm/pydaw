@@ -42,6 +42,18 @@ typedef struct st_lim_limiter
 t_lim_limiter * g_lim_get(float);
 void v_lim_set(t_lim_limiter*,float, float, float);
 void v_lim_run(t_lim_limiter*,float, float);
+void v_lim_free(t_lim_limiter*);
+
+void v_lim_free(t_lim_limiter * a_lim)
+{
+    if(a_lim)
+    {
+        v_amp_free(a_lim->amp_ptr);
+        free(a_lim->buffer0);
+        free(a_lim->buffer1);        
+        free(a_lim);
+    }
+}
 
 void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_release)
 {

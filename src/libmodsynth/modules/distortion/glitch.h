@@ -36,6 +36,17 @@ typedef struct
 t_glc_glitch * g_glc_glitch_get(float);
 void v_glc_glitch_set(t_glc_glitch*, float, float, float);
 void v_glc_glitch_run(t_glc_glitch*, float, float);
+void v_glc_glitch_free(t_glc_glitch*);
+
+void v_glc_glitch_free(t_glc_glitch * a_glc)
+{
+    if(a_glc)
+    {
+        free(a_glc->buffer);
+        v_pit_free(a_glc->pitch);
+        free(a_glc);
+    }
+}
 
 t_glc_glitch * g_glc_glitch_get(float a_sr)
 {
