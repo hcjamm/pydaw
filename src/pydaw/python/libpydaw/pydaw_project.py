@@ -66,8 +66,17 @@ pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a t
 pydaw_terminating_char = "\\"
 
 pydaw_rubberband_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
+if not os.path.exists(pydaw_rubberband_util):
+    pydaw_rubberband_util = "/usr/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
+
 pydaw_sbsms_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
+if not os.path.exists(pydaw_sbsms_util):
+    pydaw_sbsms_util = "/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
+
 pydaw_paulstretch_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
+if not os.path.exists(pydaw_paulstretch_util):
+    pydaw_paulstretch_util = "/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
+
 
 class pydaw_project:
     def create_file(self, a_folder, a_file, a_text):
