@@ -61,13 +61,18 @@ class alsa_ports:
         print((getoutput("aconnect -x")))
         if f_string == "None":
             return
-        for f_alsa_port in self.input_ports:
-            if "PyDAW" in f_alsa_port.client_name:
-                f_out_port = f_string.split("~")[1]
-                f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
-                print(f_cmd)
-                print((getoutput(f_cmd)))
-                break
+        for i in range(10):
+            input_str = getoutput("aconnect -o")
+            self.input_ports = self.parse_aconnect(input_str)
+            for f_alsa_port in self.input_ports:
+                if "PyDAW" in f_alsa_port.client_name:
+                    f_out_port = f_string.split("~")[1]
+                    f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
+                    print(f_cmd)
+                    print((getoutput(f_cmd)))
+                    return
+            sleep(0.3)
+        print("Could not find PyDAW in list of ports, not connecting MIDI device %s." % (f_string,))
 
     def get_input_fqnames(self):
         f_result = []
@@ -82,19 +87,6 @@ class alsa_ports:
         return f_result
 
     def __init__(self):
-        f_break = False
-        f_reps = 0
-        while not f_break and f_reps < 10:
-            input_str = getoutput("aconnect -o")
-            self.input_ports = self.parse_aconnect(input_str)
-            for f_alsa_port in self.input_ports:
-                if "PyDAW" in f_alsa_port.client_name:
-                    f_break = True
-                    break
-            f_reps += 1
-            sleep(0.3)
-        if not f_break:
-            print("It appears that PyDAW never created an ALSA MIDI port, MIDI in may not work")
         output_str = getoutput("aconnect -i")
         self.output_ports = self.parse_aconnect(output_str)
 
