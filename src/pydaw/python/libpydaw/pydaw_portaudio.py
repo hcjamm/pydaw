@@ -38,6 +38,7 @@ class pydaw_device_dialog:
     def show_device_dialog(self, a_msg=None):
         f_stylesheet = pydaw_util.pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + \
         pydaw_util.global_pydaw_version_string + "/themes/default/style.txt")
+        f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet)
         if self.is_running:
             f_window = QtGui.QDialog()
         else:
