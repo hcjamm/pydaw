@@ -4464,6 +4464,8 @@ class item_list_editor:
         f_ok.pressed.connect(quantize_ok_handler)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
+        if a_selected_only:
+            f_layout.addWidget(QtGui.QLabel("Only the selected notes will be quantized."), 2, 1)
         f_layout.addLayout(f_ok_cancel_layout, 3, 1)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(quantize_cancel_handler)
