@@ -6400,8 +6400,22 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.osc_timer.setSingleShot(False)
             self.osc_timer.timeout.connect(self.osc_time_callback)
             self.osc_timer.start(20)
+        if global_pydaw_with_audio:
+            self.subprocess_timer = QtCore.QTimer(self)
+            self.subprocess_timer.timeout.connect(self.subprocess_monitor)
+            self.subprocess_timer.setSingleShot(False)
+            self.subprocess_timer.start(1000)
         self.show()
         self.ignore_close_event = True
+
+    def subprocess_monitor(self):
+        if global_pydaw_subprocess.poll() != None:
+            self.subprocess_timer.stop()
+            exitCode = global_pydaw_subprocess.returncode
+            if (exitCode != 0):
+                QtGui.QMessageBox.warning(self, "Error",
+                          "The audio engine died with error code %s, please try restarting PyDAW" % (exitCode,))
+
 
     def osc_time_callback(self):
         self.osc_server.recv(1)
@@ -6449,6 +6463,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 sleep(0.5)
                 global_close_all_plugin_windows()
                 self.osc_timer.stop()
+                self.subprocess_timer.stop()
                 self.osc_server.free()
                 self.ignore_close_event = False
                 f_quit_timer = QtCore.QTimer(self)
@@ -6949,9 +6964,6 @@ def global_new_project(a_project_file):
     global_update_audio_track_comboboxes()
     set_window_title()
 
-def global_subprocess_monitor():
-    pass
-
 this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
 app = QtGui.QApplication(sys.argv)
@@ -6994,7 +7006,7 @@ this_audio_items_viewer = audio_items_viewer()
 
 if global_pydaw_with_audio:
     print("Starting audio engine")
-    global_pydaw_subprocess = subprocess.Popen([global_pydaw_bin_path])
+    global_pydaw_subprocess = subprocess.Popen([global_pydaw_bin_path], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 else:
     print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
     global_pydaw_subprocess = None
