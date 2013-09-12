@@ -6416,7 +6416,6 @@ class pydaw_main_window(QtGui.QMainWindow):
                 QtGui.QMessageBox.warning(self, "Error",
                           "The audio engine died with error code %s, please try restarting PyDAW" % (exitCode,))
 
-
     def osc_time_callback(self):
         self.osc_server.recv(1)
 
@@ -6463,7 +6462,18 @@ class pydaw_main_window(QtGui.QMainWindow):
                 sleep(0.5)
                 global_close_all_plugin_windows()
                 self.osc_timer.stop()
-                self.subprocess_timer.stop()
+                if global_pydaw_with_audio: #Wait up to 6 seconds and then kill the process
+                    self.subprocess_timer.stop()
+                    f_exited = False
+                    for i in range(20):
+                        if global_pydaw_subprocess.poll() == None:
+                            f_exited = True
+                            break
+                        else:
+                            sleep(0.3)
+                    if not f_exited:
+                        print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
+                        global_pydaw_subprocess.kill()
                 self.osc_server.free()
                 self.ignore_close_event = False
                 f_quit_timer = QtCore.QTimer(self)
