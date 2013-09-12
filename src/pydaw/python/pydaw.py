@@ -13,7 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys, os, operator
+import sys, os, operator, subprocess
 from time import sleep
 import time
 from PyQt4 import QtGui, QtCore
@@ -6947,6 +6947,9 @@ def global_new_project(a_project_file):
     global_update_audio_track_comboboxes()
     set_window_title()
 
+def global_subprocess_monitor():
+    pass
+
 this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
 app = QtGui.QApplication(sys.argv)
@@ -6989,10 +6992,10 @@ this_audio_items_viewer = audio_items_viewer()
 
 if global_pydaw_with_audio:
     print("Starting audio engine")
-    import subprocess
-    subprocess.Popen([global_pydaw_bin_path])
+    global_pydaw_subprocess = subprocess.Popen([global_pydaw_bin_path])
 else:
     print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
+    global_pydaw_subprocess = None
 
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
