@@ -6464,16 +6464,20 @@ class pydaw_main_window(QtGui.QMainWindow):
                 self.osc_timer.stop()
                 if global_pydaw_with_audio: #Wait up to 6 seconds and then kill the process
                     self.subprocess_timer.stop()
-                    f_exited = False
-                    for i in range(20):
-                        if global_pydaw_subprocess.poll() == None:
-                            f_exited = True
-                            break
-                        else:
-                            sleep(0.3)
-                    if not f_exited:
-                        print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
-                        global_pydaw_subprocess.kill()
+                    if not "--debug" in sys.argv:
+                        f_exited = False
+                        for i in range(20):
+                            if global_pydaw_subprocess.poll() == None:
+                                f_exited = True
+                                break
+                            else:
+                                sleep(0.3)
+                        if not f_exited:
+                            print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
+                            try:
+                                global_pydaw_subprocess.kill()
+                            except Exception as ex:
+                                print("Exception raised while trying to kill process: %s" % (ex,))
                 self.osc_server.free()
                 self.ignore_close_event = False
                 f_quit_timer = QtCore.QTimer(self)
@@ -7016,7 +7020,11 @@ this_audio_items_viewer = audio_items_viewer()
 
 if global_pydaw_with_audio:
     print("Starting audio engine")
-    global_pydaw_subprocess = subprocess.Popen([global_pydaw_bin_path], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if "--debug" in sys.argv and os.path.exists("/usr/bin/x-terminal-emulator"):
+        global_pydaw_subprocess = subprocess.Popen(["""/usr/bin/x-terminal-emulator -e "bash -c '%s ; read'" """ %
+        (global_pydaw_bin_path,)], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    else:
+        global_pydaw_subprocess = subprocess.Popen([global_pydaw_bin_path], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 else:
     print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
     global_pydaw_subprocess = None
