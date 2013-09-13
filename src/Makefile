@@ -37,12 +37,12 @@ install:
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	cp -r mixxx $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
-	install -m 755 $(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	make -C pydaw_sbsms DESTDIR=$(DESTDIR) install
 	make -C pydaw_sbsms/cli DESTDIR=$(DESTDIR) install
 	make -C pydaw_rubberband DESTDIR=$(DESTDIR) install
 	#The configure script doesn't offer a lot of granularity for what to install, so just snip out the parts we don't want
 	cd $(DESTDIR)/$(RUBBERBAND_PREFIX) ; rm -rf lib/ladspa lib/vamp include share
+	install -m 755 $(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	#Add the Git revision to the version.txt file if possible
 	@	if [ -e /usr/bin/git ] && [ -e ../.git ]; then \
 			echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/$(PYDAW_VERSION)-version.txt ; \

@@ -53,6 +53,11 @@ install:
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r share $(DESTDIR)$(PREFIX)
+	install -m 755 ../$(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	#Add the Git revision to the version.txt file if possible
+	@       if [ -e /usr/bin/git ] && [ -e ../.git ]; then \
+                        echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/$(PYDAW_VERSION)-version.txt ; \
+                fi
 
 clean:
 	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw3-engine core python/core *~ src/*~
