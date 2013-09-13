@@ -42,11 +42,6 @@ install:
 	make -C pydaw_rubberband DESTDIR=$(DESTDIR) install
 	#The configure script doesn't offer a lot of granularity for what to install, so just snip out the parts we don't want
 	cd $(DESTDIR)/$(RUBBERBAND_PREFIX) ; rm -rf lib/ladspa lib/vamp include share
-	install -m 755 $(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
-	#Add the Git revision to the version.txt file if possible
-	@	if [ -e /usr/bin/git ] && [ -e ../.git ]; then \
-			echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/$(PYDAW_VERSION)-version.txt ; \
-		fi
 
 clean:
 	make -C pydaw clean
