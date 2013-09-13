@@ -13,7 +13,7 @@ GNU General Public License for more details.
 """
 
 import pyaudio, os, sys, time
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 import pydaw_util
 
 class pydaw_device_dialog:
@@ -35,7 +35,7 @@ class pydaw_device_dialog:
                     f_line_arr = f_line.split("|", 1)
                     self.val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
 
-    def show_device_dialog(self, a_msg=None):
+    def show_device_dialog(self, a_msg=None, a_notify=False):
         f_stylesheet = pydaw_util.pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + \
         pydaw_util.global_pydaw_version_string + "/themes/default/style.txt")
         f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet)
@@ -43,6 +43,7 @@ class pydaw_device_dialog:
             f_window = QtGui.QDialog()
         else:
             f_window = QtGui.QWidget()
+        f_window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         f_window.setStyleSheet(f_stylesheet)
         f_window.setWindowTitle("Please select an audio device")
         f_window_layout = QtGui.QGridLayout(f_window)
@@ -119,7 +120,11 @@ class pydaw_device_dialog:
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))
                 f_file.close()
-                time.sleep(0.2)
+                if a_notify:
+                    QtGui.QMessageBox.warning(f_window, "Settings changed",
+                      "Audio device setttings have been changed, and will be applied next time you start PyDAW.")
+                else:
+                    time.sleep(0.2)
                 f_window.close()
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s\n\n%s" % (ex,

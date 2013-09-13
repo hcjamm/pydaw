@@ -543,7 +543,11 @@ int main(int argc, char **argv)
             system(f_show_dialog_cmd);
             if(i_pydaw_file_exists(f_device_file_path))
             {
-                continue;  //If not, just go with the default device
+                continue;
+            }
+            else
+            {
+                exit(9998);
             }
         }
         
