@@ -13,7 +13,6 @@ tools/debugger/profile.txt
 src/pydaw/python/libpydaw/history_test*
 tools/debugger/gmon.out
 tools/debugger/profiling.txt
-src/pydaw/pydaw3
 src/pydaw-build/debian/DEBIAN/control
 src/pydaw-build/debian/DEBIAN/md5sums
 tools/wavetable_maker/wavs/*.wav

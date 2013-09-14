@@ -46,7 +46,7 @@ install:
 clean:
 	make -C pydaw clean
 	#make -C pydaw_jack_oscrolloscope clean
-	make -C pydaw_sbsms clean
-	make -C pydaw_sbsms/cli clean
-	make -C pydaw_rubberband clean
+	#make -C pydaw_sbsms clean
+	#make -C pydaw_sbsms/cli clean
+	#make -C pydaw_rubberband clean
 
