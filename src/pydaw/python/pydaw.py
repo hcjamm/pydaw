@@ -7019,11 +7019,19 @@ this_audio_items_viewer = audio_items_viewer()
 
 if global_pydaw_with_audio:
     print("Starting audio engine")
-    if "--debug" in sys.argv and os.path.exists("/usr/bin/x-terminal-emulator"):
-        global_pydaw_subprocess = subprocess.Popen(["""/usr/bin/x-terminal-emulator -e "bash -c '%s ; read'" """ %
-        (global_pydaw_bin_path,)], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if pydaw_util.pydaw_which("pasuspender") is not None:
+        f_pa_suspend = True
+    if "--debug" in sys.argv and pydaw_util.pydaw_which("x-terminal-emulator") is not None:
+        if f_pa_suspend:
+            f_cmd = """pasuspender -- x-terminal-emulator -e "bash -c '%s ; read'" """ % (global_pydaw_bin_path,)
+        else:
+            f_cmd = """x-terminal-emulator -e "bash -c '%s ; read'" """ % (global_pydaw_bin_path,)
     else:
-        global_pydaw_subprocess = subprocess.Popen([global_pydaw_bin_path], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if f_pa_suspend:
+            f_cmd = 'pasuspender -- "%s"' % (global_pydaw_bin_path,)
+        else:
+            f_cmd = global_pydaw_bin_path
+    global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True) #, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 else:
     print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
     global_pydaw_subprocess = None

@@ -38,6 +38,15 @@ print("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,))
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
+def pydaw_which(a_file):
+    """ Python equivalent of the UNIX which command """
+    f_path_arr = os.getenv("PATH").split(":")
+    for f_path in f_path_arr:
+        f_file_path = "%s/%s" % (f_path, a_file,)
+        if os.path.exists(f_file_path) and not os.path.isdir(f_file_path):
+            return f_file_path
+    return None
+
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
     f_str = str(a_str)
