@@ -187,12 +187,14 @@ def pydaw_get_wait_file_path(a_file):
 
 global_show_create_folder_error = False
 
-global_pydaw_sudo_command = None
-if os.path.exists("/usr/bin/gksudo"):
+if pydaw_which("gksudo") is not None:
     global_pydaw_sudo_command = "gksudo"
-elif os.path.exists("/usr/bin/sudo"):
-    print("Warning, gksudo not found.  If the GUI hangs before opening, this could be the reason why")
+elif pydaw_which("sudo") is not None:
+    print("Warning, gksudo not found, falling back to sudo.  If the GUI hangs before opening, this could be the reason why")
     global_pydaw_sudo_command = "sudo"
+else:
+    print("Warning, gksudo and sudo not found.  If the GUI hangs before opening, this could be the reason why")
+    global_pydaw_sudo_command = None
 
 if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
     if not os.path.isdir("/media/pydaw_data"):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python2
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 

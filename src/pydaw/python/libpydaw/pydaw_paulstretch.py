@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Paul's Extreme Sound Stretch (Paulstretch) - Python version
 # originally by Nasca Octavian PAUL, Targu Mures, Romania
