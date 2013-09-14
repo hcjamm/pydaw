@@ -502,7 +502,7 @@ int main(int argc, char **argv)
             f_device_name[0] = '\0';
             
             while(1)
-            {            
+            {
                 char * f_key_char = c_iterate_2d_char_array(f_current_string);
                 if(f_current_string->eof)
                 {
@@ -573,34 +573,27 @@ int main(int argc, char **argv)
         outputParameters.sampleFormat = PA_SAMPLE_TYPE;
         outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
         outputParameters.hostApiSpecificStreamInfo = NULL;
-        
-        if(f_device_name[0] == '\0')
+                
+        int f_i = 0;
+        int f_found_index = 0;
+        while(f_i < Pa_GetDeviceCount())
         {
-            outputParameters.device = Pa_GetDefaultOutputDevice();
-        }
-        else
-        {
-            int f_i = 0;
-            int f_found_index = 0;
-            while(f_i < Pa_GetDeviceCount())
+            const PaDeviceInfo * f_padevice = Pa_GetDeviceInfo(f_i);  //I guess that this is not supposed to be free'd?
+            if(!strcmp(f_padevice->name, f_device_name))
             {
-                const PaDeviceInfo * f_padevice = Pa_GetDeviceInfo(f_i);  //I guess that this is not supposed to be free'd?
-                if(!strcmp(f_padevice->name, f_device_name))
-                {
-                    outputParameters.device = f_i;
-                    f_found_index = 1;
-                    break;
-                }
-                f_i++;
+                outputParameters.device = f_i;
+                f_found_index = 1;
+                break;
             }
-            
-            if(!f_found_index)
-            {                
-                sprintf(f_cmd_buffer, "%s \"Did not find device '%s' on this system.\"", f_show_dialog_cmd, f_device_name);
-                system(f_cmd_buffer);
-                continue;
-            }
+            f_i++;
         }
+
+        if(!f_found_index)
+        {                
+            sprintf(f_cmd_buffer, "%s \"Did not find device '%s' on this system.\"", f_show_dialog_cmd, f_device_name);
+            system(f_cmd_buffer);
+            continue;
+        }        
 
         err = Pa_OpenStream(
                   &stream,
