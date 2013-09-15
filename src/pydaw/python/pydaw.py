@@ -447,8 +447,9 @@ class song_editor:
         self.open_song()
 
     def open_first_region(self):
-        for i in range(300):
-            f_item = self.table_widget.item(0, i)
+        for f_i in range(300):
+            f_item = self.table_widget.item(0, f_i)
+            this_transport.region_spinbox.setValue(f_i + 1)
             if f_item is not None and str(f_item.text()) != "":
                 this_region_settings.open_region(str(f_item.text()))
                 f_item.setSelected(True)
