@@ -5877,6 +5877,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             return True
 
     def on_new(self):
+        if global_transport_is_playing:
+            return
         try:
             while True:
                 f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=global_home + "/default." + global_pydaw_version_string, filter=global_pydaw_file_type_string)
@@ -5892,6 +5894,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_print_generic_exception(ex)
 
     def on_open(self):
+        if global_transport_is_playing:
+            return
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=global_default_project_folder, filter=global_pydaw_file_type_string)
             if f_file is None:
@@ -5904,6 +5908,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             pydaw_print_generic_exception(ex)
 
     def on_save_as(self):
+        if global_transport_is_playing:
+            return
         try:
             while True:
                 f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=global_default_project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
@@ -5965,6 +5971,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_offline_render(self):
+        if global_transport_is_playing:
+            return
         def ok_handler():
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
@@ -6075,7 +6083,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_undo(self):
-        if this_transport.is_playing:
+        if global_transport_is_playing:
             return
         if this_pydaw_project.undo():
             global_ui_refresh_callback()
@@ -6083,13 +6091,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.on_undo_history()
 
     def on_redo(self):
-        if this_transport.is_playing:
+        if global_transport_is_playing:
             return
         this_pydaw_project.redo()
         global_ui_refresh_callback()
 
     def on_undo_history(self):
-        if this_transport.is_playing:
+        if global_transport_is_playing:
             return
         this_pydaw_project.flush_history()
         f_window = QtGui.QDialog(this_main_window)
@@ -6103,6 +6111,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_verify_history(self):
+        if global_transport_is_playing:
+            return
         f_str = this_pydaw_project.verify_history()
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Verify Project History Database")
@@ -6115,10 +6125,14 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_change_audio_settings(self):
+        if global_transport_is_playing:
+            return
         f_dialog = pydaw_portaudio.pydaw_device_dialog(global_pydaw_home, True)
         f_dialog.show_device_dialog(a_notify=True)
 
     def on_open_theme(self):
+        if global_transport_is_playing:
+            return
         try:
             f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
             if not f_file is None and not f_file == "":
@@ -6136,30 +6150,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
         f_version = QtGui.QLabel(pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
-        #f_git_version = QtGui.QLabel("git revision")
         f_layout.addWidget(f_version)
-        #f_layout.addWidget(f_git_version)
         f_window.exec_()
-
-    def on_user_manual(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW3_Manual"))
 
     def on_website(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://sourceforge.net/projects/libmodsynth/"))
-
-    def show_help_file(self, a_file):
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle(a_file)
-        f_window.setMinimumHeight(600)
-        f_window.setMinimumWidth(600)
-        f_text_edit = QtGui.QTextEdit()
-        f_text_edit.setAutoFormatting(QtGui.QTextEdit.AutoAll)
-        f_text_edit.setText(open(a_file).read())
-        f_text_edit.setReadOnly(True)
-        f_layout = QtGui.QVBoxLayout()
-        f_window.setLayout(f_layout)
-        f_layout.addWidget(f_text_edit)
-        f_window.exec_()
 
     def on_spacebar(self):
         this_transport.on_spacebar()
@@ -6169,6 +6164,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             this_item_editor.add_radiobutton.setChecked(True)
 
     def on_import_midi(self):
+        if global_transport_is_playing:
+            return
         self.midi_file = None
 
         def ok_handler():
