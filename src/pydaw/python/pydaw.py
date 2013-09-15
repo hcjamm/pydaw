@@ -6477,7 +6477,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_viewer.prepare_to_quit()
                 sleep(0.5)
                 global_close_all_plugin_windows()
-                self.osc_timer.stop()
+                if self.osc_server is not None:
+                    self.osc_timer.stop()
                 if global_pydaw_with_audio: #Wait up to 6 seconds and then kill the process
                     self.subprocess_timer.stop()
                     if not "--debug" in sys.argv:
@@ -6494,7 +6495,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                                 global_pydaw_subprocess.kill()
                             except Exception as ex:
                                 print("Exception raised while trying to kill process: %s" % (ex,))
-                self.osc_server.free()
+                if self.osc_server is not None:
+                    self.osc_server.free()
                 self.ignore_close_event = False
                 f_quit_timer = QtCore.QTimer(self)
                 f_quit_timer.setSingleShot(True)
