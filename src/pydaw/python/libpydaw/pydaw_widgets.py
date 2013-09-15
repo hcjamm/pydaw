@@ -67,13 +67,10 @@ class pydaw_pixmap_knob(QtGui.QDial):
         QtGui.QDial.__init__(self)
         self.setRange(a_min_val, a_max_val)
         self.setGeometry(0, 0, a_size, a_size)
-        self.set_pixmap_knob(a_size)
-        self.setFixedSize(a_size, a_size)
-
-    def set_pixmap_knob(self, a_size):
         f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/pydaw-knob.png")
         self.pixmap_size = a_size - 10
         self.pixmap = f_pixmap.scaled(self.pixmap_size, self.pixmap_size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.setFixedSize(a_size, a_size)
 
     def paintEvent(self, a_event):
         p = QtGui.QPainter(self)
