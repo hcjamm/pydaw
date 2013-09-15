@@ -3253,6 +3253,8 @@ def pydaw_set_piano_roll_quantize(a_index):
 
 global_piano_roll_min_note_length = global_piano_roll_grid_width / 128.0
 
+global_piano_roll_note_labels = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
@@ -3277,6 +3279,13 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
         self.mouse_y_pos = QtGui.QCursor.pos().y()
         self.setZValue(1002.0)
+        self.note_text = QtGui.QGraphicsSimpleTextItem(self)
+        self.update_note_text()
+
+    def update_note_text(self):
+        f_octave = (self.note_item.note_num / 12) - 2
+        f_note = global_piano_roll_note_labels[self.note_item.note_num % 12]
+        self.note_text.setText("%s%s" % (f_note, f_octave))
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
