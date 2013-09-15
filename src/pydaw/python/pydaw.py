@@ -3601,7 +3601,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_piano(self):
         self.piano_keys = {}
-        f_labels = ['B', 'Bb', 'A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C']
         f_black_notes = [2, 4, 6, 9, 11]
         f_piano_label = QtGui.QFont()
         f_piano_label.setPointSize(8)
@@ -3622,7 +3621,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_index += 1
                 f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
                 if j == 12:
-                    f_label = QtGui.QGraphicsSimpleTextItem("%s%d" % (f_labels[j - 1], self.end_octave - i), f_key)
+                    f_label = QtGui.QGraphicsSimpleTextItem("C%d" % (self.end_octave - i,), f_key)
                     f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                     f_label.setPos(4, 0)
                     f_label.setFont(f_piano_label)
