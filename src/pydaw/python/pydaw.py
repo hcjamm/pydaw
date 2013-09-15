@@ -446,6 +446,14 @@ class song_editor:
         this_pydaw_project.save_song(self.song)
         self.open_song()
 
+    def open_first_region(self):
+        for i in range(300):
+            f_item = self.table_widget.item(0, i)
+            if f_item is not None and str(f_item.text()) != "":
+                this_region_settings.open_region(str(f_item.text()))
+                f_item.setSelected(True)
+                break
+
 global_current_region = None
 global_current_region_name = None
 
@@ -6971,6 +6979,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     if f_scale is not None:
         this_piano_roll_editor_widget.scale_key_combobox.setCurrentIndex(f_scale[0])
         this_piano_roll_editor_widget.scale_combobox.setCurrentIndex(f_scale[1])
+    this_song_editor.open_first_region()
 
 def global_new_project(a_project_file):
     global_close_all()
