@@ -949,7 +949,7 @@ class region_list_editor:
         def transpose_ok_handler():
             for f_item_name in f_item_list:
                 f_item = this_pydaw_project.get_item_by_name(f_item_name)
-                f_item.transpose(f_semitone.value(), f_octave.value(), a_selected_only=False)
+                f_item.transpose(f_semitone.value(), f_octave.value(), a_selected_only=False, a_duplicate=f_duplicate_notes.isChecked())
                 this_pydaw_project.save_item(f_item_name, f_item)
             this_pydaw_project.commit("Transpose item(s)")
             if len(global_open_items_uids) > 0:
@@ -972,12 +972,15 @@ class region_list_editor:
         f_octave.setRange(-5, 5)
         f_layout.addWidget(QtGui.QLabel("Octaves"), 1, 0)
         f_layout.addWidget(f_octave, 1, 1)
+        f_duplicate_notes = QtGui.QCheckBox("Duplicate notes?")
+        f_duplicate_notes.setToolTip("Checking this box causes the transposed notes to be added rather than moving the existing notes.")
+        f_layout.addWidget(f_duplicate_notes, 2, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(transpose_ok_handler)
-        f_layout.addWidget(f_ok, 2, 0)
+        f_layout.addWidget(f_ok, 6, 0)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(transpose_cancel_handler)
-        f_layout.addWidget(f_cancel, 2, 1)
+        f_layout.addWidget(f_cancel, 6, 1)
         f_window.exec_()
 
     def table_keyPressEvent(self, event):
@@ -4587,7 +4590,8 @@ class item_list_editor:
             if self.multiselect_radiobutton.isChecked():
                 f_ms_rows = self.get_notes_table_selected_rows()
                 if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
+                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error",
+                                              "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
                 else:
                     f_multiselect = True
 
@@ -4600,7 +4604,8 @@ class item_list_editor:
                 this_pydaw_project.save_item(self.item_name, self.item)
             else:
                 for f_i in range(len(self.items)):
-                    self.items[f_i].transpose(f_semitone.value(), f_octave.value(), a_selected_only=a_selected_only)
+                    self.items[f_i].transpose(f_semitone.value(), f_octave.value(), a_selected_only=a_selected_only,
+                                                a_duplicate=f_duplicate_notes.isChecked())
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
             this_pydaw_project.commit("Transpose item(s)")
@@ -4622,12 +4627,15 @@ class item_list_editor:
         f_octave.setRange(-5, 5)
         f_layout.addWidget(QtGui.QLabel("Octaves"), 1, 0)
         f_layout.addWidget(f_octave, 1, 1)
+        f_duplicate_notes = QtGui.QCheckBox("Duplicate notes?")
+        f_duplicate_notes.setToolTip("Checking this box causes the transposed notes to be added rather than moving the existing notes.")
+        f_layout.addWidget(f_duplicate_notes, 2, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(transpose_ok_handler)
-        f_layout.addWidget(f_ok, 2, 0)
+        f_layout.addWidget(f_ok, 6, 0)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(transpose_cancel_handler)
-        f_layout.addWidget(f_cancel, 2, 1)
+        f_layout.addWidget(f_cancel, 6, 1)
         f_window.exec_()
 
     def show_not_enabled_warning(self):

@@ -1365,7 +1365,7 @@ class pydaw_item:
             for pb in f_pbs:
                 pb.start -= shift_adjust
 
-    def transpose(self, a_semitones, a_octave=0, a_notes=None, a_selected_only=False):
+    def transpose(self, a_semitones, a_octave=0, a_notes=None, a_selected_only=False, a_duplicate=False):
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
 
@@ -1377,15 +1377,21 @@ class pydaw_item:
                     if f_note == a_notes[i]:
                         f_notes.append(f_note)
                         break
-
+        if a_duplicate:
+            f_duplicates = []
         for note in f_notes:
             if a_selected_only and not note.is_selected:
                 continue
+            if a_duplicate:
+                f_duplicates.append(pydaw_note.from_str(str(note)))
             note.note_num += f_total
             if note.note_num < 0:
                 note.note_num = 0
             elif note.note_num > 127:
                 note.note_num = 127
+        if a_duplicate:
+            self.notes += f_duplicates
+            self.notes.sort()
 
     def fix_overlaps(self):
         """ Truncate the lengths of any notes that overlap the start of another note """
