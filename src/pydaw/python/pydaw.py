@@ -313,7 +313,6 @@ class song_editor:
                 this_region_editor.table_widget.clearSelection()
                 this_transport.set_region_value(y)
                 this_transport.set_bar_value(0)
-        print(str(global_current_song_index))
 
     def __init__(self):
         self.song = pydaw_song()
@@ -5563,7 +5562,6 @@ class transport_widget:
         self.overdub_checkbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
         sleep(0.1)
-        self.set_bar_value(self.last_bar)
         self.set_region_value(self.start_region)
         if self.is_recording:
             self.is_recording = False
@@ -5576,6 +5574,7 @@ class transport_widget:
             this_pydaw_project.commit("Recording")
         self.init_playback_cursor(a_start=False)
         self.is_playing = False
+        self.set_bar_value(self.last_bar)
         #if not this_song_editor.table_widget.item(0, self.get_region_value()) is None:
         #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.get_region_value()).text())
         this_audio_items_viewer.stop_playback()
