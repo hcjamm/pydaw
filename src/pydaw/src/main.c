@@ -547,6 +547,7 @@ int main(int argc, char **argv)
             }
             else
             {
+                printf("It appears that the user closed the audio device dialog without choosing a device, exiting.");
                 exit(9998);
             }
         }
