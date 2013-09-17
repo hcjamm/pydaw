@@ -11,7 +11,7 @@ BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa liblo)
 LINK_CFLAGS    = -lm -ldl -lportaudio $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile)
 
-C_OBJS   = src/main.o src/message_buffer.o
+C_OBJS   = src/main.o
 
 # --------------------------------------------------------------
 
