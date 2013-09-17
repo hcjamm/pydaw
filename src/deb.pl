@@ -86,7 +86,7 @@ Provides: $short_name
 Conflicts: 
 Replaces: 
 Description: A digital audio workstation with a full suite of instrument and effects plugins.
- PyDAW is a full featured audio and MIDI sequencer with a modular sampler, a modular wavetable/FM synthesizer, and an analog style synthesizer, as well as many built-in effects.
+ PyDAW is a full featured audio and MIDI sequencer with a suite of high quality instrument and effects plugins.
 ";
 
 open (MYFILE, ">pydaw-build/debian/DEBIAN/control");
