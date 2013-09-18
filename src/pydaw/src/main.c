@@ -49,13 +49,6 @@ GNU General Public License for more details.
 
 #include "synth.c"
 
-//Pass this in with -DPYDAW_PREFIX to change the
-#ifndef PYDAW_PREFIX
-
-#define PYDAW_PREFIX "/usr"
-
-#endif
-
 static snd_seq_t *alsaClient;
 
 #define SAMPLE_RATE (44100)
@@ -329,6 +322,12 @@ static int instance_sort_cmp(const void *a, const void *b)
 
 int main(int argc, char **argv)
 {
+    if(argc != 2)
+    {
+        printf("Usage: %s [install prefix]", argv[0]);
+        exit(9996);
+    }
+    
     v_pydaw_constructor();
     int portid;
     int npfd;
@@ -485,7 +484,7 @@ int main(int argc, char **argv)
     }
     
     char f_show_dialog_cmd[1024];
-    sprintf(f_show_dialog_cmd, "python2 %s/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py", PYDAW_PREFIX);
+    sprintf(f_show_dialog_cmd, "python2 %s/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py", argv[1]);
     char f_cmd_buffer[10000];
     f_cmd_buffer[0] = '\0';
     char f_device_name[1024];
