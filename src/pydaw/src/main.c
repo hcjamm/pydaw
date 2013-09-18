@@ -773,30 +773,6 @@ void osc_error(int num, const char *msg, const char *path)
 	    myName, num, path, msg);
 }
 
-int osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
-{
-    int port = argv[0]->i;
-    PYFX_Data value = argv[1]->f;
-
-    if (port < 0 || port > instance->plugin->descriptor->PYFX_Plugin->PortCount) {
-	fprintf(stderr, "%s: OSC: %s port number (%d) is out of range\n",
-                myName, instance->friendly_name, port);
-	return 0;
-    }
-    if (instance->pluginPortControlInNumbers[port] == -1) {
-	fprintf(stderr, "%s: OSC: %s port %d is not a control in\n",
-                myName, instance->friendly_name, port);
-	return 0;
-    }
-    pluginControlIns[instance->pluginPortControlInNumbers[port]] = value;
-    if (verbose) {
-	printf("%s: OSC: %s port %d = %f\n",
-	       myName, instance->friendly_name, port, value);
-    }
-    
-    return 0;
-}
-
 int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     const char *key = (const char *)&argv[0]->s;
@@ -804,82 +780,6 @@ int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
     
     instance->plugin->descriptor->configure(instanceHandles, key, value);
     
-    return 0;
-}
-
-int
-osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
-{
-    const char *url = (char *)&argv[0]->s;
-    const char *path;
-    unsigned int i;
-    char *host, *port;
-    const char *chost, *cport;
-
-    if (verbose) {
-	printf("%s: OSC: got update request from <%s>\n", myName, url);
-    }
-
-    if (instance->uiTarget) lo_address_free(instance->uiTarget);
-    host = lo_url_get_hostname(url);
-    port = lo_url_get_port(url);
-    instance->uiTarget = lo_address_new(host, port);
-    free(host);
-    free(port);
-
-    if (instance->uiSource) lo_address_free(instance->uiSource);
-    chost = lo_address_get_hostname(source);
-    cport = lo_address_get_port(source);
-    instance->uiSource = lo_address_new(chost, cport);
-
-    path = lo_url_get_path(url);
-
-    if (instance->ui_osc_control_path) free(instance->ui_osc_control_path);
-    instance->ui_osc_control_path = (char *)malloc(strlen(path) + 10);
-    sprintf(instance->ui_osc_control_path, "%s/control", path);
-
-    if (instance->ui_osc_configure_path) free(instance->ui_osc_configure_path);
-    instance->ui_osc_configure_path = (char *)malloc(strlen(path) + 12);
-    sprintf(instance->ui_osc_configure_path, "%s/configure", path);
-
-    if (instance->ui_osc_program_path) free(instance->ui_osc_program_path);
-    instance->ui_osc_program_path = (char *)malloc(strlen(path) + 10);
-    sprintf(instance->ui_osc_program_path, "%s/program", path);
-
-    if (instance->ui_osc_quit_path) free(instance->ui_osc_quit_path);
-    instance->ui_osc_quit_path = (char *)malloc(strlen(path) + 10);
-    sprintf(instance->ui_osc_quit_path, "%s/quit", path);
-
-    if (instance->ui_osc_rate_path) free(instance->ui_osc_rate_path);
-    instance->ui_osc_rate_path = (char *)malloc(strlen(path) + 13);
-    sprintf(instance->ui_osc_rate_path, "%s/sample-rate", path);
-
-    if (instance->ui_osc_show_path) free(instance->ui_osc_show_path);
-    instance->ui_osc_show_path = (char *)malloc(strlen(path) + 10);
-    sprintf(instance->ui_osc_show_path, "%s/show", path);
-
-    free((char *)path);
-
-    /* Send sample rate */
-    lo_send(instance->uiTarget, instance->ui_osc_rate_path, "i", lrintf(sample_rate));
-
-    /* At this point a more substantial host might also call
-     * configure() on the UI to set any state that it had remembered
-     * for the plugin instance.  But we don't remember state for
-     * plugin instances (see our own configure() implementation in
-     * osc_configure_handler), and so we have nothing to send except
-     * the optional project directory. */
-
-    /* Send control ports */
-    for (i = 0; i < instance->plugin->controlIns; i++) {
-        int in = i + instance->firstControlIn;
-	int port = pluginControlInPortNumbers[in];
-	lo_send(instance->uiTarget, instance->ui_osc_control_path, "if", port,
-                pluginControlIns[in]);
-	/* Avoid overloading the GUI if there are lots and lots of ports */
-	if ((i+1) % 50 == 0) usleep(50000);
-    }
-
     return 0;
 }
 

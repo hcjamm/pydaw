@@ -40,22 +40,8 @@ class dssi_gui(ServerThread):
                 return
 
             self.base_path = "/dssi/pydaw"
-
-            self.control_path = self.base_path + "/control"
-            self.program_path = self.base_path + "/program"
             self.configure_path = self.base_path + "/configure"
             self.exit_path = self.base_path + "/exiting"
-            self.rate_path = self.base_path + "/sample-rate"
-            self.show_path = self.base_path + "/show"
-            self.hide_path = self.base_path + "/hide"
-            self.quit_path = self.base_path + "/quit"
-            self.update_path = self.base_path + "/update"
-
-            self.add_method(self.configure_path, 'ss', self.configure_handler)
-            self.add_method(self.control_path, 'if', self.control_handler)
-
-            liblo.send(self.target, self.update_path, self.get_url()[:-1] + self.base_path)
-            print(("Sent " + self.get_url()[:-1] + self.base_path + " to " + self.update_path))
 
     def stop_server(self):
         print("stop_server called")
@@ -63,34 +49,11 @@ class dssi_gui(ServerThread):
             liblo.send(self.target, self.exit_path)
             self.stop()
 
-    def send_control(self, port_number, port_value):
-        if self.with_osc:
-            liblo.send(self.target, self.control_path, port_number, port_value)
-        else:
-            print(("Running standalone UI without OSC.  Would've sent control message: key:" + str(port_number) + " value: " + str(port_value)))
-
     def send_configure(self, key, value):
         if self.with_osc:
             liblo.send(self.target, self.configure_path, key, value)
         else:
             print(("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\""))
-
-    def configure_handler(self, path, args):
-        s1, s2 = args
-        print(("PyDAW configure_handler called key: " + s1 + " value: " + s2 + "\n"))
-        if s1 == "pc":  #playback cursor
-            if not self.pc_func is None:
-                f_vals = s2.split("|")
-                self.pc_func(int(f_vals[0]), int(f_vals[1]))
-
-    def control_handler(self, path, args):
-        i, f = args
-        if self.with_osc:
-            liblo.send(target, self.control_path, i, f)
-
-    #def rate_handler(self, path, args):
-    #    if self.with_osc:
-    #        liblo.send(target, self.rate_path, args[0])
 
     @make_method(None, None)
     def fallback(path, args, types, src):
