@@ -40,13 +40,10 @@ GNU General Public License for more details.
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <lo/lo.h>
 
 #include "main.h"
-
 #include "message_buffer.h"
-
 #include "synth.c"
 
 #define PYDAW_CONFIGURE_KEY_SS "ss"
@@ -116,10 +113,6 @@ static int insTotal, outsTotal;
 static float **pluginInputBuffers, **pluginOutputBuffers;
 
 static int controlInsTotal, controlOutsTotal;
-static float *pluginControlIns, *pluginControlOuts;
-static d3h_instance_t **pluginControlInInstances;          /* maps global control in # to instance */
-static unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
-static int *pluginPortUpdated;                             /* indexed by global control in # */
 
 //static char * osc_path_tmp = "osc.udp://localhost:19271/dssi/pydaw";
 
@@ -134,9 +127,8 @@ const char *myName = "PyDAW";
 
 #define EVENT_BUFFER_SIZE 1024
 static snd_seq_event_t midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
-static int midiEventReadIndex = 0, midiEventWriteIndex = 0;
-
-static pthread_mutex_t midiEventBufferMutex = PTHREAD_MUTEX_INITIALIZER;
+static int midiEventReadIndex __attribute__((aligned(16))) = 0;
+static int midiEventWriteIndex __attribute__((aligned(16))) = 0;
 
 void osc_error(int num, const char *m, const char *path);
 
@@ -147,8 +139,7 @@ int osc_debug_handler(const char *path, const char *types, lo_arg **argv, int
 
 void signalHandler(int sig)
 {
-    fprintf(stderr, "%s: signal %d caught, trying to clean up and exit\n",
-	    myName, sig);
+    fprintf(stderr, "%s: signal %d caught, trying to clean up and exit\n", myName, sig);
     exiting = 1;
 }
 
@@ -157,12 +148,11 @@ void midi_callback()
     snd_seq_event_t *ev = 0;
     struct timeval tv;
 
-    pthread_mutex_lock(&midiEventBufferMutex);
-
     do {
-	if (snd_seq_event_input(alsaClient, &ev) > 0) {
-
-	    if (midiEventReadIndex == midiEventWriteIndex + 1) {
+	if (snd_seq_event_input(alsaClient, &ev) > 0) 
+        {
+	    if (midiEventReadIndex == midiEventWriteIndex + 1) 
+            {
 		fprintf(stderr, "%s: Warning: MIDI event buffer overflow! ignoring incoming event\n", myName);
 		continue;
 	    }
@@ -194,16 +184,6 @@ void midi_callback()
 	}
 	
     } while (snd_seq_event_input_pending(alsaClient, 0) > 0);
-
-    pthread_mutex_unlock(&midiEventBufferMutex);
-}
-
-void setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
-{
-    float value = (float)event->data.control.value;
-
-    pluginControlIns[controlIn] = value;
-    pluginPortUpdated[controlIn] = 1;
 }
 
 static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
@@ -279,32 +259,22 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 
 	ev->time.tick = framesPerBuffer - framediff - 1;
 
-	if (ev->type == SND_SEQ_EVENT_CONTROLLER) {
-	    
+	if (ev->type == SND_SEQ_EVENT_CONTROLLER)
+        {	    
 	    int controller = ev->data.control.param;
 
 	    if (controller == 0) 
             { 
-                // bank select MSB		
+                // bank select MSB
                 
 	    } else if (controller == 32) 
             { 
-                // bank select LSB		
-
-	    } else if (controller > 0 && controller < MIDI_CONTROLLER_COUNT) 
+                // bank select LSB
+	    } 
+            else if (controller > 0 && controller < MIDI_CONTROLLER_COUNT) 
             {
-		long controlIn = this_instance->controllerMap[controller];
-		if (controlIn >= 0) 
-                {
-                    /* controller is mapped to LADSPA port, update the port */
-		    setControl(this_instance, controlIn, ev);
-
-		} else {
-
-                    /* controller is not mapped, so pass the event through to plugin */
-                    instanceEventBuffers[instanceEventCounts] = *ev;
-                    instanceEventCounts++;
-                }
+                instanceEventBuffers[instanceEventCounts] = *ev;
+                instanceEventCounts++;
 	    }
 	} 
         else 
@@ -402,38 +372,23 @@ int main(int argc, char **argv)
     /* set up instances */
     
     this_instance = (d3h_instance_t*)malloc(sizeof(d3h_instance_t));
-            
-
     this_instance->plugin = plugin;    
     this_instance->friendly_name = "pydaw";    
-    this_instance->uiTarget = NULL;
-    this_instance->uiSource = NULL;
-    this_instance->ui_osc_quit_path = NULL;
-
+        
     insTotal += plugin->ins;
     outsTotal += plugin->outs;
     controlInsTotal += plugin->controlIns;
     controlOutsTotal += plugin->controlOuts;
         
-    pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));
-    pluginControlIns = (float *)calloc(controlInsTotal, sizeof(float));
-    pluginControlInInstances =
-        (d3h_instance_t **)malloc(controlInsTotal * sizeof(d3h_instance_t *));
-    pluginControlInPortNumbers =
-        (unsigned long *)malloc(controlInsTotal * sizeof(unsigned long));
-    pluginPortUpdated = (int *)malloc(controlInsTotal * sizeof(int));
-
+    pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));            
     pluginOutputBuffers = (float **)malloc(outsTotal * sizeof(float *));
-    pluginControlOuts = (float *)calloc(controlOutsTotal, sizeof(float));
-
+    
     instanceHandles = (PYFX_Handle *)malloc(sizeof(PYFX_Handle));
     
     instanceEventCounts = 0;
     
     instanceEventBuffers = (snd_seq_event_t *)malloc(EVENT_BUFFER_SIZE * sizeof(snd_seq_event_t));
-    this_instance->pluginPortControlInNumbers =
-        (int *)malloc(this_instance->plugin->descriptor->PYFX_Plugin->PortCount * sizeof(int));
-        
+            
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
     
@@ -642,66 +597,34 @@ int main(int argc, char **argv)
 
     /* Create OSC thread */
 
-    serverThread = lo_server_thread_new("19271", osc_error);
-    
+    serverThread = lo_server_thread_new("19271", osc_error);    
     lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler, NULL);
     lo_server_thread_start(serverThread);
 
     /* Connect and activate plugins */
 
-    for (in = 0; in < controlInsTotal; in++) {
-        pluginPortUpdated[in] = 0;
-    }
-
     in = out = controlIn = controlOut = 0;
-
     i = 0;        
-
-    this_instance->firstControlIn = controlIn;
-    for (j = 0; j < MIDI_CONTROLLER_COUNT; j++) {
-        this_instance->controllerMap[j] = -1;
-    }
-
+    
     plugin = this_instance->plugin;
-    for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) {  /* j is LADSPA port number */
+    for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) // j is LADSPA port number
+    {
+        PYFX_PortDescriptor pod = plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
 
-        PYFX_PortDescriptor pod =
-            plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
-
-        this_instance->pluginPortControlInNumbers[j] = -1;
-
-        if (PYFX_IS_PORT_AUDIO(pod)) {
-
-            if (PYFX_IS_PORT_INPUT(pod)) {
-                plugin->descriptor->PYFX_Plugin->connect_port
-                    (instanceHandles, j, pluginInputBuffers[in++]);
-
-            } else if (PYFX_IS_PORT_OUTPUT(pod)) {
-                plugin->descriptor->PYFX_Plugin->connect_port
-                    (instanceHandles, j, pluginOutputBuffers[out++]);
-            }
-
-        } else if (PYFX_IS_PORT_CONTROL(pod)) {
-
-            if (PYFX_IS_PORT_INPUT(pod)) {
-
-                pluginControlInInstances[controlIn] = this_instance;
-                pluginControlInPortNumbers[controlIn] = j;
-                this_instance->pluginPortControlInNumbers[j] = controlIn;
-
-                plugin->descriptor->PYFX_Plugin->connect_port
-                    (instanceHandles, j, &pluginControlIns[controlIn++]);
-
-            } else if (PYFX_IS_PORT_OUTPUT(pod)) {
-                plugin->descriptor->PYFX_Plugin->connect_port
-                    (instanceHandles, j, &pluginControlOuts[controlOut++]);
+        if (PYFX_IS_PORT_AUDIO(pod)) 
+        {
+            if (PYFX_IS_PORT_INPUT(pod)) 
+            {
+                v_pydaw_connect_port(instanceHandles, j, pluginInputBuffers[in++]);
+            } 
+            else if (PYFX_IS_PORT_OUTPUT(pod)) 
+            {
+                v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
             }
         }
     }  /* 'for (j...'  LADSPA port number */
-
-    if (plugin->descriptor->PYFX_Plugin->activate) {
-        plugin->descriptor->PYFX_Plugin->activate(instanceHandles);
-    }
+    
+    v_pydaw_activate(instanceHandles);    
 
     assert(in == insTotal);
     assert(out == outsTotal);
@@ -710,9 +633,9 @@ int main(int argc, char **argv)
 
     /* Create ALSA MIDI port */
 
-    if (snd_seq_open(&alsaClient, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) {
-	fprintf(stderr, "\n%s: Error: Failed to open ALSA sequencer interface\n",
-		myName);
+    if (snd_seq_open(&alsaClient, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) 
+    {
+	fprintf(stderr, "\n%s: Error: Failed to open ALSA sequencer interface\n", myName);
 	return 1;
     }
 
@@ -762,28 +685,7 @@ int main(int argc, char **argv)
     err = Pa_CloseStream( stream );    
     Pa_Terminate();
 
-    /* cleanup plugins */
-    
-    if (this_instance->uiTarget) {
-        lo_send(this_instance->uiTarget, this_instance->ui_osc_quit_path, "");
-        lo_address_free(this_instance->uiTarget);
-        this_instance->uiTarget = NULL;
-    }
-
-    if (this_instance->uiSource) {
-        lo_address_free(this_instance->uiSource);
-        this_instance->uiSource = NULL;
-    }
-
-    if (this_instance->plugin->descriptor->PYFX_Plugin->deactivate) {
-        this_instance->plugin->descriptor->PYFX_Plugin->deactivate
-            (instanceHandles);
-    }
-
-    if (this_instance->plugin->descriptor->PYFX_Plugin->cleanup) {
-        this_instance->plugin->descriptor->PYFX_Plugin->cleanup
-            (instanceHandles);
-    }
+    v_pydaw_cleanup(instanceHandles);    
 
     v_pydaw_destructor();
         
@@ -833,72 +735,22 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
 {        
     const char *method;
     unsigned int flen = 0;
-    lo_message message;
-    lo_address source;
-    int send_to_ui = 0;
-
+        
     if (strncmp(path, "/dssi/", 6))
     {
         printf("if (strncmp(path, \"/dssi/\", 6))\n");
         return osc_debug_handler(path, types, argv, argc, data, user_data);
     }
-    
-    /*
-    for (i = 0; i < instance_count; i++) {
-	flen = strlen(instance->friendly_name);
-        if (!strncmp(path + 6, instance->friendly_name, flen) &&
-	    *(path + 6 + flen) == '/') {
-            
-            break;
-        }
-    }
-    if (!instance)
-    {
-        printf("!instance\n");
-        return osc_debug_handler(path, types, argv, argc, data, user_data);
-    }
-    */
-           
-    
+        
     method = path + 6 + flen;
-    /*
-    if (*method != '/' || *(method + 1) == 0)
+        
+    if (!strcmp(method, "pydaw/configure") && argc == 2 && !strcmp(types, "ss")) 
     {
-        printf("(*method != '/' || *(method + 1) == 0)\n%s\n", method);
-        return osc_debug_handler(path, types, argv, argc, data, user_data);
-    }
-    method++;
-    */
-    
-
-    message = (lo_message)data;
-    source = lo_message_get_source(message);
-
-    if (this_instance->uiSource && this_instance->uiTarget) {
-	if (strcmp(lo_address_get_hostname(source),
-		   lo_address_get_hostname(this_instance->uiSource)) ||
-	    strcmp(lo_address_get_port(source),
-		   lo_address_get_port(this_instance->uiSource))) {
-	    /* This didn't come from our known UI for this plugin,
-	       so send an update to that as well */
-	    send_to_ui = 1;
-	}
-    }
-
-    if (!strcmp(method, "pydaw/configure") && argc == 2 && !strcmp(types, "ss")) {
-
-	if (send_to_ui) {
-	    lo_send(this_instance->uiTarget, this_instance->ui_osc_configure_path, "ss",
-		    &argv[0]->s, &argv[1]->s);
-	}
-
         return osc_configure_handler(this_instance, argv);
-
     }
 
     return osc_debug_handler(path, types, argv, argc, data, user_data);
 }
-
 
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
@@ -1422,18 +1274,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_EXIT))
     {
-        if (this_instance->uiTarget)
-        {
-            lo_address_free(this_instance->uiTarget);
-            this_instance->uiTarget = NULL;
-        }
-
-        if (this_instance->uiSource) 
-        {
-            lo_address_free(this_instance->uiSource);
-            this_instance->uiSource = NULL;
-        }
-
         exiting = 1;        
     }
     else

@@ -50,18 +50,11 @@ typedef struct _d3h_instance_t d3h_instance_t;
 
 #define MIDI_CONTROLLER_COUNT 128
 
-struct _d3h_instance_t {
-    int              number;
+struct _d3h_instance_t 
+{
     d3h_plugin_t    *plugin;    
     char            *friendly_name;
-    int              firstControlIn;                       /* the offset to translate instance control in # to global control in # */
-    int             *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */
-    long             controllerMap[MIDI_CONTROLLER_COUNT]; /* maps MIDI controller to global control in # */
-
-    lo_address       uiTarget;
-    lo_address       uiSource;
     char            *ui_osc_configure_path;    
-    char            *ui_osc_quit_path;
 };
 
 #endif /* _PYDAW_MAIN_H */

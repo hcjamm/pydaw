@@ -332,22 +332,13 @@ void v_pydaw_constructor()
         port_descriptors[PYDAW_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
 	port_names[PYDAW_OUTPUT1] = "Output 1";
 	//port_range_hints[PYDAW_OUTPUT1].HintDescriptor = 0;
-               
-        
-	LMSLDescriptor->activate = v_pydaw_activate;
-	LMSLDescriptor->cleanup = v_pydaw_cleanup;
-	LMSLDescriptor->connect_port = v_pydaw_connect_port;
-	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = g_pydaw_instantiate;
-	LMSLDescriptor->run = NULL;
+        	
     }
 
     LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-    if (LMSDDescriptor) {
-	LMSDDescriptor->PYINST_API_Version = 1;
-	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
-	LMSDDescriptor->configure = NULL;
-	LMSDDescriptor->run_synth = NULL;
+    if (LMSDDescriptor) 
+    {
+	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;	
     }
 }
 
