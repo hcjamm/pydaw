@@ -9,5 +9,5 @@ else
 fi
 
 ulimit -c unlimited
-make clean && make PREFIX=$(pwd)/dir_debug debug && make PREFIX=$(pwd)/dir_debug install && pasuspender -- ./dir_debug/bin/pydaw3 --debug
+make clean && make debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/pydaw3 --debug
 
