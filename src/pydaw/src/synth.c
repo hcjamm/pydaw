@@ -290,14 +290,6 @@ static void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t 
     }
 }
 
-char *c_pydaw_configure(PYFX_Handle instance, const char *key, const char *value)
-{
-    //t_pydaw_engine *plugin_data = (t_pydaw_engine *)instance;
-    v_pydaw_parse_configure_message(pydaw_data, key, value);
-        
-    return NULL;
-}
-
 
 void v_pydaw_constructor()
 {
@@ -362,7 +354,7 @@ void v_pydaw_constructor()
     if (LMSDDescriptor) {
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
-	LMSDDescriptor->configure = c_pydaw_configure;
+	LMSDDescriptor->configure = NULL;
 	LMSDDescriptor->run_synth = v_pydaw_run;
     }
 }
