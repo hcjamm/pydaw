@@ -82,8 +82,6 @@ static int *pluginPortUpdated;                             /* indexed by global 
 
 //static char * osc_path_tmp = "osc.udp://localhost:19271/dssi/pydaw";
 
-static char *projectDirectory;
-
 static char * clientName;
 
 lo_server_thread serverThread;
@@ -325,7 +323,7 @@ int main(int argc, char **argv)
     d3h_plugin_t *plugin;
     d3h_instance_t *instance;
     
-    int i, reps, j;
+    int i, j;
     int in, out, controlIn, controlOut;
     clientName = "PyDAWv3";    
         
@@ -382,7 +380,6 @@ int main(int argc, char **argv)
     plugins = plugin;
     plugin_count++;
 
-    reps = 1;
     /* set up instances */
     
     instance = &instances[instance_count];
@@ -406,8 +403,6 @@ int main(int argc, char **argv)
     plugin->instances++;
     instance_count++;
 
-    reps = 1;
-    
     pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));
     pluginControlIns = (float *)calloc(controlInsTotal, sizeof(float));
     pluginControlInInstances =
@@ -590,76 +585,54 @@ int main(int argc, char **argv)
 
     in = 0;
     out = 0;
-    reps = 0;
-    for (i = 0; i < instance_count; i++) {
-	if (i > 0 &&
-	    !strcmp(instances[i  ].plugin->descriptor->PYFX_Plugin->Name,
-		    instances[i-1].plugin->descriptor->PYFX_Plugin->Name)) {
-	    ++reps;
-	} else if (i < instance_count - 1 &&
-		   !strcmp(instances[i  ].plugin->descriptor->PYFX_Plugin->Name,
-			   instances[i+1].plugin->descriptor->PYFX_Plugin->Name)) {
-	    reps = 1;
-	} else {
-	    reps = 0;
-	}
-	for (j = 0; j < instances[i].plugin->ins; ++j) 
+    i = 0;
+    
+    for (j = 0; j < instances[i].plugin->ins; ++j) 
+    {
+        //Port naming code was here
+        if(posix_memalign((void**)(&pluginInputBuffers[in]), 16, (sizeof(float) * f_frame_count)) != 0)
         {
-            //Port naming code was here
-            
-            if(posix_memalign((void**)(&pluginInputBuffers[in]), 16, (sizeof(float) * f_frame_count)) != 0)
-            {
-                return 0;
-            }
-            
-            int f_i = 0;
-            while(f_i < f_frame_count)
-            {
-                pluginInputBuffers[in][f_i] = 0.0f;
-                f_i++;
-            }	    
-	    ++in;
-	}
-	for (j = 0; j < instances[i].plugin->outs; ++j) 
+            return 0;
+        }
+
+        int f_i = 0;
+        while(f_i < f_frame_count)
         {
-	    //Port naming code was here            
-	                
-            if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16, (sizeof(float) * f_frame_count)) != 0)
-            {
-                return 0;
-            }
-            
-            int f_i = 0;
-            while(f_i < f_frame_count)
-            {
-                pluginOutputBuffers[out][f_i] = 0.0f;
-                f_i++;
-            }
-            
-	    ++out;
-	}
+            pluginInputBuffers[in][f_i] = 0.0f;
+            f_i++;
+        }	    
+        ++in;
     }
+    for (j = 0; j < instances[i].plugin->outs; ++j) 
+    {
+        //Port naming code was here
+        if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16, (sizeof(float) * f_frame_count)) != 0)
+        {
+            return 0;
+        }
+
+        int f_i = 0;
+        while(f_i < f_frame_count)
+        {
+            pluginOutputBuffers[out][f_i] = 0.0f;
+            f_i++;
+        }
+
+        ++out;
+    }
+
     
     /* Instantiate plugins */
 
-    for (i = 0; i < instance_count; i++) {
-        plugin = instances[i].plugin;
-        instanceHandles[i] = plugin->descriptor->PYFX_Plugin->instantiate
-            (plugin->descriptor->PYFX_Plugin, sample_rate);
-        if (!instanceHandles[i]) {
-            fprintf(stderr, "\n%s: Error: Failed to instantiate instance %d!, plugin \"%s\"\n",
-                    myName, i, plugin->label);
-            return 1;
-        }
-	if (projectDirectory && plugin->descriptor->configure) {
-	    char *rv =plugin->descriptor->configure(instanceHandles[i],
-						    PYINST_PROJECT_DIRECTORY_KEY,
-						    projectDirectory);
-	    if (rv) {
-		fprintf(stderr, "%s: Warning: plugin doesn't like project directory: \"%s\"\n", myName, rv);
-	    }
-	}
-    }
+    i = 0;
+    plugin = instances[i].plugin;
+    instanceHandles[i] = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin, sample_rate);
+    if (!instanceHandles[i])
+    {
+        fprintf(stderr, "\n%s: Error: Failed to instantiate instance %d!, plugin \"%s\"\n",
+                myName, i, plugin->label);
+        return 1;
+    }        
 
     /* Create OSC thread */
 
@@ -976,11 +949,6 @@ osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
      * plugin instances (see our own configure() implementation in
      * osc_configure_handler), and so we have nothing to send except
      * the optional project directory. */
-
-    if (projectDirectory) {
-	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
-		PYINST_PROJECT_DIRECTORY_KEY, projectDirectory);
-    }
 
     /* Send control ports */
     for (i = 0; i < instance->plugin->controlIns; i++) {

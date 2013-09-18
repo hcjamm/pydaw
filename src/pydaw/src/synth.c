@@ -298,13 +298,6 @@ char *c_pydaw_configure(PYFX_Handle instance, const char *key, const char *value
     return NULL;
 }
 
-int i_pydaw_get_controller(PYFX_Handle instance, int port)
-{    
-    //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
-    //return PYINST_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
-    return -1;     
-}
-
 
 void v_pydaw_constructor()
 {
@@ -382,7 +375,7 @@ void v_pydaw_destructor()
         pydaw_data->audio_recording_quit_notifier = 1;        
         lo_address_free(pydaw_data->uiTarget);
         
-        sleep(2);
+        sleep(1);
 
         //This ensures that the destructor doesn't start freeing memory before save-on-exit finishes...
         pthread_mutex_lock(&pydaw_data->quit_mutex);
