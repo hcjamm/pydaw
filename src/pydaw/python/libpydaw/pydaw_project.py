@@ -19,7 +19,7 @@ from libpydaw import midi
 from libpydaw.pydaw_util import *
 
 #from lms_session import lms_session #deprecated
-from libpydaw.dssi_gui import dssi_gui
+from libpydaw.pydaw_osc import pydaw_osc
 
 from PyQt4 import QtGui, QtCore
 from libpydaw import pydaw_history
@@ -166,7 +166,7 @@ class pydaw_project:
         print((f_new_project_folder + "/" + self.project_file + " | " + a_file_name))
         move(f_new_project_folder + "/" + self.project_file + ".pydaw3", a_file_name)
         self.set_project_folders(f_file_name)
-        self.this_dssi_gui.pydaw_open_song(self.project_folder)
+        self.this_pydaw_osc.pydaw_open_song(self.project_folder)
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
     def set_project_folders(self, a_project_file):
@@ -205,7 +205,7 @@ class pydaw_project:
             self.history = pydaw_history.pydaw_history(self.project_folder)
             self.open_stretch_dicts()
         if a_notify_osc:
-            self.this_dssi_gui.pydaw_open_song(self.project_folder)
+            self.this_pydaw_osc.pydaw_open_song(self.project_folder)
 
     def new_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -248,7 +248,7 @@ class pydaw_project:
         self.open_stretch_dicts()
         self.commit("Created project")
         if a_notify_osc:
-            self.this_dssi_gui.pydaw_open_song(self.project_folder)
+            self.this_pydaw_osc.pydaw_open_song(self.project_folder)
 
     def get_next_glued_file_name(self):
         if not os.path.isdir(self.glued_folder):  #TODO:  Remove at PyDAWv4
@@ -462,10 +462,10 @@ class pydaw_project:
 
             f_cmd = None
             if a_audio_item.time_stretch_mode == 1:
-                self.this_dssi_gui.pydaw_pitch_env(f_src_path, f_dest_path, a_audio_item.pitch_shift, a_audio_item.pitch_shift_end)
+                self.this_pydaw_osc.pydaw_pitch_env(f_src_path, f_dest_path, a_audio_item.pitch_shift, a_audio_item.pitch_shift_end)
                 self.get_wav_uid_by_name(f_dest_path, a_uid=f_uid)  #add it to the pool
             elif a_audio_item.time_stretch_mode == 2:
-                self.this_dssi_gui.pydaw_rate_env(f_src_path, f_dest_path, a_audio_item.timestretch_amt, a_audio_item.timestretch_amt_end)
+                self.this_pydaw_osc.pydaw_rate_env(f_src_path, f_dest_path, a_audio_item.timestretch_amt, a_audio_item.timestretch_amt_end)
                 self.get_wav_uid_by_name(f_dest_path, a_uid=f_uid)  #add it to the pool
             elif a_audio_item.time_stretch_mode == 3:
                 f_cmd = [pydaw_rubberband_util, "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
@@ -479,7 +479,7 @@ class pydaw_project:
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             elif a_audio_item.time_stretch_mode == 6:
                 f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
-                self.this_dssi_gui.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
+                self.this_pydaw_osc.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
                 if a_audio_item.pitch_shift != 0.0:
                     f_cmd = [pydaw_paulstretch_util,
                          "-s", str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift), "-d", f_tmp_file, f_dest_path ]
@@ -688,7 +688,7 @@ class pydaw_project:
 
     def create_sample_graph(self, a_path, a_uid):
         f_uid = int(a_uid)
-        self.this_dssi_gui.pydaw_generate_sample_graph(a_path, f_uid)
+        self.this_pydaw_osc.pydaw_generate_sample_graph(a_path, f_uid)
         f_pygraph_file = self.samplegraph_folder + "/" + str(f_uid)
         for i in range(100):
             if os.path.isfile(f_pygraph_file):
@@ -741,7 +741,7 @@ class pydaw_project:
         f_items_dict = self.get_items_dict()
         f_uid = f_items_dict.add_new_item(a_item_name)
         self.save_file(pydaw_folder_items, str(f_uid), pydaw_terminating_char)
-        self.this_dssi_gui.pydaw_save_item(f_uid)
+        self.this_pydaw_osc.pydaw_save_item(f_uid)
         self.save_items_dict(f_items_dict)
         return f_uid
 
@@ -764,8 +764,8 @@ class pydaw_project:
         f_paif_file = self.audio_per_item_fx_folder + "/" + str(f_uid)
         if os.path.isfile(f_paif_file):
             self.save_file(pydaw_folder_audio_per_item_fx, str(a_dest_region_uid), pydaw_read_file_text(f_paif_file))
-            self.this_dssi_gui.pydaw_audio_per_item_fx_region(a_dest_region_uid)
-        self.this_dssi_gui.pydaw_reload_audio_items(a_dest_region_uid)
+            self.this_pydaw_osc.pydaw_audio_per_item_fx_region(a_dest_region_uid)
+        self.this_pydaw_osc.pydaw_reload_audio_items(a_dest_region_uid)
         self.commit("Clone audio from region " + str(a_src_region_name))
 
     def copy_item(self, a_old_item, a_new_item):
@@ -773,7 +773,7 @@ class pydaw_project:
         f_uid = f_items_dict.add_new_item(a_new_item)
         f_old_uid = f_items_dict.get_uid_by_name(a_old_item)
         self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(self.items_folder + "/" + str(f_old_uid)))
-        self.this_dssi_gui.pydaw_save_item(f_uid)
+        self.this_pydaw_osc.pydaw_save_item(f_uid)
         self.save_items_dict(f_items_dict)
         return f_uid
 
@@ -782,25 +782,25 @@ class pydaw_project:
             f_items_dict = self.get_items_dict()
             f_uid = f_items_dict.get_uid_by_name(a_name)
             self.save_file(pydaw_folder_items, str(f_uid), str(a_item))
-            self.this_dssi_gui.pydaw_save_item(f_uid)
+            self.this_pydaw_osc.pydaw_save_item(f_uid)
 
     def save_item_by_uid(self, a_uid, a_item, a_new_item=False):
         if not self.suppress_updates:
             f_uid = int(a_uid)
             self.save_file(pydaw_folder_items, str(f_uid), str(a_item), a_new_item)
-            self.this_dssi_gui.pydaw_save_item(f_uid)
+            self.this_pydaw_osc.pydaw_save_item(f_uid)
 
     def save_region(self, a_name, a_region):
         if not self.suppress_updates:
             f_regions_dict = self.get_regions_dict()
             f_uid = f_regions_dict.get_uid_by_name(a_name)
             self.save_file(pydaw_folder_regions, str(f_uid), str(a_region))
-            self.this_dssi_gui.pydaw_save_region(f_uid)
+            self.this_pydaw_osc.pydaw_save_region(f_uid)
 
     def save_song(self, a_song):
         if not self.suppress_updates:
             self.save_file("", pydaw_file_pysong, str(a_song))
-            self.this_dssi_gui.pydaw_save_song()
+            self.this_pydaw_osc.pydaw_save_song()
 
     def save_tracks(self, a_tracks):
         if not self.suppress_updates:
@@ -824,7 +824,7 @@ class pydaw_project:
     def save_audio_region(self, a_region_uid, a_tracks):
         if not self.suppress_updates:
             self.save_file(pydaw_folder_regions_audio, str(a_region_uid), str(a_tracks))
-            self.this_dssi_gui.pydaw_reload_audio_items(a_region_uid)
+            self.this_pydaw_osc.pydaw_reload_audio_items(a_region_uid)
 
     def item_exists(self, a_item_name, a_name_dict=None):
         if a_name_dict is None:
@@ -870,7 +870,7 @@ class pydaw_project:
         return sorted(f_result.uid_lookup.keys())
 
     def quit_handler(self):
-        self.this_dssi_gui.stop_server()
+        self.this_pydaw_osc.stop_server()
         self.flush_history()
 
     def check_audio_files(self):
@@ -917,7 +917,7 @@ class pydaw_project:
         self.history_files = []
         self.history_commits = []
         self.history_undo_cursor = 0
-        self.this_dssi_gui = dssi_gui(a_with_audio)
+        self.this_pydaw_osc = pydaw_osc(a_with_audio)
         self.glued_name_index = 0
         self.suppress_updates = False
 

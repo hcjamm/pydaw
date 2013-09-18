@@ -219,7 +219,7 @@ def global_plugin_rel_callback(a_is_instrument, a_track_type, a_track_num, a_por
     pass
 
 def global_plugin_val_callback(a_is_instrument, a_track_type, a_track_num, a_port, a_val):
-    this_pydaw_project.this_dssi_gui.pydaw_update_plugin_control(a_is_instrument, a_track_type, a_track_num, a_port, a_val)
+    this_pydaw_project.this_pydaw_osc.pydaw_update_plugin_control(a_is_instrument, a_track_type, a_track_num, a_port, a_val)
 
 global_current_song_index = None
 
@@ -1648,7 +1648,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             if f_save_paif:
                 this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
-                this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+                this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(global_current_region.uid)
             this_pydaw_project.commit("Split audio item")
             global_open_audio_items(True)
         else:
@@ -1928,7 +1928,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_items.deduplicate_items()
             if f_was_copying:
                 this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
-                this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+                this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(global_current_region.uid)
             if f_was_stretching:
                 this_pydaw_project.save_stretch_dicts()
                 for f_stretch_item in f_stretched_items:
@@ -2182,7 +2182,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 print("No audio items selected, not glueing")
                 return
             f_path = this_pydaw_project.get_next_glued_file_name()
-            this_pydaw_project.this_dssi_gui.pydaw_glue_audio(f_path, global_current_song_index, f_start_bar, \
+            this_pydaw_project.this_pydaw_osc.pydaw_glue_audio(f_path, global_current_song_index, f_start_bar, \
             f_end_bar, f_indexes)
             f_items = this_pydaw_project.get_audio_region(f_region_uid)
             f_paif = this_pydaw_project.get_audio_per_item_fx_region(f_region_uid)
@@ -2197,7 +2197,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
             this_pydaw_project.save_audio_region(f_region_uid, f_items)
             this_pydaw_project.save_audio_per_item_fx_region(f_region_uid, f_paif)
-            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(f_region_uid)
+            this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(f_region_uid)
             this_pydaw_project.commit("Glued audio items")
             global_open_audio_items()
 
@@ -2322,7 +2322,7 @@ global_current_audio_item_index = None
 
 def global_paif_val_callback(a_port, a_val):
     if global_current_region is not None and global_current_audio_item_index is not None:
-        this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx(global_current_region.uid, global_current_audio_item_index, a_port, a_val)
+        this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx(global_current_region.uid, global_current_audio_item_index, a_port, a_val)
 
 def global_paif_rel_callback(a_port, a_val):
     if global_current_region is not None and global_current_audio_item_index is not None:
@@ -2477,7 +2477,7 @@ class audio_items_viewer_widget():
                 if f_item.isSelected():
                     f_paif.set_row(f_item.track_num, self.modulex_clipboard)
             this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
-            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+            this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(global_current_region.uid)
             this_audio_items_viewer_widget.modulex.set_from_list(self.modulex_clipboard)
 
     def on_modulex_clear(self):
@@ -2487,7 +2487,7 @@ class audio_items_viewer_widget():
                 if f_item.isSelected():
                     f_paif.clear_row(f_item.track_num)
             this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
-            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+            this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(global_current_region.uid)
             self.modulex.clear_effects()
 
     def on_copy(self):
@@ -2514,7 +2514,7 @@ class audio_items_viewer_widget():
         global_audio_items.deduplicate_items()
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
         this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
-        this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
+        this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(global_current_region.uid)
         this_pydaw_project.commit("Paste audio items")
         global_open_audio_items(True)
 
@@ -2553,7 +2553,7 @@ class audio_items_viewer_widget():
     def on_preview(self):
         f_list = self.list_file.selectedItems()
         if len(f_list) > 0:
-            this_pydaw_project.this_dssi_gui.pydaw_preview_audio(self.last_open_dir + "/" + str(f_list[0].text()))
+            this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(self.last_open_dir + "/" + str(f_list[0].text()))
 
     def open_bookmarks(self):
         self.list_bookmarks.clear()
@@ -3080,7 +3080,7 @@ class audio_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value(), 2)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_vol(self.track_number, self.volume_slider.value(), 2)
 
     def on_vol_released(self):
         f_tracks = this_pydaw_project.get_audio_tracks()
@@ -3090,7 +3090,7 @@ class audio_track:
 
     def on_solo(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 2)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].solo = self.solo_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
@@ -3098,7 +3098,7 @@ class audio_track:
 
     def on_mute(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 2)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].mute = self.mute_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
@@ -3106,11 +3106,11 @@ class audio_track:
 
     def on_rec(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(2, self.track_number, self.record_radiobutton.isChecked())
+            this_pydaw_project.this_pydaw_osc.pydaw_set_track_rec(2, self.track_number, self.record_radiobutton.isChecked())
 
     def on_name_changed(self):
         self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
-        this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
+        this_pydaw_project.this_pydaw_osc.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].name = str(self.track_name_lineedit.text())
         this_pydaw_project.save_audio_tracks(f_tracks)
@@ -3122,7 +3122,7 @@ class audio_track:
         global_open_fx_ui(self.track_number, pydaw_folder_audiofx, 2, "Audio Track: " + str(self.track_name_lineedit.text()))
 
     def on_bus_changed(self, a_value=0):
-        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 2)
+        this_pydaw_project.this_pydaw_osc.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].bus_num = self.bus_combobox.currentIndex()
         this_pydaw_project.save_audio_tracks(f_tracks)
@@ -5293,9 +5293,9 @@ class seq_track:
         self.volume_label.setText(str(value) + " dB")
         if not self.suppress_osc:
             if self.is_instrument:
-                this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value(), 0)
+                this_pydaw_project.this_pydaw_osc.pydaw_set_vol(self.track_number, self.volume_slider.value(), 0)
             else:
-                this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value(), 1)
+                this_pydaw_project.this_pydaw_osc.pydaw_set_vol(self.track_number, self.volume_slider.value(), 1)
 
     def on_vol_released(self):
         if self.is_instrument:
@@ -5310,17 +5310,17 @@ class seq_track:
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_solo(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 0)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 0)
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.commit("Set solo for MIDI track " + str(self.track_number) + " to " + str(self.solo_checkbox.isChecked()))
     def on_mute(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 0)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 0)
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.commit("Set mute for MIDI track " + str(self.track_number) + " to " + str(self.mute_checkbox.isChecked()))
     def on_rec(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_type, self.track_number, self.record_radiobutton.isChecked())
+            this_pydaw_project.this_pydaw_osc.pydaw_set_track_rec(self.track_type, self.track_number, self.record_radiobutton.isChecked())
             global global_last_rec_armed_track
             global_last_rec_armed_track = self.track_number
 
@@ -5328,7 +5328,7 @@ class seq_track:
         if self.is_instrument:
             self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-            this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
+            this_pydaw_project.this_pydaw_osc.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
             this_pydaw_project.commit("Set name for MIDI track " + str(self.track_number) + " to " + str(self.track_name_lineedit.text()))
             global_inst_set_window_title(self.track_number, "MIDI Track: " + str(self.track_name_lineedit.text()))
             global_fx_set_window_title(0, self.track_number, "MIDI Track: " + str(self.track_name_lineedit.text()))
@@ -5337,7 +5337,7 @@ class seq_track:
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.delete_inst_file(self.track_number)
-            this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_instrument_index(self.track_number, selected_instrument)
             global_close_inst_ui(self.track_number, True)
             this_pydaw_project.commit("Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
 
@@ -5357,7 +5357,7 @@ class seq_track:
     def on_bus_changed(self, a_value=0):
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-            this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 0)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 0)
             this_pydaw_project.commit("Set bus for MIDI track " + str(self.track_number) + " to " + str(self.bus_combobox.currentIndex()))
 
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
@@ -5552,7 +5552,7 @@ class transport_widget:
         self.last_region_num = self.get_region_value()
         self.start_region = self.get_region_value()
         self.last_bar = self.get_bar_value()
-        this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
+        this_pydaw_project.this_pydaw_osc.pydaw_play(a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_ab_widget.on_play()
         this_audio_items_viewer.set_playback_clipboard()
@@ -5572,7 +5572,7 @@ class transport_widget:
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
         self.overdub_checkbox.setEnabled(True)
-        this_pydaw_project.this_dssi_gui.pydaw_stop()
+        this_pydaw_project.this_pydaw_osc.pydaw_stop()
         sleep(0.1)
         self.set_region_value(self.start_region)
         if self.is_recording:
@@ -5634,7 +5634,7 @@ class transport_widget:
         self.last_region_num = self.get_region_value()
         self.start_region = self.get_region_value()
         self.last_bar = self.get_bar_value()
-        this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
+        this_pydaw_project.this_pydaw_osc.pydaw_rec(a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_audio_items_viewer.set_playback_clipboard()
 
@@ -5644,13 +5644,13 @@ class transport_widget:
         if global_current_region is not None:
             global_open_audio_items()
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_tempo(a_tempo)
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.commit("Set project tempo to " + str(a_tempo))
 
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
+            this_pydaw_project.this_pydaw_osc.pydaw_set_loop_mode(a_loop_mode)
 
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
@@ -5704,10 +5704,10 @@ class transport_widget:
         self.suppress_osc = False
 
     def on_overdub_changed(self, a_val=None):
-        this_pydaw_project.this_dssi_gui.pydaw_set_overdub_mode(self.overdub_checkbox.isChecked())
+        this_pydaw_project.this_pydaw_osc.pydaw_set_overdub_mode(self.overdub_checkbox.isChecked())
 
     def on_panic(self):
-        this_pydaw_project.this_dssi_gui.pydaw_panic()
+        this_pydaw_project.this_pydaw_osc.pydaw_panic()
 
     def __init__(self):
         self.suppress_osc = True
@@ -5863,7 +5863,7 @@ def global_inst_closed_callback(a_track_num, a_track_type=None):
     #global_open_inst_ui_dict.pop(a_track_num)  #Not doing anymore, just hiding
 
 def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num, a_key, a_message):
-    this_pydaw_project.this_dssi_gui.pydaw_configure_plugin(a_is_instrument, a_track_type, a_track_num, a_key, a_message)
+    this_pydaw_project.this_pydaw_osc.pydaw_configure_plugin(a_is_instrument, a_track_type, a_track_num, a_key, a_message)
 
 def global_close_all_plugin_windows():
     global global_open_fx_ui_dicts, global_open_inst_ui_dict
@@ -5994,7 +5994,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 return
 
             #TODO:  Check that the end is actually after the start....
-            this_pydaw_project.this_dssi_gui.pydaw_offline_render(f_start_region.value() - 1, f_start_bar.value() - 1,
+            this_pydaw_project.this_pydaw_osc.pydaw_offline_render(f_start_region.value() - 1, f_start_bar.value() - 1,
                                                                   f_end_region.value() - 1, f_end_bar.value() - 1, f_name.text())
             self.start_reg = f_start_region.value()
             self.end_reg = f_end_region.value()
@@ -6569,7 +6569,7 @@ class pydaw_cc_map_editor:
             self.current_map_name = f_str
             pydaw_save_cc_map(self.current_map_name, f_map)
             self.add_map(f_str)
-            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+            this_pydaw_project.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
             f_window.close()
 
         def cancel_handler():
@@ -6605,7 +6605,7 @@ class pydaw_cc_map_editor:
             self.current_map_name = f_str
             pydaw_save_cc_map(self.current_map_name, f_map)
             self.add_map(f_str)
-            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+            this_pydaw_project.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
             f_window.close()
 
         def cancel_handler():
@@ -6636,7 +6636,7 @@ class pydaw_cc_map_editor:
         if not self.ignore_combobox:
             self.current_map_name = str(self.map_combobox.currentText())
             self.open_map(self.current_map_name)
-            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+            this_pydaw_project.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
 
     def on_new_cc(self):
         self.on_click()
@@ -6649,7 +6649,7 @@ class pydaw_cc_map_editor:
             global_controller_port_name_dict["Euphoria"][str(f_euphoria.currentText())].port, global_controller_port_name_dict["Modulex"][str(f_modulex.currentText())].port))
             pydaw_save_cc_map(self.current_map_name, f_map)
             self.open_map(self.current_map_name)
-            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+            this_pydaw_project.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
             f_window.close()
 
         def cc_cancel_handler():
@@ -6658,7 +6658,7 @@ class pydaw_cc_map_editor:
                 f_map.map.pop(f_cc.value())
                 pydaw_save_cc_map(self.current_map_name, f_map)
                 self.open_map(self.current_map_name)
-                this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+                this_pydaw_project.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
             except KeyError:
                 pass
             f_window.close()
@@ -6842,11 +6842,11 @@ class a_b_widget:
         self.sixty_recip = 1.0 / 60.0
 
     def enabled_changed(self, a_val=None):
-        this_pydaw_project.this_dssi_gui.pydaw_ab_set(self.enabled_checkbox.isChecked())
+        this_pydaw_project.this_pydaw_osc.pydaw_ab_set(self.enabled_checkbox.isChecked())
 
     def vol_changed(self, a_val=None):
         f_result = self.vol_slider.value()
-        this_pydaw_project.this_dssi_gui.pydaw_ab_vol(f_result)
+        this_pydaw_project.this_pydaw_osc.pydaw_ab_vol(f_result)
         self.vol_label.setText(str(f_result) + "db")
 
     def on_file_open(self):
@@ -6871,8 +6871,8 @@ class a_b_widget:
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True
         self.transport_sync()
-        this_pydaw_project.this_dssi_gui.pydaw_ab_open(f_file_str)
-        this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
+        this_pydaw_project.this_pydaw_osc.pydaw_ab_open(f_file_str)
+        this_pydaw_project.this_pydaw_osc.pydaw_ab_pos(self.start_slider.value())
 
     def set_time_label(self, a_value):
         if self.duration is not None:
@@ -6924,7 +6924,7 @@ class a_b_widget:
     def on_start_changed(self, a_val=None):
         if not self.suppress_start and self.has_loaded_file:
             f_val = self.start_slider.value()
-            this_pydaw_project.this_dssi_gui.pydaw_ab_pos(f_val)
+            this_pydaw_project.this_pydaw_osc.pydaw_ab_pos(f_val)
             self.set_time_label(f_val)
             if self.transport_checkbox.isChecked():
                 f_pos = f_val * 0.001 * self.duration
@@ -6965,7 +6965,7 @@ def global_ui_refresh_callback(a_restore_all=False):
         global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
-    this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder, a_restore_all)
+    this_pydaw_project.this_pydaw_osc.pydaw_open_song(this_pydaw_project.project_folder, a_restore_all)
     global_set_record_armed_track()
 
 def set_window_title():

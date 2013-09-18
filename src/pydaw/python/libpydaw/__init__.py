@@ -11,7 +11,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-from libpydaw.dssi_gui import *
+from libpydaw.pydaw_osc import *
 from libpydaw.connect import *
 from libpydaw.pydaw_project import *
 from libpydaw.pydaw_gradients import *

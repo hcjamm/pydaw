@@ -17,7 +17,7 @@ from liblo import *
 from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 
-class dssi_gui:
+class pydaw_osc:
     def __init__(self, a_with_audio=False):
         if not a_with_audio:
             self.with_osc = False
