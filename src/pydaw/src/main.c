@@ -251,12 +251,12 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 	    int controller = ev->data.control.param;
 
 	    if (controller == 0) 
-            { // bank select MSB                
-		instance->pendingBankMSB = ev->data.control.value;
+            { 
+                // bank select MSB		
                 
 	    } else if (controller == 32) 
-            { // bank select LSB
-		instance->pendingBankLSB = ev->data.control.value;
+            { 
+                // bank select LSB		
 
 	    } else if (controller > 0 && controller < MIDI_CONTROLLER_COUNT) 
             {
@@ -307,18 +307,6 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 #ifndef RTLD_LOCAL
 #define RTLD_LOCAL  (0)
 #endif
-
-static int instance_sort_cmp(const void *a, const void *b)
-{
-    d3h_instance_t *ia = (d3h_instance_t *)a;
-    d3h_instance_t *ib = (d3h_instance_t *)b;
-
-    if (ia->plugin->number != ib->plugin->number) {
-        return ia->plugin->number - ib->plugin->number;
-    } else {
-        return ia->channel - ib->channel;
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -399,20 +387,11 @@ int main(int argc, char **argv)
     
     instance = &instances[instance_count];
 
-    instance->plugin = plugin;
-    instance->channel = instance_count;
+    instance->plugin = plugin;    
     instance->inactive = 1;    
-    instance->friendly_name = "pydaw"; //tmp;    
-    instance->pluginProgramCount = 0;    
-    instance->currentBank = 0;
-    instance->currentProgram = 0;
-    instance->pendingBankLSB = -1;
-    instance->pendingBankMSB = -1;
-    instance->pendingProgramChange = -1;
+    instance->friendly_name = "pydaw";    
     instance->uiTarget = NULL;
     instance->uiSource = NULL;
-    instance->ui_initial_show_sent = 0;
-    instance->uiNeedsProgramUpdate = 0;
     instance->ui_osc_control_path = NULL;
     instance->ui_osc_program_path = NULL;
     instance->ui_osc_quit_path = NULL;
@@ -428,11 +407,6 @@ int main(int argc, char **argv)
     instance_count++;
 
     reps = 1;
-
-    /* sort array of instances to group them by plugin */
-    if (instance_count > 1) {
-        qsort(instances, instance_count, sizeof(d3h_instance_t), instance_sort_cmp);
-    }
     
     pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));
     pluginControlIns = (float *)calloc(controlInsTotal, sizeof(float));
@@ -484,7 +458,7 @@ int main(int argc, char **argv)
     }
     
     char f_show_dialog_cmd[1024];
-    sprintf(f_show_dialog_cmd, "python2 %s/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py", argv[1]);
+    sprintf(f_show_dialog_cmd, "python2 \"%s/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py\"", argv[1]);
     char f_cmd_buffer[10000];
     f_cmd_buffer[0] = '\0';
     char f_device_name[1024];
@@ -1008,16 +982,6 @@ osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
 		PYINST_PROJECT_DIRECTORY_KEY, projectDirectory);
     }
 
-    /* Send current bank/program  (-FIX- another race...) */
-    if (instance->pendingProgramChange < 0) {
-        unsigned long bank = instance->currentBank;
-        unsigned long program = instance->currentProgram;
-        instance->uiNeedsProgramUpdate = 0;
-        if (instance->uiTarget) {
-            lo_send(instance->uiTarget, instance->ui_osc_program_path, "ii", bank, program);
-        }
-    }
-
     /* Send control ports */
     for (i = 0; i < instance->plugin->controlIns; i++) {
         int in = i + instance->firstControlIn;
@@ -1026,12 +990,6 @@ osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
                 pluginControlIns[in]);
 	/* Avoid overloading the GUI if there are lots and lots of ports */
 	if ((i+1) % 50 == 0) usleep(50000);
-    }
-
-    /* Send 'show' */
-    if (!instance->ui_initial_show_sent) {
-	lo_send(instance->uiTarget, instance->ui_osc_show_path, "");
-	instance->ui_initial_show_sent = 1;
     }
 
     return 0;
