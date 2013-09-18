@@ -317,17 +317,9 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
     i = 0;
     outCount = 0;
     outCount += this_instance->plugin->outs;
-
-    if (this_instance->plugin->descriptor->run_synth) 
-    {
-        this_instance->plugin->descriptor->run_synth(instanceHandles,  framesPerBuffer, instanceEventBuffers,
-                                                   instanceEventCounts);
-    } 
-    else if (this_instance->plugin->descriptor->PYFX_Plugin->run) 
-    {
-        this_instance->plugin->descriptor->PYFX_Plugin->run(instanceHandles, framesPerBuffer);
-    }
-        
+    
+    v_pydaw_run(instanceHandles,  framesPerBuffer, instanceEventBuffers, instanceEventCounts);    
+    
     for( i=0; i < framesPerBuffer; i++ )    
     {
         *out++ = pluginOutputBuffers[0][i];  // left

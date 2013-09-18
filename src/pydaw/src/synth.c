@@ -39,6 +39,8 @@ static PYINST_Descriptor *LMSDDescriptor = NULL;
 
 static t_pydaw_data * pydaw_data;
 
+void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t *events, int event_count);
+
 int pydaw_osc_debug_handler(const char *path, const char *types, lo_arg **argv,
                       int argc, void *data, void *user_data)
 {
@@ -175,9 +177,6 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
-static void v_pydaw_run(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t * events, int EventCount);
-
 
 __attribute__ ((visibility("default")))
 const PYFX_Descriptor *PYFX_descriptor(int index)
@@ -255,7 +254,7 @@ static void runLMSWrapper(PYFX_Handle instance, int sample_count)
 }
 */
 
-static void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t *events, int event_count)
+void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t *events, int event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
                
@@ -355,7 +354,7 @@ void v_pydaw_constructor()
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
 	LMSDDescriptor->configure = NULL;
-	LMSDDescriptor->run_synth = v_pydaw_run;
+	LMSDDescriptor->run_synth = NULL;
     }
 }
 
