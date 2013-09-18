@@ -19,9 +19,7 @@ extern "C" {
 #endif
 
 #include "../../include/pydaw3/pydaw_plugin.h"
-
-#include "libmodsynth.h"
-   
+  
 #define PYDAW_INPUT_COUNT 0 //10
     
 #define PYDAW_INPUT_MIN 0
@@ -45,8 +43,7 @@ typedef struct {
     PYFX_Data *output0;
     PYFX_Data *output1;
     
-    float fs;    
-    t_mono_modules * mono_modules;
+    float fs;
     
     int i_mono_out;
     int i_buffer_clear;    

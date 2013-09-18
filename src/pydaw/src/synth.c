@@ -24,7 +24,6 @@ GNU General Public License for more details.
 
 #include "../../include/pydaw3/pydaw_plugin.h"
 
-#include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "pydaw.h"
 #include "osc_handlers.h"
@@ -238,8 +237,7 @@ static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s
 
 static void v_pydaw_activate(PYFX_Handle instance)
 {
-    t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;        
-    plugin_data->mono_modules = v_mono_init((plugin_data->fs));  
+    //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;    
     v_pydaw_activate_osc_thread(pydaw_data, pydaw_osc_message_handler);
     v_pydaw_init_worker_threads(pydaw_data);
     //v_pydaw_init_busses(pydaw_data);
