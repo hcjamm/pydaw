@@ -28,8 +28,6 @@ extern "C" {
 //Print detailed information about the MIDI data being sent from PyDAW, or alternately pass in from 'make' with -DPYDAW_PRINT_DEBUG_INFO
 //#define PYDAW_PRINT_DEBUG_INFO
     
-
-    
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -4755,7 +4753,6 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
         v_wav_pool_item_free(f_old);
     }
 }
-
 
 
 

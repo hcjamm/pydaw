@@ -38,12 +38,11 @@ class pydaw_osc:
 
             self.base_path = "/dssi/pydaw"
             self.configure_path = self.base_path + "/configure"
-            self.exit_path = self.base_path + "/exiting"
 
     def stop_server(self):
         print("stop_server called")
         if self.with_osc:
-            liblo.send(self.target, self.exit_path)
+            self.send_configure("exit", "")
 
     def send_configure(self, key, value):
         if self.with_osc:

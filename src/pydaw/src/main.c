@@ -92,6 +92,7 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL "pc"
 #define PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN "co"
 #define PYDAW_CONFIGURE_KEY_GLUE_AUDIO_ITEMS "ga"
+#define PYDAW_CONFIGURE_KEY_EXIT "exit"
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
@@ -129,7 +130,6 @@ lo_server_thread serverThread;
 static sigset_t _signals;
 
 int exiting = 0;
-static int verbose = 0;
 const char *myName = "PyDAW";
 
 #define EVENT_BUFFER_SIZE 1024
@@ -793,7 +793,6 @@ int main(int argc, char **argv)
             (instanceHandles);
     }
 
-
     v_pydaw_destructor();
         
     sigemptyset (&_signals);
@@ -818,27 +817,6 @@ int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
     
     v_pydaw_parse_configure_message(pydaw_data, key, value);
     
-    return 0;
-}
-
-int osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
-{
-    if (verbose) {
-	printf("%s: OSC: got exiting notification for instance %d\n", myName,
-	       instance->number);
-    }
-
-    if (instance->uiTarget) {
-        lo_address_free(instance->uiTarget);
-        instance->uiTarget = NULL;
-    }
-
-    if (instance->uiSource) {
-        lo_address_free(instance->uiSource);
-        instance->uiSource = NULL;
-    }
-    
-    exiting = 1;
     return 0;
 }
 
@@ -924,9 +902,6 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
 
         return osc_configure_handler(this_instance, argv);
 
-    } else if (!strcmp(method, "pydaw/exiting") && argc == 0) {
-
-        return osc_exiting_handler(this_instance, argv);
     }
 
     return osc_debug_handler(path, types, argv, argc, data, user_data);
@@ -1452,6 +1427,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         
         v_pydaw_offline_render(a_pydaw_data, f_region_index, f_start_bar, f_region_index, f_end_bar, f_path, 1);
         
+    }    
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_EXIT))
+    {
+        if (this_instance->uiTarget)
+        {
+            lo_address_free(this_instance->uiTarget);
+            this_instance->uiTarget = NULL;
+        }
+
+        if (this_instance->uiSource) 
+        {
+            lo_address_free(this_instance->uiSource);
+            this_instance->uiSource = NULL;
+        }
+
+        exiting = 1;        
     }
     else
     {
