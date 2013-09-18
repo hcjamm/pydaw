@@ -57,19 +57,13 @@ static snd_seq_t *alsaClient;
 
 typedef float SAMPLE;
 
-//static d3h_dll_t     *dlls;
-
-static d3h_plugin_t  *plugins;
-static int            plugin_count = 0;
-
 static float sample_rate;
 
-static d3h_instance_t instances[D3H_MAX_INSTANCES];
-static int            instance_count = 0;
+static d3h_instance_t *this_instance;
 
-static PYFX_Handle    *instanceHandles;
-static snd_seq_event_t **instanceEventBuffers;
-static int    *instanceEventCounts;
+static PYFX_Handle    instanceHandles;
+static snd_seq_event_t *instanceEventBuffers;
+static int    instanceEventCounts;
 
 static int insTotal, outsTotal;
 static float **pluginInputBuffers, **pluginOutputBuffers;
@@ -174,8 +168,7 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 {
     int i;
     int outCount; 
-    //int inCount;
-    d3h_instance_t *instance;
+    //int inCount;    
     struct timeval tv, evtv, diff;
     long framediff;
     
@@ -186,10 +179,8 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
     gettimeofday(&tv, NULL);
 
     /* Not especially pretty or efficient */
-
-    for (i = 0; i < instance_count; i++) {
-        instanceEventCounts[i] = 0;
-    }
+    
+    instanceEventCounts = 0;    
 
     for ( ; midiEventReadIndex != midiEventWriteIndex;
          midiEventReadIndex = (midiEventReadIndex + 1) % EVENT_BUFFER_SIZE) {
@@ -200,14 +191,12 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
             /* discard non-channel oriented messages */
             continue;
         }
-
-        instance = &instances[0];
-        
+                
         i = 0; //instance->number;
 
         /* Stop processing incoming MIDI if an instance's event buffer is
          * full. */
-	if (instanceEventCounts[i] == EVENT_BUFFER_SIZE)
+	if (instanceEventCounts == EVENT_BUFFER_SIZE)
             break;
 
 	/* Each event has a real-time timestamp indicating when it was
@@ -258,39 +247,39 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 
 	    } else if (controller > 0 && controller < MIDI_CONTROLLER_COUNT) 
             {
-		long controlIn = instance->controllerMap[controller];
+		long controlIn = this_instance->controllerMap[controller];
 		if (controlIn >= 0) 
                 {
                     /* controller is mapped to LADSPA port, update the port */
-		    setControl(instance, controlIn, ev);
+		    setControl(this_instance, controlIn, ev);
 
 		} else {
 
                     /* controller is not mapped, so pass the event through to plugin */
-                    instanceEventBuffers[i][instanceEventCounts[i]] = *ev;
-                    instanceEventCounts[i]++;
+                    instanceEventBuffers[instanceEventCounts] = *ev;
+                    instanceEventCounts++;
                 }
 	    }
 	} 
         else 
         {
-            instanceEventBuffers[i][instanceEventCounts[i]] = *ev;
-            instanceEventCounts[i]++;
+            instanceEventBuffers[instanceEventCounts] = *ev;
+            instanceEventCounts++;
 	}
     }
 
     i = 0;
     outCount = 0;
-    outCount += instances[i].plugin->outs;
+    outCount += this_instance->plugin->outs;
 
-    if (instances[i].plugin->descriptor->run_synth) 
+    if (this_instance->plugin->descriptor->run_synth) 
     {
-        instances[i].plugin->descriptor->run_synth(instanceHandles[i],  framesPerBuffer, instanceEventBuffers[i],
-                                                   instanceEventCounts[i]);
+        this_instance->plugin->descriptor->run_synth(instanceHandles,  framesPerBuffer, instanceEventBuffers,
+                                                   instanceEventCounts);
     } 
-    else if (instances[i].plugin->descriptor->PYFX_Plugin->run) 
+    else if (this_instance->plugin->descriptor->PYFX_Plugin->run) 
     {
-        instances[i].plugin->descriptor->PYFX_Plugin->run(instanceHandles[i], framesPerBuffer);
+        this_instance->plugin->descriptor->PYFX_Plugin->run(instanceHandles, framesPerBuffer);
     }
         
     for( i=0; i < framesPerBuffer; i++ )    
@@ -321,8 +310,7 @@ int main(int argc, char **argv)
 
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
-    d3h_instance_t *instance;
-    
+        
     int i, j;
     int in, out, controlIn, controlOut;
     clientName = "PyDAWv3";    
@@ -340,8 +328,7 @@ int main(int argc, char **argv)
 
     insTotal = outsTotal = controlInsTotal = controlOutsTotal = 0;
 
-    plugin = (d3h_plugin_t *)calloc(1, sizeof(d3h_plugin_t));
-    plugin->number = plugin_count;
+    plugin = (d3h_plugin_t *)calloc(1, sizeof(d3h_plugin_t));    
     plugin->label = "pydaw";
     dll = (d3h_dll_t *)calloc(1, sizeof(d3h_dll_t));
     dll->name = "pydaw";
@@ -374,35 +361,27 @@ int main(int argc, char **argv)
         }
     }
 
-    /* finish up new plugin */
-    plugin->instances = 0;
-    plugin->next = plugins;
-    plugins = plugin;
-    plugin_count++;
-
     /* set up instances */
     
-    instance = &instances[instance_count];
+    this_instance = (d3h_instance_t*)malloc(sizeof(d3h_instance_t));
+            
 
-    instance->plugin = plugin;    
-    instance->inactive = 1;    
-    instance->friendly_name = "pydaw";    
-    instance->uiTarget = NULL;
-    instance->uiSource = NULL;
-    instance->ui_osc_control_path = NULL;
-    instance->ui_osc_program_path = NULL;
-    instance->ui_osc_quit_path = NULL;
-    instance->ui_osc_rate_path = NULL;
-    instance->ui_osc_show_path = NULL;
+    this_instance->plugin = plugin;    
+    this_instance->inactive = 1;    
+    this_instance->friendly_name = "pydaw";    
+    this_instance->uiTarget = NULL;
+    this_instance->uiSource = NULL;
+    this_instance->ui_osc_control_path = NULL;
+    this_instance->ui_osc_program_path = NULL;
+    this_instance->ui_osc_quit_path = NULL;
+    this_instance->ui_osc_rate_path = NULL;
+    this_instance->ui_osc_show_path = NULL;
 
     insTotal += plugin->ins;
     outsTotal += plugin->outs;
     controlInsTotal += plugin->controlIns;
     controlOutsTotal += plugin->controlOuts;
-
-    plugin->instances++;
-    instance_count++;
-
+        
     pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));
     pluginControlIns = (float *)calloc(controlInsTotal, sizeof(float));
     pluginControlInInstances =
@@ -414,19 +393,13 @@ int main(int argc, char **argv)
     pluginOutputBuffers = (float **)malloc(outsTotal * sizeof(float *));
     pluginControlOuts = (float *)calloc(controlOutsTotal, sizeof(float));
 
-    instanceHandles = (PYFX_Handle *)malloc(instance_count *
-                                              sizeof(PYFX_Handle));
-    instanceEventBuffers = (snd_seq_event_t **)malloc(instance_count *
-                                                      sizeof(snd_seq_event_t *));
-    instanceEventCounts = (int*)malloc(instance_count * sizeof(int));
-
-    for (i = 0; i < instance_count; i++) {
-        instanceEventBuffers[i] = (snd_seq_event_t *)malloc(EVENT_BUFFER_SIZE *
-                                                            sizeof(snd_seq_event_t));
-        instances[i].pluginPortControlInNumbers =
-            (int *)malloc(instances[i].plugin->descriptor->PYFX_Plugin->PortCount *
-                          sizeof(int));
-    }
+    instanceHandles = (PYFX_Handle *)malloc(sizeof(PYFX_Handle));
+    
+    instanceEventCounts = 0;
+    
+    instanceEventBuffers = (snd_seq_event_t *)malloc(EVENT_BUFFER_SIZE * sizeof(snd_seq_event_t));
+    this_instance->pluginPortControlInNumbers =
+        (int *)malloc(this_instance->plugin->descriptor->PYFX_Plugin->PortCount * sizeof(int));
         
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
@@ -587,7 +560,7 @@ int main(int argc, char **argv)
     out = 0;
     i = 0;
     
-    for (j = 0; j < instances[i].plugin->ins; ++j) 
+    for (j = 0; j < this_instance->plugin->ins; ++j) 
     {
         //Port naming code was here
         if(posix_memalign((void**)(&pluginInputBuffers[in]), 16, (sizeof(float) * f_frame_count)) != 0)
@@ -603,7 +576,7 @@ int main(int argc, char **argv)
         }	    
         ++in;
     }
-    for (j = 0; j < instances[i].plugin->outs; ++j) 
+    for (j = 0; j < this_instance->plugin->outs; ++j) 
     {
         //Port naming code was here
         if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16, (sizeof(float) * f_frame_count)) != 0)
@@ -625,9 +598,9 @@ int main(int argc, char **argv)
     /* Instantiate plugins */
 
     i = 0;
-    plugin = instances[i].plugin;
-    instanceHandles[i] = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin, sample_rate);
-    if (!instanceHandles[i])
+    plugin = this_instance->plugin;
+    instanceHandles = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin, sample_rate);
+    if (!instanceHandles)
     {
         fprintf(stderr, "\n%s: Error: Failed to instantiate instance %d!, plugin \"%s\"\n",
                 myName, i, plugin->label);
@@ -649,56 +622,55 @@ int main(int argc, char **argv)
 
     in = out = controlIn = controlOut = 0;
 
-    for (i = 0; i < instance_count; i++) {   /* i is instance number */
-        instance = &instances[i];
+    i = 0;        
 
-        instance->firstControlIn = controlIn;
-        for (j = 0; j < MIDI_CONTROLLER_COUNT; j++) {
-            instance->controllerMap[j] = -1;
-        }
+    this_instance->firstControlIn = controlIn;
+    for (j = 0; j < MIDI_CONTROLLER_COUNT; j++) {
+        this_instance->controllerMap[j] = -1;
+    }
 
-        plugin = instance->plugin;
-        for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) {  /* j is LADSPA port number */
+    plugin = this_instance->plugin;
+    for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) {  /* j is LADSPA port number */
 
-            PYFX_PortDescriptor pod =
-                plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
+        PYFX_PortDescriptor pod =
+            plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
 
-            instance->pluginPortControlInNumbers[j] = -1;
+        this_instance->pluginPortControlInNumbers[j] = -1;
 
-            if (PYFX_IS_PORT_AUDIO(pod)) {
+        if (PYFX_IS_PORT_AUDIO(pod)) {
 
-                if (PYFX_IS_PORT_INPUT(pod)) {
-                    plugin->descriptor->PYFX_Plugin->connect_port
-                        (instanceHandles[i], j, pluginInputBuffers[in++]);
+            if (PYFX_IS_PORT_INPUT(pod)) {
+                plugin->descriptor->PYFX_Plugin->connect_port
+                    (instanceHandles, j, pluginInputBuffers[in++]);
 
-                } else if (PYFX_IS_PORT_OUTPUT(pod)) {
-                    plugin->descriptor->PYFX_Plugin->connect_port
-                        (instanceHandles[i], j, pluginOutputBuffers[out++]);
-                }
-
-            } else if (PYFX_IS_PORT_CONTROL(pod)) {
-
-                if (PYFX_IS_PORT_INPUT(pod)) {
-
-                    pluginControlInInstances[controlIn] = instance;
-                    pluginControlInPortNumbers[controlIn] = j;
-                    instance->pluginPortControlInNumbers[j] = controlIn;
-
-                    plugin->descriptor->PYFX_Plugin->connect_port
-                        (instanceHandles[i], j, &pluginControlIns[controlIn++]);
-
-                } else if (PYFX_IS_PORT_OUTPUT(pod)) {
-                    plugin->descriptor->PYFX_Plugin->connect_port
-                        (instanceHandles[i], j, &pluginControlOuts[controlOut++]);
-                }
+            } else if (PYFX_IS_PORT_OUTPUT(pod)) {
+                plugin->descriptor->PYFX_Plugin->connect_port
+                    (instanceHandles, j, pluginOutputBuffers[out++]);
             }
-        }  /* 'for (j...'  LADSPA port number */
 
-        if (plugin->descriptor->PYFX_Plugin->activate) {
-            plugin->descriptor->PYFX_Plugin->activate(instanceHandles[i]);
+        } else if (PYFX_IS_PORT_CONTROL(pod)) {
+
+            if (PYFX_IS_PORT_INPUT(pod)) {
+
+                pluginControlInInstances[controlIn] = this_instance;
+                pluginControlInPortNumbers[controlIn] = j;
+                this_instance->pluginPortControlInNumbers[j] = controlIn;
+
+                plugin->descriptor->PYFX_Plugin->connect_port
+                    (instanceHandles, j, &pluginControlIns[controlIn++]);
+
+            } else if (PYFX_IS_PORT_OUTPUT(pod)) {
+                plugin->descriptor->PYFX_Plugin->connect_port
+                    (instanceHandles, j, &pluginControlOuts[controlOut++]);
+            }
         }
-	instance->inactive = 0;
-    } /* 'for (i...' instance number */
+    }  /* 'for (j...'  LADSPA port number */
+
+    if (plugin->descriptor->PYFX_Plugin->activate) {
+        plugin->descriptor->PYFX_Plugin->activate(instanceHandles);
+    }
+    this_instance->inactive = 0;
+
 
     assert(in == insTotal);
     assert(out == outsTotal);
@@ -760,30 +732,28 @@ int main(int argc, char **argv)
     Pa_Terminate();
 
     /* cleanup plugins */
-    for (i = 0; i < instance_count; i++) {
-        instance = &instances[i];
-
-        if (instance->uiTarget) {
-            lo_send(instance->uiTarget, instance->ui_osc_quit_path, "");
-            lo_address_free(instance->uiTarget);
-            instance->uiTarget = NULL;
-        }
-
-        if (instance->uiSource) {
-            lo_address_free(instance->uiSource);
-            instance->uiSource = NULL;
-        }
-
-        if (instance->plugin->descriptor->PYFX_Plugin->deactivate) {
-            instance->plugin->descriptor->PYFX_Plugin->deactivate
-		(instanceHandles[i]);
-	}
-
-        if (instance->plugin->descriptor->PYFX_Plugin->cleanup) {
-            instance->plugin->descriptor->PYFX_Plugin->cleanup
-		(instanceHandles[i]);
-	}
+    
+    if (this_instance->uiTarget) {
+        lo_send(this_instance->uiTarget, this_instance->ui_osc_quit_path, "");
+        lo_address_free(this_instance->uiTarget);
+        this_instance->uiTarget = NULL;
     }
+
+    if (this_instance->uiSource) {
+        lo_address_free(this_instance->uiSource);
+        this_instance->uiSource = NULL;
+    }
+
+    if (this_instance->plugin->descriptor->PYFX_Plugin->deactivate) {
+        this_instance->plugin->descriptor->PYFX_Plugin->deactivate
+            (instanceHandles);
+    }
+
+    if (this_instance->plugin->descriptor->PYFX_Plugin->cleanup) {
+        this_instance->plugin->descriptor->PYFX_Plugin->cleanup
+            (instanceHandles);
+    }
+
 
     v_pydaw_destructor();
     
@@ -831,59 +801,9 @@ int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
-    char *message;
-
-    /* This is pretty much the simplest legal implementation of
-     * configure in a DSSI host. */
-
-    /* The host has the option to remember the set of (key,value)
-     * pairs associated with a particular instance, so that if it
-     * wants to restore the "same" instance on another occasion it can
-     * just call configure() on it for each of those pairs and so
-     * restore state without any input from a GUI.  Any real-world GUI
-     * host will probably want to do that.  This host doesn't have any
-     * concept of restoring an instance from one run to the next, so
-     * we don't bother remembering these at all. */
-
-    if (instance->plugin->descriptor->configure) {
-
-	int n = instance->number;
-	int m = n;
-
-	if (!strncmp(key, PYINST_RESERVED_CONFIGURE_PREFIX,
-		     strlen(PYINST_RESERVED_CONFIGURE_PREFIX))) {
-	    fprintf(stderr, "%s: OSC: UI for plugin '%s' attempted to use reserved configure key \"%s\", ignoring\n", myName, instance->friendly_name, key);
-	    return 0;
-	}
-
-	if (instance->plugin->instances > 1 &&
-	    !strncmp(key, PYINST_GLOBAL_CONFIGURE_PREFIX,
-		     strlen(PYINST_GLOBAL_CONFIGURE_PREFIX))) {
-	    while (n > 0 && instances[n-1].plugin == instances[m].plugin) --n;
-	    m = n + instances[n].plugin->instances - 1;
-	}
-	
-	while (n <= m) {
-
-	    message = instances[n].plugin->descriptor->configure
-		(instanceHandles[n], key, value);
-	    if (message) {
-		printf("%s: on configure '%s' '%s', plugin '%s' returned error '%s'\n",
-		       myName, key, value, instance->friendly_name, message);
-		free(message);
-	    }
-
-	    // also call back on UIs for plugins other than the one
-	    // that requested this:
-	    if (n != instance->number && instances[n].uiTarget) {
-		lo_send(instances[n].uiTarget,
-			instances[n].ui_osc_configure_path, "ss", key, value);
-	    }
-	    
-	    ++n;
-	}	    
-    }
-
+    
+    instance->plugin->descriptor->configure(instanceHandles, key, value);
+    
     return 0;
 }
 
@@ -965,8 +885,6 @@ osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
 
 int osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
 {
-    int i;
-
     if (verbose) {
 	printf("%s: OSC: got exiting notification for instance %d\n", myName,
 	       instance->number);
@@ -996,12 +914,8 @@ int osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
 	/* Leave this flag though, as we need it to determine when to exit */
 	instance->inactive = 1;
     }
-
-    /* Do we have any plugins left running? */
-
-    for (i = 0; i < instance_count; ++i) {
-	if (!instances[i].inactive) return 0;
-    }
+    
+    if (!instance->inactive) return 0;    
 
     if (verbose) {
 	printf("%s: That was the last remaining plugin, exiting...\n", myName);
@@ -1028,9 +942,7 @@ int osc_debug_handler(const char *path, const char *types, lo_arg **argv,
 
 int osc_message_handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data)
-{
-    //int i;
-    d3h_instance_t *instance = NULL;
+{        
     const char *method;
     unsigned int flen = 0;
     lo_message message;
@@ -1043,13 +955,12 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
         return osc_debug_handler(path, types, argv, argc, data, user_data);
     }
     
-    instance = &instances[0];
     /*
     for (i = 0; i < instance_count; i++) {
-	flen = strlen(instances[i].friendly_name);
-        if (!strncmp(path + 6, instances[i].friendly_name, flen) &&
+	flen = strlen(instance->friendly_name);
+        if (!strncmp(path + 6, instance->friendly_name, flen) &&
 	    *(path + 6 + flen) == '/') {
-            instance = &instances[i];
+            
             break;
         }
     }
@@ -1075,11 +986,11 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
     message = (lo_message)data;
     source = lo_message_get_source(message);
 
-    if (instance->uiSource && instance->uiTarget) {
+    if (this_instance->uiSource && this_instance->uiTarget) {
 	if (strcmp(lo_address_get_hostname(source),
-		   lo_address_get_hostname(instance->uiSource)) ||
+		   lo_address_get_hostname(this_instance->uiSource)) ||
 	    strcmp(lo_address_get_port(source),
-		   lo_address_get_port(instance->uiSource))) {
+		   lo_address_get_port(this_instance->uiSource))) {
 	    /* This didn't come from our known UI for this plugin,
 	       so send an update to that as well */
 	    send_to_ui = 1;
@@ -1089,15 +1000,15 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
     if (!strcmp(method, "pydaw/configure") && argc == 2 && !strcmp(types, "ss")) {
 
 	if (send_to_ui) {
-	    lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
+	    lo_send(this_instance->uiTarget, this_instance->ui_osc_configure_path, "ss",
 		    &argv[0]->s, &argv[1]->s);
 	}
 
-        return osc_configure_handler(instance, argv);
+        return osc_configure_handler(this_instance, argv);
 
     } else if (!strcmp(method, "pydaw/exiting") && argc == 0) {
 
-        return osc_exiting_handler(instance, argv);
+        return osc_exiting_handler(this_instance, argv);
     }
 
     return osc_debug_handler(path, types, argv, argc, data, user_data);

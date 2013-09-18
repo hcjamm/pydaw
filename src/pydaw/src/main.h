@@ -36,8 +36,6 @@ struct _d3h_dll_t {
 typedef struct _d3h_plugin_t d3h_plugin_t;
 
 struct _d3h_plugin_t {
-    d3h_plugin_t          *next;
-    int                    number;
     d3h_dll_t             *dll;
     char                  *label;
     int                    is_first_in_dll;
@@ -45,8 +43,7 @@ struct _d3h_plugin_t {
     int                    ins;
     int                    outs;
     int                    controlIns;
-    int                    controlOuts;
-    int                    instances;
+    int                    controlOuts;    
 };
 
 typedef struct _d3h_instance_t d3h_instance_t;
