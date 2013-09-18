@@ -53,7 +53,6 @@ typedef struct _d3h_instance_t d3h_instance_t;
 struct _d3h_instance_t {
     int              number;
     d3h_plugin_t    *plugin;    
-    int              inactive;
     char            *friendly_name;
     int              firstControlIn;                       /* the offset to translate instance control in # to global control in # */
     int             *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */
@@ -61,12 +60,8 @@ struct _d3h_instance_t {
 
     lo_address       uiTarget;
     lo_address       uiSource;
-    char            *ui_osc_control_path;
-    char            *ui_osc_configure_path;
-    char            *ui_osc_program_path;
+    char            *ui_osc_configure_path;    
     char            *ui_osc_quit_path;
-    char            *ui_osc_rate_path;
-    char            *ui_osc_show_path;
 };
 
 #endif /* _PYDAW_MAIN_H */

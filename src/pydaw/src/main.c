@@ -367,15 +367,10 @@ int main(int argc, char **argv)
             
 
     this_instance->plugin = plugin;    
-    this_instance->inactive = 1;    
     this_instance->friendly_name = "pydaw";    
     this_instance->uiTarget = NULL;
     this_instance->uiSource = NULL;
-    this_instance->ui_osc_control_path = NULL;
-    this_instance->ui_osc_program_path = NULL;
     this_instance->ui_osc_quit_path = NULL;
-    this_instance->ui_osc_rate_path = NULL;
-    this_instance->ui_osc_show_path = NULL;
 
     insTotal += plugin->ins;
     outsTotal += plugin->outs;
@@ -669,8 +664,6 @@ int main(int argc, char **argv)
     if (plugin->descriptor->PYFX_Plugin->activate) {
         plugin->descriptor->PYFX_Plugin->activate(instanceHandles);
     }
-    this_instance->inactive = 0;
-
 
     assert(in == insTotal);
     assert(out == outsTotal);
@@ -756,8 +749,7 @@ int main(int argc, char **argv)
 
 
     v_pydaw_destructor();
-    
-    sleep(1);
+        
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
     pthread_sigmask(SIG_BLOCK, &_signals, 0);
@@ -799,27 +791,7 @@ int osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
         lo_address_free(instance->uiSource);
         instance->uiSource = NULL;
     }
-
-    if (instance->plugin) {
-
-	/*!!! No, this isn't safe -- plugins deactivated in this way
-	  would still be included in a run_multiple_synths call unless
-	  we re-jigged the instance array at the same time -- leave it
-	  for now
-	if (instance->plugin->descriptor->PYFX_Plugin->deactivate) {
-            instance->plugin->descriptor->PYFX_Plugin->deactivate
-		(instanceHandles[instance->number]);
-	}
-	*/
-	/* Leave this flag though, as we need it to determine when to exit */
-	instance->inactive = 1;
-    }
     
-    if (!instance->inactive) return 0;    
-
-    if (verbose) {
-	printf("%s: That was the last remaining plugin, exiting...\n", myName);
-    }
     exiting = 1;
     return 0;
 }
