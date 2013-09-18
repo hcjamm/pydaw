@@ -29,7 +29,6 @@ GNU General Public License for more details.
 #include "pydaw.h"
 #include "osc_handlers.h"
 #include "synth.h"
-#include "meta.h"
 
 #include <unistd.h>
 #include <alsa/asoundlib.h>
@@ -299,10 +298,6 @@ void v_pydaw_constructor()
     LMSLDescriptor =
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
-        LMSLDescriptor->UniqueID = PYDAW_PLUGIN_UUID;
-	LMSLDescriptor->Label = PYDAW_PLUGIN_NAME;	
-	LMSLDescriptor->Name = PYDAW_PLUGIN_LONG_NAME;
-	LMSLDescriptor->Maker = PYDAW_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = PYDAW_COUNT;
 
