@@ -17,7 +17,6 @@ import sys, os, operator, subprocess
 from time import sleep
 import time
 from PyQt4 import QtGui, QtCore
-from sys import argv
 from libpydaw import *
 import liblo
 
@@ -448,9 +447,9 @@ class song_editor:
     def open_first_region(self):
         for f_i in range(300):
             f_item = self.table_widget.item(0, f_i)
-            this_transport.region_spinbox.setValue(f_i + 1)
             if f_item is not None and str(f_item.text()) != "":
                 this_region_settings.open_region(str(f_item.text()))
+                this_transport.set_region_value(f_i)
                 f_item.setSelected(True)
                 break
 
@@ -5587,8 +5586,12 @@ class transport_widget:
         self.init_playback_cursor(a_start=False)
         self.is_playing = False
         self.set_bar_value(self.last_bar)
-        #if not this_song_editor.table_widget.item(0, self.get_region_value()) is None:
-        #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.get_region_value()).text())
+        f_song_table_item = this_song_editor.table_widget.item(0, self.get_region_value())
+        if f_song_table_item is not None and str(f_song_table_item.text()) != None:
+            f_song_table_item_str = str(f_song_table_item.text())
+            this_region_settings.open_region(f_song_table_item_str)
+        else:
+            this_region_settings.clear_items()
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.get_bar_value())
         this_ab_widget.on_stop()
@@ -5665,7 +5668,7 @@ class transport_widget:
             this_audio_items_viewer.set_playback_pos(self.get_bar_value())
 
     def on_region_changed(self, a_region):
-        self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region))
+        self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region - 1))
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_audio_items_viewer.set_playback_pos(self.get_bar_value())
