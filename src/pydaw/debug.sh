@@ -8,6 +8,6 @@ else
 	rm -rf dir_debug/*
 fi
 
-ulimit -c unlimited
+#ulimit -c unlimited
 make clean && make debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/pydaw3 --debug
 

@@ -7051,9 +7051,9 @@ if global_pydaw_with_audio:
         f_pa_suspend = True
     if "--debug" in sys.argv and pydaw_util.pydaw_which("x-terminal-emulator") is not None:
         if f_pa_suspend:
-            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c '"%s" "%s" ; read' """ % (global_pydaw_bin_path, global_pydaw_install_prefix)
+            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; "%s" "%s" ; read' """ % (global_pydaw_bin_path, global_pydaw_install_prefix)
         else:
-            f_cmd = """x-terminal-emulator -e bash -c '"%s" "%s" ; read' """ % (global_pydaw_bin_path, global_pydaw_install_prefix)
+            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; "%s" "%s" ; read' """ % (global_pydaw_bin_path, global_pydaw_install_prefix)
     else:
         if f_pa_suspend:
             f_cmd = 'pasuspender -- "%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix)
