@@ -187,3 +187,7 @@ class pydaw_osc:
         if self.with_osc:
             f_wait_file = pydaw_get_wait_file_path(a_file_name)
             pydaw_wait_for_finished_file(f_wait_file)
+
+    def pydaw_midi_learn(self, a_is_on):
+        self.send_configure("ml", bool_to_int(a_is_on))
+

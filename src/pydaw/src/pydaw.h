@@ -327,6 +327,7 @@ typedef struct
     void * main_thread_args;
     int audio_glue_indexes[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int ml_cur_loop_prevent;
+    int midi_learn;  //0 to disable, 1 to enable sending CC events to the UI
 }t_pydaw_data;
 
 typedef struct 
@@ -1318,6 +1319,13 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
 #ifdef PYDAW_PRINT_DEBUG_INFO
                 printf("\n\nALSA MIDI CC event:  c.param == %i, c.value == %i\n\n", events[f_i2].data.control.param, events[f_i2].data.control.value);
 #endif
+                
+                if(a_pydaw_data->midi_learn)
+                {
+                    sprintf(a_pydaw_data->osc_cursor_message, "%i", controller);
+                    lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "ml", a_pydaw_data->osc_cursor_message);
+                }
+                
                 if(a_pydaw_data->cc_map[controller])
                 {
                     int f_index = (a_pydaw_data->recording_current_item_pool_index);
@@ -3253,7 +3261,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     pthread_mutex_init(&f_result->offline_mutex, NULL);    
     pthread_mutex_init(&f_result->audio_inputs_mutex, NULL);
     
-    
+    f_result->midi_learn = 0;
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
     f_result->current_bar = 0;

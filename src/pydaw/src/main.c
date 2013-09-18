@@ -90,6 +90,7 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN "co"
 #define PYDAW_CONFIGURE_KEY_GLUE_AUDIO_ITEMS "ga"
 #define PYDAW_CONFIGURE_KEY_EXIT "exit"
+#define PYDAW_CONFIGURE_KEY_MIDI_LEARN "ml"
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
@@ -1271,11 +1272,17 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         
         v_pydaw_offline_render(a_pydaw_data, f_region_index, f_start_bar, f_region_index, f_end_bar, f_path, 1);
         
-    }    
+    }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_EXIT))
     {
         exiting = 1;        
     }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MIDI_LEARN))
+    {
+        int f_is_midi_learn = atoi(a_value);
+        assert(f_is_midi_learn == 0 || f_is_midi_learn == 1);
+        pydaw_data->midi_learn = f_is_midi_learn;
+    }    
     else
     {
         printf("Unknown configure message key: %s, value %s\n", a_key, a_value);        

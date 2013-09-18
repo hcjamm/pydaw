@@ -6467,6 +6467,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         elif a_key == "ne":
             f_state, f_note = a_val.split("|")
             this_piano_roll_editor.highlight_keys(f_state, f_note)
+        elif a_key == "ml":
+            if self.cc_map_table.cc_spinbox is not None:
+                self.cc_map_table.cc_spinbox.setValue(int(a_val))
 
 
     def closeEvent(self, event):
@@ -6647,7 +6650,7 @@ class pydaw_cc_map_editor:
     def on_click(self, x=None, y=None):
         def cc_ok_handler():
             f_map = pydaw_get_cc_map(self.current_map_name)
-            f_map.add_item(f_cc.value(), pydaw_cc_map_item(f_effects_cb.isChecked(), \
+            f_map.add_item(self.cc_spinbox.value(), pydaw_cc_map_item(f_effects_cb.isChecked(), \
             global_controller_port_name_dict["Ray-V"][str(f_rayv.currentText())].port, global_controller_port_name_dict["Way-V"][str(f_wayv.currentText())].port, \
             global_controller_port_name_dict["Euphoria"][str(f_euphoria.currentText())].port, global_controller_port_name_dict["Modulex"][str(f_modulex.currentText())].port))
             pydaw_save_cc_map(self.current_map_name, f_map)
@@ -6658,25 +6661,31 @@ class pydaw_cc_map_editor:
         def cc_cancel_handler():
             f_map = pydaw_get_cc_map(self.current_map_name)
             try:
-                f_map.map.pop(f_cc.value())
+                f_map.map.pop(self.cc_spinbox.value())
                 pydaw_save_cc_map(self.current_map_name, f_map)
                 self.open_map(self.current_map_name)
                 this_pydaw_project.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
+                self.cc_spinbox = None
             except KeyError:
                 pass
             f_window.close()
 
+        def window_close_event(a_val=None):
+            this_pydaw_project.this_pydaw_osc.pydaw_midi_learn(False)
+
         f_window = QtGui.QDialog(this_main_window)
+        f_window.closeEvent = window_close_event
         f_window.setWindowTitle("Map CC to Control(s)")
         f_window.setMinimumWidth(240)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_cc = QtGui.QSpinBox()
-        f_cc.setRange(1, 127)
+        self.cc_spinbox = QtGui.QSpinBox()
+        self.cc_spinbox.setRange(1, 127)
+        self.cc_spinbox.setToolTip("Move your MIDI controller to set the CC number, you must select a MIDI controller and record arm a track first.")
         if x is not None:
-            f_cc.setValue(int(self.cc_table.item(x, 0).text()))
+            self.cc_spinbox.setValue(int(self.cc_table.item(x, 0).text()))
         f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
-        f_layout.addWidget(f_cc, 1, 1)
+        f_layout.addWidget(self.cc_spinbox, 1, 1)
         f_effects_cb = QtGui.QCheckBox("Effects tracks only?")
         f_layout.addWidget(f_effects_cb, 2, 1)
         if x is not None and str(self.cc_table.item(x, 1).text()) == "True":
@@ -6727,9 +6736,11 @@ class pydaw_cc_map_editor:
         f_cancel_button = QtGui.QPushButton("Clear")
         f_ok_cancel_layout.addWidget(f_cancel_button)
         f_cancel_button.clicked.connect(cc_cancel_handler)
+        this_pydaw_project.this_pydaw_osc.pydaw_midi_learn(True)
         f_window.exec_()
 
     def __init__(self):
+        self.cc_spinbox = None
         self.ignore_combobox = False
         f_local_dir = global_pydaw_home
         if not os.path.isdir(f_local_dir):
