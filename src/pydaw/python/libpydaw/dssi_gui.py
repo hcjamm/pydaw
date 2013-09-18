@@ -17,7 +17,7 @@ from liblo import *
 from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 
-class dssi_gui(ServerThread):
+class dssi_gui:
     def __init__(self, a_with_audio=False):
         if not a_with_audio:
             self.with_osc = False
@@ -25,9 +25,6 @@ class dssi_gui(ServerThread):
         else:
             self.with_osc = True
             self.m_suppressHostUpdate = False
-
-            ServerThread.__init__(self, None)
-            self.start()
 
             try:
                 self.target = liblo.Address(19271)
@@ -47,7 +44,6 @@ class dssi_gui(ServerThread):
         print("stop_server called")
         if self.with_osc:
             liblo.send(self.target, self.exit_path)
-            self.stop()
 
     def send_configure(self, key, value):
         if self.with_osc:
@@ -55,14 +51,7 @@ class dssi_gui(ServerThread):
         else:
             print(("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\""))
 
-    @make_method(None, None)
-    def fallback(path, args, types, src):
-        if self.with_osc:
-            print(("got unknown message '%s' from '%s'" % (path, src.get_url())))
-            for a, t in zip(args, types):
-                print(("argument of type '%s': %s" % (t, a)))
-
-    #methods for sending PyDAW-protocol OSC messages
+    #methods for sending PyDAW OSC messages
 
     def pydaw_save_song(self):
         self.send_configure("ss", "")
