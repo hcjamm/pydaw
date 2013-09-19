@@ -68,8 +68,8 @@ extern "C" {
 #include <unistd.h>
 #include <sndfile.h>
 #include <time.h>
-#include "../../libmodsynth/lib/amp.h"
-#include "../../libmodsynth/modules/multifx/multifx3knob.h"
+#include "../libmodsynth/lib/amp.h"
+#include "../libmodsynth/modules/multifx/multifx3knob.h"
 #include "pydaw_audio_tracks.h"
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"

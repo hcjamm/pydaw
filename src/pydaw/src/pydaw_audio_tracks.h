@@ -19,12 +19,12 @@ extern "C" {
 #endif
     
 #include <sndfile.h>
-#include "../../libmodsynth/lib/amp.h"
-#include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/lib/interpolate-cubic.h"
+#include "../libmodsynth/lib/amp.h"
+#include "../libmodsynth/lib/pitch_core.h"
+#include "../libmodsynth/lib/interpolate-cubic.h"
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
-#include "../../libmodsynth/lib/interpolate-sinc.h"
-#include "../../libmodsynth/modules/modulation/adsr.h"
+#include "../libmodsynth/lib/interpolate-sinc.h"
+#include "../libmodsynth/modules/modulation/adsr.h"
 #include "pydaw_files.h"
 #include "pydaw.h"
     

@@ -18,7 +18,7 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include "../../include/pydaw3/pydaw_plugin.h"
+#include "../include/pydaw3/pydaw_plugin.h"
 #include "pydaw.h"
 #include <lo/lo.h>
 #include <alsa/asoundlib.h>
@@ -26,10 +26,10 @@ extern "C" {
 #include <math.h>
 #include <stdlib.h>
 
-#include "../../lms_modulex/src/synth.c"
-#include "../../euphoria/src/synth.c"
-#include "../../way_v/src/synth.c"
-#include "../../ray_v/src/synth.c"
+#include "../modulex/src/synth.c"
+#include "../euphoria/src/synth.c"
+#include "../way_v/src/synth.c"
+#include "../ray_v/src/synth.c"
     
 #define PYDAW_MAX_BUFFER_SIZE 4096
     

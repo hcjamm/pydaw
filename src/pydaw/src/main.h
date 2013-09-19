@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #ifndef _PYDAW_MAIN_H
 #define _PYDAW_MAIN_H
 
-#include "../../include/pydaw3/pydaw_plugin.h"
+#include "../include/pydaw3/pydaw_plugin.h"
 #include <lo/lo.h>
 
 #define D3H_MAX_CHANNELS   16  /* MIDI limit */

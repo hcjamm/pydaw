@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #include <stdlib.h>
 
 #include "../../src/pydaw/src/synth.c"
-#include "../../src/include/pydaw3/pydaw_plugin.h"
+#include "../../src/pydaw/include/pydaw3/pydaw_plugin.h"
 #include "pyfx_ports.h"
 #include <unistd.h>
 #include <alsa/asoundlib.h>
@@ -67,8 +67,8 @@ int main(int argc, char** argv)
 
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
     const PYINST_Descriptor * f_ddesc = PYINST_descriptor(0);
-    PYFX_Handle f_handle =  f_ldesc->instantiate(f_ldesc, 44100);
-    f_ldesc->activate(f_handle);
+    PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, 44100);
+    v_pydaw_activate(f_handle);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
     while(f_i < 100)
     {
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI
-        f_ddesc->run_synth(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 4);
+        v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 4);
 #else
         f_ddesc->run_synth(f_handle, DEBUGGER_SAMPLE_COUNT, NULL, 0);
 #endif

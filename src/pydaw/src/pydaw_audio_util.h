@@ -23,8 +23,8 @@ extern "C" {
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
-#include "../../libmodsynth/lib/interpolate-cubic.h"
-#include "../../libmodsynth/lib/pitch_core.h"
+#include "../libmodsynth/lib/interpolate-cubic.h"
+#include "../libmodsynth/lib/pitch_core.h"
     
     
 /*Convert a wav file to 32bit float and normalize, for use with Paulstretch*/
