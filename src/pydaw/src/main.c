@@ -96,11 +96,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 static snd_seq_t *alsaClient;
 
-#define SAMPLE_RATE (44100)
 #define PA_SAMPLE_TYPE paFloat32
-#define FRAMES_PER_BUFFER (512)
-
-typedef float SAMPLE;
+#define DEFAULT_FRAMES_PER_BUFFER (512)
 
 static float sample_rate;
 
@@ -320,7 +317,7 @@ int main(int argc, char **argv)
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
         
-    int i, j;
+    int j;
     int in, out, controlIn, controlOut;
     clientName = "PyDAWv3";    
         
@@ -421,7 +418,7 @@ int main(int argc, char **argv)
     char f_device_name[1024];
     f_device_name[0] = '\0';
     
-    f_frame_count = FRAMES_PER_BUFFER;
+    f_frame_count = DEFAULT_FRAMES_PER_BUFFER;
     
     while(1)
     {
@@ -547,7 +544,6 @@ int main(int argc, char **argv)
 
     in = 0;
     out = 0;
-    i = 0;
     
     for (j = 0; j < this_instance->plugin->ins; ++j) 
     {
@@ -586,13 +582,11 @@ int main(int argc, char **argv)
     
     /* Instantiate plugins */
 
-    i = 0;
     plugin = this_instance->plugin;
     instanceHandles = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin, sample_rate);
     if (!instanceHandles)
     {
-        fprintf(stderr, "\n%s: Error: Failed to instantiate instance %d!, plugin \"%s\"\n",
-                myName, i, plugin->label);
+        printf("\nError: Failed to instantiate PyDAW\n");
         return 1;
     }        
 
@@ -605,7 +599,6 @@ int main(int argc, char **argv)
     /* Connect and activate plugins */
 
     in = out = controlIn = controlOut = 0;
-    i = 0;        
     
     plugin = this_instance->plugin;
     for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) // j is LADSPA port number
@@ -636,7 +629,7 @@ int main(int argc, char **argv)
 
     if (snd_seq_open(&alsaClient, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) 
     {
-	fprintf(stderr, "\n%s: Error: Failed to open ALSA sequencer interface\n", myName);
+	printf("\nError: Failed to open ALSA sequencer interface\n");
 	return 1;
     }
 
@@ -645,8 +638,7 @@ int main(int argc, char **argv)
     if ((portid = snd_seq_create_simple_port
 	 (alsaClient, clientName,
 	  SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE, SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
-	fprintf(stderr, "\n%s: Error: Failed to create ALSA sequencer port\n",
-		myName);
+	printf("\nError: Failed to create ALSA sequencer port\n");
 	return 1;
     }
 
