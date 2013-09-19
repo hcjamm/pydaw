@@ -317,6 +317,7 @@ int main(int argc, char **argv)
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
         
+    int f_thread_count = 0;
     int j;
     int in, out, controlIn, controlOut;
     clientName = "PyDAWv3";    
@@ -456,6 +457,19 @@ int main(int argc, char **argv)
                 {                    
                     sample_rate = atof(f_value_char);
                     printf("sampleRate: %i\n", (int)sample_rate);
+                }
+                else if(!strcmp(f_key_char, "threads"))
+                {                    
+                    f_thread_count = atoi(f_value_char);
+                    if(f_thread_count > 8)
+                    {
+                        f_thread_count = 8;
+                    }
+                    else if(f_thread_count < 0)
+                    {
+                        f_thread_count = 0;
+                    }
+                    printf("threads: %i\n", f_thread_count);
                 }
                 else
                 {
@@ -618,7 +632,7 @@ int main(int argc, char **argv)
         }
     }  /* 'for (j...'  LADSPA port number */
     
-    v_pydaw_activate(instanceHandles);    
+    v_pydaw_activate(instanceHandles, f_thread_count);    
 
     assert(in == insTotal);
     assert(out == outsTotal);

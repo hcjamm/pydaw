@@ -235,11 +235,11 @@ static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s
     return (PYFX_Handle) plugin_data;
 }
 
-static void v_pydaw_activate(PYFX_Handle instance)
+void v_pydaw_activate(PYFX_Handle instance, int a_thread_count)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;    
     v_pydaw_activate_osc_thread(pydaw_data, pydaw_osc_message_handler);
-    v_pydaw_init_worker_threads(pydaw_data);
+    v_pydaw_init_worker_threads(pydaw_data, a_thread_count);
     //v_pydaw_init_busses(pydaw_data);
     v_open_default_project(pydaw_data);
 }

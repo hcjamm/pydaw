@@ -364,7 +364,7 @@ t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
 void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data,  t_pytrack * a_track, float a_vol);
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
-void v_pydaw_init_worker_threads(t_pydaw_data*);
+void v_pydaw_init_worker_threads(t_pydaw_data*, int);
 void v_open_default_project(t_pydaw_data * a_data);
 inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, snd_seq_event_t *events, int event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count, 
@@ -630,22 +630,31 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
     printf ( "\n\nCompleted %s in %f seconds\n", a_message, ( (double)clock() - a_start ) / CLOCKS_PER_SEC );
 }
 
-void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
+void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count)
 {        
-    a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );
+    if(a_thread_count == 0)
+    {
+        a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );
+
+        if((a_pydaw_data->track_worker_thread_count) > 4)
+        {
+            a_pydaw_data->track_worker_thread_count = 4;
+        }
+        else if((a_pydaw_data->track_worker_thread_count) == 4)
+        {
+            a_pydaw_data->track_worker_thread_count = 3;
+        }
+        else if((a_pydaw_data->track_worker_thread_count) <= 0)
+        {
+            a_pydaw_data->track_worker_thread_count = 1;
+        }
+    }
+    else
+    {
+        a_pydaw_data->track_worker_thread_count = a_thread_count;
+    }
     
-    if((a_pydaw_data->track_worker_thread_count) > 4)
-    {
-        a_pydaw_data->track_worker_thread_count = 4;
-    }
-    else if((a_pydaw_data->track_worker_thread_count) == 4)
-    {
-        a_pydaw_data->track_worker_thread_count = 3;
-    }
-    else if((a_pydaw_data->track_worker_thread_count) <= 0)
-    {
-        a_pydaw_data->track_worker_thread_count = 1;
-    }
+    printf("Spawning %i worker threads\n", a_pydaw_data->track_worker_thread_count);
     
     a_pydaw_data->track_block_mutexes = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * (a_pydaw_data->track_worker_thread_count));

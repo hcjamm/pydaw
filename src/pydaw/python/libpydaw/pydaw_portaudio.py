@@ -58,10 +58,19 @@ class pydaw_device_dialog:
         f_buffer_size_combobox = QtGui.QComboBox()
         f_buffer_size_combobox.addItems(self.buffer_sizes)
         f_buffer_size_combobox.setCurrentIndex(4)
-        f_window_layout.addWidget(QtGui.QLabel("Buffer Size"), 2, 0)
+        f_window_layout.addWidget(QtGui.QLabel("Buffer Size:"), 2, 0)
         f_window_layout.addWidget(f_buffer_size_combobox, 2, 1)
         f_latency_label = QtGui.QLabel("")
         f_window_layout.addWidget(f_latency_label, 2, 2)
+        f_window_layout.addWidget(QtGui.QLabel("Worker Threads:"), 3, 0)
+        f_worker_threads_combobox = QtGui.QComboBox()
+        f_worker_threads_combobox.addItems(["Auto", "1", "2", "3", "4", "5", "6", "7", "8"])
+        f_worker_threads_combobox.setToolTip("%s\n%s\n%s\n%s" %
+        ("This control sets the number of worker threads.  Setting to one can result in the best latency.",
+         "If you require more CPU power than one CPU core can provide, it is recommended that you only add",
+         "the required number of cores, and not more than one thread per CPU core.  Auto tries to pick a ",
+         "reasonable number of worker threads automatically."))
+        f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_window_layout.addLayout(f_ok_cancel_layout, 10, 1)
         f_ok_button = QtGui.QPushButton("OK")
@@ -107,6 +116,7 @@ class pydaw_device_dialog:
             f_device = f_result_dict[self.device_name]
             f_buffer_size = int(str(f_buffer_size_combobox.currentText()))
             f_samplerate = int(str(f_samplerate_combobox.currentText()))
+            f_worker_threads = f_worker_threads_combobox.currentIndex()
             try:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
@@ -119,6 +129,7 @@ class pydaw_device_dialog:
                 f_file.write("name|%s\n" % (self.device_name,))
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))
+                f_file.write("threads|%s\n" % (f_worker_threads))
                 f_file.close()
                 if a_notify:
                     QtGui.QMessageBox.warning(f_window, "Settings changed",
@@ -147,6 +158,9 @@ class pydaw_device_dialog:
 
         if "sampleRate" in self.val_dict and self.val_dict["sampleRate"] in self.sample_rates:
             f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(self.val_dict["sampleRate"]))
+
+        if "threads" in self.val_dict and self.val_dict["threads"] in self.sample_rates:
+            f_worker_threads_combobox.setCurrentIndex(int(self.val_dict["threads"]))
 
         if a_msg is not None:
             QtGui.QMessageBox.warning(f_window, "Error", a_msg)
