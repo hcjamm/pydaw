@@ -9,7 +9,7 @@ PYDAW_VERSION = pydaw3
 # --------------------------------------------------------------
 
 all:
-	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O3 "
+	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
 	#make -C pydaw_jack_oscrolloscope
 	cd pydaw_sbsms && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
 	cd pydaw_sbsms/cli && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ../..

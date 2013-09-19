@@ -21,7 +21,7 @@ debug:
 	make CFLAGS+=" -O0 -g -gdwarf-3 "
 
 release:
-	make CFLAGS+=" -O3 "
+	make CFLAGS+=" -O2 "
 
 pydaw3-engine: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
