@@ -458,19 +458,20 @@ global_current_region_name = None
 
 class region_settings:
     def update_region_length(self, a_value=None):
+        f_region_name = str(self.region_name_lineedit.text())
         global global_current_region
-        if not this_transport.is_playing and not this_transport.is_recording and global_current_region is not None:
+        if not this_transport.is_playing and not this_transport.is_recording and global_current_region is not None and f_region_name != "":
             if not self.enabled or global_current_region is None:
                 return
             if self.length_alternate_radiobutton.isChecked():
                 f_region_length = self.length_alternate_spinbox.value()
                 global_current_region.region_length_bars = f_region_length
-                f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value())
+                f_commit_message = "Set region '" + f_region_name + "' length to " + str(self.length_alternate_spinbox.value())
             else:
                 global_current_region.region_length_bars = 0
                 f_region_length = 8
-                f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value"
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
+                f_commit_message = "Set region '" + f_region_name + "' length to default value"
+            this_pydaw_project.save_region(f_region_name, global_current_region)
             if global_audio_items.set_region_length(f_region_length):
                 this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             this_pydaw_project.commit(f_commit_message)
