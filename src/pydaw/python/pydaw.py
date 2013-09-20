@@ -5656,13 +5656,6 @@ class transport_widget:
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_loop_mode(a_loop_mode)
 
-    def on_keybd_combobox_index_changed(self, a_index):
-        self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
-        if not self.suppress_osc:
-            f_midi_keybd = str(self.keybd_combobox.currentText())
-            this_pydaw_project.save_midi_device(f_midi_keybd)
-            this_pydaw_project.commit("Set project MIDI in device to " + f_midi_keybd)
-
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
@@ -5701,10 +5694,6 @@ class transport_widget:
             self.suppress_osc = True
         self.transport = this_pydaw_project.get_transport()
         self.tempo_spinbox.setValue(int(self.transport.bpm))
-        for i in range(self.keybd_combobox.count()):
-            if str(self.keybd_combobox.itemText(i)) == self.transport.midi_keybd:
-                self.keybd_combobox.setCurrentIndex(i)
-                break
         self.suppress_osc = False
 
     def on_overdub_changed(self, a_val=None):
@@ -5760,12 +5749,6 @@ class transport_widget:
         self.bar_spinbox.valueChanged.connect(self.on_bar_changed)
         self.hlayout1.addWidget(self.bar_spinbox)
         f_loop_midi_gridlayout = QtGui.QGridLayout()
-        f_loop_midi_gridlayout.addWidget(QtGui.QLabel("MIDI In:"), 0, 0)
-        self.keybd_combobox = QtGui.QComboBox()
-        self.alsa_output_ports = alsa_ports()
-        self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
-        self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
-        f_loop_midi_gridlayout.addWidget(self.keybd_combobox, 0, 1)
         f_loop_midi_gridlayout.addWidget(QtGui.QLabel("Loop Mode:"), 1, 0)
         f_lower_ctrl_layout = QtGui.QHBoxLayout()
         self.loop_mode_combobox = QtGui.QComboBox()
@@ -6291,7 +6274,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.spacebar_action.triggered.connect(self.on_spacebar)
         self.spacebar_action.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
 
-        #The context menus
+        #The menus
         self.menu_bar = self.menuBar()
         self.menu_file = self.menu_bar.addMenu("&File")
 
@@ -6304,11 +6287,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.open_action)
         self.open_action.triggered.connect(self.on_open)
         self.open_action.setShortcut(QtGui.QKeySequence.Open)
-
-        #self.save_action = QtGui.QAction("Save", self)
-        #self.menu_file.addAction(self.save_action)
-        #self.save_action.triggered.connect(self.on_save)
-        #self.save_action.setShortcut(QtGui.QKeySequence.Save)
 
         self.save_as_action = QtGui.QAction("Save As...(projects are automatically saved, this creates a copy)", self)
         self.menu_file.addAction(self.save_as_action)
@@ -6323,7 +6301,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.import_midi_action)
         self.import_midi_action.triggered.connect(self.on_import_midi)
 
-        self.audio_device_action = QtGui.QAction("Change audio settings...", self)
+        self.audio_device_action = QtGui.QAction("Hardware Settings...", self)
         self.menu_file.addAction(self.audio_device_action)
         self.audio_device_action.triggered.connect(self.on_change_audio_settings)
 

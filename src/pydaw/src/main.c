@@ -19,8 +19,8 @@ GNU General Public License for more details.
 #include "pydaw_files.h"
 #include "../include/pydaw3/pydaw_plugin.h"
 #include <alsa/asoundlib.h>
-#include <alsa/seq.h>
 #include <portaudio.h>
+#include <portmidi.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -92,9 +92,14 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_EXIT "exit"
 #define PYDAW_CONFIGURE_KEY_MIDI_LEARN "ml"
 
-void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
+//low-level MIDI stuff
+#define MIDI_NOTE_OFF       0x80
+#define MIDI_NOTE_ON        0x90
+#define MIDI_CC             0xB0
+#define MIDI_PITCH_BEND     0xE0
+#define MIDI_EOX            0xF7
 
-static snd_seq_t *alsaClient;
+void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 #define PA_SAMPLE_TYPE paFloat32
 #define DEFAULT_FRAMES_PER_BUFFER (512)
@@ -121,10 +126,10 @@ lo_server_thread serverThread;
 static sigset_t _signals;
 
 int exiting = 0;
-const char *myName = "PyDAW";
 
 #define EVENT_BUFFER_SIZE 1024
 static snd_seq_event_t midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
+static PmEvent portMidiBuffer[EVENT_BUFFER_SIZE];
 static int midiEventReadIndex __attribute__((aligned(16))) = 0;
 static int midiEventWriteIndex __attribute__((aligned(16))) = 0;
 
@@ -137,51 +142,82 @@ int osc_debug_handler(const char *path, const char *types, lo_arg **argv, int
 
 void signalHandler(int sig)
 {
-    fprintf(stderr, "%s: signal %d caught, trying to clean up and exit\n", myName, sig);
+    printf("signal %d caught, trying to clean up and exit\n", sig);
     exiting = 1;
 }
 
-void midi_callback()
+void receive(unsigned char status, unsigned char control, char value)
 {
-    snd_seq_event_t *ev = 0;
+    unsigned char channel = status & 0x0F;
+    unsigned char opCode = status & 0xF0;
+    if (opCode >= 0xF0) 
+    {
+        opCode = status;
+    }
+
+    int twoBytes = 1;
+        
     struct timeval tv;
+    
+    if (midiEventReadIndex == midiEventWriteIndex + 1) 
+    {
+        printf("Warning: MIDI event buffer overflow! ignoring incoming event\n");
+        return;
+    }
+    
 
-    do {
-	if (snd_seq_event_input(alsaClient, &ev) > 0) 
-        {
-	    if (midiEventReadIndex == midiEventWriteIndex + 1) 
+    switch (opCode)
+    {
+        case MIDI_PITCH_BEND:
+            twoBytes = 0;
+            int f_pb_val = ((value << 7) | control) - 8192;
+            snd_seq_ev_set_pitchbend(&midiEventBuffer[midiEventWriteIndex], channel, f_pb_val);
+            midiEventWriteIndex++;
+            //printf("MIDI PITCHBEND status %i ch %i, value %i\n", status, channel+1, f_pb_val);
+            break;
+        case MIDI_NOTE_OFF:
+            snd_seq_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            midiEventWriteIndex++;
+            //printf("MIDI NOTE_OFF status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
+            break;
+        case MIDI_NOTE_ON:
+            if(value == 0)
             {
-		fprintf(stderr, "%s: Warning: MIDI event buffer overflow! ignoring incoming event\n", myName);
-		continue;
-	    }
+                snd_seq_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            }
+            else
+            {
+                snd_seq_ev_set_noteon(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            }
+            midiEventWriteIndex++;
+            //printf("MIDI NOTE_ON status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
+            break;
+        //case MIDI_AFTERTOUCH:
+        case MIDI_CC:
+            snd_seq_ev_set_controller(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            midiEventWriteIndex++;
+            //printf("MIDI CC status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
+            break;
+        default:
+            twoBytes = 0;
+            /*message = QString("MIDI status 0x%1")
+                 .arg(QString::number(status, 16).toUpper());*/
+            break;
+    }
+    
+    /* At this point we change the event timestamp so that its
+   real-time field contains the actual time at which it was
+   received and processed (i.e. now).  Then in the audio
+   callback we use that to calculate frame offset. */
 
-	    midiEventBuffer[midiEventWriteIndex] = *ev;
-
-	    ev = &midiEventBuffer[midiEventWriteIndex];
-
-	    /* At this point we change the event timestamp so that its
-	       real-time field contains the actual time at which it was
-	       received and processed (i.e. now).  Then in the audio
-	       callback we use that to calculate frame offset. */
-
-	    gettimeofday(&tv, NULL);
-	    ev->time.time.tv_sec = tv.tv_sec;
-	    ev->time.time.tv_nsec = tv.tv_usec * 1000L;
-
-	    if (ev->type == SND_SEQ_EVENT_NOTEON && ev->data.note.velocity == 0) {
-		ev->type =  SND_SEQ_EVENT_NOTEOFF;
-	    }
-
-	    /* We don't need to handle EVENT_NOTE here, because ALSA
-	       won't ever deliver them on the sequencer queue -- it
-	       unbundles them into NOTE_ON and NOTE_OFF when they're
-	       dispatched.  We would only need worry about them when
-	       retrieving MIDI events from some other source. */
-
-	    midiEventWriteIndex = (midiEventWriteIndex + 1) % EVENT_BUFFER_SIZE;
-	}
-	
-    } while (snd_seq_event_input_pending(alsaClient, 0) > 0);
+    gettimeofday(&tv, NULL);
+    midiEventBuffer[midiEventWriteIndex].time.time.tv_sec = tv.tv_sec;
+    midiEventBuffer[midiEventWriteIndex].time.time.tv_nsec = tv.tv_usec * 1000L;
+    
+    if(midiEventWriteIndex > EVENT_BUFFER_SIZE)
+    {
+        midiEventWriteIndex = 0;
+    }
 }
 
 static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
@@ -310,10 +346,13 @@ int main(int argc, char **argv)
     }
     
     v_pydaw_constructor();
+    
+    /*
     int portid;
     int npfd;
     struct pollfd *pfd;
-
+    */
+    
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
         
@@ -391,13 +430,20 @@ int main(int argc, char **argv)
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
     
-    /*Start Portaudio*/
+    /*Initialize Portaudio*/
     PaStreamParameters inputParameters, outputParameters;
     PaStream *stream;
-    PaError err;
-    
+    PaError err;    
     err = Pa_Initialize();
     //if( err != paNoError ) goto error;
+    /*Initialize Portmidi*/
+    PmStream *f_midi_stream;
+    PmError f_midi_err;
+    f_midi_err = Pm_Initialize();
+    char f_midi_device_name[1024];
+    sprintf(f_midi_device_name, "None");
+    int f_with_midi = 0;
+    PmDeviceID f_device_id = pmNoDevice;
 
     inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
     
@@ -471,11 +517,54 @@ int main(int argc, char **argv)
                     }
                     printf("threads: %i\n", f_thread_count);
                 }
+                else if(!strcmp(f_key_char, "midiInDevice"))
+                {                    
+                    sprintf(f_midi_device_name, "%s", f_value_char);
+                    printf("midiInDevice: %s\n", f_value_char);
+                }
                 else
                 {
                     printf("Unknown key|value pair: %s|%s\n", f_key_char, f_value_char);
                 }
             }
+            
+            g_free_2d_char_array(f_current_string);
+            
+            if(strcmp(f_midi_device_name, "None"))
+            {
+                f_device_id = pmNoDevice;
+                int f_i = 0;
+                while(f_i < Pm_CountDevices())
+                {
+                    const PmDeviceInfo * f_device = Pm_GetDeviceInfo(f_i);
+                    if(f_device->input && !strcmp(f_device->name, f_midi_device_name))
+                    {
+                        f_device_id = f_i;
+                        break;
+                    }
+                    f_i++;
+                }
+
+                if(f_device_id == pmNoDevice)
+                {
+                    sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd, "Error: did not find MIDI device:", f_midi_device_name);
+                    system(f_cmd_buffer);
+                    continue;
+                }
+
+                printf("Opening MIDI device ID: %i", f_device_id);
+                f_midi_err = Pm_OpenInput(&f_midi_stream, f_device_id, NULL, EVENT_BUFFER_SIZE, NULL, NULL);
+
+                if(f_midi_err != pmNoError)
+                {
+                    sprintf(f_cmd_buffer, "%s \"%s %s, %s\"", f_show_dialog_cmd, "Error opening MIDI device: ", 
+                            f_midi_device_name, Pm_GetErrorText(f_midi_err));
+                    system(f_cmd_buffer);                    
+                    continue;                        
+                }
+
+                f_with_midi = 1;
+            }            
         }
         else
         {
@@ -495,7 +584,7 @@ int main(int argc, char **argv)
         
         if (inputParameters.device == paNoDevice)
         {
-          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default input device.\n");
+          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default input device.");
           system(f_cmd_buffer);
           continue;
         }
@@ -506,7 +595,7 @@ int main(int argc, char **argv)
 
         if (outputParameters.device == paNoDevice) 
         {
-          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default output device.\n");
+          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default output device.");
           system(f_cmd_buffer);
           continue;
         }
@@ -520,7 +609,7 @@ int main(int argc, char **argv)
         int f_found_index = 0;
         while(f_i < Pa_GetDeviceCount())
         {
-            const PaDeviceInfo * f_padevice = Pa_GetDeviceInfo(f_i);  //I guess that this is not supposed to be free'd?
+            const PaDeviceInfo * f_padevice = Pa_GetDeviceInfo(f_i);
             if(!strcmp(f_padevice->name, f_device_name))
             {
                 outputParameters.device = f_i;
@@ -548,7 +637,7 @@ int main(int argc, char **argv)
                   NULL );
         if( err != paNoError )
         {
-            sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while opening device.");
+            sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd, "Error while opening audio device: ", Pa_GetErrorText(err));            
             system(f_cmd_buffer);
             continue;
         }
@@ -638,28 +727,7 @@ int main(int argc, char **argv)
     assert(out == outsTotal);
     assert(controlIn == controlInsTotal);
     assert(controlOut == controlOutsTotal);
-
-    /* Create ALSA MIDI port */
-
-    if (snd_seq_open(&alsaClient, "hw", SND_SEQ_OPEN_DUPLEX, 0) < 0) 
-    {
-	printf("\nError: Failed to open ALSA sequencer interface\n");
-	return 1;
-    }
-
-    snd_seq_set_client_name(alsaClient, clientName);
-
-    if ((portid = snd_seq_create_simple_port
-	 (alsaClient, clientName,
-	  SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE, SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
-	printf("\nError: Failed to create ALSA sequencer port\n");
-	return 1;
-    }
-
-    npfd = snd_seq_poll_descriptors_count(alsaClient, POLLIN);
-    pfd = (struct pollfd *)alloca(npfd * sizeof(struct pollfd));
-    snd_seq_poll_descriptors(alsaClient, pfd, npfd, POLLIN);
-
+    
     mb_init("host: ");
     
     signal(SIGINT, signalHandler);
@@ -680,17 +748,107 @@ int main(int argc, char **argv)
     }
     else
     {
-        while (!exiting)
+        if(f_with_midi)
         {
-            if (poll(pfd, npfd, 1000) > 0)
+            int f_poll_result;
+            int f_bInSysex;
+            int f_cReceiveMsg_index = 0;
+            int i;
+            while (!exiting)
             {
-                midi_callback();
+                f_poll_result = Pm_Poll(f_midi_stream);
+                if(f_poll_result < 0)
+                {
+                    printf("Portmidi error %s\n", Pm_GetErrorText(f_poll_result));
+                }
+                else if(f_poll_result > 0)
+                {
+                    int numEvents = Pm_Read(f_midi_stream, portMidiBuffer, EVENT_BUFFER_SIZE);
+
+                    if (numEvents < 0) 
+                    {
+                        printf("PortMidi error: %s\n", Pm_GetErrorText((PmError)numEvents));                        
+                    }
+                    else if(numEvents > 0)
+                    {   
+                        for (i = 0; i < numEvents; i++) 
+                        {
+                            unsigned char status = Pm_MessageStatus(portMidiBuffer[i].message);
+
+                            if ((status & 0xF8) == 0xF8) {
+                                // Handle real-time MIDI messages at any time
+                                receive(status, 0, 0);
+                            }
+
+                            reprocessMessage:
+
+                            if (!f_bInSysex) {
+                                if (status == 0xF0) {
+                                    f_bInSysex = 1;
+                                    status = 0;
+                                } else {
+                                    //unsigned char channel = status & 0x0F;
+                                    unsigned char note = Pm_MessageData1(portMidiBuffer[i].message);
+                                    unsigned char velocity = Pm_MessageData2(portMidiBuffer[i].message);
+                                    receive(status, note, velocity);
+                                }
+                            }
+
+                            if (f_bInSysex) {
+                                // Abort (drop) the current System Exclusive message if a
+                                //  non-realtime status byte was received
+                                if (status > 0x7F && status < 0xF7) 
+                                {
+                                    f_bInSysex = 0;
+                                    f_cReceiveMsg_index = 0;
+                                    printf("Buggy MIDI device: SysEx interrupted!");
+                                    goto reprocessMessage;    // Don't lose the new message
+                                }
+
+                                // Collect bytes from PmMessage
+                                int data = 0;
+                                int shift;
+                                for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8) {
+                                    if ((data & 0xF8) == 0xF8) 
+                                    {                                        
+                                        receive(data, 0, 0);  // Handle real-time messages at any time
+                                    } else {
+                                        //m_cReceiveMsg[m_cReceiveMsg_index++] = data = (portMidiBuffer[i].message >> shift) & 0xFF;
+                                    }
+                                }
+
+                                // End System Exclusive message if the EOX byte was received
+                                if (data == MIDI_EOX) 
+                                {
+                                    f_bInSysex = 0;
+                                    //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
+                                    //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
+                                    f_cReceiveMsg_index = 0;
+                                }
+                            }
+                        }
+                    }                    
+                }                
             }
         }
+        else
+        {
+            while(!exiting)
+            {
+                sleep(1);
+            }
+        }        
     }
     
     err = Pa_CloseStream( stream );    
     Pa_Terminate();
+    
+    if(f_with_midi)
+    {
+        f_midi_err = Pm_Close(f_midi_stream);    
+    }
+    
+    Pm_Terminate();
 
     v_pydaw_cleanup(instanceHandles);    
 
@@ -707,8 +865,7 @@ int main(int argc, char **argv)
 
 void osc_error(int num, const char *msg, const char *path)
 {
-    fprintf(stderr, "%s: liblo server error %d in path %s: %s\n",
-	    myName, num, path, msg);
+    printf("liblo server error %d in path %s: %s\n", num, path, msg);
 }
 
 int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
@@ -726,13 +883,12 @@ int osc_debug_handler(const char *path, const char *types, lo_arg **argv,
 {
     int i;
 
-    printf("%s: got unhandled OSC message:\npath: <%s>\n", myName, path);
+    printf("got unhandled OSC message:\npath: <%s>\n", path);
     for (i=0; i<argc; i++) {
-        printf("%s: arg %d '%c' ", myName, i, types[i]);
+        printf("arg %d '%c' ", i, types[i]);
         lo_arg_pp(types[i], argv[i]);
         printf("\n");
     }
-    printf("%s:\n", myName);
 
     return 1;
 }
