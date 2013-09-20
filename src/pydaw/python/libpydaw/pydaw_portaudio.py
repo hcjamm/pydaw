@@ -65,11 +65,13 @@ class pydaw_device_dialog:
         f_window_layout.addWidget(QtGui.QLabel("Worker Threads:"), 3, 0)
         f_worker_threads_combobox = QtGui.QComboBox()
         f_worker_threads_combobox.addItems(["Auto", "1", "2", "3", "4", "5", "6", "7", "8"])
-        f_worker_threads_combobox.setToolTip("%s\n%s\n%s\n%s" %
-        ("This control sets the number of worker threads.  Setting to one can result in the best latency.",
-         "If you require more CPU power than one CPU core can provide, it is recommended that you only add",
-         "the required number of cores, and not more than one thread per CPU core.  Auto tries to pick a ",
-         "reasonable number of worker threads automatically."))
+        f_worker_threads_combobox.setToolTip("%s\n%s\n\n%s\n%s\n\n%s\n%s" %
+        ("This control sets the number of worker threads for processing plugins and effects.",
+         "Setting to 1 can result in the best latency.",
+         "If your projects require more CPU power than one CPU core can provide, for best latency it is ",
+         "recommended that you only add the required number of cores, and not more than one thread per CPU core.",
+         "Auto attempts to pick a sane number of worker threads automatically based on your CPU,",
+         "if you're not sure how to use this setting, you should leave it on 'Auto'."))
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_window_layout.addLayout(f_ok_cancel_layout, 10, 1)
@@ -159,7 +161,7 @@ class pydaw_device_dialog:
         if "sampleRate" in self.val_dict and self.val_dict["sampleRate"] in self.sample_rates:
             f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(self.val_dict["sampleRate"]))
 
-        if "threads" in self.val_dict and self.val_dict["threads"] in self.sample_rates:
+        if "threads" in self.val_dict:
             f_worker_threads_combobox.setCurrentIndex(int(self.val_dict["threads"]))
 
         if a_msg is not None:
