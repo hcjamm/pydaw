@@ -88,8 +88,8 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, t_pyda
     float f_diff = f_ub - f_lb;    
     instance->pluginControlIns[controlIn] = (value * 0.0078125f * f_diff) + f_lb;
     instance->pluginPortUpdated[controlIn] = 1;
-    printf("value: %f, instance->pluginControlIns[controlIn]: %f, f_ub: %f, f_lb: %f\n", value, 
-            instance->pluginControlIns[controlIn], f_ub, f_lb);
+    //printf("value: %f, instance->pluginControlIns[controlIn]: %f, f_ub: %f, f_lb: %f\n", value, 
+    //        instance->pluginControlIns[controlIn], f_ub, f_lb);
     
 #ifdef PYDAW_PLUGIN_MEMCHECK
     v_pydaw_plugin_memcheck(instance);
