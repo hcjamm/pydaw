@@ -72,7 +72,7 @@ void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
 
 void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, t_pydaw_seq_event *event, int a_ci_is_port)
 {
-    /*int port;
+    int port;
     if(a_ci_is_port)
     {
         port = controlIn;
@@ -80,50 +80,16 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, t_pyda
     else
     {
         port = instance->pluginControlInPortNumbers[controlIn];
-    }*/
-    
-    //const PYFX_Descriptor *p = instance->descriptor->PYFX_Plugin;
-    
-    /*
-    PYFX_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
-
-    PYFX_Data lb = p->PortRangeHints[port].LowerBound ;
-    
-    PYFX_Data ub = p->PortRangeHints[port].UpperBound ;
-    */
-    float value = (float)event->value;
-    /*
-    if (!PYFX_IS_HINT_BOUNDED_BELOW(d)) 
-    {
-	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
-            return;
-	} else {
-	    value = ub - 127.0f + value;
-	}
-    } 
-    else 
-    {
-	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
-	    value = lb + value;
-	} else {
-            if (PYFX_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
-		const float llb = logf(lb);
-		const float lub = logf(ub);
-
-		value = expf(llb + ((lub - llb) * value / 127.0f));
-	    } else {
-		value = lb + ((ub - lb) * value / 127.0f);
-	    }
-	}
     }
-    if (PYFX_IS_HINT_INTEGER(d)) 
-    {
-        value = lrintf(value);
-    }
-    */
-
-    instance->pluginControlIns[controlIn] = value;
+        
+    float value = (float)event->value;        
+    float f_lb = instance->descriptor->PYFX_Plugin->PortRangeHints[port].LowerBound;
+    float f_ub = instance->descriptor->PYFX_Plugin->PortRangeHints[port].UpperBound;
+    float f_diff = f_ub - f_lb;    
+    instance->pluginControlIns[controlIn] = (value * 0.0078125f * f_diff) + f_lb;
     instance->pluginPortUpdated[controlIn] = 1;
+    printf("value: %f, instance->pluginControlIns[controlIn]: %f, f_ub: %f, f_lb: %f\n", value, 
+            instance->pluginControlIns[controlIn], f_ub, f_lb);
     
 #ifdef PYDAW_PLUGIN_MEMCHECK
     v_pydaw_plugin_memcheck(instance);
@@ -140,11 +106,6 @@ int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, 
         instance->euphoria_load_set = 1;
         strcpy(instance->euphoria_load, value);
     }
-    /*else if(!strcmp(key, "lastdir"))
-    {
-        instance->euphoria_last_dir_set = 1;
-        strcpy(instance->euphoria_last_dir, value);
-    }*/
     
     if (instance->descriptor->configure) 
     {
@@ -223,18 +184,12 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     f_result->pluginPortControlInNumbers =
             (int*)malloc(f_result->descriptor->PYFX_Plugin->PortCount *
                           sizeof(int));
-
-    /*printf("f_result->in %i\n", f_result->ins);
-    printf("f_result->outs %i\n", f_result->outs);
-    printf("f_result->controlIns %i\n", f_result->controlIns);
-    printf("f_result->controlOuts %i\n", f_result->controlOuts);*/
-    //f_result->inputPorts = (jack_port_t **)malloc(f_result->insTotal * sizeof(jack_port_t *));
+    
     f_result->pluginInputBuffers = (float**)malloc((f_result->ins) * sizeof(float*));
     f_result->pluginControlIns = (float*)calloc(f_result->controlIns, sizeof(float));
     //f_result->pluginControlInInstances = (d3h_instance_t **)malloc(f_result->controlInsTotal * sizeof(d3h_instance_t *));
     f_result->pluginControlInPortNumbers = (int*)malloc(f_result->controlIns * sizeof(int));
-    f_result->pluginPortUpdated = (int*)malloc(f_result->controlIns * sizeof(int));
-    //f_result->outputPorts = (jack_port_t **)malloc(f_result->outsTotal * sizeof(jack_port_t *));
+    f_result->pluginPortUpdated = (int*)malloc(f_result->controlIns * sizeof(int));    
     f_result->pluginOutputBuffers = (float**)malloc((f_result->outs) * sizeof(float*));
     f_result->pluginControlOuts = (float *)calloc(f_result->controlOuts, sizeof(float));
     
