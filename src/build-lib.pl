@@ -1,9 +1,9 @@
 
-$deps_ubuntu = "sudo apt-get install -y python-pyaudio portaudio19-dev liblo-dev g++ libsndfile1-dev libtool gdb debhelper dh-make build-essential automake autoconf python-liblo python-qt4 python2.7 squashfs-tools genisoimage libmad0-dev python-scipy python-numpy libsamplerate0-dev vamp-plugin-sdk ladspa-sdk libfftw3-dev gcc";
+$deps_ubuntu = "sudo apt-get install -y python-pyaudio portaudio19-dev python-pypm libportmidi-dev liblo-dev g++ libsndfile1-dev libtool gdb debhelper dh-make build-essential automake autoconf python-liblo python-qt4 python2.7 squashfs-tools genisoimage libmad0-dev python-scipy python-numpy libsamplerate0-dev vamp-plugin-sdk ladspa-sdk libfftw3-dev gcc";
 
 #libjack-jackd2-dev qjackctl libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server
 
-$deps_debian = "sudo apt-get install -y python-pyaudio portaudio19-dev liblo-dev libasound2-dev libsndfile1-dev automake autoconf libtool python-liblo python-qt4 libmad0-dev python-scipy python-numpy libsamplerate0-dev vamp-plugin-sdk ladspa-sdk libfftw3-dev gcc";
+$deps_debian = "sudo apt-get install -y python-pyaudio portaudio19-dev python-pypm libportmidi-dev liblo-dev libasound2-dev libsndfile1-dev automake autoconf libtool python-liblo python-qt4 libmad0-dev python-scipy python-numpy libsamplerate0-dev vamp-plugin-sdk ladspa-sdk libfftw3-dev gcc";
 
 #libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server
 

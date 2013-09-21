@@ -81,7 +81,7 @@ Installed-Size: $size
 Maintainer: PyDAW Team <pydawteam\@users.sf.net>
 Architecture: $arch
 Version: $version
-Depends: liblo-dev, libsndfile1-dev, python-pyaudio, portaudio19-dev, python-liblo, python-qt4, audacity, python2.7, libmad0-dev, python-scipy, python-numpy, libsamplerate0-dev, libfftw3-dev
+Depends: liblo-dev, libsndfile1-dev, python-pypm, libportmidi-dev, python-pyaudio, portaudio19-dev, python-liblo, python-qt4, audacity, python2.7, libmad0-dev, python-scipy, python-numpy, libsamplerate0-dev, libfftw3-dev
 Provides: $short_name
 Conflicts: 
 Replaces: 
