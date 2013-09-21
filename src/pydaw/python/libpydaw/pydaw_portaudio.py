@@ -88,7 +88,7 @@ class pydaw_device_dialog:
 
         f_pyaudio = pyaudio.PyAudio()
         f_count = f_pyaudio.get_host_api_count()
-        f_is_linux = "LINUX" in platform.system()
+        f_is_linux = "LINUX" in platform.system().upper()
         if f_is_linux:
             f_api_list = ["ALSA"]
         f_result_dict = {}
