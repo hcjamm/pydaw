@@ -81,7 +81,7 @@ typedef struct st_pydaw_plugin
 void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
 #endif
 
-void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_seq_event_t *event, int a_ci_is_port)
+void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, t_pydaw_seq_event *event, int a_ci_is_port)
 {
     /*int port;
     if(a_ci_is_port)
@@ -373,7 +373,7 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
     }
 }
 
-void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
+void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, t_pydaw_seq_event * a_event_buffer, 
         int a_event_count)
 {
     a_plugin->descriptor->run_synth(a_plugin->PYFX_handle, a_sample_count, a_event_buffer, a_event_count);

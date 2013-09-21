@@ -165,7 +165,7 @@ typedef struct
     int mute;    
     int plugin_index;  //-1 == bus track, 0 == off, 1 == Euphoria, 2 == Ray-V, 3 == Way-V
     int bus_num;
-    snd_seq_event_t * event_buffer;
+    t_pydaw_seq_event * event_buffer;
     int current_period_event_index;
     t_pydaw_plugin * instrument;
     t_pydaw_plugin * effect;
@@ -366,9 +366,9 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
 void v_pydaw_init_worker_threads(t_pydaw_data*, int);
 void v_open_default_project(t_pydaw_data * a_data);
-inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, snd_seq_event_t *events, int event_count);
+inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, t_pydaw_seq_event *events, int event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count, 
-        snd_seq_event_t *events, int event_count, long f_next_current_sample, 
+        t_pydaw_seq_event *events, int event_count, long f_next_current_sample, 
         PYFX_Data *output0, PYFX_Data *output1, PYFX_Data **a_input_buffers);
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out, int a_is_audio_glue);
@@ -1189,7 +1189,7 @@ void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name)
     }
 }
 
-inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sample_count, snd_seq_event_t *events, int event_count)
+inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sample_count, t_pydaw_seq_event *events, int event_count)
 {
     if((a_pydaw_data->record_armed_track) && ((a_pydaw_data->record_armed_track->plugin_index) != 0))
     {
@@ -1245,8 +1245,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
         {
             if(events[f_i2].type == SND_SEQ_EVENT_NOTEON)
             {                
-                snd_seq_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
-                snd_seq_ev_set_noteon(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0,
+                v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                v_pydaw_ev_set_noteon(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0,
                             events[f_i2].note, events[f_i2].note);
                 a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick = 
                         (events[f_i2].tick);
@@ -1271,8 +1271,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
             }
             else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
             {                
-                snd_seq_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
-                snd_seq_ev_set_noteoff(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0, events[f_i2].note, 0);
+                v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                v_pydaw_ev_set_noteoff(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0, events[f_i2].note, 0);
                 a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick = 
                         (events[f_i2].tick);
 
@@ -1304,8 +1304,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
             }
             else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
             {
-                snd_seq_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
-                snd_seq_ev_set_pitchbend(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 
+                v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                v_pydaw_ev_set_pitchbend(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 
                         0, events[f_i2].value);
                 a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
 
@@ -1617,7 +1617,7 @@ inline void v_pydaw_finish_time_params(t_pydaw_data * a_pydaw_data, int a_region
 }
 
 inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count, 
-        snd_seq_event_t *events, int event_count, long f_next_current_sample, 
+        t_pydaw_seq_event *events, int event_count, long f_next_current_sample, 
         PYFX_Data *output0, PYFX_Data *output1, PYFX_Data **a_input_buffers)
 {
     a_pydaw_data->sample_count = sample_count;
@@ -1730,26 +1730,26 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                             if((a_pydaw_data->note_offs[f_i][(f_current_item.notes[(a_pydaw_data->track_current_item_note_event_indexes[f_i])]->note)]) 
                                     >= (a_pydaw_data->current_sample))                                    
                             {  //There's already a note_off scheduled ahead of this one, process it immediately to avoid hung notes                                    
-                                snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                                v_pydaw_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
 
-                                snd_seq_ev_set_noteoff(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0, 
+                                v_pydaw_ev_set_noteoff(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0, 
                                         (f_current_item.notes[(a_pydaw_data->track_current_item_note_event_indexes[f_i])]->note), 0);
                                 a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)].tick = f_note_sample_offset;
 
                                 a_pydaw_data->track_pool[f_i]->current_period_event_index = (a_pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
                             }
 
-                            snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                            v_pydaw_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
 
 #ifdef PYDAW_PRINT_DEBUG_INFO
                             printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %ld\n\n", 
                                     f_i, f_note_start_diff, ml_sample_period_inc_beats, f_note_start_frac, f_note_sample_offset, (int)sample_count, a_pydaw_data->current_sample);
 #endif
-                            snd_seq_ev_set_noteon(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0,
+                            v_pydaw_ev_set_noteon(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0,
                                     f_current_item.notes[(a_pydaw_data->track_current_item_note_event_indexes[f_i])]->note,
                                     f_current_item.notes[(a_pydaw_data->track_current_item_note_event_indexes[f_i])]->velocity);
 #ifdef PYDAW_PRINT_DEBUG_INFO                                
-                            printf("\nsnd_seq_ev_set_noteon(event_buffer[%i], 0, %i, %i)\n", a_pydaw_data->track_pool[f_i]->current_period_event_index,
+                            printf("\nv_pydaw_ev_set_noteon(event_buffer[%i], 0, %i, %i)\n", a_pydaw_data->track_pool[f_i]->current_period_event_index,
                                     f_current_item.notes[(a_pydaw_data->track_current_item_note_event_indexes[f_i])]->note,
                                     f_current_item.notes[(a_pydaw_data->track_current_item_note_event_indexes[f_i])]->velocity);
 #endif                            
@@ -1894,7 +1894,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                                     controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->pluginPortControlInNumbers[controller];
                                     if (controlIn >= 0)
                                     {
-                                        snd_seq_event_t f_event;
+                                        t_pydaw_seq_event f_event;
                                         f_event.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
                                         v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &f_event, 0);
                                     }
@@ -1904,7 +1904,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                                     controlIn = a_pydaw_data->track_pool_all[f_i]->effect->pluginPortControlInNumbers[controller];
                                     if (controlIn >= 0)
                                     {
-                                        snd_seq_event_t f_event;
+                                        t_pydaw_seq_event f_event;
                                         f_event.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
                                         v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0);
                                     }
@@ -2026,8 +2026,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                         if(((f_current_item.pitchbends[(a_pydaw_data->track_current_item_pitchbend_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
                             ((f_current_item.pitchbends[(a_pydaw_data->track_current_item_pitchbend_event_indexes[f_i])]->start) < f_track_next_period_beats))
                         {
-                            snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
-                            snd_seq_ev_set_pitchbend(
+                            v_pydaw_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                            v_pydaw_ev_set_pitchbend(
                                     &a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)],
                                     0, 
                                     f_current_item.pitchbends[(a_pydaw_data->track_current_item_pitchbend_event_indexes[f_i])]->val);
@@ -2105,9 +2105,9 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 
                     assert(((a_pydaw_data->note_offs[f_i][f_i2]) >= (a_pydaw_data->current_sample)) || ((a_pydaw_data->note_offs[f_i][f_i2]) == -1));
 #endif                    
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                    v_pydaw_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
 
-                    snd_seq_ev_set_noteoff(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0, f_i2, 0);
+                    v_pydaw_ev_set_noteoff(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0, f_i2, 0);
                     a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)].tick = 
                             (a_pydaw_data->note_offs[f_i][f_i2]) - (a_pydaw_data->current_sample);
 
@@ -3227,7 +3227,7 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
     f_result->volume = 0.0f;
     f_result->volume_linear = 1.0f;
     f_result->plugin_index = 0;
-    f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);    
+    f_result->event_buffer = (t_pydaw_seq_event*)malloc(sizeof(t_pydaw_seq_event) * PYDAW_MAX_EVENT_BUFFER_SIZE);    
     f_result->bus_num = 0;
                 
     f_result->bus_buffer_state = 0;
@@ -3238,7 +3238,7 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
     
     while(f_i < PYDAW_MAX_EVENT_BUFFER_SIZE)    
     {
-        snd_seq_ev_clear(&f_result->event_buffer[f_i]);
+        v_pydaw_ev_clear(&f_result->event_buffer[f_i]);
         f_i++;
     }
     
@@ -4010,8 +4010,8 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             {
                 if(a_pydaw_data->track_pool[f_i]->plugin_index > 0)
                 {
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_pitchbend(
+                    v_pydaw_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                    v_pydaw_ev_set_pitchbend(
                             &a_pydaw_data->track_pool[f_i]->event_buffer[0], 0, 0);
                     a_pydaw_data->track_pool[f_i]->current_period_event_index = 1;                    
                 }

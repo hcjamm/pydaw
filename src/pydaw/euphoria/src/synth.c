@@ -33,7 +33,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/lms_math.h"
 
 static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
-		       snd_seq_event_t *events, int EventCount);
+		       t_pydaw_seq_event *events, int EventCount);
 
 static inline void v_euphoria_slow_index(t_euphoria*);
 
@@ -696,7 +696,7 @@ static inline void v_euphoria_slow_index(t_euphoria* plugin_data)
 }
 
 static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
-		       snd_seq_event_t *events, int event_count)
+		       t_pydaw_seq_event *events, int event_count)
 {
     t_euphoria *plugin_data = (t_euphoria *) instance;    
     int event_pos = 0;

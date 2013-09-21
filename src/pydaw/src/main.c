@@ -108,7 +108,7 @@ static float sample_rate;
 static d3h_instance_t *this_instance;
 
 static PYFX_Handle    instanceHandles;
-static snd_seq_event_t *instanceEventBuffers;
+static t_pydaw_seq_event *instanceEventBuffers;
 static int    instanceEventCounts;
 
 static int insTotal, outsTotal;
@@ -127,7 +127,7 @@ static sigset_t _signals;
 int exiting = 0;
 
 #define EVENT_BUFFER_SIZE 1024
-static snd_seq_event_t midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
+static t_pydaw_seq_event midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
 static PmEvent portMidiBuffer[EVENT_BUFFER_SIZE];
 static int midiEventReadIndex __attribute__((aligned(16))) = 0;
 static int midiEventWriteIndex __attribute__((aligned(16))) = 0;
@@ -170,30 +170,30 @@ void receive(unsigned char status, unsigned char control, char value)
         case MIDI_PITCH_BEND:
             twoBytes = 0;
             int f_pb_val = ((value << 7) | control) - 8192;
-            snd_seq_ev_set_pitchbend(&midiEventBuffer[midiEventWriteIndex], channel, f_pb_val);
+            v_pydaw_ev_set_pitchbend(&midiEventBuffer[midiEventWriteIndex], channel, f_pb_val);
             midiEventWriteIndex++;
             //printf("MIDI PITCHBEND status %i ch %i, value %i\n", status, channel+1, f_pb_val);
             break;
         case MIDI_NOTE_OFF:
-            snd_seq_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
             midiEventWriteIndex++;
             //printf("MIDI NOTE_OFF status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
             break;
         case MIDI_NOTE_ON:
             if(value == 0)
             {
-                snd_seq_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+                v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
             }
             else
             {
-                snd_seq_ev_set_noteon(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+                v_pydaw_ev_set_noteon(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
             }
             midiEventWriteIndex++;
             //printf("MIDI NOTE_ON status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
             break;
         //case MIDI_AFTERTOUCH:
         case MIDI_CC:
-            snd_seq_ev_set_controller(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            v_pydaw_ev_set_controller(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
             midiEventWriteIndex++;
             //printf("MIDI CC status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
             break;
@@ -244,10 +244,10 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
     for ( ; midiEventReadIndex != midiEventWriteIndex;
          midiEventReadIndex = (midiEventReadIndex + 1) % EVENT_BUFFER_SIZE) {
 
-	snd_seq_event_t *ev = &midiEventBuffer[midiEventReadIndex];
+	t_pydaw_seq_event *ev = &midiEventBuffer[midiEventReadIndex];
 
         /*
-        if (!snd_seq_ev_is_channel_type(ev)) {
+        if (!v_pydaw_ev_is_channel_type(ev)) {
             //discard non-channel oriented messages
             continue;
         }
@@ -425,7 +425,7 @@ int main(int argc, char **argv)
     
     instanceEventCounts = 0;
     
-    instanceEventBuffers = (snd_seq_event_t *)malloc(EVENT_BUFFER_SIZE * sizeof(snd_seq_event_t));
+    instanceEventBuffers = (t_pydaw_seq_event *)malloc(EVENT_BUFFER_SIZE * sizeof(t_pydaw_seq_event));
             
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;

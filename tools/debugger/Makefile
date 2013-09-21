@@ -4,7 +4,7 @@ CC  ?= gcc
 
 BASE_FLAGS     = -mstackrealign -fsingle-precision-constant -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fstrength-reduce -fstrict-aliasing -fprefetch-loop-arrays -finline-functions
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
-LINK_CFLAGS    = -ldl -lm $(shell pkg-config --libs liblo alsa sndfile) $(LDFLAGS)
+LINK_CFLAGS    = -ldl -lm $(shell pkg-config --libs liblo sndfile) $(LDFLAGS)
 
 C_OBJS   = main.o
 

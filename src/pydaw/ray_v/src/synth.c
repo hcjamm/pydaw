@@ -39,7 +39,7 @@ GNU General Public License for more details.
 
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t * events, int EventCount);
+		  t_pydaw_seq_event * events, int EventCount);
 
 static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
 		      PYFX_Data *out0, PYFX_Data *out1, unsigned int count);
@@ -211,7 +211,7 @@ static void v_rayv_activate(PYFX_Handle instance)
 }
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t *events, int event_count)
+		  t_pydaw_seq_event *events, int event_count)
 {
     t_rayv *plugin_data = (t_rayv *) instance;
         

@@ -38,7 +38,7 @@ GNU General Public License for more details.
 
 
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t * events, int EventCount);
+		  t_pydaw_seq_event * events, int EventCount);
 
 PYFX_Descriptor *modulex_PYFX_descriptor(int index);
 PYINST_Descriptor *modulex_PYINST_descriptor(int index);
@@ -142,7 +142,7 @@ static void v_modulex_run_wrapper(PYFX_Handle instance,
 }
 
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t *events, int event_count)
+		  t_pydaw_seq_event *events, int event_count)
 {
     t_modulex *plugin_data = (t_modulex *) instance;
     

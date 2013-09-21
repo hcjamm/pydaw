@@ -35,7 +35,7 @@ GNU General Public License for more details.
 #include "meta.h"
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t * events, int EventCount);
+		  t_pydaw_seq_event * events, int EventCount);
 
 static void v_run_wayv_voice(t_wayv *, t_voc_single_voice, t_wayv_poly_voice *,
 		      PYFX_Data *, PYFX_Data *, unsigned int, int );
@@ -330,7 +330,7 @@ static void v_wayv_activate(PYFX_Handle instance)
 }
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
-		  snd_seq_event_t *events, int event_count)
+		  t_pydaw_seq_event *events, int event_count)
 {
     t_wayv *plugin_data = (t_wayv *) instance;
     

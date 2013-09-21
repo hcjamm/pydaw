@@ -18,7 +18,6 @@ GNU General Public License for more details.
 #include "../../src/pydaw/include/pydaw3/pydaw_plugin.h"
 #include "pyfx_ports.h"
 #include <unistd.h>
-#include <alsa/asoundlib.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
 //#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw3/default-project to work without crashing...
@@ -68,7 +67,7 @@ int main(int argc, char** argv)
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
     const PYINST_Descriptor * f_ddesc = PYINST_descriptor(0);
     PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, 44100);
-    v_pydaw_activate(f_handle);
+    v_pydaw_activate(f_handle, 1);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         
@@ -113,19 +112,19 @@ int main(int argc, char** argv)
     
     f_i = 0;
     
-    snd_seq_event_t * f_midi_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
-    snd_seq_ev_clear(&f_midi_events[0]);
-    snd_seq_ev_set_noteon(&f_midi_events[0], 0, 66, 66);
-    f_midi_events[0].time.tick = 0;
-    snd_seq_ev_clear(&f_midi_events[1]);
-    snd_seq_ev_set_controller(&f_midi_events[1], 0, 1, 100);
-    f_midi_events[1].time.tick = 5;
-    snd_seq_ev_clear(&f_midi_events[2]);
-    snd_seq_ev_set_pitchbend(&f_midi_events[2], 0, 1000);
-    f_midi_events[2].time.tick = 10;
-    snd_seq_ev_clear(&f_midi_events[3]);
-    snd_seq_ev_set_noteoff(&f_midi_events[3], 0, 66, 0);
-    f_midi_events[2].time.tick = 1000;
+    t_pydaw_seq_event * f_midi_events = (t_pydaw_seq_event*)malloc(sizeof(t_pydaw_seq_event) * 512);
+    v_pydaw_ev_clear(&f_midi_events[0]);
+    v_pydaw_ev_set_noteon(&f_midi_events[0], 0, 66, 66);
+    f_midi_events[0].tick = 0;
+    v_pydaw_ev_clear(&f_midi_events[1]);
+    v_pydaw_ev_set_controller(&f_midi_events[1], 0, 1, 100);
+    f_midi_events[1].tick = 5;
+    v_pydaw_ev_clear(&f_midi_events[2]);
+    v_pydaw_ev_set_pitchbend(&f_midi_events[2], 0, 1000);
+    f_midi_events[2].tick = 10;
+    v_pydaw_ev_clear(&f_midi_events[3]);
+    v_pydaw_ev_set_noteoff(&f_midi_events[3], 0, 66, 0);
+    f_midi_events[2].tick = 1000;
 
 #ifdef DEBUGGER_SIMULATE_RECORD
     v_set_playback_mode(pydaw_data, 2, 0, 0);

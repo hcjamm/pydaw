@@ -32,7 +32,8 @@ extern "C" {
 #define SND_SEQ_EVENT_CONTROLLER 3
     
 // MIDI event
-typedef struct snd_seq_event {
+typedef struct 
+{
 	int type;               /**< event type */	        
 	int tick;	        /**< tick-time */
 	unsigned int tv_sec;	/**< seconds */
@@ -43,21 +44,22 @@ typedef struct snd_seq_event {
 	int duration;		/**< duration until note-off; only for #SND_SEQ_EVENT_NOTE */
 	int param;		/**< control parameter */	
         int value;
-} snd_seq_event_t;    
+} t_pydaw_seq_event;    
     
-void snd_seq_ev_clear(snd_seq_event_t* a_event)
+void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
 {
-    a_event->type = -1;    
+    a_event->type = -1;
+    a_event->tick = 0;
 }
 
-void snd_seq_ev_set_pitchbend(snd_seq_event_t* a_event, int a_channel, int a_value)
+void v_pydaw_ev_set_pitchbend(t_pydaw_seq_event* a_event, int a_channel, int a_value)
 {
     a_event->type = SND_SEQ_EVENT_PITCHBEND;
     a_event->channel = a_channel;
     a_event->value = a_value;
 }
 
-void snd_seq_ev_set_noteoff(snd_seq_event_t* a_event, int a_channel, int a_note, int a_velocity)
+void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event, int a_channel, int a_note, int a_velocity)
 {
     a_event->type = SND_SEQ_EVENT_NOTEOFF;
     a_event->channel = a_channel;
@@ -65,7 +67,7 @@ void snd_seq_ev_set_noteoff(snd_seq_event_t* a_event, int a_channel, int a_note,
     a_event->velocity = a_velocity;
 }
 
-void snd_seq_ev_set_noteon(snd_seq_event_t* a_event, int a_channel, int a_note, int a_velocity)
+void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event, int a_channel, int a_note, int a_velocity)
 {
     a_event->type = SND_SEQ_EVENT_NOTEON;
     a_event->channel = a_channel;
@@ -73,7 +75,7 @@ void snd_seq_ev_set_noteon(snd_seq_event_t* a_event, int a_channel, int a_note, 
     a_event->velocity = a_velocity;
 }
 
-void snd_seq_ev_set_controller(snd_seq_event_t* a_event, int a_channel, int a_cc_num, int a_value)
+void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event, int a_channel, int a_cc_num, int a_value)
 {
     a_event->type = SND_SEQ_EVENT_CONTROLLER;
     a_event->channel = a_channel;
@@ -517,7 +519,7 @@ typedef struct _PYINST_Descriptor {
      */
     void (*run_synth)(PYFX_Handle    Instance,
 		      int    SampleCount,
-		      snd_seq_event_t *Events,
+		      t_pydaw_seq_event *Events,
 		      int    EventCount);
 
 } PYINST_Descriptor;

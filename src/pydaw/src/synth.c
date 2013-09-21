@@ -35,7 +35,7 @@ static PYINST_Descriptor *LMSDDescriptor = NULL;
 
 static t_pydaw_data * pydaw_data;
 
-void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t *events, int event_count);
+void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count);
 
 int pydaw_osc_debug_handler(const char *path, const char *types, lo_arg **argv,
                       int argc, void *data, void *user_data)
@@ -249,7 +249,7 @@ static void runLMSWrapper(PYFX_Handle instance, int sample_count)
 }
 */
 
-void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t *events, int event_count)
+void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
                
