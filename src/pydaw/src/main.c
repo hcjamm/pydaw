@@ -278,18 +278,21 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
                     {
                         f_bInSysex = 0;
                         //f_cReceiveMsg_index = 0;
-                        printf("Buggy MIDI device: SysEx interrupted!");
+                        printf("Buggy MIDI device: SysEx interrupted!\n");
                         goto reprocessMessage;    // Don't lose the new message
                     }
 
                     // Collect bytes from PmMessage
                     int data = 0;
                     int shift;
-                    for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8) {
+                    for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8)
+                    {
                         if ((data & 0xF8) == 0xF8) 
                         {                                        
                             midiReceive(data, 0, 0);  // Handle real-time messages at any time
-                        } else {
+                        } 
+                        else 
+                        {
                             //m_cReceiveMsg[m_cReceiveMsg_index++] = data = (portMidiBuffer[i].message >> shift) & 0xFF;
                         }
                     }
