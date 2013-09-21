@@ -56,25 +56,14 @@ typedef struct st_pydaw_plugin
     int    controlOuts;    
     int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
     int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */    
-        
-    int              ui_initial_show_sent;    
-    char            *ui_osc_control_path;
-    char            *ui_osc_configure_path;
-    char            *ui_osc_program_path;
-    char            *ui_osc_quit_path;
-    char            *ui_osc_rate_path;
-    char            *ui_osc_show_path;
-        
+            
     float **pluginInputBuffers, **pluginOutputBuffers;
-
     float *pluginControlIns, *pluginControlOuts;
     int *pluginControlInPortNumbers;
     
     int * pluginPortUpdated;
     char euphoria_load[16384];
     int euphoria_load_set;
-    //char euphoria_last_dir[512];
-    //int euphoria_last_dir_set;    
 }t_pydaw_plugin;
 
 #ifdef PYDAW_PLUGIN_MEMCHECK    
@@ -196,16 +185,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     }
     
     //f_result->euphoria_last_dir_set = 0;
-    f_result->euphoria_load_set = 0;
-    
-    f_result->ui_initial_show_sent = 0;
-    f_result->ui_osc_control_path = NULL;
-    f_result->ui_osc_configure_path = NULL;
-    f_result->ui_osc_program_path = NULL;
-    f_result->ui_osc_quit_path = NULL;
-    f_result->ui_osc_rate_path = NULL;
-    f_result->ui_osc_show_path = NULL;
-            
+    f_result->euphoria_load_set = 0;                
     //f_result->descfn = (PYINST_Descriptor_Function)dlsym(f_result->lib_handle, "PYINST_descriptor");
     
     f_result->descriptor = f_result->descfn(0);
