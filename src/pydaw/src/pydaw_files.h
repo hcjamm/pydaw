@@ -27,12 +27,12 @@ extern "C" {
     
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
-#define LMS_LARGE_STRING  65536 //1048576 
-#define LMS_MEDIUM_STRING  32768 //262144 //8192
-#define LMS_SMALL_STRING  16384 //65536 //512
-#define LMS_TINY_STRING 4096 //16384 //32
+#define PYDAW_LARGE_STRING  65536 //1048576 
+#define PYDAW_MEDIUM_STRING  32768 //262144 //8192
+#define PYDAW_SMALL_STRING  16384 //65536 //512
+#define PYDAW_TINY_STRING 4096 //16384 //32
     
-#define LMS_TERMINATING_CHAR '\\'
+#define PYDAW_TERMINATING_CHAR '\\'
     
 #include <stdio.h>
 #include <time.h>
@@ -270,13 +270,13 @@ t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
 /* Return the next string from the array*/
 char * c_iterate_2d_char_array(t_2d_char_array* a_array)
 {
-    char * f_result = (char*)malloc(sizeof(char) * LMS_SMALL_STRING);
+    char * f_result = (char*)malloc(sizeof(char) * PYDAW_SMALL_STRING);
     int f_i = 0;    
         
     while(1)
     {        
         //char a_test = a_array->array[(a_array->current_index)];
-        if(a_array->array[(a_array->current_index)] == LMS_TERMINATING_CHAR ||
+        if(a_array->array[(a_array->current_index)] == PYDAW_TERMINATING_CHAR ||
             (a_array->array[(a_array->current_index)] == '\0'))
         {
             f_result[f_i] = '\0';
@@ -318,13 +318,13 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
 /* Return the next string from the array until a newline, ignoring any delimiting '|' characters */
 char * c_iterate_2d_char_array_to_next_line(t_2d_char_array* a_array)
 {
-    char * f_result = (char*)malloc(sizeof(char) * LMS_SMALL_STRING);
+    char * f_result = (char*)malloc(sizeof(char) * PYDAW_SMALL_STRING);
     int f_i = 0;    
         
     while(1)
     {        
         //char a_test = a_array->array[(a_array->current_index)];
-        if(a_array->array[(a_array->current_index)] == LMS_TERMINATING_CHAR)
+        if(a_array->array[(a_array->current_index)] == PYDAW_TERMINATING_CHAR)
         {
             f_result[f_i] = '\0';
             a_array->eof = 1;
@@ -380,7 +380,7 @@ t_pydaw_line_split * g_split_line(char a_delimiter, const char * a_str)
     f_i = 0;
     while(f_i < f_result->count)
     {
-        f_result->str_arr[f_i] = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
+        f_result->str_arr[f_i] = (char*)malloc(sizeof(char) * PYDAW_TINY_STRING);
         f_result->str_arr[f_i][0] = '\0';
         f_i++;
     }
@@ -454,7 +454,7 @@ t_dir_list * g_get_dir_list(char * a_dir)
               continue;
           }
           
-          f_result->dir_list[(f_result->dir_count)] = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
+          f_result->dir_list[(f_result->dir_count)] = (char*)malloc(sizeof(char) * PYDAW_TINY_STRING);
           
             strcpy(f_result->dir_list[(f_result->dir_count)], ent->d_name);
           

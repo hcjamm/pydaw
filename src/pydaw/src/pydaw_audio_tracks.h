@@ -281,7 +281,7 @@ void v_wav_pool_add_item(t_wav_pool* a_wav_pool, int a_uid, char * a_file_path)
 void v_wav_pool_add_items(t_wav_pool* a_wav_pool, char * a_file_path)
 {
     a_wav_pool->count = 0;
-    t_2d_char_array * f_arr = g_get_2d_array_from_file(a_file_path, LMS_LARGE_STRING);
+    t_2d_char_array * f_arr = g_get_2d_array_from_file(a_file_path, PYDAW_LARGE_STRING);
     while(1)
     {
         char * f_uid_str = c_iterate_2d_char_array(f_arr);

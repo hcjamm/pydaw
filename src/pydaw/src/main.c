@@ -573,7 +573,7 @@ int main(int argc, char **argv)
         if(i_pydaw_file_exists(f_device_file_path))
         {
             printf("device.txt exists\n");
-            t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_device_file_path, LMS_LARGE_STRING); 
+            t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_device_file_path, PYDAW_LARGE_STRING); 
             f_device_name[0] = '\0';
             
             while(1)
@@ -988,7 +988,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     printf("v_pydaw_parse_configure_message:  key: \"%s\", value: \"%s\"\n", a_key, a_value);
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL)) //Set plugin control
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5, PYDAW_TINY_STRING);
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);
@@ -1030,7 +1030,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN)) //Configure plugin
     {
-        t_1d_char_array * f_val_arr = c_split_str_remainder(a_value, '|', 5, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str_remainder(a_value, '|', 5, PYDAW_TINY_STRING);
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);
@@ -1068,7 +1068,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
@@ -1101,7 +1101,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX))
     {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 4, LMS_SMALL_STRING);
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 4, PYDAW_SMALL_STRING);
         int f_region_uid = atoi(f_arr->array[0]);
         int f_item_index = atoi(f_arr->array[1]);
         int f_port_num = atoi(f_arr->array[2]);
@@ -1111,7 +1111,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, LMS_SMALL_STRING);
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, PYDAW_SMALL_STRING);
         int f_region = atoi(f_arr->array[0]);
         int f_bar = atoi(f_arr->array[1]);
         v_set_playback_mode(a_pydaw_data, 1, f_region, f_bar);
@@ -1119,7 +1119,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC)) //Begin recording
     {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, LMS_SMALL_STRING);
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, PYDAW_SMALL_STRING);
         int f_region = atoi(f_arr->array[0]);
         int f_bar = atoi(f_arr->array[1]);
         v_set_playback_mode(a_pydaw_data, 2, f_region, f_bar);
@@ -1215,7 +1215,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
@@ -1244,7 +1244,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
@@ -1271,7 +1271,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
         int f_type = atoi(f_val_arr->array[0]);
         int f_track_num = atoi(f_val_arr->array[1]);
         int f_mode = atoi(f_val_arr->array[2]);
@@ -1313,7 +1313,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_plugin_index = atoi(f_val_arr->array[1]);
         v_set_plugin_index(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num], f_plugin_index, 1);
@@ -1325,7 +1325,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OFFLINE_RENDER)) //Render a project to .wav file
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7, PYDAW_TINY_STRING);
         int f_start_region = atoi(f_val_arr->array[0]);
         int f_start_bar = atoi(f_val_arr->array[1]);
         int f_end_region = atoi(f_val_arr->array[2]);
@@ -1337,7 +1337,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_TRACK_BUS)) //Set the bus number for specified track
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_bus_num = atoi(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
@@ -1417,8 +1417,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONV32F))
     {
-        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
-        char f_tmp_char[LMS_SMALL_STRING];
+        t_2d_char_array * f_arr = g_get_2d_array(PYDAW_SMALL_STRING);
+        char f_tmp_char[PYDAW_SMALL_STRING];
         sprintf(f_tmp_char, "%s", a_value);
         f_arr->array = f_tmp_char;
         char * f_in_file = c_iterate_2d_char_array(f_arr);
@@ -1433,8 +1433,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RATE_ENV))
     {
-        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
-        char f_tmp_char[LMS_SMALL_STRING];
+        t_2d_char_array * f_arr = g_get_2d_array(PYDAW_SMALL_STRING);
+        char f_tmp_char[PYDAW_SMALL_STRING];
         sprintf(f_tmp_char, "%s", a_value);
         f_arr->array = f_tmp_char;
         char * f_in_file = c_iterate_2d_char_array(f_arr);
@@ -1456,8 +1456,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PITCH_ENV))
     {
-        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
-        char f_tmp_char[LMS_SMALL_STRING];
+        t_2d_char_array * f_arr = g_get_2d_array(PYDAW_SMALL_STRING);
+        char f_tmp_char[PYDAW_SMALL_STRING];
         sprintf(f_tmp_char, "%s", a_value);
         f_arr->array = f_tmp_char;
         char * f_in_file = c_iterate_2d_char_array(f_arr);

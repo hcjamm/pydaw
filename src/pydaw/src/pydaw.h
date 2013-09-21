@@ -478,7 +478,7 @@ t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data * a_pydaw_dat
     sprintf(f_temp, "%s%i", a_pydaw_data->per_audio_item_fx_folder, a_region_uid);
     if(i_pydaw_file_exists(f_temp))
     {
-        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, LMS_LARGE_STRING);                
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, PYDAW_LARGE_STRING);                
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
             char * f_index_char = c_iterate_2d_char_array(f_current_string);
@@ -1153,7 +1153,7 @@ void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name)
     sprintf(f_temp, "%s/pydaw3/cc_maps/%s", f_home, a_name);
     if(i_pydaw_file_exists(f_temp))
     {
-        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, LMS_LARGE_STRING);        
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, PYDAW_LARGE_STRING);        
         f_i = 0;
         while(f_i < PYDAW_MIDI_NOTE_COUNT)
         {            
@@ -2670,7 +2670,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
     {
         f_i = 0;
 
-        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);        
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, PYDAW_LARGE_STRING);        
 
         while(f_i < PYDAW_MAX_REGION_COUNT)
         {            
@@ -2810,10 +2810,10 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, int a_uid)
     }
     
     
-    char f_full_path[LMS_TINY_STRING];
+    char f_full_path[PYDAW_TINY_STRING];
     sprintf(f_full_path, "%s%i", a_pydaw_data->region_folder, a_uid);    
     
-    t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
+    t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, PYDAW_LARGE_STRING);
     
     f_i = 0;
     
@@ -2894,7 +2894,7 @@ void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data)
     int f_i = 0;
     
     char f_temp[256];
-    char f_result[LMS_LARGE_STRING];
+    char f_result[PYDAW_LARGE_STRING];
     f_result[0] = '\0';
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
@@ -2917,10 +2917,10 @@ void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data)
 /*Mimics the UI's Python __str__ method that creates/saves items...*/
 void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
 {    
-    char * f_result = (char*)malloc(sizeof(char) * LMS_MEDIUM_STRING);
+    char * f_result = (char*)malloc(sizeof(char) * PYDAW_MEDIUM_STRING);
     f_result[0] = '\0';
     int f_i = 0;    
-    char f_temp[LMS_TINY_STRING];
+    char f_temp[PYDAW_TINY_STRING];
     
     t_pyitem * f_pyitem = a_pydaw_data->item_pool[a_index];
     
@@ -3043,10 +3043,10 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
     int f_i = 0;
     int f_i2 = 0;
     
-    char * f_result = (char*)malloc(sizeof(char) * LMS_LARGE_STRING);
+    char * f_result = (char*)malloc(sizeof(char) * PYDAW_LARGE_STRING);
     strcpy(f_result, "");
     
-    char f_temp[LMS_TINY_STRING];
+    char f_temp[PYDAW_TINY_STRING];
     
     while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
@@ -3140,7 +3140,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, int a_uid)
     char f_full_path[512];
     sprintf(f_full_path, "%s%i", a_pydaw_data->item_folder, a_uid);    
     
-    t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
+    t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, PYDAW_LARGE_STRING);
     
     int f_i = 0;
     
@@ -3512,7 +3512,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
     {
         printf("v_pydaw_open_track:  Track exists %s , loading\n", f_file_name);
 
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, PYDAW_LARGE_STRING);
 
         t_pydaw_plugin * f_instance;
         
@@ -3596,7 +3596,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
     {
         printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
 
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, PYDAW_LARGE_STRING);
 
         while(1)
         {
@@ -3682,7 +3682,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
     {
         printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
 
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, PYDAW_LARGE_STRING);
 
         while(1)
         {
@@ -3736,7 +3736,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
     {
         printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
 
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, PYDAW_LARGE_STRING);
 
         while(1)
         {
@@ -3874,7 +3874,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
     {
         printf("v_open_project:  Found transport file, setting tempo from file\n");
 
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_transport_file, LMS_LARGE_STRING);
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_transport_file, PYDAW_LARGE_STRING);
         char * f_tempo_str = c_iterate_2d_char_array(f_2d_array);
         float f_tempo = atof(f_tempo_str);
         free(f_tempo_str);
@@ -4122,7 +4122,7 @@ t_pydaw_audio_items * v_audio_items_load_all(t_pydaw_data * a_pydaw_data, int a_
         printf("v_audio_items_load_all: loading a_file: \"%s\"\n", f_file);
         int f_i = 0;
 
-        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_file, LMS_LARGE_STRING);        
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_file, PYDAW_LARGE_STRING);        
         
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
@@ -4397,7 +4397,7 @@ void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
     if(i_pydaw_file_exists(f_inputs_file))
     {
         int f_i = 0;
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_inputs_file, LMS_LARGE_STRING);
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_inputs_file, PYDAW_LARGE_STRING);
         
         pthread_mutex_lock(&a_pydaw_data->audio_inputs_mutex);
         while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
