@@ -228,6 +228,12 @@ else:
     if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
 
+#TODO:  Remove at PyDAWv4
+global_pydaw_device_config = global_pydaw_home + "/device.txt"
+if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(global_pydaw_device_config).endswith("\\"):
+    print("Detected bad device.txt config file from an older PyDAW release, deleting...")
+    os.system('rm "%s"' % (global_pydaw_device_config,))
+
 global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
 
 def global_get_file_bookmarks():
