@@ -1282,8 +1282,7 @@ class pydaw_per_audio_item_fx_widget:
                 f_knob.set_value(64)
 
 class pydaw_abstract_plugin_ui:
-    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet,
-                 a_close_callback, a_configure_callback, a_cc_map_file):
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback, a_configure_callback):
         self.track_num = int(a_track_num)
         self.pydaw_project = a_project
         self.rel_callback = a_rel_callback
@@ -1299,13 +1298,12 @@ class pydaw_abstract_plugin_ui:
         self.port_dict = {}
         self.port_to_control_dict = {}
         self.control_to_port_dict = {}
-        self.port_range_dict = {}
         self.effects = []
         self.close_callback = a_close_callback
         self.configure_dict = {}
         self.save_file_on_exit = True
         self.is_quitting = False
-        self.open_cc_map(a_cc_map_file)
+
 
     def delete_plugin_file(self):
         self.save_file_on_exit = False
@@ -1320,19 +1318,6 @@ class pydaw_abstract_plugin_ui:
                 self.set_configure(k, v)
         else:
             print("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading.")
-
-    def open_cc_map(self, a_file):
-        f_path = "%s/lib/%s/cc_maps/%s" % (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string, a_file)
-        if os.path.isfile(f_path):
-            f_arr = pydaw_util.pydaw_read_file_text(f_path).split("\n")
-            for f_line in f_arr:
-                f_line_arr = f_line.split("|")
-                if len(f_line_arr) != 5:
-                    print(f_line)
-                    break
-                self.port_range_dict[int(f_line_arr[1])] = (float(f_line_arr[3]), float(f_line_arr[4]))
-        else:
-            print("Not opening CC map, '%s' did not exist")
 
     def save_plugin_file(self):
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict, self.configure_dict)
@@ -1364,15 +1349,6 @@ class pydaw_abstract_plugin_ui:
         else:
             print("pydaw_abstract_plugin_ui.set_control_val():  Did not have port " + str(f_port))
 
-    def set_control_val_from_cc(self, a_port, a_val):
-        if not int(a_port) in self.port_range_dict:
-            print("")
-        else:
-            f_val = float(a_val) / 128.0
-            f_tuple = self.port_range_dict[int(a_port)]
-            f_val = ((f_tuple[1] - f_tuple[0]) * f_val) + f_tuple[0]
-            self.set_control_val(a_port, f_val)
-
     def configure_plugin(self, a_key, a_message):
         """ Override this function to allow str|str key/value pair messages to be sent to the back-end"""
         pass
@@ -1401,7 +1377,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
     a_close_callback, a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
-        a_close_callback, a_configure_callback, "Modulex.pymap")
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyfx"
         self.set_window_title(a_track_name)
@@ -1558,7 +1534,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
     a_close_callback, a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
-        a_close_callback, a_configure_callback, "Ray-V.pymap")
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.set_window_title(a_track_name)
@@ -1657,7 +1633,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
     a_close_callback, a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
-        a_close_callback, a_configure_callback, "Way-V.pymap")
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.set_window_title(a_track_name)
@@ -1928,7 +1904,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, \
     a_close_callback, a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
-        a_close_callback, a_configure_callback, "Euphoria.pymap")
+        a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.set_window_title(a_track_name)
