@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import pyaudio, pypm, os, sys, time
+import pyaudio, pypm, os, sys, time, platform
 from PyQt4 import QtGui, QtCore
 import pydaw_util
 
@@ -88,12 +88,14 @@ class pydaw_device_dialog:
 
         f_pyaudio = pyaudio.PyAudio()
         f_count = f_pyaudio.get_host_api_count()
-        f_api_list = ["ALSA"]
+        f_is_linux = "LINUX" in platform.system()
+        if f_is_linux:
+            f_api_list = ["ALSA"]
         f_result_dict = {}
 
         for i in range(f_count):
             f_api_dict = f_pyaudio.get_host_api_info_by_index(i)
-            if f_api_dict["name"] in f_api_list:
+            if not f_is_linux or f_api_dict["name"] in f_api_list:
                 f_count = f_api_dict["deviceCount"]
                 for i2 in range(f_count):
                     f_dev = f_pyaudio.get_device_info_by_host_api_device_index(i, i2)
