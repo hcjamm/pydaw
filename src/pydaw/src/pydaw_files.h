@@ -276,7 +276,8 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
     while(1)
     {        
         //char a_test = a_array->array[(a_array->current_index)];
-        if(a_array->array[(a_array->current_index)] == LMS_TERMINATING_CHAR)
+        if(a_array->array[(a_array->current_index)] == LMS_TERMINATING_CHAR ||
+            (a_array->array[(a_array->current_index)] == '\0'))
         {
             f_result[f_i] = '\0';
             a_array->eof = 1;
@@ -334,7 +335,7 @@ char * c_iterate_2d_char_array_to_next_line(t_2d_char_array* a_array)
             f_result[f_i] = '\0';
             a_array->current_index = (a_array->current_index) + 1;
             a_array->current_row = (a_array->current_row) + 1;
-            a_array->current_column = 0;
+            a_array->current_column = 0;            
             break;
         }
         else
