@@ -241,13 +241,14 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
     
     instanceEventCounts = 0;    
 
-    for ( ; midiEventReadIndex != midiEventWriteIndex;
-         midiEventReadIndex = (midiEventReadIndex + 1) % EVENT_BUFFER_SIZE) {
-
+    while(midiEventReadIndex != midiEventWriteIndex)
+    {
 	t_pydaw_seq_event *ev = &midiEventBuffer[midiEventReadIndex];
 
         /*
-        if (!v_pydaw_ev_is_channel_type(ev)) {
+        if (!v_pydaw_ev_is_channel_type(ev)) 
+        {
+            midiEventReadIndex++
             //discard non-channel oriented messages
             continue;
         }
@@ -316,6 +317,12 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
             instanceEventBuffers[instanceEventCounts] = *ev;
             instanceEventCounts++;
 	}
+        
+        midiEventReadIndex++;
+        if(midiEventReadIndex >= EVENT_BUFFER_SIZE)
+        {
+            midiEventReadIndex = 0;
+        }
     }
 
     i = 0;
