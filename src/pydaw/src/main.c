@@ -778,7 +778,7 @@ int main(int argc, char **argv)
                     }
                     else if(numEvents > 0)
                     {   
-                        for (i = 0; i < numEvents; i++) 
+                        for (i = 0; i < numEvents; i++)
                         {
                             unsigned char status = Pm_MessageStatus(portMidiBuffer[i].message);
 
@@ -801,7 +801,8 @@ int main(int argc, char **argv)
                                 }
                             }
 
-                            if (f_bInSysex) {
+                            if(f_bInSysex)
+                            {
                                 // Abort (drop) the current System Exclusive message if a
                                 //  non-realtime status byte was received
                                 if (status > 0x7F && status < 0xF7) 
@@ -831,13 +832,13 @@ int main(int argc, char **argv)
                                     //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
                                     //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
                                     f_cReceiveMsg_index = 0;
-                                }
-                            }
-                        }
-                    }                    
-                }                
-            }
-        }
+                                } //if (data == MIDI_EOX) 
+                            } //if(f_bInSysex)
+                        } //for (i = 0; i < numEvents; i++)
+                    } //else if(numEvents > 0)
+                } //else if(f_poll_result > 0)
+            } //while (!exiting)    
+        } //if(f_with_midi)
         else
         {
             while(!exiting)
