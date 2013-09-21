@@ -45,6 +45,9 @@ GNU General Public License for more details.
 #include "message_buffer.h"
 #include "synth.c"
 
+//Define this to run with no audio or MIDI, but still able to fully interact with the UI
+//#define PYDAW_NO_HARDWARE
+
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
 #define PYDAW_CONFIGURE_KEY_SI "si"
@@ -121,9 +124,10 @@ static float **pluginInputBuffers, **pluginOutputBuffers;
 static int controlInsTotal, controlOutsTotal;
 
 //static char * osc_path_tmp = "osc.udp://localhost:19271/dssi/pydaw";
-
+#ifndef PYDAW_NO_HARDWARE
 PmStream *f_midi_stream;
 PmError f_midi_err;
+#endif
 
 lo_server_thread serverThread;
 
@@ -224,7 +228,7 @@ void midiReceive(unsigned char status, unsigned char control, char value)
     }
 }
 
-
+#ifndef PYDAW_NO_HARDWARE
 static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 {
     int f_poll_result;
@@ -310,7 +314,7 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
         } //else if(numEvents > 0)
     } //else if(f_poll_result > 0)
 }
-
+#endif
 
 static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
@@ -446,13 +450,7 @@ int main(int argc, char **argv)
     }
     
     v_pydaw_constructor();
-    
-    /*
-    int portid;
-    int npfd;
-    struct pollfd *pfd;
-    */
-    
+        
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
         
@@ -535,7 +533,7 @@ int main(int argc, char **argv)
             
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
-    
+#ifndef PYDAW_NO_HARDWARE    
     /*Initialize Portaudio*/
     PaStreamParameters inputParameters, outputParameters;
     PaStream *stream;
@@ -748,7 +746,7 @@ int main(int argc, char **argv)
        
         break;
     }
-
+#endif
     in = 0;
     out = 0;
     
@@ -843,15 +841,23 @@ int main(int argc, char **argv)
     MB_MESSAGE("Ready\n");
 
     exiting = 0;
-    
+#ifndef PYDAW_NO_HARDWARE    
     err = Pa_StartStream( stream );
     if( err != paNoError )
     {
         sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while starting device.  Please re-configure your device and try starting PyDAW again.");
         system(f_cmd_buffer);        
     }
+#else
+    if(0)
+    {}
+#endif
     else
     {
+#ifdef PYDAW_NO_HARDWARE
+        float * f_portaudio_input_buffer = (float*)malloc(sizeof(float) * 8192);
+        float * f_portaudio_output_buffer = (float*)malloc(sizeof(float) * 8192);
+#else
         if(f_with_midi)
         {
             /* Establish handler for timer signal */
@@ -900,15 +906,19 @@ int main(int argc, char **argv)
                //errExit("timer_settime");
            }
             
-        } //if(f_with_midi)
-        
+        } //if(f_with_midi)        
+ #endif       
         while(!exiting)
         {
+#ifdef PYDAW_NO_HARDWARE
+            portaudioCallback(f_portaudio_input_buffer, f_portaudio_output_buffer, 128, NULL, NULL, NULL);
+#else
             sleep(1);
+#endif
         }
                 
     }
-    
+#ifndef PYDAW_NO_HARDWARE    
     err = Pa_CloseStream( stream );    
     Pa_Terminate();
     
@@ -919,7 +929,7 @@ int main(int argc, char **argv)
     }
     
     Pm_Terminate();
-
+#endif
     v_pydaw_cleanup(instanceHandles);    
 
     v_pydaw_destructor();

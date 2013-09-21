@@ -1,0 +1,12 @@
+if [ -f ./core ]; then
+	rm ./core
+fi
+
+if [ ! -d dir_debug ]; then
+	mkdir dir_debug
+else
+	rm -rf dir_debug/*
+fi
+
+make clean && make CFLAGS+=" -DPYDAW_NO_HARDWARE " debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/pydaw3 --debug --gdb
+
