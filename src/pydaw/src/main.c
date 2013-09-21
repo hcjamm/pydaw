@@ -98,6 +98,10 @@ GNU General Public License for more details.
 #define MIDI_PITCH_BEND     0xE0
 #define MIDI_EOX            0xF7
 
+
+#define CLOCKID CLOCK_REALTIME
+#define SIG SIGRTMIN
+
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 #define PA_SAMPLE_TYPE paFloat32
@@ -118,7 +122,8 @@ static int controlInsTotal, controlOutsTotal;
 
 //static char * osc_path_tmp = "osc.udp://localhost:19271/dssi/pydaw";
 
-static char * clientName;
+PmStream *f_midi_stream;
+PmError f_midi_err;
 
 lo_server_thread serverThread;
 
@@ -218,6 +223,91 @@ void midiReceive(unsigned char status, unsigned char control, char value)
         midiEventWriteIndex = 0;
     }
 }
+
+
+static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
+{
+    int f_poll_result;
+    int f_bInSysex;
+    //int f_cReceiveMsg_index = 0;
+    int i;
+    
+    f_poll_result = Pm_Poll(f_midi_stream);
+    if(f_poll_result < 0)
+    {
+        printf("Portmidi error %s\n", Pm_GetErrorText(f_poll_result));
+    }
+    else if(f_poll_result > 0)
+    {
+        int numEvents = Pm_Read(f_midi_stream, portMidiBuffer, EVENT_BUFFER_SIZE);
+
+        if (numEvents < 0) 
+        {
+            printf("PortMidi error: %s\n", Pm_GetErrorText((PmError)numEvents));                        
+        }
+        else if(numEvents > 0)
+        {   
+            for (i = 0; i < numEvents; i++)
+            {
+                unsigned char status = Pm_MessageStatus(portMidiBuffer[i].message);
+
+                if ((status & 0xF8) == 0xF8) {
+                    // Handle real-time MIDI messages at any time
+                    midiReceive(status, 0, 0);
+                }
+
+                reprocessMessage:
+
+                if (!f_bInSysex) {
+                    if (status == 0xF0) {
+                        f_bInSysex = 1;
+                        status = 0;
+                    } else {
+                        //unsigned char channel = status & 0x0F;
+                        unsigned char note = Pm_MessageData1(portMidiBuffer[i].message);
+                        unsigned char velocity = Pm_MessageData2(portMidiBuffer[i].message);
+                        midiReceive(status, note, velocity);
+                    }
+                }
+
+                if(f_bInSysex)
+                {
+                    // Abort (drop) the current System Exclusive message if a
+                    //  non-realtime status byte was received
+                    if (status > 0x7F && status < 0xF7) 
+                    {
+                        f_bInSysex = 0;
+                        //f_cReceiveMsg_index = 0;
+                        printf("Buggy MIDI device: SysEx interrupted!");
+                        goto reprocessMessage;    // Don't lose the new message
+                    }
+
+                    // Collect bytes from PmMessage
+                    int data = 0;
+                    int shift;
+                    for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8) {
+                        if ((data & 0xF8) == 0xF8) 
+                        {                                        
+                            midiReceive(data, 0, 0);  // Handle real-time messages at any time
+                        } else {
+                            //m_cReceiveMsg[m_cReceiveMsg_index++] = data = (portMidiBuffer[i].message >> shift) & 0xFF;
+                        }
+                    }
+
+                    // End System Exclusive message if the EOX byte was received
+                    if (data == MIDI_EOX) 
+                    {
+                        f_bInSysex = 0;
+                        //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
+                        //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
+                        //f_cReceiveMsg_index = 0;
+                    } //if (data == MIDI_EOX)
+                } //if(f_bInSysex)
+            } //for (i = 0; i < numEvents; i++)
+        } //else if(numEvents > 0)
+    } //else if(f_poll_result > 0)
+}
+
 
 static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
@@ -366,8 +456,14 @@ int main(int argc, char **argv)
     int f_thread_count = 0;
     int j;
     int in, out, controlIn, controlOut;
-    clientName = "PyDAWv3";    
-        
+    
+    timer_t timerid;
+    struct sigevent sev;
+    struct itimerspec its;
+    long long freq_nanosecs;
+    sigset_t mask;
+    struct sigaction sa;
+            
     setsid();
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
@@ -443,9 +539,7 @@ int main(int argc, char **argv)
     PaError err;    
     err = Pa_Initialize();
     //if( err != paNoError ) goto error;
-    /*Initialize Portmidi*/
-    PmStream *f_midi_stream;
-    PmError f_midi_err;
+    /*Initialize Portmidi*/    
     f_midi_err = Pm_Initialize();
     char f_midi_device_name[1024];
     sprintf(f_midi_device_name, "None");
@@ -757,95 +851,59 @@ int main(int argc, char **argv)
     {
         if(f_with_midi)
         {
-            int f_poll_result;
-            int f_bInSysex;
-            //int f_cReceiveMsg_index = 0;
-            int i;
-            while (!exiting)
-            {
-                f_poll_result = Pm_Poll(f_midi_stream);
-                if(f_poll_result < 0)
-                {
-                    printf("Portmidi error %s\n", Pm_GetErrorText(f_poll_result));
-                }
-                else if(f_poll_result > 0)
-                {
-                    int numEvents = Pm_Read(f_midi_stream, portMidiBuffer, EVENT_BUFFER_SIZE);
+            /* Establish handler for timer signal */
 
-                    if (numEvents < 0) 
-                    {
-                        printf("PortMidi error: %s\n", Pm_GetErrorText((PmError)numEvents));                        
-                    }
-                    else if(numEvents > 0)
-                    {   
-                        for (i = 0; i < numEvents; i++)
-                        {
-                            unsigned char status = Pm_MessageStatus(portMidiBuffer[i].message);
+           printf("Establishing handler for signal %d\n", SIG);
+           sa.sa_flags = SA_SIGINFO;
+           sa.sa_sigaction = midiTimerCallback;
+           sigemptyset(&sa.sa_mask);
+           if (sigaction(SIG, &sa, NULL) == -1)
+           {
+               //errExit("sigaction");
+           }
 
-                            if ((status & 0xF8) == 0xF8) {
-                                // Handle real-time MIDI messages at any time
-                                midiReceive(status, 0, 0);
-                            }
+           /* Block timer signal temporarily */
 
-                            reprocessMessage:
+           printf("Blocking signal %d\n", SIG);
+           sigemptyset(&mask);
+           sigaddset(&mask, SIG);
+           if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
+           {
+               //errExit("sigprocmask");
+           }
 
-                            if (!f_bInSysex) {
-                                if (status == 0xF0) {
-                                    f_bInSysex = 1;
-                                    status = 0;
-                                } else {
-                                    //unsigned char channel = status & 0x0F;
-                                    unsigned char note = Pm_MessageData1(portMidiBuffer[i].message);
-                                    unsigned char velocity = Pm_MessageData2(portMidiBuffer[i].message);
-                                    midiReceive(status, note, velocity);
-                                }
-                            }
+           /* Create the timer */
 
-                            if(f_bInSysex)
-                            {
-                                // Abort (drop) the current System Exclusive message if a
-                                //  non-realtime status byte was received
-                                if (status > 0x7F && status < 0xF7) 
-                                {
-                                    f_bInSysex = 0;
-                                    //f_cReceiveMsg_index = 0;
-                                    printf("Buggy MIDI device: SysEx interrupted!");
-                                    goto reprocessMessage;    // Don't lose the new message
-                                }
+           sev.sigev_notify = SIGEV_SIGNAL;
+           sev.sigev_signo = SIG;
+           sev.sigev_value.sival_ptr = &timerid;
+           if (timer_create(CLOCKID, &sev, &timerid) == -1)
+           {
+               //errExit("timer_create");
+           }
+           
+           printf("timer ID is 0x%lx\n", (long) timerid);
 
-                                // Collect bytes from PmMessage
-                                int data = 0;
-                                int shift;
-                                for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8) {
-                                    if ((data & 0xF8) == 0xF8) 
-                                    {                                        
-                                        midiReceive(data, 0, 0);  // Handle real-time messages at any time
-                                    } else {
-                                        //m_cReceiveMsg[m_cReceiveMsg_index++] = data = (portMidiBuffer[i].message >> shift) & 0xFF;
-                                    }
-                                }
+           /* Start the timer */
 
-                                // End System Exclusive message if the EOX byte was received
-                                if (data == MIDI_EOX) 
-                                {
-                                    f_bInSysex = 0;
-                                    //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
-                                    //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
-                                    //f_cReceiveMsg_index = 0;
-                                } //if (data == MIDI_EOX) 
-                            } //if(f_bInSysex)
-                        } //for (i = 0; i < numEvents; i++)
-                    } //else if(numEvents > 0)
-                } //else if(f_poll_result > 0)
-            } //while (!exiting)    
+           freq_nanosecs = 5000000;
+           its.it_value.tv_sec = 0;  //freq_nanosecs / 1000000000;
+           its.it_value.tv_nsec = freq_nanosecs;  // % 1000000000;
+           its.it_interval.tv_sec = its.it_value.tv_sec;
+           its.it_interval.tv_nsec = its.it_value.tv_nsec;
+
+           if (timer_settime(timerid, 0, &its, NULL) == -1)
+           {
+               //errExit("timer_settime");
+           }
+            
         } //if(f_with_midi)
-        else
+        
+        while(!exiting)
         {
-            while(!exiting)
-            {
-                sleep(1);
-            }
-        }        
+            sleep(1);
+        }
+                
     }
     
     err = Pa_CloseStream( stream );    
@@ -853,6 +911,7 @@ int main(int argc, char **argv)
     
     if(f_with_midi)
     {
+        timer_delete(timerid);
         f_midi_err = Pm_Close(f_midi_stream);    
     }
     
