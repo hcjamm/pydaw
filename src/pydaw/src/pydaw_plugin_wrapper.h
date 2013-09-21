@@ -21,7 +21,6 @@ extern "C" {
 #include "../include/pydaw3/pydaw_plugin.h"
 #include "pydaw.h"
 #include <lo/lo.h>
-#include <alsa/asoundlib.h>
 #include <dlfcn.h>
 #include <math.h>
 #include <stdlib.h>
@@ -103,7 +102,7 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_se
     
     PYFX_Data ub = p->PortRangeHints[port].UpperBound ;
     */
-    float value = (float)event->data.control.value;
+    float value = (float)event->value;
     /*
     if (!PYFX_IS_HINT_BOUNDED_BELOW(d)) 
     {

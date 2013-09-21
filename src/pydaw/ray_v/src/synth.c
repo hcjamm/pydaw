@@ -221,18 +221,16 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
     {
         if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
         {
-            snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-
-            if (n.velocity > 0) 
+            if (events[(plugin_data->event_pos)].velocity > 0) 
             {
-                int f_voice = i_pick_voice(plugin_data->voices, n.note, plugin_data->sampleNo, events[(plugin_data->event_pos)].time.tick);
+                int f_voice = i_pick_voice(plugin_data->voices, events[(plugin_data->event_pos)].note, plugin_data->sampleNo, events[(plugin_data->event_pos)].tick);
                 
-                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12.0f + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
+                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((events[(plugin_data->event_pos)].velocity * 0.094488) - 12.0f + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
                         plugin_data->mono_modules->amp_ptr); 
-                v_svf_velocity_mod(plugin_data->data[f_voice]->svf_filter, n.velocity);
+                v_svf_velocity_mod(plugin_data->data[f_voice]->svf_filter, events[(plugin_data->event_pos)].velocity);
 
-                plugin_data->data[f_voice]->note_f = (float)n.note;
-                plugin_data->data[f_voice]->note = n.note;
+                plugin_data->data[f_voice]->note_f = (float)events[(plugin_data->event_pos)].note;
+                plugin_data->data[f_voice]->note = events[(plugin_data->event_pos)].note;
 
                 plugin_data->data[f_voice]->target_pitch = (plugin_data->data[f_voice]->note_f);
                 plugin_data->data[f_voice]->last_pitch = (plugin_data->sv_last_note);
@@ -304,23 +302,19 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             /*0 velocity, the same as note-off*/
             else 
             {
-                snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-
-                v_voc_note_off(plugin_data->voices, n.note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].time.tick));
+                v_voc_note_off(plugin_data->voices, events[(plugin_data->event_pos)].note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].tick));
             }
         } 
         /*Note-off event*/
         else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEOFF) 
         {
-            snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-
-            v_voc_note_off(plugin_data->voices, n.note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].time.tick));
+            v_voc_note_off(plugin_data->voices, events[(plugin_data->event_pos)].note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].tick));
         } 
         /*Pitch-bend sequencer event, modify the voices pitch*/
         else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
         {
             plugin_data->sv_pitch_bend_value = 0.00012207f
-                    * (events[(plugin_data->event_pos)].data.control.value) * (*plugin_data->master_pb_amt);
+                    * (events[(plugin_data->event_pos)].value) * (*plugin_data->master_pb_amt);
         }        
     }
     

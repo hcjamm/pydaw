@@ -18,19 +18,17 @@ GNU General Public License for more details.
 #include <limits.h>
 #include <string.h>
 #include <stdint.h>
-
+#include <unistd.h>
 #include <math.h>
 #include <stdio.h>
 
 #include "../include/pydaw3/pydaw_plugin.h"
-
 #include "../libmodsynth/lib/amp.h"
 #include "pydaw.h"
 #include "osc_handlers.h"
 #include "synth.h"
 
-#include <unistd.h>
-#include <alsa/asoundlib.h>
+
 
 static PYFX_Descriptor *LMSLDescriptor = NULL;
 static PYINST_Descriptor *LMSDDescriptor = NULL;

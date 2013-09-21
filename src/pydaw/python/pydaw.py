@@ -170,7 +170,6 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "The Quantize, Transpose and Velocity buttons open dialogs to manipulate the selected notes (or all notes if none are selected)" + \
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
         this_transport.group_box.setToolTip("This is the transport, use this control to start/stop playback or recording.\n" + \
-        "The 'MIDI In' combobox can be used to select an ALSA MIDI device to be used for playing/recording\n" + \
         "The 'Loop Mode' combobox can be used to change the loop mode to region or bar.\n" + \
         "The 'Follow' checkbox causes playback to UI change the current song/region to follow playback.\n" + \
         "The 'Overdub' checkbox causes recorded MIDI notes to be appended to existing items, rather than placed in new items that replace the existing items.\n" + \

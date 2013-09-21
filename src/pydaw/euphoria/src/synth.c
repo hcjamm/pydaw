@@ -726,14 +726,12 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
         /*Note-on event*/
         if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) 
         {
-            snd_seq_ev_note_t n = events[event_pos].data.note;
+            f_note = events[event_pos].note;
             
-            f_note = n.note;
-            
-            if (n.velocity > 0) 
+            if (events[event_pos].velocity > 0) 
             {
-                int f_voice_num = i_pick_voice(plugin_data->voices, f_note, (plugin_data->sampleNo), events[event_pos].time.tick);
-                plugin_data->velocities[f_voice_num] = n.velocity;
+                int f_voice_num = i_pick_voice(plugin_data->voices, f_note, (plugin_data->sampleNo), events[event_pos].tick);
+                plugin_data->velocities[f_voice_num] = events[event_pos].velocity;
 
                 plugin_data->sample_indexes_count[f_voice_num] = 0;
 
@@ -779,7 +777,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                         
                         plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])] = 
                                 (1.0f -
-                                (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                                (((float)(events[event_pos].velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                                 /
                                 ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
                                 * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f;
@@ -906,20 +904,19 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             } 
             else 
             {
-                v_voc_note_off(plugin_data->voices, n.note, plugin_data->sampleNo, events[event_pos].time.tick);
+                v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
             }
         } /*Note-off event*/
         else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
-        {
-            snd_seq_ev_note_t n = events[event_pos].data.note;
-            f_note = n.note; 
-            v_voc_note_off(plugin_data->voices, n.note, plugin_data->sampleNo, events[event_pos].time.tick);
+        {            
+            f_note = events[event_pos].note; 
+            v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
         }
 
         /*Pitch-bend sequencer event, modify the voices pitch*/
         else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
         {
-            plugin_data->sv_pitch_bend_value = 0.00012207 * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
+            plugin_data->sv_pitch_bend_value = 0.00012207 * events[event_pos].value * (*(plugin_data->master_pb_amt));
         }
 
         ++event_pos;

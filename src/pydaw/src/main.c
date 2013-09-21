@@ -18,7 +18,6 @@ GNU General Public License for more details.
 
 #include "pydaw_files.h"
 #include "../include/pydaw3/pydaw_plugin.h"
-#include <alsa/asoundlib.h>
 #include <portaudio.h>
 #include <portmidi.h>
 #include <stdlib.h>
@@ -211,8 +210,8 @@ void receive(unsigned char status, unsigned char control, char value)
    callback we use that to calculate frame offset. */
 
     gettimeofday(&tv, NULL);
-    midiEventBuffer[midiEventWriteIndex].time.time.tv_sec = tv.tv_sec;
-    midiEventBuffer[midiEventWriteIndex].time.time.tv_nsec = tv.tv_usec * 1000L;
+    midiEventBuffer[midiEventWriteIndex].tv_sec = tv.tv_sec;
+    midiEventBuffer[midiEventWriteIndex].tv_nsec = tv.tv_usec * 1000L;
     
     if(midiEventWriteIndex > EVENT_BUFFER_SIZE)
     {
@@ -247,11 +246,12 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 
 	snd_seq_event_t *ev = &midiEventBuffer[midiEventReadIndex];
 
+        /*
         if (!snd_seq_ev_is_channel_type(ev)) {
-            /* discard non-channel oriented messages */
+            //discard non-channel oriented messages
             continue;
         }
-                
+        */        
         i = 0; //instance->number;
 
         /* Stop processing incoming MIDI if an instance's event buffer is
@@ -266,8 +266,8 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 	 * avoid jitter.  We should stop processing when we reach any
 	 * event received after the start of the audio callback. */
 
-	evtv.tv_sec = ev->time.time.tv_sec;
-	evtv.tv_usec = ev->time.time.tv_nsec / 1000;
+	evtv.tv_sec = ev->tv_sec;
+	evtv.tv_usec = ev->tv_nsec / 1000;
 
 	if (evtv.tv_sec > tv.tv_sec ||
 	    (evtv.tv_sec == tv.tv_sec &&
@@ -291,11 +291,11 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 	if (framediff >= framesPerBuffer) framediff = framesPerBuffer - 1;
 	else if (framediff < 0) framediff = 0;
 
-	ev->time.tick = framesPerBuffer - framediff - 1;
+	ev->tick = framesPerBuffer - framediff - 1;
 
 	if (ev->type == SND_SEQ_EVENT_CONTROLLER)
         {	    
-	    int controller = ev->data.control.param;
+	    int controller = ev->param;
 
 	    if (controller == 0) 
             { 

@@ -14,8 +14,6 @@ GNU General Public License for more details.
 #ifndef PYDAW_PLUGIN_HEADER_INCLUDED
 #define PYDAW_PLUGIN_HEADER_INCLUDED
 
-#include <alsa/seq_event.h>
-
 #define PYFX_VERSION "1.1"
 #define PYFX_VERSION_MAJOR 1
 #define PYFX_VERSION_MINOR 1
@@ -27,6 +25,61 @@ GNU General Public License for more details.
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define SND_SEQ_EVENT_NOTEON     0    
+#define SND_SEQ_EVENT_NOTEOFF    1
+#define SND_SEQ_EVENT_PITCHBEND  2
+#define SND_SEQ_EVENT_CONTROLLER 3
+    
+// MIDI event
+typedef struct snd_seq_event {
+	int type;               /**< event type */	        
+	int tick;	        /**< tick-time */
+	unsigned int tv_sec;	/**< seconds */
+	unsigned int tv_nsec;	/**< nanoseconds */	
+        int channel;		/**< channel number */
+	int note;		/**< note */
+	int velocity;		/**< velocity */	
+	int duration;		/**< duration until note-off; only for #SND_SEQ_EVENT_NOTE */
+	int param;		/**< control parameter */	
+        int value;
+} snd_seq_event_t;    
+    
+void snd_seq_ev_clear(snd_seq_event_t* a_event)
+{
+    a_event->type = -1;    
+}
+
+void snd_seq_ev_set_pitchbend(snd_seq_event_t* a_event, int a_channel, int a_value)
+{
+    a_event->type = SND_SEQ_EVENT_PITCHBEND;
+    a_event->channel = a_channel;
+    a_event->value = a_value;
+}
+
+void snd_seq_ev_set_noteoff(snd_seq_event_t* a_event, int a_channel, int a_note, int a_velocity)
+{
+    a_event->type = SND_SEQ_EVENT_NOTEOFF;
+    a_event->channel = a_channel;
+    a_event->note = a_note;
+    a_event->velocity = a_velocity;
+}
+
+void snd_seq_ev_set_noteon(snd_seq_event_t* a_event, int a_channel, int a_note, int a_velocity)
+{
+    a_event->type = SND_SEQ_EVENT_NOTEON;
+    a_event->channel = a_channel;
+    a_event->note = a_note;
+    a_event->velocity = a_velocity;
+}
+
+void snd_seq_ev_set_controller(snd_seq_event_t* a_event, int a_channel, int a_cc_num, int a_value)
+{
+    a_event->type = SND_SEQ_EVENT_CONTROLLER;
+    a_event->channel = a_channel;
+    a_event->param = a_cc_num;
+    a_event->value = a_value;
+}
 
 /*****************************************************************************/
 
