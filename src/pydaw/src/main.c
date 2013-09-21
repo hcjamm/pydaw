@@ -145,7 +145,7 @@ void signalHandler(int sig)
     exiting = 1;
 }
 
-void receive(unsigned char status, unsigned char control, char value)
+void midiReceive(unsigned char status, unsigned char control, char value)
 {
     unsigned char channel = status & 0x0F;
     unsigned char opCode = status & 0xF0;
@@ -154,25 +154,25 @@ void receive(unsigned char status, unsigned char control, char value)
         opCode = status;
     }
 
-    int twoBytes = 1;
-        
+    //int twoBytes = 1;        
     struct timeval tv;
     
     if (midiEventReadIndex == midiEventWriteIndex + 1) 
     {
         printf("Warning: MIDI event buffer overflow! ignoring incoming event\n");
         return;
-    }
-    
+    }    
 
     switch (opCode)
     {
         case MIDI_PITCH_BEND:
-            twoBytes = 0;
+        {
+            //twoBytes = 0;
             int f_pb_val = ((value << 7) | control) - 8192;
             v_pydaw_ev_set_pitchbend(&midiEventBuffer[midiEventWriteIndex], channel, f_pb_val);
             midiEventWriteIndex++;
             //printf("MIDI PITCHBEND status %i ch %i, value %i\n", status, channel+1, f_pb_val);
+        }
             break;
         case MIDI_NOTE_OFF:
             v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
@@ -198,7 +198,7 @@ void receive(unsigned char status, unsigned char control, char value)
             //printf("MIDI CC status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
             break;
         default:
-            twoBytes = 0;
+            //twoBytes = 0;
             /*message = QString("MIDI status 0x%1")
                  .arg(QString::number(status, 16).toUpper());*/
             break;
@@ -759,7 +759,7 @@ int main(int argc, char **argv)
         {
             int f_poll_result;
             int f_bInSysex;
-            int f_cReceiveMsg_index = 0;
+            //int f_cReceiveMsg_index = 0;
             int i;
             while (!exiting)
             {
@@ -784,7 +784,7 @@ int main(int argc, char **argv)
 
                             if ((status & 0xF8) == 0xF8) {
                                 // Handle real-time MIDI messages at any time
-                                receive(status, 0, 0);
+                                midiReceive(status, 0, 0);
                             }
 
                             reprocessMessage:
@@ -797,7 +797,7 @@ int main(int argc, char **argv)
                                     //unsigned char channel = status & 0x0F;
                                     unsigned char note = Pm_MessageData1(portMidiBuffer[i].message);
                                     unsigned char velocity = Pm_MessageData2(portMidiBuffer[i].message);
-                                    receive(status, note, velocity);
+                                    midiReceive(status, note, velocity);
                                 }
                             }
 
@@ -808,7 +808,7 @@ int main(int argc, char **argv)
                                 if (status > 0x7F && status < 0xF7) 
                                 {
                                     f_bInSysex = 0;
-                                    f_cReceiveMsg_index = 0;
+                                    //f_cReceiveMsg_index = 0;
                                     printf("Buggy MIDI device: SysEx interrupted!");
                                     goto reprocessMessage;    // Don't lose the new message
                                 }
@@ -819,7 +819,7 @@ int main(int argc, char **argv)
                                 for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8) {
                                     if ((data & 0xF8) == 0xF8) 
                                     {                                        
-                                        receive(data, 0, 0);  // Handle real-time messages at any time
+                                        midiReceive(data, 0, 0);  // Handle real-time messages at any time
                                     } else {
                                         //m_cReceiveMsg[m_cReceiveMsg_index++] = data = (portMidiBuffer[i].message >> shift) & 0xFF;
                                     }
@@ -831,7 +831,7 @@ int main(int argc, char **argv)
                                     f_bInSysex = 0;
                                     //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
                                     //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
-                                    f_cReceiveMsg_index = 0;
+                                    //f_cReceiveMsg_index = 0;
                                 } //if (data == MIDI_EOX) 
                             } //if(f_bInSysex)
                         } //for (i = 0; i < numEvents; i++)
