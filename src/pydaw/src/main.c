@@ -19,7 +19,11 @@ GNU General Public License for more details.
 #include "pydaw_files.h"
 #include "../include/pydaw3/pydaw_plugin.h"
 #include <portaudio.h>
+
+#ifndef _WIN32
 #include <portmidi.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -124,11 +128,6 @@ static float **pluginInputBuffers, **pluginOutputBuffers;
 static int controlInsTotal, controlOutsTotal;
 
 //static char * osc_path_tmp = "osc.udp://localhost:19271/dssi/pydaw";
-#ifndef PYDAW_NO_HARDWARE
-PmStream *f_midi_stream;
-PmError f_midi_err;
-#endif
-
 lo_server_thread serverThread;
 
 static sigset_t _signals;
@@ -137,7 +136,13 @@ int exiting = 0;
 
 #define EVENT_BUFFER_SIZE 1024
 static t_pydaw_seq_event midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
+
+#if !defined(PYDAW_NO_HARDWARE) & !defined(_WIN32)
+PmStream *f_midi_stream;
+PmError f_midi_err;
 static PmEvent portMidiBuffer[EVENT_BUFFER_SIZE];
+#endif
+
 static int midiEventReadIndex __attribute__((aligned(16))) = 0;
 static int midiEventWriteIndex __attribute__((aligned(16))) = 0;
 
@@ -228,7 +233,7 @@ void midiReceive(unsigned char status, unsigned char control, char value)
     }
 }
 
-#ifndef PYDAW_NO_HARDWARE
+#if !defined(PYDAW_NO_HARDWARE) & !defined(_WIN32)
 static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 {
     int f_poll_result;
@@ -457,14 +462,14 @@ int main(int argc, char **argv)
     int f_thread_count = 0;
     int j;
     int in, out, controlIn, controlOut;
-    
+#ifndef _WIN32
     timer_t timerid;
     struct sigevent sev;
     struct itimerspec its;
     long long freq_nanosecs;
     sigset_t mask;
     struct sigaction sa;
-            
+#endif
     setsid();
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
@@ -533,6 +538,7 @@ int main(int argc, char **argv)
             
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
+    
 #ifndef PYDAW_NO_HARDWARE    
     /*Initialize Portaudio*/
     PaStreamParameters inputParameters, outputParameters;
@@ -540,15 +546,18 @@ int main(int argc, char **argv)
     PaError err;    
     err = Pa_Initialize();
     //if( err != paNoError ) goto error;
+    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+   
+#ifndef _WIN32
     /*Initialize Portmidi*/    
-    f_midi_err = Pm_Initialize();
-    char f_midi_device_name[1024];
-    sprintf(f_midi_device_name, "None");
+    f_midi_err = Pm_Initialize();    
     int f_with_midi = 0;
     PmDeviceID f_device_id = pmNoDevice;
-
-    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+#endif
     
+    char f_midi_device_name[1024];
+    sprintf(f_midi_device_name, "None");
+        
     char f_device_file_path[2048];
     char * f_home = getenv("HOME");
     if(!strcmp(f_home, "/home/ubuntu") && i_pydaw_file_exists("/media/pydaw_data"))
@@ -632,6 +641,7 @@ int main(int argc, char **argv)
             
             g_free_2d_char_array(f_current_string);
             
+#ifndef _WIN32            
             if(strcmp(f_midi_device_name, "None"))
             {
                 f_device_id = pmNoDevice;
@@ -666,7 +676,9 @@ int main(int argc, char **argv)
                 }
 
                 f_with_midi = 1;
-            }            
+            }
+#endif
+            
         }
         else
         {
@@ -858,6 +870,7 @@ int main(int argc, char **argv)
         float * f_portaudio_input_buffer = (float*)malloc(sizeof(float) * 8192);
         float * f_portaudio_output_buffer = (float*)malloc(sizeof(float) * 8192);
 #else
+#ifndef _WIN32
         if(f_with_midi)
         {
             /* Establish handler for timer signal */
@@ -906,8 +919,9 @@ int main(int argc, char **argv)
                //errExit("timer_settime");
            }
             
-        } //if(f_with_midi)        
- #endif       
+        } //if(f_with_midi)
+#endif
+#endif       
         while(!exiting)
         {
 #ifdef PYDAW_NO_HARDWARE
@@ -921,7 +935,7 @@ int main(int argc, char **argv)
 #ifndef PYDAW_NO_HARDWARE    
     err = Pa_CloseStream( stream );    
     Pa_Terminate();
-    
+#ifndef _WIN32
     if(f_with_midi)
     {
         timer_delete(timerid);
@@ -929,6 +943,7 @@ int main(int argc, char **argv)
     }
     
     Pm_Terminate();
+#endif
 #endif
     v_pydaw_cleanup(instanceHandles);    
 

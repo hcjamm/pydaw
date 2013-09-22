@@ -7045,6 +7045,8 @@ if global_pydaw_with_audio:
     print("Starting audio engine")
     if pydaw_util.pydaw_which("pasuspender") is not None:
         f_pa_suspend = True
+    else:
+        f_pa_suspend = False
     if "--debug" in sys.argv and pydaw_util.pydaw_which("x-terminal-emulator") is not None:
         if "--valgrind" in sys.argv and pydaw_util.pydaw_which("valgrind") is not None:
             f_run_with = " valgrind "

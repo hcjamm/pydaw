@@ -1,0 +1,16 @@
+#!/usr/bin/python2.7
+
+import os, sys
+import platform
+
+f_prefix_dir = os.path.dirname(__file__)
+
+f_path = f_prefix_dir + "/../lib/pydaw3/pydaw/python/pydaw.py"
+f_path = os.path.abspath(f_path)
+print(f_path)
+
+if "CYGWIN" in platform.system().upper():
+    os.system('python2.7 "%s" %s' % (f_path, " ".join(sys.argv[1:])))
+else:
+    os.system('python2 "%s" %s' % (f_path, " ".join(sys.argv[1:])))
+

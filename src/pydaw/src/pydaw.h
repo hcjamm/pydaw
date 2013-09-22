@@ -686,7 +686,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
 
             pthread_attr_t threadAttr;
             struct sched_param param;
-            param.__sched_priority = 90;
+            //param.__sched_priority = 90;
             pthread_attr_init(&threadAttr);
             pthread_attr_setschedparam(&threadAttr, &param);
             pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
