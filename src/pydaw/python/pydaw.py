@@ -7062,7 +7062,7 @@ if global_pydaw_with_audio:
         if f_pa_suspend:
             f_cmd = 'pasuspender -- "%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix)
         else:
-            f_cmd = global_pydaw_bin_path
+            f_cmd = '"%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix,)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True) #, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 else:
     print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
