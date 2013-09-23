@@ -14,8 +14,14 @@ apt-get update
 #hence we install manually first
 apt-get install -y audacity
 apt-get install -y mixxx
-#Here either wget a .deb, or (preferably) have deb.pl move it here when building...
 
+apt-get remove -y jockey* brasero* gwibber* libreoffice-* thunderbird* usb-creator* aisleriot mahjongg transmission* pulseaudio
+
+apt-get autoremove -y
+
+#Install the desired PyDAW .deb with
 #dpkg -i pydaw*.deb
-#Due the WTF normally encountered when doing this, it's often necessary to run:
+
+#Because dpkg can't resolve dependencies, you will have to run this if all 
+#dependencies were'nt already installed
 #apt-get install -f
