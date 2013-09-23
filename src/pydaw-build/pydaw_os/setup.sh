@@ -12,10 +12,11 @@ apt-get update
 #apt-get upgrade -y
 #This fails to install when a dependency of another package,
 #hence we install manually first
-apt-get install -y audacity
+apt-get install -y audacity midori
+
 apt-get install -y mixxx
 
-apt-get remove -y jockey* brasero* gwibber* libreoffice-* thunderbird* usb-creator* aisleriot mahjongg transmission* pulseaudio
+apt-get remove -y jockey* brasero* gwibber* libreoffice-* thunderbird* usb-creator* aisleriot mahjongg transmission* pulseaudio firefox*
 
 apt-get autoremove -y
 
