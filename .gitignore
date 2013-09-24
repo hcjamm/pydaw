@@ -1,3 +1,4 @@
+src/pydaw_rubberband/bin
 src/pydaw-build/pydaw_os/pydaw.ova
 src/pydaw/pydaw3-engine
 src/pydaw/dir_debug
@@ -29,7 +30,6 @@ src/build-suffix.txt
 src/pydaw_jack_oscrolloscope/pydaw_jack_oscrolloscope
 *.pyc
 *.qm
-bin
 src/pydaw-build/debian/usr
 src/maintainer.txt
 *nbproject*
