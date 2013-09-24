@@ -1,4 +1,3 @@
-
 #!/usr/bin/make -f
 
 CC  ?= gcc
@@ -7,15 +6,54 @@ CXX ?= g++
 PREFIX ?= /usr
 PYDAW_VERSION = pydaw3
 
-BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -funroll-loops -Wall -Isrc -I. -fstrength-reduce -fstrict-aliasing -finline-functions
+BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse \
+-fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
+-Isrc -I. -fstrength-reduce -fstrict-aliasing -finline-functions
+
+LIB_DIR   ?= /usr/lib
+LIB64_DIR ?= /usr/lib/x86_64-linux-gnu
+
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags liblo)
-LINK_CFLAGS    = -lm -ldl -lportmidi -lportaudio $(LDFLAGS) $(shell pkg-config --libs liblo sndfile)
+
+PORTAUDIO_FLAG ?= $(shell if [ -e $(LIB_DIR)/libportaudio.a ]; \
+then printf "$(LIB_DIR)/libportaudio.a" ; \
+elif [ -e $(LIB64_DIR)/libportaudio.a ]; \
+then printf "$(LIB64_DIR)/libportaudio.a" ; \
+else printf "-lportaudio" ; \
+fi)
+
+PORTMIDI_FLAG ?= $(shell if [ -e $(LIB_DIR)/libportmidi.a ]; \
+then printf "$(LIB_DIR)/libportmidi.a $(LIB_DIR)/libporttime.a" ; \
+elif [ -e $(LIB64_DIR)/libportmidi.a ]; \
+then printf "$(LIB64_DIR)/libportmidi.a $(LIB64_DIR)/libporttime.a" ; \
+else printf "-lportmidi" ; \
+fi)
+
+LIBLO_FLAG ?= $(shell if [ -e $(LIB_DIR)/liblo.a ]; \
+then printf "$(LIB_DIR)/liblo.a" ; \
+elif [ -e $(LIB64_DIR)/liblo.a ]; \
+then printf "$(LIB64_DIR)/liblo.a" ; \
+else printf "-llo" ; \
+fi)
+
+MATH_FLAG ?= $(shell if [ -e $(LIB_DIR)/libm.a ]; \
+then printf "$(LIB_DIR)/libm.a" ; \
+elif [ -e $(LIB64_DIR)/libm.a ]; \
+then printf "$(LIB64_DIR)/libm.a" ; \
+else printf "-lm" ; \
+fi)
+
+LINK_CFLAGS    = -lpthread $(MATH_FLAG) $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
+portaudio/lib/.libs/libportaudio.a \
+$(LDFLAGS) $(shell pkg-config --libs sndfile alsa)
 
 C_OBJS   = src/main.o
 
 # --------------------------------------------------------------
 
-all: pydaw3-engine
+all:
+	cd portaudio && ./configure --with-jack=no --with-oss=no && make
+	make pydaw3-engine
 
 debug:
 	make CFLAGS+=" -O0 -g -gdwarf-3 "
