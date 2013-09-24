@@ -10,40 +10,40 @@ BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -
 -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
 -Isrc -I. -fstrength-reduce -fstrict-aliasing -finline-functions
 
-LIB_DIR   ?= /usr/lib
-LIB64_DIR ?= /usr/lib/x86_64-linux-gnu
+PYDAW_LIB_DIR   ?= /usr/lib
+PYDAW_LIB64_DIR ?= /usr/lib/x86_64-linux-gnu
 
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags liblo)
 
-PORTAUDIO_FLAG ?= $(shell if [ -e $(LIB_DIR)/libportaudio.a ]; \
-then printf "$(LIB_DIR)/libportaudio.a" ; \
-elif [ -e $(LIB64_DIR)/libportaudio.a ]; \
-then printf "$(LIB64_DIR)/libportaudio.a" ; \
+PORTAUDIO_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libportaudio.a ]; \
+then printf "$(PYDAW_LIB_DIR)/libportaudio.a" ; \
+elif [ -e $(PYDAW_LIB64_DIR)/libportaudio.a ]; \
+then printf "$(PYDAW_LIB64_DIR)/libportaudio.a" ; \
 else printf "-lportaudio" ; \
 fi)
 
-PORTMIDI_FLAG ?= $(shell if [ -e $(LIB_DIR)/libportmidi.a ]; \
-then printf "$(LIB_DIR)/libportmidi.a $(LIB_DIR)/libporttime.a" ; \
-elif [ -e $(LIB64_DIR)/libportmidi.a ]; \
-then printf "$(LIB64_DIR)/libportmidi.a $(LIB64_DIR)/libporttime.a" ; \
+PORTMIDI_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libportmidi.a ]; \
+then printf "$(PYDAW_LIB_DIR)/libportmidi.a $(PYDAW_LIB_DIR)/libporttime.a" ; \
+elif [ -e $(PYDAW_LIB64_DIR)/libportmidi.a ]; \
+then printf "$(PYDAW_LIB64_DIR)/libportmidi.a $(PYDAW_LIB64_DIR)/libporttime.a" ; \
 else printf "-lportmidi" ; \
 fi)
 
-LIBLO_FLAG ?= $(shell if [ -e $(LIB_DIR)/liblo.a ]; \
-then printf "$(LIB_DIR)/liblo.a" ; \
-elif [ -e $(LIB64_DIR)/liblo.a ]; \
-then printf "$(LIB64_DIR)/liblo.a" ; \
+LIBLO_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/liblo.a ]; \
+then printf "$(PYDAW_LIB_DIR)/liblo.a" ; \
+elif [ -e $(PYDAW_LIB64_DIR)/liblo.a ]; \
+then printf "$(PYDAW_LIB64_DIR)/liblo.a" ; \
 else printf "-llo" ; \
 fi)
 
-MATH_FLAG ?= $(shell if [ -e $(LIB_DIR)/libm.a ]; \
-then printf "$(LIB_DIR)/libm.a" ; \
-elif [ -e $(LIB64_DIR)/libm.a ]; \
-then printf "$(LIB64_DIR)/libm.a" ; \
+MATH_LIB_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libm.a ]; \
+then printf "$(PYDAW_LIB_DIR)/libm.a" ; \
+elif [ -e $(PYDAW_LIB64_DIR)/libm.a ]; \
+then printf "$(PYDAW_LIB64_DIR)/libm.a" ; \
 else printf "-lm" ; \
 fi)
 
-LINK_CFLAGS    = -lpthread $(MATH_FLAG) $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
+LINK_CFLAGS    = -lpthread $(MATH_LIB_FLAG) $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
 portaudio/lib/.libs/libportaudio.a \
 $(LDFLAGS) $(shell pkg-config --libs sndfile alsa)
 

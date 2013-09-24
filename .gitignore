@@ -1,3 +1,11 @@
+src/pydaw/portaudio/Makefile
+src/pydaw/portaudio/bin-stamp
+src/pydaw/portaudio/bin/
+src/pydaw/portaudio/bindings/cpp/bin/
+src/pydaw/portaudio/config.status
+src/pydaw/portaudio/lib-stamp
+src/pydaw/portaudio/libtool
+src/pydaw/portaudio/portaudio-2.0.pc
 src/pydaw_rubberband/bin
 src/pydaw-build/pydaw_os/pydaw.ova
 src/pydaw/pydaw3-engine
