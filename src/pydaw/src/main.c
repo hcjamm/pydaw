@@ -237,7 +237,8 @@ void midiReceive(unsigned char status, unsigned char control, char value)
 static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 {
     int f_poll_result;
-    int f_bInSysex;
+    int f_bInSysex = 0;
+    unsigned char status;
     //int f_cReceiveMsg_index = 0;
     int i;
     
@@ -258,7 +259,7 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
         {   
             for (i = 0; i < numEvents; i++)
             {
-                unsigned char status = Pm_MessageStatus(portMidiBuffer[i].message);
+                status = Pm_MessageStatus(portMidiBuffer[i].message);
 
                 if ((status & 0xF8) == 0xF8) {
                     // Handle real-time MIDI messages at any time
@@ -307,9 +308,10 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
                     }
 
                     // End System Exclusive message if the EOX byte was received
-                    if (data == MIDI_EOX) 
+                    if (data == MIDI_EOX)
                     {
                         f_bInSysex = 0;
+                        printf("Dropping MIDI message in if (data == MIDI_EOX)\n");
                         //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
                         //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
                         //f_cReceiveMsg_index = 0;
