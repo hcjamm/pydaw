@@ -6,14 +6,17 @@ CXX ?= g++
 PREFIX ?= /usr
 PYDAW_VERSION = pydaw3
 
-BASE_FLAGS     = -ffast-math -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse \
--fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
--Isrc -I. -fstrength-reduce -fstrict-aliasing -finline-functions
+#Default flags are mostly x86 specific
+PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse
+
+BASE_FLAGS     = -ffast-math -mtune=generic -fprefetch-loop-arrays \
+-floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
+-Isrc -fstrength-reduce -fstrict-aliasing -finline-functions
 
 PYDAW_LIB_DIR   ?= /usr/lib
 PYDAW_LIB64_DIR ?= /usr/lib/x86_64-linux-gnu
 
-BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags liblo)
+BUILD_CFLAGS   = $(PLAT_FLAGS) $(BASE_FLAGS) $(CFLAGS)
 
 PORTAUDIO_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libportaudio.a ]; \
 then printf "$(PYDAW_LIB_DIR)/libportaudio.a" ; \
