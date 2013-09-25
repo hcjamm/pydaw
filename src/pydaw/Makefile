@@ -52,7 +52,8 @@ C_OBJS   = src/main.o
 # --------------------------------------------------------------
 
 all:
-	cd portaudio && ./configure --with-jack=no --with-oss=no && make
+	cd portaudio && ./configure --with-jack=no --with-oss=no
+	make -C portaudio
 	make pydaw3-engine
 
 debug:
