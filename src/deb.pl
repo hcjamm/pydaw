@@ -151,10 +151,3 @@ else
 	print "\n\nThere is no PyDAW-OS directory, not copying package to /root\n\n\n";
 }
 
-#This is because debian packages will only accept dashes in package names
-sub replace_underscore_with_dash
-{
-	$result = $_[0];
-	$result =~ s/_/-/g;
-	return $result;
-}
