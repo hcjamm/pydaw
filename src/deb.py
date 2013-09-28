@@ -1,0 +1,97 @@
+#!/usr/bin/env python2
+"""
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+"""
+
+import os, commands, sys
+
+def pydaw_read_file_text(a_file):
+    f_handle = open(str(a_file))
+    f_result = f_handle.read()
+    f_handle.close()
+    return f_result
+
+def pydaw_write_file_text(a_file, a_text):
+    f_handle = open(str(a_file), "w")
+    f_handle.write(str(a_text))
+    f_handle.close()
+
+global_pydaw_version_string = "pydaw3"
+
+f_base_dir = os.path.dirname(os.path.abspath(__file__))
+
+f_build_cmd = \
+'make clean && make && make strip && make DESTDIR="%s/pydaw-build/debian install"' % (f_base_dir,)
+f_version_file = "%s/%s-version.txt" % (f_base_dir, global_pydaw_version_string)
+
+f_short_name = global_pydaw_version_string
+f_arch = commands.getoutput("dpkg --print-architecture").strip()
+
+os.system("rm -rf %s/pydaw-build/debian/usr")
+os.system("mkdir pydaw-build/debian/usr")
+os.system('find ./pydaw-build/debian -type f -name *~  -exec rm -f {} \\;');
+os.system('find ./pydaw-build/debian -type f -name *.pyc  -exec rm -f {} \\;');
+os.system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;');
+
+if os.system(f_build_cmd) != 0:
+    print("Makefile exited abnormally, see output for error messages.")
+    sys.exit(9999)
+f_version = pydaw_read_file_text(f_version_file).strip()
+f_version_new = raw_input("""Please enter the version number of this release.
+The format should be something like:  1.1.3-1 or 12.04-1
+Hit enter to accept the auto-generated default version number:  %s
+[version number]: """ % (f_version,))
+if f_version_new.strip() != "":
+    f_version = f_version_new.strip()
+    pydaw_write_file_text(f_version_file, f_version)
+f_size = commands.getoutput("du -s %s/pydaw-build/debian/usr" % (f_base_dir,))
+f_size = f_size.split("\t")[0].strip()
+f_debian_control = """
+Package: %s
+Priority: extra
+Section: sound
+Installed-Size: %s
+Maintainer: PyDAW Team <pydawteam@users.sf.net>
+Architecture: %s
+Version: %s
+Depends: liblo-dev, libsndfile1-dev, python-pypm, libportmidi-dev, python-pyaudio, portaudio19-dev, python-liblo, python-qt4, audacity, python2.7, libmad0-dev, python-scipy, python-numpy, libsamplerate0-dev, libfftw3-dev
+Provides: %s
+Conflicts:
+Replaces:
+Description: A digital audio workstation with a full suite of instrument and effects plugins.
+ PyDAW is a full featured audio and MIDI sequencer with a suite of high quality instrument and effects plugins.
+""" % (f_short_name, f_size, f_arch, f_version, f_short_name)
+pydaw_write_file_text("%s/pydaw-build/debian/DEBIAN/control" % (f_base_dir,), f_debian_control)
+
+os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/control"' % (f_base_dir,))
+os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/postinst"' % (f_base_dir,))
+os.system("cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums")
+os.system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums")
+
+f_build_suffix_file = "%s/build-suffix.txt" % (f_base_dir,)
+if os.path.exists(f_build_suffix_file):
+    f_build_suffix = pydaw_read_file_text(f_build_suffix_file)
+else:
+    f_build_suffix = raw_input("""You may enter an optional build suffix.  Usually this will be the
+operating system you are compiling for on this machine, for example: ubuntu1210
+
+Please enter a build suffix, or hit 'enter' to leave blank: """).strip()
+    if f_build_suffix != "": f_build_suffix = "-" + f_build_suffix
+    pydaw_write_file_text(f_build_suffix_file, f_build_suffix)
+
+f_package_name = "%s-%s-%s%s.deb" % (f_short_name, f_version, f_arch, f_build_suffix)
+
+os.system('rm "%s/pydaw-build/pydaw*.deb"' % (f_base_dir,))
+os.system("cd %s/pydaw-build ; fakeroot dpkg-deb --build debian ; mv debian.deb %s" %
+    (f_base_dir, f_package_name))
+
+print("Finished")
