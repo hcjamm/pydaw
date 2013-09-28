@@ -38,13 +38,16 @@ f_arch = commands.getoutput("dpkg --print-architecture").strip()
 
 os.system("rm -rf %s/pydaw-build/debian/usr")
 os.system("mkdir pydaw-build/debian/usr")
-os.system('find ./pydaw-build/debian -type f -name *~  -exec rm -f {} \\;');
-os.system('find ./pydaw-build/debian -type f -name *.pyc  -exec rm -f {} \\;');
-os.system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;');
+os.system('find ./pydaw-build/debian -type f -name *~  -exec rm -f {} \\;')
+os.system('find ./pydaw-build/debian -type f -name *.pyc  -exec rm -f {} \\;')
+os.system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;')
 
-if os.system(f_build_cmd) != 0:
-    print("Makefile exited abnormally, see output for error messages.")
-    sys.exit(9999)
+f_makefile_exit_code = os.system(f_build_cmd)
+
+if f_makefile_exit_code != 0:
+    print("Makefile exited abnormally with exit code %s, see output for error messages." % (f_makefile_exit_code,))
+    sys.exit(f_makefile_exit_code)
+
 f_version = pydaw_read_file_text(f_version_file).strip()
 f_version_new = raw_input("""Please enter the version number of this release.
 The format should be something like:  1.1.3-1 or 12.04-1
@@ -53,8 +56,11 @@ Hit enter to accept the auto-generated default version number:  %s
 if f_version_new.strip() != "":
     f_version = f_version_new.strip()
     pydaw_write_file_text(f_version_file, f_version)
-f_size = commands.getoutput("du -s %s/pydaw-build/debian/usr" % (f_base_dir,))
-f_size = f_size.split("\t")[0].strip()
+
+f_size = commands.getoutput('du -s "%s/pydaw-build/debian/usr"' % (f_base_dir,))
+f_size = f_size.replace("\t", " ")
+f_size = f_size.split(" ")[0].strip()
+
 f_debian_control = """
 Package: %s
 Priority: extra
@@ -70,6 +76,7 @@ Replaces:
 Description: A digital audio workstation with a full suite of instrument and effects plugins.
  PyDAW is a full featured audio and MIDI sequencer with a suite of high quality instrument and effects plugins.
 """ % (f_short_name, f_size, f_arch, f_version, f_short_name)
+
 pydaw_write_file_text("%s/pydaw-build/debian/DEBIAN/control" % (f_base_dir,), f_debian_control)
 
 os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/control"' % (f_base_dir,))
@@ -77,7 +84,7 @@ os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/postinst"' % (f_base_dir,))
 os.system("cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums")
 os.system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums")
 
-f_build_suffix_file = "%s/build-suffix.txt" % (f_base_dir,)
+f_build_suffix_file = '%s/build-suffix.txt' % (f_base_dir,)
 if os.path.exists(f_build_suffix_file):
     f_build_suffix = pydaw_read_file_text(f_build_suffix_file)
 else:
@@ -90,8 +97,8 @@ Please enter a build suffix, or hit 'enter' to leave blank: """).strip()
 
 f_package_name = "%s-%s-%s%s.deb" % (f_short_name, f_version, f_arch, f_build_suffix)
 
-os.system('rm %s/pydaw-build/pydaw*.deb' % (f_base_dir,))
-os.system("cd %s/pydaw-build ; fakeroot dpkg-deb --build debian ; mv debian.deb %s" %
+os.system('rm "%s"/pydaw-build/pydaw*.deb' % (f_base_dir,))
+os.system('cd "%s"/pydaw-build ; fakeroot dpkg-deb --build debian ; mv debian.deb "%s"' %
     (f_base_dir, f_package_name))
 
-print("Finished")
+print("Finished. run ./install_deb.sh to install the package")
