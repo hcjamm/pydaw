@@ -90,7 +90,7 @@ Please enter a build suffix, or hit 'enter' to leave blank: """).strip()
 
 f_package_name = "%s-%s-%s%s.deb" % (f_short_name, f_version, f_arch, f_build_suffix)
 
-os.system('rm "%s/pydaw-build/pydaw*.deb"' % (f_base_dir,))
+os.system('rm %s/pydaw-build/pydaw*.deb' % (f_base_dir,))
 os.system("cd %s/pydaw-build ; fakeroot dpkg-deb --build debian ; mv debian.deb %s" %
     (f_base_dir, f_package_name))
 
