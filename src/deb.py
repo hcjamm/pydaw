@@ -30,14 +30,14 @@ global_pydaw_version_string = "pydaw3"
 f_base_dir = os.path.dirname(os.path.abspath(__file__))
 
 f_build_cmd = \
-'make clean && make && make strip && make DESTDIR="%s/pydaw-build/debian install"' % (f_base_dir,)
+'make clean && make && make strip && make DESTDIR="%s/pydaw-build/debian" install' % (f_base_dir,)
 f_version_file = "%s/%s-version.txt" % (f_base_dir, global_pydaw_version_string)
 
 f_short_name = global_pydaw_version_string
 f_arch = commands.getoutput("dpkg --print-architecture").strip()
 
-os.system("rm -rf %s/pydaw-build/debian/usr")
-os.system("mkdir pydaw-build/debian/usr")
+os.system("rm -rf pydaw-build/debian/usr")
+os.system("mkdir -p pydaw-build/debian/usr")
 os.system('find ./pydaw-build/debian -type f -name *~  -exec rm -f {} \\;')
 os.system('find ./pydaw-build/debian -type f -name *.pyc  -exec rm -f {} \\;')
 os.system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;')
@@ -46,6 +46,10 @@ f_makefile_exit_code = os.system(f_build_cmd)
 
 if f_makefile_exit_code != 0:
     print("Makefile exited abnormally with exit code %s, see output for error messages." % (f_makefile_exit_code,))
+    print("If the build failed while compiling Portaudio, you should try this workaround:")
+    print("cd pydaw/Portaudio")
+    print("./configure && make clean && make")
+    print("...and then retry running deb.py")
     sys.exit(f_makefile_exit_code)
 
 f_version = pydaw_read_file_text(f_version_file).strip()
@@ -77,9 +81,16 @@ Description: A digital audio workstation with a full suite of instrument and eff
  PyDAW is a full featured audio and MIDI sequencer with a suite of high quality instrument and effects plugins.
 """ % (f_short_name, f_size, f_arch, f_version, f_short_name)
 
-pydaw_write_file_text("%s/pydaw-build/debian/DEBIAN/control" % (f_base_dir,), f_debian_control)
+f_debian_dir = "%s/pydaw-build/debian/DEBIAN" % (f_base_dir,)
 
-os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/control"' % (f_base_dir,))
+if not os.path.isdir(f_debian_dir):
+    os.makedirs(f_debian_dir)
+
+f_debian_control_path = "%s/control" % (f_debian_dir,)
+
+pydaw_write_file_text(f_debian_control_path, f_debian_control)
+
+os.system('chmod 755 "%s"' % (f_debian_control_path,))
 os.system("cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums")
 os.system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums")
 
