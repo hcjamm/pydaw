@@ -80,7 +80,6 @@ Description: A digital audio workstation with a full suite of instrument and eff
 pydaw_write_file_text("%s/pydaw-build/debian/DEBIAN/control" % (f_base_dir,), f_debian_control)
 
 os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/control"' % (f_base_dir,))
-os.system('chmod 755 "%s/pydaw-build/debian/DEBIAN/postinst"' % (f_base_dir,))
 os.system("cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums")
 os.system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums")
 
