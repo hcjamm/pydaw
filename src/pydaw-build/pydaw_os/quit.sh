@@ -9,6 +9,7 @@ rm -rf /tmp/* ~/.bash_history
 umount /proc || umount -lf /proc
 umount /sys
 umount /dev/pts
+rm pydaw*.deb
 
 echo
 echo "#######Now run:#######"
