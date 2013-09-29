@@ -14,6 +14,12 @@ GNU General Public License for more details.
 
 import os, commands, sys
 
+f_base_dir = os.path.dirname(os.path.abspath(__file__))
+
+print(f_base_dir)
+
+os.chdir(f_base_dir)
+
 def pydaw_read_file_text(a_file):
     f_handle = open(str(a_file))
     f_result = f_handle.read()
@@ -26,8 +32,6 @@ def pydaw_write_file_text(a_file, a_text):
     f_handle.close()
 
 global_pydaw_version_string = "pydaw3"
-
-f_base_dir = os.path.dirname(os.path.abspath(__file__))
 
 f_build_cmd = \
 'make clean && make && make strip && make DESTDIR="%s/pydaw-build/debian" install' % (f_base_dir,)
