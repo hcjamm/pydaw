@@ -15,11 +15,7 @@ GNU General Public License for more details.
 import pyaudio, os, sys, time, platform
 from PyQt4 import QtGui, QtCore
 import pydaw_util
-
-print pydaw_util.global_pydaw_current_os
-
-if pydaw_util.global_pydaw_current_os != "WINDOWS":
-    import pypm
+import pypm
 
 class pydaw_device_dialog:
     def __init__(self, a_home_folder, a_is_running=False):
@@ -81,10 +77,9 @@ class pydaw_device_dialog:
          "if you're not sure how to use this setting, you should leave it on 'Auto'."))
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_window_layout.addWidget(QtGui.QLabel("MIDI In Device:"), 4, 0)
-        if pydaw_util.global_pydaw_current_os != "WINDOWS":
-            f_midi_in_device_combobox = QtGui.QComboBox()
-            f_midi_in_device_combobox.addItem("None")
-            f_window_layout.addWidget(f_midi_in_device_combobox, 4, 1)
+        f_midi_in_device_combobox = QtGui.QComboBox()
+        f_midi_in_device_combobox.addItem("None")
+        f_window_layout.addWidget(f_midi_in_device_combobox, 4, 1)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_window_layout.addLayout(f_ok_cancel_layout, 10, 1)
         f_ok_button = QtGui.QPushButton("OK")
@@ -94,14 +89,12 @@ class pydaw_device_dialog:
 
         f_pyaudio = pyaudio.PyAudio()
         f_count = f_pyaudio.get_host_api_count()
-        f_is_linux = "LINUX" in platform.system().upper()
-        if f_is_linux:
-            f_api_list = ["ALSA"]
+        f_api_list = ["ALSA"]
         f_result_dict = {}
 
         for i in range(f_count):
             f_api_dict = f_pyaudio.get_host_api_info_by_index(i)
-            if not f_is_linux or f_api_dict["name"] in f_api_list:
+            if f_api_dict["name"] in f_api_list:
                 f_count = f_api_dict["deviceCount"]
                 for i2 in range(f_count):
                     f_dev = f_pyaudio.get_device_info_by_host_api_device_index(i, i2)
@@ -110,14 +103,13 @@ class pydaw_device_dialog:
                         print("%s : %s" % (k, v))
                     f_result_dict[f_dev["name"]] = f_dev
 
-        if pydaw_util.global_pydaw_current_os != "WINDOWS":
-            pypm.Initialize()
-            print("\n\n\n")
-            for loop in range(pypm.CountDevices()):
-                interf,name,inp,outp,opened = pypm.GetDeviceInfo(loop)
-                print("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " % (loop, name, inp, outp, opened))
-                if inp == 1:
-                    f_midi_in_device_combobox.addItem(name)
+        pypm.Initialize()
+        print("\n\n\n")
+        for loop in range(pypm.CountDevices()):
+            interf,name,inp,outp,opened = pypm.GetDeviceInfo(loop)
+            print("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " % (loop, name, inp, outp, opened))
+            if inp == 1:
+                f_midi_in_device_combobox.addItem(name)
 
         def latency_changed(a_self=None, a_val=None):
             f_sample_rate = float(str(f_samplerate_combobox.currentText()))
@@ -139,8 +131,8 @@ class pydaw_device_dialog:
             f_buffer_size = int(str(f_buffer_size_combobox.currentText()))
             f_samplerate = int(str(f_samplerate_combobox.currentText()))
             f_worker_threads = f_worker_threads_combobox.currentIndex()
-            if pydaw_util.global_pydaw_current_os != "WINDOWS":
-                f_midi_in_device = str(f_midi_in_device_combobox.currentText())
+            f_midi_in_device = str(f_midi_in_device_combobox.currentText())
+
             try:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
@@ -154,13 +146,13 @@ class pydaw_device_dialog:
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))
                 f_file.write("threads|%s\n" % (f_worker_threads,))
-                if pydaw_util.global_pydaw_current_os != "WINDOWS":
-                    f_file.write("midiInDevice|%s\n" % (f_midi_in_device,))
+                f_file.write("midiInDevice|%s\n" % (f_midi_in_device,))
+
                 f_file.write("\\")
                 f_file.close()
                 f_pyaudio.terminate()
-                if pydaw_util.global_pydaw_current_os != "WINDOWS":
-                    pypm.Terminate()
+                pypm.Terminate()
+
                 if a_notify:
                     QtGui.QMessageBox.warning(f_window, "Settings changed",
                       "Hardware setttings have been changed, and will be applied next time you start PyDAW.")
@@ -192,9 +184,8 @@ class pydaw_device_dialog:
         if "threads" in self.val_dict:
             f_worker_threads_combobox.setCurrentIndex(int(self.val_dict["threads"]))
 
-        if pydaw_util.global_pydaw_current_os != "WINDOWS":
-            if "midiInDevice" in self.val_dict:
-                f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(self.val_dict["midiInDevice"]))
+        if "midiInDevice" in self.val_dict:
+            f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(self.val_dict["midiInDevice"]))
 
         if a_msg is not None:
             QtGui.QMessageBox.warning(f_window, "Error", a_msg)

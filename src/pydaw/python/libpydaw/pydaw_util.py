@@ -12,15 +12,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import random, os, platform
+import random, os
 from time import sleep
 from math import log, pow
-
-
-if "WINDOWS" in platform.system().upper() or "CYGWIN" in platform.system().upper():
-    global_pydaw_current_os = "WINDOWS"
-else:  #Assume Linux if not windows
-    global_pydaw_current_os = "LINUX"
 
 global_pydaw_version_string = "pydaw3"
 global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
