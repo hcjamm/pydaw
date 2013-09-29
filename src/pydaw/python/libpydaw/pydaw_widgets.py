@@ -521,12 +521,13 @@ class pydaw_file_select_widget:
         self.file_path.setText(str(a_file))
 
     def open_in_editor_button_pressed(self):
-        if not os.path.exists(self.editor_path):
+        if pydaw_util.pydaw_which(self.editor_path) is None and not os.path.exists(self.editor_path):
             QtGui.QMessageBox.warning(self.file_path, ("No Wave Editor Found"), ("Could not locate ") + self.editor_path +
             (" or another suitable wave editor. Please edit ~/pydaw3/self.global_wave_editor.txt with your wave editor of choice, or install Audacity."))
             return
-        f_cmd = [self.editor_path, str(self.file_path.text())]
-        subprocess.Popen(f_cmd)
+        else:
+            f_cmd = [self.editor_path, str(self.file_path.text())]
+            subprocess.Popen(f_cmd)
 
 
 class pydaw_file_browser_widget:
