@@ -15,8 +15,13 @@ GNU General Public License for more details.
 
 import os, sys, time, ctypes
 from PyQt4 import QtGui, QtCore
-from . import pydaw_util
-from . import portaudio, portmidi
+try:
+    from libpydaw import pydaw_util, portaudio, portmidi
+except ImportError:
+    import pydaw_util, portaudio, portmidi
+
+import sip
+sip.setapi('QVariant', 2)
 
 class pydaw_device_dialog:
     def __init__(self, a_home_folder, a_is_running=False):
@@ -97,7 +102,6 @@ class pydaw_device_dialog:
         f_pyaudio.Pa_IsFormatSupported.argstype = [ctypes.POINTER(portaudio.PaStreamParameters),
                                                    ctypes.POINTER(portaudio.PaStreamParameters), ctypes.c_double]
         f_pyaudio.Pa_Initialize()
-
         f_count = f_pyaudio.Pa_GetHostApiCount()
 
         f_alsa_index = None
@@ -105,7 +109,7 @@ class pydaw_device_dialog:
         for i in range(f_count):
             f_api = f_pyaudio.Pa_GetHostApiInfo(i)
             print(f_api.contents.name, f_api.contents.deviceCount)
-            if f_api.contents.name.upper() == "ALSA":
+            if f_api.contents.name.decode("utf-8").upper() == "ALSA":
                 f_alsa_index = i
                 break
 
@@ -123,11 +127,12 @@ class pydaw_device_dialog:
             f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
             print(("\nDevice Index: %s" % (i,)))
             f_api_index = f_dev.contents.hostApi
-            f_dev_name = f_dev.contents.name
+            f_dev_name = f_dev.contents.name.decode("utf-8")
             print(("Name : %s" % (f_dev_name,)))
             if f_api_index == f_alsa_index:
                 f_name_to_index[f_dev_name] = i
                 f_result_dict[f_dev_name] = f_dev.contents
+                f_device_name_combobox.addItem(f_dev_name)
 
         ctypes.cdll.LoadLibrary("libportmidi.so")
         pypm = ctypes.CDLL("libportmidi.so")
@@ -137,11 +142,12 @@ class pydaw_device_dialog:
         print("\n")
         for loop in range(pypm.Pm_CountDevices()):
             f_midi_device = pypm.Pm_GetDeviceInfo(loop)
+            f_midi_device_name = f_midi_device.contents.name.decode("utf-8")
             print(("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " %
-            (loop, f_midi_device.contents.name, f_midi_device.contents.input, f_midi_device.contents.output,
+            (loop, f_midi_device_name, f_midi_device.contents.input, f_midi_device.contents.output,
              f_midi_device.contents.opened)))
             if f_midi_device.contents.input == 1:
-                f_midi_in_device_combobox.addItem(f_midi_device.contents.name)
+                f_midi_in_device_combobox.addItem(f_midi_device_name)
 
         def latency_changed(a_self=None, a_val=None):
             f_sample_rate = float(str(f_samplerate_combobox.currentText()))
@@ -202,7 +208,6 @@ class pydaw_device_dialog:
         f_cancel_button.pressed.connect(on_cancel)
 
         f_device_name_combobox.currentIndexChanged.connect(combobox_changed)
-        f_device_name_combobox.addItems(sorted(list(f_result_dict.keys())))
 
         if "name" in self.val_dict and self.val_dict["name"] in f_result_dict:
             f_device_name_combobox.setCurrentIndex(f_device_name_combobox.findText(self.val_dict["name"]))

@@ -22,7 +22,10 @@ from numpy import *
 import scipy.io.wavfile
 import wave
 from optparse import OptionParser
-from .pydaw_util import *
+try:
+    from libpydaw.pydaw_util import *
+except ImportError:
+    from .pydaw_util import *
 
 global_pydaw_version_string = "pydaw3"
 

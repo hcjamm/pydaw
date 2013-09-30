@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import os, commands, sys
+import os, subprocess, sys
 
 f_base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,7 +38,7 @@ f_build_cmd = \
 f_version_file = "%s/%s-version.txt" % (f_base_dir, global_pydaw_version_string)
 
 f_short_name = global_pydaw_version_string
-f_arch = commands.getoutput("dpkg --print-architecture").strip()
+f_arch = subprocess.getoutput("dpkg --print-architecture").strip()
 
 os.system("rm -rf pydaw-build/debian/usr")
 os.system("mkdir -p pydaw-build/debian/usr")
@@ -49,7 +49,7 @@ os.system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;')
 f_makefile_exit_code = os.system(f_build_cmd)
 
 if f_makefile_exit_code != 0:
-    print("Makefile exited abnormally with exit code %s, see output for error messages." % (f_makefile_exit_code,))
+    print(("Makefile exited abnormally with exit code %s, see output for error messages." % (f_makefile_exit_code,)))
     print("If the build failed while compiling Portaudio, you should try this workaround:")
     print("cd pydaw/Portaudio")
     print("./configure && make clean && make")
@@ -57,7 +57,7 @@ if f_makefile_exit_code != 0:
     sys.exit(f_makefile_exit_code)
 
 f_version = pydaw_read_file_text(f_version_file).strip()
-f_version_new = raw_input("""Please enter the version number of this release.
+f_version_new = input("""Please enter the version number of this release.
 The format should be something like:  1.1.3-1 or 12.04-1
 Hit enter to accept the auto-generated default version number:  %s
 [version number]: """ % (f_version,))
@@ -65,7 +65,7 @@ if f_version_new.strip() != "":
     f_version = f_version_new.strip()
     pydaw_write_file_text(f_version_file, f_version)
 
-f_size = commands.getoutput('du -s "%s/pydaw-build/debian/usr"' % (f_base_dir,))
+f_size = subprocess.getoutput('du -s "%s/pydaw-build/debian/usr"' % (f_base_dir,))
 f_size = f_size.replace("\t", " ")
 f_size = f_size.split(" ")[0].strip()
 
@@ -102,7 +102,7 @@ f_build_suffix_file = '%s/build-suffix.txt' % (f_base_dir,)
 if os.path.exists(f_build_suffix_file):
     f_build_suffix = pydaw_read_file_text(f_build_suffix_file)
 else:
-    f_build_suffix = raw_input("""You may enter an optional build suffix.  Usually this will be the
+    f_build_suffix = input("""You may enter an optional build suffix.  Usually this will be the
 operating system you are compiling for on this machine, for example: ubuntu1210
 
 Please enter a build suffix, or hit 'enter' to leave blank: """).strip()
