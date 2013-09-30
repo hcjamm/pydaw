@@ -4,14 +4,14 @@ from ctypes import *
 
 STRING = c_char_p
 
-paFloat32        = long(0x00000001)
-paInt32          = long(0x00000002)
-paInt24          = long(0x00000004)
-paInt16          = long(0x00000008)
-paInt8           = long(0x00000010)
-paUInt8          = long(0x00000020)
-paCustomFormat   = long(0x00010000)
-paNonInterleaved = long(0x80000000)
+paFloat32        = int(0x00000001)
+paInt32          = int(0x00000002)
+paInt24          = int(0x00000004)
+paInt16          = int(0x00000008)
+paInt8           = int(0x00000010)
+paUInt8          = int(0x00000020)
+paCustomFormat   = int(0x00010000)
+paNonInterleaved = int(0x80000000)
 
 paNotInitialized = -10000
 paSampleFormatNotSupported = -9994

@@ -1,6 +1,6 @@
 import copy
 import time
-from cStringIO import StringIO
+from io import StringIO
 from struct import unpack, pack
 from math import sqrt
 
@@ -9,13 +9,13 @@ from math import sqrt
 ##
 
 OCTAVE_MAX_VALUE = 12
-OCTAVE_VALUES = range( OCTAVE_MAX_VALUE )
+OCTAVE_VALUES = list(range( OCTAVE_MAX_VALUE))
 
 NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
 WHITE_KEYS = [0, 2, 4, 5, 7, 9, 11]
 BLACK_KEYS = [1, 3, 6, 8, 10]
 NOTE_PER_OCTAVE = len( NOTE_NAMES )
-NOTE_VALUES = range( OCTAVE_MAX_VALUE * NOTE_PER_OCTAVE )
+NOTE_VALUES = list(range( OCTAVE_MAX_VALUE * NOTE_PER_OCTAVE))
 NOTE_NAME_MAP_FLAT = {}
 NOTE_VALUE_MAP_FLAT = []
 NOTE_NAME_MAP_SHARP = {}
@@ -136,7 +136,7 @@ class Event(object):
             self.data += runningstatus
         remainder = self.length - len(self.data)
         if remainder:
-            self.data += str.join('',[track.next() for x in range(remainder)])
+            self.data += str.join('',[next(track) for x in range(remainder)])
         self.decode_data()
 
     def encode_tick(self, delta=0):
@@ -182,7 +182,7 @@ class MetaEvent(Event):
         if not hasattr(self, 'order'):
             self.order = None
         len = read_varlen(track)
-        self.data = str.join('', [track.next() for x in range(len)])
+        self.data = str.join('', [next(track) for x in range(len)])
         self.decode_data()
 
     def encode_data(self):
@@ -215,11 +215,11 @@ class EventFactory(object):
         tick = read_varlen(track)
         self.RunningTick += tick
         # next byte is status message
-        stsmsg = ord(track.next())
+        stsmsg = ord(next(track))
         # is the event a MetaEvent?
         if MetaEvent.is_event(stsmsg):
             # yes, figure out which one
-            cmd = ord(track.next())
+            cmd = ord(next(track))
             for etype in self.MetaEventRegistry:
                 if etype.is_meta_event(cmd):
                     evi = etype()
@@ -360,7 +360,7 @@ class SysExEvent(Event):
         self.tick = tick
         self.channel = statusmsg & 0x0F
         len = read_varlen(track)
-        self.data = str.join('', [track.next() for x in range(len)])
+        self.data = str.join('', [next(track) for x in range(len)])
 
 class SequenceNumberMetaEvent(MetaEvent):
     name = 'Sequence Number'
@@ -583,9 +583,9 @@ class EventStreamIterator(object):
         self.ttpts.append(stream.endoftrack.tick)
         self.ttpts = iter(self.ttpts)
         # Setup next tempo timepoint
-        self.ttp = self.ttpts.next()
+        self.ttp = next(self.ttpts)
         self.tempomap = iter(self.stream.tempomap)
-        self.tempo = self.tempomap.next()
+        self.tempo = next(self.tempomap)
         self.endoftrack = False
 
     def __iter__(self):
@@ -600,7 +600,7 @@ class EventStreamIterator(object):
             # We're past the tempo-marker.
             oldttp = self.ttp
             try:
-                self.ttp = self.ttpts.next()
+                self.ttp = next(self.ttpts)
             except StopIteration:
                 # End of Track!
                 self.window_edge = self.ttp
@@ -610,11 +610,11 @@ class EventStreamIterator(object):
             # account the tempo change.
             msused = (oldttp - lastedge) * self.tempo.mpt
             msleft = self.window_length - msused
-            self.tempo = self.tempomap.next()
+            self.tempo = next(self.tempomap)
             ticksleft = msleft / self.tempo.mpt
             self.window_edge = ticksleft + self.tempo.tick
 
-    def next(self):
+    def __next__(self):
         ret = []
         self.__next_edge()
         if self.leftover:
@@ -923,7 +923,7 @@ def read_varlen(data):
     NEXTBYTE = 1
     value = 0
     while NEXTBYTE:
-        chr = ord(data.next())
+        chr = ord(next(data))
         # is the hi-bit set?
         if not (chr & 0x80):
             # no next BYTE
@@ -957,13 +957,13 @@ def write_varlen(value):
     return res
 
 def test_varlen():
-    for value in xrange(0x0FFFFFFF):
+    for value in range(0x0FFFFFFF):
         if not (value % 0xFFFF):
             print((str(hex(value))))
         datum = write_varlen(value)
         newvalue = read_varlen(iter(datum))
         if value != newvalue:
-            hexstr = str.join('', map(hex, map(ord, datum)))
+            hexstr = str.join('', list(map(hex, list(map(ord, datum)))))
             print(("%s != %s (hex: %s)" % (value, newvalue, hexstr)))
 
 def new_stream(tempo=120, resolution=480, format=1):

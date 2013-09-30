@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
+
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 
@@ -14,8 +15,8 @@ GNU General Public License for more details.
 
 import os, sys, time, ctypes
 from PyQt4 import QtGui, QtCore
-import pydaw_util
-import portaudio, portmidi
+from . import pydaw_util
+from . import portaudio, portmidi
 
 class pydaw_device_dialog:
     def __init__(self, a_home_folder, a_is_running=False):
@@ -24,7 +25,7 @@ class pydaw_device_dialog:
         self.home_folder = str(a_home_folder)
         if not os.path.isdir(self.home_folder):
             os.mkdir(self.home_folder)
-        print(self.home_folder)
+        print((self.home_folder))
         self.device_file = "%s/device.txt" % (self.home_folder,)
         self.sample_rates = ["44100", "48000", "88200", "96000"]
         self.buffer_sizes = ["64", "128", "256", "512", "1024", "2048"]
@@ -103,27 +104,27 @@ class pydaw_device_dialog:
 
         for i in range(f_count):
             f_api = f_pyaudio.Pa_GetHostApiInfo(i)
-            print f_api.contents.name, f_api.contents.deviceCount
+            print(f_api.contents.name, f_api.contents.deviceCount)
             if f_api.contents.name.upper() == "ALSA":
                 f_alsa_index = i
                 break
 
-            print f_api.contents.name
+            print(f_api.contents.name)
 
-        print("ALSA index: %s" % (f_alsa_index,))
+        print(("ALSA index: %s" % (f_alsa_index,)))
 
         f_count = f_pyaudio.Pa_GetDeviceCount()
-        print("f_count == %s" % (f_count,))
+        print(("f_count == %s" % (f_count,)))
 
         f_result_dict = {}
         f_name_to_index = {}
 
         for i in range(f_count):
             f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
-            print("\nDevice Index: %s" % (i,))
+            print(("\nDevice Index: %s" % (i,)))
             f_api_index = f_dev.contents.hostApi
             f_dev_name = f_dev.contents.name
-            print("Name : %s" % (f_dev_name,))
+            print(("Name : %s" % (f_dev_name,)))
             if f_api_index == f_alsa_index:
                 f_name_to_index[f_dev_name] = i
                 f_result_dict[f_dev_name] = f_dev.contents
@@ -136,9 +137,9 @@ class pydaw_device_dialog:
         print("\n")
         for loop in range(pypm.Pm_CountDevices()):
             f_midi_device = pypm.Pm_GetDeviceInfo(loop)
-            print("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " %
+            print(("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " %
             (loop, f_midi_device.contents.name, f_midi_device.contents.input, f_midi_device.contents.output,
-             f_midi_device.contents.opened))
+             f_midi_device.contents.opened)))
             if f_midi_device.contents.input == 1:
                 f_midi_in_device_combobox.addItem(f_midi_device.contents.name)
 

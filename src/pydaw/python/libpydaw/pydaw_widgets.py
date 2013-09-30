@@ -13,7 +13,7 @@ GNU General Public License for more details.
 """
 
 import os, subprocess
-import pydaw_util, pydaw_ports
+from . import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
 
@@ -48,17 +48,17 @@ class pydaw_plugin_file:
     @staticmethod
     def from_dict(a_port_dict, a_control_dict, a_configure_dict):
         f_result = pydaw_plugin_file()
-        for k, v in a_port_dict.items():
+        for k, v in list(a_port_dict.items()):
             f_result.port_dict[a_control_dict[int(k)]] = v
-        for k, v in a_configure_dict.items():
+        for k, v in list(a_configure_dict.items()):
             f_result.configure_dict[k] = v
         return f_result
 
     def __str__(self):
         f_result = ""
-        for k, v in self.configure_dict.items():
+        for k, v in list(self.configure_dict.items()):
             f_result += str(k) + "|" + str(v) + "\n"
-        for k, v in self.port_dict.items():
+        for k, v in list(self.port_dict.items()):
             f_result += str(k) + "|" + str(v.get_value()) + "\n"
         return f_result + "\\"
 
@@ -720,7 +720,7 @@ class pydaw_preset_manager_widget:
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
 
     def reset_controls(self):
-        for k, v in self.controls.items():
+        for k, v in list(self.controls.items()):
             v.reset_default_value()
 
     def load_presets(self):
@@ -754,7 +754,7 @@ class pydaw_preset_manager_widget:
             QtGui.QMessageBox.warning(self.group_box, "Error", "The first preset must be empty")
             return
         f_result_values = [str(self.program_combobox.currentText())]
-        for k, f_control in self.controls.items():
+        for k, f_control in list(self.controls.items()):
             f_result_values.append("%s:%s" % (f_control.port_num, f_control.get_value(),))
         self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
         f_result = ""
@@ -768,7 +768,7 @@ class pydaw_preset_manager_widget:
             print("empty")
         else:
             f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
-            print("setting preset " + str(f_preset))
+            print(("setting preset " + str(f_preset)))
             for f_i in range(1, len(f_preset)):
                 f_port, f_val = f_preset[f_i].split(":")
                 f_port = int(f_port)
@@ -1313,12 +1313,12 @@ class pydaw_abstract_plugin_ui:
         f_file_path = self.pydaw_project.project_folder + "/" + self.folder + "/" + self.file
         if os.path.isfile(f_file_path):
             f_file = pydaw_plugin_file(f_file_path)
-            for k, v in f_file.port_dict.items():
+            for k, v in list(f_file.port_dict.items()):
                 self.set_control_val(self.control_to_port_dict[int(k)], v)
-            for k, v in f_file.configure_dict.items():
+            for k, v in list(f_file.configure_dict.items()):
                 self.set_configure(k, v)
         else:
-            print("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading.")
+            print(("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading."))
 
     def save_plugin_file(self):
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict, self.configure_dict)
@@ -1348,7 +1348,7 @@ class pydaw_abstract_plugin_ui:
         if f_port in self.port_dict:
             self.port_dict[int(a_port)].set_value(a_val)
         else:
-            print("pydaw_abstract_plugin_ui.set_control_val():  Did not have port " + str(f_port))
+            print(("pydaw_abstract_plugin_ui.set_control_val():  Did not have port " + str(f_port)))
 
     def configure_plugin(self, a_key, a_message):
         """ Override this function to allow str|str key/value pair messages to be sent to the back-end"""
@@ -2490,7 +2490,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_table_item = QtGui.QTableWidgetItem(f_arr[f_i])
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
-            print("Unknown configure message '%s'" % (a_key,))
+            print(("Unknown configure message '%s'" % (a_key,)))
 
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):

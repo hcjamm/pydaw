@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
@@ -440,7 +440,7 @@ class song_editor:
                     self.song.add_region_ref_by_name(f_i, f_item.text(), f_uid_dict)
                 if str(f_item.text()) == global_current_region_name:
                     global_current_song_index = f_i
-                    print(str(f_i))
+                    print((str(f_i)))
         this_pydaw_project.save_song(self.song)
         self.open_song()
 
@@ -3058,7 +3058,7 @@ def global_open_audio_items(a_update_viewer=True):
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
             except:
                 if global_transport_is_playing:
-                    print("Exception while loading %s" % (v.uid,))
+                    print(("Exception while loading %s" % (v.uid,)))
                 else:
                     f_path = this_pydaw_project.get_wav_path_by_uid(v.uid)
                     if os.path.isfile(f_path):
@@ -3522,7 +3522,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def highlight_keys(self, a_state, a_note):
         f_note = int(a_note)
         f_state = int(a_state)
-        if self.piano_keys is not None and self.piano_keys.has_key(f_note):
+        if self.piano_keys is not None and f_note in self.piano_keys:
             if f_state == 0:
                 if self.piano_keys[f_note].is_black:
                     self.piano_keys[f_note].setBrush(QtGui.QColor(0, 0, 0))
@@ -5858,10 +5858,10 @@ def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num,
 def global_close_all_plugin_windows():
     global global_open_fx_ui_dicts, global_open_inst_ui_dict
     for f_dict in global_open_fx_ui_dicts:
-        for v in f_dict.values():
+        for v in list(f_dict.values()):
             v.is_quitting = True
             v.widget.close()
-    for v in global_open_inst_ui_dict.values():
+    for v in list(global_open_inst_ui_dict.values()):
         v.is_quitting = True
         v.widget.close()
     global_open_fx_ui_dicts = [{}, {}, {}]
@@ -6398,11 +6398,11 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         try:
             self.osc_server = liblo.Server(30321)
-        except liblo.ServerError, err:
-            print("Error creating OSC server:  " + str(err))
+        except liblo.ServerError as err:
+            print(("Error creating OSC server:  " + str(err)))
             self.osc_server = None
         if self.osc_server is not None:
-            print(self.osc_server.get_url())
+            print((self.osc_server.get_url()))
             self.osc_server.add_method("pydaw/ui_configure", 'ss', self.configure_callback)
             self.osc_server.add_method(None, None, self.osc_fallback)
             self.osc_timer = QtCore.QTimer(self)
@@ -6429,9 +6429,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.osc_server.recv(1)
 
     def osc_fallback(self, path, args, types, src):
-        print("got unknown message '%s' from '%s'" % (path, src))
+        print(("got unknown message '%s' from '%s'" % (path, src)))
         for a, t in zip(args, types):
-            print("argument of type '%s': %s" % (t, a))
+            print(("argument of type '%s': %s" % (t, a)))
 
     def configure_callback(self, path, args):
         a_key, a_val = args
@@ -6490,7 +6490,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                             try:
                                 global_pydaw_subprocess.kill()
                             except Exception as ex:
-                                print("Exception raised while trying to kill process: %s" % (ex,))
+                                print(("Exception raised while trying to kill process: %s" % (ex,)))
                 if self.osc_server is not None:
                     self.osc_server.free()
                 self.ignore_close_event = False
@@ -7065,7 +7065,7 @@ if global_pydaw_with_audio:
             f_cmd = '"%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix,)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True) #, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 else:
-    print("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,))
+    print(("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,)))
     global_pydaw_subprocess = None
 
 this_transport = transport_widget()

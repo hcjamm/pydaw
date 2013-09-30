@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
+
 """
 This file is part of the PyDAW project, Copyright PyDAW Team
 
@@ -13,7 +14,7 @@ GNU General Public License for more details.
 """
 
 import sqlite3, os, time, difflib
-import pydaw_util
+from . import pydaw_util
 from PyQt4 import QtGui, QtCore
 
 class pydaw_history:
@@ -34,7 +35,7 @@ class pydaw_history:
         "' AND commit_folder = '" + str(a_folder) + "' ORDER BY commit_timestamp DESC LIMIT 1"
         f_query_result = self.db_exec(f_query, True)
         if len(f_query_result) == 0:
-            print("get_latest_version_of_file:  len(f_query_result) == 0 for \n\n%s\n\n" % (f_query,))
+            print(("get_latest_version_of_file:  len(f_query_result) == 0 for \n\n%s\n\n" % (f_query,)))
             return None
         else:
             return f_query_result[0][0]
@@ -96,7 +97,7 @@ are differences, that indicates a bug in PyDAW.
                     f_dir_name = ""
                 else:
                     f_dir_name = root.split("/")[-1]
-                print("Testing file %s/%s" % (f_dir_name, f_file))
+                print(("Testing file %s/%s" % (f_dir_name, f_file)))
                 f_history_text = self.get_latest_version_of_file(f_dir_name, f_file)
                 if f_current_text != f_history_text:
                     if f_history_text is None:
@@ -207,7 +208,7 @@ class pydaw_history_log_widget(QtGui.QWidget):
 if __name__ == "__main__":
     def _main():
         import sys
-        from pydaw_util import global_pydaw_file_type_string
+        from .pydaw_util import global_pydaw_file_type_string
         app = QtGui.QApplication(sys.argv)
         f_window = QtGui.QWidget()
         f_file = QtGui.QFileDialog.getOpenFileName(caption='Open Project', filter=global_pydaw_file_type_string)

@@ -1932,7 +1932,7 @@ class pydaw_audio_item_fx_region:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.fx_list.items():
+        for k, v in list(self.fx_list.items()):
             f_result += self.get_row_str(k) + "\n"
         f_result += pydaw_terminating_char
         return f_result

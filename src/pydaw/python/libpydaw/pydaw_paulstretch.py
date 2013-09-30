@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #
 # Paul's Extreme Sound Stretch (Paulstretch) - Python version
 # originally by Nasca Octavian PAUL, Targu Mures, Romania
@@ -22,7 +22,7 @@ from numpy import *
 import scipy.io.wavfile
 import wave
 from optparse import OptionParser
-from pydaw_util import *
+from .pydaw_util import *
 
 global_pydaw_version_string = "pydaw3"
 

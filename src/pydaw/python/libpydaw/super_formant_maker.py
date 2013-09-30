@@ -50,7 +50,7 @@ f_formant_dict = {
     "bass u":((350, 600, 2400, 2675, 2950), (0, -20, -32, -28, -36), (40, 80, 100, 120, 120))
 }
 
-print("static float pydaw_formant_table[%i][3][5] = \n{" % (len(f_formant_dict),))
+print(("static float pydaw_formant_table[%i][3][5] = \n{" % (len(f_formant_dict),)))
 
 for k in sorted(list(f_formant_dict.keys())):
     v = f_formant_dict[k]
@@ -64,5 +64,5 @@ for k in sorted(list(f_formant_dict.keys())):
     for f_val in v[2]:
         f_str += "%s, " % (round((-140.0 / f_val) + 1.0, 3),)
     f_str += "}},"
-    print("\t%s //%s"  % (f_str, k,))
+    print(("\t%s //%s"  % (f_str, k,)))
 print("}")

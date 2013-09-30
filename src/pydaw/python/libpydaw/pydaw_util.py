@@ -25,7 +25,7 @@ if "src/pydaw/python/" in __file__:
 else:
     global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
     global_pydaw_bin_path = global_pydaw_install_prefix + "/bin/" + global_pydaw_version_string + "-engine"
-    print("global_pydaw_bin_path : %s" % (global_pydaw_bin_path,))
+    print(("global_pydaw_bin_path : %s" % (global_pydaw_bin_path,)))
     if os.path.exists(global_pydaw_bin_path):
         global_pydaw_with_audio = True
     else:
@@ -34,7 +34,7 @@ else:
 def pydaw_escape_stylesheet(a_stylesheet):
     return a_stylesheet.replace("$PYDAW_PREFIX", global_pydaw_install_prefix)
 
-print("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,))
+print(("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,)))
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
