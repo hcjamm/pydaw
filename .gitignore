@@ -1,5 +1,5 @@
 src/pydaw/pyliblo-0.9.1/build/
-src/pydaw/python/libpydaw/liblo.so
+src/pydaw/python/libpydaw/*.so
 src/pydaw/portaudio/Makefile
 src/pydaw/portaudio/bin-stamp
 src/pydaw/portaudio/bin/

@@ -55,7 +55,7 @@ C_OBJS   = src/main.o
 # --------------------------------------------------------------
 
 all:
-	cd pyliblo-0.9.1 && python setup.py build && cp build/lib*/*.so ../python/libpydaw
+	cd pyliblo-0.9.1 && python3 setup.py build && cp build/lib*/*.so ../python/libpydaw
 	cd portaudio && ./configure --with-jack=no --with-oss=no
 	make -C portaudio
 	make pydaw3-engine
