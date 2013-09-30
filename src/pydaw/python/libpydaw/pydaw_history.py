@@ -14,7 +14,12 @@ GNU General Public License for more details.
 """
 
 import sqlite3, os, time, difflib
-from . import pydaw_util
+
+try:
+    import libpydaw.pydaw_util as pydaw_util
+except ImportError:
+    import pydaw_util
+
 from PyQt4 import QtGui, QtCore
 
 class pydaw_history:
@@ -208,10 +213,9 @@ class pydaw_history_log_widget(QtGui.QWidget):
 if __name__ == "__main__":
     def _main():
         import sys
-        from .pydaw_util import global_pydaw_file_type_string
         app = QtGui.QApplication(sys.argv)
         f_window = QtGui.QWidget()
-        f_file = QtGui.QFileDialog.getOpenFileName(caption='Open Project', filter=global_pydaw_file_type_string)
+        f_file = QtGui.QFileDialog.getOpenFileName(caption='Open Project', filter=pydaw_util.global_pydaw_file_type_string)
         if f_file is not None:
             f_file = str(f_file)
             if f_file != "":
