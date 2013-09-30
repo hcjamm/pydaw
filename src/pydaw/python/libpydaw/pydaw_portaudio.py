@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import pyaudio, os, sys, time, platform
+import pyaudio, os, sys, time
 from PyQt4 import QtGui, QtCore
 import pydaw_util
 import pypm
