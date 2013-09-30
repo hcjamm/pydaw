@@ -120,8 +120,7 @@ class pydaw_device_dialog:
 
         for i in range(f_count):
             f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
-            print("\n")
-            print("Device Index: %s" % (i,))
+            print("\nDevice Index: %s" % (i,))
             f_api_index = f_dev.contents.hostApi
             f_dev_name = f_dev.contents.name
             print("Name : %s" % (f_dev_name,))
@@ -134,7 +133,7 @@ class pydaw_device_dialog:
         pypm.Pm_GetDeviceInfo.restype = ctypes.POINTER(portmidi.PmDeviceInfo)
         pypm.Pm_Initialize()
 
-        print("\n\n\n")
+        print("\n")
         for loop in range(pypm.Pm_CountDevices()):
             f_midi_device = pypm.Pm_GetDeviceInfo(loop)
             print("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " %
