@@ -12,10 +12,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import pyaudio, os, sys, time
+import os, sys, time, ctypes
 from PyQt4 import QtGui, QtCore
 import pydaw_util
-import pypm
+import portaudio, portmidi
 
 class pydaw_device_dialog:
     def __init__(self, a_home_folder, a_is_running=False):
@@ -87,29 +87,61 @@ class pydaw_device_dialog:
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_ok_cancel_layout.addWidget(f_cancel_button)
 
-        f_pyaudio = pyaudio.PyAudio()
-        f_count = f_pyaudio.get_host_api_count()
-        f_api_list = ["ALSA"]
-        f_result_dict = {}
+        ctypes.cdll.LoadLibrary("libportaudio.so")
+        f_pyaudio = ctypes.CDLL("libportaudio.so")
+        f_pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(portaudio.PaDeviceInfo)
+        f_pyaudio.Pa_GetDeviceInfo.argstype = [ctypes.c_int]
+        f_pyaudio.Pa_GetHostApiInfo.restype = ctypes.POINTER(portaudio.PaHostApiInfo)
+        f_pyaudio.Pa_GetHostApiInfo.argstype = [ctypes.c_int]
+        f_pyaudio.Pa_IsFormatSupported.argstype = [ctypes.POINTER(portaudio.PaStreamParameters),
+                                                   ctypes.POINTER(portaudio.PaStreamParameters), ctypes.c_double]
+        f_pyaudio.Pa_Initialize()
+
+        f_count = f_pyaudio.Pa_GetHostApiCount()
+
+        f_alsa_index = None
 
         for i in range(f_count):
-            f_api_dict = f_pyaudio.get_host_api_info_by_index(i)
-            if f_api_dict["name"] in f_api_list:
-                f_count = f_api_dict["deviceCount"]
-                for i2 in range(f_count):
-                    f_dev = f_pyaudio.get_device_info_by_host_api_device_index(i, i2)
-                    print("\n\n\n")
-                    for k, v in f_dev.items():
-                        print("%s : %s" % (k, v))
-                    f_result_dict[f_dev["name"]] = f_dev
+            f_api = f_pyaudio.Pa_GetHostApiInfo(i)
+            print f_api.contents.name, f_api.contents.deviceCount
+            if f_api.contents.name.upper() == "ALSA":
+                f_alsa_index = i
+                break
 
-        pypm.Initialize()
+            print f_api.contents.name
+
+        print("ALSA index: %s" % (f_alsa_index,))
+
+        f_count = f_pyaudio.Pa_GetDeviceCount()
+        print("f_count == %s" % (f_count,))
+
+        f_result_dict = {}
+        f_name_to_index = {}
+
+        for i in range(f_count):
+            f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
+            print("\n")
+            print("Device Index: %s" % (i,))
+            f_api_index = f_dev.contents.hostApi
+            f_dev_name = f_dev.contents.name
+            print("Name : %s" % (f_dev_name,))
+            if f_api_index == f_alsa_index:
+                f_name_to_index[f_dev_name] = i
+                f_result_dict[f_dev_name] = f_dev.contents
+
+        ctypes.cdll.LoadLibrary("libportmidi.so")
+        pypm = ctypes.CDLL("libportmidi.so")
+        pypm.Pm_GetDeviceInfo.restype = ctypes.POINTER(portmidi.PmDeviceInfo)
+        pypm.Pm_Initialize()
+
         print("\n\n\n")
-        for loop in range(pypm.CountDevices()):
-            interf,name,inp,outp,opened = pypm.GetDeviceInfo(loop)
-            print("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " % (loop, name, inp, outp, opened))
-            if inp == 1:
-                f_midi_in_device_combobox.addItem(name)
+        for loop in range(pypm.Pm_CountDevices()):
+            f_midi_device = pypm.Pm_GetDeviceInfo(loop)
+            print("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " %
+            (loop, f_midi_device.contents.name, f_midi_device.contents.input, f_midi_device.contents.output,
+             f_midi_device.contents.opened))
+            if f_midi_device.contents.input == 1:
+                f_midi_in_device_combobox.addItem(f_midi_device.contents.name)
 
         def latency_changed(a_self=None, a_val=None):
             f_sample_rate = float(str(f_samplerate_combobox.currentText()))
@@ -122,12 +154,11 @@ class pydaw_device_dialog:
 
         def combobox_changed(a_self=None, a_val=None):
             self.device_name = str(f_device_name_combobox.currentText())
-            f_samplerate = str(int(f_result_dict[self.device_name]["defaultSampleRate"]))
+            f_samplerate = str(int(f_result_dict[self.device_name].defaultSampleRate))
             if f_samplerate in self.sample_rates:
                 f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(f_samplerate))
 
         def on_ok(a_self=None):
-            f_device = f_result_dict[self.device_name]
             f_buffer_size = int(str(f_buffer_size_combobox.currentText()))
             f_samplerate = int(str(f_samplerate_combobox.currentText()))
             f_worker_threads = f_worker_threads_combobox.currentIndex()
@@ -137,8 +168,9 @@ class pydaw_device_dialog:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
                 if not self.is_running or "name" not in self.val_dict or self.val_dict["name"] != self.device_name:
-                    f_supported = f_pyaudio.is_format_supported(f_samplerate, output_device=f_device["index"],
-                                                  output_format=f_pyaudio.get_format_from_width(2), output_channels=2)
+                    f_output = portaudio.PaStreamParameters(f_name_to_index[self.device_name], 2, portaudio.paInt16,
+                                                            float(f_buffer_size)/float(f_samplerate), None)
+                    f_supported = f_pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output), f_samplerate)
                     if not f_supported:
                         raise Exception()
                 f_file = open(self.device_file, "w")
@@ -150,8 +182,8 @@ class pydaw_device_dialog:
 
                 f_file.write("\\")
                 f_file.close()
-                f_pyaudio.terminate()
-                pypm.Terminate()
+                f_pyaudio.Pa_Terminate()
+                pypm.Pm_Terminate()
 
                 if a_notify:
                     QtGui.QMessageBox.warning(f_window, "Settings changed",
