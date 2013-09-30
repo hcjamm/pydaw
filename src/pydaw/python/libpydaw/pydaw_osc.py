@@ -12,7 +12,7 @@ GNU General Public License for more details.
 """
 
 import sys
-import liblo
+import libpydaw.liblo as liblo
 from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 

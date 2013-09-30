@@ -18,7 +18,7 @@ from time import sleep
 import time
 from PyQt4 import QtGui, QtCore
 from libpydaw import *
-import liblo
+import libpydaw.liblo as liblo
 
 from libpydaw.pydaw_util import *
 
