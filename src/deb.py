@@ -77,7 +77,7 @@ Installed-Size: %s
 Maintainer: PyDAW Team <pydawteam@users.sf.net>
 Architecture: %s
 Version: %s
-Depends: liblo-dev, libsndfile1-dev, libportmidi-dev, portaudio19-dev, python-qt4, audacity, python2.7, libmad0-dev, python-scipy, python-numpy, libsamplerate0-dev, libfftw3-dev
+Depends: liblo-dev, libsndfile1-dev, libportmidi-dev, portaudio19-dev, python3-pyqt4, audacity, python3, libmad0-dev, python3-scipy, python3-numpy, libsamplerate0-dev, libfftw3-dev
 Provides: %s
 Conflicts:
 Replaces:
