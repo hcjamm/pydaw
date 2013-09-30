@@ -25,7 +25,7 @@ from optparse import OptionParser
 try:
     from libpydaw.pydaw_util import *
 except ImportError:
-    from .pydaw_util import *
+    from pydaw_util import *
 
 global_pydaw_version_string = "pydaw3"
 
@@ -170,15 +170,18 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
 
         cfreqs=(freqs*displace_tick)+(old_freqs*(1.0-displace_tick))
 
+
+        #EDITED OUT BECAUSE OF PYTHON3 GOOFYNESS:
+            #TypeError: uniform() takes exactly 3 positional arguments (4 given)
         #randomize the phases by multiplication with a random complex number with modulus=1
-        ph=random.uniform(0,2*pi,(nchannels,cfreqs.shape[1]))*1j
-        cfreqs=cfreqs*exp(ph)
+        #ph=random.uniform(0.0, (2.0 * pi), (nchannels, cfreqs.shape[1])) * 1j
+        #cfreqs=cfreqs * exp(ph)
 
         #do the inverse FFT
-        buf=fft.irfft(cfreqs)
+        buf = fft.irfft(cfreqs)
 
         #window again the output buffer
-        buf*=window
+        buf *= window
 
         #overlap-add the output
         output=buf[:,0:half_windowsize]+old_windowed_buf[:,half_windowsize:windowsize]
