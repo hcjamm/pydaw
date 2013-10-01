@@ -51,7 +51,7 @@ f_makefile_exit_code = os.system(f_build_cmd)
 if f_makefile_exit_code != 0:
     print(("Makefile exited abnormally with exit code %s, see output for error messages." % (f_makefile_exit_code,)))
     print("If the build failed while compiling Portaudio, you should try this workaround:")
-    print("cd pydaw/Portaudio")
+    print("cd pydaw/portaudio")
     print("./configure && make clean && make")
     print("...and then retry running deb.py")
     sys.exit(f_makefile_exit_code)
