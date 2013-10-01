@@ -125,8 +125,7 @@ def pydaw_add_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_bars):
     return (f_region, f_bar, f_beat)
 
 def pydaw_print_generic_exception(a_ex):
-    f_error = str(type(a_ex)) + " exception:" + a_ex.message
-    QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n" + f_error + \
+    QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happeneds\n%s" % (a_ex,) + \
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
     "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
 

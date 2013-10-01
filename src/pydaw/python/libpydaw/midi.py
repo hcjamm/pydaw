@@ -1,5 +1,4 @@
 import copy
-import time
 from io import StringIO
 from struct import unpack, pack
 from math import sqrt
@@ -811,7 +810,7 @@ class EventStream(object):
 class EventStreamWriter(object):
     def __init__(self, midistream, output):
         if isinstance(output, str):
-            output = open(output, 'w')
+            output = open(output, 'wb')
         self.output = output
         self.midistream = midistream
         self.write_file_header()
@@ -864,16 +863,18 @@ class EventStreamReader(object):
     def parse(self, instream, outstream):
         self.midistream = outstream
         if isinstance(instream, str):
-            instream = open(instream)
-        self.instream = instream
-        if isinstance(instream, file):
-            self.instream = StringIO(instream.read())
-            self.cursor = 0
-        # XXX: unicode?
-        elif isinstance(instream, StringIO):  #was string before...
-            self.instream = StringIO(instream)
+            instream = open(instream, "rb")
+            self.instream = instream
         else:
-            raise TypeError("Expecting file, string, or StringIO")
+            try:
+                self.instream = StringIO(instream.read())
+                self.cursor = 0
+            except:
+                # XXX: unicode?
+                try:
+                    self.instream = StringIO(instream)
+                except:
+                    raise TypeError("Expecting file, string, or StringIO")
         self.parse_file_header()
         for track in range(self.midistream.trackcount):
             trksz = self.parse_track_header()
@@ -884,7 +885,7 @@ class EventStreamReader(object):
     def parse_file_header(self):
         # First four bytes are MIDI header
         magic = self.instream.read(4)
-        if magic != 'MThd':
+        if magic != b'MThd':
             raise TypeError("Bad header in MIDI file.")
         # next four bytes are header size
         # next two bytes specify the format version
@@ -905,7 +906,7 @@ class EventStreamReader(object):
         # First four bytes are Track header
         magic = self.instream.read(4)
         if magic != 'MTrk':
-            raise TypeError("Bad track header in MIDI file: " + magic)
+            raise TypeError("Bad track header in MIDI file: %s" % (magic,))
         # next four bytes are header size
         trksz = unpack(">L", self.instream.read(4))[0]
         return trksz
