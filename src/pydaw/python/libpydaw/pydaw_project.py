@@ -2249,10 +2249,15 @@ class pydaw_midicomp_event:
     def __init__(self, a_arr):
         self.tick = int(a_arr[0])
         self.type = a_arr[1]
-        self.ch = int(a_arr[2].split("ch=")[1])
+        self.ch = int(a_arr[2].split("ch=")[1]) - 1
         self.pitch = int(a_arr[3].split("n=")[1])
+        if self.pitch >= 24:
+            self.pitch -= 24
         self.vel = int(a_arr[4].split("v=")[1])
         self.length = -1
+
+    def __lt__(self, other):
+        return self.tick < other.tick
 
 class pydaw_midi_file_to_items:
     """ Convert the MIDI file at a_file to a dict of pydaw_item's with keys
@@ -2262,36 +2267,48 @@ class pydaw_midi_file_to_items:
         f_midi_text_arr = subprocess.check_output([f_midi_comp, str(a_file)]).decode("utf-8").split("\n")
         #First fix the lengths of events that have note-off events
         f_note_on_dict = {}
+        f_item_list = []
         f_resolution = 96
         for f_line in f_midi_text_arr:
             f_line_arr = f_line.split()
             if len(f_line_arr) <= 1:
                 continue
-            elif f_line_arr[0] == "MFile":
+            if f_line_arr[0] == "MFile":
                 f_resolution = int(f_line_arr[3])
             elif f_line_arr[1] == "On":
                 f_event = pydaw_midicomp_event(f_line_arr)
-                f_note_on_dict[(f_event.ch, f_event.pitch)] = f_event
+                if f_event.vel == 0:
+                    f_tuple = (f_event.ch, f_event.pitch)
+                    if f_tuple in f_note_on_dict:
+                        f_note_on_dict[f_tuple].length = float(f_event.tick - f_note_on_dict[f_tuple].tick) / float(f_resolution)
+                        f_note_on_dict.pop(f_tuple)
+                else:
+                    f_note_on_dict[(f_event.ch, f_event.pitch)] = f_event
+                    f_item_list.append(f_event)
             elif f_line_arr[1] == "Off":
                 f_event = pydaw_midicomp_event(f_line_arr)
                 f_tuple = (f_event.ch, f_event.pitch)
                 if f_tuple in f_note_on_dict:
                     f_note_on_dict[f_tuple].length = float(f_event.tick - f_note_on_dict[f_tuple].tick) / float(f_resolution)
+                    print("%s %s" % (f_note_on_dict[f_tuple].tick, f_note_on_dict[f_tuple].length,))
+                    f_note_on_dict.pop(f_tuple)
                 else:
                     print(("Error, note-off event does not correspond to a note-on event, ignoring event:\n" + str(f_event)))
             else:
                 print("Ignoring event: %s" % (f_line,))
 
         self.result_dict = {}
+        f_item_list.sort()
 
-        for k, f_event in f_note_on_dict.items():
-            if f_event.length > 0:
+        for f_event in f_item_list:
+            if f_event.length > 0.0:
                 f_velocity = f_event.vel
                 f_beat = (float(f_event.tick) / float(f_resolution)) % 4.0
                 f_bar = int((int(f_event.tick) // int(f_resolution)) // 4)
+                print("f_beat : %s | f_bar : %s" % (f_beat, f_bar))
                 f_pitch = f_event.pitch
                 f_length = f_event.length
-                f_channel = int(k[0])
+                f_channel = f_event.ch
                 f_key = (f_channel, f_bar)
                 if not f_key in self.result_dict:
                     self.result_dict[f_key] = pydaw_item()
@@ -2309,26 +2326,26 @@ class pydaw_midi_file_to_items:
             if k[1] > f_max:
                 f_max = k[1]
 
+        print("f_min : %s | f_max : %s" % (f_min, f_max))
+
         self.bar_count = int(f_max - f_min + 1)
         self.bar_offset = int(f_min)
         self.channel_count = self.get_channel_count()
 
-        #Nested dict in format [track][channel][bar]
+        #Nested dict in format [channel][bar]
         self.track_map = {}
         for f_i in range(pydaw_midi_track_count):
             self.track_map[f_i] = {}
 
         for k, v in list(self.result_dict.items()):
             f_channel, f_bar = k
-            if not f_channel in self.track_map:
-                self.track_map[f_channel] = {}
             self.track_map[f_channel][f_bar - self.bar_offset] = v
 
     def get_channel_count(self):
         f_result = []
-        for k, v in list(self.result_dict.items()):
+        for k in list(self.result_dict.keys()):
             if k[0] not in f_result:
-                f_result.append(k[1])
+                f_result.append(k[0])
         return len(f_result)
 
     def populate_region_from_track_map(self, a_project, a_name):
