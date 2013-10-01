@@ -3297,7 +3297,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.update_note_text()
 
     def update_note_text(self):
-        f_octave = (self.note_item.note_num / 12) - 2
+        f_octave = (self.note_item.note_num // 12) - 2
         f_note = global_piano_roll_note_labels[self.note_item.note_num % 12]
         self.note_text.setText("%s%s" % (f_note, f_octave))
 
@@ -6187,7 +6187,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
 
         def file_name_select():
-            try:
+            #try:
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open MIDI File', directory=global_default_project_folder, filter='MIDI File (*.mid)')
@@ -6196,8 +6196,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_name.setText(f_file_name)
                     if str(f_item_name.text()).strip() == "":
                         f_item_name.setText(pydaw_remove_bad_chars(f_file_name.split("/")[-1].replace(".", "-")))
-            except Exception as ex:
-                pydaw_print_generic_exception(ex)
+            #except Exception as ex:
+            #    pydaw_print_generic_exception(ex)
 
         def item_name_changed(a_val=None):
             f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
