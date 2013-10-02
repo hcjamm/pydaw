@@ -1,9 +1,0 @@
-Makefile
-cli/sbsms
-config.status
-libsbsms.spec
-libtool
-sbsms.pc
-src/Makefile
-src/config.h
-src/stamp-h1

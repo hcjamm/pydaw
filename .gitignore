@@ -1,3 +1,12 @@
+src/pydaw_sbsms/Makefile
+src/pydaw_sbsms/cli/sbsms
+src/pydaw_sbsms/config.status
+src/pydaw_sbsms/libsbsms.spec
+src/pydaw_sbsms/libtool
+src/pydaw_sbsms/sbsms.pc
+src/pydaw_sbsms/src/Makefile
+src/pydaw_sbsms/src/config.h
+src/pydaw_sbsms/src/stamp-h1
 src/pydaw/midicomp/midicomp
 src/pydaw/python/libpydaw/midicomp
 src/pydaw/pyliblo-0.9.1/build/
