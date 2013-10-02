@@ -15047,15 +15047,7 @@ if test $ac_cv_lib_mad_mad_stream_init = yes; then
 _ACEOF
 
   LIBS="-lmad $LIBS"
-
-else
-  echo "Sorry, you need libmad for mp3 support."; exit -1
 fi
-
-if test x$MAD_LIBS = x; then
-   MAD_LIBS="-lmad"
-fi
-
 
 
 

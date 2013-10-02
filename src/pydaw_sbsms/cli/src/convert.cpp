@@ -2,7 +2,6 @@
 
 #include "convert.h"
 #include "pcm.h"
-#include "mp3.h"
 #include "real.h"
 #include <stdlib.h>
 #include <algorithm>

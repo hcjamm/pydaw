@@ -1,7 +1,6 @@
 #include <iostream>
 #include "import.h"
 #include "pcm.h"
-#include "mp3.h"
 #include <map>
 #include <string>
 
@@ -25,9 +24,7 @@ AudioDecoder *import(const char *filename)
     string ext = fname.substr(i+1);
     string extl = lower(ext);
     if(!extl.compare("wav") || !extl.compare("aif") || !extl.compare("aiff")) {
-      decoder = new PcmReader(filename);
-    } else if (!extl.compare("mp3")) {
-      decoder = new MP3Reader(filename);
+      decoder = new PcmReader(filename);    
     } else {
       perror("Error importing file");
       return NULL;

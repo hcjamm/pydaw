@@ -59,7 +59,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsbsmsx_la_LIBADD =
-am_libsbsmsx_la_OBJECTS = mp3.lo mp3tech.lo import.lo pcm.lo \
+am_libsbsmsx_la_OBJECTS = import.lo pcm.lo \
 	convert.lo audiobuffer.lo
 libsbsmsx_la_OBJECTS = $(am_libsbsmsx_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -226,7 +226,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = @SBSMS_CFLAGS@ @SBSMS_CFLAGS@ @SNDFILE_CFLAGS@ @MAD_CFLAGS@ -I../include
 lib_LTLIBRARIES = libsbsmsx.la
-libsbsmsx_la_SOURCES = mp3.cpp mp3.h mp3tech.cpp mp3tech.h import.cpp import.h pcm.cpp pcm.h convert.cpp convert.h audiobuffer.cpp audiobuffer.h
+libsbsmsx_la_SOURCES = import.cpp import.h pcm.cpp pcm.h convert.cpp convert.h audiobuffer.cpp audiobuffer.h
 sbsms_LDADD = libsbsmsx.la @SBSMS_LIBS@ @SNDFILE_LIBS@ @MAD_LIBS@
 sbsms_LDFLAGS = $(os_ldflags)
 sbsms_SOURCES = test.cpp 
@@ -351,8 +351,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audiobuffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/import.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp3.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp3tech.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pcm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@
 
