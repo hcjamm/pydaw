@@ -113,8 +113,6 @@ class pydaw_device_dialog:
                 f_alsa_index = i
                 break
 
-            print(f_api.contents.name)
-
         print(("ALSA index: %s" % (f_alsa_index,)))
 
         f_count = f_pyaudio.Pa_GetDeviceCount()
@@ -122,6 +120,7 @@ class pydaw_device_dialog:
 
         f_result_dict = {}
         f_name_to_index = {}
+        f_audio_device_names = []
 
         for i in range(f_count):
             f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
@@ -132,7 +131,7 @@ class pydaw_device_dialog:
             if f_api_index == f_alsa_index:
                 f_name_to_index[f_dev_name] = i
                 f_result_dict[f_dev_name] = f_dev.contents
-                f_device_name_combobox.addItem(f_dev_name)
+                f_audio_device_names.append(f_dev_name)
 
         ctypes.cdll.LoadLibrary("libportmidi.so")
         pypm = ctypes.CDLL("libportmidi.so")
@@ -208,6 +207,8 @@ class pydaw_device_dialog:
         f_cancel_button.pressed.connect(on_cancel)
 
         f_device_name_combobox.currentIndexChanged.connect(combobox_changed)
+        f_audio_device_names.sort()
+        f_device_name_combobox.addItems(f_audio_device_names)
 
         if "name" in self.val_dict and self.val_dict["name"] in f_result_dict:
             f_device_name_combobox.setCurrentIndex(f_device_name_combobox.findText(self.val_dict["name"]))
