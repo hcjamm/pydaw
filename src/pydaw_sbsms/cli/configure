@@ -14896,12 +14896,6 @@ else
 echo "${ECHO_T}yes" >&6; }
 	ac_cv_sbsms=1
 fi
-# check for presence of libsbsms
-if test "$ac_cv_sbsms" = "0"; then
-   echo "Sorry, you need libsbsms."
-   exit -1;
-fi
-
 
 
 
