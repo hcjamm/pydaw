@@ -105,17 +105,6 @@ class pydaw_device_dialog:
         f_pyaudio.Pa_Initialize()
         f_count = f_pyaudio.Pa_GetHostApiCount()
 
-        f_alsa_index = None
-
-        for i in range(f_count):
-            f_api = f_pyaudio.Pa_GetHostApiInfo(i)
-            print(f_api.contents.name, f_api.contents.deviceCount)
-            if f_api.contents.name.decode("utf-8").upper() == "ALSA":
-                f_alsa_index = i
-                break
-
-        print(("ALSA index: %s" % (f_alsa_index,)))
-
         f_count = f_pyaudio.Pa_GetDeviceCount()
         print(("f_count == %s" % (f_count,)))
 
@@ -126,13 +115,11 @@ class pydaw_device_dialog:
         for i in range(f_count):
             f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
             print(("\nDevice Index: %s" % (i,)))
-            f_api_index = f_dev.contents.hostApi
             f_dev_name = f_dev.contents.name.decode("utf-8")
             print(("Name : %s" % (f_dev_name,)))
-            if f_api_index == f_alsa_index:
-                f_name_to_index[f_dev_name] = i
-                f_result_dict[f_dev_name] = f_dev.contents
-                f_audio_device_names.append(f_dev_name)
+            f_name_to_index[f_dev_name] = i
+            f_result_dict[f_dev_name] = f_dev.contents
+            f_audio_device_names.append(f_dev_name)
 
         ctypes.cdll.LoadLibrary("libportmidi.so")
         pypm = ctypes.CDLL("libportmidi.so")
