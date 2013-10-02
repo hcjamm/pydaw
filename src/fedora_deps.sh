@@ -1,5 +1,5 @@
 #dependencies
-sudo yum install PyQt4 pyliblo gcc alsa-lib-devel liblo-devel libsndfile-devel gcc-c++ audacity git libmad-devel numpy scipy ladspa-devel vamp-plugin-sdk-devel fftw-devel portaudio19 portmidi-217
+sudo yum install PyQt4 pyliblo gcc alsa-lib-devel liblo-devel libsndfile-devel gcc-c++ audacity git libmad-devel numpy scipy ladspa-devel vamp-plugin-sdk-devel fftw-devel portmidi-217
 
 
 # Now run:
