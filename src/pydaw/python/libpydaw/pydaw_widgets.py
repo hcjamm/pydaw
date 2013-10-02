@@ -158,7 +158,7 @@ class pydaw_abstract_ui_control:
             if self.val_conversion == kc_none:
                 pass
             elif self.val_conversion == kc_decimal:
-                self.value_label.setText(str(f_value * .01))
+                self.value_label.setText(str(round(f_value * .01, 2)))
             elif self.val_conversion == kc_integer:
                 self.value_label.setText(str(int(f_value)))
             elif self.val_conversion == kc_pitch:
@@ -168,7 +168,7 @@ class pydaw_abstract_ui_control:
             elif self.val_conversion == kc_127_zero_to_x:
                 f_dec_value = (float(f_value) * self.label_value_127_multiply_by) - self.label_value_127_add_to
                 f_dec_value = ((int)(f_dec_value * 10.0)) * 0.1
-                self.value_label.setText(str(f_dec_value))
+                self.value_label.setText(str(round(f_dec_value, 2)))
             elif self.val_conversion == kc_127_zero_to_x_int:
                 f_dec_value = (float(f_value) * self.label_value_127_multiply_by) - self.label_value_127_add_to
                 self.value_label.setText(str(int(f_dec_value)))
@@ -176,7 +176,7 @@ class pydaw_abstract_ui_control:
                 f_dec_value = float(f_value) * 0.01
                 f_dec_value = f_dec_value * f_dec_value
                 f_dec_value = (int(f_dec_value * 100.0)) * 0.01
-                self.value_label.setText(str(f_dec_value))
+                self.value_label.setText(str(round(f_dec_value, 2)))
 
     def add_to_grid_layout(self, a_layout, a_x):
         if self.name_label is not None:
