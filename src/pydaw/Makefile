@@ -26,35 +26,35 @@ PORTAUDIO_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libportaudio.a ]; \
 then printf "$(PYDAW_LIB_DIR)/libportaudio.a" ; \
 elif [ -e $(PYDAW_LIB64_DIR)/libportaudio.a ]; \
 then printf "$(PYDAW_LIB64_DIR)/libportaudio.a" ; \
-else printf "-lportaudio" ; \
+else printf " -lportaudio" ; \
 fi)
 
 PORTMIDI_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libportmidi.a ]; \
 then printf "$(PYDAW_LIB_DIR)/libportmidi.a $(PYDAW_LIB_DIR)/libporttime.a" ; \
 elif [ -e $(PYDAW_LIB64_DIR)/libportmidi.a ]; \
 then printf "$(PYDAW_LIB64_DIR)/libportmidi.a $(PYDAW_LIB64_DIR)/libporttime.a" ; \
-else printf "-lportmidi" ; \
+else printf " -lportmidi" ; \
 fi)
 
 LIBLO_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/liblo.a ]; \
 then printf "$(PYDAW_LIB_DIR)/liblo.a" ; \
 elif [ -e $(PYDAW_LIB64_DIR)/liblo.a ]; \
 then printf "$(PYDAW_LIB64_DIR)/liblo.a" ; \
-else printf "-llo" ; \
+else printf " -llo" ; \
 fi)
 
 MATH_LIB_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/libm.a ]; \
 then printf "$(PYDAW_LIB_DIR)/libm.a" ; \
 elif [ -e $(PYDAW_LIB64_DIR)/libm.a ]; \
 then printf "$(PYDAW_LIB64_DIR)/libm.a" ; \
-else printf "-lm" ; \
+else printf " -lm" ; \
 fi)
 
 RT_LIB_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/librt.a ]; \
 then printf "$(PYDAW_LIB_DIR)/librt.a" ; \
 elif [ -e $(PYDAW_LIB64_DIR)/librt.a ]; \
 then printf "$(PYDAW_LIB64_DIR)/librt.a" ; \
-else printf "-lrt" ; \
+else printf " -lrt" ; \
 fi)
 
 LINK_CFLAGS    = $(RT_LIB_FLAG) -lpthread $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
