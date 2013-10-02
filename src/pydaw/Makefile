@@ -14,7 +14,11 @@ BASE_FLAGS     = -ffast-math -mtune=generic -fprefetch-loop-arrays \
 -Isrc -Iportaudio/include -fstrength-reduce -fstrict-aliasing -finline-functions
 
 PYDAW_LIB_DIR   ?= /usr/lib
-PYDAW_LIB64_DIR ?= /usr/lib/x86_64-linux-gnu
+PYDAW_LIB64_DIR ?= $(shell if [ -e "/usr/lib/x86_64-linux-gnu" ]; \
+then printf "/usr/lib/x86_64-linux-gnu" ; \
+elif [ -e "/usr/lib64" ]; \
+then printf "/usr/lib64" ; \
+fi)
 
 BUILD_CFLAGS   = $(PLAT_FLAGS) $(BASE_FLAGS) $(CFLAGS)
 
