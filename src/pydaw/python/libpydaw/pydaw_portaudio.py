@@ -93,8 +93,9 @@ class pydaw_device_dialog:
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_ok_cancel_layout.addWidget(f_cancel_button)
 
-        ctypes.cdll.LoadLibrary("libportaudio.so")
-        f_pyaudio = ctypes.CDLL("libportaudio.so")
+        f_portaudio_so_path = "%s/libportaudio.so" % (os.path.dirname(os.path.abspath(__file__)),)
+        ctypes.cdll.LoadLibrary(f_portaudio_so_path)
+        f_pyaudio = ctypes.CDLL(f_portaudio_so_path)
         f_pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(portaudio.PaDeviceInfo)
         f_pyaudio.Pa_GetDeviceInfo.argstype = [ctypes.c_int]
         f_pyaudio.Pa_GetHostApiInfo.restype = ctypes.POINTER(portaudio.PaHostApiInfo)
