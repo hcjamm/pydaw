@@ -11,7 +11,7 @@ PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse
 
 BASE_FLAGS     = -ffast-math -mtune=generic -fprefetch-loop-arrays \
 -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
--Isrc -fstrength-reduce -fstrict-aliasing -finline-functions
+-Isrc -Iportaudio/include -fstrength-reduce -fstrict-aliasing -finline-functions
 
 PYDAW_LIB_DIR   ?= /usr/lib
 PYDAW_LIB64_DIR ?= /usr/lib/x86_64-linux-gnu
