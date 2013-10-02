@@ -46,9 +46,17 @@ then printf "$(PYDAW_LIB64_DIR)/libm.a" ; \
 else printf "-lm" ; \
 fi)
 
-LINK_CFLAGS    = -lpthread -lrt $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
+RT_LIB_FLAG ?= $(shell if [ -e $(PYDAW_LIB_DIR)/librt.a ]; \
+then printf "$(PYDAW_LIB_DIR)/librt.a" ; \
+elif [ -e $(PYDAW_LIB64_DIR)/librt.a ]; \
+then printf "$(PYDAW_LIB64_DIR)/librt.a" ; \
+else printf "-lrt" ; \
+fi)
+
+LINK_CFLAGS    = $(RT_LIB_FLAG) -lpthread $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
 portaudio/lib/.libs/libportaudio.a \
-$(LDFLAGS) $(shell pkg-config --libs sndfile alsa) $(MATH_LIB_FLAG)
+$(LDFLAGS) $(shell pkg-config --libs sndfile alsa) \
+$(MATH_LIB_FLAG)
 
 C_OBJS   = src/main.o
 
