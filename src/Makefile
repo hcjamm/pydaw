@@ -11,17 +11,17 @@ PYDAW_VERSION = pydaw3
 all:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
 	#make -C pydaw_jack_oscrolloscope
-	cd pydaw_sbsms && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
-	cd pydaw_sbsms/cli && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ../..
-	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make && cd ..
+	cd pydaw_sbsms && ./configure && make
+	cd pydaw_sbsms/cli && make
+	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make
 		
 # --------------------------------------------------------------
 debug:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C pydaw_jack_oscrolloscope
-	cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
-	cd pydaw_sbsms/cli && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ..
-	cd pydaw_rubberband && make distclean && ./configure --prefix=$(RUBBERBAND_PREFIX) && make && cd ..
+	cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make
+	make -C pydaw_sbsms/cli
+	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make
 
 # --------------------------------------------------------------
 
@@ -37,8 +37,7 @@ install:
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	cp -r mixxx $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
-	make -C pydaw_sbsms DESTDIR=$(DESTDIR) install
-	make -C pydaw_sbsms/cli DESTDIR=$(DESTDIR) install
+	make -C pydaw_sbsms/cli PREFIX=$(SBSMS_PREFIX)  DESTDIR=$(DESTDIR) install
 	make -C pydaw_rubberband DESTDIR=$(DESTDIR) install
 	#The configure script doesn't offer a lot of granularity for what to install, so just snip out the parts we don't want
 	cd $(DESTDIR)/$(RUBBERBAND_PREFIX) ; rm -rf lib/ladspa lib/vamp include share

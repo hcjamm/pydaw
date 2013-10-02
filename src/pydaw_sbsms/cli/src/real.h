@@ -47,7 +47,7 @@
 **		long int lrint  (double x) ;
 */
 
-#include "config.h"
+//#include "config.h"
 #include "sbsms.h"
 
 /*

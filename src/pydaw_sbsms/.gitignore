@@ -1,11 +1,5 @@
 Makefile
-cli/Makefile
-cli/config.status
-cli/libtool
-cli/src/Makefile
-cli/src/config.h
-cli/src/sbsms
-cli/src/stamp-h1
+cli/sbsms
 config.status
 libsbsms.spec
 libtool

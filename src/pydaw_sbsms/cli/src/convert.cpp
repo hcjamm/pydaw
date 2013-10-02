@@ -1,4 +1,4 @@
-#include "config.h"
+//#include "config.h"
 
 #include "convert.h"
 #include "pcm.h"
