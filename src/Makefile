@@ -39,8 +39,6 @@ install:
 	cp -r mixxx $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	make -C pydaw_sbsms/cli PREFIX=$(SBSMS_PREFIX)  DESTDIR=$(DESTDIR) install
 	make -C pydaw_rubberband DESTDIR=$(DESTDIR) install
-	#The configure script doesn't offer a lot of granularity for what to install, so just snip out the parts we don't want
-	cd $(DESTDIR)/$(RUBBERBAND_PREFIX) ; rm -rf lib/ladspa lib/vamp include share
 
 clean:
 	make -C pydaw clean

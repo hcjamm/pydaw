@@ -6,8 +6,6 @@ LDFLAGS		:= @LDFLAGS@ -lpthread $(LDFLAGS)
 
 LIBRARY_LIBS		:= @SRC_LIBS@ @FFTW_LIBS@ 
 PROGRAM_LIBS		:= @SNDFILE_LIBS@ $(LIBRARY_LIBS)
-VAMP_PLUGIN_LIBS	:= @Vamp_LIBS@ $(LIBRARY_LIBS)
-LADSPA_PLUGIN_LIBS	:= $(LIBRARY_LIBS)
 
 MKDIR			:= mkdir
 AR			:= ar
@@ -17,31 +15,22 @@ DYNAMIC_FULL_VERSION	:= .2.1.0
 DYNAMIC_ABI_VERSION	:= .2
 DYNAMIC_LIBNAME		:= librubberband$(DYNAMIC_EXTENSION)
 DYNAMIC_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,-soname=$(DYNAMIC_LIBNAME)$(DYNAMIC_ABI_VERSION)
-VAMP_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,--version-script=vamp/vamp-plugin.map
-LADSPA_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,--version-script=ladspa/ladspa-plugin.map
 
 PROGRAM_TARGET 		:= bin/rubberband
 STATIC_TARGET  		:= lib/librubberband.a
 DYNAMIC_TARGET 		:= lib/$(DYNAMIC_LIBNAME)
-VAMP_TARGET    		:= lib/vamp-rubberband$(DYNAMIC_EXTENSION)
-LADSPA_TARGET  		:= lib/ladspa-rubberband$(DYNAMIC_EXTENSION)
 
 INSTALL_BINDIR		:= @prefix@/bin
 INSTALL_INCDIR		:= @prefix@/include/rubberband
 INSTALL_LIBDIR		:= @prefix@/lib
-INSTALL_VAMPDIR		:= @prefix@/lib/vamp
-INSTALL_LADSPADIR	:= @prefix@/lib/ladspa
-INSTALL_LRDFDIR		:= @prefix@/share/ladspa/rdf
 INSTALL_PKGDIR		:= @prefix@/lib/pkgconfig
 
-all:	bin lib $(PROGRAM_TARGET) $(STATIC_TARGET) $(DYNAMIC_TARGET) $(VAMP_TARGET) $(LADSPA_TARGET)
+all:	bin lib $(PROGRAM_TARGET) $(STATIC_TARGET) $(DYNAMIC_TARGET)
 
 static:		$(STATIC_TARGET)
 dynamic:	$(DYNAMIC_TARGET)
 library:	$(STATIC_TARGET) $(DYNAMIC_TARGET)
 program:	$(PROGRAM_TARGET)
-vamp:		$(VAMP_TARGET)
-ladspa:		$(LADSPA_TARGET)
 
 PUBLIC_INCLUDES := \
 	rubberband/rubberband-c.h \
@@ -96,26 +85,10 @@ LIBRARY_SOURCES := \
 PROGRAM_SOURCES := \
 	main/main.cpp
 
-VAMP_HEADERS := \
-	vamp/RubberBandVampPlugin.h
-
-VAMP_SOURCES := \
-	vamp/RubberBandVampPlugin.cpp \
-	vamp/libmain.cpp
-
-LADSPA_HEADERS := \
-	ladspa/RubberBandPitchShifter.h
-
-LADSPA_SOURCES := \
-	ladspa/RubberBandPitchShifter.cpp \
-	ladspa/libmain.cpp
-
 LIBRARY_OBJECTS := $(LIBRARY_SOURCES:.cpp=.o)
 LIBRARY_OBJECTS := $(LIBRARY_OBJECTS:.c=.o)
 
 PROGRAM_OBJECTS := $(PROGRAM_SOURCES:.cpp=.o)
-VAMP_OBJECTS    := $(VAMP_SOURCES:.cpp=.o)
-LADSPA_OBJECTS  := $(LADSPA_SOURCES:.cpp=.o)
 
 $(PROGRAM_TARGET):	$(LIBRARY_OBJECTS) $(PROGRAM_OBJECTS)
 	$(CXX) -o $@ $^ $(PROGRAM_LIBS) $(LDFLAGS)
@@ -126,12 +99,6 @@ $(STATIC_TARGET):	$(LIBRARY_OBJECTS)
 $(DYNAMIC_TARGET):	$(LIBRARY_OBJECTS)
 	$(CXX) $(DYNAMIC_LDFLAGS) $^ -o $@ $(LIBRARY_LIBS) $(LDFLAGS)
 
-$(VAMP_TARGET):		$(LIBRARY_OBJECTS) $(VAMP_OBJECTS)
-	$(CXX) $(VAMP_LDFLAGS) -o $@ $^ $(VAMP_PLUGIN_LIBS) $(LDFLAGS)
-
-$(LADSPA_TARGET):	$(LIBRARY_OBJECTS) $(LADSPA_OBJECTS)
-	$(CXX) $(LADSPA_LDFLAGS) -o $@ $^ $(LADSPA_PLUGIN_LIBS) $(LDFLAGS)
-
 bin:
 	$(MKDIR) $@
 lib:
@@ -141,8 +108,6 @@ install:	all
 	$(MKDIR) -p $(DESTDIR)$(INSTALL_BINDIR)
 	$(MKDIR) -p $(DESTDIR)$(INSTALL_INCDIR)
 	$(MKDIR) -p $(DESTDIR)$(INSTALL_LIBDIR)
-	$(MKDIR) -p $(DESTDIR)$(INSTALL_VAMPDIR)
-	$(MKDIR) -p $(DESTDIR)$(INSTALL_LADSPADIR)
 	$(MKDIR) -p $(DESTDIR)$(INSTALL_LRDFDIR)
 	$(MKDIR) -p $(DESTDIR)$(INSTALL_PKGDIR)
 	cp $(PROGRAM_TARGET) $(DESTDIR)$(INSTALL_BINDIR)
@@ -153,19 +118,14 @@ install:	all
 	cp $(DYNAMIC_TARGET) $(DESTDIR)$(INSTALL_LIBDIR)/$(DYNAMIC_LIBNAME)$(DYNAMIC_FULL_VERSION)
 	test -n "$(DYNAMIC_FULL_VERSION)" && ln -s $(DYNAMIC_LIBNAME)$(DYNAMIC_FULL_VERSION) $(DESTDIR)$(INSTALL_LIBDIR)/$(DYNAMIC_LIBNAME)$(DYNAMIC_ABI_VERSION)
 	test -n "$(DYNAMIC_FULL_VERSION)" && ln -s $(DYNAMIC_LIBNAME)$(DYNAMIC_FULL_VERSION) $(DESTDIR)$(INSTALL_LIBDIR)/$(DYNAMIC_LIBNAME)
-	cp $(VAMP_TARGET) $(DESTDIR)$(INSTALL_VAMPDIR)
-	cp vamp/vamp-rubberband.cat $(DESTDIR)$(INSTALL_VAMPDIR)
-	cp $(LADSPA_TARGET) $(DESTDIR)$(INSTALL_LADSPADIR)
-	cp ladspa/ladspa-rubberband.cat $(DESTDIR)$(INSTALL_LADSPADIR)
-	cp ladspa/ladspa-rubberband.rdf $(DESTDIR)$(INSTALL_LRDFDIR)
 	sed "s,%PREFIX%,@prefix@," rubberband.pc.in \
 	  > $(DESTDIR)$(INSTALL_PKGDIR)/rubberband.pc
 
 clean:
-	rm -f $(LIBRARY_OBJECTS) $(PROGRAM_OBJECTS) $(LADSPA_OBJECTS) $(VAMP_OBJECTS)
+	rm -f $(LIBRARY_OBJECTS) $(PROGRAM_OBJECTS)
 
 distclean:	clean
-	rm -f $(PROGRAM_TARGET) $(STATIC_TARGET) $(DYNAMIC_TARGET) $(VAMP_TARGET) $(LADSPA_TARGET)
+	rm -f $(PROGRAM_TARGET) $(STATIC_TARGET) $(DYNAMIC_TARGET)
 
 depend:
 	makedepend -Y $(LIBRARY_SOURCES) $(PROGRAM_SOURCES)
