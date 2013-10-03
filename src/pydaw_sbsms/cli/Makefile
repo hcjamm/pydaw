@@ -12,7 +12,7 @@ BASE_FLAGS     = -ffast-math -mtune=generic -fprefetch-loop-arrays \
 -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
 -Isrc -I../include -fstrength-reduce -fstrict-aliasing -finline-functions
 
-BUILD_FLAGS    = -O3 $(PLAT_FLAGS) $(BASE_FLAGS)
+BUILD_CFLAGS    = -O3 $(PLAT_FLAGS) $(BASE_FLAGS)
 
 LINK_CFLAGS    = ../src/.libs/libsbsms.a -lpthread $(LDFLAGS) $(shell pkg-config --libs sndfile) -lm
 
