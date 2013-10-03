@@ -10,7 +10,7 @@ PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse
 
 BASE_FLAGS     = -ffast-math -mtune=generic -fprefetch-loop-arrays \
 -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
--Isrc -Iportaudio/include -fstrength-reduce -fstrict-aliasing -finline-functions
+-Isrc -I../include -fstrength-reduce -fstrict-aliasing -finline-functions
 
 BUILD_FLAGS    = -O3 $(PLAT_FLAGS) $(BASE_FLAGS)
 
