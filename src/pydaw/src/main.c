@@ -449,7 +449,7 @@ int main(int argc, char **argv)
 {
     if(argc != 2)
     {
-        printf("Usage: %s [install prefix]", argv[0]);
+        printf("\nUsage: %s [install prefix]\n\n", argv[0]);
         exit(9996);
     }
     
@@ -557,6 +557,9 @@ int main(int argc, char **argv)
         
     char f_device_file_path[2048];
     char * f_home = getenv("HOME");
+    
+    printf("using home folder: %s\n", f_home);
+    
     if(!strcmp(f_home, "/home/ubuntu") && i_pydaw_file_exists("/media/pydaw_data"))
     {
         sprintf(f_device_file_path, "/media/pydaw_data/pydaw3/device.txt");
