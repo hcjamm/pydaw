@@ -112,7 +112,16 @@ Please enter a build suffix, or hit 'enter' to leave blank: """).strip()
 f_package_name = "%s-%s-%s%s.deb" % (f_short_name, f_version, f_arch, f_build_suffix)
 
 os.system('rm "%s"/pydaw-build/pydaw*.deb' % (f_base_dir,))
-os.system('cd "%s"/pydaw-build ; fakeroot dpkg-deb --build debian ; mv debian.deb "%s"' %
-    (f_base_dir, f_package_name))
+
+if os.geteuid() == 0:
+    f_eng_bin = '"%s"/pydaw-build/debian/usr/bin/%s-engine' % (f_base_dir, global_pydaw_version_string)
+    os.system('chown root %s' % (f_eng_bin,))
+    os.system('chmod 4755 %s' % (f_eng_bin,))
+    os.system('cd "%s"/pydaw-build && dpkg-deb --build debian && mv debian.deb "%s"' %
+        (f_base_dir, f_package_name))
+else:
+    print("Not running as root, using fakeroot to build Debian package.")
+    os.system('cd "%s"/pydaw-build && fakeroot dpkg-deb --build debian && mv debian.deb "%s"' %
+        (f_base_dir, f_package_name))
 
 print("Finished. run ./install_deb.sh to install the package")
