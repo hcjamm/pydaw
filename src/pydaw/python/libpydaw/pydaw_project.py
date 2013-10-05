@@ -50,7 +50,6 @@ pydaw_file_pyregions = "default.pyregions"
 pydaw_file_pyitems = "default.pyitems"
 pydaw_file_pysong = "default.pysong"
 pydaw_file_pytransport = "default.pytransport"
-pydaw_file_pymididevice = "default.pymididevice"
 pydaw_file_pytracks = "default.pytracks"
 pydaw_file_pyaudio = "default.pyaudio"
 pydaw_file_pyaudioitem = "default.pyaudioitem"
@@ -231,7 +230,6 @@ class pydaw_project:
         self.create_file("", pydaw_file_pyitems, pydaw_terminating_char)
         self.create_file("", pydaw_file_pysong, pydaw_terminating_char)
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
-        self.create_file("", pydaw_file_pymididevice, "")
         f_midi_tracks_instance = pydaw_tracks()
         for i in range(pydaw_midi_track_count):
             f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1)))
@@ -722,10 +720,6 @@ class pydaw_project:
     def save_transport(self, a_transport):
         if not self.suppress_updates:
             self.save_file("", pydaw_file_pytransport, str(a_transport))
-
-    def save_midi_device(self, a_device_str):
-        if not self.suppress_updates:
-            self.save_file("", pydaw_file_pymididevice, str(a_device_str))
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
