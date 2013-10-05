@@ -668,7 +668,8 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
     
     pthread_attr_t threadAttr;
     struct sched_param param;
-    param.__sched_priority = sched_get_priority_max(SCHED_FIFO); //90;    
+    param.__sched_priority = sched_get_priority_max(SCHED_FIFO); //90;
+    printf(" Attempting to set .__sched_priority = %i\n", param.__sched_priority);
     pthread_attr_init(&threadAttr);
     pthread_attr_setschedparam(&threadAttr, &param);
     pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
@@ -677,7 +678,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
 
     pthread_t f_self = pthread_self();
     pthread_setschedparam(f_self, SCHED_FIFO, &param);
-    
+        
     int f_i = 0;
     
     while(f_i < (a_pydaw_data->track_worker_thread_count))
@@ -704,11 +705,23 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
         f_i++;
     }
     
+    int f_applied_policy = 0;
+    pthread_getschedparam(f_self, &f_applied_policy, &param);
+            
+    if(f_applied_policy == SCHED_FIFO)
+    {
+        printf("Scheduling successfully applied with priority %i\n ", param.__sched_priority);
+    }
+    else
+    {
+        printf("Scheduling was not successfully applied\n");
+    }
+    
     pthread_attr_destroy(&threadAttr);
     a_pydaw_data->audio_recording_quit_notifier = 0;
     
     /*The worker thread for flushing recorded audio from memory to disk*/
-    //No longer recording in PyDAW, but keeping the code here for a future fork that will..
+    //No longer recording audio in PyDAW, but keeping the code here for when I bring it back...
     /*pthread_attr_t threadAttr;
     struct sched_param param;
     param.__sched_priority = 90;
