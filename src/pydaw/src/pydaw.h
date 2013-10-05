@@ -664,7 +664,19 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
     posix_memalign((void**)&a_pydaw_data->track_thread_quit_notifier, 16, (sizeof(int) * (a_pydaw_data->track_worker_thread_count)));
     posix_memalign((void**)&a_pydaw_data->track_thread_is_finished, 16, (sizeof(int) * (a_pydaw_data->track_worker_thread_count)));
 
-    a_pydaw_data->track_cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t) * (a_pydaw_data->track_worker_thread_count));    
+    
+    pthread_attr_t threadAttr;
+    struct sched_param param;
+    param.__sched_priority = sched_get_priority_max(SCHED_FIFO); //90;    
+    pthread_attr_init(&threadAttr);
+    pthread_attr_setschedparam(&threadAttr, &param);
+    pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
+    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+    pthread_attr_setschedpolicy(&threadAttr, SCHED_FIFO);
+
+    pthread_t f_self = pthread_self();
+    pthread_setschedparam(f_self, SCHED_FIFO, &param);
     
     int f_i = 0;
     
@@ -677,22 +689,13 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
         t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)malloc(sizeof(t_pydaw_thread_args));
         f_args->pydaw_data = a_pydaw_data;
         f_args->thread_num = f_i;     
-        
+                
         if(f_i > 0)
         {
             //pthread_mutex_init(&a_pydaw_data->track_cond_mutex[f_i], NULL);
             pthread_cond_init(&a_pydaw_data->track_cond[f_i], NULL);    
             pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
-
-            pthread_attr_t threadAttr;
-            struct sched_param param;
-            //param.__sched_priority = 90;
-            pthread_attr_init(&threadAttr);
-            pthread_attr_setschedparam(&threadAttr, &param);
-            pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
-            pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
-            pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
-            pthread_attr_destroy(&threadAttr);
+            pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);            
         }
         else
         {
@@ -701,6 +704,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
         f_i++;
     }
     
+    pthread_attr_destroy(&threadAttr);
     a_pydaw_data->audio_recording_quit_notifier = 0;
     
     /*The worker thread for flushing recorded audio from memory to disk*/
