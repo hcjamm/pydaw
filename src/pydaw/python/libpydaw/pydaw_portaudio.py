@@ -33,7 +33,7 @@ class pydaw_device_dialog:
         print((self.home_folder))
         self.device_file = "%s/device.txt" % (self.home_folder,)
         self.sample_rates = ["44100", "48000", "88200", "96000"]
-        self.buffer_sizes = ["64", "128", "256", "512", "1024", "2048"]
+        self.buffer_sizes = ["32", "64", "128", "256", "512", "1024", "2048"]
         self.val_dict = {}
         if os.path.isfile(self.device_file):
             f_file_text = pydaw_util.pydaw_read_file_text(self.device_file)
