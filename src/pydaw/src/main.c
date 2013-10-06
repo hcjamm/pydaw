@@ -874,7 +874,6 @@ int main(int argc, char **argv)
         {
             /* Establish handler for timer signal */
 
-           printf("Establishing handler for signal %d\n", SIG);
            sa.sa_flags = SA_SIGINFO;
            sa.sa_sigaction = midiTimerCallback;
            sigemptyset(&sa.sa_mask);
@@ -885,7 +884,6 @@ int main(int argc, char **argv)
 
            /* Block timer signal temporarily */
 
-           printf("Blocking signal %d\n", SIG);
            sigemptyset(&mask);
            sigaddset(&mask, SIG);
            if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
@@ -903,8 +901,6 @@ int main(int argc, char **argv)
                //errExit("timer_create");
            }
            
-           printf("timer ID is 0x%lx\n", (long) timerid);
-
            /* Start the timer */
 
            freq_nanosecs = 5000000;
