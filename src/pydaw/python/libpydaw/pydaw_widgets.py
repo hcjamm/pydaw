@@ -67,7 +67,8 @@ class pydaw_pixmap_knob(QtGui.QDial):
         QtGui.QDial.__init__(self)
         self.setRange(a_min_val, a_max_val)
         self.setGeometry(0, 0, a_size, a_size)
-        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/pydaw-knob.png")
+        f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/pydaw-knob.png" %
+        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string))
         self.pixmap_size = a_size - 10
         self.pixmap = f_pixmap.scaled(self.pixmap_size, self.pixmap_size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         self.setFixedSize(a_size, a_size)
@@ -522,8 +523,10 @@ class pydaw_file_select_widget:
 
     def open_in_editor_button_pressed(self):
         if pydaw_util.pydaw_which(self.editor_path) is None and not os.path.exists(self.editor_path):
-            QtGui.QMessageBox.warning(self.file_path, ("No Wave Editor Found"), ("Could not locate ") + self.editor_path +
-            (" or another suitable wave editor. Please edit ~/pydaw3/self.global_wave_editor.txt with your wave editor of choice, or install Audacity."))
+            QtGui.QMessageBox.warning(self.file_path, ("No Wave Editor Found"), ("""Could not locate %s
+or another suitable wave editor. Please edit
+~/%s/self.global_wave_editor.txt
+with your wave editor of choice, or install Audacity.""" % (self.editor_path, pydaw_util.global_pydaw_version_string)))
             return
         else:
             f_cmd = [self.editor_path, str(self.file_path.text())]
@@ -1550,7 +1553,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/rayv.png").scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
+        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/" + pydaw_util.global_pydaw_version_string +
+        "/themes/default/rayv.png").scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
         self.hlayout0.addWidget(f_logo_label)
@@ -2218,7 +2222,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.smp_tab_main_verticalLayout.addLayout(self.file_selector.layout)
 
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/pydaw3/themes/default/euphoria.png").scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
+        f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/euphoria.png" %
+        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string \
+        )).scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
         self.file_selector.layout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
