@@ -31,8 +31,11 @@ else:
     else:
         global_pydaw_with_audio = False
 
-def pydaw_escape_stylesheet(a_stylesheet):
-    return a_stylesheet.replace("$PYDAW_PREFIX", global_pydaw_install_prefix)
+def pydaw_escape_stylesheet(a_stylesheet, a_path):
+    f_dir = os.path.dirname(str(a_path))
+    f_result = a_stylesheet.replace("$STYLE_FOLDER", f_dir)
+    f_result = f_result.replace("$PYDAW_PREFIX", global_pydaw_install_prefix) #TODO:  Deprecate at PyDAWv4
+    return f_result
 
 print(("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,)))
 

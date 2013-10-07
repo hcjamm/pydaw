@@ -6253,12 +6253,15 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
             if os.path.isfile(f_current_style_file_text):
                 f_style = pydaw_read_file_text(f_current_style_file_text)
+                f_style_file = f_current_style_file_text
             else:
                 f_style = pydaw_read_file_text(default_stylesheet_file)
+                f_style_file = default_stylesheet_file
         else:
             f_style = pydaw_read_file_text(default_stylesheet_file)
+            f_style_file = default_stylesheet_file
 
-        f_style = pydaw_escape_stylesheet(f_style)
+        f_style = pydaw_escape_stylesheet(f_style, f_style_file)
         self.setStyleSheet(f_style)
         self.first_offline_render = True
         self.last_offline_dir = global_home
