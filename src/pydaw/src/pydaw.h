@@ -649,22 +649,37 @@ void * v_pydaw_osc_send_thread(void* a_arg)
 {
     t_pydaw_data * a_pydaw_data = (t_pydaw_data*)a_arg;
     
+    char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
+    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][1024];
+    
     while(!a_pydaw_data->audio_recording_quit_notifier)
     {
         int f_i = 0;
+        int f_index = 0;
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
                 
         while(f_i < a_pydaw_data->osc_queue_index)
         {
-            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", 
-                    a_pydaw_data->osc_queue_keys[f_i],
-                    a_pydaw_data->osc_queue_vals[f_i]);
+            strcpy(osc_queue_keys[f_i], a_pydaw_data->osc_queue_keys[f_i]);
+            strcpy(osc_queue_vals[f_i], a_pydaw_data->osc_queue_vals[f_i]);
             f_i++;
         }
         
+        f_index = a_pydaw_data->osc_queue_index;        
         a_pydaw_data->osc_queue_index = 0;
+        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        
+        f_i = 0;
+        
+        while(f_i < f_index)
+        {
+            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", 
+                    osc_queue_keys[f_i],
+                    osc_queue_vals[f_i]);
+            f_i++;
+        }
         
         usleep(10000);
     }
@@ -911,22 +926,28 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
 
 inline void v_queue_osc_message(t_pydaw_data * a_pydaw_data, char * a_key, char * a_val)
 {
-    sprintf(a_pydaw_data->osc_queue_keys[a_pydaw_data->osc_queue_index], "%s", a_key);
-    sprintf(a_pydaw_data->osc_queue_vals[a_pydaw_data->osc_queue_index], "%s", a_val);
-    a_pydaw_data->osc_queue_index += 1;    
+    if(a_pydaw_data->osc_queue_index >= PYDAW_OSC_SEND_QUEUE_SIZE)
+    {
+        printf("Dropping OSC event to prevent buffer overrun:\n%s|%s\n\n", a_key, a_val);
+    }
+    else
+    {
+        sprintf(a_pydaw_data->osc_queue_keys[a_pydaw_data->osc_queue_index], "%s", a_key);
+        sprintf(a_pydaw_data->osc_queue_vals[a_pydaw_data->osc_queue_index], "%s", a_val);
+        a_pydaw_data->osc_queue_index += 1;
+    }
 }
 
 inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin * a_plugin, int a_track_type, int a_track_num, int a_is_inst)
 {
-    int f_i = 0;
-    char a_value[256];
+    int f_i = 0;    
     while(f_i < (a_plugin->controlIns))
     {
         if (a_plugin->pluginPortUpdated[f_i]) 
         {
+            char a_value[256];
             int port = a_plugin->pluginControlInPortNumbers[f_i];
             float value = a_plugin->pluginControlIns[f_i];
-
             a_plugin->pluginPortUpdated[f_i] = 0;            
             sprintf(a_value, "%i|%i|%i|%i|%f", a_is_inst, a_track_type, a_track_num, port, value);
             v_queue_osc_message(a_pydaw_data, "pc", a_value);
