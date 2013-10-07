@@ -27,8 +27,6 @@ try:
 except ImportError:
     from pydaw_util import *
 
-global_pydaw_version_string = "pydaw3"
-
 plot_onsets=False
 if plot_onsets:
     import matplotlib.pyplot as plt

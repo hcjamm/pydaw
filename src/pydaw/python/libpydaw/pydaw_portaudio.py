@@ -45,9 +45,10 @@ class pydaw_device_dialog:
                     self.val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
 
     def show_device_dialog(self, a_msg=None, a_notify=False):
-        f_stylesheet = pydaw_util.pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + \
-        pydaw_util.global_pydaw_version_string + "/themes/default/style.txt")
-        f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet)
+        f_stylesheet_file = "%s/lib/%s/themes/default/style.txt" % (pydaw_util.global_pydaw_install_prefix,  \
+        pydaw_util.global_pydaw_version_string)
+        f_stylesheet = pydaw_util.pydaw_read_file_text(f_stylesheet_file)
+        f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet, f_stylesheet_file)
         if self.is_running:
             f_window = QtGui.QDialog()
         else:

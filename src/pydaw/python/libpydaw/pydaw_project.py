@@ -23,9 +23,6 @@ from libpydaw.pydaw_osc import pydaw_osc
 from PyQt4 import QtGui, QtCore
 from libpydaw import pydaw_history
 
-global_pydaw_version_string = "pydaw3"
-global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
-
 pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
@@ -158,11 +155,13 @@ class pydaw_project:
         f_new_project_folder = os.path.dirname(f_file_name)
         #The below is safe because we already checked that the folder should be empty before calling this
         f_cmd = 'rm -rf "' + f_new_project_folder + '"'
-        os.popen(f_cmd)
+        print(f_cmd)
+        os.system(f_cmd)
         f_cmd = 'cp -r "' + self.project_folder + '" "' + f_new_project_folder + '"'
-        os.popen(f_cmd)
+        print(f_cmd)
+        os.system(f_cmd)
         print((f_new_project_folder + "/" + self.project_file + " | " + a_file_name))
-        move(f_new_project_folder + "/" + self.project_file + ".pydaw3", a_file_name)
+        #f_cmd = 'mv "%s/%s.%s" "%s"' % (f_new_project_folder, self.project_file, global_pydaw_version_string, a_file_name)
         self.set_project_folders(f_file_name)
         self.this_pydaw_osc.pydaw_open_song(self.project_folder)
         self.history = pydaw_history.pydaw_history(self.project_folder)

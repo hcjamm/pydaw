@@ -562,16 +562,16 @@ int main(int argc, char **argv)
     
     if(!strcmp(f_home, "/home/ubuntu") && i_pydaw_file_exists("/media/pydaw_data"))
     {
-        sprintf(f_device_file_path, "/media/pydaw_data/pydaw3/device.txt");
+        sprintf(f_device_file_path, "/media/pydaw_data/%s/device.txt", PYDAW_VERSION);
     }
     else
     {
-        sprintf(f_device_file_path, "%s/pydaw3/device.txt", f_home);
+        sprintf(f_device_file_path, "%s/%s/device.txt", f_home, PYDAW_VERSION);
     }
     
     char f_show_dialog_cmd[1024];
 
-    sprintf(f_show_dialog_cmd, "python3 \"%s/lib/pydaw3/pydaw/python/libpydaw/pydaw_portaudio.py\"", argv[1]);
+    sprintf(f_show_dialog_cmd, "python3 \"%s/lib/%s/pydaw/python/libpydaw/pydaw_portaudio.py\"", argv[1], PYDAW_VERSION);
     
     char f_cmd_buffer[10000];
     f_cmd_buffer[0] = '\0';

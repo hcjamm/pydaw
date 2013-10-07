@@ -56,6 +56,8 @@ extern "C" {
 #define PYDAW_MIDI_RECORD_BUFFER_LENGTH 600 //(PYDAW_MAX_REGION_COUNT * PYDAW_REGION_SIZE)  //recording buffer for MIDI, in bars
 #define PYDAW_MAX_WORK_ITEMS_PER_THREAD 128
     
+#define PYDAW_VERSION "pydaw3"    
+    
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -1167,7 +1169,7 @@ void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name)
     }
     char f_temp[256];
     char * f_home = getenv("HOME");
-    sprintf(f_temp, "%s/pydaw3/cc_maps/%s", f_home, a_name);
+    sprintf(f_temp, "%s/%s/cc_maps/%s", f_home, PYDAW_VERSION, a_name);
     if(i_pydaw_file_exists(f_temp))
     {
         t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, PYDAW_LARGE_STRING);        
@@ -3476,7 +3478,7 @@ void v_open_default_project(t_pydaw_data * a_data)
 {
     char * f_home = getenv("HOME");
     char f_default_project_folder[512];
-    sprintf(f_default_project_folder, "%s/pydaw3/default-project", f_home);
+    sprintf(f_default_project_folder, "%s/%s/default-project", f_home, PYDAW_VERSION);
     v_open_project(a_data, f_default_project_folder, 1);
 }
 
