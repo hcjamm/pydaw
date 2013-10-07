@@ -683,18 +683,28 @@ void cpuID(unsigned i, unsigned regs[4])
     // ECX is set to zero for CPUID function 4
 }
 
+char * uint_to_char(unsigned int a_input)
+{
+    char* bytes = (char*)malloc(sizeof(char) * 5);
+    
+    bytes[0] = a_input & 0xFF;
+    bytes[1] = (a_input >> 8) & 0xFF;
+    bytes[2] = (a_input >> 16) & 0xFF;
+    bytes[3] = (a_input >> 24) & 0xFF;
+    bytes[4] = '\0';
+    
+    return bytes;
+}
+
 int i_cpu_has_hyperthreading()
 {
-    unsigned regs[4];
+    unsigned int regs[4];
 
     // Get vendor
-    char vendor[12];
     cpuID(0, regs);
-    ((unsigned *)vendor)[0] = regs[1]; // EBX
-    ((unsigned *)vendor)[1] = regs[3]; // EDX
-    ((unsigned *)vendor)[2] = regs[2]; // ECX
+    
     char cpuVendor[12]; 
-    snprintf(cpuVendor, 12, "%s", vendor);
+    sprintf(cpuVendor, "%s%s%s", uint_to_char(regs[1]), uint_to_char(regs[3]), uint_to_char(regs[2]));
 
     // Get CPU features
     cpuID(1, regs);
@@ -705,7 +715,7 @@ int i_cpu_has_hyperthreading()
     unsigned logical = (regs[1] >> 16) & 0xff; // EBX[23:16]    
     unsigned cores = logical;
 
-    if(!strcmp(cpuVendor, "GenuineIntel") || !strcmp(cpuVendor, "GenuineInte"))
+    if(!strcmp(cpuVendor, "GenuineIntel"))
     {
         printf("\nDetected Intel CPU, checking for hyperthreading.\n");        
         // Get DCP cache info
@@ -716,7 +726,7 @@ int i_cpu_has_hyperthreading()
         return hyperThreads;
 
     } 
-    /*else if(!strcmp(cpuVendor, "AuthenticAMD") || !strcmp(cpuVendor, "AuthenticAM"))
+    /*else if(!strcmp(cpuVendor, "AuthenticAMD"))
     {
         return 0;
       // Get NC: Number of CPU cores - 1
