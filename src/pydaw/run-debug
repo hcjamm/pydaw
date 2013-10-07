@@ -8,6 +8,8 @@ else
 	rm -rf dir_debug/*
 fi
 
+PYDAW_VERSION=$(cat pydaw_version.txt)
+
 #ulimit -c unlimited
-make clean && make debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/pydaw3 --debug
+make clean && make debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/$PYDAW_VERSION --debug
 

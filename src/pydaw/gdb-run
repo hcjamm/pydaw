@@ -8,5 +8,7 @@ else
 	rm -rf dir_debug/*
 fi
 
-make clean && make CFLAGS+=" -DPYDAW_NO_HARDWARE " debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/pydaw3 --debug --gdb
+PYDAW_VERSION=$(cat pydaw_version.txt)
+
+make clean && make CFLAGS+=" -DPYDAW_NO_HARDWARE " debug && make PREFIX=$(pwd)/dir_debug install && ./dir_debug/bin/$PYDAW_VERSION --debug --gdb
 

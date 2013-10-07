@@ -1,3 +1,4 @@
-gdb ./dir_debug/bin/pydaw3-engine ./core
+PYDAW_VERSION=$(cat pydaw_version.txt)
+gdb ./dir_debug/bin/$PYDAW_VERSION-engine ./core
 #How to read into the plugins when it's not part of the backtrace
 #p *((t_modulex*)pydaw_data->track_pool[19]->effect->PYFX_handle)->mono_modules->multieffect[4]->limiter
