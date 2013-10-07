@@ -638,14 +638,88 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
     printf ( "\n\nCompleted %s in %f seconds\n", a_message, ( (double)clock() - a_start ) / CLOCKS_PER_SEC );
 }
 
+#if defined(__amd64__) || defined(__i386__)
+void cpuID(unsigned i, unsigned regs[4]) 
+{
+    asm volatile
+      ("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
+       : "a" (i), "c" (0));
+    // ECX is set to zero for CPUID function 4
+}
+
+int i_cpu_has_hyperthreading()
+{
+    unsigned regs[4];
+
+    // Get vendor
+    char vendor[12];
+    cpuID(0, regs);
+    ((unsigned *)vendor)[0] = regs[1]; // EBX
+    ((unsigned *)vendor)[1] = regs[3]; // EDX
+    ((unsigned *)vendor)[2] = regs[2]; // ECX
+    char cpuVendor[12]; 
+    snprintf(cpuVendor, 12, "%s", vendor);
+
+    // Get CPU features
+    cpuID(1, regs);
+    unsigned cpuFeatures = regs[3]; // EDX
+
+    // Logical core count per CPU
+    cpuID(1, regs);
+    unsigned logical = (regs[1] >> 16) & 0xff; // EBX[23:16]    
+    unsigned cores = logical;
+
+    if(!strcmp(cpuVendor, "GenuineIntel") || !strcmp(cpuVendor, "GenuineInte"))
+    {
+        printf("\nDetected Intel CPU, checking for hyperthreading.\n");        
+        // Get DCP cache info
+        cpuID(4, regs);
+        cores = ((regs[0] >> 26) & 0x3f) + 1; // EAX[31:26] + 1
+        // Detect hyper-threads  
+        int hyperThreads = cpuFeatures & (1 << 28) && cores < logical;
+        return hyperThreads;
+
+    } 
+    /*else if(!strcmp(cpuVendor, "AuthenticAMD") || !strcmp(cpuVendor, "AuthenticAM"))
+    {
+        return 0;
+      // Get NC: Number of CPU cores - 1
+      //cpuID(0x80000008, regs);
+      //cores = ((unsigned)(regs[2] & 0xff)) + 1; // ECX[7:0] + 1
+    }*/
+    else
+    {
+        printf("Detected CPU vendor %s , assuming no hyper-threading.\n", cpuVendor);
+        return 0;
+    }
+}
+#else
+int i_cpu_has_hyperthreading()
+{
+    return 0;
+}
+#endif
+
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count, int a_set_thread_affinity)
 {        
-    int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );
+    int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );    
+    int f_cpu_core_inc = 1;
+    int f_has_ht = i_cpu_has_hyperthreading();
+    
+    if(f_has_ht)
+    {
+        printf("\n\n################################################################\n");
+        printf("Detected Intel hyperthreading, dividing logical core count by 2.\n");
+        printf("You should consider turning off hyperthreading in your PC's BIOS for best performance.\n");
+        printf("################################################################\n\n");
+        f_cpu_count /= 2;
+        f_cpu_core_inc = 2;
+    }
         
     if(a_thread_count == 0)
     {
         a_pydaw_data->track_worker_thread_count = f_cpu_count;
-
+        
         if((a_pydaw_data->track_worker_thread_count) > 4)
         {
             a_pydaw_data->track_worker_thread_count = 4;
@@ -662,6 +736,20 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
     else
     {
         a_pydaw_data->track_worker_thread_count = a_thread_count;
+    }
+    
+    if(!f_has_ht && ((a_pydaw_data->track_worker_thread_count * 2) <= f_cpu_count))
+    {
+        f_cpu_core_inc = f_cpu_count / (a_pydaw_data->track_worker_thread_count);
+        
+        if(f_cpu_core_inc < 2)
+        {
+            f_cpu_core_inc = 2;
+        }
+        else if(f_cpu_core_inc > 4)
+        {
+            f_cpu_core_inc = 4;
+        }
     }
     
     printf("Spawning %i worker threads\n", a_pydaw_data->track_worker_thread_count);
@@ -690,16 +778,11 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
     pthread_setschedparam(f_self, SCHED_FIFO, &param);
     
     int f_cpu_core = 0;
-    int f_cpu_core_inc = 1;
     
     if(a_set_thread_affinity)
     {
         printf("Attempting to set thread affinity...\n");
-        if((a_pydaw_data->track_worker_thread_count * 2) <= f_cpu_count)
-        {
-            f_cpu_core_inc = 2; //Assume hyperthreading or AMD's modular CPU design, and place a thread on every-other-core...
-        }
-        
+                
         cpu_set_t cpuset;    
         CPU_ZERO(&cpuset);
         CPU_SET(f_cpu_core, &cpuset);
