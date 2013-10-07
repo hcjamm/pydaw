@@ -11,6 +11,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 */
 
+//Required for sched.h
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+    
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif 
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -67,7 +76,7 @@ int main(int argc, char** argv)
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
     const PYINST_Descriptor * f_ddesc = PYINST_descriptor(0);
     PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, 44100);
-    v_pydaw_activate(f_handle, 1);
+    v_pydaw_activate(f_handle, 1, 1);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         

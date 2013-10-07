@@ -16,6 +16,15 @@ GNU General Public License for more details.
 #define _SVID_SOURCE   1
 #define _ISOC99_SOURCE 1
 
+//Required for sched.h
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+    
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif 
+
 #include "pydaw_files.h"
 #include "../include/pydaw_plugin.h"
 #include <portaudio.h>
@@ -459,6 +468,7 @@ int main(int argc, char **argv)
     d3h_plugin_t *plugin;
         
     int f_thread_count = 0;
+    int f_thread_affinity = 0;
     int j;
     int in, out, controlIn, controlOut;
 
@@ -629,6 +639,12 @@ int main(int argc, char **argv)
                         f_thread_count = 0;
                     }
                     printf("threads: %i\n", f_thread_count);
+                }
+                else if(!strcmp(f_key_char, "threadAffinity"))
+                {                    
+                    f_thread_affinity = atoi(f_value_char);
+                    
+                    printf("threadAffinity: %i\n", f_thread_affinity);
                 }
                 else if(!strcmp(f_key_char, "midiInDevice"))
                 {                    
@@ -835,7 +851,7 @@ int main(int argc, char **argv)
         }
     }  /* 'for (j...'  LADSPA port number */
     
-    v_pydaw_activate(instanceHandles, f_thread_count);    
+    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity);    
 
     assert(in == insTotal);
     assert(out == outsTotal);

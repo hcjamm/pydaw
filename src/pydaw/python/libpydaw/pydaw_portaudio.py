@@ -83,10 +83,14 @@ class pydaw_device_dialog:
          "Auto attempts to pick a sane number of worker threads automatically based on your CPU,",
          "if you're not sure how to use this setting, you should leave it on 'Auto'."))
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
-        f_window_layout.addWidget(QtGui.QLabel("MIDI In Device:"), 4, 0)
+        f_thread_affinity_checkbox = QtGui.QCheckBox("Lock worker threads to own core?")
+        f_thread_affinity_checkbox.setToolTip(
+        "This may give better performance with fewer Xruns, but may perform badly on certain configurations.")
+        f_window_layout.addWidget(f_thread_affinity_checkbox, 4, 1)
+        f_window_layout.addWidget(QtGui.QLabel("MIDI In Device:"), 7, 0)
         f_midi_in_device_combobox = QtGui.QComboBox()
         f_midi_in_device_combobox.addItem("None")
-        f_window_layout.addWidget(f_midi_in_device_combobox, 4, 1)
+        f_window_layout.addWidget(f_midi_in_device_combobox, 7, 1)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_window_layout.addLayout(f_ok_cancel_layout, 10, 1)
         f_ok_button = QtGui.QPushButton("OK")
@@ -157,7 +161,10 @@ class pydaw_device_dialog:
             f_samplerate = int(str(f_samplerate_combobox.currentText()))
             f_worker_threads = f_worker_threads_combobox.currentIndex()
             f_midi_in_device = str(f_midi_in_device_combobox.currentText())
-
+            if f_thread_affinity_checkbox.isChecked():
+                f_thread_affinity = 1
+            else:
+                f_thread_affinity = 0
             try:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
@@ -172,6 +179,7 @@ class pydaw_device_dialog:
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))
                 f_file.write("threads|%s\n" % (f_worker_threads,))
+                f_file.write("threadAffinity|%s\n" % (f_thread_affinity,))
                 f_file.write("midiInDevice|%s\n" % (f_midi_in_device,))
 
                 f_file.write("\\")
@@ -210,6 +218,10 @@ class pydaw_device_dialog:
 
         if "threads" in self.val_dict:
             f_worker_threads_combobox.setCurrentIndex(int(self.val_dict["threads"]))
+
+        if "threadAffinity" in self.val_dict:
+            if int(self.val_dict["threadAffinity"]) == 1:
+                f_thread_affinity_checkbox.setChecked(True)
 
         if "midiInDevice" in self.val_dict:
             f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(self.val_dict["midiInDevice"]))

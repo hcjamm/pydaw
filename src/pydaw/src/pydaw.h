@@ -20,7 +20,13 @@ extern "C" {
 #endif
   
 //Required for sched.h
+#ifndef __USE_GNU
 #define __USE_GNU
+#endif
+    
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif    
     
 //Uncomment this to constantly inspect the heap for known signs of corruption and throw a SIGABRT upon detection.
 //#define PYDAW_MEMCHECK
@@ -366,7 +372,7 @@ t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
 void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data,  t_pytrack * a_track, float a_vol);
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
-void v_pydaw_init_worker_threads(t_pydaw_data*, int);
+void v_pydaw_init_worker_threads(t_pydaw_data*, int, int);
 void v_open_default_project(t_pydaw_data * a_data);
 inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, t_pydaw_seq_event *events, int event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count, 
@@ -632,11 +638,13 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
     printf ( "\n\nCompleted %s in %f seconds\n", a_message, ( (double)clock() - a_start ) / CLOCKS_PER_SEC );
 }
 
-void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count)
+void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count, int a_set_thread_affinity)
 {        
+    int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );
+    
     if(a_thread_count == 0)
     {
-        a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );
+        a_pydaw_data->track_worker_thread_count = f_cpu_count;
 
         if((a_pydaw_data->track_worker_thread_count) > 4)
         {
@@ -680,6 +688,26 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
 
     pthread_t f_self = pthread_self();
     pthread_setschedparam(f_self, SCHED_FIFO, &param);
+    
+    int f_cpu_core = 0;
+    int f_cpu_core_inc = 1;
+    
+    if(a_set_thread_affinity)
+    {
+        printf("Attempting to set thread affinity...\n");
+        if((a_pydaw_data->track_worker_thread_count * 2) <= f_cpu_count)
+        {
+            f_cpu_core_inc = 2; //Assume hyperthreading or AMD's modular CPU design, and place a thread on every-other-core...
+        }
+        
+        cpu_set_t cpuset;    
+        CPU_ZERO(&cpuset);
+        CPU_SET(f_cpu_core, &cpuset);
+        pthread_setaffinity_np(f_self, sizeof(cpu_set_t), &cpuset);        
+        f_cpu_core += f_cpu_core_inc;
+    }
+
+    
         
     int f_i = 0;
     
@@ -698,7 +726,17 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
             //pthread_mutex_init(&a_pydaw_data->track_cond_mutex[f_i], NULL);
             pthread_cond_init(&a_pydaw_data->track_cond[f_i], NULL);    
             pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
-            pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);            
+            pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
+            
+            if(a_set_thread_affinity)
+            {
+                cpu_set_t cpuset;    
+                CPU_ZERO(&cpuset);
+                CPU_SET(f_cpu_core, &cpuset);
+                pthread_setaffinity_np(a_pydaw_data->track_worker_threads[f_i], sizeof(cpu_set_t), &cpuset);
+                //sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
+                f_cpu_core += f_cpu_core_inc;
+            }
         }
         else
         {
