@@ -696,7 +696,7 @@ void cpuID(unsigned i, unsigned regs[4])
       ("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
        : "a" (i), "c" (0));
     // ECX is set to zero for CPUID function 4
-}
+} __attribute__((optimize("-O0")))
 
 char * uint_to_char(unsigned int a_input)
 {
@@ -709,7 +709,7 @@ char * uint_to_char(unsigned int a_input)
     bytes[4] = '\0';
     
     return bytes;
-}
+} __attribute__((optimize("-O0")))
 
 int i_cpu_has_hyperthreading()
 {
@@ -753,7 +753,7 @@ int i_cpu_has_hyperthreading()
         printf("Detected CPU vendor %s , assuming no hyper-threading.\n", cpuVendor);
         return 0;
     }
-}
+} __attribute__((optimize("-O0")))
 #else
 int i_cpu_has_hyperthreading()
 {
