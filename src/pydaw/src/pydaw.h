@@ -641,7 +641,7 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count, int a_set_thread_affinity)
 {        
     int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );
-    
+        
     if(a_thread_count == 0)
     {
         a_pydaw_data->track_worker_thread_count = f_cpu_count;
@@ -705,6 +705,11 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
         CPU_SET(f_cpu_core, &cpuset);
         pthread_setaffinity_np(f_self, sizeof(cpu_set_t), &cpuset);        
         f_cpu_core += f_cpu_core_inc;
+        
+        if(f_cpu_core >= f_cpu_count)
+        {
+            f_cpu_core = 0;
+        }
     }
 
     
