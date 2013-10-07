@@ -72,7 +72,7 @@ all:
 	cd portaudio && ./configure --with-jack=no --with-oss=no
 	make -C portaudio
 	cp portaudio/lib/.libs/libportaudio.so.2.0.0 python/libpydaw/libportaudio.so
-	make pydaw3-engine
+	make $(PYDAW_VERSION)-engine
 
 debug:
 	make CFLAGS+=" -O0 -g -gdwarf-3 "
@@ -80,7 +80,7 @@ debug:
 release:
 	make CFLAGS+=" -O2 "
 
-pydaw3-engine: $(C_OBJS)
+$(PYDAW_VERSION)-engine: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
 
 # --------------------------------------------------------------
@@ -91,19 +91,19 @@ pydaw3-engine: $(C_OBJS)
 # --------------------------------------------------------------
 
 strip:
-	strip pydaw3-engine
+	strip $(PYDAW_VERSION)-engine
 
 # --------------------------------------------------------------
 
 install:
 	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 pydaw3 $(DESTDIR)$(PREFIX)/bin
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
-	install -m 755 pydaw3-project-recover $(DESTDIR)$(PREFIX)/bin
-	install -m 4755 pydaw3-engine $(DESTDIR)$(PREFIX)/bin
-	cp -r python $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
+	install -m 755 $(PYDAW_VERSION) $(DESTDIR)$(PREFIX)/bin
+	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
+	install -m 755 $(PYDAW_VERSION)-project-recover $(DESTDIR)$(PREFIX)/bin
+	install -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
+	cp -r python $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
@@ -115,5 +115,5 @@ install:
                 fi
 
 clean:
-	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw3-engine core python/core *~ src/*~
+	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ $(PYDAW_VERSION)-engine core python/core *~ src/*~
 
