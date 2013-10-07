@@ -17,7 +17,7 @@ GNU General Public License for more details.
 #define _ISOC99_SOURCE 1
 
 #include "pydaw_files.h"
-#include "../include/pydaw3/pydaw_plugin.h"
+#include "../include/pydaw_plugin.h"
 #include <portaudio.h>
 #include <portmidi.h>
 

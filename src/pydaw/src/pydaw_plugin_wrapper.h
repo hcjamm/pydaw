@@ -18,7 +18,7 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include "../include/pydaw3/pydaw_plugin.h"
+#include "../include/pydaw_plugin.h"
 #include "pydaw.h"
 #include <lo/lo.h>
 #include <dlfcn.h>

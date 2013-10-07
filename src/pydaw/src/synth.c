@@ -22,7 +22,7 @@ GNU General Public License for more details.
 #include <math.h>
 #include <stdio.h>
 
-#include "../include/pydaw3/pydaw_plugin.h"
+#include "../include/pydaw_plugin.h"
 #include "../libmodsynth/lib/amp.h"
 #include "pydaw.h"
 #include "osc_handlers.h"

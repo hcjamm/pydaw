@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #include <stdlib.h>
 
 #include "../../src/pydaw/src/synth.c"
-#include "../../src/pydaw/include/pydaw3/pydaw_plugin.h"
+#include "../../src/pydaw/include/pydaw_plugin.h"
 #include "pyfx_ports.h"
 #include <unistd.h>
 

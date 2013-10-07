@@ -18,7 +18,7 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include "../../include/pydaw3/pydaw_plugin.h"
+#include "../../include/pydaw_plugin.h"
 #include "libmodsynth.h"
    
 #define MODULEX_SLOW_INDEX_ITERATIONS 50
