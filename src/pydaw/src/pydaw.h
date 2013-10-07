@@ -62,7 +62,9 @@ extern "C" {
 #define PYDAW_MIDI_RECORD_BUFFER_LENGTH 600 //(PYDAW_MAX_REGION_COUNT * PYDAW_REGION_SIZE)  //recording buffer for MIDI, in bars
 #define PYDAW_MAX_WORK_ITEMS_PER_THREAD 128
     
-#define PYDAW_VERSION "pydaw3"    
+#define PYDAW_VERSION "pydaw3"
+    
+#define PYDAW_OSC_SEND_QUEUE_SIZE 64
     
 #include <string.h>
 #include <pthread.h>
@@ -336,6 +338,10 @@ typedef struct
     int audio_glue_indexes[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int ml_cur_loop_prevent;
     int midi_learn;  //0 to disable, 1 to enable sending CC events to the UI
+    int osc_queue_index;
+    char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
+    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][1024];
+    pthread_t osc_queue_thread;
 }t_pydaw_data;
 
 typedef struct 
@@ -638,6 +644,36 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
     printf ( "\n\nCompleted %s in %f seconds\n", a_message, ( (double)clock() - a_start ) / CLOCKS_PER_SEC );
 }
 
+
+void * v_pydaw_osc_send_thread(void* a_arg)
+{
+    t_pydaw_data * a_pydaw_data = (t_pydaw_data*)a_arg;
+    
+    while(!a_pydaw_data->audio_recording_quit_notifier)
+    {
+        int f_i = 0;
+        
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+                
+        while(f_i < a_pydaw_data->osc_queue_index)
+        {
+            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", 
+                    a_pydaw_data->osc_queue_keys[f_i],
+                    a_pydaw_data->osc_queue_vals[f_i]);
+            f_i++;
+        }
+        
+        a_pydaw_data->osc_queue_index = 0;
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        
+        usleep(10000);
+    }
+    
+    printf("osc send thread exiting\n");
+    
+    return (void*)1;
+}
+
 #if defined(__amd64__) || defined(__i386__)
 void cpuID(unsigned i, unsigned regs[4]) 
 {
@@ -859,11 +895,21 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
     pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
     pthread_create(&a_pydaw_data->audio_recording_thread, &threadAttr, v_pydaw_audio_recording_thread, (void*)a_pydaw_data);
     pthread_attr_destroy(&threadAttr);*/
+        
+    pthread_create(&a_pydaw_data->osc_queue_thread, NULL, v_pydaw_osc_send_thread, (void*)a_pydaw_data);
+}
+
+inline void v_queue_osc_message(t_pydaw_data * a_pydaw_data, char * a_key, char * a_val)
+{
+    sprintf(a_pydaw_data->osc_queue_keys[a_pydaw_data->osc_queue_index], "%s", a_key);
+    sprintf(a_pydaw_data->osc_queue_vals[a_pydaw_data->osc_queue_index], "%s", a_val);
+    a_pydaw_data->osc_queue_index += 1;    
 }
 
 inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin * a_plugin, int a_track_type, int a_track_num, int a_is_inst)
 {
-    int f_i = 0;    
+    int f_i = 0;
+    char a_value[256];
     while(f_i < (a_plugin->controlIns))
     {
         if (a_plugin->pluginPortUpdated[f_i]) 
@@ -871,10 +917,9 @@ inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin 
             int port = a_plugin->pluginControlInPortNumbers[f_i];
             float value = a_plugin->pluginControlIns[f_i];
 
-            a_plugin->pluginPortUpdated[f_i] = 0;
-            char a_value[256];
-            sprintf(a_value, "%i|%i|%i|%i|%f", a_is_inst, a_track_type, a_track_num, port, value);            
-            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "pc", a_value);
+            a_plugin->pluginPortUpdated[f_i] = 0;            
+            sprintf(a_value, "%i|%i|%i|%i|%f", a_is_inst, a_track_type, a_track_num, port, value);
+            v_queue_osc_message(a_pydaw_data, "pc", a_value);
         }
         f_i++;
     }
@@ -1410,8 +1455,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
 #endif
                 }
                 
-                sprintf(a_pydaw_data->osc_cursor_message, "1|%i", events[f_i2].note);
-                lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "ne", a_pydaw_data->osc_cursor_message);
+                sprintf(a_pydaw_data->osc_cursor_message, "1|%i", events[f_i2].note);                
+                v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message);
                 
             }
             else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
@@ -1445,7 +1490,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 }
                 
                 sprintf(a_pydaw_data->osc_cursor_message, "0|%i", events[f_i2].note);
-                lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "ne", a_pydaw_data->osc_cursor_message);
+                v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message);
             }
             else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
             {
@@ -1475,7 +1520,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 if(a_pydaw_data->midi_learn)
                 {
                     sprintf(a_pydaw_data->osc_cursor_message, "%i", controller);
-                    lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "ml", a_pydaw_data->osc_cursor_message);
+                    v_queue_osc_message(a_pydaw_data, "ml", a_pydaw_data->osc_cursor_message);
                 }
                 
                 if(a_pydaw_data->cc_map[controller])
@@ -2322,7 +2367,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     {       
         a_pydaw_data->ml_cur_loop_prevent = a_pydaw_data->ml_next_bar;
         sprintf(a_pydaw_data->osc_cursor_message, "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
-        lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "cur", a_pydaw_data->osc_cursor_message);
+        v_queue_osc_message(a_pydaw_data, "cur", a_pydaw_data->osc_cursor_message);
     }
     
     //We run everything else as normal to prevent hung notes and other oddities, even though the buffer is overwritten...
@@ -3420,6 +3465,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->current_region = 0;
     f_result->playback_cursor = 0.0f;
     f_result->playback_inc = 0.0f;
+    
+    f_result->osc_queue_index = 0;
 
     f_result->overdub_mode = 0;    
     f_result->loop_mode = 0;
@@ -3427,8 +3474,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->instruments_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
-    //f_result->project_name = (char*)malloc(sizeof(char) * 256);
-    
     f_result->busfx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audio_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audio_tmp_folder = (char*)malloc(sizeof(char) * 256);
