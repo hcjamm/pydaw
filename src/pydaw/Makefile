@@ -103,12 +103,13 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	install -m 755 $(PYDAW_VERSION)-project-recover $(DESTDIR)$(PREFIX)/bin
 	install -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root
 	cp -r python $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r share $(DESTDIR)$(PREFIX)
-	install -m 755 ../$(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	install -m 644 ../$(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	#Add the Git revision to the version.txt file if possible
 	@       if [ -e /usr/bin/git ] && [ -e ../.git ]; then \
                         echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/$(PYDAW_VERSION)-version.txt ; \

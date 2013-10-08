@@ -25,7 +25,6 @@ if "src/pydaw/python/" in __file__:
 else:
     global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
     global_pydaw_bin_path = global_pydaw_install_prefix + "/bin/" + global_pydaw_version_string + "-engine"
-    print(("global_pydaw_bin_path : %s" % (global_pydaw_bin_path,)))
     if os.path.exists(global_pydaw_bin_path):
         global_pydaw_with_audio = True
     else:
@@ -200,6 +199,7 @@ else:
     global_pydaw_sudo_command = None
 
 if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
+    global_pydaw_bin_path += "-no-root"
     if not os.path.isdir("/media/pydaw_data"):
         print("Attempting to mount /media/pydaw_data.  If this causes the GUI to hang, please try mounting the pydaw_data partition before starting")
         try:
@@ -230,6 +230,8 @@ else:
     global_pydaw_home = os.path.expanduser("~") + "/" + global_pydaw_version_string
     if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
+
+print(("global_pydaw_bin_path : %s" % (global_pydaw_bin_path,)))
 
 #TODO:  Remove at PyDAWv4
 global_pydaw_device_config = global_pydaw_home + "/device.txt"
