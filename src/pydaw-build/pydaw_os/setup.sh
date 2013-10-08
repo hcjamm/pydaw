@@ -24,5 +24,5 @@ apt-get autoremove -y
 #dpkg -i pydaw*.deb
 
 #Because dpkg can't resolve dependencies, you will have to run this if all 
-#dependencies were'nt already installed
+#dependencies weren't already installed
 #apt-get install -f
