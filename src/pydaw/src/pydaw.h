@@ -909,19 +909,17 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
     pthread_attr_destroy(&threadAttr);
     a_pydaw_data->audio_recording_quit_notifier = 0;
     
+    
+    pthread_attr_t auxThreadAttr;        
+    pthread_attr_init(&auxThreadAttr);
+    pthread_attr_setdetachstate(&auxThreadAttr, PTHREAD_CREATE_DETACHED);
+    
     /*The worker thread for flushing recorded audio from memory to disk*/
     //No longer recording audio in PyDAW, but keeping the code here for when I bring it back...
-    /*pthread_attr_t threadAttr;
-    struct sched_param param;
-    param.__sched_priority = 90;
-    pthread_attr_init(&threadAttr);
-    pthread_attr_setschedparam(&threadAttr, &param);
-    pthread_attr_setstacksize(&threadAttr, 8388608); 
-    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&a_pydaw_data->audio_recording_thread, &threadAttr, v_pydaw_audio_recording_thread, (void*)a_pydaw_data);
-    pthread_attr_destroy(&threadAttr);*/
-        
-    pthread_create(&a_pydaw_data->osc_queue_thread, NULL, v_pydaw_osc_send_thread, (void*)a_pydaw_data);
+    //pthread_create(&a_pydaw_data->audio_recording_thread, &threadAttr, v_pydaw_audio_recording_thread, (void*)a_pydaw_data);
+    
+    pthread_create(&a_pydaw_data->osc_queue_thread, &auxThreadAttr, v_pydaw_osc_send_thread, (void*)a_pydaw_data);
+    pthread_attr_destroy(&auxThreadAttr);
 }
 
 inline void v_queue_osc_message(t_pydaw_data * a_pydaw_data, char * a_key, char * a_val)
