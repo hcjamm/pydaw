@@ -681,7 +681,7 @@ int main(int argc, char **argv)
                     continue;
                 }
 
-                printf("Opening MIDI device ID: %i", f_device_id);
+                printf("Opening MIDI device ID: %i\n", f_device_id);
                 f_midi_err = Pm_OpenInput(&f_midi_stream, f_device_id, NULL, EVENT_BUFFER_SIZE, NULL, NULL);
 
                 if(f_midi_err != pmNoError)

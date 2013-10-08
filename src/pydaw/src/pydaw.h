@@ -666,7 +666,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
             f_i++;
         }
         
-        f_index = a_pydaw_data->osc_queue_index;        
+        f_index = a_pydaw_data->osc_queue_index;
         a_pydaw_data->osc_queue_index = 0;
         
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
@@ -690,7 +690,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
 }
 
 #if defined(__amd64__) || defined(__i386__)
-void cpuID(unsigned i, unsigned regs[4]) 
+void cpuID(unsigned int i, unsigned int regs[4]) 
 {
     asm volatile
       ("cpuid" : "=a" (regs[0]), "=b" (regs[1]), "=c" (regs[2]), "=d" (regs[3])
