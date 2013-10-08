@@ -936,22 +936,28 @@ inline void v_queue_osc_message(t_pydaw_data * a_pydaw_data, char * a_key, char 
     }
 }
 
-inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin * a_plugin, int a_track_type, int a_track_num, int a_is_inst)
+void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, t_pydaw_seq_event *event, int a_ci_is_port,
+        t_pydaw_data * a_pydaw_data, int a_is_inst, int a_track_num)
 {
-    int f_i = 0;    
-    while(f_i < (a_plugin->controlIns))
+    int port;
+    if(a_ci_is_port)
     {
-        if (a_plugin->pluginPortUpdated[f_i]) 
-        {
-            char a_value[256];
-            int port = a_plugin->pluginControlInPortNumbers[f_i];
-            float value = a_plugin->pluginControlIns[f_i];
-            a_plugin->pluginPortUpdated[f_i] = 0;            
-            sprintf(a_value, "%i|%i|%i|%i|%f", a_is_inst, a_track_type, a_track_num, port, value);
-            v_queue_osc_message(a_pydaw_data, "pc", a_value);
-        }
-        f_i++;
+        port = controlIn;
     }
+    else
+    {
+        port = instance->pluginControlInPortNumbers[controlIn];
+    }
+        
+    float value = (float)event->value;        
+    float f_lb = instance->descriptor->PYFX_Plugin->PortRangeHints[port].LowerBound;
+    float f_ub = instance->descriptor->PYFX_Plugin->PortRangeHints[port].UpperBound;
+    float f_diff = f_ub - f_lb;    
+    instance->pluginControlIns[controlIn] = (value * 0.0078125f * f_diff) + f_lb;
+    //printf("value: %f, instance->pluginControlIns[controlIn]: %f, f_ub: %f, f_lb: %f\n", value, 
+    //        instance->pluginControlIns[controlIn], f_ub, f_lb);    
+    sprintf(a_pydaw_data->osc_cursor_message, "%i|%i|%i|%f", a_is_inst, a_track_num, port, instance->pluginControlIns[controlIn]);
+    v_queue_osc_message(a_pydaw_data, "pc", a_pydaw_data->osc_cursor_message);
 }
 
 inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
@@ -1171,12 +1177,6 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
         if(f_item.track_type == 0)  //MIDI/plugin-instrument
         {
-            v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->instrument, 0,
-                    f_item.track_number, 1);
-
-            v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->effect, 0,
-                    f_item.track_number, 0);
-
             v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
                     f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
@@ -1202,10 +1202,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                 f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
                 f_i2++;
             }
-
-            v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, 2,
-                    f_item.track_number, 0);
-
+            
             if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
                 ((!f_args->pydaw_data->is_soloed) ||
                 ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
@@ -1263,9 +1260,6 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                     }
                     pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
                 }
-
-                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]->effect, 1, 
-                        f_item.track_number, 0);
 
                 v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]);
 
@@ -1580,8 +1574,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
 
                         if (controlIn > 0)  //if (controlIn >= 0) 
                         {
-                            /* controller is mapped to LADSPA port, update the port */
-                            v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->instrument, controlIn, &events[f_i2], 0);
+                            /* controller is mapped to port, update the port */
+                            v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->instrument, controlIn, &events[f_i2], 0,
+                                    a_pydaw_data, 1, a_pydaw_data->record_armed_track_index_all);
                             
                             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {   
@@ -1597,8 +1592,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     
                     if (controlIn > 0) //if (controlIn >= 0) 
                     {
-                        /* controller is mapped to LADSPA port, update the port */
-                        v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->effect, controlIn, &events[f_i2], 0);
+                        /* controller is mapped to port, update the port */
+                        v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->effect, controlIn, &events[f_i2], 0,
+                                    a_pydaw_data, 0, a_pydaw_data->record_armed_track_index_all);
                         
                         if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                         {   
@@ -2115,7 +2111,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                                     {
                                         t_pydaw_seq_event f_event;
                                         f_event.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &f_event, 0);
+                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &f_event, 0,
+                                                a_pydaw_data, 1, f_i);
                                     }
                                 }
                                 else if(f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->plugin_index == -1)
@@ -2125,7 +2122,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                                     {
                                         t_pydaw_seq_event f_event;
                                         f_event.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0);
+                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0,
+                                                a_pydaw_data, 0, f_i);
                                     }
                                 }
                             }
@@ -2366,8 +2364,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         f_i++;
     }
     
-    //Run the master channels effects
-    v_pydaw_fx_update_ports(a_pydaw_data, a_pydaw_data->bus_pool[0]->effect, 1, 0, 0);
+    //Run the master channels effects    
     v_run_plugin(a_pydaw_data->bus_pool[0]->effect, sample_count, a_pydaw_data->bus_pool[0]->event_buffer, a_pydaw_data->bus_pool[0]->current_period_event_index);
     
     int f_i2 = 0;

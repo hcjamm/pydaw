@@ -6438,7 +6438,9 @@ class pydaw_main_window(QtGui.QMainWindow):
     def configure_callback(self, path, args):
         a_key, a_val = args
         if a_key == "pc":
-            f_is_inst, f_track_type, f_track_num, f_port, f_val = a_val.split("|")
+            f_is_inst, f_track_num, f_port, f_val = a_val.split("|")
+            f_track_type, f_track_num = track_all_to_type_and_index(f_track_num)
+
             if int_to_bool(f_is_inst):
                 if int(f_track_num) in global_open_inst_ui_dict:
                     global_open_inst_ui_dict[int(f_track_num)].set_control_val(int(f_port), float(f_val))

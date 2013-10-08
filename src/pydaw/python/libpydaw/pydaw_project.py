@@ -13,11 +13,9 @@ GNU General Public License for more details.
 """
 
 import os, random, traceback, subprocess
-from shutil import move
 from time import sleep
 from libpydaw.pydaw_util import *
 
-#from lms_session import lms_session #deprecated
 from libpydaw.pydaw_osc import pydaw_osc
 
 from PyQt4 import QtGui, QtCore
@@ -27,6 +25,17 @@ pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
 pydaw_midi_track_count = 20
+
+def track_all_to_type_and_index(a_index):
+    f_index = int(a_index)
+    """ Convert global track number to track type + track number  """
+    if f_index >= pydaw_midi_track_count + pydaw_bus_count:
+        return 2, f_index - pydaw_midi_track_count + pydaw_bus_count
+    elif f_index >= pydaw_midi_track_count:
+        return 1, f_index - pydaw_midi_track_count
+    else:
+        return 0, f_index
+
 pydaw_max_audio_item_count = 256
 pydaw_max_region_length = 256 #bars
 
