@@ -404,7 +404,7 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 
 	ev->tick = framesPerBuffer - framediff - 1;
 
-	if (ev->type == SND_SEQ_EVENT_CONTROLLER)
+	if (ev->type == PYDAW_EVENT_CONTROLLER)
         {	    
 	    int controller = ev->param;
 

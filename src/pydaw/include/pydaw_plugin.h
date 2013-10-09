@@ -41,9 +41,13 @@ typedef struct
         int channel;		/**< channel number */
 	int note;		/**< note */
 	int velocity;		/**< velocity */	
-	int duration;		/**< duration until note-off; only for #SND_SEQ_EVENT_NOTE */
+	int duration;		/**< duration until note-off; only for #PYDAW_EVENT_NOTEON */
 	int param;		/**< control parameter */	
-        int value;
+        float value;
+        float start;
+        float length;
+        int plugin_index;
+        int port;
 } t_pydaw_seq_event;    
     
 void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
