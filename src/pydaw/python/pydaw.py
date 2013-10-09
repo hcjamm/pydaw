@@ -7045,8 +7045,11 @@ this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_audio_items_viewer = audio_items_viewer()
 
-if global_pydaw_with_audio:
+global_pydaw_subprocess = None
+
+def open_pydaw_engine():
     print("Starting audio engine")
+    global global_pydaw_subprocess
     if pydaw_util.pydaw_which("pasuspender") is not None:
         f_pa_suspend = True
     else:
@@ -7068,9 +7071,11 @@ if global_pydaw_with_audio:
         else:
             f_cmd = '"%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix,)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True) #, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+if global_pydaw_with_audio:
+    open_pydaw_engine()
 else:
     print(("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,)))
-    global_pydaw_subprocess = None
 
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
