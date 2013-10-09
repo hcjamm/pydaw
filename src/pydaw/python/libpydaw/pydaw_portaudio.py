@@ -20,9 +20,6 @@ try:
 except ImportError:
     import pydaw_util, portaudio, portmidi
 
-import sip
-sip.setapi('QVariant', 2)
-
 class pydaw_device_dialog:
     def __init__(self, a_home_folder, a_is_running=False):
         self.is_running = a_is_running
