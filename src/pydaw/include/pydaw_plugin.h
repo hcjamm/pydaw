@@ -26,10 +26,10 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#define SND_SEQ_EVENT_NOTEON     0    
-#define SND_SEQ_EVENT_NOTEOFF    1
-#define SND_SEQ_EVENT_PITCHBEND  2
-#define SND_SEQ_EVENT_CONTROLLER 3
+#define PYDAW_EVENT_NOTEON     0    
+#define PYDAW_EVENT_NOTEOFF    1
+#define PYDAW_EVENT_PITCHBEND  2
+#define PYDAW_EVENT_CONTROLLER 3
     
 // MIDI event
 typedef struct 
@@ -54,14 +54,14 @@ void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
 
 void v_pydaw_ev_set_pitchbend(t_pydaw_seq_event* a_event, int a_channel, int a_value)
 {
-    a_event->type = SND_SEQ_EVENT_PITCHBEND;
+    a_event->type = PYDAW_EVENT_PITCHBEND;
     a_event->channel = a_channel;
     a_event->value = a_value;
 }
 
 void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event, int a_channel, int a_note, int a_velocity)
 {
-    a_event->type = SND_SEQ_EVENT_NOTEOFF;
+    a_event->type = PYDAW_EVENT_NOTEOFF;
     a_event->channel = a_channel;
     a_event->note = a_note;
     a_event->velocity = a_velocity;
@@ -69,7 +69,7 @@ void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event, int a_channel, int a_not
 
 void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event, int a_channel, int a_note, int a_velocity)
 {
-    a_event->type = SND_SEQ_EVENT_NOTEON;
+    a_event->type = PYDAW_EVENT_NOTEON;
     a_event->channel = a_channel;
     a_event->note = a_note;
     a_event->velocity = a_velocity;
@@ -77,7 +77,7 @@ void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event, int a_channel, int a_note
 
 void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event, int a_channel, int a_cc_num, int a_value)
 {
-    a_event->type = SND_SEQ_EVENT_CONTROLLER;
+    a_event->type = PYDAW_EVENT_CONTROLLER;
     a_event->channel = a_channel;
     a_event->param = a_cc_num;
     a_event->value = a_value;

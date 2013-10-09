@@ -219,7 +219,7 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
     
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
     {
-        if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
+        if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_NOTEON) 
         {
             if (events[(plugin_data->event_pos)].velocity > 0) 
             {
@@ -306,12 +306,12 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             }
         } 
         /*Note-off event*/
-        else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEOFF) 
+        else if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_NOTEOFF) 
         {
             v_voc_note_off(plugin_data->voices, events[(plugin_data->event_pos)].note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].tick));
         } 
         /*Pitch-bend sequencer event, modify the voices pitch*/
-        else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
+        else if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_PITCHBEND) 
         {
             plugin_data->sv_pitch_bend_value = 0.00012207f
                     * (events[(plugin_data->event_pos)].value) * (*plugin_data->master_pb_amt);

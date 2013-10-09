@@ -724,7 +724,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
     while (event_pos < event_count) // && pos >= events[event_pos].time.tick) 
     {
         /*Note-on event*/
-        if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) 
+        if (events[event_pos].type == PYDAW_EVENT_NOTEON) 
         {
             f_note = events[event_pos].note;
             
@@ -907,14 +907,14 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
             }
         } /*Note-off event*/
-        else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
+        else if (events[event_pos].type == PYDAW_EVENT_NOTEOFF )
         {            
             f_note = events[event_pos].note; 
             v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
         }
 
         /*Pitch-bend sequencer event, modify the voices pitch*/
-        else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
+        else if (events[event_pos].type == PYDAW_EVENT_PITCHBEND) 
         {
             plugin_data->sv_pitch_bend_value = 0.00012207 * events[event_pos].value * (*(plugin_data->master_pb_amt));
         }

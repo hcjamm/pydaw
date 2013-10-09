@@ -1456,7 +1456,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
 
         while(f_i2 < event_count)
         {
-            if(events[f_i2].type == SND_SEQ_EVENT_NOTEON)
+            if(events[f_i2].type == PYDAW_EVENT_NOTEON)
             {                
                 v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
                 v_pydaw_ev_set_noteon(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0,
@@ -1482,7 +1482,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message);
                 
             }
-            else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
+            else if(events[f_i2].type == PYDAW_EVENT_NOTEOFF)
             {                
                 v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
                 v_pydaw_ev_set_noteoff(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0, events[f_i2].note, 0);
@@ -1515,7 +1515,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 sprintf(a_pydaw_data->osc_cursor_message, "0|%i", events[f_i2].note);
                 v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message);
             }
-            else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
+            else if(events[f_i2].type == PYDAW_EVENT_PITCHBEND)
             {
                 v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
                 v_pydaw_ev_set_pitchbend(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 
@@ -1533,7 +1533,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     a_pydaw_data->item_pool[f_index]->pitchbend_count = (a_pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
                 }
             }
-            else if(events[f_i2].type == SND_SEQ_EVENT_CONTROLLER)
+            else if(events[f_i2].type == PYDAW_EVENT_CONTROLLER)
             {
                 int controller = events[f_i2].param;
 #ifdef PYDAW_PRINT_DEBUG_INFO
