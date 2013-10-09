@@ -19,6 +19,8 @@ from math import log, pow
 global_pydaw_version_string = "pydaw3"
 global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
+global_pydaw_bin_path = None
+
 if "src/pydaw/python/" in __file__:
     global_pydaw_install_prefix = "/usr"
     global_pydaw_with_audio = False
@@ -199,7 +201,7 @@ else:
     global_pydaw_sudo_command = None
 
 if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
-    global_pydaw_bin_path += "-no-root"
+    if global_pydaw_bin_path is not None: global_pydaw_bin_path += "-no-root"
     if not os.path.isdir("/media/pydaw_data"):
         print("Attempting to mount /media/pydaw_data.  If this causes the GUI to hang, please try mounting the pydaw_data partition before starting")
         try:
@@ -238,6 +240,33 @@ if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(globa
     os.system('rm "%s"' % (global_pydaw_device_config,))
 
 global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
+
+
+global_device_val_dict = {}
+global_device_file = "%s/device.txt" % (global_pydaw_home,)
+if os.path.isfile(global_device_file):
+    f_file_text = pydaw_read_file_text(global_device_file)
+    for f_line in f_file_text.split("\n"):
+        if f_line.strip() == "\\":
+            break
+        if f_line.strip() != "":
+            f_line_arr = f_line.split("|", 1)
+            global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+
+#TODO:  Remove at PyDAWv4
+if not "audioEngine" in global_device_val_dict:
+    global_device_val_dict["audioEngine"] = "0"
+
+if global_pydaw_bin_path is not None:
+    if int(global_device_val_dict["audioEngine"]) == 0:
+        global_pydaw_bin_path += "-no-root"
+    elif int(global_device_val_dict["audioEngine"]) == 2:
+        global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
+    elif int(global_device_val_dict["audioEngine"]) == 3:
+        global_pydaw_bin_path += "-dbg"
+    elif int(global_device_val_dict["audioEngine"]) > 3:
+        global_pydaw_bin_path += "-no-hw"
+    print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
 
 def global_get_file_bookmarks():
     """ Get the bookmarks shared with Euphoria """

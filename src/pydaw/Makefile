@@ -72,13 +72,14 @@ all:
 	cd portaudio && ./configure --with-jack=no --with-oss=no
 	make -C portaudio
 	cp portaudio/lib/.libs/libportaudio.so.2.0.0 python/libpydaw/libportaudio.so
-	make $(PYDAW_VERSION)-engine
-
-debug:
-	make CFLAGS+=" -O0 -g -gdwarf-3 "
-
-release:
-	make CFLAGS+=" -O2 "
+	make clean
+	make CFLAGS+=" -O0 -g -gdwarf-3 " $(PYDAW_VERSION)-engine
+	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-dbg
+	rm -f src/*.o
+	make CFLAGS+=" -O0 -g -gdwarf-3 -DPYDAW_NO_HARDWARE " $(PYDAW_VERSION)-engine
+	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-no-hw
+	rm -f src/*.o
+	make CFLAGS+=" -O2 " $(PYDAW_VERSION)-engine
 
 $(PYDAW_VERSION)-engine: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
@@ -102,6 +103,8 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	install -m 755 $(PYDAW_VERSION)-project-recover $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(PYDAW_VERSION)-engine-dbg $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(PYDAW_VERSION)-engine-no-hw $(DESTDIR)$(PREFIX)/bin
 	install -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root
 	cp -r python $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
@@ -116,5 +119,5 @@ install:
                 fi
 
 clean:
-	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ $(PYDAW_VERSION)-engine core python/core *~ src/*~
+	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ $(PYDAW_VERSION)-engine* core python/core *~ src/*~
 

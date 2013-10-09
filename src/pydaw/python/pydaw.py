@@ -7054,11 +7054,13 @@ def open_pydaw_engine():
         f_pa_suspend = True
     else:
         f_pa_suspend = False
-    if "--debug" in sys.argv and pydaw_util.pydaw_which("x-terminal-emulator") is not None:
-        if "--valgrind" in sys.argv and pydaw_util.pydaw_which("valgrind") is not None:
-            f_run_with = " valgrind "
-        elif "--gdb" in sys.argv and pydaw_util.pydaw_which("gdb") is not None:
+
+    if int(pydaw_util.global_device_val_dict["audioEngine"]) >= 3 \
+    and pydaw_util.pydaw_which("x-terminal-emulator") is not None:
+        if int(pydaw_util.global_device_val_dict["audioEngine"]) == 4 and pydaw_util.pydaw_which("gdb") is not None:
             f_run_with = " gdb "
+        elif int(pydaw_util.global_device_val_dict["audioEngine"]) == 5 and pydaw_util.pydaw_which("valgrind") is not None:
+            f_run_with = " valgrind "
         else:
             f_run_with = ""
         if f_pa_suspend:
@@ -7070,7 +7072,7 @@ def open_pydaw_engine():
             f_cmd = 'pasuspender -- "%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix)
         else:
             f_cmd = '"%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix,)
-    global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True) #, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
 
 if global_pydaw_with_audio:
     open_pydaw_engine()
