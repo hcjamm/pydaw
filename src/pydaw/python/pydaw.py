@@ -6127,7 +6127,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_change_audio_settings(self):
         if global_transport_is_playing:
             return
-        f_dialog = pydaw_portaudio.pydaw_device_dialog(global_pydaw_home, True)
+        f_dialog = pydaw_portaudio.pydaw_device_dialog(True)
         f_dialog.show_device_dialog(a_notify=True)
 
     def on_open_theme(self):

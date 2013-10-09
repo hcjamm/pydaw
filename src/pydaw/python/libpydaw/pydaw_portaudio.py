@@ -20,26 +20,24 @@ try:
 except ImportError:
     import pydaw_util, portaudio, portmidi
 
+global_device_val_dict = {}
+global_device_file = "%s/device.txt" % (pydaw_util.global_pydaw_home,)
+if os.path.isfile(global_device_file):
+    f_file_text = pydaw_util.pydaw_read_file_text(global_device_file)
+    for f_line in f_file_text.split("\n"):
+        if f_line.strip() == "\\":
+            break
+        if f_line.strip() != "":
+            f_line_arr = f_line.split("|", 1)
+            global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+
 class pydaw_device_dialog:
-    def __init__(self, a_home_folder, a_is_running=False):
+    def __init__(self, a_is_running=False):
         self.is_running = a_is_running
         self.device_name = None
-        self.home_folder = str(a_home_folder)
-        if not os.path.isdir(self.home_folder):
-            os.mkdir(self.home_folder)
-        print((self.home_folder))
-        self.device_file = "%s/device.txt" % (self.home_folder,)
         self.sample_rates = ["44100", "48000", "88200", "96000"]
         self.buffer_sizes = ["32", "64", "128", "256", "512", "1024", "2048"]
-        self.val_dict = {}
-        if os.path.isfile(self.device_file):
-            f_file_text = pydaw_util.pydaw_read_file_text(self.device_file)
-            for f_line in f_file_text.split("\n"):
-                if f_line.strip() == "\\":
-                    break
-                if f_line.strip() != "":
-                    f_line_arr = f_line.split("|", 1)
-                    self.val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+
 
     def show_device_dialog(self, a_msg=None, a_notify=False):
         f_stylesheet_file = "%s/lib/%s/themes/default/style.txt" % (pydaw_util.global_pydaw_install_prefix,  \
@@ -165,13 +163,13 @@ class pydaw_device_dialog:
             try:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
-                if not self.is_running or "name" not in self.val_dict or self.val_dict["name"] != self.device_name:
+                if not self.is_running or "name" not in global_device_val_dict or global_device_val_dict["name"] != self.device_name:
                     f_output = portaudio.PaStreamParameters(f_name_to_index[self.device_name], 2, portaudio.paInt16,
                                                             float(f_buffer_size)/float(f_samplerate), None)
                     f_supported = f_pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output), f_samplerate)
                     if not f_supported:
                         raise Exception()
-                f_file = open(self.device_file, "w")
+                f_file = open(global_device_file, "w")
                 f_file.write("name|%s\n" % (self.device_name,))
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))
@@ -204,24 +202,24 @@ class pydaw_device_dialog:
         f_audio_device_names.sort()
         f_device_name_combobox.addItems(f_audio_device_names)
 
-        if "name" in self.val_dict and self.val_dict["name"] in f_result_dict:
-            f_device_name_combobox.setCurrentIndex(f_device_name_combobox.findText(self.val_dict["name"]))
+        if "name" in global_device_val_dict and global_device_val_dict["name"] in f_result_dict:
+            f_device_name_combobox.setCurrentIndex(f_device_name_combobox.findText(global_device_val_dict["name"]))
 
-        if "bufferSize" in self.val_dict and self.val_dict["bufferSize"] in self.buffer_sizes:
-            f_buffer_size_combobox.setCurrentIndex(f_buffer_size_combobox.findText(self.val_dict["bufferSize"]))
+        if "bufferSize" in global_device_val_dict and global_device_val_dict["bufferSize"] in self.buffer_sizes:
+            f_buffer_size_combobox.setCurrentIndex(f_buffer_size_combobox.findText(global_device_val_dict["bufferSize"]))
 
-        if "sampleRate" in self.val_dict and self.val_dict["sampleRate"] in self.sample_rates:
-            f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(self.val_dict["sampleRate"]))
+        if "sampleRate" in global_device_val_dict and global_device_val_dict["sampleRate"] in self.sample_rates:
+            f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(global_device_val_dict["sampleRate"]))
 
-        if "threads" in self.val_dict:
-            f_worker_threads_combobox.setCurrentIndex(int(self.val_dict["threads"]))
+        if "threads" in global_device_val_dict:
+            f_worker_threads_combobox.setCurrentIndex(int(global_device_val_dict["threads"]))
 
-        if "threadAffinity" in self.val_dict:
-            if int(self.val_dict["threadAffinity"]) == 1:
+        if "threadAffinity" in global_device_val_dict:
+            if int(global_device_val_dict["threadAffinity"]) == 1:
                 f_thread_affinity_checkbox.setChecked(True)
 
-        if "midiInDevice" in self.val_dict:
-            f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(self.val_dict["midiInDevice"]))
+        if "midiInDevice" in global_device_val_dict:
+            f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(global_device_val_dict["midiInDevice"]))
 
         if a_msg is not None:
             QtGui.QMessageBox.warning(f_window, "Error", a_msg)
@@ -245,7 +243,7 @@ if __name__ == "__main__":
         else:
             f_msg = None
 
-        f_pydaw_device_dialog = pydaw_device_dialog(pydaw_util.global_pydaw_home)
+        f_pydaw_device_dialog = pydaw_device_dialog()
         f_pydaw_device_dialog.show_device_dialog(f_msg)
         sys.exit(app.exec_())
 
