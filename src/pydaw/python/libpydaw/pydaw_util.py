@@ -231,8 +231,6 @@ else:
     if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
 
-print(("global_pydaw_bin_path : %s" % (global_pydaw_bin_path,)))
-
 #TODO:  Remove at PyDAWv4
 global_pydaw_device_config = global_pydaw_home + "/device.txt"
 if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(global_pydaw_device_config).endswith("\\"):
