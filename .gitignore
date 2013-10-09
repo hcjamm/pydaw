@@ -21,7 +21,7 @@ src/pydaw/portaudio/libtool
 src/pydaw/portaudio/portaudio-2.0.pc
 src/pydaw_rubberband/bin
 src/pydaw-build/pydaw_os/pydaw.ova
-src/pydaw/pydaw3-engine
+src/pydaw/pydaw3-engine*
 src/pydaw/dir_debug
 *-source-code.tar.gz
 src/pydaw-build/pydaw_os/edit
