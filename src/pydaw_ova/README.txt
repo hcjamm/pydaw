@@ -1,3 +1,9 @@
+Login credentials for unlocking the screen or installing software:
+
+	Username:  pydaw
+	Password:  pydaw
+
+
 How to run PyDAW:
 
 	Simply click the "PyDAW" icon on the left
@@ -38,3 +44,16 @@ How do I upgrade to the latest version of PyDAW?
 
 	...and download the 32-bit .deb package of PyDAW and install(ie: not the one that says AMD64, and 
 	not the one that says source-code).  It will only be a few megabytes.
+
+How do I use the other software in the VM?
+	
+	Click the top icon on the bar on the left (has the Ubuntu "circle of friends" logo on it) and either type
+	in a search query for what you want, or else click on the applications button (bottom of the launcher window).
+
+Can I upgrade and install software in the VM?
+	
+	Yes, you can.  I don't advocate running updates, generally there is little need to do so, and there's always
+	the possibility that it will break something.  If you would like to install additional software, I recommend
+	doing it through "Ubuntu Software Center" (shopping bag icon on the launcher).
+
+
