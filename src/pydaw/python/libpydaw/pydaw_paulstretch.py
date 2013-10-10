@@ -19,6 +19,7 @@ GNU General Public License for more details.
 
 import sys, os, subprocess
 from numpy import *
+import numpy
 import scipy.io.wavfile
 import wave
 from optparse import OptionParser
@@ -168,12 +169,9 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
 
         cfreqs=(freqs*displace_tick)+(old_freqs*(1.0-displace_tick))
 
-
-        #EDITED OUT BECAUSE OF PYTHON3 GOOFYNESS:
-            #TypeError: uniform() takes exactly 3 positional arguments (4 given)
         #randomize the phases by multiplication with a random complex number with modulus=1
-        #ph=random.uniform(0.0, (2.0 * pi), (nchannels, cfreqs.shape[1])) * 1j
-        #cfreqs=cfreqs * exp(ph)
+        ph = numpy.random.random(size=(nchannels, cfreqs.shape[1])) * (2. * pi) * 1j
+        cfreqs = cfreqs * exp(ph)
 
         #do the inverse FFT
         buf = fft.irfft(cfreqs)
