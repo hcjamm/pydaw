@@ -7125,5 +7125,4 @@ if os.path.isfile(global_pydaw_home + "/" + "tooltips.txt"):
 else:
     this_transport.tooltips_checkbox.setChecked(True)
 
-
 sys.exit(app.exec_())
