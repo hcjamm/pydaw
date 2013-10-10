@@ -4,6 +4,8 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
+umount -lf edit/dev
+
 #Regenerate the manifest
 chmod +w extract-cd/casper/filesystem.manifest
 chroot edit dpkg-query -W --showformat='${Package} ${Version}\n' > extract-cd/casper/filesystem.manifest

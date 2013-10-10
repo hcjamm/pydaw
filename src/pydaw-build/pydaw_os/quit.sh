@@ -12,8 +12,7 @@ umount /dev/pts
 rm pydaw*.deb
 
 echo
-echo "#######Now run:#######"
+echo "#######Now run the following commands:#######"
 echo "exit"
-echo "sudo umount -lf edit/dev"
 echo "sudo ./finish.sh"
 echo
