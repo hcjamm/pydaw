@@ -7045,6 +7045,11 @@ this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_audio_items_viewer = audio_items_viewer()
 
+if not os.path.isfile(pydaw_util.global_pydaw_device_config):
+    f_dialog = pydaw_device_dialog.pydaw_device_dialog(a_is_running=True)
+    f_dialog.show_device_dialog()
+    pydaw_util.pydaw_read_device_config()
+
 global_pydaw_subprocess = None
 
 def open_pydaw_engine():

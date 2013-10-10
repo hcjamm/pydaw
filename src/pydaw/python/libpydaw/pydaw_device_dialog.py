@@ -188,7 +188,7 @@ The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', other
                     f_supported = f_pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output), f_samplerate)
                     if not f_supported:
                         raise Exception()
-                f_file = open(pydaw_util.global_device_file, "w")
+                f_file = open(pydaw_util.global_pydaw_device_config, "w")
                 f_file.write("name|%s\n" % (self.device_name,))
                 f_file.write("bufferSize|%s\n" % (f_buffer_size,))
                 f_file.write("sampleRate|%s\n" % (f_samplerate,))

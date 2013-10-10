@@ -233,40 +233,43 @@ else:
     if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
 
-#TODO:  Remove at PyDAWv4
-global_pydaw_device_config = global_pydaw_home + "/device.txt"
-if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(global_pydaw_device_config).endswith("\\"):
-    print("Detected bad device.txt config file from an older PyDAW release, deleting...")
-    os.system('rm "%s"' % (global_pydaw_device_config,))
-
 global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
 
-
 global_device_val_dict = {}
-global_device_file = "%s/device.txt" % (global_pydaw_home,)
-if os.path.isfile(global_device_file):
-    f_file_text = pydaw_read_file_text(global_device_file)
-    for f_line in f_file_text.split("\n"):
-        if f_line.strip() == "\\":
-            break
-        if f_line.strip() != "":
-            f_line_arr = f_line.split("|", 1)
-            global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+global_pydaw_device_config = global_pydaw_home + "/device.txt"
 
-#TODO:  Remove at PyDAWv4
-if not "audioEngine" in global_device_val_dict:
-    global_device_val_dict["audioEngine"] = "0"
+def pydaw_read_device_config():
+    #TODO:  Remove at PyDAWv4
+    global global_pydaw_bin_path, global_device_val_dict
+    if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(global_pydaw_device_config).endswith("\\"):
+        print("Detected bad device.txt config file from an older PyDAW release, deleting...")
+        os.system('rm "%s"' % (global_pydaw_device_config,))
 
-if global_pydaw_bin_path is not None:
-    if int(global_device_val_dict["audioEngine"]) == 0:
-        global_pydaw_bin_path += "-no-root"
-    elif int(global_device_val_dict["audioEngine"]) == 2:
-        global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
-    elif int(global_device_val_dict["audioEngine"]) == 3:
-        global_pydaw_bin_path += "-dbg"
-    elif int(global_device_val_dict["audioEngine"]) > 3:
-        global_pydaw_bin_path += "-no-hw"
-    print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
+    if os.path.isfile(global_pydaw_device_config):
+        f_file_text = pydaw_read_file_text(global_pydaw_device_config)
+        for f_line in f_file_text.split("\n"):
+            if f_line.strip() == "\\":
+                break
+            if f_line.strip() != "":
+                f_line_arr = f_line.split("|", 1)
+                global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+
+    #TODO:  Remove at PyDAWv4
+    if not "audioEngine" in global_device_val_dict:
+        global_device_val_dict["audioEngine"] = "0"
+
+    if global_pydaw_bin_path is not None:
+        if int(global_device_val_dict["audioEngine"]) == 0:
+            global_pydaw_bin_path += "-no-root"
+        elif int(global_device_val_dict["audioEngine"]) == 2:
+            global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
+        elif int(global_device_val_dict["audioEngine"]) == 3:
+            global_pydaw_bin_path += "-dbg"
+        elif int(global_device_val_dict["audioEngine"]) > 3:
+            global_pydaw_bin_path += "-no-hw"
+        print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
+
+pydaw_read_device_config()
 
 def global_get_file_bookmarks():
     """ Get the bookmarks shared with Euphoria """
