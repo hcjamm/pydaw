@@ -1617,6 +1617,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
             f_item = self.audio_item
             f_item_old = f_item.clone()
+            f_item.fade_in = 0.0
+            f_item_old.fade_out = 999.0
+            f_width_percent = a_event.pos().x() / self.rect().width()
+            f_item.fade_out *= f_width_percent
+            f_item.fade_out = pydaw_clip_value(f_item.fade_out, 1.0, 999.0)
+            f_item_old.fade_in /= f_width_percent
+            f_item_old.fade_in = pydaw_clip_value(f_item_old.fade_in, 0.0, 998.0)
+
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
                 QtGui.QMessageBox.warning(self, "Error", "No more available audio item slots, max per region is " + str(pydaw_max_audio_item_count))
