@@ -17,4 +17,4 @@ from libpydaw.pydaw_gradients import *
 from libpydaw.pydaw_history import *
 from libpydaw.pydaw_util import *
 from libpydaw.pydaw_widgets import *
-from . import pydaw_portaudio
+from . import pydaw_device_dialog

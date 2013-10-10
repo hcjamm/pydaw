@@ -259,7 +259,7 @@ The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', other
             f_window.show()
 
 if __name__ == "__main__":
-    def _pydaw_portaudio_standalone():
+    def _pydaw_device_dialog_standalone():
         app = QtGui.QApplication(sys.argv)
         if len(sys.argv) == 2:
             f_msg = sys.argv[1]
@@ -270,4 +270,4 @@ if __name__ == "__main__":
         f_pydaw_device_dialog.show_device_dialog(f_msg)
         sys.exit(app.exec_())
 
-    _pydaw_portaudio_standalone()
+    _pydaw_device_dialog_standalone()

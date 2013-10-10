@@ -581,7 +581,7 @@ int main(int argc, char **argv)
     
     char f_show_dialog_cmd[1024];
 
-    sprintf(f_show_dialog_cmd, "python3 \"%s/lib/%s/pydaw/python/libpydaw/pydaw_portaudio.py\"", argv[1], PYDAW_VERSION);
+    sprintf(f_show_dialog_cmd, "python3 \"%s/lib/%s/pydaw/python/libpydaw/pydaw_device_dialog.py\"", argv[1], PYDAW_VERSION);
     
     char f_cmd_buffer[10000];
     f_cmd_buffer[0] = '\0';
