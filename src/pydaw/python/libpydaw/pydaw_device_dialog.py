@@ -205,8 +205,7 @@ The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', other
                 if a_notify:
                     QtGui.QMessageBox.warning(f_window, "Settings changed",
                       "Hardware setttings have been changed, and will be applied next time you start PyDAW.")
-                else:
-                    time.sleep(0.2)
+                time.sleep(1.0)
                 f_window.close()
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s\n\n%s" % (ex,
