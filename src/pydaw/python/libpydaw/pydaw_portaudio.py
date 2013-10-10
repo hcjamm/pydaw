@@ -69,17 +69,17 @@ class pydaw_device_dialog:
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_window_layout.addWidget(QtGui.QLabel("Audio Engine"), 4, 0)
         f_audio_engine_combobox = QtGui.QComboBox()
-        f_audio_engine_combobox.addItems(["Normal", "Root", "Root(sandbox)", "Debug", "GDB", "Valgrind"])
+        f_audio_engine_combobox.addItems(["Normal", "Elevated", "Elevated(sandbox)", "Debug", "GDB", "Valgrind"])
         f_audio_engine_combobox.setToolTip( \
 """
 Normal:  Run the audio engine without elevated privileges.  This generally works
 well enough, but may require higher latency settings.
 
-Root:  Run the audio engine with elevated privilege, this gives the best possible latency,
+Elevated:  Run the audio engine with elevated privilege, this gives the best possible latency,
 but if your desktop uses GTK+ it may refuse to run it. (USE THIS OPTION IF POSSIBLE)
 
-Root(sandbox):  Same as "Root", but works around GTK+ stupidity by using a helper
-program to launch the engine.
+Elevated(sandbox):  Same as "Elevated", but works around GTK+'s decision to prevent executing code
+with elevated rights by using a helper program to launch the engine. (USE THIS OPTION IF POSSIBLE)
 
 OPTIONS BELOW ARE DEVELOPER OPTIONS THAT NORMAL USERS SHOULD NEVER USE
 
@@ -90,6 +90,7 @@ recommended for normal use.
 GDB:  Open in the GDB debugger with no audio or external MIDI to allow setting breakpoints and pausing execution.
 
 Valgrind:  Open in Valgrind, with no audio or external MIDI.  VERY SLOW unless worker threads is set to 1!!!
+
 """)
         f_window_layout.addWidget(f_audio_engine_combobox, 4, 1)
         f_thread_affinity_checkbox = QtGui.QCheckBox("Lock worker threads to own core?")
@@ -97,7 +98,7 @@ Valgrind:  Open in Valgrind, with no audio or external MIDI.  VERY SLOW unless w
 """This may give better performance with fewer Xruns at low latency, but may perform badly
 on certain configurations.
 
-The audio engine setting must be set to 'Root', otherwise this setting has no effect.""")
+The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.""")
         f_window_layout.addWidget(f_thread_affinity_checkbox, 5, 1)
         f_window_layout.addWidget(QtGui.QLabel("MIDI In Device:"), 7, 0)
         f_midi_in_device_combobox = QtGui.QComboBox()
