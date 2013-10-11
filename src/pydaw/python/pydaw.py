@@ -1590,6 +1590,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_save_a_copy_action = QtGui.QAction("Save a copy", this_audio_items_viewer)
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
         f_menu.addAction(f_save_a_copy_action)
+        f_open_folder_action = QtGui.QAction("Open parent folder in browser", this_audio_items_viewer)
+        f_open_folder_action.triggered.connect(self.open_item_folder)
+        f_menu.addAction(f_open_folder_action)
         f_menu.exec_(a_event.screenPos())
 
     def save_a_copy(self):
@@ -1604,6 +1607,19 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_cmd = 'cp "' + f_orig_path + '" "' + f_file + '"'
             print(f_cmd)
             os.system(f_cmd)
+
+    def open_item_folder(self):
+        this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(0)
+        f_path = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
+        f_dir = os.path.dirname(f_path)
+        if os.path.isdir(f_dir):
+            this_audio_items_viewer_widget.set_folder(f_dir, True)
+            f_file = os.path.basename(f_path)
+            print("f_file %s" % (f_file,))
+            this_audio_items_viewer_widget.select_file(f_file)
+        else:
+            QtGui.QMessageBox.warning(this_main_window, "Error", \
+            "The folder did not exist:\n\n%s" % (f_dir,))
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -2614,6 +2630,14 @@ class audio_items_viewer_widget():
                     else:
                         print(("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:"))
                         print(("\n".join(pydaw_bad_chars)))
+
+    def select_file(self, a_file):
+        """ Select the file if present in the list, a_file should be a file name, not a full path """
+        for f_i in range(self.list_file.count()):
+            f_item = self.list_file.item(f_i)
+            if str(f_item.text()) == str(a_file):
+                f_item.setSelected(True)
+                break
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
