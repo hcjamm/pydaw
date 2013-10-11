@@ -1431,7 +1431,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
         
 	port_descriptors[EUPHORIA_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[EUPHORIA_ATTACK] = "Master Attack";
-	port_range_hints[EUPHORIA_ATTACK].DefaultValue = 10.0f;
+	port_range_hints[EUPHORIA_ATTACK].DefaultValue = 0.0f;
 	port_range_hints[EUPHORIA_ATTACK].LowerBound = 0.0f; 
 	port_range_hints[EUPHORIA_ATTACK].UpperBound = 100.0f; 
         automatable[EUPHORIA_ATTACK] = 1;

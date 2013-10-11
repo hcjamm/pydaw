@@ -348,8 +348,8 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
 
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port, a_sustain_port, a_release_port, \
-            a_label, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None):
-        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 10, kc_decimal, a_port_dict, a_preset_mgr)
+            a_label, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None, a_attack_default=10):
+        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, a_attack_default, kc_decimal, a_port_dict, a_preset_mgr)
         self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 50, kc_decimal, a_port_dict, a_preset_mgr)
         if a_sustain_in_db:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -30, 0, 0, kc_integer, a_port_dict, a_preset_mgr)
@@ -2333,7 +2333,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.main_layout.addLayout(self.hlayout2)
         #End from Modulex
         self.adsr_amp =  pydaw_adsr_widget(55, True, pydaw_ports.EUPHORIA_ATTACK, pydaw_ports.EUPHORIA_DECAY, pydaw_ports.EUPHORIA_SUSTAIN, \
-        pydaw_ports.EUPHORIA_RELEASE, "ADSR Amp", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
+        pydaw_ports.EUPHORIA_RELEASE, "ADSR Amp", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, a_attack_default=0)
         self.adsr_amp.release_knob.control.setMinimum(5) #overriding the default for self, because we want a low minimum default that won't click
         self.hlayout2.addWidget(self.adsr_amp.groupbox)
         self.groupbox_noise =  QtGui.QGroupBox("Noise")
