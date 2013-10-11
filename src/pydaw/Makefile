@@ -57,7 +57,7 @@ then printf "$(PYDAW_LIB64_DIR)/librt.a" ; \
 else printf " -lrt" ; \
 fi)
 
-LINK_CFLAGS    = $(RT_LIB_FLAG) -lpthread $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
+LINK_CFLAGS    = $(RT_LIB_FLAG) -pthread $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
 portaudio/lib/.libs/libportaudio.a \
 $(LDFLAGS) $(shell pkg-config --libs sndfile alsa) \
 $(MATH_LIB_FLAG)
