@@ -15,6 +15,7 @@ all:
 	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make
 		
 # --------------------------------------------------------------
+
 debug:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O0 -g -gdwarf-3 "
 	cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make
@@ -23,10 +24,6 @@ debug:
 
 # --------------------------------------------------------------
 
-strip:
-	make -C pydaw strip
-
-# --------------------------------------------------------------
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/sbsms

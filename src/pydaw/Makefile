@@ -91,13 +91,8 @@ $(PYDAW_VERSION)-engine: $(C_OBJS)
 
 # --------------------------------------------------------------
 
-strip:
-	strip $(PYDAW_VERSION)-engine
-
-# --------------------------------------------------------------
-
 install:
-	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~
+	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~ python/core
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION) $(DESTDIR)$(PREFIX)/bin
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
@@ -105,8 +100,8 @@ install:
 	install -m 755 $(PYDAW_VERSION)-project-recover $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION)-engine-dbg $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION)-engine-no-hw $(DESTDIR)$(PREFIX)/bin
-	install -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
-	install -m 755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root
+	install -s -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
+	install -s -m 755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root
 	cp -r python $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
