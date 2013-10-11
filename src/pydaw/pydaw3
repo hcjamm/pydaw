@@ -5,10 +5,25 @@ import os, sys, subprocess
 print("sys.argv == %s" % (sys.argv,))
 
 if len(sys.argv) > 1:
+
+    import signal
+
+    def sig_handle(a_1=None, a_2=None):
+        try:
+            f_proc.kill()
+        except Exception as ex:
+            print("Exception while trying to kill engine from helper script: %s" % (ex,))
+
+    signal.signal(signal.SIGTERM, sig_handle)
+    signal.signal(signal.SIGINT, sig_handle)
+    signal.signal(signal.SIGABRT, sig_handle)
+
     f_path = "%s/pydaw3-engine" % (os.path.dirname(__file__),)
     print(f_path)
     f_proc = subprocess.Popen([f_path] + sys.argv[1:])
     f_proc.wait()
+    print("helper script:  f_proc returned with %s" % (f_proc.returncode,))
+    sys.exit(f_proc.returncode)
 else:
     f_prefix_dir = os.path.dirname(__file__)
     f_path = f_prefix_dir + "/../lib/pydaw3/pydaw/python/pydaw.py"

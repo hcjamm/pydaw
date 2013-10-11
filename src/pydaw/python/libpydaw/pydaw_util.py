@@ -20,6 +20,7 @@ global_pydaw_version_string = "pydaw3"
 global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
 global_pydaw_bin_path = None
+global_pydaw_is_sandboxed = False
 
 global_pydaw_with_audio = True
 
@@ -244,7 +245,7 @@ global_pydaw_device_config = global_pydaw_home + "/device.txt"
 
 def pydaw_read_device_config():
     #TODO:  Remove at PyDAWv4
-    global global_pydaw_bin_path, global_device_val_dict
+    global global_pydaw_bin_path, global_device_val_dict, global_pydaw_is_sandboxed
     if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(global_pydaw_device_config).endswith("\\"):
         print("Detected bad device.txt config file from an older PyDAW release, deleting...")
         os.system('rm "%s"' % (global_pydaw_device_config,))
@@ -263,12 +264,14 @@ def pydaw_read_device_config():
         global_device_val_dict["audioEngine"] = "0"
 
     set_bin_path()
+    global_pydaw_is_sandboxed = False
 
     if global_pydaw_bin_path is not None:
         if int(global_device_val_dict["audioEngine"]) == 0:
             global_pydaw_bin_path += "-no-root"
         elif int(global_device_val_dict["audioEngine"]) == 2:
             global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
+            global_pydaw_is_sandboxed = True
         elif int(global_device_val_dict["audioEngine"]) == 3:
             global_pydaw_bin_path += "-dbg"
         elif int(global_device_val_dict["audioEngine"]) > 3:

@@ -6522,9 +6522,13 @@ class pydaw_main_window(QtGui.QMainWindow):
                             else:
                                 sleep(0.3)
                         if not f_exited:
-                            print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
                             try:
-                                global_pydaw_subprocess.kill()
+                                if pydaw_util.global_pydaw_is_sandboxed:
+                                    print("global_pydaw_subprocess did not exit on it's own, sending SIGTERM to helper script...")
+                                    global_pydaw_subprocess.terminate()
+                                else:
+                                    print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
+                                    global_pydaw_subprocess.kill()
                             except Exception as ex:
                                 print(("Exception raised while trying to kill process: %s" % (ex,)))
                 if self.osc_server is not None:
