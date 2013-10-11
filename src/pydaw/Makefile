@@ -67,11 +67,6 @@ C_OBJS   = src/main.o
 # --------------------------------------------------------------
 
 all:
-	make -C midicomp && cp midicomp/midicomp python/libpydaw
-	cd pyliblo-0.9.1 && python3 setup.py build && cp build/lib*/*.so ../python/libpydaw
-	cd portaudio && ./configure --with-jack=no --with-oss=no
-	make -C portaudio
-	cp portaudio/lib/.libs/libportaudio.so.2.0.0 python/libpydaw/libportaudio.so
 	make clean
 	make CFLAGS+=" -O0 -g -gdwarf-3 " $(PYDAW_VERSION)-engine
 	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-dbg
