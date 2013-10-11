@@ -127,6 +127,8 @@ else:
         (f_base_dir, f_package_name))
 
 if not "--keep" in sys.argv:
+    print("Deleting build folder, run with --keep to not delete the build folder.")
     os.system('rm -rf "%s/pydaw-build/debian"' % (f_base_dir,))
 
-print("Finished. run ./install_deb.sh to install the package")
+print("Finished creating %s" % (f_package_name,))
+
