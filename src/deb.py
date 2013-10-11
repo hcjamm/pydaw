@@ -57,13 +57,15 @@ if f_makefile_exit_code != 0:
     sys.exit(f_makefile_exit_code)
 
 f_version = pydaw_read_file_text(f_version_file).strip()
-f_version_new = input("""Please enter the version number of this release.
-The format should be something like:  1.1.3-1 or 12.04-1
-Hit enter to accept the auto-generated default version number:  %s
-[version number]: """ % (f_version,))
-if f_version_new.strip() != "":
-    f_version = f_version_new.strip()
-    pydaw_write_file_text(f_version_file, f_version)
+
+if not "--default-version" in sys.argv:
+    f_version_new = input("""Please enter the version number of this release.
+    The format should be something like:  1.1.3-1 or 12.04-1
+    Hit enter to accept the auto-generated default version number:  %s
+    [version number]: """ % (f_version,))
+    if f_version_new.strip() != "":
+        f_version = f_version_new.strip()
+        pydaw_write_file_text(f_version_file, f_version)
 
 f_size = subprocess.getoutput('du -s "%s/pydaw-build/debian/usr"' % (f_base_dir,))
 f_size = f_size.replace("\t", " ")
