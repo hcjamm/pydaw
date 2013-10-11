@@ -74,6 +74,8 @@ class pydaw_device_dialog:
 """
 Normal:  Run the audio engine without elevated privileges.  This generally works
 well enough, but may require higher latency settings.
+(YOU SHOULD PROBABLY USE THIS IF YOU ARE USING THE LIVE DVD/USB, THE ELEVATED
+OPTIONS MAY NOT WORK DUE TO THE SECURITY CONFIGURATION)
 
 Elevated:  Run the audio engine with elevated privilege, this gives the best possible latency,
 but if your desktop uses GTK+ it may refuse to run it. (USE THIS OPTION IF POSSIBLE)
