@@ -6342,6 +6342,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.audio_device_action)
         self.audio_device_action.triggered.connect(self.on_change_audio_settings)
 
+        self.menu_file.addSeparator()
+
+        self.quit_action = QtGui.QAction("Quit", self)
+        self.menu_file.addAction(self.quit_action)
+        self.quit_action.triggered.connect(self.close)
+        self.quit_action.setShortcut(QtGui.QKeySequence.Quit)
+
         self.menu_edit = self.menu_bar.addMenu("&Edit")
 
         self.undo_action = QtGui.QAction("Undo", self)
