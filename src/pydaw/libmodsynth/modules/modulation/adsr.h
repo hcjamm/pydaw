@@ -67,6 +67,7 @@ void v_adsr_retrigger(t_adsr *);
 void v_adsr_release(t_adsr *);
 void v_adsr_run(t_adsr *);
 void v_adsr_run_db(t_adsr *);
+void v_adsr_kill(t_adsr *);
 
 t_adsr * g_adsr_get_adsr(float);
 
@@ -232,6 +233,13 @@ void v_adsr_set_adsr_db(t_adsr*__restrict a_adsr_ptr, float a_a, float a_d, floa
 void v_adsr_retrigger(t_adsr *__restrict a_adsr_ptr)
 {
     a_adsr_ptr->stage = 0;
+    a_adsr_ptr->output = 0.0f;
+    a_adsr_ptr->output_db = ADSR_DB_THRESHOLD;
+}
+
+void v_adsr_kill(t_adsr *__restrict a_adsr_ptr)
+{
+    a_adsr_ptr->stage = 4;
     a_adsr_ptr->output = 0.0f;
     a_adsr_ptr->output_db = ADSR_DB_THRESHOLD;
 }

@@ -46,6 +46,17 @@ static void cleanupSampler(PYFX_Handle instance)
     free(plugin);
 }
 
+static void euphoriaPanic(PYFX_Handle instance)
+{
+    t_euphoria *plugin = (t_euphoria *)instance;
+    int f_i = 0;
+    while(f_i < EUPHORIA_POLYPHONY)
+    {
+        v_adsr_kill(plugin->data[f_i]->adsr_amp);
+        f_i++;
+    }    
+}
+
 static void connectPortSampler(PYFX_Handle instance, int port,
 			       PYFX_Data * data)
 {
@@ -2216,6 +2227,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	desc->deactivate = v_euphoria_activate;
 	desc->instantiate = instantiateSampler;
 	desc->run = NULL;
+        desc->panic = euphoriaPanic;
     }
     
     return euphoriaLDescriptor;
@@ -2231,7 +2243,7 @@ const PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
     euphoriaDDescriptor->PYFX_Plugin = euphoria_PYFX_descriptor(0);
     euphoriaDDescriptor->configure = c_euphoria_configure;
     euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
-    
+        
     return euphoriaDDescriptor; 
 }
 

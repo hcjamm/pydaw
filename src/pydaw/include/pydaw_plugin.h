@@ -338,6 +338,11 @@ typedef struct _PYFX_Descriptor {
      corresponding call to deactivate() must be made before cleanup()
      is called. */
   void (*cleanup)(PYFX_Handle Instance);
+  
+  
+  /* When a panic message is sent, do whatever it takes to fix any stuck
+   notes. */
+  void (*panic)(PYFX_Handle Instance);
 
 } PYFX_Descriptor;
 

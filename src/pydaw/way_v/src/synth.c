@@ -49,6 +49,17 @@ static void v_cleanup_wayv(PYFX_Handle instance)
     free(instance);
 }
 
+static void wayvPanic(PYFX_Handle instance)
+{
+    t_wayv *plugin = (t_wayv *)instance;
+    int f_i = 0;
+    while(f_i < WAYV_POLYPHONY)
+    {
+        v_adsr_kill(plugin->data[f_i]->adsr_amp);
+        f_i++;
+    }    
+}
+
 static void v_wayv_connect_port(PYFX_Handle instance, int port,
 			  PYFX_Data * data)
 {
@@ -1586,6 +1597,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_wayv_instantiate;
 	LMSLDescriptor->run = NULL;
+        LMSLDescriptor->panic = wayvPanic;
     }
 
     return LMSLDescriptor;

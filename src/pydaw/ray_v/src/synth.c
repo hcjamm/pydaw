@@ -52,6 +52,18 @@ static void v_cleanup_rayv(PYFX_Handle instance)
     free(instance);
 }
 
+
+static void rayvPanic(PYFX_Handle instance)
+{
+    t_rayv *plugin = (t_rayv *)instance;
+    int f_i = 0;
+    while(f_i < RAYV_POLYPHONY)
+    {
+        v_adsr_kill(plugin->data[f_i]->adsr_amp);
+        f_i++;
+    }    
+}
+
 static void v_rayv_connect_port(PYFX_Handle instance, int port,
 			  PYFX_Data * data)
 {
@@ -748,6 +760,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_rayv_instantiate;
 	LMSLDescriptor->run = NULL;
+        LMSLDescriptor->panic = rayvPanic;
     }
 
     return LMSLDescriptor;

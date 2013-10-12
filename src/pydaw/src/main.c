@@ -1449,18 +1449,17 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         v_pydaw_set_ab_vol(a_pydaw_data, f_vol);
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PANIC))
-    {
-        long f_sample_off = a_pydaw_data->current_sample + 12000;
+    {        
         int f_i = 0;
-        int f_i2 = 0;
-        
+                
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         while(f_i < PYDAW_MIDI_TRACK_COUNT)
         {
-            while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
+            if(a_pydaw_data->track_pool[f_i]->plugin_index > 0 &&
+                    a_pydaw_data->track_pool[f_i]->instrument)
             {
-                a_pydaw_data->note_offs[f_i][f_i2] = f_sample_off;
-                f_i2++;
+                a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic(
+                        a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
             }
             f_i++;
         }
