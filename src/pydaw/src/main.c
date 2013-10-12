@@ -403,6 +403,16 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 	else if (framediff < 0) framediff = 0;
 
 	ev->tick = framesPerBuffer - framediff - 1;
+        int f_max_tick = framesPerBuffer - 1;
+        
+        if(ev->tick < 0)
+        {
+            ev->tick = 0;
+        }
+        else if(ev->tick > f_max_tick)
+        {
+            ev->tick = f_max_tick;
+        }
 
 	if (ev->type == PYDAW_EVENT_CONTROLLER)
         {	    
