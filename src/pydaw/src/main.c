@@ -1458,8 +1458,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             if(a_pydaw_data->track_pool[f_i]->plugin_index > 0 &&
                     a_pydaw_data->track_pool[f_i]->instrument)
             {
-                a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic(
-                        a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
+                if(a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic)
+                {
+                    a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic(
+                            a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
+                }
             }
             f_i++;
         }
