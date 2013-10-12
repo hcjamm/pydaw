@@ -482,13 +482,15 @@ int main(int argc, char **argv)
     int j;
     int in, out, controlIn, controlOut;
 
+#ifndef PYDAW_NO_HARDWARE
     timer_t timerid;
     struct sigevent sev;
     struct itimerspec its;
     long long freq_nanosecs;
     sigset_t mask;
     struct sigaction sa;
-
+#endif
+    
     setsid();
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
