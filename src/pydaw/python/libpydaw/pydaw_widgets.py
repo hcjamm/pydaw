@@ -62,15 +62,30 @@ class pydaw_plugin_file:
             f_result += str(k) + "|" + str(v.get_value()) + "\n"
         return f_result + "\\"
 
+global_pydaw_knob_pixmap = None
+global_pydaw_knob_pixmap_cache = {}
+
+def get_scaled_pixmap_knob(a_size):
+    global global_pydaw_knob_pixmap, global_pydaw_knob_pixmap_cache
+    if global_pydaw_knob_pixmap is None:
+        global_pydaw_knob_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/pydaw-knob.png" %
+        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string))
+
+    if not a_size in global_pydaw_knob_pixmap_cache:
+        global_pydaw_knob_pixmap_cache[a_size] = \
+        global_pydaw_knob_pixmap.scaled(a_size, a_size, \
+        QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+
+    return global_pydaw_knob_pixmap_cache[a_size]
+
+
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val):
         QtGui.QDial.__init__(self)
         self.setRange(a_min_val, a_max_val)
         self.setGeometry(0, 0, a_size, a_size)
-        f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/pydaw-knob.png" %
-        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string))
         self.pixmap_size = a_size - 10
-        self.pixmap = f_pixmap.scaled(self.pixmap_size, self.pixmap_size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.pixmap = get_scaled_pixmap_knob(self.pixmap_size)
         self.setFixedSize(a_size, a_size)
 
     def paintEvent(self, a_event):
