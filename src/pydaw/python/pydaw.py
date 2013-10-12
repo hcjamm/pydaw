@@ -6329,6 +6329,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.save_as_action)
         self.save_as_action.triggered.connect(self.on_save_as)
         self.save_as_action.setShortcut(QtGui.QKeySequence.SaveAs)
+        self.menu_file.addSeparator()
 
         self.offline_render_action = QtGui.QAction("Offline Render...", self)
         self.menu_file.addAction(self.offline_render_action)
@@ -6337,11 +6338,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.import_midi_action = QtGui.QAction("Import MIDI File...", self)
         self.menu_file.addAction(self.import_midi_action)
         self.import_midi_action.triggered.connect(self.on_import_midi)
+        self.menu_file.addSeparator()
 
         self.audio_device_action = QtGui.QAction("Hardware Settings...", self)
         self.menu_file.addAction(self.audio_device_action)
         self.audio_device_action.triggered.connect(self.on_change_audio_settings)
-
         self.menu_file.addSeparator()
 
         self.quit_action = QtGui.QAction("Quit", self)
