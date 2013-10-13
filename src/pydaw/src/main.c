@@ -51,6 +51,10 @@ GNU General Public License for more details.
 #include <stdlib.h>
 #include <lo/lo.h>
 
+//  If you define this, you must also link to cpufreq appropriately with
+//    LDFLAGS+="-lcpufreq"  //or whatever flag
+//  #define PYDAW_CPUFREQ
+
 #ifdef PYDAW_CPUFREQ
 #include <cpufreq.h>
 #endif
