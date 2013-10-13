@@ -67,14 +67,26 @@ C_OBJS   = src/main.o
 # --------------------------------------------------------------
 
 all:
-	make clean
+	make dbg
+	make nohw
+	make eng
+
+dbg:
+	rm src/*.o $(PYDAW_VERSION)-engine  $(PYDAW_VERSION)-engine-dbg ; echo
 	make CFLAGS+=" -O0 -g -gdwarf-3 " $(PYDAW_VERSION)-engine
 	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-dbg
-	rm -f src/*.o
+
+nohw:
+	rm -f $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-no-hw src/*.o ; echo
 	make CFLAGS+=" -O0 -g -gdwarf-3 -DPYDAW_NO_HARDWARE " $(PYDAW_VERSION)-engine
 	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-no-hw
-	rm -f src/*.o
+
+eng:
+	rm src/*.o $(PYDAW_VERSION)-engine ; echo
+	rm -f $(PYDAW_VERSION)-engine src/*.o
 	make CFLAGS+=" -O2 " $(PYDAW_VERSION)-engine
+
+# --------------------------------------------------------------
 
 $(PYDAW_VERSION)-engine: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
