@@ -50,6 +50,7 @@ GNU General Public License for more details.
 #include <stdio.h>
 #include <stdlib.h>
 #include <lo/lo.h>
+#include <cpufreq.h>
 
 #include "main.h"
 #include "message_buffer.h"
@@ -163,6 +164,34 @@ void signalHandler(int sig)
 {
     printf("signal %d caught, trying to clean up and exit\n", sig);
     exiting = 1;
+}
+
+void v_pydaw_restore_cpu_governor()
+{
+    int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );
+    int f_i = 0;
+    while(f_i < f_cpu_count)
+    {
+        struct cpufreq_policy * f_policy = cpufreq_get_policy(f_i);
+        printf("Restoring CPU governor for CPU %i, was set to %s\n", f_i, f_policy->governor);
+        sprintf(f_policy->governor, "ondemand");
+        cpufreq_set_policy(f_i, f_policy);
+        f_i++;
+    }
+}
+
+void v_pydaw_set_cpu_governor()
+{
+    printf("Attempting to set CPU governor to 'performance'\n");
+    int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );
+    int f_i = 0;
+    while(f_i < f_cpu_count)
+    {
+        struct cpufreq_policy * f_policy = cpufreq_get_policy(f_i);        
+        sprintf(f_policy->governor, "performance");
+        cpufreq_set_policy(f_i, f_policy);
+        f_i++;
+    }
 }
 
 void midiReceive(unsigned char status, unsigned char control, char value)
@@ -465,13 +494,13 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 #endif
 
 int main(int argc, char **argv)
-{
+{    
     if(argc != 2)
     {
         printf("\nUsage: %s [install prefix]\n\n", argv[0]);
         exit(9996);
     }
-    
+        
     v_pydaw_constructor();
         
     d3h_dll_t *dll;
@@ -944,7 +973,10 @@ int main(int argc, char **argv)
             
         } //if(f_with_midi)
 
-#endif       
+#endif
+        
+        v_pydaw_set_cpu_governor();
+        
         while(!exiting)
         {
 #ifdef PYDAW_NO_HARDWARE
@@ -954,6 +986,8 @@ int main(int argc, char **argv)
 #endif
         }
                 
+        v_pydaw_restore_cpu_governor();
+        
     }
 #ifndef PYDAW_NO_HARDWARE    
     err = Pa_CloseStream( stream );    
@@ -971,7 +1005,7 @@ int main(int argc, char **argv)
     v_pydaw_cleanup(instanceHandles);    
 
     v_pydaw_destructor();
-        
+    
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
     pthread_sigmask(SIG_BLOCK, &_signals, 0);
