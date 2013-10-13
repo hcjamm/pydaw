@@ -7126,7 +7126,7 @@ def open_pydaw_engine():
 if global_pydaw_with_audio:
     open_pydaw_engine()
 else:
-    print(("Did not find %s-engine, not starting with audio." % (global_pydaw_version_string,)))
+    print("Not starting with audio because of the audio engine setting, you can change this in File->HardwareSettings")
 
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()

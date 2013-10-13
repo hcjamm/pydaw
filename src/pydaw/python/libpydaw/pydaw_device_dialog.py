@@ -69,7 +69,7 @@ class pydaw_device_dialog:
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_window_layout.addWidget(QtGui.QLabel("Audio Engine"), 4, 0)
         f_audio_engine_combobox = QtGui.QComboBox()
-        f_audio_engine_combobox.addItems(["Normal", "Elevated", "Elevated(sandbox)", "Debug", "GDB", "Valgrind"])
+        f_audio_engine_combobox.addItems(["Normal", "Elevated", "Elevated(sandbox)", "Debug", "GDB", "Valgrind", "GUI Only"])
         f_audio_engine_combobox.setToolTip( \
 """
 Normal:  Run the audio engine without elevated privileges.  This generally works
@@ -93,6 +93,7 @@ GDB:  Open in the GDB debugger with no audio or external MIDI to allow setting b
 
 Valgrind:  Open in Valgrind, with no audio or external MIDI.  VERY SLOW unless worker threads is set to 1!!!
 
+GUI Only:  Run the UI only with no audio engine
 """)
         f_window_layout.addWidget(f_audio_engine_combobox, 4, 1)
         f_thread_affinity_checkbox = QtGui.QCheckBox("Lock worker threads to own core?")
