@@ -1445,7 +1445,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
                 if self.audio_item.reversed:
-                    f_path_item.setPos(self.sample_start_offset_px + self.length_seconds_orig_px, self.y_inc + f_y_offset + (f_y_inc * f_i))
+                    f_path_item.setPos(self.sample_start_offset_px + self.length_seconds_orig_px, self.y_inc + (f_y_offset * -1.0) + (f_y_inc * f_i))
                     f_path_item.rotate(-180.0)
                 else:
                     f_path_item.setPos(self.sample_start_offset_px, f_y_offset + (f_y_inc * f_i))
