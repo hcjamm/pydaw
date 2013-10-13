@@ -50,7 +50,10 @@ GNU General Public License for more details.
 #include <stdio.h>
 #include <stdlib.h>
 #include <lo/lo.h>
+
+#ifdef PYDAW_CPUFREQ
 #include <cpufreq.h>
+#endif
 
 #include "main.h"
 #include "message_buffer.h"
@@ -166,6 +169,9 @@ void signalHandler(int sig)
     exiting = 1;
 }
 
+
+#ifdef PYDAW_CPUFREQ
+
 void v_pydaw_restore_cpu_governor()
 {
     int f_cpu_count = sysconf( _SC_NPROCESSORS_ONLN );
@@ -193,6 +199,9 @@ void v_pydaw_set_cpu_governor()
         f_i++;
     }
 }
+
+#endif
+
 
 void midiReceive(unsigned char status, unsigned char control, char value)
 {
@@ -974,9 +983,11 @@ int main(int argc, char **argv)
         } //if(f_with_midi)
 
 #endif
-        
+
+#ifdef PYDAW_CPUFREQ
         v_pydaw_set_cpu_governor();
-        
+#endif
+
         while(!exiting)
         {
 #ifdef PYDAW_NO_HARDWARE
@@ -985,9 +996,11 @@ int main(int argc, char **argv)
             sleep(1);
 #endif
         }
-                
+
+#ifdef PYDAW_CPUFREQ
         v_pydaw_restore_cpu_governor();
-        
+#endif
+
     }
 #ifndef PYDAW_NO_HARDWARE    
     err = Pa_CloseStream( stream );    

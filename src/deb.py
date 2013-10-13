@@ -34,7 +34,7 @@ def pydaw_write_file_text(a_file, a_text):
 global_pydaw_version_string = "pydaw3"
 
 f_build_cmd = \
-'make clean && make && make DESTDIR="%s/pydaw-build/debian" install' % (f_base_dir,)
+'make clean && make LDFLAGS+="-lcpufreq" CFLAGS+="-DPYDAW_CPUFREQ" && make DESTDIR="%s/pydaw-build/debian" install' % (f_base_dir,)
 f_version_file = "%s/%s-version.txt" % (f_base_dir, global_pydaw_version_string)
 
 f_short_name = global_pydaw_version_string
