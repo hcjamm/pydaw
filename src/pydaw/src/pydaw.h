@@ -286,7 +286,7 @@ typedef struct
     pthread_mutex_t audio_inputs_mutex;
     
     pthread_t audio_recording_thread;
-    int audio_recording_quit_notifier;
+    int audio_recording_quit_notifier __attribute__((aligned(16)));
     int rec_region_current_uid;
     int rec_item_current_uid;
     int suppress_new_audio_items;  //used to prevent new audio items from playing while the existing are being faded out.
@@ -626,37 +626,45 @@ void * v_pydaw_osc_send_thread(void* a_arg)
     
     char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
     char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][1024];
+    char f_tmp1[10000];
+    char f_tmp2[1000];
     
     while(!a_pydaw_data->audio_recording_quit_notifier)
     {
-        int f_i = 0;
-        int f_index = 0;
-        
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-                
-        while(f_i < a_pydaw_data->osc_queue_index)
+        if(a_pydaw_data->osc_queue_index > 0)
         {
-            strcpy(osc_queue_keys[f_i], a_pydaw_data->osc_queue_keys[f_i]);
-            strcpy(osc_queue_vals[f_i], a_pydaw_data->osc_queue_vals[f_i]);
-            f_i++;
+            int f_i = 0;
+
+            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+            while(f_i < a_pydaw_data->osc_queue_index)
+            {
+                strcpy(osc_queue_keys[f_i], a_pydaw_data->osc_queue_keys[f_i]);
+                strcpy(osc_queue_vals[f_i], a_pydaw_data->osc_queue_vals[f_i]);
+                f_i++;
+            }
+
+            int f_index = a_pydaw_data->osc_queue_index;
+            a_pydaw_data->osc_queue_index = 0;
+
+            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+            f_i = 0;
+
+            f_tmp1[0] = '\0';
+
+            while(f_i < f_index)
+            {
+                sprintf(f_tmp2, "%s|%s\n", osc_queue_keys[f_i],
+                        osc_queue_vals[f_i]);
+                strcat(f_tmp1, f_tmp2);
+                f_i++;
+            }
+
+            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "s", f_tmp1);
         }
         
-        f_index = a_pydaw_data->osc_queue_index;
-        a_pydaw_data->osc_queue_index = 0;
-        
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        
-        f_i = 0;
-        
-        while(f_i < f_index)
-        {
-            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", 
-                    osc_queue_keys[f_i],
-                    osc_queue_vals[f_i]);
-            f_i++;
-        }
-        
-        usleep(10000);
+        usleep(30000);
     }
     
     printf("osc send thread exiting\n");
@@ -898,7 +906,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data, int a_thread_count
 }
 
 inline void v_queue_osc_message(t_pydaw_data * a_pydaw_data, char * a_key, char * a_val)
-{
+{    
     if(a_pydaw_data->osc_queue_index >= PYDAW_OSC_SEND_QUEUE_SIZE)
     {
         printf("Dropping OSC event to prevent buffer overrun:\n%s|%s\n\n", a_key, a_val);

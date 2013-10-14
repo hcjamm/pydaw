@@ -6445,7 +6445,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.osc_server = None
         if self.osc_server is not None:
             print((self.osc_server.get_url()))
-            self.osc_server.add_method("pydaw/ui_configure", 'ss', self.configure_callback)
+            self.osc_server.add_method("pydaw/ui_configure", 's', self.configure_callback)
             self.osc_server.add_method(None, None, self.osc_fallback)
             self.osc_timer = QtCore.QTimer(self)
             self.osc_timer.setSingleShot(False)
@@ -6475,27 +6475,34 @@ class pydaw_main_window(QtGui.QMainWindow):
         for a, t in zip(args, types):
             print(("argument of type '%s': %s" % (t, a)))
 
-    def configure_callback(self, path, args):
-        a_key, a_val = args
-        if a_key == "pc":
-            f_is_inst, f_track_num, f_port, f_val = a_val.split("|")
-            f_track_type, f_track_num = track_all_to_type_and_index(f_track_num)
-
+    def configure_callback(self, path, arr):
+        f_pc_dict = {}
+        for f_line in arr[0].split("\n"):
+            if f_line == "":
+                break
+            a_key, a_val = f_line.split("|", 1)
+            if a_key == "pc":
+                f_is_inst, f_track_num, f_port, f_val = a_val.split("|")
+                f_track_type, f_track_num = track_all_to_type_and_index(f_track_num)
+                f_pc_dict[(f_track_type, f_is_inst, f_track_num, f_port, f_val)] = f_val
+            elif a_key == "cur":
+                f_region, f_bar = a_val.split("|")
+                this_transport.set_pos_from_cursor(f_region, f_bar)
+            elif a_key == "ne":
+                f_state, f_note = a_val.split("|")
+                this_piano_roll_editor.highlight_keys(f_state, f_note)
+            elif a_key == "ml":
+                if self.cc_map_table.cc_spinbox is not None:
+                    self.cc_map_table.cc_spinbox.setValue(int(a_val))
+        #This prevents multiple events from moving the same control, only the last goes through
+        for k, f_val in f_pc_dict.items():
+            f_track_type, f_is_inst, f_track_num, f_port, f_val = k
             if int_to_bool(f_is_inst):
                 if int(f_track_num) in global_open_inst_ui_dict:
                     global_open_inst_ui_dict[int(f_track_num)].set_control_val(int(f_port), float(f_val))
             else:
                 if int(f_track_num) in global_open_fx_ui_dicts[int(f_track_type)]:
                     global_open_fx_ui_dicts[int(f_track_type)][int(f_track_num)].set_control_val(int(f_port), float(f_val))
-        elif a_key == "cur":
-            f_region, f_bar = a_val.split("|")
-            this_transport.set_pos_from_cursor(f_region, f_bar)
-        elif a_key == "ne":
-            f_state, f_note = a_val.split("|")
-            this_piano_roll_editor.highlight_keys(f_state, f_note)
-        elif a_key == "ml":
-            if self.cc_map_table.cc_spinbox is not None:
-                self.cc_map_table.cc_spinbox.setValue(int(a_val))
 
 
     def closeEvent(self, event):
