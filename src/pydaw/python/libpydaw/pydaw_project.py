@@ -1557,19 +1557,19 @@ class pydaw_note:
         return self.start < other.start
 
     def set_start(self, a_start):
-        self.start = float(a_start)
+        self.start = round(float(a_start), 4)
         self.set_end()
 
     def set_length(self, a_length):
-        self.length = float(a_length)
+        self.length = round(float(a_length), 4)
         self.set_end()
 
     def set_end(self):
         self.end = self.length + self.start
 
     def __init__(self, a_start, a_length, a_note_number, a_velocity):
-        self.start = float(a_start)
-        self.length = float(a_length)
+        self.start = round(float(a_start), 4)
+        self.length = round(float(a_length), 4)
         self.velocity = int(a_velocity)
         self.note_num = int(a_note_number)
         self.is_selected = False
@@ -1594,7 +1594,7 @@ class pydaw_note:
         return pydaw_note.from_arr(f_arr)
 
     def __str__(self):
-        return "n|" + str(self.start) + "|" + str(self.length) + "|" + str(self.note_num) + "|" + str(self.velocity) + "\n"
+        return "n|%s|%s|%s|%s\n" % (self.start, self.length, self.note_num, self.velocity)
 
 class pydaw_cc:
     def __eq__(self, other):
@@ -1604,10 +1604,10 @@ class pydaw_cc:
         return self.start < other.start
 
     def __init__(self, a_start, a_plugin_index, a_port_num, a_cc_val):
-        self.start = float(a_start)
+        self.start = round(float(a_start), 4)
         self.plugin_index = int(a_plugin_index)
         self.cc_num = int(a_port_num) #This is really port_num, I'll rename later...
-        self.cc_val = float(a_cc_val)
+        self.cc_val = round(float(a_cc_val), 4)
 
     def set_val(self, a_val):
         f_val = float(a_val)
@@ -1618,7 +1618,7 @@ class pydaw_cc:
         self.cc_val = f_val
 
     def __str__(self):
-        return "c|" + str(self.start) + "|" + str(self.plugin_index) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n"
+        return "c|%s|%s|%s|%s\n" % (self.start, self.plugin_index, self.cc_num, self.cc_val)
 
     @staticmethod
     def from_arr(a_arr):
@@ -1641,8 +1641,8 @@ class pydaw_pitchbend:
         return self.start < other.start
 
     def __init__(self, a_start, a_pb_val):
-        self.start = float(a_start)
-        self.pb_val = float(a_pb_val)
+        self.start = round(float(a_start), 4)
+        self.pb_val = round(float(a_pb_val), 4)
 
     def set_val(self, a_val):
         f_val = round(float(a_val), 4)
@@ -1653,7 +1653,7 @@ class pydaw_pitchbend:
         self.pb_val = f_val
 
     def __str__(self):
-        return "p|" + str(self.start) + "|" + str(self.pb_val) + "\n"
+        return "p|%s|%s\n" % (self.start, self.pb_val)
 
     @staticmethod
     def from_arr(a_arr):
