@@ -103,6 +103,18 @@ on certain configurations.
 
 The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.""")
         f_window_layout.addWidget(f_thread_affinity_checkbox, 5, 1)
+
+        f_governor_checkbox = QtGui.QCheckBox("Force CPU governor to performance mode when PyDAW is running?")
+        f_governor_checkbox.setToolTip( \
+"""This forces the CPU to use more aggressive clockspeeds when PyDAW is running, and reverts back to "On Demand"
+when PyDAW is closed.  Use this for best performance if possible.
+
+The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.
+Also, support for cpufreq must be compiled in, which requires different dependencies in each distro, currently
+it's only default for Ubuntu.""")
+        f_window_layout.addWidget(f_governor_checkbox, 6, 1)
+
+
         f_window_layout.addWidget(QtGui.QLabel("MIDI In Device:"), 7, 0)
         f_midi_in_device_combobox = QtGui.QComboBox()
         f_midi_in_device_combobox.addItem("None")
@@ -182,6 +194,10 @@ The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', other
                 f_thread_affinity = 1
             else:
                 f_thread_affinity = 0
+            if f_governor_checkbox.isChecked():
+                f_performance = 1
+            else:
+                f_performance = 0
             try:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
@@ -198,6 +214,7 @@ The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', other
                 f_file.write("audioEngine|%s\n" % (f_audio_engine,))
                 f_file.write("threads|%s\n" % (f_worker_threads,))
                 f_file.write("threadAffinity|%s\n" % (f_thread_affinity,))
+                f_file.write("performance|%s\n" % (f_performance,))
                 f_file.write("midiInDevice|%s\n" % (f_midi_in_device,))
 
                 f_file.write("\\")
@@ -239,6 +256,12 @@ The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', other
         if "threadAffinity" in pydaw_util.global_device_val_dict:
             if int(pydaw_util.global_device_val_dict["threadAffinity"]) == 1:
                 f_thread_affinity_checkbox.setChecked(True)
+
+        f_governor_checkbox.setChecked(True)
+
+        if "performance" in pydaw_util.global_device_val_dict:
+            if int(pydaw_util.global_device_val_dict["performance"]) == 0:
+                f_governor_checkbox.setChecked(False)
 
         if "midiInDevice" in pydaw_util.global_device_val_dict:
             f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(pydaw_util.global_device_val_dict["midiInDevice"]))

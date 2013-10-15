@@ -521,6 +521,7 @@ int main(int argc, char **argv)
         
     int f_thread_count = 0;
     int f_thread_affinity = 0;
+    int f_performance = 0;
     int j;
     int in, out, controlIn, controlOut;
 
@@ -699,6 +700,12 @@ int main(int argc, char **argv)
                     f_thread_affinity = atoi(f_value_char);
                     
                     printf("threadAffinity: %i\n", f_thread_affinity);
+                }
+                else if(!strcmp(f_key_char, "performance"))
+                {                    
+                    f_performance = atoi(f_value_char);
+                    
+                    printf("performance: %i\n", f_performance);
                 }
                 else if(!strcmp(f_key_char, "midiInDevice"))
                 {                    
@@ -989,7 +996,12 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef PYDAW_CPUFREQ
-        v_pydaw_set_cpu_governor();
+        if(f_performance)
+        {
+            v_pydaw_set_cpu_governor();
+        }
+#else
+        printf("PyDAW not compiled with cpufreq support, cannot set CPU governor.\n");
 #endif
 
         while(!exiting)
@@ -1002,7 +1014,10 @@ int main(int argc, char **argv)
         }
 
 #ifdef PYDAW_CPUFREQ
-        v_pydaw_restore_cpu_governor();
+        if(f_performance)
+        {
+            v_pydaw_restore_cpu_governor();
+        }
 #endif
 
     }
