@@ -1636,10 +1636,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item.fade_in = 0.0
             f_item_old.fade_out = 999.0
             f_width_percent = a_event.pos().x() / self.rect().width()
-            f_item.fade_out *= f_width_percent
-            f_item.fade_out = pydaw_clip_value(f_item.fade_out, 1.0, 999.0)
+            f_item.fade_out = pydaw_clip_value(f_item.fade_out, 1.0, 999.0, True)
             f_item_old.fade_in /= f_width_percent
-            f_item_old.fade_in = pydaw_clip_value(f_item_old.fade_in, 0.0, 998.0)
+            f_item_old.fade_in = pydaw_clip_value(f_item_old.fade_in, 0.0, 998.0, True)
 
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
@@ -1874,15 +1873,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.start_bar = f_start_result[0]
                     f_item.start_beat = f_start_result[1]
                     f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) * 1000.0
-                    f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0)
+                    f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
                 elif f_audio_item.is_fading_in:
                     f_pos = f_audio_item.fade_in_handle.pos().x()
                     f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
-                    f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0)
+                    f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0, True)
                 elif f_audio_item.is_fading_out:
                     f_pos = f_audio_item.fade_out_handle.pos().x()
                     f_val = ((f_pos + global_audio_item_handle_size) / (f_audio_item.rect().width())) * 1000.0
-                    f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0)
+                    f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0, True)
                 elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
                     f_reset_selection = True
                     f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset

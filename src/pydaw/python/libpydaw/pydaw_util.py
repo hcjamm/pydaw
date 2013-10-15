@@ -92,12 +92,16 @@ def pydaw_beats_to_index(a_beat, a_divisor=4.0):
 
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
-def pydaw_clip_value(a_val, a_min, a_max):
+def pydaw_clip_value(a_val, a_min, a_max, a_round=False):
     if a_val < a_min:
-        return a_min
+        f_result = a_min
     if a_val > a_max:
-        return a_max
-    return a_val
+        f_result =  a_max
+    else:
+        f_result = a_val
+    if a_round:
+        f_result = round(f_result, 4)
+    return f_result
 
 def pydaw_clip_min(a_val, a_min):
     if a_val < a_min:
