@@ -257,11 +257,9 @@ it's only default for Ubuntu.""")
             if int(pydaw_util.global_device_val_dict["threadAffinity"]) == 1:
                 f_thread_affinity_checkbox.setChecked(True)
 
-        f_governor_checkbox.setChecked(True)
-
         if "performance" in pydaw_util.global_device_val_dict:
-            if int(pydaw_util.global_device_val_dict["performance"]) == 0:
-                f_governor_checkbox.setChecked(False)
+            if int(pydaw_util.global_device_val_dict["performance"]) == 1:
+                f_governor_checkbox.setChecked(True)
 
         if "midiInDevice" in pydaw_util.global_device_val_dict:
             f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(pydaw_util.global_device_val_dict["midiInDevice"]))
