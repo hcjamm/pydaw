@@ -1,6 +1,8 @@
-if [ -f pydaw.ova ]; then
-	rm -f pydaw.ova
+PYDAW_VERSION=pydaw3
+
+if [ -f $PYDAW_VERSION.ova ]; then
+	rm -f $PYDAW_VERSION.ova
 fi
 
-vboxmanage export pydaw -o pydaw.ova
+vboxmanage export $PYDAW_VERSION -o $PYDAW_VERSION.ova
 
