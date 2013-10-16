@@ -16,8 +16,8 @@ import random, os
 from time import sleep
 from math import log, pow
 
-global_pydaw_version_string = "pydaw3"
-global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
+global_pydaw_version_string = "pydaw4"
+global_pydaw_file_type_string = 'PyDAW4 Project (*.pydaw4)'
 
 global_pydaw_bin_path = None
 global_pydaw_is_sandboxed = False

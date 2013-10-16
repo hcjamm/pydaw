@@ -5,7 +5,7 @@
 
 import commands
 
-f_val = commands.getoutput('ps -ef | grep \./pydaw3 | grep -v grep | grep -v /bin/sh')
+f_val = commands.getoutput('ps -ef | grep \./pydaw4 | grep -v grep | grep -v /bin/sh')
 
 f_arr = f_val.split()
 

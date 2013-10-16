@@ -4,7 +4,7 @@ PREFIX ?= /usr
 DESTDIR ?=
 SBSMS_PREFIX = $(PREFIX)/lib/$(PYDAW_VERSION)/sbsms
 RUBBERBAND_PREFIX = $(PREFIX)/lib/$(PYDAW_VERSION)/rubberband
-PYDAW_VERSION = pydaw3
+PYDAW_VERSION = pydaw4
 
 # --------------------------------------------------------------
 

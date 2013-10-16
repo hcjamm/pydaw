@@ -29,7 +29,7 @@ GNU General Public License for more details.
 #include <unistd.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
-//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw3/default-project to work without crashing...
+//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw4/default-project to work without crashing...
 #define DEBUGGER_SAMPLE_COUNT 512
 
 
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         
     //It's not necessary to call this, it gets called anyways at startup...  Only use it to load an alternate project
-    //v_open_project(pydaw_data, "/home/cletus/pydaw3/default-project/default.pydaw3");
+    //v_open_project(pydaw_data, "/home/cletus/pydaw4/default-project/default.pydaw4");
 
     f_engine->output0 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
     f_engine->output1 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);

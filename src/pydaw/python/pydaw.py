@@ -7019,7 +7019,7 @@ def global_ui_refresh_callback(a_restore_all=False):
     global_set_record_armed_track()
 
 def set_window_title():
-    this_main_window.setWindowTitle('PyDAW3 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+    this_main_window.setWindowTitle('PyDAW4 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
     global_close_all()

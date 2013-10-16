@@ -2,6 +2,8 @@
 
 import os, sys, subprocess
 
+pydaw_version = "pydaw4"
+
 print("sys.argv == %s" % (sys.argv,))
 
 if len(sys.argv) > 1:
@@ -18,7 +20,7 @@ if len(sys.argv) > 1:
     signal.signal(signal.SIGINT, sig_handle)
     signal.signal(signal.SIGABRT, sig_handle)
 
-    f_path = "%s/pydaw3-engine" % (os.path.dirname(__file__),)
+    f_path = "%s/%s-engine" % (os.path.dirname(__file__), pydaw_version)
     print(f_path)
     f_proc = subprocess.Popen([f_path] + sys.argv[1:])
     f_proc.wait()
@@ -26,7 +28,7 @@ if len(sys.argv) > 1:
     sys.exit(f_proc.returncode)
 else:
     f_prefix_dir = os.path.dirname(__file__)
-    f_path = f_prefix_dir + "/../lib/pydaw3/pydaw/python/pydaw.py"
+    f_path = "%s/../lib/%s/pydaw/python/pydaw.py" % (f_prefix_dir, pydaw_version)
     f_path = os.path.abspath(f_path)
     print(f_path)
     subprocess.Popen(['python3', f_path])

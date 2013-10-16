@@ -31,7 +31,7 @@ def pydaw_write_file_text(a_file, a_text):
     f_handle.write(str(a_text))
     f_handle.close()
 
-global_pydaw_version_string = "pydaw3"
+global_pydaw_version_string = "pydaw4"
 
 f_build_cmd = \
 'make clean && make LDFLAGS+="-lcpufreq" CFLAGS+="-DPYDAW_CPUFREQ" && make DESTDIR="%s/pydaw-build/debian" install' % (f_base_dir,)

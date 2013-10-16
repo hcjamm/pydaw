@@ -62,7 +62,7 @@ extern "C" {
 #define PYDAW_MIDI_RECORD_BUFFER_LENGTH 600 //(PYDAW_MAX_REGION_COUNT * PYDAW_REGION_SIZE)  //recording buffer for MIDI, in bars
 #define PYDAW_MAX_WORK_ITEMS_PER_THREAD 128
     
-#define PYDAW_VERSION "pydaw3"
+#define PYDAW_VERSION "pydaw4"
     
 #define PYDAW_OSC_SEND_QUEUE_SIZE 64
     

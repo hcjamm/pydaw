@@ -1,12 +1,12 @@
 
 [Desktop Entry]
-Name=PyDAW3
-Version=3.0
+Name=PyDAW4
+Version=4.0
 GenericName=A DAW and plugin suite
 Comment=PyDAW is a digital audio workstation and plugin suite
-Exec=pydaw3
-Icon=pydaw3.png
+Exec=pydaw4
+Icon=pydaw4.png
 Terminal=false
 Type=Application
 Categories=Qt;AudioVideo;Audio;AudioEditing;
-Name[en_US]=pydaw3
+Name[en_US]=pydaw4

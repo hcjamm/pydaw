@@ -1,4 +1,4 @@
-PYDAW_VERSION=pydaw3
+PYDAW_VERSION=pydaw4
 
 if [ -f $PYDAW_VERSION.ova ]; then
 	rm -f $PYDAW_VERSION.ova
