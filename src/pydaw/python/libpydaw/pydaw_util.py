@@ -94,7 +94,7 @@ int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#',
 def pydaw_clip_value(a_val, a_min, a_max, a_round=False):
     if a_val < a_min:
         f_result = a_min
-    if a_val > a_max:
+    elif a_val > a_max:
         f_result =  a_max
     else:
         f_result = a_val
