@@ -256,8 +256,6 @@ class pydaw_project:
             self.this_pydaw_osc.pydaw_open_song(self.project_folder)
 
     def get_next_glued_file_name(self):
-        if not os.path.isdir(self.glued_folder):  #TODO:  Remove at PyDAWv4
-            os.mkdir(self.glued_folder)
         while True:
             self.glued_name_index += 1
             f_path = "%s/glued-%s.wav" % (self.glued_folder, self.glued_name_index)
@@ -268,27 +266,15 @@ class pydaw_project:
     def open_stretch_dicts(self):
         self.timestretch_cache = {}
         self.timestretch_reverse_lookup = {}
-        if not os.path.exists(self.pystretch_file):  #TODO:  Remove at PyDAWv4
-            self.create_file("", pydaw_file_pystretch_map, pydaw_terminating_char)
-            self.create_file("", pydaw_file_pystretch, pydaw_terminating_char)
-            self.commit("Create timestretch files")
-            return
 
         f_cache_text = pydaw_read_file_text(self.pystretch_file)
         for f_line in f_cache_text.split("\n"):
             if f_line == pydaw_terminating_char:
                 break
             f_line_arr = f_line.split("|", 5)
-            if len(f_line_arr) == 4:  #TODO:  Remove at PyDAWv4
-                self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
-                float(f_line_arr[1]), float(f_line_arr[2]), 4)] = int(f_line_arr[3])
-            elif len(f_line_arr) == 6:
-                f_file_path_and_uid = f_line_arr[5].split("|||")
-                self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
-                float(f_line_arr[3]), float(f_line_arr[4]), f_file_path_and_uid[0])] = int(f_file_path_and_uid[1])
-            else:
-                print(("Error: len(f_line_arr) == " + str(len(f_line_arr))))
-                assert(False)
+            f_file_path_and_uid = f_line_arr[5].split("|||")
+            self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
+            float(f_line_arr[3]), float(f_line_arr[4]), f_file_path_and_uid[0])] = int(f_file_path_and_uid[1])
 
         f_map_text = pydaw_read_file_text(self.pystretch_map_file)
         for f_line in f_map_text.split("\n"):
@@ -439,8 +425,6 @@ class pydaw_project:
     def timestretch_audio_item(self, a_audio_item):
         """ Return path, uid for a time-stretched audio item and update all project files,
         or None if the UID already exists in the cache"""
-        if not os.path.isdir(self.timestretch_folder):  #TODO:  remove at PyDAWv4
-            os.mkdir(self.timestretch_folder)
 
         a_audio_item.timestretch_amt = round(a_audio_item.timestretch_amt, 6)
         a_audio_item.pitch_shift = round(a_audio_item.pitch_shift, 6)
@@ -628,9 +612,6 @@ class pydaw_project:
         return pydaw_audio_region.from_str(self.get_audio_region_string(a_region_uid))
 
     def get_audio_per_item_fx_region(self, a_region_uid):
-        if not os.path.isdir(self.audio_per_item_fx_folder):  #TODO:  Remove at PyDAWv4
-            os.mkdir(self.audio_per_item_fx_folder)
-            return pydaw_audio_item_fx_region()
         f_path = self.audio_per_item_fx_folder + "/" + str(a_region_uid)
         if not os.path.isfile(f_path):  #TODO:  Sort this out at PyDAWv4 and create an empty file first
             return pydaw_audio_item_fx_region()

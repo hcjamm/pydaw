@@ -36,7 +36,6 @@ def set_bin_path():
 def pydaw_escape_stylesheet(a_stylesheet, a_path):
     f_dir = os.path.dirname(str(a_path))
     f_result = a_stylesheet.replace("$STYLE_FOLDER", f_dir)
-    f_result = f_result.replace("$PYDAW_PREFIX", global_pydaw_install_prefix) #TODO:  Deprecate at PyDAWv4
     return f_result
 
 print(("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,)))
@@ -243,11 +242,7 @@ global_device_val_dict = {}
 global_pydaw_device_config = global_pydaw_home + "/device.txt"
 
 def pydaw_read_device_config():
-    #TODO:  Remove at PyDAWv4
     global global_pydaw_bin_path, global_device_val_dict, global_pydaw_is_sandboxed, global_pydaw_with_audio
-    if os.path.exists(global_pydaw_device_config) and not pydaw_read_file_text(global_pydaw_device_config).endswith("\\"):
-        print("Detected bad device.txt config file from an older PyDAW release, deleting...")
-        os.system('rm "%s"' % (global_pydaw_device_config,))
 
     if os.path.isfile(global_pydaw_device_config):
         f_file_text = pydaw_read_file_text(global_pydaw_device_config)
@@ -257,10 +252,6 @@ def pydaw_read_device_config():
             if f_line.strip() != "":
                 f_line_arr = f_line.split("|", 1)
                 global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
-
-    #TODO:  Remove at PyDAWv4
-    if not "audioEngine" in global_device_val_dict:
-        global_device_val_dict["audioEngine"] = "0"
 
     set_bin_path()
     global_pydaw_is_sandboxed = False
