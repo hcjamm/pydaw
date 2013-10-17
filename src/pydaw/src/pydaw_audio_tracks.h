@@ -470,7 +470,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     free(f_start_beat_char);
 
     char * f_end_mode_char = c_iterate_2d_char_array(f_current_string);
-    f_result->end_mode = atoi(f_end_mode_char);
+    f_result->end_mode = 0; // atoi(f_end_mode_char);
     free(f_end_mode_char);
 
     char * f_end_bar_char = c_iterate_2d_char_array(f_current_string);
@@ -513,26 +513,25 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     //Not used by the back-end
     char * f_lane_num = c_iterate_2d_char_array(f_current_string);
     free(f_lane_num);
+
     
-    if(!f_current_string->eol)  //TODO:  Remove this if statement at PyDAWv4
-    {
-        char * f_pitch_shift_end_char = c_iterate_2d_char_array(f_current_string);
-        f_result->pitch_shift_end = atof(f_pitch_shift_end_char);
-        free(f_pitch_shift_end_char);
-        
-        char * f_timestretch_end_char = c_iterate_2d_char_array(f_current_string);
-        f_result->timestretch_amt_end = atof(f_timestretch_end_char);
-        free(f_timestretch_end_char);
-        
-        char * f_reversed_char = c_iterate_2d_char_array(f_current_string);
-        f_result->is_reversed = atoi(f_reversed_char);
-        free(f_reversed_char);
-                
-        //Not used in the back-end
-        char * f_crispness_char = c_iterate_2d_char_array(f_current_string);
-        free(f_crispness_char);
-    }
+    char * f_pitch_shift_end_char = c_iterate_2d_char_array(f_current_string);
+    f_result->pitch_shift_end = atof(f_pitch_shift_end_char);
+    free(f_pitch_shift_end_char);
+
+    char * f_timestretch_end_char = c_iterate_2d_char_array(f_current_string);
+    f_result->timestretch_amt_end = atof(f_timestretch_end_char);
+    free(f_timestretch_end_char);
+
+    char * f_reversed_char = c_iterate_2d_char_array(f_current_string);
+    f_result->is_reversed = atoi(f_reversed_char);
+    free(f_reversed_char);
+
+    //Not used in the back-end
+    char * f_crispness_char = c_iterate_2d_char_array(f_current_string);
+    free(f_crispness_char);
     
+    /*
     if(f_result->end_mode == 1)
     {
         float f_beats_total = ((float)((f_result->end_bar - f_result->start_bar) * 4)) + (f_result->end_beat - f_result->start_beat);
@@ -543,6 +542,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             f_result->sample_end_offset = f_samples_total;
         }
     }
+    */
     
     if(f_result->is_reversed)
     {

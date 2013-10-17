@@ -2021,16 +2021,16 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_item.set_brush()
             if f_item.isSelected():
                 f_selected_items.append(f_item)
-        f_end_mode_checked = True
-        if len(f_selected_items) > 1:
-            global_current_audio_item_index = None
-            this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
-            f_end_mode_val = f_selected_items[0].audio_item.end_mode
-            for f_item in f_selected_items[1:]:
-                if f_item.audio_item.end_mode != f_end_mode_val:
-                    f_end_mode_checked = False
-                    break
-        elif len(f_selected_items) == 1:
+        #if_end_mode_checked = True
+        #if len(f_selected_items) > 1:
+        #    global_current_audio_item_index = None
+        #    this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
+        #    f_end_mode_val = f_selected_items[0].audio_item.end_mode
+        #    for f_item in f_selected_items[1:]:
+        #        if f_item.audio_item.end_mode != f_end_mode_val:
+        #            f_end_mode_checked = False
+        #            break
+        if len(f_selected_items) == 1:
             global_current_audio_item_index = f_selected_items[0].track_num
             this_audio_items_viewer_widget.modulex.widget.setEnabled(True)
             f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
@@ -2041,7 +2041,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
         this_audio_items_viewer_widget.set_paif_buttons_enabled(len(f_selected_items))
 
-        this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
+        #this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
         f_timestretch_checked = True
         if len( f_selected_items) > 1:
             f_time_stretch_mode_val = f_selected_items[0].audio_item.time_stretch_mode
@@ -2087,11 +2087,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
         this_audio_item_editor_widget.reversed_checkbox.setChecked(f_reverse_checked)
 
         if len(f_selected_items) > 0:
-            if f_end_mode_checked:
-                if f_selected_items[0].audio_item.end_mode == 1:
-                    this_audio_item_editor_widget.end_musical_time.setChecked(True)
-                else:
-                    this_audio_item_editor_widget.end_sample_length.setChecked(True)
+            #if f_end_mode_checked:
+            #    if f_selected_items[0].audio_item.end_mode == 1:
+            #        this_audio_item_editor_widget.end_musical_time.setChecked(True)
+            #    else:
+            #        this_audio_item_editor_widget.end_sample_length.setChecked(True)
             if f_timestretch_checked:
                 this_audio_item_editor_widget.timestretch_mode.setCurrentIndex(f_selected_items[0].audio_item.time_stretch_mode)
 
@@ -2711,14 +2711,14 @@ class audio_item_editor_widget:
         self.layout.addLayout(self.vlayout2, 1, 1)
         self.start_hlayout = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.start_hlayout)
-        self.end_mode_checkbox = QtGui.QCheckBox("End Mode:")
-        self.start_hlayout.addWidget(self.end_mode_checkbox)
-        self.end_musical_time = QtGui.QRadioButton("Musical")
-        self.start_hlayout.addWidget(self.end_musical_time)
-        self.end_musical_time.setChecked(True)
-        self.end_sample_length = QtGui.QRadioButton("Linear")
-        self.start_hlayout.addWidget(self.end_sample_length)
-        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
+        #self.end_mode_checkbox = QtGui.QCheckBox("End Mode:")
+        #self.start_hlayout.addWidget(self.end_mode_checkbox)
+        #self.end_musical_time = QtGui.QRadioButton("Musical")
+        #self.start_hlayout.addWidget(self.end_musical_time)
+        #self.end_musical_time.setChecked(True)
+        #self.end_sample_length = QtGui.QRadioButton("Linear")
+        #self.start_hlayout.addWidget(self.end_sample_length)
+        #self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
 
         self.timestretch_checkbox = QtGui.QCheckBox("Time Stretching:")
         self.vlayout2.addWidget(self.timestretch_checkbox)
@@ -2985,10 +2985,12 @@ class audio_item_editor_widget:
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
-        if self.end_sample_length.isChecked():
-            self.end_mode = 0
-        else:
-            self.end_mode = 1
+        #if self.end_sample_length.isChecked():
+        #    self.end_mode = 0
+        #else:
+        #    self.end_mode = 1
+        self.end_mode = 0
+
         f_selected_count = 0
 
         f_region_length = global_current_region.region_length_bars
@@ -3043,11 +3045,11 @@ class audio_item_editor_widget:
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
                         if f_ts_result is not None:
                             f_stretched_items.append(f_ts_result)
-                if self.end_mode_checkbox.isChecked():
-                    if self.end_mode == 1 and f_item.audio_item.end_mode == 0:
-                        f_item.audio_item.end_bar = f_region_length
-                        f_item.audio_item.end_beat = 3.99
-                    f_item.audio_item.end_mode = self.end_mode
+                #if self.end_mode_checkbox.isChecked():
+                #    if self.end_mode == 1 and f_item.audio_item.end_mode == 0:
+                #        f_item.audio_item.end_bar = f_region_length
+                #        f_item.audio_item.end_beat = 3.99
+                #    f_item.audio_item.end_mode = self.end_mode
                 if self.reversed_checkbox.isChecked():
                     f_item.audio_item.reversed = self.is_reversed_checkbox.isChecked()
                 f_item.draw()
