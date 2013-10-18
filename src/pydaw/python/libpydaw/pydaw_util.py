@@ -253,25 +253,25 @@ def pydaw_read_device_config():
                 f_line_arr = f_line.split("|", 1)
                 global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
 
-    set_bin_path()
-    global_pydaw_is_sandboxed = False
-    global_pydaw_with_audio = True
+        set_bin_path()
+        global_pydaw_is_sandboxed = False
+        global_pydaw_with_audio = True
 
-    if global_pydaw_bin_path is not None:
-        if int(global_device_val_dict["audioEngine"]) == 0:
-            global_pydaw_bin_path += "-no-root"
-        elif int(global_device_val_dict["audioEngine"]) == 2:
-            global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
-            global_pydaw_is_sandboxed = True
-        elif int(global_device_val_dict["audioEngine"]) == 3:
-            global_pydaw_bin_path += "-dbg"
-        elif int(global_device_val_dict["audioEngine"]) == 4 or \
-             int(global_device_val_dict["audioEngine"]) == 5:
-            global_pydaw_bin_path += "-no-hw"
-        elif int(global_device_val_dict["audioEngine"]) == 6:
-            global_pydaw_with_audio = False
-            global_pydaw_bin_path = None
-        print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
+        if global_pydaw_bin_path is not None:
+            if int(global_device_val_dict["audioEngine"]) == 0:
+                global_pydaw_bin_path += "-no-root"
+            elif int(global_device_val_dict["audioEngine"]) == 2:
+                global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
+                global_pydaw_is_sandboxed = True
+            elif int(global_device_val_dict["audioEngine"]) == 3:
+                global_pydaw_bin_path += "-dbg"
+            elif int(global_device_val_dict["audioEngine"]) == 4 or \
+                 int(global_device_val_dict["audioEngine"]) == 5:
+                global_pydaw_bin_path += "-no-hw"
+            elif int(global_device_val_dict["audioEngine"]) == 6:
+                global_pydaw_with_audio = False
+                global_pydaw_bin_path = None
+            print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
 
 pydaw_read_device_config()
 
