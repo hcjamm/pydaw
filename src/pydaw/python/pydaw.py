@@ -2159,7 +2159,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
         if len(global_audio_items_to_drop) == 0:
             return
-        f_length_bars = pydaw_get_current_region_length() - 1
+
         for f_file_name in global_audio_items_to_drop:
             f_file_name_str = str(f_file_name)
             if not f_file_name_str is None and not f_file_name_str == "":
@@ -2169,7 +2169,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     break
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
-                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_start_beat=f_beat_frac, a_lane_num=f_lane_num, a_end_mode=1, a_end_bar=f_length_bars, a_end_beat=3.99)
+                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_start_beat=f_beat_frac, a_lane_num=f_lane_num)
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
@@ -2219,8 +2219,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 f_paif.clear_row_if_exists(f_index)
             f_index = f_items.get_next_index()
             f_uid = this_pydaw_project.get_wav_uid_by_name(f_path)
-            f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane, a_end_mode=1, a_output_track=f_audio_track_num, \
-            a_end_bar=f_end_bar, a_end_beat=0.0)
+            f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane, a_output_track=f_audio_track_num)
             f_items.add_item(f_index, f_item)
 
             this_pydaw_project.save_audio_region(f_region_uid, f_items)

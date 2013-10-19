@@ -211,10 +211,7 @@ typedef struct
     int start_bar;
     float start_beat;
     double adjusted_start_beat;
-    double adjusted_end_beat;
-    int end_mode;  //0 == full sample length, 1 == musical end time    
-    int end_bar;
-    float end_beat;
+    //double adjusted_end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
     float pitch_shift;    
     float sample_start;
@@ -362,7 +359,6 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->ratio = 1.0f;    
     f_result->uid = -1;
     f_result->adjusted_start_beat = 99999999.0f;
-    f_result->adjusted_end_beat = 99999999.0f;
     
     f_result->adsr = g_adsr_get_adsr(1.0f/a_sr);
     v_adsr_set_adsr_db(f_result->adsr, 0.003f, 0.1f, 0.0f, 0.2f);
@@ -374,8 +370,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->pitch_ratio_ptr = g_pit_ratio();
     f_result->vol = 0.0f;
     f_result->vol_linear = 1.0f;
-    f_result->end_mode = 0;    
-        
+            
     return f_result;
 }
 
@@ -468,18 +463,6 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     char * f_start_beat_char = c_iterate_2d_char_array(f_current_string);
     f_result->start_beat = atof(f_start_beat_char);            
     free(f_start_beat_char);
-
-    char * f_end_mode_char = c_iterate_2d_char_array(f_current_string);
-    f_result->end_mode = 0; // atoi(f_end_mode_char);
-    free(f_end_mode_char);
-
-    char * f_end_bar_char = c_iterate_2d_char_array(f_current_string);
-    f_result->end_bar = atoi(f_end_bar_char);
-    free(f_end_bar_char);
-
-    char * f_end_beat_char = c_iterate_2d_char_array(f_current_string);
-    f_result->end_beat = atof(f_end_beat_char);
-    free(f_end_beat_char);
 
     char * f_time_stretch_mode_char = c_iterate_2d_char_array(f_current_string);
     f_result->timestretch_mode = atoi(f_time_stretch_mode_char);
