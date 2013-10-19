@@ -92,7 +92,7 @@ int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, 
 }
 
 
-t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
+t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));  //TODO: posix_memalign instead...
     
@@ -165,7 +165,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     //TODO:  Count ins and outs from the loop at line 1142.  Or just rely on that we already know it
     
-    f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate);
+    f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate, a_host_wavpool_func);
         
     f_result->firstControlIn = 0;
     

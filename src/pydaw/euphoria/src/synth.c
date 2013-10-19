@@ -32,6 +32,8 @@ GNU General Public License for more details.
 #include "meta.h"
 #include "../../libmodsynth/lib/lms_math.h"
 
+static fp_get_wavpool_item_from_host wavpool_get_func;
+
 static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 		       t_pydaw_seq_event *events, int EventCount);
 
@@ -339,7 +341,7 @@ static void connectPortSampler(PYFX_Handle instance, int port,
 }
 
 static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
-					int s_rate)
+					int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     t_euphoria *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
     

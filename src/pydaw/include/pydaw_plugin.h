@@ -48,7 +48,18 @@ typedef struct
         float length;
         int plugin_index;
         int port;
-} t_pydaw_seq_event;    
+} t_pydaw_seq_event;
+
+typedef struct
+{
+    char path[2048];
+    int uid;
+    float * samples[2];
+    float ratio_orig;
+    int channels;
+    int length;
+    float sample_rate;    
+}t_wav_pool_item;
     
 void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
 {
@@ -86,6 +97,9 @@ void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event, int a_channel, int a_
     a_event->param = a_cc_num;
     a_event->value = a_value;
 }
+
+
+typedef t_wav_pool_item * (*fp_get_wavpool_item_from_host)(int);
 
 /*****************************************************************************/
 
@@ -248,7 +262,8 @@ typedef struct _PYFX_Descriptor {
 
      Note that instance initialisation should generally occur in
      activate() rather than here. */
-  PYFX_Handle (*instantiate)(const struct _PYFX_Descriptor * Descriptor, int SampleRate);
+  PYFX_Handle (*instantiate)(const struct _PYFX_Descriptor * Descriptor, int SampleRate,
+          fp_get_wavpool_item_from_host a_host_wavpool_func);
 
   /* This member is a function pointer that connects a port on an
      instantiated plugin to a memory location at which a block of data

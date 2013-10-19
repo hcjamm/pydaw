@@ -118,7 +118,7 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port, PYFX_Data * d
 }
 
 static PYFX_Handle g_modulex_instantiate(const PYFX_Descriptor * descriptor,
-				   int s_rate)
+				   int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     t_modulex *plugin_data = (t_modulex *) malloc(sizeof(t_modulex));
     

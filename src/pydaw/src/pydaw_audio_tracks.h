@@ -25,6 +25,7 @@ extern "C" {
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../libmodsynth/lib/interpolate-sinc.h"
 #include "../libmodsynth/modules/modulation/adsr.h"
+#include "../include/pydaw_plugin.h"
 #include "pydaw_files.h"
 #include "pydaw.h"
     
@@ -35,17 +36,6 @@ extern "C" {
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT 32.0f
     
-typedef struct
-{
-    char path[2048];
-    int uid;
-    float * samples[2];
-    float ratio_orig;
-    int channels;
-    int length;
-    float sample_rate;    
-}t_wav_pool_item;
-
 t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
 {   
     t_wav_pool_item *f_result;

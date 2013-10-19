@@ -390,6 +390,13 @@ void v_pysong_free(t_pysong *);
 
 /*End declarations.  Begin implementations.*/
 
+t_pydaw_data * pydaw_data;
+
+/*Function for passing to plugins that re-use the wav pool*/
+t_wav_pool_item * g_pydaw_wavpool_item_get(int a_uid)
+{
+    return g_wav_pool_get_item_by_uid(pydaw_data->wav_pool, a_uid);
+}
 
 void v_pysong_free(t_pysong * a_pysong)
 {
@@ -4419,7 +4426,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
     
     if(a_index == -1)  //bus track
     {
-        f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1);
+        f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1, g_pydaw_wavpool_item_get);
         
         free(f_result_fx->pluginOutputBuffers[0]);
         free(f_result_fx->pluginOutputBuffers[1]);
@@ -4497,8 +4504,8 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
     }
     else
     {
-        f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
-        f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1);
+        f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index, g_pydaw_wavpool_item_get);
+        f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1, g_pydaw_wavpool_item_get);
         
         free(f_result_fx->pluginInputBuffers[0]);
         free(f_result_fx->pluginInputBuffers[1]);

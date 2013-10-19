@@ -33,8 +33,6 @@ GNU General Public License for more details.
 static PYFX_Descriptor *LMSLDescriptor = NULL;
 static PYINST_Descriptor *LMSDDescriptor = NULL;
 
-static t_pydaw_data * pydaw_data;
-
 void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count);
 
 int pydaw_osc_debug_handler(const char *path, const char *types, lo_arg **argv,
