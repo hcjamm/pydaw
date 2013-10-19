@@ -1886,12 +1886,12 @@ class pydaw_audio_item:
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
 
     def __str__(self):
-        return str(self.uid) + "|" + str(round(self.sample_start, 6)) + "|" + str(round(self.sample_end, 6)) \
-        + "|" + str(self.start_bar) + "|" + str(round(self.start_beat, 6)) + "|" + str(self.end_mode) \
-        + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 6)) + "|" + str(self.time_stretch_mode) \
-        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 6)) \
-        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "|" + str(round(self.pitch_shift_end, 6 )) \
-        + "|" + str(round(self.timestretch_amt_end, 6)) + "|" + str(bool_to_int(self.reversed)) + "|" + str(self.crispness) + "\n"
+        return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n" % \
+        (self.uid, round(self.sample_start, 6), round(self.sample_end, 6), \
+        self.start_bar, round(self.start_beat, 6), self.end_mode, self.end_bar, round(self.end_beat, 6), \
+        self.time_stretch_mode, self.pitch_shift, self.output_track, self.vol, round(self.timestretch_amt, 6), \
+        self.fade_in, self.fade_out, self.lane_num, round(self.pitch_shift_end, 6 ), \
+        round(self.timestretch_amt_end, 6), bool_to_int(self.reversed), self.crispness)
 
     @staticmethod
     def from_str(f_str):
