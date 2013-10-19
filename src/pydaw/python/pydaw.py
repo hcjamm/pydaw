@@ -1406,12 +1406,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * global_audio_px_per_bar
         self.length_seconds_orig_px = f_length_seconds
         self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
-        self.length_px_minus_start = f_length_seconds - (self.audio_item.sample_start * 0.001 * f_length_seconds)
+        self.length_px_start = (self.audio_item.sample_start * 0.001 * f_length_seconds)
+        self.length_px_minus_start = f_length_seconds - self.length_px_start
         #f_length_seconds *= 1.0 - (self.audio_item.sample_start * 0.001)
         #f_length_seconds *= self.audio_item.sample_end * 0.001
+        self.length_px_minus_end = (self.audio_item.sample_end * 0.001 * f_length_seconds)
 
-        f_length = (self.audio_item.sample_end * 0.001 * f_length_seconds) - \
-        (self.audio_item.sample_start * 0.001 * f_length_seconds)
+        f_length = self.length_px_minus_end - self.length_px_start
         #if self.audio_item.end_mode == 0:
         #f_length = f_length_seconds
         #elif self.audio_item.end_mode == 1:
@@ -1494,7 +1495,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if f_end > f_max_x:
             f_end_px = f_max_x - f_pos_x
             self.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
-            self.audio_item.sample_end = round((self.rect().width() / self.length_px_minus_start) * 1000.0, 6)
+            self.audio_item.sample_end = ((self.rect().width() + self.length_px_start) / self.length_seconds_orig_px) * 1000.0
+            pydaw_util.pydaw_clip_value(self.audio_item.sample_end, 1.0, 1000.0, True)
             self.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_height)
         #elif self.audio_item.end_mode == 1:
         #    f_end_result = self.pos_to_musical_time(f_pos_x + self.rect().width())
@@ -1860,7 +1862,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x -= f_audio_item.quantize_offset
                     f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     #if f_item.end_mode == 0:
-                    f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
+                    f_item.sample_end = ((f_audio_item.rect().width() + f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
+                    pydaw_util.pydaw_clip_value(f_item.sample_end, 1.0, 1000.0, True)
+                    #f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
                     #elif f_item.end_mode == 1:
                     #    f_end_result = f_audio_item.pos_to_musical_time(f_x + f_audio_item.pos().x())
                     #    f_item.end_bar = f_end_result[0]
