@@ -1407,11 +1407,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_seconds_orig_px = f_length_seconds
         self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
         self.length_px_minus_start = f_length_seconds - (self.audio_item.sample_start * 0.001 * f_length_seconds)
-        f_length_seconds *= 1.0 - (self.audio_item.sample_start * 0.001)
-        f_length_seconds *= self.audio_item.sample_end * 0.001
+        #f_length_seconds *= 1.0 - (self.audio_item.sample_start * 0.001)
+        #f_length_seconds *= self.audio_item.sample_end * 0.001
 
+        f_length = (self.audio_item.sample_end * 0.001 * f_length_seconds) - \
+        (self.audio_item.sample_start * 0.001 * f_length_seconds)
         #if self.audio_item.end_mode == 0:
-        f_length = f_length_seconds
+        #f_length = f_length_seconds
         #elif self.audio_item.end_mode == 1:
         #    f_length = pydaw_get_diff_in_bars(0, self.audio_item.start_bar, \
         #    self.audio_item.start_beat, 0, self.audio_item.end_bar, self.audio_item.end_beat)
