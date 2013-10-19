@@ -98,10 +98,7 @@ static void connectPortSampler(PYFX_Handle instance, int port,
             break;
         case EUPHORIA_FILTER_RELEASE:
             plugin->release_f = data;
-            break;
-        case EUPHORIA_NOISE_AMP:
-            plugin->noise_amp = data;
-            break;
+            break;        
         case EUPHORIA_MASTER_VOLUME:
             plugin->master_vol = data;
             break;
@@ -189,11 +186,7 @@ static void connectPortSampler(PYFX_Handle instance, int port,
         case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1: plugin->polyfx_mod_matrix[0][3][3][1] = data; break;
         case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2: plugin->polyfx_mod_matrix[0][3][3][2] = data; break;
 
-        //End PolyFX mod matrix
-        
-        //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
-        //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
-        case EUPHORIA_NOISE_TYPE: plugin->noise_type = data; break;
+        //End PolyFX mod matrix        
         case EUPHORIA_LFO_PITCH: plugin->lfo_pitch = data; break;
         default:
             break;
@@ -334,7 +327,15 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
         plugin->sample_mfx_groups[(port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN)] = data;
+    }
+    else if(port >= EUPHORIA_NOISE_AMP_MIN && port < EUPHORIA_NOISE_AMP_MAX)
+    {
+        plugin->noise_amp[(port - EUPHORIA_NOISE_AMP_MIN)] = data;
     }    
+    else if(port >= EUPHORIA_NOISE_TYPE_MIN && port < EUPHORIA_NOISE_TYPE_MAX)
+    {
+        plugin->noise_type[(port - EUPHORIA_NOISE_TYPE_MIN)] = data;
+    }
 }
 
 static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
@@ -615,7 +616,9 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
                 continue;
             }
             
-            plugin_data->data[n]->noise_sample = ((plugin_data->data[n]->noise_func_ptr(plugin_data->mono_modules->white_noise1[(plugin_data->data[n]->noise_index)])) * (plugin_data->data[n]->noise_linamp)); //add noise
+            plugin_data->data[n]->noise_sample = 
+                    ((plugin_data->mono_modules->noise_func_ptr[(plugin_data->current_sample)](plugin_data->mono_modules->white_noise1[(plugin_data->data[n]->noise_index)])) 
+                    * (plugin_data->mono_modules->noise_linamp[(plugin_data->current_sample)])); //add noise
             
             for (ch = 0; ch < (plugin_data->sample_channels[(plugin_data->i_loaded_samples)]); ++ch) 
             {                
@@ -856,15 +859,21 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                         }
                     }
                 }
-                //Get the noise function pointer
-                plugin_data->data[f_voice_num]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
-
-                plugin_data->data[f_voice_num]->noise_index = (plugin_data->mono_modules->noise_current_index);
-                plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
-
-                if((plugin_data->mono_modules->noise_current_index) >= EUPHORIA_NOISE_COUNT)
+                
+                for(i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)
                 {
-                    plugin_data->mono_modules->noise_current_index = 0;
+                    //Get the noise function pointer
+                    plugin_data->mono_modules->noise_func_ptr[i] = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type[i])));
+
+                    plugin_data->data[f_voice_num]->noise_index = (plugin_data->mono_modules->noise_current_index);
+                    plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
+
+                    if((plugin_data->mono_modules->noise_current_index) >= EUPHORIA_NOISE_COUNT)
+                    {
+                        plugin_data->mono_modules->noise_current_index = 0;
+                    }
+           
+                    plugin_data->mono_modules->noise_linamp[i] = f_db_to_linear_fast(*(plugin_data->noise_amp[i]), plugin_data->mono_modules->amp_ptr);
                 }
                 
                 plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
@@ -876,12 +885,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
                 v_rmp_retrigger_glide_t(plugin_data->data[f_voice_num]->glide_env , (*(plugin_data->master_glide) * .01), 
                         (plugin_data->sv_last_note), (plugin_data->data[f_voice_num]->target_pitch));
-
-                plugin_data->data[f_voice_num]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
-
-                /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
-                 placing things here that don't need to be modulated as a note is playing*/
-
+                
+                
                 /*Retrigger ADSR envelopes and LFO*/
                 v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_filter);
@@ -899,8 +904,6 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
                 /*Retrigger the pitch envelope*/
                 v_rmp_retrigger((plugin_data->data[f_voice_num]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1.0f);  
-
-                plugin_data->data[f_voice_num]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                 plugin_data->sv_last_note = (plugin_data->data[f_voice_num]->note_f);
@@ -1508,15 +1511,6 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	port_range_hints[EUPHORIA_FILTER_RELEASE].UpperBound = 200; 
         automatable[EUPHORIA_FILTER_RELEASE] = 1;
         value_tranform_hints[EUPHORIA_FILTER_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
-
-        
-        /*Parameters for noise_amp*/        
-	port_descriptors[EUPHORIA_NOISE_AMP] = port_descriptors[EUPHORIA_ATTACK];
-	port_names[EUPHORIA_NOISE_AMP] = "Noise Amp";
-	port_range_hints[EUPHORIA_NOISE_AMP].DefaultValue = -30.0f;
-	port_range_hints[EUPHORIA_NOISE_AMP].LowerBound =  -60;
-	port_range_hints[EUPHORIA_NOISE_AMP].UpperBound =  0;
-        automatable[EUPHORIA_NOISE_AMP] = 1;
                 
         /*Parameters for master vol*/        
 	port_descriptors[EUPHORIA_MASTER_VOLUME] = port_descriptors[EUPHORIA_ATTACK];
@@ -1871,13 +1865,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL; port_names[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2] = "LMS_PFXMATRIX_GRP0DST3SRC3CTRL2";
 	port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].DefaultValue = 0.0f;
 	port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
-        
-        port_descriptors[EUPHORIA_NOISE_TYPE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[EUPHORIA_NOISE_TYPE] = "Noise Type";
-	port_range_hints[EUPHORIA_NOISE_TYPE].DefaultValue = 0.0f;
-	port_range_hints[EUPHORIA_NOISE_TYPE].LowerBound =  0;
-	port_range_hints[EUPHORIA_NOISE_TYPE].UpperBound =  2;
-        
+                
         port_descriptors[EUPHORIA_LFO_PITCH] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_names[EUPHORIA_LFO_PITCH] = "LFO Pitch";
 	port_range_hints[EUPHORIA_LFO_PITCH].DefaultValue = 0.0f;
@@ -2220,6 +2208,27 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
             f_i++;
         }
+        
+        while(f_i < EUPHORIA_NOISE_AMP_MAX)
+        {
+            port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+            port_names[f_i] = "Sample Noise Amp";
+            port_range_hints[f_i].DefaultValue = -30.0f;
+            port_range_hints[f_i].LowerBound = -60.0f; 
+            port_range_hints[f_i].UpperBound = 0.0f;
+            f_i++;
+        }
+        
+        while(f_i < EUPHORIA_NOISE_TYPE_MAX)
+        {
+            port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+            port_names[f_i] = "Sample Noise Type";
+            port_range_hints[f_i].DefaultValue = 0.0f;
+            port_range_hints[f_i].LowerBound = 0.0f; 
+            port_range_hints[f_i].UpperBound = 2.0f;
+            f_i++;
+        }
+
         
 	desc->activate = v_euphoria_activate;
 	desc->cleanup = cleanupSampler;

@@ -60,7 +60,7 @@ GNU General Public License for more details.
 #define EUPHORIA_FILTER_DECAY   8
 #define EUPHORIA_FILTER_SUSTAIN 9
 #define EUPHORIA_FILTER_RELEASE 10
-#define EUPHORIA_NOISE_AMP 11
+#define EUPHORIA_LFO_PITCH 11
 #define EUPHORIA_MASTER_VOLUME 12
 #define EUPHORIA_MASTER_GLIDE 13
 #define EUPHORIA_MASTER_PITCHBEND_AMT 14
@@ -138,15 +138,12 @@ GNU General Public License for more details.
 
 //End PolyFX Mod Matrix
 
-#define EUPHORIA_NOISE_TYPE 82
-#define EUPHORIA_LFO_PITCH 83
-
 /*This is the last control port, + 1, for zero-based iteration*/
-#define EUPHORIA_LAST_REGULAR_CONTROL_PORT 84
+#define EUPHORIA_LAST_REGULAR_CONTROL_PORT 82
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define EUPHORIA_FIRST_SAMPLE_TABLE_PORT 84
+#define EUPHORIA_FIRST_SAMPLE_TABLE_PORT 82
 
 /*The range of ports for sample pitch*/
 #define EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN     EUPHORIA_FIRST_SAMPLE_TABLE_PORT
@@ -249,7 +246,14 @@ GNU General Public License for more details.
 #define EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN    EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX
 #define EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX    (EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + EUPHORIA_MAX_SAMPLE_COUNT)
 
-#define EUPHORIA_PORT_COUNT                EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX
+//Noise amp
+#define EUPHORIA_NOISE_AMP_MIN EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX
+#define EUPHORIA_NOISE_AMP_MAX (EUPHORIA_NOISE_AMP_MIN + EUPHORIA_MAX_SAMPLE_COUNT)
+//Noise type
+#define EUPHORIA_NOISE_TYPE_MIN EUPHORIA_NOISE_AMP_MAX
+#define EUPHORIA_NOISE_TYPE_MAX (EUPHORIA_NOISE_TYPE_MIN + EUPHORIA_MAX_SAMPLE_COUNT)
+
+#define EUPHORIA_PORT_COUNT     EUPHORIA_NOISE_TYPE_MAX
 
 #endif	/* PORTS_H */
 

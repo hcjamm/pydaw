@@ -72,8 +72,8 @@ typedef struct {
     
     PYFX_Data *master_vol;
     
-    PYFX_Data *noise_amp;    
-    PYFX_Data *noise_type;
+    PYFX_Data *noise_amp[EUPHORIA_MAX_SAMPLE_COUNT];    
+    PYFX_Data *noise_type[EUPHORIA_MAX_SAMPLE_COUNT];
     
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;

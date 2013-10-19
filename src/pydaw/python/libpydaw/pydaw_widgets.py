@@ -1949,7 +1949,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             "High Vel.", #High Velocity
             "Pitch", #Pitch
             "Tune", #Tune
-            "Mode" #Interpolation Mode
+            "Mode", #Interpolation Mode
+            "Noise Type",
+            "Noise Amp",
         ]
 
         self.selected_sample_port = pydaw_null_control(pydaw_ports.EUPHORIA_SELECTED_SAMPLE, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
@@ -2041,6 +2043,24 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_interpolation_modes, self.port_dict, 1)
             self.sample_table.setCellWidget(f_i, 11, f_sample_mode.control)
             self.sample_vols.append(f_sample_mode)
+
+        self.noise_types = []
+        f_port_start = pydaw_ports.EUPHORIA_NOISE_TYPE_MIN
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_noise_type = pydaw_combobox_control(75, None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
+            [("Off") , ("White") , ("Pink")], self.port_dict, 0)
+            self.sample_table.setCellWidget(f_i, 12, f_noise_type.control)
+            self.noise_types.append(f_noise_type)
+
+        self.noise_amps = []
+        f_port_start = pydaw_ports.EUPHORIA_NOISE_AMP_MIN
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_noise_amp = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
+            -60, 0, -30, kc_none, self.port_dict)
+            self.sample_table.setCellWidget(f_i, 13, f_noise_amp.control)
+            self.noise_amps.append(f_noise_amp)
+
+
 
         self.sample_starts = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_START_PORT_RANGE_MIN
@@ -2174,6 +2194,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_monofx_group = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.monofx_groups.append(f_monofx_group)
 
+
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
         self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
@@ -2292,6 +2313,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_mode_combobox.currentIndexChanged.connect(self.loopModeChanged)
         self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_label, 0, 1, 1, 1)
         self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1, 1, 1)
+
         #The file select on the 'view' tab
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
         self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2351,15 +2373,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_ports.EUPHORIA_RELEASE, "ADSR Amp", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, a_attack_default=0)
         self.adsr_amp.release_knob.control.setMinimum(5) #overriding the default for self, because we want a low minimum default that won't click
         self.hlayout2.addWidget(self.adsr_amp.groupbox)
-        self.groupbox_noise =  QtGui.QGroupBox("Noise")
-        self.groupbox_noise_layout = QtGui.QGridLayout(self.groupbox_noise)
-        self.hlayout2.addWidget(self.groupbox_noise)
-        self.noise_amp =  pydaw_knob_control(55, "Vol", pydaw_ports.EUPHORIA_NOISE_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
-        -60, 0, -30, kc_integer, self.port_dict)
-        self.noise_amp.add_to_grid_layout(self.groupbox_noise_layout, 0)
-        self.noise_type =  pydaw_combobox_control(87, "Type", pydaw_ports.EUPHORIA_NOISE_TYPE, self.plugin_rel_callback, self.plugin_val_callback, \
-        [("Off") , ("White") , ("Pink")], self.port_dict)
-        self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
         self.adsr_filter =  pydaw_adsr_widget(55, False, pydaw_ports.EUPHORIA_FILTER_ATTACK, pydaw_ports.EUPHORIA_FILTER_DECAY, \
         pydaw_ports.EUPHORIA_FILTER_SUSTAIN, pydaw_ports.EUPHORIA_FILTER_RELEASE, "ADSR 2", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
         self.hlayout2.addWidget(self.adsr_filter.groupbox)

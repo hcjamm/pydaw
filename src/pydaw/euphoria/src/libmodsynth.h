@@ -57,6 +57,9 @@ typedef struct st_euphoria_mono_modules
     
     t_white_noise * white_noise1[EUPHORIA_NOISE_COUNT];
     int noise_current_index;
+    
+    fp_noise_func_ptr noise_func_ptr[EUPHORIA_MAX_SAMPLE_COUNT];
+    float noise_linamp[EUPHORIA_MAX_SAMPLE_COUNT];
 }t_euphoria_mono_modules __attribute__((aligned(16)));
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
@@ -65,8 +68,7 @@ typedef struct st_euphoria_poly_voice
     t_adsr * adsr_filter;
     
     t_adsr * adsr_amp;       
-    float noise_amp;
-    
+        
     t_ramp_env * glide_env;
     
     t_ramp_env * ramp_env;
@@ -85,14 +87,10 @@ typedef struct st_euphoria_poly_voice
         
     t_amp * amp_ptr;
 
-    /*Migrated from the now deprecate voice_data struct*/
-    //float   amp;
     float note_f;
     float noise_sample;
-    float noise_linamp;           
-    int i_voice;  //for the runVoice function to iterate the current block
     
-    //From Modulex
+    int i_voice;  //for the runVoice function to iterate the current block
     
     t_mf3_multi * multieffect[EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MAX_SAMPLE_COUNT];
     fp_mf3_run fx_func_ptr[EUPHORIA_MODULAR_POLYFX_COUNT];
@@ -100,8 +98,6 @@ typedef struct st_euphoria_poly_voice
     float modulex_current_sample[2];    
     
     float * modulator_outputs[EUPHORIA_MODULATOR_COUNT];
-    
-    fp_noise_func_ptr noise_func_ptr;
     
     int noise_index;
     
@@ -125,9 +121,7 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
 
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
     f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
-    
-    f_voice->noise_amp = 0.0f;
-        
+            
     f_voice->glide_env = g_rmp_get_ramp_env(a_sr);    
     f_voice->ramp_env = g_rmp_get_ramp_env(a_sr);
     
@@ -147,7 +141,7 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
     
     f_voice->note_f = 1.0f;
     f_voice->noise_sample = 0.0f;
-    f_voice->noise_linamp = 1.0f;
+    
     f_voice->i_voice = 0;
     
     //From Modulex
@@ -167,8 +161,7 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
     f_voice->modulator_outputs[1] = &(f_voice->adsr_filter->output);
     f_voice->modulator_outputs[2] = &(f_voice->ramp_env->output);
     f_voice->modulator_outputs[3] = &(f_voice->lfo1->output);
-    
-    f_voice->noise_func_ptr = f_run_noise_off;
+        
     f_voice->noise_index = 0;
     
     return f_voice;
@@ -230,6 +223,12 @@ t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr)
     for(f_i = 0; f_i < EUPHORIA_NOISE_COUNT; f_i++)
     {
         a_mono->white_noise1[f_i] = g_get_white_noise(a_sr);
+    }
+    
+    for(f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
+    {
+        a_mono->noise_func_ptr[f_i] = f_run_noise_off;
+        a_mono->noise_linamp[f_i] = 1.0f;
     }
     
     return a_mono;

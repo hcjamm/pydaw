@@ -35,19 +35,17 @@ inline float f_run_pink_noise(t_white_noise *);
 inline float f_run_noise_off(t_white_noise *);
 inline fp_noise_func_ptr fp_get_noise_func_ptr(int);
 
+static fp_noise_func_ptr f_noise_func_ptr_arr[] = 
+{
+    f_run_noise_off,
+    f_run_white_noise,
+    f_run_pink_noise,
+    f_run_noise_off
+};
+
 inline fp_noise_func_ptr fp_get_noise_func_ptr(int a_index)
 {
-    switch(a_index)
-    {
-        case 0:
-            return f_run_noise_off;
-        case 1:
-            return f_run_white_noise;
-        case 2:
-            return f_run_pink_noise;
-        default:
-            return f_run_noise_off;
-    }    
+    return f_noise_func_ptr_arr[a_index];
 }
 
 static unsigned int seed_helper = 18;
