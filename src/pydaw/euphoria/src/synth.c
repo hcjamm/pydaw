@@ -361,44 +361,24 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
     plugin_data->linear_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
     plugin_data->i_slow_index = 0;
-    
-    plugin_data->preview_sample_array_index = 0;
-    plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
-    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT] = (char*)malloc(sizeof(char) * 1024);
-    plugin_data->sampleData[0][EUPHORIA_MAX_SAMPLE_COUNT] = NULL;
-    plugin_data->sampleData[1][EUPHORIA_MAX_SAMPLE_COUNT] = NULL;
-    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0'; //This is the preview file path
     plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
-    plugin_data->preview_sample_max_length = s_rate * 5.0f;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
-    plugin_data->preview_length = 0.0f;
     
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
-        
-    plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT] = 1.0f;
     
     int f_i = 0;
     while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
     {
         plugin_data->sampleStarts[f_i] = 0;
         plugin_data->sampleEnds[f_i] = 0;
-        plugin_data->sampleCount[f_i] = 0;
         plugin_data->basePitch[f_i] = 0;
         plugin_data->low_note[f_i] = 0;
         plugin_data->high_note[f_i] = 0;
         plugin_data->sample_vol[f_i] = 0;
         plugin_data->sample_amp[f_i] = 1.0f;
         plugin_data->sampleEndPos[f_i] = 0.0f;
-        plugin_data->sample_last_interpolated_value[f_i] = 0.0f;
-        
-        plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 1024);
-        plugin_data->sample_paths[f_i][0] = '\0';
-        
-        plugin_data->sampleData[0][f_i] = NULL;
-        plugin_data->sampleData[1][f_i] = NULL;
-        
+        plugin_data->sample_last_interpolated_value[f_i] = 0.0f;                
         plugin_data->adjusted_base_pitch[f_i] = 60.0f;
-        plugin_data->sample_rate_ratios[f_i] = 1.0f;
         
         f_i++;
     }
@@ -440,7 +420,7 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
     plugin_data->sv_last_note = 36.0f;
     plugin_data->channels = 2;
     plugin_data->amp_ptr = g_amp_get();    
-    memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));    
+    //memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));    
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);    
     plugin_data->fs = s_rate;
     
@@ -452,7 +432,7 @@ static void v_euphoria_activate(PYFX_Handle instance)
     t_euphoria *plugin_data = (t_euphoria *) instance;
     int i;
 
-    pthread_mutex_lock(&plugin_data->mutex);
+    //pthread_mutex_lock(&plugin_data->mutex);
 
     plugin_data->sampleNo = 0;
 
@@ -463,7 +443,7 @@ static void v_euphoria_activate(PYFX_Handle instance)
     
     v_euphoria_slow_index(plugin_data);
 
-    pthread_mutex_unlock(&plugin_data->mutex);
+    //pthread_mutex_unlock(&plugin_data->mutex);
 }
 
 
@@ -506,7 +486,7 @@ static int calculate_ratio_sinc(t_euphoria *__restrict plugin_data, int n)
             ),
             plugin_data->smp_pit_core, plugin_data->smp_pit_ratio)
             *
-            plugin_data->sample_rate_ratios[(plugin_data->current_sample)];
+            plugin_data->wavpool_items[(plugin_data->current_sample)]->ratio_orig;
 
     v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], (plugin_data->ratio));
 
@@ -528,7 +508,7 @@ static int calculate_ratio_none(t_euphoria *__restrict plugin_data, int n)
 static void run_sampler_interpolation_sinc(t_euphoria *__restrict plugin_data, int n, int ch)
 {    
     plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
-            plugin_data->sampleData[ch][(plugin_data->current_sample)],
+            plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch],
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction));
 }
@@ -537,7 +517,7 @@ static void run_sampler_interpolation_sinc(t_euphoria *__restrict plugin_data, i
 static void run_sampler_interpolation_linear(t_euphoria *__restrict plugin_data, int n, int ch)
 {
     plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_cubic_interpolate_ptr_ifh(
-            plugin_data->sampleData[ch][(plugin_data->current_sample)],
+            plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch],
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction),
             plugin_data->cubic_interpolator);            
@@ -547,7 +527,7 @@ static void run_sampler_interpolation_linear(t_euphoria *__restrict plugin_data,
 static void run_sampler_interpolation_none(t_euphoria *__restrict plugin_data, int n, int ch)
 {
     plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = 
-            plugin_data->sampleData[ch][(plugin_data->current_sample)][(plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number)];
+            plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch][(plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number)];
 }
 
 /* static void addSample(Sampler *plugin_data, 
@@ -622,7 +602,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
                     ((plugin_data->mono_modules->noise_func_ptr[(plugin_data->current_sample)](plugin_data->mono_modules->white_noise1[(plugin_data->data[n]->noise_index)])) 
                     * (plugin_data->mono_modules->noise_linamp[(plugin_data->current_sample)])); //add noise
             
-            for (ch = 0; ch < (plugin_data->sample_channels[(plugin_data->i_loaded_samples)]); ++ch) 
+            for (ch = 0; ch < (plugin_data->wavpool_items[(plugin_data->i_loaded_samples)]->channels); ++ch) 
             {                
                 interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
@@ -635,7 +615,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
                 plugin_data->data[n]->modulex_current_sample[ch] = (plugin_data->sample[ch]);
                 
                 
-                if((plugin_data->sample_channels[(plugin_data->current_sample)]) == 1)
+                if((plugin_data->wavpool_items[(plugin_data->current_sample)]->channels) == 1)
                 {
                     plugin_data->data[n]->modulex_current_sample[1] = plugin_data->sample[0];
                     break;
@@ -723,10 +703,10 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
     }
     
-    if (pthread_mutex_lock(&plugin_data->mutex))
+    /*if (pthread_mutex_lock(&plugin_data->mutex))
     {
 	return;
-    }
+    }*/
     
     plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
     
@@ -764,8 +744,13 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
                         plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
 
-                        plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
-                        plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+                        plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
+                                ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) * 
+                                ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+                        
+                        plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
+                                ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) * 
+                                ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
 
                         /* If loop mode is enabled for this sample, set the sample end to be the same as the
                            loop end.  Then, in the main loop, we'll recalculate sample_end to be the real sample end once
@@ -773,16 +758,24 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                            in the main loop */
                         if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->loaded_samples[i])]))) == 0)
                         {
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
+                                    ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 
+                                    ((int)(((float)((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 5)) * 
+                                    ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
                         }
                         else
                         {
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
+                                    ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 
+                                    ((int)(((float)((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 5)) * 
+                                    ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
                         }
 
-                        if((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) > ((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]))))
+                        if((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) > 
+                                ((float)((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length))))
                         {
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (float)(plugin_data->sampleCount[(plugin_data->loaded_samples[i])]);
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = 
+                                    (float)(plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length);
                         }
 
                         plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])]))
@@ -979,334 +972,12 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             plugin_data->output[1][i] += f_temp_sample1;
         }            
     }
-
-    if(((plugin_data->preview_sample_array_index) < (plugin_data->preview_length)) &&
-            ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
-    {
-        if((plugin_data->sampleNo) == 0)  //Workaround for the last previewed sample playing on project startup.  This will be removed when the preview functionality gets reworked
-        {
-            plugin_data->preview_sample_array_index = plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT];
-            plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0';
-        }
-        else
-        {
-            for(i = 0; i < sample_count; i++)
-            {
-                plugin_data->output[0][i] += plugin_data->mono_fx_buffers[0][0][i];
-                plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
-
-                if(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)])
-                {
-                    //Add the previewing sample
-                    plugin_data->output[0][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                                (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
-
-                    if(plugin_data->sample_channels[(EUPHORIA_MAX_SAMPLE_COUNT)] > 1)
-                    {
-                        plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                                (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
-                    }
-                    else
-                    {
-                        plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                                (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
-                    }
-
-                    plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + (plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT]);
-
-                    if((plugin_data->preview_sample_array_index) >= (plugin_data->preview_length))
-                    {
-                        plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0';
-                        break;
-                    }
-                }
-            }
-        }
-    }
     
     plugin_data->sampleNo += sample_count;
-    pthread_mutex_unlock(&plugin_data->mutex);
+    //pthread_mutex_unlock(&plugin_data->mutex);
 }
 
-static char * PYINST_configure_message(const char *fmt, ...)
-{
-    va_list args;
-    char buffer[256];
-
-    va_start(args, fmt);
-    vsnprintf(buffer, 256, fmt, args);
-    va_end(args);
-    return strdup(buffer);
-}
-
-static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, int a_index)
-{   
-    /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
-    
-    if(a_index != EUPHORIA_MAX_SAMPLE_COUNT)
-    {
-        int i_loaded_samples = 0;
-        plugin_data->sample_is_loaded = 0;
-
-        while((i_loaded_samples) < (plugin_data->loaded_samples_count))
-        {
-            if((plugin_data->loaded_samples[(i_loaded_samples)]) == a_index)
-            {
-                //printf("Sample index %i is already loaded.\n", (i_loaded_samples));
-                plugin_data->sample_is_loaded = 1;
-                break;
-            }
-            i_loaded_samples++;
-        }
-
-        if((plugin_data->sample_is_loaded) == 0)
-        {
-            plugin_data->loaded_samples[(plugin_data->loaded_samples_count)] = a_index;
-            plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) + 1;
-            printf("plugin_data->loaded_samples_count == %i\n", (plugin_data->loaded_samples_count));
-        }
-    }
-    
-    SF_INFO info;
-    SNDFILE *file;
-    size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
-        
-    tmpOld[0] = 0;
-    tmpOld[1] = 0;
-    
-    info.format = 0;
-    file = sf_open(path, SFM_READ, &info);
-
-    if (!file) {
-
-	const char *filename = strrchr(path, '/');
-	if (filename) ++filename;
-	else filename = path;
-        
-	if (!file) {
-	    return PYINST_configure_message
-		("error: unable to load sample file '%s'", path);
-	}
-    }
-    
-    if (info.frames > EUPHORIA_FRAMES_MAX) {
-	return PYINST_configure_message
-	    ("error: sample file '%s' is too large (%ld frames, maximum is %ld)",
-	     path, info.frames, EUPHORIA_FRAMES_MAX);
-    }
-
-    //!!! complain also if more than 2 channels
-    
-    samples = info.frames;
-
-    tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
-    sf_readf_float(file, tmpFrames, info.frames);
-    sf_close(file);
-
-    if ((int)(info.samplerate) != (int)(plugin_data->sampleRate)) 
-    {	
-	double ratio = (double)(info.samplerate)/(double)(plugin_data->sampleRate);
-	
-        plugin_data->sample_rate_ratios[(a_index)] = (float)ratio;
-    }
-    else
-    {
-        plugin_data->sample_rate_ratios[(a_index)] = 1.0f;
-    }
-           
-    int f_adjusted_channel_count = 1;
-    if(info.channels >= 2)    
-    {
-        f_adjusted_channel_count = 2;
-    }
-
-    int f_actual_array_size = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS + 1 + EUPHORIA_Sample_Padding);
-
-    if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
-    {
-        printf("Call to posix_memalign failed for tmpSamples[0]\n");
-        return NULL;
-    }
-    if(f_adjusted_channel_count > 1)
-    {
-        if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
-        {
-            printf("Call to posix_memalign failed for tmpSamples[1]\n");
-            return NULL;
-        }
-    }
-    
-    int f_i, j;
-    
-    for(f_i = 0; f_i < EUPHORIA_CHANNEL_COUNT; f_i++)
-    {
-        v_dco_reset(plugin_data->mono_modules->dc_offset_filters[f_i]);
-    }    
-    
-    //For performing a 5ms fadeout of the sample, for preventing clicks
-    float f_fade_out_dec = (1.0f/(float)(info.samplerate))/(0.005);
-    int f_fade_out_start = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2) - ((int)(0.005f * ((float)(info.samplerate))));
-    float f_fade_out_envelope = 1.0f;
-    float f_temp_sample = 0.0f;
-        
-    for(f_i = 0; f_i < f_actual_array_size; f_i++)
-    {   
-        if((f_i > EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2) && (f_i < (samples + EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2))) // + Sampler_Sample_Padding)))
-        {
-            if(f_i >= f_fade_out_start)
-            {
-                if(f_fade_out_envelope <= 0.0f)
-                {
-                    f_fade_out_dec = 0.0f;
-                }
-                
-                f_fade_out_envelope -= f_fade_out_dec;
-            }
-            
-	    for (j = 0; j < f_adjusted_channel_count; ++j) 
-            {
-                f_temp_sample = //(tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]);
-                        f_dco_run(plugin_data->mono_modules->dc_offset_filters[j], 
-                        (tmpFrames[(f_i - EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]));
-
-                if(f_i >= f_fade_out_start)
-                {
-                    tmpSamples[j][f_i] = f_temp_sample * f_fade_out_envelope;
-                }
-                else
-                {
-                    tmpSamples[j][f_i] = f_temp_sample;
-                }
-            }
-        }
-        else
-        {
-            tmpSamples[0][f_i] = 0.0f;
-            if(f_adjusted_channel_count > 1)
-            {
-                tmpSamples[1][f_i] = 0.0f;
-            }
-        }            
-    }
-        
-    free(tmpFrames);
-    
-    pthread_mutex_lock(&plugin_data->mutex);
-    
-    if(plugin_data->sampleData[0][(a_index)])
-    {
-        tmpOld[0] = plugin_data->sampleData[0][(a_index)];
-    }
-    
-    if(plugin_data->sampleData[1][(a_index)])
-    {
-        tmpOld[1] = plugin_data->sampleData[1][(a_index)];
-    }
-    
-    plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
-    
-    if(f_adjusted_channel_count > 1)
-    {
-        plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
-    }
-    else
-    {
-        plugin_data->sampleData[1][(a_index)] = 0;
-    }
-    
-    plugin_data->sampleCount[(a_index)] = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + EUPHORIA_Sample_Padding - 20);  //-20 to ensure we don't read past the end of the array
-    
-    plugin_data->sample_channels[(a_index)] = f_adjusted_channel_count;
-    
-    sprintf(plugin_data->sample_paths[(a_index)], "%s", path);
-        
-    //The last index is reserved for previewing samples for the UI;
-    //Reset the array indexer so it will play from the beginning.
-    if(a_index == EUPHORIA_MAX_SAMPLE_COUNT)
-    {
-        plugin_data->preview_sample_array_index = (float)(EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + EUPHORIA_Sample_Padding);
-        plugin_data->preview_length = (float)(plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]);
-    }
-    
-    pthread_mutex_unlock(&plugin_data->mutex);
-    
-    if (tmpOld[0]) 
-    {
-        free(tmpOld[0]);
-    }
-    
-    if (tmpOld[1]) 
-    {
-        free(tmpOld[1]);
-    }
-    
-    return NULL;
-}
-
-static char *c_euphoria_clear(t_euphoria *plugin_data, int a_index)
-{
-    plugin_data->sample_paths[a_index][0] = '\0';
-    
-    if(a_index != EUPHORIA_MAX_SAMPLE_COUNT)
-    {
-        if((plugin_data->loaded_samples_count) == 0)
-        {
-            return NULL;
-        }
-
-        /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
-        plugin_data->i_loaded_samples = 0;
-        plugin_data->sample_is_loaded = 0;
-
-        while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
-        {
-            if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (a_index))
-            {
-                printf("Sample index %i is loaded, clearing.\n", (plugin_data->i_loaded_samples));
-                plugin_data->sample_is_loaded = 1;
-                break;
-            }
-            plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-        }
-
-        if((plugin_data->sample_is_loaded) == 0)
-        {        
-            return NULL;
-        }
-        else
-        {
-            if((plugin_data->loaded_samples_count) == 1)
-            {
-                plugin_data->loaded_samples_count = 0;
-            }
-            else
-            {
-                plugin_data->loaded_samples[(plugin_data->i_loaded_samples)] = (plugin_data->loaded_samples[(plugin_data->loaded_samples_count) - 1]);            
-                plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) - 1;        
-            }        
-        }
-    }
-    float *tmpOld[2];    
-    
-    pthread_mutex_lock(&plugin_data->mutex);
-
-    tmpOld[0] = plugin_data->sampleData[0][(a_index)];
-    tmpOld[1] = plugin_data->sampleData[1][(a_index)];
-    plugin_data->sampleData[0][(a_index)] = 0;
-    plugin_data->sampleData[1][(a_index)] = 0;
-    plugin_data->sampleCount[(a_index)] = 0;
-
-    pthread_mutex_unlock(&plugin_data->mutex);
-    
-    if (tmpOld[0]) free(tmpOld[0]);
-    if (tmpOld[1]) free(tmpOld[1]);
-    
-    return NULL;
-}
-
-/* Call samplerLoad for all samples.*/
-static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths)
+static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pthread_mutex_t * a_mutex)
 {       
     sprintf(plugin_data->sample_files, "%s", paths);
     
@@ -1314,44 +985,33 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths)
     int f_samples_loaded_count = 0;
     int f_current_string_index = 0;
     
-    char * f_result_string = (char*)malloc(sizeof(char) * 1024);
+    t_wav_pool_item * f_wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];
+    
+    char * f_result_string = (char*)malloc(sizeof(char) * 2048);
     
     while (f_samples_loaded_count < EUPHORIA_TOTAL_SAMPLE_COUNT)
-    {    
-        if(paths[f_index] == '\0')
-        {
-            break;
-        }
-        else if(paths[f_index] == EUPHORIA_FILES_STRING_DELIMITER)
+    {
+        if(paths[f_index] == EUPHORIA_FILES_STRING_DELIMITER || paths[f_index] == '\0')
         {
             f_result_string[f_current_string_index] = '\0';
             
             if(f_current_string_index == 0)
             {
-                c_euphoria_clear(plugin_data, f_samples_loaded_count);
-            }
-            else if(strcmp(f_result_string, (plugin_data->sample_paths[f_samples_loaded_count])) != 0)
-            {
-                c_euphoria_sampler_load(plugin_data,f_result_string,f_samples_loaded_count);                
-            }
-            f_current_string_index = 0;
-            f_samples_loaded_count++;
-        }
-        else if(paths[f_index] == EUPHORIA_FILES_STRING_RELOAD_DELIMITER)
-        {            
-            f_result_string[f_current_string_index] = '\0';
-            
-            if(f_current_string_index == 0)
-            {
-                c_euphoria_clear(plugin_data, f_samples_loaded_count);
+                f_wavpool_items[f_samples_loaded_count] = 0;
             }
             else
             {
-                c_euphoria_sampler_load(plugin_data,f_result_string,f_samples_loaded_count);
+                f_wavpool_items[f_samples_loaded_count] = wavpool_get_func(atoi(f_result_string));
             }
+            
             f_current_string_index = 0;
             f_samples_loaded_count++;
-        }
+            
+            if(paths[f_index] == '\0')
+            {
+                break;
+            }
+        }        
         else
         {
             f_result_string[f_current_string_index] = paths[f_index];
@@ -1362,23 +1022,28 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths)
     }
     
     free(f_result_string);
+            
+    pthread_mutex_lock(a_mutex);
+    
+    int f_i = 0;
+    while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
+    {
+        plugin_data->wavpool_items[f_i] = f_wavpool_items[f_i];
+        f_i++;
+    }
+    
+    pthread_mutex_unlock(a_mutex);
     
     return NULL;
 }
 
-char *c_euphoria_configure(PYFX_Handle instance, const char *key, const char *value)
+char *c_euphoria_configure(PYFX_Handle instance, const char *key, const char *value, pthread_mutex_t * a_mutex)
 {
     t_euphoria *plugin_data = (t_euphoria *)instance;
 
-    if (!strcmp(key, "load")) {	
-        return c_euphoria_load_all(plugin_data, value);    
-    /*} else if (!strcmp(key, PYINST_PROJECT_DIRECTORY_KEY)) {
-	if (plugin_data->projectDir) free(plugin_data->projectDir);
-	plugin_data->projectDir = strdup(value);
-	return 0;*/
-    } else if (!strcmp(key, "lastdir")) {
-        //do nothing, this is only so the plugin host will recall the last sample directory
-        return NULL;
+    if (!strcmp(key, "load")) 
+    {	
+        return c_euphoria_load_all(plugin_data, value, a_mutex);    
     }
 
     return strdup("error: unrecognized configure key");

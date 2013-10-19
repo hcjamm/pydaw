@@ -1177,7 +1177,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 break;
         }        
         
-        v_pydaw_plugin_configure_handler(f_instance, f_key, f_message);
+        v_pydaw_plugin_configure_handler(f_instance, f_key, f_message, &a_pydaw_data->main_mutex);
         //f_instance->pluginPortUpdated[f_control_in] = 1;
         //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);

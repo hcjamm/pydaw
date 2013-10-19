@@ -100,10 +100,9 @@ typedef struct {
     
     int         i_selected_sample;
     int          channels;
-    int         sample_channels[EUPHORIA_TOTAL_SAMPLE_COUNT];
     float       sample_last_interpolated_value[EUPHORIA_MAX_SAMPLE_COUNT];
-    float       *sampleData[2][EUPHORIA_TOTAL_SAMPLE_COUNT];
-    size_t       sampleCount[EUPHORIA_TOTAL_SAMPLE_COUNT];        
+    t_wav_pool_item * wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];
+    //size_t       sampleCount[EUPHORIA_TOTAL_SAMPLE_COUNT];
     float       sampleStartPos[EUPHORIA_MAX_SAMPLE_COUNT];         
     float       sampleEndPos[EUPHORIA_MAX_SAMPLE_COUNT];
     float       sampleLoopStartPos[EUPHORIA_MAX_SAMPLE_COUNT];   //There is no sampleLoopEndPos because the regular sample end is re-used for this purpose
@@ -129,11 +128,6 @@ typedef struct {
         
     float adjusted_base_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
     
-    //For sample preview:
-    float preview_sample_array_index;
-    float preview_sample_max_length;  //Used to set the maximum time to preview a sample to an arbitrary number of samples
-    float preview_length;
-    
     t_lin_interpolater * linear_interpolator;
     
     /*TODO:  Deprecate these 2?*/
@@ -147,14 +141,12 @@ typedef struct {
     
     int          sampleRate;
     float fs;    //From Ray-V
-    float ratio; //Used per-sample;  If voices are ever multithreaded, this will need to be widened...
-    float sample_rate_ratios[EUPHORIA_TOTAL_SAMPLE_COUNT];
-    
+    float ratio; //Used per-sample;
+        
     t_voc_voices * voices;
     int         velocities[EUPHORIA_POLYPHONY];    
     t_int_frac_read_head * sample_read_heads[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];
     long         sampleNo;
-    char*       sample_paths[EUPHORIA_TOTAL_SAMPLE_COUNT];    
     char*       sample_files;
     
     float sample[EUPHORIA_CHANNEL_COUNT];
@@ -169,7 +161,7 @@ typedef struct {
     int active_polyfx[EUPHORIA_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];
     int active_polyfx_count[EUPHORIA_POLYPHONY];
     
-    pthread_mutex_t mutex;
+    //pthread_mutex_t mutex;
     t_euphoria_mono_modules * mono_modules;
     t_amp * amp_ptr;
     t_pit_pitch_core * smp_pit_core;

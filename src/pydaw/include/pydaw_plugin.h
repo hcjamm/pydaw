@@ -14,6 +14,8 @@ GNU General Public License for more details.
 #ifndef PYDAW_PLUGIN_HEADER_INCLUDED
 #define PYDAW_PLUGIN_HEADER_INCLUDED
 
+#include <pthread.h>
+
 #define PYFX_VERSION "1.1"
 #define PYFX_VERSION_MAJOR 1
 #define PYFX_VERSION_MINOR 1
@@ -487,7 +489,8 @@ typedef struct _PYINST_Descriptor {
      */
     char *(*configure)(PYFX_Handle Instance,
 		       const char *Key,
-		       const char *Value);
+		       const char *Value,
+                       pthread_mutex_t * a_mutex);
 
     #define PYINST_RESERVED_CONFIGURE_PREFIX "DSSI:"
     #define PYINST_GLOBAL_CONFIGURE_PREFIX "GLOBAL:"

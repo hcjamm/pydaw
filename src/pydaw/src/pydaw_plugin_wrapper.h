@@ -21,7 +21,6 @@ extern "C" {
 #include "../include/pydaw_plugin.h"
 #include "pydaw.h"
 #include <lo/lo.h>
-#include <dlfcn.h>
 #include <math.h>
 #include <stdlib.h>
 
@@ -68,7 +67,7 @@ typedef struct st_pydaw_plugin
 void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
 #endif
 
-int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, const char *value)
+int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, const char *value, pthread_mutex_t * a_mutex)
 {    
     char * message = 0;
         
@@ -80,7 +79,7 @@ int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, 
     
     if (instance->descriptor->configure) 
     {
-        message = instance->descriptor->configure(instance->PYFX_handle, key, value);
+        message = instance->descriptor->configure(instance->PYFX_handle, key, value, a_mutex);
         if (message) 
         {
             printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);

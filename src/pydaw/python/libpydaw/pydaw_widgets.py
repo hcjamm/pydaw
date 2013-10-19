@@ -2636,6 +2636,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.files_string = ""
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             if self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX) is not None:
+                #self.pydaw_project.
                 self.files_string += str(self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX).text())
             if f_i == a_index:
                 self.files_string += pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER
@@ -2658,13 +2659,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.resizeColumnsToContents()
 
     def reloadSample(self):
-        path = str(self.file_selector.file_path.text())
-        if path.strip() != "":
-            self.find_selected_radio_button()
-            self.generate_files_string((self.selected_row_index))
-            self.configure_plugin("load", self.files_string)
-            self.sample_graph.clear_drawn_items()
-            self.set_sample_graph()
+        QtGui.QMessageBox.warning(self.widget, "Error", "TODO:  Fix this again...")
+        #path = str(self.file_selector.file_path.text())
+        #if path.strip() != "":
+        #    self.find_selected_radio_button()
+        #    self.generate_files_string((self.selected_row_index))
+        #    self.configure_plugin("load", self.files_string)
+        #    self.sample_graph.clear_drawn_items()
+        #    self.set_sample_graph()
 
 
     def selectionChanged(self):

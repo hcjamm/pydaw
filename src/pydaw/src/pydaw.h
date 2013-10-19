@@ -398,6 +398,62 @@ t_wav_pool_item * g_pydaw_wavpool_item_get(int a_uid)
     return g_wav_pool_get_item_by_uid(pydaw_data->wav_pool, a_uid);
 }
 
+/*OSC Handlers*/
+
+int pydaw_osc_control_handler(t_pydaw_plugin *instance, lo_arg **argv)
+{
+    int port = argv[0]->i;
+    PYFX_Data value = argv[1]->f;
+
+    if (port < 0 || port > instance->descriptor->PYFX_Plugin->PortCount) {
+	fprintf(stderr, "PyDAW: OSC: port number (%d) is out of range\n", port);
+	return 0;
+    }
+    if (instance->pluginPortControlInNumbers[port] == -1) {
+	fprintf(stderr, "PyDAW: OSC: port %d is not a control in\n", port);
+	return 0;
+    }
+    instance->pluginControlIns[instance->pluginPortControlInNumbers[port]] = value;
+        
+    return 0;
+}
+
+int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
+{
+    const char *key = (const char *)&argv[0]->s;
+    const char *value = (const char *)&argv[1]->s;
+    char *message;
+        
+    if(!strcmp(key, "load"))
+    {
+        instance->euphoria_load_set = 1;
+        strcpy(instance->euphoria_load, value);
+    }
+
+    if (instance->descriptor->configure) 
+    {
+        message = instance->descriptor->configure(instance->PYFX_handle, key, value, &pydaw_data->main_mutex);
+        if (message) 
+        {
+            printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);
+            free(message);
+        }	    
+    }
+
+    return 0;
+}
+
+int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address source)
+{    
+    return 0;
+}
+
+int pydaw_osc_exiting_handler(t_pydaw_plugin *instance, lo_arg **argv)
+{
+    return 0;
+}
+
+/*End OSC Handlers*/
 void v_pysong_free(t_pysong * a_pysong)
 {
     int f_i = 0;
@@ -3751,7 +3807,9 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
         
         if(f_instance->euphoria_load_set)
         {
-            char * message = f_instance->descriptor->configure(f_instance->PYFX_handle, "load", f_instance->euphoria_load);
+            char * message = f_instance->descriptor->configure(f_instance->PYFX_handle, "load", 
+                    f_instance->euphoria_load, &a_pydaw_data->main_mutex);
+            
             if (message) 
             {
                 printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_instance->euphoria_load, message);
