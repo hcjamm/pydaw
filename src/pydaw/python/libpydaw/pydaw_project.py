@@ -1503,11 +1503,11 @@ class pydaw_item:
             else:
                 f_event_arr = f_event_str.split("|")
                 if f_event_arr[0] == "n":
-                    f_result.add_note(pydaw_note.from_arr(f_event_arr))
+                    f_result.add_note(pydaw_note.from_arr(f_event_arr[1:]))
                 elif f_event_arr[0] == "c":
-                    f_result.add_cc(pydaw_cc.from_arr(f_event_arr))
+                    f_result.add_cc(pydaw_cc.from_arr(f_event_arr[1:]))
                 elif f_event_arr[0] == "p":
-                    f_result.add_pb(pydaw_pitchbend.from_arr(f_event_arr))
+                    f_result.add_pb(pydaw_pitchbend.from_arr(f_event_arr[1:]))
         return f_result
 
     def __init__(self):
@@ -1566,13 +1566,13 @@ class pydaw_note:
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_note(a_arr[1], a_arr[2], a_arr[3], a_arr[4])
+        f_result = pydaw_note(*a_arr)
         return f_result
 
     @staticmethod
     def from_str(a_str):
         f_arr = a_str.split("|")
-        return pydaw_note.from_arr(f_arr)
+        return pydaw_note.from_arr(f_arr[1:])
 
     def __str__(self):
         return "n|%s|%s|%s|%s\n" % (self.start, self.length, self.note_num, self.velocity)
@@ -1603,13 +1603,13 @@ class pydaw_cc:
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3], a_arr[4])
+        f_result = pydaw_cc(*a_arr)
         return f_result
 
     @staticmethod
     def from_str(a_str):
         f_arr = a_str.split("|")
-        return pydaw_cc.from_arr(f_arr)
+        return pydaw_cc.from_arr(f_arr[1:])
 
     def clone(self):
         return pydaw_cc.from_str(str(self))
@@ -1638,13 +1638,13 @@ class pydaw_pitchbend:
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_pitchbend(a_arr[1], a_arr[2])
+        f_result = pydaw_pitchbend(*a_arr)
         return f_result
 
     @staticmethod
     def from_str(a_str):
         f_arr = a_str.split("|")
-        return pydaw_pitchbend.from_arr(f_arr)
+        return pydaw_pitchbend.from_arr(f_arr[1:])
 
     def clone(self):
         return pydaw_pitchbend.from_str(str(self))
@@ -1724,7 +1724,7 @@ class pydaw_bus:
 
 class pydaw_audio_tracks:
     def add_track(self, a_index, a_track):
-        self.tracks[a_index] = a_track
+        self.tracks[int(a_index)] = a_track
 
     def __init__(self):
         self.tracks = {}
@@ -1743,19 +1743,26 @@ class pydaw_audio_tracks:
         for f_line in f_arr:
             if not f_line == pydaw_terminating_char:
                 f_line_arr = f_line.split("|")
-                f_result.add_track(int(f_line_arr[0]), pydaw_audio_track(int_to_bool(f_line_arr[1]), int_to_bool(f_line_arr[2]), int(f_line_arr[3]), f_line_arr[4], int(f_line_arr[5])))
+                f_result.add_track(f_line_arr[0], pydaw_audio_track(*f_line_arr[1:]))
         return f_result
 
 class pydaw_audio_track:
     def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_bus_num=0):
         self.name = str(a_name)
-        self.solo = bool(a_solo)
-        self.mute = bool(a_mute)
+        if isinstance(a_solo, bool):
+            self.solo = a_solo
+        else:
+            self.solo = int_to_bool(a_solo)
+        if isinstance(a_mute, bool):
+            self.mute = a_mute
+        else:
+            self.mute = int_to_bool(a_mute)
         self.vol = int(a_vol)
         self.bus_num = int(a_bus_num)
 
     def __str__(self):
-        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + str(self.vol) + "|" + self.name + "|" + str(self.bus_num) + "\n"
+        return "%s|%s|%s|%s|%s\n" % \
+        (bool_to_int(self.solo), bool_to_int(self.mute), self.vol, self.name, self.bus_num)
 
 class pydaw_audio_region:
     def __init__(self):
@@ -2034,7 +2041,8 @@ class pydaw_cc_map_item:
         self.modulex_port = int(a_modulex_port)
 
     def __str__(self):
-        return str(self.effects_only) + "|" + str(self.rayv_port) + "|" + str(self.wayv_port) + "|" + str(self.euphoria_port) + "|" + str(self.modulex_port) + "\n"
+        return "%s|%s|%s|%s|%s\n" % \
+        (self.effects_only, self.rayv_port, self.wayv_port, self.euphoria_port, self.modulex_port)
 
 class pydaw_cc_map:
     def __init__(self):
