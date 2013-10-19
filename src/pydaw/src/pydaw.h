@@ -3994,6 +3994,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
     sprintf(a_pydaw_data->audiofx_folder, "%saudiofx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->wav_pool->samples_folder, "%s", a_pydaw_data->samples_folder);
     sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/", a_pydaw_data->project_folder);    
     sprintf(a_pydaw_data->recorded_items_file, "%srecorded_items", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->recorded_regions_file, "%srecorded_regions", a_pydaw_data->project_folder);    

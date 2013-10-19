@@ -37,7 +37,7 @@ extern "C" {
     
 typedef struct
 {
-    char path[1024];
+    char path[2048];
     int uid;
     float * samples[2];
     float ratio_orig;
@@ -54,7 +54,7 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
     {
         return 0;
     }
-    
+        
     f_result->uid = a_uid;
                 
     SF_INFO info;
@@ -249,6 +249,7 @@ typedef struct
     float sample_rate;
     int count;
     t_wav_pool_item * items[PYDAW_MAX_WAV_POOL_ITEM_COUNT];
+    char samples_folder[2048];  //This must be set when opening a project
 }t_wav_pool;
 
 t_wav_pool * g_wav_pool_get(float a_sr)
@@ -269,7 +270,9 @@ t_wav_pool * g_wav_pool_get(float a_sr)
 
 void v_wav_pool_add_item(t_wav_pool* a_wav_pool, int a_uid, char * a_file_path)
 {
-    t_wav_pool_item * f_result = g_wav_pool_item_get(a_uid, a_file_path, a_wav_pool->sample_rate);
+    char f_path[2048];
+    sprintf(f_path, "%s/%s", a_wav_pool->samples_folder, a_file_path);
+    t_wav_pool_item * f_result = g_wav_pool_item_get(a_uid, f_path, a_wav_pool->sample_rate);
     a_wav_pool->items[a_wav_pool->count] = f_result;
     a_wav_pool->count++;
 }

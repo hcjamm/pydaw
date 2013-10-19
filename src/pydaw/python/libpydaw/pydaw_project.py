@@ -652,6 +652,12 @@ class pydaw_project:
             return f_uid_dict.get_uid_by_name(f_path)
         else:
             f_uid = f_uid_dict.add_new_item(f_path, a_uid)
+            f_cp_path = "%s/%s" % (self.samples_folder, f_path)
+            f_cp_dir = os.path.dirname(f_cp_path)
+            if not os.path.isdir(f_cp_dir):
+                os.makedirs(f_cp_dir)
+            if not os.path.isfile(f_cp_path):
+                os.system('cp "%s" "%s"' % (f_path, f_cp_path))
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
             self.commit("Add " + str(f_path) + " to pool")
@@ -1876,17 +1882,8 @@ class pydaw_audio_item:
         self.crispness = int(a_crispness) #This is specific to Rubberband
 
     def set_pos(self, a_bar, a_beat):
-        f_bar = int(a_bar)
-        f_beat = float(a_beat)
-        if self.end_mode == 0:
-            pass
-        elif self.end_mode == 1:
-            f_bar_diff = f_bar - self.start_bar
-            f_beat_diff = f_beat - self.start_beat
-            self.end_bar += f_bar_diff
-            self.end_beat += f_beat_diff
-        self.start_bar = f_bar
-        self.start_beat = f_beat
+        self.start_bar = int(a_bar)
+        self.start_beat = round(float(a_beat), 4)
 
     def clone(self):
         """ Using and abusing the functions that are already there... """
