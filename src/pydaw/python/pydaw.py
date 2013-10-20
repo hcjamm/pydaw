@@ -1941,6 +1941,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.dropEvent = self.sceneDropEvent
         self.scene.dragEnterEvent = self.sceneDragEnterEvent
         self.scene.dragMoveEvent = self.sceneDragMoveEvent
+        self.scene.contextMenuEvent = self.sceneContextMenuEvent
         self.scene.setBackgroundBrush(QtGui.QColor(90, 90, 90))
         self.scene.selectionChanged.connect(self.scene_selection_changed)
         self.setAcceptDrops(True)
@@ -1988,6 +1989,30 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 self.scale(self.last_x_scale, 1.0)
             self.horizontalScrollBar().setSliderPosition(0)
 
+    def sceneContextMenuEvent(self, a_event):
+        if self.check_running():
+            return
+        QtGui.QGraphicsScene.contextMenuEvent(self.scene, a_event)
+        self.context_menu_pos = a_event.scenePos()
+        f_menu = QtGui.QMenu()
+        f_paste_action = QtGui.QAction("Paste file path from clipboard", self)
+        f_paste_action.triggered.connect(self.on_scene_paste_paths)
+        f_menu.addAction(f_paste_action)
+        f_menu.exec_(a_event.screenPos())
+
+    def on_scene_paste_paths(self):
+        f_clipboard = QtGui.QApplication.clipboard()
+        f_path = f_clipboard.text()
+        if f_path is None:
+            QtGui.QMessageBox.warning(self, "Error", "No text in the system clipboard")
+        else:
+            f_path = str(f_path)
+            if os.path.isfile(f_path):
+                self.add_items(self.context_menu_pos.x(), self.context_menu_pos.y(), [f_path])
+            else:
+                f_path = f_path[100:]
+                QtGui.QMessageBox.warning(self, "Error", "%s is not a valid file" % (f_path,))
+
     def scene_selection_changed(self):
         f_selected_items = []
         global global_current_audio_item_index
@@ -1995,15 +2020,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_item.set_brush()
             if f_item.isSelected():
                 f_selected_items.append(f_item)
-        #if_end_mode_checked = True
-        #if len(f_selected_items) > 1:
-        #    global_current_audio_item_index = None
-        #    this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
-        #    f_end_mode_val = f_selected_items[0].audio_item.end_mode
-        #    for f_item in f_selected_items[1:]:
-        #        if f_item.audio_item.end_mode != f_end_mode_val:
-        #            f_end_mode_checked = False
-        #            break
         if len(f_selected_items) == 1:
             global_current_audio_item_index = f_selected_items[0].track_num
             this_audio_items_viewer_widget.modulex.widget.setEnabled(True)
@@ -2015,7 +2031,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
         this_audio_items_viewer_widget.set_paif_buttons_enabled(len(f_selected_items))
 
-        #this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
         f_timestretch_checked = True
         if len( f_selected_items) > 1:
             f_time_stretch_mode_val = f_selected_items[0].audio_item.time_stretch_mode
@@ -2061,11 +2076,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         this_audio_item_editor_widget.reversed_checkbox.setChecked(f_reverse_checked)
 
         if len(f_selected_items) > 0:
-            #if f_end_mode_checked:
-            #    if f_selected_items[0].audio_item.end_mode == 1:
-            #        this_audio_item_editor_widget.end_musical_time.setChecked(True)
-            #    else:
-            #        this_audio_item_editor_widget.end_sample_length.setChecked(True)
             if f_timestretch_checked:
                 this_audio_item_editor_widget.timestretch_mode.setCurrentIndex(f_selected_items[0].audio_item.time_stretch_mode)
 
@@ -2097,15 +2107,25 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def sceneDragMoveEvent(self, a_event):
         a_event.setDropAction(QtCore.Qt.CopyAction)
 
-    def sceneDropEvent(self, a_event):
+    def check_running(self):
         if pydaw_global_current_region_is_none() or this_transport.is_playing or this_transport.is_recording:
-            return
+            return True
         if global_pydaw_subprocess is None:
             QtGui.QMessageBox.warning(this_main_window, "Error", "The audio engine is not running, audio items cannot be added.\n" +
             "If the audio engine crashed, you will need to restart PyDAW.")
+            return True
+        return False
+
+    def sceneDropEvent(self, a_event):
+        if len(global_audio_items_to_drop) == 0:
             return
         f_x = a_event.scenePos().x()
         f_y = a_event.scenePos().y()
+        self.add_items(f_x, f_y, global_audio_items_to_drop)
+
+    def add_items(self, f_x, f_y, a_item_list):
+        if self.check_running():
+            return
         if global_current_region.region_length_bars == 0:
             f_max_start = 8
         else:
@@ -2125,10 +2145,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
 
         f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
-        if len(global_audio_items_to_drop) == 0:
-            return
 
-        for f_file_name in global_audio_items_to_drop:
+        for f_file_name in a_item_list:
             f_file_name_str = str(f_file_name)
             if not f_file_name_str is None and not f_file_name_str == "":
                 f_index = f_items.get_next_index()

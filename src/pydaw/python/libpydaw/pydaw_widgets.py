@@ -486,8 +486,12 @@ class pydaw_note_selector_widget:
         return self.selected_note
 
 class pydaw_file_select_widget:
-    def __init__(self, a_sample_dir):
-        self.sample_dir = str(a_sample_dir)
+    """
+    :a_load_callback : function to call when loading that accepts a single argument
+    of [list of paths,...]
+    """
+    def __init__(self, a_load_callback):
+        self.load_callback = a_load_callback
         self.layout =  QtGui.QHBoxLayout()
         self.open_button =  QtGui.QPushButton("Open")
         self.open_button.setMaximumWidth(60)
@@ -497,22 +501,21 @@ class pydaw_file_select_widget:
         self.copy_to_clipboard.setToolTip("Copy file path to clipboard")
         self.copy_to_clipboard.pressed.connect(self.copy_to_clipboard_pressed)
         self.copy_to_clipboard.setMaximumWidth(60)
+        self.paste_from_clipboard =  QtGui.QPushButton("Paste")
+        self.paste_from_clipboard.setToolTip("Paste file path from clipboard")
+        self.paste_from_clipboard.pressed.connect(self.paste_from_clipboard_pressed)
+        self.paste_from_clipboard.setMaximumWidth(60)
         self.reload_button =  QtGui.QPushButton("Reload")
         self.reload_button.setMaximumWidth(60)
         self.file_path =  QtGui.QLineEdit()
         self.file_path.setReadOnly(True)
         self.file_path.setMinimumWidth(360)
         self.last_directory = ("")
-        self.editor_path = ("audacity")
-        f_global_config_path = pydaw_util.global_pydaw_home + "/self.global_wave_editor.txt"
-        if os.path.exists(f_global_config_path):
-            self.editor_path = pydaw_util.pydaw_read_file_text(f_global_config_path)
-        else:
-            pydaw_util.pydaw_write_file_text(f_global_config_path, "audacity")
         self.layout.addWidget(self.file_path)
         self.layout.addWidget(self.clear_button)
         self.layout.addWidget(self.open_button)
         self.layout.addWidget(self.copy_to_clipboard)
+        self.layout.addWidget(self.paste_from_clipboard)
         self.layout.addWidget(self.reload_button)
 
     def open_button_pressed(self):
@@ -543,6 +546,21 @@ class pydaw_file_select_widget:
         if f_text != "":
             f_clipboard = QtGui.QApplication.clipboard()
             f_clipboard.setText(f_text)
+
+    def paste_from_clipboard_pressed(self):
+        f_clipboard = QtGui.QApplication.clipboard()
+        f_text = f_clipboard.text()
+        if f_text is None:
+            QtGui.QMessageBox.warning(self.paste_from_clipboard, "Error", "No file path in the system clipboard.")
+        else:
+            f_text = str(f_text)
+            if os.path.isfile(f_text):
+                self.set_file(f_text)
+                self.load_callback([f_text])
+            else:
+                f_str = f_text[100:]  #Don't show more than 100 chars just in case somebody had an entire book copied to the clipboard
+                QtGui.QMessageBox.warning(self.paste_from_clipboard, "Error", "%s does not exist." % (f_str,))
+
 
 
 class pydaw_file_browser_widget:
@@ -2197,7 +2215,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.sample_table.resizeRowsToContents()
 
-        self.file_selector =  pydaw_file_select_widget(a_project.samples_folder)
+        self.file_selector = pydaw_file_select_widget(self.load_files)
         self.file_selector.open_button.pressed.connect(self.fileSelect)
         self.file_selector.clear_button.pressed.connect(self.clearFile)
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
@@ -2315,7 +2333,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
         self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_left_hspacer)
-        self.view_file_selector =  pydaw_file_select_widget(a_project.samples_folder)
+        self.view_file_selector =  pydaw_file_select_widget(self.load_files)
         self.view_file_selector.open_button.pressed.connect(self.fileSelect)
         self.view_file_selector.clear_button.pressed.connect(self.clearFile)
         self.view_file_selector.reload_button.pressed.connect(self.reloadSample)
