@@ -2521,7 +2521,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.configure_dict[a_key] = a_message
             f_arr = a_message.split("|")
             for f_i in range(len(f_arr)):
-                f_path = self.pydaw_project.get_wav_path_by_uid(f_arr[f_i])
+                if f_arr[f_i] == "":
+                    f_path = ""
+                else:
+                    f_path = self.pydaw_project.get_wav_path_by_uid(f_arr[f_i])
                 f_table_item = QtGui.QTableWidgetItem(f_path)
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
@@ -2637,8 +2640,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def generate_files_string(self, a_index=-1):
         self.files_string = ""
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            if self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX) is not None:
-                f_uid = self.pydaw_project.get_wav_uid_by_name(str(self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX).text()))
+            f_item = self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX)
+            if f_item is not None and str(f_item.text()).strip() != "":
+                f_uid = self.pydaw_project.get_wav_uid_by_name(str(f_item.text()))
                 self.files_string += str(f_uid)
             if f_i < pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT - 1:
                 self.files_string += pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER
