@@ -111,6 +111,7 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_GLUE_AUDIO_ITEMS "ga"
 #define PYDAW_CONFIGURE_KEY_EXIT "exit"
 #define PYDAW_CONFIGURE_KEY_MIDI_LEARN "ml"
+#define PYDAW_CONFIGURE_KEY_WAVPOOL_ITEM_RELOAD "wr"
 
 //low-level MIDI stuff
 #define MIDI_NOTE_OFF       0x80
@@ -1620,6 +1621,39 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         
         v_pydaw_offline_render(a_pydaw_data, f_region_index, f_start_bar, f_region_index, f_end_bar, f_path, 1);
         
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_WAVPOOL_ITEM_RELOAD))
+    {
+        int f_uid = atoi(a_value);
+        t_wav_pool_item * f_old = g_wav_pool_get_item_by_uid(a_pydaw_data->wav_pool, f_uid);
+        t_wav_pool_item * f_new = g_wav_pool_item_get(f_uid, f_old->path, a_pydaw_data->wav_pool->sample_rate);
+        
+        float * f_old_samples[2];
+        f_old_samples[0] = f_old->samples[0];
+        f_old_samples[1] = f_old->samples[1];
+        
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        
+        f_old->channels = f_new->channels;
+        f_old->length = f_new->length;
+        f_old->ratio_orig = f_new->ratio_orig;
+        f_old->sample_rate = f_new->sample_rate;
+        f_old->samples[0] = f_new->samples[0];
+        f_old->samples[1] = f_new->samples[1];
+        
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        
+        if(f_old_samples[0])
+        {
+            free(f_old_samples[0]);
+        }
+        
+        if(f_old_samples[1])
+        {
+            free(f_old_samples[1]);
+        }
+        
+        free(f_new);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_EXIT))
     {

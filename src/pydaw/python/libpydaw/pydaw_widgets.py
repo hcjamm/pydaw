@@ -486,7 +486,8 @@ class pydaw_note_selector_widget:
         return self.selected_note
 
 class pydaw_file_select_widget:
-    def __init__(self):
+    def __init__(self, a_sample_dir):
+        self.sample_dir = str(a_sample_dir)
         self.layout =  QtGui.QHBoxLayout()
         self.open_button =  QtGui.QPushButton("Open")
         self.open_button.setMaximumWidth(60)
@@ -544,7 +545,8 @@ or another suitable wave editor. Please edit
 with your wave editor of choice, or install Audacity.""" % (self.editor_path, pydaw_util.global_pydaw_version_string)))
             return
         else:
-            f_cmd = [self.editor_path, str(self.file_path.text())]
+            f_path = "%s/%s" % (self.sample_dir, self.file_path.text())
+            f_cmd = [self.editor_path, f_path]
             subprocess.Popen(f_cmd)
 
 
@@ -2200,7 +2202,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.sample_table.resizeRowsToContents()
 
-        self.file_selector =  pydaw_file_select_widget()
+        self.file_selector =  pydaw_file_select_widget(a_project.samples_folder)
         self.file_selector.open_button.pressed.connect(self.fileSelect)
         self.file_selector.clear_button.pressed.connect(self.clearFile)
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
@@ -2318,7 +2320,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
         self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_left_hspacer)
-        self.view_file_selector =  pydaw_file_select_widget()
+        self.view_file_selector =  pydaw_file_select_widget(a_project.samples_folder)
         self.view_file_selector.open_button.pressed.connect(self.fileSelect)
         self.view_file_selector.clear_button.pressed.connect(self.clearFile)
         self.view_file_selector.reload_button.pressed.connect(self.reloadSample)
@@ -2662,14 +2664,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.resizeColumnsToContents()
 
     def reloadSample(self):
-        QtGui.QMessageBox.warning(self.widget, "Error", "TODO:  Fix this again...")
-        #path = str(self.file_selector.file_path.text())
-        #if path.strip() != "":
-        #    self.find_selected_radio_button()
-        #    self.generate_files_string((self.selected_row_index))
-        #    self.configure_plugin("load", self.files_string)
-        #    self.sample_graph.clear_drawn_items()
-        #    self.set_sample_graph()
+        path = str(self.file_selector.file_path.text()).strip()
+        if path.strip() != "":
+            f_uid = self.pydaw_project.get_wav_uid_by_name(path)
+            self.pydaw_project.this_pydaw_osc.pydaw_reload_wavpool_item(f_uid)
 
 
     def selectionChanged(self):

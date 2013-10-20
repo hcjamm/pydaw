@@ -261,7 +261,7 @@ t_wav_pool * g_wav_pool_get(float a_sr)
 void v_wav_pool_add_item(t_wav_pool* a_wav_pool, int a_uid, char * a_file_path)
 {
     char f_path[2048];
-    sprintf(f_path, "%s/%s", a_wav_pool->samples_folder, a_file_path);
+    sprintf(f_path, "%s%s", a_wav_pool->samples_folder, a_file_path);
     t_wav_pool_item * f_result = g_wav_pool_item_get(a_uid, f_path, a_wav_pool->sample_rate);
     a_wav_pool->items[a_wav_pool->count] = f_result;
     a_wav_pool->count++;

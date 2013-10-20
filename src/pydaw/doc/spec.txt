@@ -64,6 +64,7 @@ OSC configure message keys/values:
 	"ga" file|region|start-bar|end-bar|index|index|index|...  Create "glued" audio item by offline rendering only the audio item indexes specified
 	"exit" ""  Exit the application
 	"ml" "0|1"	   Turn on|off MIDI learn and send all CCs to the UI
+	"wr" uid	Reload the wavpool item with (uid)
 
 
 Project structure:
