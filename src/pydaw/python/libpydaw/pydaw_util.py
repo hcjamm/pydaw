@@ -236,7 +236,7 @@ else:
     if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
 
-global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
+global_bookmarks_file_path = "%s/file_browser_bookmarks.txt" % (global_pydaw_home,)
 
 global_device_val_dict = {}
 global_pydaw_device_config = global_pydaw_home + "/device.txt"
