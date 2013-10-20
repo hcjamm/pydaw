@@ -1575,7 +1575,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_open_folder_action = QtGui.QAction("Open parent folder in browser", this_audio_items_viewer)
         f_open_folder_action.triggered.connect(self.open_item_folder)
         f_menu.addAction(f_open_folder_action)
+        f_copy_file_path_action = QtGui.QAction("Copy file path to clipboard", this_audio_items_viewer)
+        f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
+        f_menu.addAction(f_copy_file_path_action)
         f_menu.exec_(a_event.screenPos())
+
+    def copy_file_path_to_clipboard(self):
+        f_path = this_pydaw_project.get_wav_path_by_uid(self.audio_item.uid)
+        f_clipboard = QtGui.QApplication.clipboard()
+        f_clipboard.setText(f_path)
 
     def save_a_copy(self):
         global global_last_audio_item_dir
