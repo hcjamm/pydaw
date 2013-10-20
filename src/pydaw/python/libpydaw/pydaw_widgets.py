@@ -493,9 +493,10 @@ class pydaw_file_select_widget:
         self.open_button.setMaximumWidth(60)
         self.clear_button =  QtGui.QPushButton("Clear")
         self.clear_button.setMaximumWidth(60)
-        self.open_in_editor_button =  QtGui.QPushButton("Edit")
-        self.open_in_editor_button.pressed.connect(self.open_in_editor_button_pressed)
-        self.open_in_editor_button.setMaximumWidth(60)
+        self.copy_to_clipboard =  QtGui.QPushButton("Copy")
+        self.copy_to_clipboard.setToolTip("Copy file path to clipboard")
+        self.copy_to_clipboard.pressed.connect(self.copy_to_clipboard_pressed)
+        self.copy_to_clipboard.setMaximumWidth(60)
         self.reload_button =  QtGui.QPushButton("Reload")
         self.reload_button.setMaximumWidth(60)
         self.file_path =  QtGui.QLineEdit()
@@ -511,7 +512,7 @@ class pydaw_file_select_widget:
         self.layout.addWidget(self.file_path)
         self.layout.addWidget(self.clear_button)
         self.layout.addWidget(self.open_button)
-        self.layout.addWidget(self.open_in_editor_button)
+        self.layout.addWidget(self.copy_to_clipboard)
         self.layout.addWidget(self.reload_button)
 
     def open_button_pressed(self):
@@ -537,17 +538,11 @@ class pydaw_file_select_widget:
     def set_file(self, a_file):
         self.file_path.setText(str(a_file))
 
-    def open_in_editor_button_pressed(self):
-        if pydaw_util.pydaw_which(self.editor_path) is None and not os.path.exists(self.editor_path):
-            QtGui.QMessageBox.warning(self.file_path, ("No Wave Editor Found"), ("""Could not locate %s
-or another suitable wave editor. Please edit
-~/%s/self.global_wave_editor.txt
-with your wave editor of choice, or install Audacity.""" % (self.editor_path, pydaw_util.global_pydaw_version_string)))
-            return
-        else:
-            f_path = "%s/%s" % (self.sample_dir, self.file_path.text())
-            f_cmd = [self.editor_path, f_path]
-            subprocess.Popen(f_cmd)
+    def copy_to_clipboard_pressed(self):
+        f_text = str(self.file_path.text())
+        if f_text != "":
+            f_clipboard = QtGui.QApplication.clipboard()
+            f_clipboard.setText(f_text)
 
 
 class pydaw_file_browser_widget:
