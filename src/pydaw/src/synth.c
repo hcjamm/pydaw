@@ -25,7 +25,6 @@ GNU General Public License for more details.
 #include "../include/pydaw_plugin.h"
 #include "../libmodsynth/lib/amp.h"
 #include "pydaw.h"
-#include "osc_handlers.h"
 #include "synth.h"
 
 

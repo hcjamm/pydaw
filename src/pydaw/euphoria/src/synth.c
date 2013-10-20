@@ -343,6 +343,7 @@ static void connectPortSampler(PYFX_Handle instance, int port,
 static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
 					int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
+    wavpool_get_func = a_host_wavpool_func;
     t_euphoria *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
     
     if(posix_memalign((void**)&plugin_data, 16, sizeof(t_euphoria)) != 0)
@@ -350,7 +351,7 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
         return NULL;
     }
     
-    pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+    //pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
     plugin_data->voices = g_voc_get_voices(EUPHORIA_POLYPHONY);
     
@@ -984,12 +985,14 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
     int f_index = 0;
     int f_samples_loaded_count = 0;
     int f_current_string_index = 0;
+    int f_total_index = 0;
     
     t_wav_pool_item * f_wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];
+    int f_loaded_samples[EUPHORIA_MAX_SAMPLE_COUNT];
     
     char * f_result_string = (char*)malloc(sizeof(char) * 2048);
     
-    while (f_samples_loaded_count < EUPHORIA_TOTAL_SAMPLE_COUNT)
+    while (f_samples_loaded_count < EUPHORIA_MAX_SAMPLE_COUNT)
     {
         if(paths[f_index] == EUPHORIA_FILES_STRING_DELIMITER || paths[f_index] == '\0')
         {
@@ -1001,11 +1004,15 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
             }
             else
             {
-                f_wavpool_items[f_samples_loaded_count] = wavpool_get_func(atoi(f_result_string));
+                int f_uid = atoi(f_result_string);
+                t_wav_pool_item * f_wavpool_item = wavpool_get_func(f_uid);
+                f_wavpool_items[f_samples_loaded_count] = f_wavpool_item;
+                f_loaded_samples[f_samples_loaded_count] = f_total_index;
+                f_samples_loaded_count++;
             }
             
-            f_current_string_index = 0;
-            f_samples_loaded_count++;
+            f_current_string_index = 0;            
+            f_total_index++;
             
             if(paths[f_index] == '\0')
             {
@@ -1022,17 +1029,35 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
     }
     
     free(f_result_string);
-            
-    pthread_mutex_lock(a_mutex);
+    
+    if(a_mutex)
+    {
+        pthread_mutex_lock(a_mutex);
+    }
+    
     
     int f_i = 0;
+    
+    while(f_i < f_samples_loaded_count)
+    {
+        plugin_data->loaded_samples[f_i] = f_loaded_samples[f_i];
+        f_i++;
+    }
+    
+    plugin_data->loaded_samples_count = f_samples_loaded_count;
+    
+    f_i = 0;
+    
     while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
     {
         plugin_data->wavpool_items[f_i] = f_wavpool_items[f_i];
         f_i++;
     }
     
-    pthread_mutex_unlock(a_mutex);
+    if(a_mutex)
+    {
+        pthread_mutex_unlock(a_mutex);
+    }
     
     return NULL;
 }

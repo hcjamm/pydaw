@@ -2511,17 +2511,18 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
 
     def configure_plugin(self, a_key, a_message):
-        self.configure_dict[a_key] = a_message.replace(">", "~")
-        self.configure_callback(True, 0, self.track_num, a_key, a_message.replace("~", "|"))  #TODO:  Get rid of this at PyDAWv4 and use a single delimiter
+        self.configure_dict[a_key] = a_message
+        self.configure_callback(True, 0, self.track_num, a_key, a_message)  #TODO:  Get rid of this at PyDAWv4 and use a single delimiter
 
     def set_configure(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
         if a_key == "load":
             print("set_configure: load")
             self.configure_dict[a_key] = a_message
-            f_arr = a_message.split("~")
+            f_arr = a_message.split("|")
             for f_i in range(len(f_arr)):
-                f_table_item = QtGui.QTableWidgetItem(f_arr[f_i])
+                f_path = self.pydaw_project.get_wav_path_by_uid(f_arr[f_i])
+                f_table_item = QtGui.QTableWidgetItem(f_path)
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
             print(("Unknown configure message '%s'" % (a_key,)))
@@ -2617,13 +2618,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     if( not os.path.isfile(path)):
                         QtGui.QMessageBox.warning(self, "Error", "File cannot be read.")
                         continue
+                    self.pydaw_project.get_wav_uid_by_name(path)
                     f_path_sections = path.split(("/"))
                     self.set_selected_sample_combobox_item(f_sample_index_to_load, f_path_sections[-1])
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
                     self.sample_table.setItem(f_sample_index_to_load, SMP_TB_FILE_PATH_INDEX, f_item)
-                    f_sample_index_to_load+= 1
+                    f_sample_index_to_load += 1
                     if(f_sample_index_to_load >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
                         break
 
@@ -2636,13 +2638,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.files_string = ""
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             if self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX) is not None:
-                #self.pydaw_project.
-                self.files_string += str(self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX).text())
-            if f_i == a_index:
-                self.files_string += pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER
-            else:
+                f_uid = self.pydaw_project.get_wav_uid_by_name(str(self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX).text()))
+                self.files_string += str(f_uid)
+            if f_i < pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT - 1:
                 self.files_string += pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER
-        self.files_string += str(self.preview_file + pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
 
     def clearFile(self):
         self.find_selected_radio_button()

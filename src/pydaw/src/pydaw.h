@@ -3768,27 +3768,13 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
                 break;
             }
             
-            char * f_value = c_iterate_2d_char_array(f_2d_array);
+            char * f_value = c_iterate_2d_char_array_to_next_line(f_2d_array);
 
             assert(strcmp(f_key, ""));
             assert(strcmp(f_value, ""));
             
             if(!strcmp(f_key, "load"))
-            {                
-                int f_i = 0;
-                while(1)
-                {
-                    if(f_value[f_i] == '\0')
-                    {
-                        break;
-                    }
-                    else if(f_value[f_i] == '~')
-                    {
-                        f_value[f_i] = '|';
-                    }
-                    f_i++;
-                }
-                
+            {   
                 strcpy(f_instance->euphoria_load, f_value);
                 f_instance->euphoria_load_set = 1;
             }
@@ -3808,7 +3794,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
         if(f_instance->euphoria_load_set)
         {
             char * message = f_instance->descriptor->configure(f_instance->PYFX_handle, "load", 
-                    f_instance->euphoria_load, &a_pydaw_data->main_mutex);
+                    f_instance->euphoria_load, 0); //&a_pydaw_data->main_mutex);
             
             if (message) 
             {

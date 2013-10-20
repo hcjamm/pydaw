@@ -13,9 +13,7 @@ GNU General Public License for more details.
 """
 
 #Euphoria
-EUPHORIA_FILES_STRING_DELIMITER = '~' #'|'
-#When used in place of "|", it tells the sampler to load the sample even if it's already been loaded once.
-EUPHORIA_FILES_STRING_RELOAD_DELIMITER = '>'
+EUPHORIA_FILES_STRING_DELIMITER = '|' #'|'
 EUPHORIA_MAX_SAMPLE_COUNT = 32
 #+1 to LMS_MAX_SAMPLE_COUNT, the highest index is for the preview sample
 EUPHORIA_TOTAL_SAMPLE_COUNT = 33
