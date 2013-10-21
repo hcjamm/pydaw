@@ -2157,6 +2157,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
                     f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_start_beat=f_beat_frac, a_lane_num=f_lane_num)
                     f_items.add_item(f_index, f_item)
+                    f_graph = this_pydaw_project.get_sample_graph_by_uid(f_uid)
+                    f_audio_item = this_audio_items_viewer.draw_item(f_index, f_item, f_graph.length_in_seconds)
+                    f_audio_item.clip_at_region_end()
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
         global_open_audio_items()
@@ -2328,6 +2331,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_sample_length)
         self.audio_items.append(f_audio_item)
         self.scene.addItem(f_audio_item)
+        return f_audio_item
 
 global_audio_items_to_drop = []
 
