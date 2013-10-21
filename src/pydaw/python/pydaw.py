@@ -7048,6 +7048,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
         this_piano_roll_editor_widget.scale_key_combobox.setCurrentIndex(f_scale[0])
         this_piano_roll_editor_widget.scale_combobox.setCurrentIndex(f_scale[1])
     this_song_editor.open_first_region()
+    this_main_window.last_offline_dir = this_pydaw_project.user_folder
 
 def global_new_project(a_project_file):
     global_close_all()
@@ -7061,6 +7062,7 @@ def global_new_project(a_project_file):
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
     set_window_title()
+    this_main_window.last_offline_dir = this_pydaw_project.user_folder
 
 this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 

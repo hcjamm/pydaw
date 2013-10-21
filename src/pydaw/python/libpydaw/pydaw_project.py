@@ -51,6 +51,7 @@ pydaw_folder_samplegraph = "samplegraph"
 pydaw_folder_samples = "samples"
 pydaw_folder_timestretch = "timestretch"
 pydaw_folder_glued = "glued"
+pydaw_folder_user = "user"
 
 pydaw_file_pyregions = "default.pyregions"
 pydaw_file_pyitems = "default.pyitems"
@@ -185,13 +186,14 @@ class pydaw_project:
         self.items_folder = self.project_folder + "/" + pydaw_folder_items
         self.audio_folder = self.project_folder + "/" + pydaw_folder_audio
         self.audio_tmp_folder = self.project_folder + "/audio/tmp"
-        self.samples_folder = self.project_folder + "/" + pydaw_folder_samples  #Placeholder for future functionality
+        self.samples_folder = self.project_folder + "/" + pydaw_folder_samples
         self.audiofx_folder = self.project_folder + "/" + pydaw_folder_audiofx
         self.audio_per_item_fx_folder = self.project_folder + "/" + pydaw_folder_audio_per_item_fx
         self.busfx_folder = self.project_folder + "/" + pydaw_folder_busfx
         self.samplegraph_folder = self.project_folder + "/" + pydaw_folder_samplegraph
         self.timestretch_folder = self.project_folder + "/" + pydaw_folder_timestretch
         self.glued_folder = self.project_folder + "/" + pydaw_folder_glued
+        self.user_folder = self.project_folder + "/" + pydaw_folder_user
         #files
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
@@ -220,7 +222,8 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.audio_per_item_fx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder, self.glued_folder]
+            self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder, self.glued_folder,
+            self.user_folder]
 
         for project_dir in project_folders:
             print(project_dir)
