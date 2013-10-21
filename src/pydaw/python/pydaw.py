@@ -6006,6 +6006,12 @@ class pydaw_main_window(QtGui.QMainWindow):
                 QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
                 return
 
+            if f_copy_to_clipboard_checkbox.isChecked():
+                self.copy_to_clipboard_checked = True
+                f_clipboard = QtGui.QApplication.clipboard()
+                f_clipboard.setText(f_name.text())
+            else:
+                self.copy_to_clipboard_checked = False
             #TODO:  Check that the end is actually after the start....
             this_pydaw_project.this_pydaw_osc.pydaw_offline_render(f_start_region.value() - 1, f_start_bar.value() - 1,
                                                                   f_end_region.value() - 1, f_end_bar.value() - 1, f_name.text())
@@ -6095,6 +6101,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_end_bar.setValue(self.end_bar)
         f_end_hlayout.addWidget(f_end_bar)
         f_layout.addWidget(QtGui.QLabel("File is exported to 32 bit .wav at the sample rate your audio interface is running at.\nYou can convert the format using other programs such as Audacity"), 3, 1)
+        f_copy_to_clipboard_checkbox = QtGui.QCheckBox("Copy export path to clipboard? (useful for right-click pasting back into the audio sequencer)")
+        f_copy_to_clipboard_checkbox.setChecked(self.copy_to_clipboard_checked)
+        f_layout.addWidget(f_copy_to_clipboard_checkbox, 4, 1)
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton("OK")
@@ -6289,6 +6298,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.setStyleSheet(f_style)
         self.first_offline_render = True
         self.last_offline_dir = global_home
+        self.copy_to_clipboard_checked = True
 
         self.central_widget = QtGui.QWidget()
         self.setCentralWidget(self.central_widget)
