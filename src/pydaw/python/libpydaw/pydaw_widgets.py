@@ -803,6 +803,8 @@ class pydaw_preset_manager_widget:
             self.load_presets()
 
     def on_restore_bank(self):
+        if os.path.isfile(self.bank_file):
+            os.system('rm "%s"' % (self.bank_file,))
         self.preset_path = "%s/%s.pypresets" % (pydaw_util.global_pydaw_home, self.plugin_name)
         os.system('rm "%s"' % (self.preset_path,))
         self.load_presets()
