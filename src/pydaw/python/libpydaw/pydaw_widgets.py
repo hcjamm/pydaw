@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import os, subprocess
+import os
 from . import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
@@ -728,9 +728,16 @@ class pydaw_file_browser_widget:
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name):
-        self.factory_preset_path = pydaw_util.global_pydaw_install_prefix + "/lib/" + pydaw_util.global_pydaw_version_string + \
-        "/presets/" + str(a_plugin_name) + ".pypreset2"
-        self.preset_path = pydaw_util.global_pydaw_home + "/" + str(a_plugin_name) + ".pypreset2"
+        self.factory_preset_path = "%s/lib/%s/presets/%s.pypresets" % \
+        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string, a_plugin_name)
+        self.bank_file = "%s/%s.bank" % (pydaw_util.global_pydaw_home, a_plugin_name)
+        self.preset_path = "%s/%s" % (pydaw_util.global_pydaw_home, a_plugin_name)
+
+        if os.path.isfile(self.bank_file):
+            f_text = pydaw_util.pydaw_read_file_text(self.bank_file)
+            if os.path.isfile(f_text):
+                self.preset_path = f_text
+
         self.group_box = QtGui.QGroupBox()
         self.layout = QtGui.QHBoxLayout(self.group_box)
         self.program_combobox = QtGui.QComboBox()
@@ -745,12 +752,40 @@ class pydaw_preset_manager_widget:
         self.reset_button.setToolTip("Resets all controls to their default value")
         self.reset_button.pressed.connect(self.reset_controls)
         self.layout.addWidget(self.reset_button)
+        self.more_button = QtGui.QPushButton("More")
+        self.more_button.pressed.connect(self.on_more)
+
+        self.more_menu = QtGui.QMenu(self.more_button)
+        f_save_as_action = QtGui.QAction("Save bank as...", self.group_box)
+        f_save_as_action.triggered.connect(self.on_save_as)
+        self.more_menu.addAction(f_save_as_action)
+        f_open_action = QtGui.QAction("Open bank...", self.group_box)
+        f_open_action.triggered.connect(self.on_open_bank)
+        self.more_menu.addAction(f_open_action)
+        f_restore_action = QtGui.QAction("Restore factory bank...", self.group_box)
+        f_restore_action.triggered.connect(self.on_restore_bank)
+        self.more_menu.addAction(f_restore_action)
+
+        self.more_button.setMenu(self.more_menu)
+        self.layout.addWidget(self.more_button)
         self.presets_delimited = []
         self.controls = {}
         for f_i in range(128):
             self.program_combobox.addItem("empty")
         self.load_presets()
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
+
+    def on_more(self):
+        self.more_button.showMenu()
+
+    def on_save_as(self):
+        print("save as")
+
+    def on_open_bank(self):
+        print("open bank")
+
+    def on_restore_bank(self):
+        print("restore bank")
 
     def reset_controls(self):
         for k, v in list(self.controls.items()):
