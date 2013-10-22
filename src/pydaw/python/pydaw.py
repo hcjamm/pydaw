@@ -7144,16 +7144,20 @@ def open_pydaw_engine():
 
     if int(pydaw_util.global_device_val_dict["audioEngine"]) >= 3 \
     and pydaw_util.pydaw_which("x-terminal-emulator") is not None:
+        f_sleep = "--sleep"
         if int(pydaw_util.global_device_val_dict["audioEngine"]) == 4 and pydaw_util.pydaw_which("gdb") is not None:
             f_run_with = " gdb "
         elif int(pydaw_util.global_device_val_dict["audioEngine"]) == 5 and pydaw_util.pydaw_which("valgrind") is not None:
             f_run_with = " valgrind "
+            f_sleep = ""
         else:
             f_run_with = ""
         if f_pa_suspend:
-            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" ; read' """ % (f_run_with, global_pydaw_bin_path, global_pydaw_install_prefix)
+            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" %s ; read' """ % \
+            (f_run_with, global_pydaw_bin_path, global_pydaw_install_prefix, f_sleep)
         else:
-            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" ; read' """ % (f_run_with, global_pydaw_bin_path, global_pydaw_install_prefix)
+            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" %s ; read' """ % \
+            (f_run_with, global_pydaw_bin_path, global_pydaw_install_prefix, f_sleep)
     else:
         if f_pa_suspend:
             f_cmd = 'pasuspender -- "%s" "%s"' % (global_pydaw_bin_path, global_pydaw_install_prefix)

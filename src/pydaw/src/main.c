@@ -509,7 +509,7 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 
 int main(int argc, char **argv)
 {    
-    if(argc != 2)
+    if(argc < 2)
     {
         printf("\nUsage: %s [install prefix]\n\n", argv[0]);
         exit(9996);
@@ -533,6 +533,13 @@ int main(int argc, char **argv)
     long long freq_nanosecs;
     sigset_t mask;
     struct sigaction sa;
+#else
+    int f_usleep = 0;
+    
+    if(!strcmp(argv[2], "--sleep"))
+    {
+        f_usleep = 1;
+    }
 #endif
     
     setsid();
@@ -1009,6 +1016,11 @@ int main(int argc, char **argv)
         {
 #ifdef PYDAW_NO_HARDWARE
             portaudioCallback(f_portaudio_input_buffer, f_portaudio_output_buffer, 128, NULL, NULL, NULL);
+            
+            if(f_usleep)
+            {
+                usleep(1000);
+            }
 #else
             sleep(1);
 #endif
