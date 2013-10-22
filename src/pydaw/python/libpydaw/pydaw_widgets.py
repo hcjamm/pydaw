@@ -828,6 +828,8 @@ class pydaw_preset_manager_widget:
             if f_line_arr[0].strip() != self.plugin_name:
                 QtGui.QMessageBox.warning(self.group_box, "Error", \
                 "The selected preset bank is for %s, please select one for %s" % (f_line_arr[0], self.plugin_name))
+                if os.path.isfile(self.bank_file):
+                    os.system('rm "%s"' % (self.bank_file,))
                 return
 
         f_line_arr = f_line_arr[1:]
