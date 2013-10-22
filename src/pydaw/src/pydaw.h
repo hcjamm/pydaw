@@ -300,8 +300,7 @@ typedef struct
     float ab_amp_lin;
     t_cubic_interpolater * cubic_interpolator;
     t_wav_pool_item * preview_wav_item;
-    t_pydaw_audio_item * preview_audio_item;
-    int preview_mode;  //0 == off, 1 == on
+    t_pydaw_audio_item * preview_audio_item;    
     float preview_start; //0.0f to 1.0f
     int is_previewing;  //Set this to a_pydaw_data->ab_mode on playback
     float preview_amp_lin;
@@ -3578,8 +3577,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->is_ab_ing = 0;
     f_result->cubic_interpolator = g_cubic_get();
     f_result->preview_wav_item = 0;
-    f_result->preview_audio_item = g_pydaw_audio_item_get(f_result->sample_rate);
-    f_result->preview_mode = 0;
+    f_result->preview_audio_item = g_pydaw_audio_item_get(f_result->sample_rate);    
     f_result->preview_start = 0.0f;
     f_result->preview_amp_lin = 1.0f;
     f_result->is_previewing = 0;
@@ -4956,36 +4954,33 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
 {
     t_wav_pool_item * f_result = g_wav_pool_item_get(0, a_file, a_pydaw_data->sample_rate);
     
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
-    
-    t_wav_pool_item * f_old = a_pydaw_data->preview_wav_item;
-    a_pydaw_data->preview_wav_item = f_result;
-    
-    if(!f_result)
+    if(f_result)
     {
-        a_pydaw_data->preview_mode = 0;
-    }
-    
-    a_pydaw_data->preview_audio_item->ratio = a_pydaw_data->preview_wav_item->ratio_orig;
-    
-    a_pydaw_data->preview_mode = 1;
-    
-    if(a_pydaw_data->preview_wav_item)
-    {
-        a_pydaw_data->is_previewing = a_pydaw_data->preview_mode;
-        if(a_pydaw_data->is_previewing)
+        t_wav_pool_item * f_old = a_pydaw_data->preview_wav_item;
+        
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        
+        a_pydaw_data->preview_wav_item = f_result;
+
+        a_pydaw_data->preview_audio_item->ratio = a_pydaw_data->preview_wav_item->ratio_orig;
+
+        a_pydaw_data->is_previewing = 1;
+
+        v_ifh_retrigger(a_pydaw_data->preview_audio_item->sample_read_head, 
+                a_pydaw_data->preview_audio_item->sample_start_offset); 
+        v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
+
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+        if(f_old)
         {
-            v_ifh_retrigger(a_pydaw_data->preview_audio_item->sample_read_head, 
-                    a_pydaw_data->preview_audio_item->sample_start_offset); 
-            v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
+            v_wav_pool_item_free(f_old);
         }
     }
-    
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-    
-    if(f_old)
+    else
     {
-        v_wav_pool_item_free(f_old);
+        a_pydaw_data->is_previewing = 0;
+        printf("g_wav_pool_item_get returned zero. could not load preview item.\n");
     }
 }
 
