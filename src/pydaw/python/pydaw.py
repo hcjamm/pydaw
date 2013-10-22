@@ -2414,6 +2414,15 @@ class audio_items_viewer_widget():
         self.file_widget = QtGui.QWidget()
         self.file_widget.setLayout(self.file_vlayout)
         self.vsplitter.addWidget(self.file_widget)
+        self.filter_hlayout = QtGui.QHBoxLayout()
+        self.filter_hlayout.addWidget(QtGui.QLabel("Filter:"))
+        self.filter_lineedit = QtGui.QLineEdit()
+        self.filter_lineedit.textChanged.connect(self.on_filter)
+        self.filter_hlayout.addWidget(self.filter_lineedit)
+        self.filter_clear_button = QtGui.QPushButton("Clear")
+        self.filter_clear_button.pressed.connect(self.on_filter_clear)
+        self.filter_hlayout.addWidget(self.filter_clear_button)
+        self.file_vlayout.addLayout(self.filter_hlayout)
         self.list_file = QtGui.QListWidget()
         self.list_file.setDragEnabled(True)
         self.list_file.mousePressEvent = self.file_mouse_press_event
@@ -2467,6 +2476,19 @@ class audio_items_viewer_widget():
         self.open_bookmarks()
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
+
+    def on_filter(self):
+        f_text = str(self.filter_lineedit.text()).lower().strip()
+        for f_i in range(self.list_file.count()):
+            f_item = self.list_file.item(f_i)
+            f_item_text = str(f_item.text()).lower()
+            if f_text in f_item_text:
+                f_item.setHidden(False)
+            else:
+                f_item.setHidden(True)
+
+    def on_filter_clear(self):
+        self.filter_lineedit.setText("")
 
     def set_paif_buttons_enabled(self, a_count):
         if a_count == 0:
@@ -2624,6 +2646,7 @@ class audio_items_viewer_widget():
                     else:
                         print(("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:"))
                         print(("\n".join(pydaw_bad_chars)))
+        self.on_filter()
 
     def select_file(self, a_file):
         """ Select the file if present in the list, a_file should be a file name, not a full path """
