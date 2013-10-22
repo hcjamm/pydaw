@@ -726,12 +726,16 @@ class pydaw_file_browser_widget:
                         print(("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:"))
                         print(("\n".join(pydaw_util.pydaw_bad_chars)))
 
+
+global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
+
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name):
+        self.plugin_name = str(a_plugin_name)
         self.factory_preset_path = "%s/lib/%s/presets/%s.pypresets" % \
         (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string, a_plugin_name)
         self.bank_file = "%s/%s.bank" % (pydaw_util.global_pydaw_home, a_plugin_name)
-        self.preset_path = "%s/%s" % (pydaw_util.global_pydaw_home, a_plugin_name)
+        self.preset_path = "%s/%s.pypresets" % (pydaw_util.global_pydaw_home, a_plugin_name)
 
         if os.path.isfile(self.bank_file):
             f_text = pydaw_util.pydaw_read_file_text(self.bank_file)
@@ -779,13 +783,29 @@ class pydaw_preset_manager_widget:
         self.more_button.showMenu()
 
     def on_save_as(self):
-        print("save as")
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=self.group_box, caption='Save preset bank...', \
+        directory=pydaw_util.global_home, filter=global_preset_file_dialog_string)
+        if not f_file is None and not str(f_file) == "":
+            f_file = str(f_file)
+            if not f_file.endswith(".pypresets"):
+                f_file += ".pypresets"
+            os.system('cp "%s" "%s"' % (self.preset_path, f_file))
+            self.preset_path = f_file
+            pydaw_util.pydaw_write_file_text(self.bank_file, self.preset_path)
 
     def on_open_bank(self):
-        print("open bank")
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.group_box, caption='Open preset bank...', \
+        directory=pydaw_util.global_home, filter=global_preset_file_dialog_string)
+        if not f_file is None and not str(f_file) == "":
+            f_file = str(f_file)
+            self.preset_path = f_file
+            pydaw_util.pydaw_write_file_text(self.bank_file, self.preset_path)
+            self.load_presets()
 
     def on_restore_bank(self):
-        print("restore bank")
+        self.preset_path = "%s/%s.pypresets" % (pydaw_util.global_pydaw_home, self.plugin_name)
+        os.system('rm "%s"' % (self.preset_path,))
+        self.load_presets()
 
     def reset_controls(self):
         for k, v in list(self.controls.items()):
@@ -804,7 +824,15 @@ class pydaw_preset_manager_widget:
         else:
             f_line_arr = []
 
+        if len(f_line_arr) > 0:
+            if f_line_arr[0].strip() != self.plugin_name:
+                QtGui.QMessageBox.warning(self.group_box, "Error", \
+                "The selected preset bank is for %s, please select one for %s" % (f_line_arr[0], self.plugin_name))
+                return
+
+        f_line_arr = f_line_arr[1:]
         self.presets_delimited = []
+
         for f_i in range(128):
             if f_i >= len(f_line_arr):
                 self.presets_delimited.append(["empty"])
@@ -825,7 +853,7 @@ class pydaw_preset_manager_widget:
         for k, f_control in list(self.controls.items()):
             f_result_values.append("%s:%s" % (f_control.port_num, f_control.get_value(),))
         self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
-        f_result = ""
+        f_result = "%s\n" % (self.plugin_name,)
         for f_list in self.presets_delimited:
             f_result += "|".join(f_list) + "\n"
         pydaw_util.pydaw_write_file_text(self.preset_path, f_result)
