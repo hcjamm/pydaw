@@ -487,7 +487,7 @@ class pydaw_note_selector_widget:
 
 class pydaw_file_select_widget:
     """
-    :a_load_callback : function to call when loading that accepts a single argument
+    a_load_callback : function to call when loading that accepts a single argument
     of [list of paths,...]
     """
     def __init__(self, a_load_callback):
@@ -668,11 +668,6 @@ class pydaw_file_browser_widget:
         for f_item in self.files_listWidget.selectedItems():
             f_result.append(f_dir_path + str(f_item.text()))
         return f_result
-
-    #def on_preview(self):
-    #    f_list = self.files_listWidget.selectedItems()
-    #    if len(f_list) > 0:
-    #        this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(self.last_open_dir + "/" + str(f_list[0].text()))
 
     def open_bookmarks(self):
         self.bookmarks_listWidget.clear()
@@ -2776,7 +2771,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def file_browser_preview_button_pressed(self):
         f_list = self.file_browser.files_listWidget.selectedItems()
         if len(f_list) > 0:
-            f_preview_file = str(self.file_browser.folder_path_lineedit.text()) + "/" + str(f_list[0].text())
+            f_preview_file = "%s/%s" % \
+            (str(self.file_browser.folder_path_lineedit.text()).strip(), str(f_list[0].text()).strip())
             self.pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_preview_file)
 
     def moveSamplesToSingleDirectory(self):
