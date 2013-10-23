@@ -6304,6 +6304,135 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_splitter.setSizes([100, 9999])
         self.transport_splitter.setSizes([100, 9999])
 
+    def audio_converter_dialog(self):
+        f_avconv = "avconv"
+        f_lame = "lame"
+        for f_app in (f_avconv, f_lame):
+            if pydaw_which(f_app) is None:
+                QtGui.QMessageBox.warning(self, "Error", \
+                "Please ensure that %s is installed, can't open audio converter dialog" % (f_app,))
+                return
+
+        if global_transport_is_playing:
+            return
+
+        def ok_handler():
+            f_input_file = str(f_name.text())
+            f_output_file = str(f_output_name.text())
+            if f_input_file == "" or f_output_file == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "File names cannot be empty")
+                return
+            if f_wav_radiobutton.isChecked():
+                f_cmd = [f_avconv, "-i", f_input_file, f_output_file]
+            else:
+                f_cmd = [f_lame, "-b", str(f_mp3_br_combobox.currentText()), f_input_file, f_output_file]
+            f_proc = subprocess.Popen(f_cmd)
+            f_proc.communicate()
+            f_window.close()
+            QtGui.QMessageBox.warning(self, "Success", "Created file")
+
+        def cancel_handler():
+            f_window.close()
+
+        def file_name_select():
+            try:
+                if not os.path.isdir(self.last_ac_dir):
+                    self.last_ac_dir = global_home
+                f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a file name to save to...", \
+                self.last_ac_dir, filter="Audio Files(*.wav *.mp3)"))
+                if not f_file_name is None and f_file_name != "":
+                    if not f_file_name is None and not str(f_file_name) == "":
+                        f_name.setText(f_file_name)
+                    self.last_ac_dir = os.path.dirname(f_file_name)
+                if f_file_name.lower().endswith(".mp3"):
+                    f_wav_radiobutton.setChecked(True)
+                else:
+                    f_mp3_radiobutton.setChecked(True)
+
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
+
+        def file_name_select_output():
+            try:
+                if not os.path.isdir(self.last_ac_dir):
+                    self.last_ac_dir = global_home
+                f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_ac_dir))
+                if not f_file_name is None and f_file_name != "":
+                    if not f_file_name.endswith(self.ac_ext):
+                        f_file_name += self.ac_ext
+                    if not f_file_name is None and not str(f_file_name) == "":
+                        f_output_name.setText(f_file_name)
+                    self.last_ac_dir = os.path.dirname(f_file_name)
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
+
+        def format_changed(a_val=None):
+            if f_wav_radiobutton.isChecked():
+                self.ac_ext = ".wav"
+            else:
+                self.ac_ext = ".mp3"
+            f_str = str(f_output_name.text()).strip()
+            if f_str != "" and not f_str.endswith(self.ac_ext):
+                f_arr = f_str.rsplit(".")
+                f_output_name.setText(f_arr[0] + self.ac_ext)
+
+        self.ac_ext = ".wav"
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Audio File Converter")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_name = QtGui.QLineEdit()
+        f_name.setReadOnly(True)
+        f_name.setMinimumWidth(360)
+        f_layout.addWidget(QtGui.QLabel("Input File:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+        f_select_file = QtGui.QPushButton("Select")
+        f_select_file.pressed.connect(file_name_select)
+        f_layout.addWidget(f_select_file, 0, 2)
+
+        f_output_name = QtGui.QLineEdit()
+        f_output_name.setReadOnly(True)
+        f_output_name.setMinimumWidth(360)
+        f_layout.addWidget(QtGui.QLabel("Output File:"), 1, 0)
+        f_layout.addWidget(f_output_name, 1, 1)
+        f_select_file_output = QtGui.QPushButton("Select")
+        f_select_file_output.pressed.connect(file_name_select_output)
+        f_layout.addWidget(f_select_file_output, 1, 2)
+
+        f_rb_group = QtGui.QButtonGroup()
+        f_wav_radiobutton = QtGui.QRadioButton("wav")
+        f_wav_radiobutton.setEnabled(True)
+        f_wav_radiobutton.setChecked(True)
+        f_rb_group.addButton(f_wav_radiobutton)
+        f_wav_layout = QtGui.QHBoxLayout()
+        f_wav_layout.addWidget(f_wav_radiobutton)
+        f_layout.addLayout(f_wav_layout, 2, 1)
+        f_wav_radiobutton.toggled.connect(format_changed)
+
+        f_mp3_radiobutton = QtGui.QRadioButton("mp3")
+        f_mp3_radiobutton.setEnabled(False)
+        f_rb_group.addButton(f_mp3_radiobutton)
+        f_mp3_layout = QtGui.QHBoxLayout()
+        f_mp3_layout.addWidget(f_mp3_radiobutton)
+        f_mp3_radiobutton.toggled.connect(format_changed)
+        f_mp3_br_combobox = QtGui.QComboBox()
+        f_mp3_br_combobox.addItems(["320", "160", "128"])
+        f_mp3_layout.addWidget(QtGui.QLabel("Bitrate"))
+        f_mp3_layout.addWidget(f_mp3_br_combobox)
+        f_layout.addLayout(f_mp3_layout, 3, 1)
+
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 2)
+        f_window.exec_()
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
@@ -6325,6 +6454,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.setStyleSheet(f_style)
         self.first_offline_render = True
         self.last_offline_dir = global_home
+        self.last_ac_dir = global_home
         self.copy_to_clipboard_checked = True
 
         self.central_widget = QtGui.QWidget()
@@ -6414,6 +6544,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.open_theme_action = QtGui.QAction("Open Theme...", self)
         self.menu_appearance.addAction(self.open_theme_action)
         self.open_theme_action.triggered.connect(self.on_open_theme)
+
+        self.menu_tools = self.menu_bar.addMenu("&Tools")
+
+        self.ac_action = QtGui.QAction("Audio Converter...", self)
+        self.menu_tools.addAction(self.ac_action)
+        self.ac_action.triggered.connect(self.audio_converter_dialog)
 
         self.menu_help = self.menu_bar.addMenu("&Help")
 
