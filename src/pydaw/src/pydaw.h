@@ -422,12 +422,6 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
     char *message;
-        
-    if(!strcmp(key, "load"))
-    {
-        instance->euphoria_load_set = 1;
-        strcpy(instance->euphoria_load, value);
-    }
 
     if (instance->descriptor->configure) 
     {
@@ -3766,18 +3760,26 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
                 break;
             }
             
-            char * f_value = c_iterate_2d_char_array_to_next_line(f_2d_array);
-
             assert(strcmp(f_key, ""));
-            assert(strcmp(f_value, ""));
+                        
+            if(f_key[0] == 'c')
+            {
+                char * f_config_key = c_iterate_2d_char_array(f_2d_array);
+                char * f_value = c_iterate_2d_char_array_to_next_line(f_2d_array);
+                
+                char * message = f_instance->descriptor->configure(f_instance->PYFX_handle, 
+                        f_config_key, f_value, 0); //&a_pydaw_data->main_mutex);
             
-            if(!strcmp(f_key, "load"))
-            {   
-                strcpy(f_instance->euphoria_load, f_value);
-                f_instance->euphoria_load_set = 1;
+                if (message) 
+                {
+                    //TODO:  delete this
+                    free(message);
+                }
+                
             }
             else
             {
+                char * f_value = c_iterate_2d_char_array_to_next_line(f_2d_array);
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
                 
@@ -3789,17 +3791,6 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
 
         g_free_2d_char_array(f_2d_array);
         
-        if(f_instance->euphoria_load_set)
-        {
-            char * message = f_instance->descriptor->configure(f_instance->PYFX_handle, "load", 
-                    f_instance->euphoria_load, 0); //&a_pydaw_data->main_mutex);
-            
-            if (message) 
-            {
-                printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_instance->euphoria_load, message);
-                free(message);
-            }
-        }
     }
 }
 

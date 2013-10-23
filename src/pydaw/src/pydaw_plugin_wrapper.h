@@ -58,9 +58,8 @@ typedef struct st_pydaw_plugin
             
     float **pluginInputBuffers, **pluginOutputBuffers;
     float *pluginControlIns, *pluginControlOuts;
-    int *pluginControlInPortNumbers;    
-    char euphoria_load[16384];
-    int euphoria_load_set;
+    int *pluginControlInPortNumbers;
+    int configure_keys_count;
 }t_pydaw_plugin;
 
 #ifdef PYDAW_PLUGIN_MEMCHECK    
@@ -70,22 +69,18 @@ void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
 int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, const char *value, pthread_mutex_t * a_mutex)
 {    
     char * message = 0;
-        
-    if(!strcmp(key, "load"))
-    {
-        instance->euphoria_load_set = 1;
-        strcpy(instance->euphoria_load, value);
-    }
-    
+     
     if (instance->descriptor->configure) 
     {
         message = instance->descriptor->configure(instance->PYFX_handle, key, value, a_mutex);
         if (message) 
         {
-            printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);
+            printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n", key, value, message);
             free(message);
         }    
     }
+
+    printf("Did not find configure key %s\n", key);
     
     return 0;
 }
@@ -115,8 +110,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
             break;
     }
     
-    //f_result->euphoria_last_dir_set = 0;
-    f_result->euphoria_load_set = 0;                
     //f_result->descfn = (PYINST_Descriptor_Function)dlsym(f_result->lib_handle, "PYINST_descriptor");
     
     f_result->descriptor = f_result->descfn(0);

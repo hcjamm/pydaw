@@ -57,9 +57,9 @@ class pydaw_plugin_file:
     def __str__(self):
         f_result = ""
         for k, v in list(self.configure_dict.items()):
-            f_result += str(k) + "|" + str(v) + "\n"
+            f_result += "c|%s|%s\n" % (k, v)
         for k, v in list(self.port_dict.items()):
-            f_result += str(k) + "|" + str(v.get_value()) + "\n"
+            f_result += "%s|%s\n" % (k, v.get_value())
         return f_result + "\\"
 
 global_pydaw_knob_pixmap = None
