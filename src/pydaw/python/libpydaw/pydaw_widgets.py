@@ -35,13 +35,9 @@ class pydaw_plugin_file:
                 if f_line == "\\":
                     break
                 f_items = f_line.split("|", 1)
-                f_config = False
-                try:
-                    int(f_items[0])
-                except ValueError:
-                    f_config = True
-                if f_config:
-                    self.configure_dict[(f_items[0])] = f_items[1]
+                if f_items[0] == 'c':
+                    f_items2 = f_items[1].split("|", 1)
+                    self.configure_dict[(f_items2[0])] = f_items2[1]
                 else:
                     self.port_dict[int(f_items[0])] = float(f_items[1])
 
