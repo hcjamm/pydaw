@@ -1325,27 +1325,6 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 void * v_pydaw_worker_thread(void* a_arg)
 {
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
-    /*
-    struct sched_param param;
-    int policy;
-    pthread_t thread_id = pthread_self();
-    pthread_getschedparam(thread_id, &policy, &param);
-
-    printf("existing policy=%1d, priority=%1d\r\n",
-    policy,param.sched_priority);
-
-    policy = SCHED_RR;
-    param.sched_priority = 90;
-    pthread_setschedparam(thread_id, policy, &param);
-        
-    cpu_set_t cpuset;    
-    CPU_ZERO(&cpuset);
-    CPU_SET(f_args->thread_num, &cpuset);
-
-    //pthread_t current_thread = pthread_self();    
-    //pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset);
-    sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
-    */
     
     while(1)
     {
