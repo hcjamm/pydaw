@@ -33,7 +33,7 @@ extern "C" {
     
 //#define PYDAW_PLUGIN_MEMCHECK
 
-PYFX_Data g_pydaw_get_port_default(const PYFX_Descriptor *plugin, int port, int sample_rate)
+PYFX_Data g_pydaw_get_port_default(const PYFX_Descriptor *plugin, int port)
 {
     PYFX_PortRangeHint hint = plugin->PortRangeHints[port];    
     assert(hint.DefaultValue <= hint.UpperBound && hint.DefaultValue >= hint.LowerBound );
@@ -217,8 +217,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
                 f_result->pluginControlInPortNumbers[controlIn] = j;
                 f_result->pluginPortControlInNumbers[j] = controlIn;
 
-                f_result->pluginControlIns[controlIn] = g_pydaw_get_port_default
-                    (f_result->descriptor->PYFX_Plugin, j, a_sample_rate);
+                f_result->pluginControlIns[controlIn] = g_pydaw_get_port_default(f_result->descriptor->PYFX_Plugin, j);
 
                 f_result->descriptor->PYFX_Plugin->connect_port
                     (f_result->PYFX_handle, j, &f_result->pluginControlIns[controlIn++]);
