@@ -31,8 +31,6 @@ extern "C" {
     
 #define PYDAW_MAX_BUFFER_SIZE 4096
     
-//#define PYDAW_PLUGIN_MEMCHECK
-
 PYFX_Data g_pydaw_get_port_default(const PYFX_Descriptor *plugin, int port)
 {
     PYFX_PortRangeHint hint = plugin->PortRangeHints[port];    
@@ -231,10 +229,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
     
     f_result->descriptor->PYFX_Plugin->activate(f_result->PYFX_handle);
     
-#ifdef PYDAW_PLUGIN_MEMCHECK
-    v_pydaw_plugin_memcheck(f_result);
-#endif
-    
     return f_result;
 }
 
@@ -251,10 +245,6 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
         {
             a_plugin->descriptor->PYFX_Plugin->cleanup(a_plugin->PYFX_handle);
         }
-        
-#ifdef PYDAW_PLUGIN_MEMCHECK
-    v_pydaw_plugin_memcheck(a_plugin);
-#endif
 
         free(a_plugin);
     }
@@ -268,22 +258,8 @@ void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, t_pydaw_seq_eve
         int a_event_count)
 {
     a_plugin->descriptor->run_synth(a_plugin->PYFX_handle, a_sample_count, a_event_buffer, a_event_count);
-
-#ifdef PYDAW_PLUGIN_MEMCHECK
-    v_pydaw_plugin_memcheck(a_plugin);
-#endif
 }
 
-#ifdef PYDAW_PLUGIN_MEMCHECK
-/*Check for known symptoms of memory corruption*/
-void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin)
-{
-    if(a_plugin)
-    {
-        assert((a_plugin->euphoria_load_set == 0) || (a_plugin->euphoria_load_set == 1));
-    }
-}
-#endif
 #ifdef	__cplusplus
 }
 #endif
