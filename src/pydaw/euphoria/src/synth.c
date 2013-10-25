@@ -694,16 +694,6 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
     t_euphoria *plugin_data = (t_euphoria *) instance;    
     int event_pos = 0;
     int i, i2, i3;
-
-    for (i = 0; i < plugin_data->channels; ++i)
-    {
-	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
-    }
-    
-    /*if (pthread_mutex_lock(&plugin_data->mutex))
-    {
-	return;
-    }*/
     
     plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
     
@@ -932,6 +922,9 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
     
     for(i = 0; i < sample_count; i++)        
     {
+	plugin_data->output[0][i] = 0.0f;
+        plugin_data->output[1][i] = 0.0f;
+    
         v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
