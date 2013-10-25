@@ -7283,6 +7283,7 @@ def open_pydaw_engine():
         f_sleep = "--sleep"
         if int(pydaw_util.global_device_val_dict["audioEngine"]) == 4 and pydaw_util.pydaw_which("gdb") is not None:
             f_run_with = " gdb "
+            f_sleep = ""
         elif int(pydaw_util.global_device_val_dict["audioEngine"]) == 5 and pydaw_util.pydaw_which("valgrind") is not None:
             f_run_with = " valgrind "
             f_sleep = ""
