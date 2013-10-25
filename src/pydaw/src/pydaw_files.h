@@ -483,6 +483,14 @@ void v_pydaw_write_to_file(char * a_file, char * a_string)
     assert(pFile);
     fprintf(pFile, "%s",a_string);
     fclose(pFile);
+    
+    char mode[] = "0777";    
+    int i = strtol(mode, 0, 8);
+    
+    if (chmod (a_file,i) < 0)
+    {
+        printf("Error chmod'ing file %s.\n", a_file);
+    }
 }
 
 void v_pydaw_append_to_file(char * a_file, char * a_string)
