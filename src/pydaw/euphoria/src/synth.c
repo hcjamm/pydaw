@@ -568,7 +568,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
             +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
             + (plugin_data->data[n]->last_pitch) + ((plugin_data->data[n]->lfo1->output) * (*(plugin_data->lfo_pitch)));
 
-    if((plugin_data->voices->voices[n].off) == (i + plugin_data->sampleNo)) //pos + 
+    if(plugin_data->voices->voices[n].off == plugin_data->sampleNo)
     {   
         if(plugin_data->voices->voices[n].n_state == note_state_killed)
         {

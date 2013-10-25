@@ -12,11 +12,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 */
 
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
@@ -37,7 +32,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event * events, int EventCount);
 
 static void v_run_wayv_voice(t_wayv *, t_voc_single_voice, t_wayv_poly_voice *,
-		      PYFX_Data *, PYFX_Data *, unsigned int, int );
+		      PYFX_Data *, PYFX_Data *, int, int );
 
 const PYFX_Descriptor *wayv_PYFX_descriptor(int index);
 const PYINST_Descriptor *wayv_PYINST_descriptor(int index);
@@ -589,189 +584,189 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
     while((plugin_data->i_iterator) < sample_count)
     {
-        plugin_data->output0[(plugin_data->i_iterator)] = 0.0f;                        
-        plugin_data->output1[(plugin_data->i_iterator)] = 0.0f;     
+        plugin_data->output0[(plugin_data->i_iterator)] = 0.0f;
+        plugin_data->output1[(plugin_data->i_iterator)] = 0.0f;
+        
+        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+    
+        plugin_data->i_run_poly_voice = 0; 
+        while ((plugin_data->i_run_poly_voice) < WAYV_POLYPHONY) 
+        {
+            //if (data[voice].state != inactive) 
+            if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_main->stage) != 4)        
+            {
+                v_run_wayv_voice(plugin_data,                    
+                        plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
+                        plugin_data->data[(plugin_data->i_run_poly_voice)],                    
+                        plugin_data->output0,
+                        plugin_data->output1,
+                        plugin_data->i_iterator,
+                        plugin_data->i_run_poly_voice
+                        );
+            }
+            else
+            {
+                plugin_data->voices->voices[(plugin_data->i_run_poly_voice)].n_state = note_state_off;
+            }
+
+            plugin_data->i_run_poly_voice = (plugin_data->i_run_poly_voice) + 1; 
+        }
+
+        plugin_data->sampleNo++;
         plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
     }    
-
-    v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
     
-    plugin_data->i_run_poly_voice = 0; 
-    while ((plugin_data->i_run_poly_voice) < WAYV_POLYPHONY) 
-    {
-        //if (data[voice].state != inactive) 
-        if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_main->stage) != 4)        
-        {
-            v_run_wayv_voice(plugin_data,                    
-                    plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
-                    plugin_data->data[(plugin_data->i_run_poly_voice)],                    
-                    plugin_data->output0,
-                    plugin_data->output1,
-                    sample_count,
-                    plugin_data->i_run_poly_voice
-                    );
-        }
-        else
-        {
-            plugin_data->voices->voices[(plugin_data->i_run_poly_voice)].n_state = note_state_off;
-        }
-
-        plugin_data->i_run_poly_voice = (plugin_data->i_run_poly_voice) + 1; 
-    }
-        
-    plugin_data->sampleNo += sample_count;
+    //plugin_data->sampleNo += sample_count;
 }
 
-static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voice, t_wayv_poly_voice *a_voice, PYFX_Data *out0, PYFX_Data *out1, unsigned int a_sample_count, int a_voice_num)
+static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voice, t_wayv_poly_voice *a_voice, 
+        PYFX_Data *out0, PYFX_Data *out1, int a_i, int a_voice_num)
 {   
-    a_voice->i_voice = 0;
+    a_voice->i_voice = a_i;
     
     if((plugin_data->sampleNo) < (a_poly_voice.on))
     {
-        a_voice->i_voice =  (a_poly_voice.on) - (plugin_data->sampleNo);
+        return;
     }
     
-    for(; (a_voice->i_voice)<a_sample_count;a_voice->i_voice = (a_voice->i_voice) + 1) 
-    {           
-        if ((((a_voice->i_voice) + (plugin_data->sampleNo)) == a_poly_voice.off) && ((a_voice->adsr_main->stage) < 3))
+    if (((plugin_data->sampleNo) == a_poly_voice.off) && ((a_voice->adsr_main->stage) < 3))
+    {
+        if(a_poly_voice.n_state == note_state_killed)
         {
-            if(a_poly_voice.n_state == note_state_killed)
-            {
-                v_wayv_poly_note_off(a_voice, 1);
-            }
-            else
-            {
-                v_wayv_poly_note_off(a_voice, 0);
-            }
-	}        
-
-        a_voice->current_sample = 0.0f;
-        
-        f_rmp_run_ramp(a_voice->glide_env);
-                        
-        v_adsr_run_db(plugin_data->data[a_voice_num]->adsr_amp);        
-
-        v_adsr_run(plugin_data->data[a_voice_num]->adsr_filter);
-                
-        f_rmp_run_ramp(plugin_data->data[a_voice_num]->ramp_env);        
-        
-        //Set and run the LFO
-        v_lfs_set(plugin_data->data[a_voice_num]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
-        v_lfs_run(plugin_data->data[a_voice_num]->lfo1);
-        
-        a_voice->lfo_amount_output = (a_voice->lfo1->output) * ((*plugin_data->lfo_amount) * 0.01f);
-        
-        a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo_amount_output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);        
-        a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);        
-        
-        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + ((a_voice->ramp_env->output_multiplied) * (*plugin_data->pitch_env_amt))
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
-               
-        if(a_voice->osc1_on)
+            v_wayv_poly_note_off(a_voice, 1);
+        }
+        else
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (a_voice->osc1_uni_spread),
-                    ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
-            
-            v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm1, a_voice->fm1_last);
-            v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm2, a_voice->fm2_last);
-            v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm3, a_voice->fm3_last);
-            
-            if(a_voice->adsr_amp1_on)
-            {
-                v_adsr_run_db(a_voice->adsr_amp1);      
-                a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output);
-                a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
-            }
-            else
-            {
-                a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1);
-                a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
-            }
+            v_wayv_poly_note_off(a_voice, 0);
         }
-        
-        if(a_voice->osc2_on)
+    }        
+
+    a_voice->current_sample = 0.0f;
+
+    f_rmp_run_ramp(a_voice->glide_env);
+
+    v_adsr_run_db(plugin_data->data[a_voice_num]->adsr_amp);        
+
+    v_adsr_run(plugin_data->data[a_voice_num]->adsr_filter);
+
+    f_rmp_run_ramp(plugin_data->data[a_voice_num]->ramp_env);        
+
+    //Set and run the LFO
+    v_lfs_set(plugin_data->data[a_voice_num]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
+    v_lfs_run(plugin_data->data[a_voice_num]->lfo1);
+
+    a_voice->lfo_amount_output = (a_voice->lfo1->output) * ((*plugin_data->lfo_amount) * 0.01f);
+
+    a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo_amount_output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);        
+    a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);        
+
+    a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + ((a_voice->ramp_env->output_multiplied) * (*plugin_data->pitch_env_amt))
+            + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
+
+    if(a_voice->osc1_on)
+    {
+        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (a_voice->osc1_uni_spread),
+                ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
+
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm1, a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm2, a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm3, a_voice->fm3_last);
+
+        if(a_voice->adsr_amp1_on)
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (a_voice->osc2_uni_spread),
-                    ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
-            
-            v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm1, a_voice->fm1_last);
-            v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm2, a_voice->fm2_last);
-            v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm3, a_voice->fm3_last);
-            
-            if(a_voice->adsr_amp2_on)
-            {
-                v_adsr_run_db(a_voice->adsr_amp2);
-                a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output);
-                a_voice->current_sample += (a_voice->fm2_last) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
-            }
-            else
-            {
-                a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2);
-                a_voice->current_sample += (a_voice->fm2_last) * (a_voice->osc2_linamp);
-            }
+            v_adsr_run_db(a_voice->adsr_amp1);      
+            a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output);
+            a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
         }
-        
-        if(a_voice->osc3_on)
+        else
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3, (a_voice->osc3_uni_spread),
-                    ((a_voice->base_pitch) + (*plugin_data->osc3pitch) + ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
-            
-            v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm1, a_voice->fm1_last);
-            v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm2, a_voice->fm2_last);
-            v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm3, a_voice->fm3_last);
-            
-            if(a_voice->adsr_amp3_on)
-            {
-                v_adsr_run_db(a_voice->adsr_amp3);
-                a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->adsr_amp3->output);
-                a_voice->current_sample += (a_voice->fm3_last) * (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
-            }
-            else
-            {
-                a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3);
-                a_voice->current_sample += (a_voice->fm3_last) * (a_voice->osc3_linamp);
-            }
+            a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1);
+            a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
         }
-        
-        a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
-        
-        v_adsr_run_db(a_voice->adsr_main);
-                
-        a_voice->current_sample = (a_voice->current_sample) * (a_voice->amp) * (a_voice->lfo_amp_output);
-        
-        a_voice->modulex_current_sample[0] = (a_voice->current_sample);
-        a_voice->modulex_current_sample[1] = (a_voice->current_sample);
-        
-        //Modular PolyFX, processed from the index created during note_on
-        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[a_voice_num]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
-        {            
-            v_mf3_set(a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])],
-                *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][2])); 
-
-            int f_mod_test;
-
-            for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]); f_mod_test++)
-            {
-                v_mf3_mod_single(
-                        a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])],
-                        *(a_voice->modulator_outputs[(plugin_data->polyfx_mod_src_index[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][f_mod_test])]),
-                        (plugin_data->polyfx_mod_matrix_values[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][f_mod_test]),
-                        (plugin_data->polyfx_mod_ctrl_indexes[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][f_mod_test])
-                        );
-            }
-
-            a_voice->fx_func_ptr[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])](a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])], (a_voice->modulex_current_sample[0]), (a_voice->modulex_current_sample[1])); 
-
-            a_voice->modulex_current_sample[0] = a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]->output0;
-            a_voice->modulex_current_sample[1] = a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]->output1;
-
-        }
-        
-        
-        /*Run the envelope and assign to the output buffers*/
-        out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) * (a_voice->adsr_main->output);
-        out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) * (a_voice->adsr_main->output);       
     }
+
+    if(a_voice->osc2_on)
+    {
+        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (a_voice->osc2_uni_spread),
+                ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
+
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm1, a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm2, a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm3, a_voice->fm3_last);
+
+        if(a_voice->adsr_amp2_on)
+        {
+            v_adsr_run_db(a_voice->adsr_amp2);
+            a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output);
+            a_voice->current_sample += (a_voice->fm2_last) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
+        }
+        else
+        {
+            a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2);
+            a_voice->current_sample += (a_voice->fm2_last) * (a_voice->osc2_linamp);
+        }
+    }
+
+    if(a_voice->osc3_on)
+    {
+        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3, (a_voice->osc3_uni_spread),
+                ((a_voice->base_pitch) + (*plugin_data->osc3pitch) + ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
+
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm1, a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm2, a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm3, a_voice->fm3_last);
+
+        if(a_voice->adsr_amp3_on)
+        {
+            v_adsr_run_db(a_voice->adsr_amp3);
+            a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->adsr_amp3->output);
+            a_voice->current_sample += (a_voice->fm3_last) * (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
+        }
+        else
+        {
+            a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3);
+            a_voice->current_sample += (a_voice->fm3_last) * (a_voice->osc3_linamp);
+        }
+    }
+
+    a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
+
+    v_adsr_run_db(a_voice->adsr_main);
+
+    a_voice->current_sample = (a_voice->current_sample) * (a_voice->amp) * (a_voice->lfo_amp_output);
+
+    a_voice->modulex_current_sample[0] = (a_voice->current_sample);
+    a_voice->modulex_current_sample[1] = (a_voice->current_sample);
+
+    //Modular PolyFX, processed from the index created during note_on
+    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[a_voice_num]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+    {            
+        v_mf3_set(a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])],
+            *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][2])); 
+
+        int f_mod_test;
+
+        for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]); f_mod_test++)
+        {
+            v_mf3_mod_single(
+                    a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])],
+                    *(a_voice->modulator_outputs[(plugin_data->polyfx_mod_src_index[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][f_mod_test])]),
+                    (plugin_data->polyfx_mod_matrix_values[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][f_mod_test]),
+                    (plugin_data->polyfx_mod_ctrl_indexes[a_voice_num][(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])][f_mod_test])
+                    );
+        }
+
+        a_voice->fx_func_ptr[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])](a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])], (a_voice->modulex_current_sample[0]), (a_voice->modulex_current_sample[1])); 
+
+        a_voice->modulex_current_sample[0] = a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]->output0;
+        a_voice->modulex_current_sample[1] = a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]->output1;
+
+    }
+
+    /*Run the envelope and assign to the output buffers*/
+    out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) * (a_voice->adsr_main->output);
+    out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) * (a_voice->adsr_main->output);       
+    
 }
 
 const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
