@@ -1526,25 +1526,25 @@ class pydaw_item:
 
     def __str__(self):
         f_result = ""
-        self.notes.sort()
-        self.ccs.sort()
-        self.pitchbends.sort()
-        for note in self.notes:
-            f_result += note.__str__()
-        for cc in self.ccs:
-            f_result += cc.__str__()
-        for pb in self.pitchbends:
-            f_result += pb.__str__()
+        f_list = self.notes + self.ccs + self.pitchbends
+        f_list.sort()
+
+        for f_event in f_list:
+            f_result += str(f_event)
+
         f_result += pydaw_terminating_char
         return f_result
 
-class pydaw_note:
+class pydaw_abstract_midi_event:
+    """ Allows inheriting classes to be sorted by .start variable
+    , which is left to the iheriter's to implement"""
+    def __lt__(self, other):
+        return self.start < other.start
+
+class pydaw_note(pydaw_abstract_midi_event):
     def __eq__(self, other):
         return((self.start == other.start) and (self.note_num == other.note_num) and (self.length == other.length) and \
         (self.velocity == other.velocity))
-
-    def __lt__(self, other):
-        return self.start < other.start
 
     def set_start(self, a_start):
         self.start = round(float(a_start), 4)
@@ -1586,12 +1586,9 @@ class pydaw_note:
     def __str__(self):
         return "n|%s|%s|%s|%s\n" % (self.start, self.length, self.note_num, self.velocity)
 
-class pydaw_cc:
+class pydaw_cc(pydaw_abstract_midi_event):
     def __eq__(self, other):
         return ((self.start == other.start) and (self.cc_num == other.cc_num) and (self.cc_val == other.cc_val))
-
-    def __lt__(self, other):
-        return self.start < other.start
 
     def __init__(self, a_start, a_plugin_index, a_port_num, a_cc_val):
         self.start = round(float(a_start), 4)
@@ -1623,12 +1620,9 @@ class pydaw_cc:
     def clone(self):
         return pydaw_cc.from_str(str(self))
 
-class pydaw_pitchbend:
+class pydaw_pitchbend(pydaw_abstract_midi_event):
     def __eq__(self, other):
         return ((self.start == other.start) and (self.pb_val == other.pb_val))  #TODO:  get rid of the pb_val comparison?
-
-    def __lt__(self, other):
-        return self.start < other.start
 
     def __init__(self, a_start, a_pb_val):
         self.start = round(float(a_start), 4)
