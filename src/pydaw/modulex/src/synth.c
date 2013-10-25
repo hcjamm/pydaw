@@ -34,7 +34,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/modules/delay/reverb.h"
 
 #include "synth.h"
-#include "meta.h"
 
 
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
@@ -294,10 +293,9 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) 
     {
-        LMSLDescriptor->UniqueID = MODULEX_PLUGIN_UUID;
-	LMSLDescriptor->Label = MODULEX_PLUGIN_NAME;
-	LMSLDescriptor->Name = MODULEX_PLUGIN_LONG_NAME;
-	LMSLDescriptor->Maker = MODULEX_PLUGIN_DEV;
+        LMSLDescriptor->UniqueID = 123456;	
+	LMSLDescriptor->Name = "Modulex";
+	LMSLDescriptor->Maker = "PyDAW Team";
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = MODULEX_COUNT;
 

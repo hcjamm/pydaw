@@ -201,13 +201,6 @@ typedef struct _PYFX_Descriptor {
      central body to avoid clashes. Hosts may assume that IDs are
      below 0x1000000. */
   unsigned long UniqueID;
-
-  /* This identifier can be used as a unique, case-sensitive
-     identifier for the plugin type within the plugin file. Plugin
-     types should be identified by file and label rather than by index
-     or plugin name, which may be changed in new plugin
-     versions. Labels must not contain white-space characters. */
-  const char * Label;
   
   /* This member points to the null-terminated name of the plugin
      (e.g. "Sine Oscillator"). */

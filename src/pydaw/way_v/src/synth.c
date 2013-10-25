@@ -32,7 +32,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/lib/lms_math.h"
 #include "synth.h"
-#include "meta.h"
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event * events, int EventCount);
@@ -788,10 +787,9 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
     LMSLDescriptor =
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
-        LMSLDescriptor->UniqueID = WAYV_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	LMSLDescriptor->Label = WAYV_PLUGIN_NAME;
-	LMSLDescriptor->Name = WAYV_PLUGIN_LONG_NAME;
-	LMSLDescriptor->Maker = WAYV_PLUGIN_DEV;
+        LMSLDescriptor->UniqueID = 987564;	
+	LMSLDescriptor->Name = "Way-V";
+	LMSLDescriptor->Maker = "PyDAW Team";
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = WAYV_COUNT;
 

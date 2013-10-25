@@ -33,9 +33,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/lib/lms_math.h"
 #include "synth.h"
-#include "meta.h"
-
-
 
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,
@@ -474,10 +471,9 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
     LMSLDescriptor =
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
-        LMSLDescriptor->UniqueID = RAYV_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	LMSLDescriptor->Label = RAYV_PLUGIN_NAME;	
-	LMSLDescriptor->Name = RAYV_PLUGIN_LONG_NAME;
-	LMSLDescriptor->Maker = RAYV_PLUGIN_DEV;
+        LMSLDescriptor->UniqueID = 54546565;	
+	LMSLDescriptor->Name = "Ray-V";
+	LMSLDescriptor->Maker = "PyDAW Team";
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = RAYV_COUNT;
 

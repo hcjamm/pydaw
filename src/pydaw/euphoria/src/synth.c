@@ -29,7 +29,6 @@ GNU General Public License for more details.
 #include <pthread.h>
 
 #include "synth.h"
-#include "meta.h"
 #include "../../libmodsynth/lib/lms_math.h"
 
 static fp_get_wavpool_item_from_host wavpool_get_func;
@@ -1092,9 +1091,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 	PYFX_Descriptor *desc = euphoriaLDescriptor;
 
 	desc->UniqueID = channels;
-	desc->Label = EUPHORIA_PLUGIN_NAME;
-	desc->Name =  EUPHORIA_PLUGIN_LONG_NAME;
-	desc->Maker = EUPHORIA_PLUGIN_DEV;
+	desc->Name =  "Euphoria";
+	desc->Maker = "PyDAW Team";
 	desc->Copyright = "GPL";
 	desc->PortCount = EUPHORIA_PORT_COUNT;
 
