@@ -32,7 +32,7 @@ void set_PYFX_ports(const PYINST_Descriptor * a_ddesc, PYFX_Handle * a_handle, f
 {   
     int in, out, controlIn, controlOut, j;
     
-    in = out = controlIn = controlOut, j = 0;
+    in = out = controlIn = controlOut = j = 0;
     
     for (j = 0; j < a_ddesc->PYFX_Plugin->PortCount; j++) 
     {
