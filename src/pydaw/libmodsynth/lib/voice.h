@@ -48,7 +48,7 @@ t_voc_single_voice g_voc_get_single_voice(int a_voice_number)
     t_voc_single_voice * f_result = (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice));
     
     f_result->voice_number = a_voice_number;
-    f_result->note = a_voice_number;
+    f_result->note = -1;
     f_result->n_state = note_state_off;
     f_result->on = -1;
     f_result->off = -1;
