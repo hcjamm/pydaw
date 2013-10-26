@@ -1934,15 +1934,13 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                         if(((f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
                             ((f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->start) < f_track_next_period_beats))
                         {
-                            int f_note_sample_offset = 0;
-                            float f_note_start_diff = ((f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->start) - f_track_current_period_beats) + f_track_beats_offset;
-                            float f_note_start_frac = f_note_start_diff / (a_pydaw_data->ml_sample_period_inc_beats);
-                            f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));
-                            
-                            a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)].tick = f_note_sample_offset;
-                            
                             if(f_i < PYDAW_MIDI_TRACK_COUNT && f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->type == PYDAW_EVENT_NOTEON)
                             {
+                                int f_note_sample_offset = 0;
+                                float f_note_start_diff = ((f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->start) - f_track_current_period_beats) + f_track_beats_offset;
+                                float f_note_start_frac = f_note_start_diff / (a_pydaw_data->ml_sample_period_inc_beats);
+                                f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));
+
                                 if((a_pydaw_data->note_offs[f_i][(f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->note)]) 
                                         >= (a_pydaw_data->current_sample))                                    
                                 {  //There's already a note_off scheduled ahead of this one, process it immediately to avoid hung notes                                    
@@ -1960,6 +1958,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                                 v_pydaw_ev_set_noteon(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0,
                                         f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->note,
                                         f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->velocity);
+
+                                a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)].tick = f_note_sample_offset;
 
                                 a_pydaw_data->track_pool[f_i]->current_period_event_index = (a_pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
 
