@@ -4498,7 +4498,7 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
         a_pydaw_data->is_previewing = 1;
 
         v_ifh_retrigger(a_pydaw_data->preview_audio_item->sample_read_head, 
-                a_pydaw_data->preview_audio_item->sample_start_offset); 
+                PYDAW_AUDIO_ITEM_PADDING_DIV2); 
         v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
 
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
