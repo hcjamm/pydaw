@@ -536,7 +536,7 @@ int main(int argc, char **argv)
 #else
     int f_usleep = 0;
     
-    if(!strcmp(argv[2], "--sleep"))
+    if(argc >= 3 && !strcmp(argv[2], "--sleep"))
     {
         f_usleep = 1;
     }
