@@ -6585,12 +6585,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_vlayout.addLayout(this_region_settings.hlayout0)
 
         self.song_region_splitter.addWidget(self.regions_tab_widget)
-        self.regions_tab_widget.addTab(this_region_editor.group_box, "Plugins")
+        self.regions_tab_widget.addTab(this_region_editor.group_box, "Instruments")
         self.regions_tab_widget.addTab(this_region_bus_editor.group_box, "Busses")
         self.regions_tab_widget.addTab(this_region_audio_editor.group_box, "Audio Tracks")
+        self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, "Audio Seq")
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
-        self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, "Audio Seq")
 
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
