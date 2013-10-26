@@ -693,9 +693,12 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 {
     t_euphoria *plugin_data = (t_euphoria *) instance;    
     int event_pos = 0;
+    int midi_event_pos = 0;
     int i, i2, i3;
     
     plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
+    
+    plugin_data->midi_event_count = 0;
     
     if((plugin_data->i_slow_index) >= EUPHORIA_SLOW_INDEX_COUNT)
     {
@@ -902,17 +905,19 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             {
                 v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
             }
-        } /*Note-off event*/
+        }
         else if (events[event_pos].type == PYDAW_EVENT_NOTEOFF )
         {            
             f_note = events[event_pos].note; 
             v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
         }
-
-        /*Pitch-bend sequencer event, modify the voices pitch*/
         else if (events[event_pos].type == PYDAW_EVENT_PITCHBEND) 
         {
-            plugin_data->sv_pitch_bend_value = 0.00012207 * events[event_pos].value * (*(plugin_data->master_pb_amt));
+            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
+            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
+            plugin_data->midi_event_values[plugin_data->midi_event_count] = 
+                    0.00012207 * events[event_pos].value * (*(plugin_data->master_pb_amt));
+            plugin_data->midi_event_count++;            
         }
 
         ++event_pos;
@@ -924,6 +929,16 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
     {
 	plugin_data->output[0][i] = 0.0f;
         plugin_data->output[1][i] = 0.0f;
+        
+        while(midi_event_pos < plugin_data->midi_event_count && plugin_data->midi_event_ticks[midi_event_pos] == i)
+        {
+            if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_PITCHBEND)
+            {
+                plugin_data->sv_pitch_bend_value = plugin_data->midi_event_values[midi_event_pos];
+            }
+            
+            midi_event_pos++;
+        }
     
         v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         

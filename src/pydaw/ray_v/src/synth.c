@@ -225,6 +225,9 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
     t_rayv *plugin_data = (t_rayv *) instance;
         
     plugin_data->i_run_poly_voice = 0;
+    plugin_data->midi_event_count = 0;
+    
+    int midi_event_pos = 0;
     
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
     {
@@ -322,8 +325,11 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
         /*Pitch-bend sequencer event, modify the voices pitch*/
         else if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_PITCHBEND) 
         {
-            plugin_data->sv_pitch_bend_value = 0.00012207f
-                    * (events[(plugin_data->event_pos)].value) * (*plugin_data->master_pb_amt);
+            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
+            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
+            plugin_data->midi_event_values[plugin_data->midi_event_count] = 
+                    0.00012207 * events[plugin_data->event_pos].value * (*(plugin_data->master_pb_amt));
+            plugin_data->midi_event_count++;
         }        
     }
     
@@ -334,6 +340,16 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
     {
         plugin_data->output0[(plugin_data->i_iterator)] = 0.0f;                        
         plugin_data->output1[(plugin_data->i_iterator)] = 0.0f;
+        
+        while(midi_event_pos < plugin_data->midi_event_count && plugin_data->midi_event_ticks[midi_event_pos] == plugin_data->i_iterator)
+        {
+            if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_PITCHBEND)
+            {
+                plugin_data->sv_pitch_bend_value = plugin_data->midi_event_values[midi_event_pos];
+            }
+            
+            midi_event_pos++;
+        }
         
         v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (*plugin_data->timbre));
         v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));        

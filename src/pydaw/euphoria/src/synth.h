@@ -169,7 +169,6 @@ typedef struct {
     t_euphoria_poly_voice * data[EUPHORIA_POLYPHONY];
         
     //These are used for storing the mono FX buffers from the polyphonic voices.
-    //4096 was chosen because AFAIK that's the largest size you can use in qjackctl
     float mono_fx_buffers[EUPHORIA_MONO_FX_GROUPS_COUNT][2][4096];
     
     int i_slow_index;  //For indexing operations that don't need to track realtime events closely
@@ -186,6 +185,12 @@ typedef struct {
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
+    
+    int midi_event_types[200];
+    int midi_event_ticks[200];
+    float midi_event_values[200];
+    int midi_event_ports[200];
+    int midi_event_count;
 } t_euphoria __attribute__((aligned(16)));
 
 

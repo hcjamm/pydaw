@@ -311,6 +311,12 @@ typedef struct {
     int i_dst;
     int i_src;    
     int i_ctrl;
+    
+    int midi_event_types[200];
+    int midi_event_ticks[200];
+    float midi_event_values[200];
+    int midi_event_ports[200];
+    int midi_event_count;
 } t_wayv;
 
 
