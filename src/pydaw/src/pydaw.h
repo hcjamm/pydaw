@@ -4421,9 +4421,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     sprintf(f_tmp_finished, "%s.finished", a_file_out);
     
-    FILE * f_finished = fopen(f_tmp_finished, "w");    
-    fclose(f_finished);
-    
+    v_pydaw_write_to_file(f_tmp_finished, "finished");
+        
     v_set_playback_cursor(a_pydaw_data, a_start_region, a_start_bar);
     v_pydaw_set_time_params(a_pydaw_data, f_block_size);
     
