@@ -241,13 +241,6 @@ typedef struct _PYFX_Descriptor {
      to a PYDAW_PLUGIN_HINT_TRANSFORM_XXXX value */
   const int * ValueTransformHint;
   
-  /* This may be used by the plugin developer to pass any custom
-     implementation data into an instantiate call. It must not be used
-     or interpreted by the host. It is expected that most plugin
-     writers will not use this facility as PYFX_Handle should be
-     used to hold instance data. */
-  void * ImplementationData;
-
   /* This member is a function pointer that instantiates a plugin. A
      handle is returned indicating the new plugin instance. The
      instantiation function accepts a sample rate as a parameter. The
@@ -451,34 +444,6 @@ typedef struct _PYINST_Descriptor {
      *
      * Calling configure() completely invalidates the program and bank
      * information last obtained from the plugin.
-     *
-     * Reserved and special key prefixes
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * The DSSI: prefix
-     * ----------------
-     * Configure keys starting with DSSI: are reserved for particular
-     * purposes documented in the DSSI specification.  At the moment,
-     * there is one such key: DSSI:PROJECT_DIRECTORY.  A host may call
-     * configure() passing this key and a directory path value.  This
-     * indicates to the plugin and its UI that a directory at that
-     * path exists and may be used for project-local data.  Plugins
-     * may wish to use the project directory as a fallback location
-     * when looking for other file data, or as a base for relative
-     * paths in other configuration values.
-     *
-     * The GLOBAL: prefix
-     * ------------------
-     * Configure keys starting with GLOBAL: may be used by the plugin
-     * and its UI for any purpose, but are treated specially by the
-     * host.  When one of these keys is used in a configure OSC call
-     * from the plugin UI, the host makes the corresponding configure
-     * call (preserving the GLOBAL: prefix) not only to the target
-     * plugin but also to all other plugins in the same instance
-     * group, as well as their UIs.  Note that if any instance
-     * returns non-NULL from configure to indicate error, the host
-     * may stop there (and the set of plugins on which configure has
-     * been called will thus depend on the host implementation).
-     * See also the configure OSC call documentation in RFC.txt.
      */
     char *(*configure)(PYFX_Handle Instance,
 		       const char *Key,
@@ -523,14 +488,6 @@ typedef struct _PYINST_Descriptor {
      * NOTE_OFFs.  It is the host's responsibility to remap events in
      * cases where an external MIDI source has sent it zero-velocity
      * NOTE_ONs.
-     *
-     * Bank and Program Events
-     * ~~~~~~~~~~~~~~~~~~~~~~~
-     * Hosts must map MIDI Bank Select MSB and LSB (0 and 32)
-     * controllers and MIDI Program Change events onto the banks and
-     * programs specified by the plugin, using the DSSI select_program
-     * call.  No host should ever deliver a program change or bank
-     * select controller to a plugin via run_synth.
      */
     void (*run_synth)(PYFX_Handle    Instance,
 		      int    SampleCount,
