@@ -2100,7 +2100,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     a_pydaw_data->f_next_current_sample = f_next_current_sample;
     a_pydaw_data->events = events;
     a_pydaw_data->event_count = event_count;
-    
+        
     if((a_pydaw_data->playback_mode) > 0)
     {
         v_pydaw_set_time_params(a_pydaw_data, sample_count);
@@ -2130,10 +2130,6 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                 }
             }
         }                
-    } //If playback_mode > 0
-    else
-    {
-        v_pydaw_process_external_midi(a_pydaw_data, sample_count, events, event_count);  //Process external MIDI if playback/recording are stopped...
     }
         
     //notify the worker threads
