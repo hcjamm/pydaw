@@ -485,11 +485,6 @@ typedef struct _PYINST_Descriptor {
 		       const char *Value,
                        pthread_mutex_t * a_mutex);
 
-    #define PYINST_RESERVED_CONFIGURE_PREFIX "DSSI:"
-    #define PYINST_GLOBAL_CONFIGURE_PREFIX "GLOBAL:"
-    #define PYINST_PROJECT_DIRECTORY_KEY \
-	PYINST_RESERVED_CONFIGURE_PREFIX "PROJECT_DIRECTORY"
-
     /**
      * run_synth()
      *
