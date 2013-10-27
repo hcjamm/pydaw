@@ -478,13 +478,10 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
 
 const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 {
-    PYFX_Descriptor *LMSLDescriptor = NULL;
-    char **port_names;
+    PYFX_Descriptor *LMSLDescriptor = NULL;    
     PYFX_PortDescriptor *port_descriptors;
     PYFX_PortRangeHint *port_range_hints;
-    int * automatable;
-    int * value_tranform_hints;
-
+    
     LMSLDescriptor =
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
@@ -505,264 +502,185 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
 	    (const PYFX_PortRangeHint *) port_range_hints;
-
-	port_names = (char **) calloc(LMSLDescriptor->PortCount, sizeof(char *));
-	LMSLDescriptor->PortNames = (const char **) port_names;
-                
-        automatable = (int*)calloc(LMSLDescriptor->PortCount, sizeof(int));
-        LMSLDescriptor->Automatable = automatable;
-        
-        value_tranform_hints = (int*)calloc(LMSLDescriptor->PortCount, sizeof(int));
-        LMSLDescriptor->ValueTransformHint = value_tranform_hints;
-
+	
 	/* Parameters for output */
-	port_descriptors[RAYV_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_names[RAYV_OUTPUT0] = "Output 0";
+	port_descriptors[RAYV_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;	
 	port_range_hints[RAYV_OUTPUT0].DefaultValue = 0.0f;
 
-        port_descriptors[RAYV_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_names[RAYV_OUTPUT1] = "Output 1";
+        port_descriptors[RAYV_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;	
 	port_range_hints[RAYV_OUTPUT1].DefaultValue = 0.0f;
                 
-	port_descriptors[RAYV_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[RAYV_ATTACK] = "Attack time (s)";
+	port_descriptors[RAYV_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
 	port_range_hints[RAYV_ATTACK].DefaultValue = 10.0f;
 	port_range_hints[RAYV_ATTACK].LowerBound = 0.0f; 
 	port_range_hints[RAYV_ATTACK].UpperBound = 100.0f;
-        automatable[RAYV_ATTACK] = 1;
-        value_tranform_hints[RAYV_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	port_descriptors[RAYV_DECAY] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[RAYV_DECAY] = "Decay time (s)";
+	port_descriptors[RAYV_DECAY] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
 	port_range_hints[RAYV_DECAY].DefaultValue = 10.0f;
 	port_range_hints[RAYV_DECAY].LowerBound = 10.0f; 
 	port_range_hints[RAYV_DECAY].UpperBound = 100.0f;
-        automatable[RAYV_DECAY] = 1;
-        value_tranform_hints[RAYV_DECAY] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
-
-	port_descriptors[RAYV_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[RAYV_SUSTAIN] = "Sustain level (%)";
+        
+	port_descriptors[RAYV_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
 	port_range_hints[RAYV_SUSTAIN].DefaultValue = 0.0f;
 	port_range_hints[RAYV_SUSTAIN].LowerBound = -60.0f;
 	port_range_hints[RAYV_SUSTAIN].UpperBound = 0.0f;
-        automatable[RAYV_SUSTAIN] = 1;
 
-	port_descriptors[RAYV_RELEASE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[RAYV_RELEASE] = "Release time (s)";
+	port_descriptors[RAYV_RELEASE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
 	port_range_hints[RAYV_RELEASE].DefaultValue = 50.0f;
 	port_range_hints[RAYV_RELEASE].LowerBound = 10.0f; 
 	port_range_hints[RAYV_RELEASE].UpperBound = 200.0f;
-        automatable[RAYV_RELEASE] = 1;
-        value_tranform_hints[RAYV_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	port_descriptors[RAYV_TIMBRE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_TIMBRE] = "Filter Cutoff";
+	port_descriptors[RAYV_TIMBRE] = port_descriptors[RAYV_ATTACK];	
 	port_range_hints[RAYV_TIMBRE].DefaultValue = 124.0f;
 	port_range_hints[RAYV_TIMBRE].LowerBound =  20.0f;
 	port_range_hints[RAYV_TIMBRE].UpperBound =  124.0f;
-        automatable[RAYV_TIMBRE] = 1;
-        value_tranform_hints[RAYV_TIMBRE] = PYDAW_PLUGIN_HINT_TRANSFORM_PITCH_TO_HZ;
         
 	port_descriptors[RAYV_RES] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_RES] = "Res";
 	port_range_hints[RAYV_RES].DefaultValue = -15.0f;
 	port_range_hints[RAYV_RES].LowerBound =  -30.0f;
 	port_range_hints[RAYV_RES].UpperBound =  0.0f;
-        automatable[RAYV_RES] = 1;
         
 	port_descriptors[RAYV_DIST] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_DIST] = "Dist";
 	port_range_hints[RAYV_DIST].DefaultValue = 15.0f;
 	port_range_hints[RAYV_DIST].LowerBound =  -6.0f;
 	port_range_hints[RAYV_DIST].UpperBound =  36.0f;
-        automatable[RAYV_DIST] = 1;
         
 	port_descriptors[RAYV_FILTER_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[RAYV_FILTER_ATTACK] = "Attack time (s) filter";
 	port_range_hints[RAYV_FILTER_ATTACK].DefaultValue = 10.0f;
 	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 0.0f;
 	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 100.0f;
-        automatable[RAYV_FILTER_ATTACK] = 1;
-        value_tranform_hints[RAYV_FILTER_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[RAYV_FILTER_DECAY] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_FILTER_DECAY] = "Decay time (s) filter";
 	port_range_hints[RAYV_FILTER_DECAY].DefaultValue = 50.0f;
 	port_range_hints[RAYV_FILTER_DECAY].LowerBound = 10.0f;
 	port_range_hints[RAYV_FILTER_DECAY].UpperBound = 100.0f;
-        automatable[RAYV_FILTER_DECAY] = 1;
-        value_tranform_hints[RAYV_FILTER_DECAY] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[RAYV_FILTER_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
-	port_names[RAYV_FILTER_SUSTAIN] = "Sustain level (%) filter";
 	port_range_hints[RAYV_FILTER_SUSTAIN].DefaultValue = 100.0f;
 	port_range_hints[RAYV_FILTER_SUSTAIN].LowerBound = 0.0f; 
 	port_range_hints[RAYV_FILTER_SUSTAIN].UpperBound = 100.0f; 
-        automatable[RAYV_FILTER_SUSTAIN] = 1;
-        value_tranform_hints[RAYV_FILTER_SUSTAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_FILTER_RELEASE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_FILTER_RELEASE] = "Release time (s) filter";
 	port_range_hints[RAYV_FILTER_RELEASE].DefaultValue = 50.0f;
 	port_range_hints[RAYV_FILTER_RELEASE].LowerBound = 10.0f; 
 	port_range_hints[RAYV_FILTER_RELEASE].UpperBound = 200.0f; 
-        automatable[RAYV_FILTER_RELEASE] = 1;
-        value_tranform_hints[RAYV_FILTER_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_NOISE_AMP] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_NOISE_AMP] = "Noise Amp";
 	port_range_hints[RAYV_NOISE_AMP].DefaultValue = -30.0f;
 	port_range_hints[RAYV_NOISE_AMP].LowerBound =  -60.0f;
 	port_range_hints[RAYV_NOISE_AMP].UpperBound =  0.0f;
-        automatable[RAYV_NOISE_AMP] = 1;
                 
 	port_descriptors[RAYV_FILTER_ENV_AMT] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_FILTER_ENV_AMT] = "Filter Env Amt";
 	port_range_hints[RAYV_FILTER_ENV_AMT].DefaultValue = 0.0f;
 	port_range_hints[RAYV_FILTER_ENV_AMT].LowerBound =  -36.0f;
 	port_range_hints[RAYV_FILTER_ENV_AMT].UpperBound =  36.0f;
-        automatable[RAYV_FILTER_ENV_AMT] = 1;
         
 	port_descriptors[RAYV_DIST_WET] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_DIST_WET] = "Dist Wet";
 	port_range_hints[RAYV_DIST_WET].DefaultValue = 0.0f;
 	port_range_hints[RAYV_DIST_WET].LowerBound =  0.0f; 
 	port_range_hints[RAYV_DIST_WET].UpperBound =  100.0f;
-        automatable[RAYV_DIST_WET] = 1;
-        value_tranform_hints[RAYV_DIST_WET] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;        
         
 	port_descriptors[RAYV_OSC1_TYPE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC1_TYPE] = "Osc 1 Type";
 	port_range_hints[RAYV_OSC1_TYPE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC1_TYPE].LowerBound =  0.0f;
 	port_range_hints[RAYV_OSC1_TYPE].UpperBound =  5.0f;        
         
 	port_descriptors[RAYV_OSC1_PITCH] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC1_PITCH] = "Osc 1 Pitch";
 	port_range_hints[RAYV_OSC1_PITCH].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC1_PITCH].LowerBound =  -36.0f;
 	port_range_hints[RAYV_OSC1_PITCH].UpperBound =  36.0f;
         
 	port_descriptors[RAYV_OSC1_TUNE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC1_TUNE] = "Osc 1 Tune";
 	port_range_hints[RAYV_OSC1_TUNE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC1_TUNE].LowerBound = -100.0f;
 	port_range_hints[RAYV_OSC1_TUNE].UpperBound =  100.0f;
         
 	port_descriptors[RAYV_OSC1_VOLUME] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC1_VOLUME] = "Osc 1 Vol";
 	port_range_hints[RAYV_OSC1_VOLUME].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC1_VOLUME].LowerBound =  -60.0f;
 	port_range_hints[RAYV_OSC1_VOLUME].UpperBound =  0.0f;
                 
 	port_descriptors[RAYV_OSC2_TYPE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC2_TYPE] = "Osc 2 Type";
 	port_range_hints[RAYV_OSC2_TYPE].DefaultValue = 4.0f;
 	port_range_hints[RAYV_OSC2_TYPE].LowerBound =  0.0f;
 	port_range_hints[RAYV_OSC2_TYPE].UpperBound =  4.0f;
         
 	port_descriptors[RAYV_OSC2_PITCH] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC2_PITCH] = "Osc 2 Pitch";
 	port_range_hints[RAYV_OSC2_PITCH].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC2_PITCH].LowerBound =  -36.0f;
 	port_range_hints[RAYV_OSC2_PITCH].UpperBound =  36.0f;
         
 	port_descriptors[RAYV_OSC2_TUNE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC2_TUNE] = "Osc 2 Tune";
 	port_range_hints[RAYV_OSC2_TUNE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC2_TUNE].LowerBound = -100.0f;
 	port_range_hints[RAYV_OSC2_TUNE].UpperBound = 100.0f; 
         
 	port_descriptors[RAYV_OSC2_VOLUME] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC2_VOLUME] = "Osc 2 Vol";
 	port_range_hints[RAYV_OSC2_VOLUME].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC2_VOLUME].LowerBound =  -60.0f;
 	port_range_hints[RAYV_OSC2_VOLUME].UpperBound =  0.0f;
         
 	port_descriptors[RAYV_MASTER_VOLUME] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_MASTER_VOLUME] = "Master Vol";
 	port_range_hints[RAYV_MASTER_VOLUME].DefaultValue = -6.0f;
 	port_range_hints[RAYV_MASTER_VOLUME].LowerBound =  -60.0f;
 	port_range_hints[RAYV_MASTER_VOLUME].UpperBound =  12.0f;
         
 	port_descriptors[RAYV_MASTER_UNISON_VOICES] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_MASTER_UNISON_VOICES] = "Master Unison";
 	port_range_hints[RAYV_MASTER_UNISON_VOICES].DefaultValue = 4.0f;
 	port_range_hints[RAYV_MASTER_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[RAYV_MASTER_UNISON_VOICES].UpperBound =  7.0f;
         
 	port_descriptors[RAYV_MASTER_UNISON_SPREAD] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_MASTER_UNISON_SPREAD] = "Master Unison Spread";
 	port_range_hints[RAYV_MASTER_UNISON_SPREAD].DefaultValue = 50.0f;
 	port_range_hints[RAYV_MASTER_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[RAYV_MASTER_UNISON_SPREAD].UpperBound =  100.0f;
         
 	port_descriptors[RAYV_MASTER_GLIDE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_MASTER_GLIDE] = "Master Glide";
 	port_range_hints[RAYV_MASTER_GLIDE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_MASTER_GLIDE].LowerBound =  0.0f;
 	port_range_hints[RAYV_MASTER_GLIDE].UpperBound =  200.0f;
-        automatable[RAYV_MASTER_GLIDE] = 1;
-        value_tranform_hints[RAYV_MASTER_GLIDE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_MASTER_PITCHBEND_AMT] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
 	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].DefaultValue = 18.0f;
 	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
 	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
         
 	port_descriptors[RAYV_PITCH_ENV_AMT] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_PITCH_ENV_AMT] = "Pitch Env Amt";
 	port_range_hints[RAYV_PITCH_ENV_AMT].DefaultValue = 0.0f;
 	port_range_hints[RAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
 	port_range_hints[RAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
-        automatable[RAYV_PITCH_ENV_AMT] = 1;
         
 	port_descriptors[RAYV_PITCH_ENV_TIME] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_PITCH_ENV_TIME] = "Pitch Env Time";
 	port_range_hints[RAYV_PITCH_ENV_TIME].DefaultValue = 100.0f;
 	port_range_hints[RAYV_PITCH_ENV_TIME].LowerBound = 0.0f; 
 	port_range_hints[RAYV_PITCH_ENV_TIME].UpperBound = 200.0f;
-        automatable[RAYV_PITCH_ENV_TIME] = 1;
-        value_tranform_hints[RAYV_PITCH_ENV_TIME] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_LFO_FREQ] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_LFO_FREQ] = "LFO Freq";
 	port_range_hints[RAYV_LFO_FREQ].DefaultValue = 200.0f;
 	port_range_hints[RAYV_LFO_FREQ].LowerBound = 10.0f;
 	port_range_hints[RAYV_LFO_FREQ].UpperBound = 1600.0f;
-        automatable[RAYV_LFO_FREQ] = 1;
-        value_tranform_hints[RAYV_LFO_FREQ] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_LFO_TYPE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_LFO_TYPE] = "LFO Type";
 	port_range_hints[RAYV_LFO_TYPE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_LFO_TYPE].LowerBound = 0.0f; 
 	port_range_hints[RAYV_LFO_TYPE].UpperBound = 2.0f;
         
 	port_descriptors[RAYV_LFO_AMP] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_LFO_AMP] = "LFO Amp";
 	port_range_hints[RAYV_LFO_AMP].DefaultValue = 0.0f;
 	port_range_hints[RAYV_LFO_AMP].LowerBound = -24.0f;
 	port_range_hints[RAYV_LFO_AMP].UpperBound = 24.0f;
-        automatable[RAYV_LFO_AMP] = 1;        
         
 	port_descriptors[RAYV_LFO_PITCH] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_LFO_PITCH] = "LFO Pitch";
 	port_range_hints[RAYV_LFO_PITCH].DefaultValue = 0.0f;
 	port_range_hints[RAYV_LFO_PITCH].LowerBound = -36.0f;
 	port_range_hints[RAYV_LFO_PITCH].UpperBound = 36.0f;
-        automatable[RAYV_LFO_PITCH] = 1;
         
 	port_descriptors[RAYV_LFO_FILTER] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_LFO_FILTER] = "LFO Filter";
 	port_range_hints[RAYV_LFO_FILTER].DefaultValue = 0.0f;
 	port_range_hints[RAYV_LFO_FILTER].LowerBound = -48.0f;
 	port_range_hints[RAYV_LFO_FILTER].UpperBound = 48.0f;
-        automatable[RAYV_LFO_FILTER] = 1;
         
         port_descriptors[RAYV_OSC_HARD_SYNC] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_OSC_HARD_SYNC] = "Osc Hard Sync";
 	port_range_hints[RAYV_OSC_HARD_SYNC].DefaultValue = 0.0f;
 	port_range_hints[RAYV_OSC_HARD_SYNC].LowerBound = 0;
 	port_range_hints[RAYV_OSC_HARD_SYNC].UpperBound = 1;

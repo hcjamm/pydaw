@@ -33,44 +33,8 @@ GNU General Public License for more details.
 #define DEBUGGER_SAMPLE_COUNT 512
 
 
-void v_print_plugin_controller_maps()
-{
-    const PYFX_Descriptor * f_wayv = wayv_PYFX_descriptor(0);
-    const PYFX_Descriptor * f_rayv = rayv_PYFX_descriptor(0);
-    const PYFX_Descriptor * f_euphoria = euphoria_PYFX_descriptor(0);
-    const PYFX_Descriptor * f_modulex = modulex_PYFX_descriptor(0);
-    
-    char f_file_names[4][32] = {"Euphoria", "Way-V", "Ray-V", "Modulex"};
-    const PYFX_Descriptor * f_desc[] = {f_euphoria, f_wayv, f_rayv, f_modulex};
-    
-    int f_i = 0;
-    char f_line_buffer[1024] = "\0";
-    while(f_i < 4)
-    {        
-        char f_buffer[1000000] = "\0";
-        int f_i2 = 0;
-        while(f_i2 < f_desc[f_i]->PortCount)
-        {
-            if(f_desc[f_i]->Automatable[f_i2] == 1)
-            {
-                sprintf(f_line_buffer, "%s|%i|%i|%f|%f\n", f_desc[f_i]->PortNames[f_i2], f_i2, f_desc[f_i]->ValueTransformHint[f_i2],
-                        f_desc[f_i]->PortRangeHints[f_i2].LowerBound, f_desc[f_i]->PortRangeHints[f_i2].UpperBound);
-                strcat(f_buffer, f_line_buffer);
-            }
-            f_i2++;
-        }
-        char f_file_temp_name[32];
-        sprintf(f_file_temp_name, "%s.pymap", f_file_names[f_i]);
-        FILE * f_file = fopen(f_file_temp_name, "w");
-        fprintf(f_file, "%s", f_buffer);
-        fclose(f_file);
-        f_i++;
-    }
-}
-
 int main(int argc, char** argv) 
 {
-    v_print_plugin_controller_maps();
     v_pydaw_constructor();
 
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);

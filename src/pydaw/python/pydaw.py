@@ -6738,19 +6738,17 @@ class pydaw_controller_map_item:
         self.max = float(a_max)
 
 def pydaw_load_controller_maps():
-    f_file_list = list(global_cc_names.keys())
-    for f_file_name in f_file_list:
-        f_cc_map_text = pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
-        f_cc_map_arr = f_cc_map_text.split("\n")
-        for f_line in f_cc_map_arr:
-            if f_line == "":
-                break
-            f_line_arr = f_line.split("|")
+    f_portmap_dict = \
+    {"Euphoria":pydaw_ports.EUPHORIA_PORT_MAP, "Way-V":pydaw_ports.WAYV_PORT_MAP,
+    "Ray-V":pydaw_ports.RAYV_PORT_MAP, "Modulex":pydaw_ports.MODULEX_PORT_MAP}
+    #list(global_cc_names.keys())
+    for k, v in f_portmap_dict.items():
+        for f_line_arr in v:
             f_map  = pydaw_controller_map_item(f_line_arr[0], f_line_arr[1], f_line_arr[2], f_line_arr[3], f_line_arr[4])
-            global_controller_port_name_dict[f_file_name][f_line_arr[0]] = f_map
-            global_controller_port_num_dict[f_file_name][int(f_line_arr[1])] = f_map
-            global_cc_names[f_file_name].append(f_line_arr[0])
-        global_cc_names[f_file_name].sort()
+            global_controller_port_name_dict[k][f_line_arr[0]] = f_map
+            global_controller_port_num_dict[k][int(f_line_arr[1])] = f_map
+            global_cc_names[k].append(f_line_arr[0])
+        global_cc_names[k].sort()
 
 def pydaw_get_cc_map(a_name):
     return pydaw_cc_map.from_str(pydaw_read_file_text(global_cc_map_folder + "/" + a_name))

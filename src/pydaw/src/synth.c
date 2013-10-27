@@ -284,7 +284,6 @@ void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *even
 
 void v_pydaw_constructor()
 {
-    char **port_names;
     PYFX_PortDescriptor *port_descriptors;
     PYFX_PortRangeHint *port_range_hints;
 
@@ -305,29 +304,21 @@ void v_pydaw_constructor()
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
 	    (const PYFX_PortRangeHint *) port_range_hints;
-
-	port_names = (char **) calloc(LMSLDescriptor->PortCount, sizeof(char *));
-	LMSLDescriptor->PortNames = (const char **) port_names;
-
+	
         /* Parameters for input */
         int f_i;
         
         for(f_i = PYDAW_INPUT_MIN; f_i < PYDAW_INPUT_MAX; f_i++)
         {
             port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_AUDIO;
-            port_names[f_i] = "Input ";  //TODO:  Give a more descriptive port name
             //port_range_hints[f_i].HintDescriptor = 0;
         }
                 
 	/* Parameters for output */
 	port_descriptors[PYDAW_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_names[PYDAW_OUTPUT0] = "Output 0";
-	//port_range_hints[PYDAW_OUTPUT0].HintDescriptor = 0;
-
+	
         port_descriptors[PYDAW_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_names[PYDAW_OUTPUT1] = "Output 1";
-	//port_range_hints[PYDAW_OUTPUT1].HintDescriptor = 0;
-        	
+	        	
     }
 
     LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
@@ -396,8 +387,7 @@ void v_pydaw_destructor()
     }
         
     if (LMSLDescriptor) {
-	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);
-	free((char **) LMSLDescriptor->PortNames);
+	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);	
 	free((PYFX_PortRangeHint *) LMSLDescriptor->PortRangeHints);
 	free(LMSLDescriptor);
     }

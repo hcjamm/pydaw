@@ -150,12 +150,6 @@ typedef int PYFX_PortDescriptor;
 #define PYFX_IS_PORT_CONTROL(x) ((x) & PYFX_PORT_CONTROL)
 #define PYFX_IS_PORT_AUDIO(x)   ((x) & PYFX_PORT_AUDIO)
 
-/*****************************************************************************/
-
-#define PYDAW_PLUGIN_HINT_TRANSFORM_NONE 0 //Display the data without transforming
-#define PYDAW_PLUGIN_HINT_TRANSFORM_PITCH_TO_HZ 1//Convert MIDI note number to hz
-#define PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL 2 //Multiply by 0.01f
-
 typedef struct _PYFX_PortRangeHint {
 
   /* Hints about the port. */
@@ -223,23 +217,9 @@ typedef struct _PYFX_Descriptor {
      vary from 0 to PortCount-1. */
   const PYFX_PortDescriptor * PortDescriptors;
 
-  /* This member indicates an array of null-terminated strings
-     describing ports (e.g. "Frequency (Hz)"). Valid indices vary from
-     0 to PortCount-1. */
-  const char * const * PortNames;
-
   /* This member indicates an array of range hints for each port (see
      above). Valid indices vary from 0 to PortCount-1. */
   const PYFX_PortRangeHint * PortRangeHints;
-
-  
-  /* Set to zero for the host to ignore for automation, or set to 1
-     to allow MIDI automation */
-  const int * Automatable;
-
-  /* Hint for how the host should transform the data before displaying it, set 
-     to a PYDAW_PLUGIN_HINT_TRANSFORM_XXXX value */
-  const int * ValueTransformHint;
   
   /* This member is a function pointer that instantiates a plugin. A
      handle is returned indicating the new plugin instance. The
