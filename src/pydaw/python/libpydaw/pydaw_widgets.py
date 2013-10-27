@@ -39,7 +39,7 @@ class pydaw_plugin_file:
                     f_items2 = f_items[1].split("|", 1)
                     self.configure_dict[(f_items2[0])] = f_items2[1]
                 else:
-                    self.port_dict[int(f_items[0])] = float(f_items[1])
+                    self.port_dict[int(f_items[0])] = int(float(f_items[1]))
 
     @staticmethod
     def from_dict(a_port_dict, a_control_dict, a_configure_dict):
@@ -55,7 +55,7 @@ class pydaw_plugin_file:
         for k, v in list(self.configure_dict.items()):
             f_result += "c|%s|%s\n" % (k, v)
         for k, v in list(self.port_dict.items()):
-            f_result += "%s|%s\n" % (k, v.get_value())
+            f_result += "%i|%i\n" % (k, v.get_value())
         return f_result + "\\"
 
 global_pydaw_knob_pixmap = None
