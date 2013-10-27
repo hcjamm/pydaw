@@ -77,8 +77,6 @@ int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, 
             free(message);
         }    
     }
-
-    printf("Did not find configure key %s\n", key);
     
     return 0;
 }
