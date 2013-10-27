@@ -52,12 +52,10 @@ typedef struct st_pydaw_plugin
     int    controlIns;
     int    controlOuts;    
     int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
-    int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */    
-            
+    int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */
     float **pluginInputBuffers, **pluginOutputBuffers;
     float *pluginControlIns;
     int *pluginControlInPortNumbers;
-    int configure_keys_count;
 }t_pydaw_plugin;
 
 #ifdef PYDAW_PLUGIN_MEMCHECK    
