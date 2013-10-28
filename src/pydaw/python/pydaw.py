@@ -1485,7 +1485,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_end_px = f_max_x - f_pos_x
             self.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
             self.audio_item.sample_end = ((self.rect().width() + self.length_px_start) / self.length_seconds_orig_px) * 1000.0
-            pydaw_util.pydaw_clip_value(self.audio_item.sample_end, 1.0, 1000.0, True)
+            self.audio_item.sample_end = pydaw_util.pydaw_clip_value(self.audio_item.sample_end, 1.0, 1000.0, True)
             self.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_height)
 
 
@@ -1655,6 +1655,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_sample_shown = f_item.sample_end - f_item.sample_start
             f_sample_rect_pos = f_pos /  self.length_px_minus_start #self.rect().width()
             f_item.sample_start = (f_sample_rect_pos * f_sample_shown) + f_item.sample_start
+            f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
             f_item.start_bar = f_musical_pos[0]
             f_item.start_beat = f_musical_pos[1]
             f_item_old.sample_end = f_item.sample_start
@@ -1849,7 +1850,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x -= f_audio_item.quantize_offset
                     f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.sample_end = ((f_audio_item.rect().width() + f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
-                    pydaw_util.pydaw_clip_value(f_item.sample_end, 1.0, 1000.0, True)
+                    f_item.sample_end = pydaw_util.pydaw_clip_value(f_item.sample_end, 1.0, 1000.0, True)
                 elif f_audio_item.is_start_resizing:
                     f_x = f_audio_item.start_handle.scenePos().x()
                     f_x = pydaw_clip_min(f_x, 0.0)

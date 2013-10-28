@@ -234,6 +234,7 @@ typedef struct
     int is_reversed;
     float fadein_vol;
     float fadeout_vol;
+    int paif_automation_uid;  //placeholder for future functionality
 } t_pydaw_audio_item __attribute__((aligned(16)));
 
 typedef struct
@@ -439,6 +440,16 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
 
     char * f_sample_start_char = c_iterate_2d_char_array(f_current_string);
     float f_sample_start = atof(f_sample_start_char) * 0.001f;
+    
+    if(f_sample_start < 0.0f)
+    {
+        f_sample_start = 0.0f;
+    }
+    else if(f_sample_start > 0.999f)
+    {
+        f_sample_start = 0.999f;
+    }
+    
     f_result->sample_start = f_sample_start;
     free(f_sample_start_char);
     
@@ -446,7 +457,19 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_start_offset_float = (float)(f_result->sample_start_offset);
 
     char * f_sample_end_char = c_iterate_2d_char_array(f_current_string);
-    f_result->sample_end = atof(f_sample_end_char) * 0.001f;            
+    float f_sample_end = atof(f_sample_end_char) * 0.001f; 
+    
+    if(f_sample_end < 0.001f)
+    {
+        f_sample_end = 0.001f;
+    }
+    else if(f_sample_end > 1.0f)
+    {
+        f_sample_end = 1.0f;
+    }
+    
+    f_result->sample_end = f_sample_end;
+    
     free(f_sample_end_char);
 
     f_result->sample_end_offset = (int)((f_result->sample_end * ((float)f_result->wav_pool_item->length))); // + PYDAW_AUDIO_ITEM_PADDING_DIV2;
@@ -517,6 +540,10 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     char * f_fadeout_vol_char = c_iterate_2d_char_array(f_current_string);
     f_result->fadeout_vol = atof(f_fadeout_vol_char) * -1.0f;
     free(f_fadeout_vol_char);
+    
+    char * f_paif_uid_char = c_iterate_2d_char_array(f_current_string);
+    f_result->paif_automation_uid = atoi(f_paif_uid_char);
+    free(f_paif_uid_char);
         
     assert(f_result->sample_start_offset >= PYDAW_AUDIO_ITEM_PADDING_DIV2);
     assert(f_result->sample_end_offset >= PYDAW_AUDIO_ITEM_PADDING_DIV2);
@@ -615,7 +642,7 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
         {
             a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number) - a_audio_item->sample_fade_in_end) 
                     / a_audio_item->sample_fade_in_divisor;
-            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadein_vol) - a_audio_item->fadein_vol;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadeout_vol) - a_audio_item->fadeout_vol;
             //a_audio_item->fade_vol = (a_audio_item->fade_vol * 40.0f) - 40.0f;
             a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
         }
@@ -623,7 +650,7 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
         {
             a_audio_item->fade_vol = ((float)(a_audio_item->sample_fade_out_start - a_audio_item->sample_read_head->whole_number))
                     / a_audio_item->sample_fade_out_divisor;
-            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadeout_vol) - a_audio_item->fadeout_vol;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadein_vol) - a_audio_item->fadein_vol;
             //a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
             a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);            
         }
