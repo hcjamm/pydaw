@@ -2075,6 +2075,26 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     break
         this_audio_item_editor_widget.reversed_checkbox.setChecked(f_reverse_checked)
 
+
+        f_fadein_vol_checked = True
+        if len( f_selected_items) > 1:
+            f_fadein_val = f_selected_items[0].audio_item.fadein_vol
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.fadein_vol != f_fadein_val:
+                    f_fadein_vol_checked = False
+                    break
+        this_audio_item_editor_widget.fadein_vol_checkbox.setChecked(f_fadein_vol_checked)
+
+        f_fadeout_vol_checked = True
+        if len( f_selected_items) > 1:
+            f_fadeout_val = f_selected_items[0].audio_item.fadeout_vol
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.fadeout_vol != f_fadeout_val:
+                    f_fadeout_vol_checked = False
+                    break
+        this_audio_item_editor_widget.fadeout_vol_checkbox.setChecked(f_fadeout_vol_checked)
+
+
         if len(f_selected_items) > 0:
             if f_timestretch_checked:
                 this_audio_item_editor_widget.timestretch_mode.setCurrentIndex(f_selected_items[0].audio_item.time_stretch_mode)
@@ -2100,6 +2120,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 this_audio_item_editor_widget.sample_vol_slider.setValue(f_selected_items[0].audio_item.vol)
             if f_reverse_checked:
                 this_audio_item_editor_widget.is_reversed_checkbox.setChecked(f_selected_items[0].audio_item.reversed)
+            if f_fadein_vol_checked:
+                this_audio_item_editor_widget.fadein_vol_spinbox.setValue(f_selected_items[0].audio_item.fadein_vol)
+            if f_fadeout_vol_checked:
+                this_audio_item_editor_widget.fadeout_vol_spinbox.setValue(f_selected_items[0].audio_item.fadeout_vol)
 
     def sceneDragEnterEvent(self, a_event):
         a_event.setAccepted(True)
@@ -2111,7 +2135,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         if pydaw_global_current_region_is_none() or this_transport.is_playing or this_transport.is_recording:
             return True
         if global_pydaw_subprocess is None:
-            QtGui.QMessageBox.warning(this_main_window, "Error", "The audio engine is not running, audio items cannot be added.\n" +
+            QtGui.QMessageBox.warning(this_main_window, "Error",
+            "The audio engine is not running, audio items cannot be added.\n" +
             "If the audio engine crashed, you will need to restart PyDAW.")
             return True
         return False
@@ -2825,6 +2850,29 @@ class audio_item_editor_widget:
         self.reversed_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.reversed_layout)
 
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
+        self.fadein_vol_layout = QtGui.QHBoxLayout()
+        self.fadein_vol_checkbox = QtGui.QCheckBox("Fade-in start volume(dB):")
+        self.fadein_vol_layout.addWidget(self.fadein_vol_checkbox)
+        self.fadein_vol_spinbox = QtGui.QSpinBox()
+        self.fadein_vol_spinbox.setRange(-50, -6)
+        self.fadein_vol_spinbox.setValue(-40)
+        self.fadein_vol_spinbox.valueChanged.connect(self.fadein_vol_changed)
+        self.fadein_vol_layout.addWidget(self.fadein_vol_spinbox)
+        self.fadein_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
+        self.vlayout2.addLayout(self.fadein_vol_layout)
+
+        self.fadeout_vol_layout = QtGui.QHBoxLayout()
+        self.fadeout_vol_checkbox = QtGui.QCheckBox("Fade-out end volume(dB):")
+        self.fadeout_vol_layout.addWidget(self.fadeout_vol_checkbox)
+        self.fadeout_vol_spinbox = QtGui.QSpinBox()
+        self.fadeout_vol_spinbox.setRange(-50, -6)
+        self.fadeout_vol_spinbox.setValue(-40)
+        self.fadeout_vol_spinbox.valueChanged.connect(self.fadeout_vol_changed)
+        self.fadeout_vol_layout.addWidget(self.fadeout_vol_spinbox)
+        self.fadeout_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
+        self.vlayout2.addLayout(self.fadeout_vol_layout)
+
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
         self.ok_layout = QtGui.QHBoxLayout()
         self.ok = QtGui.QPushButton("Save Changes")
@@ -2873,6 +2921,12 @@ class audio_item_editor_widget:
 
     def reverse_changed(self, a_val=None):
         self.reversed_checkbox.setChecked(True)
+
+    def fadein_vol_changed(self, a_val=None):
+        self.fadein_vol_checkbox.setChecked(True)
+
+    def fadeout_vol_changed(self, a_val=None):
+        self.fadeout_vol_checkbox.setChecked(True)
 
     def timestretch_end_mode_changed(self, a_val=None):
         if not self.timestretch_amt_end_checkbox.isChecked():
@@ -3070,6 +3124,10 @@ class audio_item_editor_widget:
                 #    f_item.audio_item.end_mode = self.end_mode
                 if self.reversed_checkbox.isChecked():
                     f_item.audio_item.reversed = self.is_reversed_checkbox.isChecked()
+                if self.fadein_vol_checkbox.isChecked():
+                    f_item.audio_item.fadein_vol = self.fadein_vol_spinbox.value()
+                if self.fadeout_vol_checkbox.isChecked():
+                    f_item.audio_item.fadeout_vol = self.fadeout_vol_spinbox.value()
                 f_item.draw()
                 f_selected_count += 1
         if f_selected_count == 0:

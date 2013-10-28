@@ -232,6 +232,8 @@ typedef struct
     float pitch_shift_end;
     float timestretch_amt_end;
     int is_reversed;
+    float fadein_vol;
+    float fadeout_vol;
 } t_pydaw_audio_item __attribute__((aligned(16)));
 
 typedef struct
@@ -507,19 +509,15 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     char * f_crispness_char = c_iterate_2d_char_array(f_current_string);
     free(f_crispness_char);
     
-    /*
-    if(f_result->end_mode == 1)
-    {
-        float f_beats_total = ((float)((f_result->end_bar - f_result->start_bar) * 4)) + (f_result->end_beat - f_result->start_beat);
-        float f_samples_per_beat = (60.0 / a_tempo) * a_sr;
-        int f_samples_total = (int)(f_beats_total * f_samples_per_beat) + f_result->sample_start_offset;
-        if(f_samples_total < f_result->sample_end_offset)
-        {
-            f_result->sample_end_offset = f_samples_total;
-        }
-    }
-    */
+    //These are multiplied by -1.0f to work correctly with v_pydaw_audio_item_set_fade_vol()
+    char * f_fadein_vol_char = c_iterate_2d_char_array(f_current_string);
+    f_result->fadein_vol = atof(f_fadein_vol_char) * -1.0f;
+    free(f_fadein_vol_char);
     
+    char * f_fadeout_vol_char = c_iterate_2d_char_array(f_current_string);
+    f_result->fadeout_vol = atof(f_fadeout_vol_char) * -1.0f;
+    free(f_fadeout_vol_char);
+        
     assert(f_result->sample_start_offset >= PYDAW_AUDIO_ITEM_PADDING_DIV2);
     assert(f_result->sample_end_offset >= PYDAW_AUDIO_ITEM_PADDING_DIV2);
     assert(f_result->sample_start_offset <= f_result->wav_pool_item->length);
@@ -617,7 +615,7 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
         {
             a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number) - a_audio_item->sample_fade_in_end) 
                     / a_audio_item->sample_fade_in_divisor;
-            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadein_vol) - a_audio_item->fadein_vol;
             //a_audio_item->fade_vol = (a_audio_item->fade_vol * 40.0f) - 40.0f;
             a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
         }
@@ -625,7 +623,7 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
         {
             a_audio_item->fade_vol = ((float)(a_audio_item->sample_fade_out_start - a_audio_item->sample_read_head->whole_number))
                     / a_audio_item->sample_fade_out_divisor;
-            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadeout_vol) - a_audio_item->fadeout_vol;
             //a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
             a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);            
         }
@@ -640,7 +638,7 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
         {
             a_audio_item->fade_vol = ((float)(a_audio_item->sample_fade_in_end - a_audio_item->sample_read_head->whole_number))
                     / a_audio_item->sample_fade_in_divisor;        
-            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadein_vol) - a_audio_item->fadein_vol;
             //a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
             a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
         }
@@ -648,7 +646,7 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
         {
             a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number) - a_audio_item->sample_fade_out_start) 
                     / a_audio_item->sample_fade_out_divisor;
-            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * 40.0f) - 40.0f;
+            a_audio_item->fade_vol = ((1.0f - a_audio_item->fade_vol) * a_audio_item->fadeout_vol) - a_audio_item->fadeout_vol;
             //a_audio_item->fade_vol = (a_audio_item->fade_vol * 40.0f) - 40.0f;
             a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
         }

@@ -1856,7 +1856,8 @@ class pydaw_audio_region:
 class pydaw_audio_item:
     def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0, \
     a_timestretch_mode=3, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False, a_crispness=5):
+    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False, \
+    a_crispness=5, a_fadein_vol=-40, a_fadeout_vol=-40):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
@@ -1877,6 +1878,8 @@ class pydaw_audio_item:
         else:
             self.reversed = int_to_bool(a_reversed)
         self.crispness = int(a_crispness) #This is specific to Rubberband
+        self.fadein_vol = int(a_fadein_vol)
+        self.fadeout_vol = int(a_fadeout_vol)
 
     def set_pos(self, a_bar, a_beat):
         self.start_bar = int(a_bar)
@@ -1887,12 +1890,12 @@ class pydaw_audio_item:
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
 
     def __str__(self):
-        return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n" % \
+        return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n" % \
         (self.uid, round(self.sample_start, 6), round(self.sample_end, 6), \
         self.start_bar, round(self.start_beat, 6), \
         self.time_stretch_mode, self.pitch_shift, self.output_track, self.vol, round(self.timestretch_amt, 6), \
         self.fade_in, self.fade_out, self.lane_num, round(self.pitch_shift_end, 6 ), \
-        round(self.timestretch_amt_end, 6), bool_to_int(self.reversed), self.crispness)
+        round(self.timestretch_amt_end, 6), bool_to_int(self.reversed), self.crispness, self.fadein_vol, self.fadeout_vol)
 
     @staticmethod
     def from_str(f_str):
