@@ -2553,7 +2553,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         {
                             /*Kludge code TODO:  remove*/
                             
-                            assert(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number <
+                            assert(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number <=
                                     a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->wav_pool_item->length);
                             
                             assert(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number >=
@@ -2636,18 +2636,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         
                         if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage == 4)
                         {
-                            /*
-                            if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->is_reversed)
-                            {
-                                v_ifh_retrigger(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head, 
-                                        a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_end_offset); 
-                            }
-                            else
-                            {
-                                v_ifh_retrigger(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head, 
-                                        a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_start_offset); 
-                            }
-                            */
                             break;
                         }
 
