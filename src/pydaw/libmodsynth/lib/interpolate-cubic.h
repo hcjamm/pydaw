@@ -145,6 +145,13 @@ inline float f_cubic_interpolate_ptr(float * a_table, float a_ptr, t_cubic_inter
     a_cubic->int_pos_minus1 = (a_cubic->int_pos) - 1;
     a_cubic->int_pos_minus2 = (a_cubic->int_pos) - 2;
     
+#ifdef PYDAW_NO_HARDWARE
+    //Check this when run with no hardware, but otherwise save the CPU.
+    //Anything sending a position to this should already know that the position is valid.
+    assert(a_cubic->int_pos_minus1 >= 0);
+    assert(a_cubic->int_pos_minus2 >= 0);
+#endif
+    
     a_cubic->mu = a_ptr - (a_cubic->int_pos);
     
     a_cubic->mu2 = (a_cubic->mu) * (a_cubic->mu);
