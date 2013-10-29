@@ -1969,6 +1969,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_timer.setSingleShot(False)
         self.playback_timer.timeout.connect(self.playback_timeout)
         self.playback_cursor = None
+        self.playback_inc_count = 0
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
     def prepare_to_quit(self):
@@ -2255,6 +2256,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         else:
             f_bar = a_bar
         self.playback_cursor.setPos(f_bar * global_audio_px_per_bar, 0.0)
+        self.playback_inc_count = 0
 
     def set_playback_clipboard(self):
         self.reselect_on_stop = []
@@ -2266,6 +2268,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.is_playing = True
         f_interval = ((1.0 / (a_bpm / 60.0)) / global_audio_px_per_bar) * 1000.0 * 4.0
         self.playback_timer.start(f_interval)
+        self.playback_inc_count = 0
 
     def stop_playback(self):
         self.playback_timer.stop()
@@ -2274,9 +2277,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.set_playback_pos()
 
     def playback_timeout(self):
-        if self.is_playing:
+        if self.is_playing and self.playback_inc_count < 300:
             f_new_pos = self.playback_cursor.pos().x() + 1.0
             self.playback_cursor.setPos(f_new_pos, 0.0)
+            self.playback_inc_count += 1
 
     def reset_selection(self):
         for f_item in self.audio_items:
