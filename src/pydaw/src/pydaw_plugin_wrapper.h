@@ -124,6 +124,18 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
     f_result->pluginControlIns = (float*)calloc(f_result->descriptor->PYFX_Plugin->PortCount, sizeof(float));
     f_result->pluginOutputBuffers = (float**)malloc((f_result->outs) * sizeof(float*));
     
+    if(posix_memalign((void**)(&f_result->pluginControlIns), 16, (sizeof(float) * f_result->descriptor->PYFX_Plugin->PortCount)) != 0)
+    {
+        return 0;
+    }
+
+    int f_i = 0;
+    while(f_i < f_result->descriptor->PYFX_Plugin->PortCount)
+    {
+        f_result->pluginControlIns[f_i] = 0.0f;
+        f_i++;
+    }
+    
     f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate, a_host_wavpool_func);
     
     int in, out;
@@ -146,7 +158,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
                     return 0;
                 }
                 
-                int f_i = 0;
+                f_i = 0;
                 while(f_i < 8192)
                 {
                     f_result->pluginInputBuffers[in][f_i] = 0.0f;
@@ -163,7 +175,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
                     return 0;
                 }                
                 
-                int f_i = 0;
+                f_i = 0;
                 while(f_i < 8192)
                 {
                     f_result->pluginOutputBuffers[out][f_i] = 0.0f;
