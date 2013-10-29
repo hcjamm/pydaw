@@ -1150,12 +1150,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 assert(0);
                 break;
         }
-        
-        int f_control_in = f_instance->pluginPortControlInNumbers[f_port];        
-        f_instance->pluginControlIns[f_control_in] = f_value;
-        //f_instance->pluginPortUpdated[f_control_in] = 1;
+                
+        f_instance->pluginControlIns[f_port] = f_value;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN)) //Configure plugin

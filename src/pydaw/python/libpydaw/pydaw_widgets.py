@@ -42,10 +42,10 @@ class pydaw_plugin_file:
                     self.port_dict[int(f_items[0])] = int(float(f_items[1]))
 
     @staticmethod
-    def from_dict(a_port_dict, a_control_dict, a_configure_dict):
+    def from_dict(a_port_dict, a_configure_dict):
         f_result = pydaw_plugin_file()
         for k, v in list(a_port_dict.items()):
-            f_result.port_dict[a_control_dict[int(k)]] = v
+            f_result.port_dict[int(k)] = v
         for k, v in list(a_configure_dict.items()):
             f_result.configure_dict[k] = v
         return f_result
@@ -1393,8 +1393,6 @@ class pydaw_abstract_plugin_ui:
         self.layout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.layout)
         self.port_dict = {}
-        self.port_to_control_dict = {}
-        self.control_to_port_dict = {}
         self.effects = []
         self.close_callback = a_close_callback
         self.configure_dict = {}
@@ -1410,14 +1408,14 @@ class pydaw_abstract_plugin_ui:
         if os.path.isfile(f_file_path):
             f_file = pydaw_plugin_file(f_file_path)
             for k, v in list(f_file.port_dict.items()):
-                self.set_control_val(self.control_to_port_dict[int(k)], v)
+                self.set_control_val(int(k), v)
             for k, v in list(f_file.configure_dict.items()):
                 self.set_configure(k, v)
         else:
             print(("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading."))
 
     def save_plugin_file(self):
-        f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict, self.configure_dict)
+        f_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
         self.pydaw_project.commit("Update controls for " + self.track_name)
         self.pydaw_project.flush_history()
@@ -1453,17 +1451,6 @@ class pydaw_abstract_plugin_ui:
     def set_configure(self, a_key, a_message):
         """ Override this function to configure the plugin from the state file """
         pass
-
-    def generate_control_dict(self):
-        """ Aligning the file save format to the same as the parts forked from DSSI.
-        TODO:  Change the file format and get rid of this at PyDAWv4"""
-        f_keys = list(self.port_dict.keys())
-        f_keys.sort()
-        f_index = 0
-        for f_key in f_keys:
-            self.port_to_control_dict[f_key] = f_index
-            self.control_to_port_dict[f_index] = f_key
-            f_index += 1
 
     def set_window_title(self, a_track_name):
         pass  #Override this function
@@ -1600,7 +1587,6 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
         self.delay_spacer_layout.addItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
-        self.generate_control_dict()
         self.open_plugin_file()
 
     def bpmSyncPressed(self):
@@ -1718,7 +1704,6 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         -48, 48, 0, kc_integer, self.port_dict, self.preset_manager)
         self.lfo_cutoff.add_to_grid_layout(self.lfo.layout, 4)
 
-        self.generate_control_dict()
         self.open_plugin_file()
 
     def set_window_title(self, a_track_name):
@@ -1975,7 +1960,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         -36, 36, 0,  kc_integer, self.port_dict, self.preset_manager)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 4)
 
-        self.generate_control_dict()
         self.open_plugin_file()
 
     def set_window_title(self, a_track_name):
@@ -2507,7 +2491,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_main_layout.addWidget(self.master.group_box)
         self.master.vol_knob.control.setRange(-24, 24)
 
-        self.generate_control_dict()
         self.open_plugin_file()
 
     def monofx0_callback(self, a_port, a_val):

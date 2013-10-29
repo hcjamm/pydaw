@@ -49,13 +49,8 @@ typedef struct st_pydaw_plugin
     const PYINST_Descriptor *descriptor;
     int    ins;
     int    outs;
-    int    controlIns;
-    int    controlOuts;    
-    int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
-    int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */
     float **pluginInputBuffers, **pluginOutputBuffers;
-    float *pluginControlIns;
-    int *pluginControlInPortNumbers;
+    float *pluginControlIns;    
 }t_pydaw_plugin;
 
 #ifdef PYDAW_PLUGIN_MEMCHECK    
@@ -110,8 +105,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
     
     f_result->ins = 0;
     f_result->outs = 0;
-    f_result->controlIns = 0;
-    f_result->controlOuts = 0;
 
     int j;
     
@@ -124,46 +117,25 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
             if (PYFX_IS_PORT_INPUT(pod)) ++f_result->ins;
             else if (PYFX_IS_PORT_OUTPUT(pod)) ++f_result->outs;
         } 
-        else if (PYFX_IS_PORT_CONTROL(pod)) 
-        {
-            if (PYFX_IS_PORT_INPUT(pod)) 
-            {
-                ++f_result->controlIns;
-            }
-            else if (PYFX_IS_PORT_OUTPUT(pod)) 
-            {
-                ++f_result->controlOuts;
-            }
-        }
     }
-   
-    /* finish up new plugin */
-    f_result->pluginPortControlInNumbers =
-            (int*)malloc(f_result->descriptor->PYFX_Plugin->PortCount *
-                          sizeof(int));
+       
     
     f_result->pluginInputBuffers = (float**)malloc((f_result->ins) * sizeof(float*));
-    f_result->pluginControlIns = (float*)calloc(f_result->controlIns, sizeof(float));
-    //f_result->pluginControlInInstances = (d3h_instance_t **)malloc(f_result->controlInsTotal * sizeof(d3h_instance_t *));
-    f_result->pluginControlInPortNumbers = (int*)malloc(f_result->controlIns * sizeof(int));    
+    f_result->pluginControlIns = (float*)calloc(f_result->descriptor->PYFX_Plugin->PortCount, sizeof(float));
     f_result->pluginOutputBuffers = (float**)malloc((f_result->outs) * sizeof(float*));
-        
-    //TODO:  Count ins and outs from the loop at line 1142.  Or just rely on that we already know it
     
     f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate, a_host_wavpool_func);
-        
-    f_result->firstControlIn = 0;
     
-    int in, out, controlIn, controlOut;
+    int in, out;
     
-    in = out = controlIn = controlOut = 0;
+    in = out = 0;
     
     for (j = 0; j < f_result->descriptor->PYFX_Plugin->PortCount; j++) 
     {
         PYFX_PortDescriptor pod =
             f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
 
-        f_result->pluginPortControlInNumbers[j] = -1;
+        f_result->pluginControlIns[j] = 0.0f;
 
         if (PYFX_IS_PORT_AUDIO(pod)) {
 
@@ -205,16 +177,12 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
         } 
         else if (PYFX_IS_PORT_CONTROL(pod)) 
         {
-            if (PYFX_IS_PORT_INPUT(pod)) {                
-                //f_result->pluginControlInInstances[controlIn] = instance;                 
-                f_result->pluginControlInPortNumbers[controlIn] = j;
-                f_result->pluginPortControlInNumbers[j] = controlIn;
-
-                f_result->pluginControlIns[controlIn] = g_pydaw_get_port_default(f_result->descriptor->PYFX_Plugin, j);
+            if (PYFX_IS_PORT_INPUT(pod))
+            {
+                f_result->pluginControlIns[j] = g_pydaw_get_port_default(f_result->descriptor->PYFX_Plugin, j);
 
                 f_result->descriptor->PYFX_Plugin->connect_port
-                    (f_result->PYFX_handle, j, &f_result->pluginControlIns[controlIn++]);
-
+                    (f_result->PYFX_handle, j, &f_result->pluginControlIns[j]);
             }
         }
     }
