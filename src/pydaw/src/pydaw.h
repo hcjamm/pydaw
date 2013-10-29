@@ -307,6 +307,7 @@ typedef struct
     long f_next_current_sample;
     t_pydaw_seq_event * events;
     int event_count;
+    pthread_spinlock_t ui_spinlock;  //Threads must hold this to write OSC messages
 }t_pydaw_data;
 
 typedef struct 
@@ -962,9 +963,11 @@ inline void v_queue_osc_message(t_pydaw_data * a_pydaw_data, char * a_key, char 
     }
     else
     {
+        pthread_spin_lock(&a_pydaw_data->ui_spinlock);
         sprintf(a_pydaw_data->osc_queue_keys[a_pydaw_data->osc_queue_index], "%s", a_key);
         sprintf(a_pydaw_data->osc_queue_vals[a_pydaw_data->osc_queue_index], "%s", a_val);
         a_pydaw_data->osc_queue_index += 1;
+        pthread_spin_unlock(&a_pydaw_data->ui_spinlock);
     }
 }
 
@@ -3223,6 +3226,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     pthread_mutex_init(&f_result->quit_mutex, NULL);
     pthread_mutex_init(&f_result->offline_mutex, NULL);    
     pthread_mutex_init(&f_result->audio_inputs_mutex, NULL);
+    
+    pthread_spin_init(&f_result->ui_spinlock, 0);
     
     f_result->midi_learn = 0;
     f_result->sample_rate = a_sample_rate;
