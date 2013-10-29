@@ -61,8 +61,9 @@ extern "C" {
 #define RAYV_LFO_PITCH 34
 #define RAYV_LFO_FILTER 35
 #define RAYV_OSC_HARD_SYNC 36
-#define RAYV_LAST_CONTROL_PORT 36
-#define RAYV_COUNT 37 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define RAYV_RAMP_CURVE 37
+#define RAYV_LAST_CONTROL_PORT 37
+#define RAYV_COUNT 38 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define RAYV_POLYPHONY   16
 
@@ -114,6 +115,7 @@ typedef struct {
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
     PYFX_Data *lfo_filter;
+    PYFX_Data *ramp_curve;
     
     PYFX_Data *sync_hard;
         

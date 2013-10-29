@@ -70,121 +70,122 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
     
     /*Add the ports from step 9 to the connectPortLMS event handler*/
     
-    switch (port) {
-    case RAYV_OUTPUT0:
-	plugin->output0 = data;
-	break;
-    case RAYV_OUTPUT1:
-	plugin->output1 = data;
-	break;
-    case RAYV_ATTACK:
-	plugin->attack = data;
-	break;
-    case RAYV_DECAY:
-	plugin->decay = data;
-	break;
-    case RAYV_SUSTAIN:
-	plugin->sustain = data;
-	break;
-    case RAYV_RELEASE:
-	plugin->release = data;
-	break;
-    case RAYV_TIMBRE:
-	plugin->timbre = data;              
-	break;
-    case RAYV_RES:
-	plugin->res = data;              
-	break;
-    case RAYV_DIST:
-	plugin->dist = data;              
-	break;
-    case RAYV_FILTER_ATTACK:
-	plugin->attack_f = data;
-	break;
-    case RAYV_FILTER_DECAY:
-	plugin->decay_f = data;
-	break;
-    case RAYV_FILTER_SUSTAIN:
-	plugin->sustain_f = data;
-	break;
-    case RAYV_FILTER_RELEASE:
-	plugin->release_f = data;
-	break;
-    case RAYV_NOISE_AMP:
-        plugin->noise_amp = data;
-        break;
-    case RAYV_DIST_WET:
-        plugin->dist_wet = data;
-        break;
-    case RAYV_FILTER_ENV_AMT:
-        plugin->filter_env_amt = data;
-        break;
-    case RAYV_MASTER_VOLUME:
-        plugin->master_vol = data;
-        break;
-    case RAYV_OSC1_PITCH:
-        plugin->osc1pitch = data;
-        break;
-    case RAYV_OSC1_TUNE:
-        plugin->osc1tune = data;
-        break;
-    case RAYV_OSC1_TYPE:
-        plugin->osc1type = data;
-        break;
-    case RAYV_OSC1_VOLUME:
-        plugin->osc1vol = data;
-        break;
-    case RAYV_OSC2_PITCH:
-        plugin->osc2pitch = data;
-        break;
-    case RAYV_OSC2_TUNE:
-        plugin->osc2tune = data;
-        break;
-    case RAYV_OSC2_TYPE:
-        plugin->osc2type = data;
-        break;
-    case RAYV_OSC2_VOLUME:
-        plugin->osc2vol = data;
-        break;
-    case RAYV_MASTER_UNISON_VOICES:
-        plugin->master_uni_voice = data;
-        break;
-    case RAYV_MASTER_UNISON_SPREAD:
-        plugin->master_uni_spread = data;        
-        break;
-    case RAYV_MASTER_GLIDE:
-        plugin->master_glide = data;
-        break;
-    case RAYV_MASTER_PITCHBEND_AMT:
-        plugin->master_pb_amt = data;
-        break;
-    case RAYV_PITCH_ENV_AMT:
-        plugin->pitch_env_amt = data;
-        break;
-    case RAYV_PITCH_ENV_TIME:
-        plugin->pitch_env_time = data;
-        break;
-    /*case LMS_PROGRAM_CHANGE:
-        plugin->program = data;
-        break;*/
-    case RAYV_LFO_FREQ:
-        plugin->lfo_freq = data;
-        break;
-    case RAYV_LFO_TYPE:
-        plugin->lfo_type = data;
-        break;
-    case RAYV_LFO_AMP:
-        plugin->lfo_amp = data;
-        break;
-    case RAYV_LFO_PITCH:
-        plugin->lfo_pitch = data;
-        break;
-    case RAYV_LFO_FILTER:
-        plugin->lfo_filter = data;
-        break;
-    case RAYV_OSC_HARD_SYNC:
-        plugin->sync_hard = data;
-        break;
+    switch (port) 
+    {
+        case RAYV_OUTPUT0:
+            plugin->output0 = data;
+            break;
+        case RAYV_OUTPUT1:
+            plugin->output1 = data;
+            break;
+        case RAYV_ATTACK:
+            plugin->attack = data;
+            break;
+        case RAYV_DECAY:
+            plugin->decay = data;
+            break;
+        case RAYV_SUSTAIN:
+            plugin->sustain = data;
+            break;
+        case RAYV_RELEASE:
+            plugin->release = data;
+            break;
+        case RAYV_TIMBRE:
+            plugin->timbre = data;              
+            break;
+        case RAYV_RES:
+            plugin->res = data;              
+            break;
+        case RAYV_DIST:
+            plugin->dist = data;              
+            break;
+        case RAYV_FILTER_ATTACK:
+            plugin->attack_f = data;
+            break;
+        case RAYV_FILTER_DECAY:
+            plugin->decay_f = data;
+            break;
+        case RAYV_FILTER_SUSTAIN:
+            plugin->sustain_f = data;
+            break;
+        case RAYV_FILTER_RELEASE:
+            plugin->release_f = data;
+            break;
+        case RAYV_NOISE_AMP:
+            plugin->noise_amp = data;
+            break;
+        case RAYV_DIST_WET:
+            plugin->dist_wet = data;
+            break;
+        case RAYV_FILTER_ENV_AMT:
+            plugin->filter_env_amt = data;
+            break;
+        case RAYV_MASTER_VOLUME:
+            plugin->master_vol = data;
+            break;
+        case RAYV_OSC1_PITCH:
+            plugin->osc1pitch = data;
+            break;
+        case RAYV_OSC1_TUNE:
+            plugin->osc1tune = data;
+            break;
+        case RAYV_OSC1_TYPE:
+            plugin->osc1type = data;
+            break;
+        case RAYV_OSC1_VOLUME:
+            plugin->osc1vol = data;
+            break;
+        case RAYV_OSC2_PITCH:
+            plugin->osc2pitch = data;
+            break;
+        case RAYV_OSC2_TUNE:
+            plugin->osc2tune = data;
+            break;
+        case RAYV_OSC2_TYPE:
+            plugin->osc2type = data;
+            break;
+        case RAYV_OSC2_VOLUME:
+            plugin->osc2vol = data;
+            break;
+        case RAYV_MASTER_UNISON_VOICES:
+            plugin->master_uni_voice = data;
+            break;
+        case RAYV_MASTER_UNISON_SPREAD:
+            plugin->master_uni_spread = data;        
+            break;
+        case RAYV_MASTER_GLIDE:
+            plugin->master_glide = data;
+            break;
+        case RAYV_MASTER_PITCHBEND_AMT:
+            plugin->master_pb_amt = data;
+            break;
+        case RAYV_PITCH_ENV_AMT:
+            plugin->pitch_env_amt = data;
+            break;
+        case RAYV_PITCH_ENV_TIME:
+            plugin->pitch_env_time = data;
+            break;
+        case RAYV_LFO_FREQ:
+            plugin->lfo_freq = data;
+            break;
+        case RAYV_LFO_TYPE:
+            plugin->lfo_type = data;
+            break;
+        case RAYV_LFO_AMP:
+            plugin->lfo_amp = data;
+            break;
+        case RAYV_LFO_PITCH:
+            plugin->lfo_pitch = data;
+            break;
+        case RAYV_LFO_FILTER:
+            plugin->lfo_filter = data;
+            break;
+        case RAYV_OSC_HARD_SYNC:
+            plugin->sync_hard = data;
+            break;
+        case RAYV_RAMP_CURVE:
+            plugin->ramp_curve = data;
+            break;            
     }
 }
 
@@ -281,7 +282,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
                 
                 v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter, (f_attack_f), (f_decay_f), *(plugin_data->sustain_f) * 0.01f, (f_release_f));
 
-                v_rmp_retrigger((plugin_data->data[f_voice]->pitch_env), *(plugin_data->pitch_env_time) * 0.01f, *(plugin_data->pitch_env_amt));  
+                v_rmp_retrigger_curve((plugin_data->data[f_voice]->pitch_env), *(plugin_data->pitch_env_time) * 0.01f, 
+                        *(plugin_data->pitch_env_amt), *(plugin_data->ramp_curve) * 0.01f);
 
                 v_clp_set_in_gain(plugin_data->data[f_voice]->clipper1, *plugin_data->dist);
 
@@ -408,7 +410,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
 
     a_voice->current_sample = 0.0f;
 
-    f_rmp_run_ramp(a_voice->pitch_env);
+    f_rmp_run_ramp_curve(a_voice->pitch_env);
     f_rmp_run_ramp(a_voice->glide_env);
 
     v_lfs_set(a_voice->lfo1, (*plugin_data->lfo_freq) * 0.01f);
@@ -682,8 +684,13 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
         
         port_descriptors[RAYV_OSC_HARD_SYNC] = port_descriptors[RAYV_ATTACK];
 	port_range_hints[RAYV_OSC_HARD_SYNC].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC_HARD_SYNC].LowerBound = 0;
-	port_range_hints[RAYV_OSC_HARD_SYNC].UpperBound = 1;
+	port_range_hints[RAYV_OSC_HARD_SYNC].LowerBound = 0.0f;
+	port_range_hints[RAYV_OSC_HARD_SYNC].UpperBound = 1.0f;
+        
+        port_descriptors[RAYV_RAMP_CURVE] = port_descriptors[RAYV_ATTACK];
+	port_range_hints[RAYV_RAMP_CURVE].DefaultValue = 50.0f;
+	port_range_hints[RAYV_RAMP_CURVE].LowerBound = 0.0f;
+	port_range_hints[RAYV_RAMP_CURVE].UpperBound = 100.0f;
                 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;

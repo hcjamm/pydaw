@@ -391,7 +391,8 @@ class pydaw_filter_widget:
             self.layout.addWidget(self.type_combobox.control, 2, 1)
 
 class pydaw_ramp_env_widget:
-    def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_time_port, a_amt_port, a_label="Ramp Env", a_preset_mgr=None):
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_time_port, a_amt_port, a_label="Ramp Env",
+                 a_preset_mgr=None, a_curve_port=None):
         self.groupbox = QtGui.QGroupBox(str(a_label))
         self.layout = QtGui.QGridLayout(self.groupbox)
         if a_amt_port is not None:
@@ -401,6 +402,10 @@ class pydaw_ramp_env_widget:
         self.time_knob = pydaw_knob_control(a_size, "Time", a_time_port, a_rel_callback, a_val_callback, \
         1, 200, 100, kc_decimal, a_port_dict, a_preset_mgr)
         self.time_knob.add_to_grid_layout(self.layout, 1)
+        if a_curve_port is not None:
+            self.curve_knob = pydaw_knob_control(a_size, "Curve", a_curve_port, a_rel_callback, a_val_callback, \
+            0, 100, 50, kc_none, a_port_dict, a_preset_mgr)
+            self.curve_knob.add_to_grid_layout(self.layout, 2)
 
 class pydaw_lfo_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_freq_port, a_type_port, a_type_list, a_label="LFO", a_preset_mgr=None):
@@ -1697,7 +1702,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_ports.RAYV_MASTER_UNISON_VOICES,pydaw_ports.RAYV_MASTER_UNISON_SPREAD, self.preset_manager)
         self.hlayout3.addWidget(self.master.group_box)
         self.pitch_env =  pydaw_ramp_env_widget(64, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
-        pydaw_ports.RAYV_PITCH_ENV_TIME, pydaw_ports.RAYV_PITCH_ENV_AMT, "Pitch Env", self.preset_manager)
+        pydaw_ports.RAYV_PITCH_ENV_TIME, pydaw_ports.RAYV_PITCH_ENV_AMT, "Pitch Env", self.preset_manager, pydaw_ports.RAYV_RAMP_CURVE)
         self.hlayout3.addWidget(self.pitch_env.groupbox)
         self.lfo =  pydaw_lfo_widget(64, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
         pydaw_ports.RAYV_LFO_FREQ, pydaw_ports.RAYV_LFO_TYPE, f_lfo_types, "LFO", self.preset_manager)
