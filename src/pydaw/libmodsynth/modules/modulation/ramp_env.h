@@ -19,6 +19,9 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
+#include "../../lib/interpolate-cubic.h"    
+#include "../../lib/interpolate-linear.h"
+    
 typedef struct st_ramp_env
 {
     float output;  //if == 1, the ramp can be considered finished running
@@ -28,6 +31,10 @@ typedef struct st_ramp_env
     float sr;
     float sr_recip;
     float output_multiplier;
+    t_cubic_interpolater * interpolator;
+    float curve;  //0.0-1.0, for the interpolator
+    float last_curve;  //0.0-1.0, for the interpolator
+    float curve_table[4];
 }t_ramp_env;
 
 
@@ -66,6 +73,17 @@ inline void f_rmp_run_ramp(t_ramp_env*__restrict a_rmp_ptr)
     a_rmp_ptr->output_multiplied = (a_rmp_ptr->output) * (a_rmp_ptr->output_multiplier);
 }
 
+
+inline void f_rmp_run_ramp_curve(t_ramp_env*__restrict a_rmp_ptr)
+{
+    f_rmp_run_ramp(a_rmp_ptr);
+    
+    a_rmp_ptr->output_multiplied = 
+    f_cubic_interpolate_ptr(a_rmp_ptr->curve_table, 2.0f + a_rmp_ptr->output, a_rmp_ptr->interpolator)  
+        * (a_rmp_ptr->output_multiplier);
+}
+
+
 /* void v_rmp_set_time(
  * t_ramp_env* a_rmp_ptr,
  * float a_time)  //time in seconds
@@ -88,6 +106,26 @@ void v_rmp_set_time(t_ramp_env*__restrict a_rmp_ptr,float a_time)
         a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
     }
 }
+
+/* void v_rmp_set_time(
+ * t_ramp_env* a_rmp_ptr,
+ * float a_time,  //time in seconds
+ * float a_curve) // 0.0 to 1.0
+ * 
+ * Retrigger when using with 
+ */
+void v_rmp_retrigger_curve(t_ramp_env*__restrict a_rmp_ptr, float a_time, float a_multiplier, float a_curve)
+{
+    v_rmp_retrigger(a_rmp_ptr, a_time, a_multiplier);
+    
+    if(a_rmp_ptr->curve != a_curve)
+    {
+        a_rmp_ptr->curve_table[1] = f_linear_interpolate(0.0f, a_curve, 0.66666f);
+        a_rmp_ptr->curve_table[2] = f_linear_interpolate(a_curve, 1.0f, 0.33333f);
+        a_rmp_ptr->curve = a_curve;
+    }
+}
+
 
 /*void v_rmp_retrigger(
  * t_ramp_env* a_rmp_ptr, 
@@ -171,6 +209,13 @@ t_ramp_env * g_rmp_get_ramp_env(float a_sr)
     f_result->ramp_inc = .01f;
     f_result->ramp_time = .05f;
     f_result->output = 0.0f;
+    f_result->interpolator = g_cubic_get();
+    f_result->curve = 1342.0f;
+    f_result->last_curve = 422.4f;
+    f_result->curve_table[0] = 0.0f;    
+    f_result->curve_table[1] = 0.3333f;
+    f_result->curve_table[2] = 0.6666f;
+    f_result->curve_table[3] = 1.0f;
     
     return f_result;
 }
