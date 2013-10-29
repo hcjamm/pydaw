@@ -2760,14 +2760,6 @@ class audio_item_editor_widget:
         self.layout.addLayout(self.vlayout2, 1, 1)
         self.start_hlayout = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.start_hlayout)
-        #self.end_mode_checkbox = QtGui.QCheckBox("End Mode:")
-        #self.start_hlayout.addWidget(self.end_mode_checkbox)
-        #self.end_musical_time = QtGui.QRadioButton("Musical")
-        #self.start_hlayout.addWidget(self.end_musical_time)
-        #self.end_musical_time.setChecked(True)
-        #self.end_sample_length = QtGui.QRadioButton("Linear")
-        #self.start_hlayout.addWidget(self.end_sample_length)
-        #self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
 
         self.timestretch_checkbox = QtGui.QCheckBox("Time Stretching:")
         self.vlayout2.addWidget(self.timestretch_checkbox)
@@ -3063,10 +3055,7 @@ class audio_item_editor_widget:
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
-        #if self.end_sample_length.isChecked():
-        #    self.end_mode = 0
-        #else:
-        #    self.end_mode = 1
+
         self.end_mode = 0
 
         f_selected_count = 0
@@ -3123,11 +3112,7 @@ class audio_item_editor_widget:
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
                         if f_ts_result is not None:
                             f_stretched_items.append(f_ts_result)
-                #if self.end_mode_checkbox.isChecked():
-                #    if self.end_mode == 1 and f_item.audio_item.end_mode == 0:
-                #        f_item.audio_item.end_bar = f_region_length
-                #        f_item.audio_item.end_beat = 3.99
-                #    f_item.audio_item.end_mode = self.end_mode
+
                 if self.reversed_checkbox.isChecked():
                     f_is_reversed = self.is_reversed_checkbox.isChecked()
                     if f_item.audio_item.reversed != f_is_reversed:
