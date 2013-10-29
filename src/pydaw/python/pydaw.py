@@ -3129,7 +3129,13 @@ class audio_item_editor_widget:
                 #        f_item.audio_item.end_beat = 3.99
                 #    f_item.audio_item.end_mode = self.end_mode
                 if self.reversed_checkbox.isChecked():
-                    f_item.audio_item.reversed = self.is_reversed_checkbox.isChecked()
+                    f_is_reversed = self.is_reversed_checkbox.isChecked()
+                    if f_item.audio_item.reversed != f_is_reversed:
+                        f_new_start = 1000.0 - f_item.audio_item.sample_end
+                        f_new_end = 1000.0 - f_item.audio_item.sample_start
+                        f_item.audio_item.sample_start = f_new_start
+                        f_item.audio_item.sample_end = f_new_end
+                    f_item.audio_item.reversed = f_is_reversed
                 if self.fadein_vol_checkbox.isChecked():
                     f_item.audio_item.fadein_vol = self.fadein_vol_spinbox.value()
                 if self.fadeout_vol_checkbox.isChecked():
