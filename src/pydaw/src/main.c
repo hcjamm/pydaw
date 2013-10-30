@@ -568,25 +568,9 @@ int main(int argc, char **argv)
 
     /* Count number of i/o buffers and ports required */
     plugin->ins = 0;
-    plugin->outs = 0;
+    plugin->outs = 2;
     plugin->controlIns = 0;
     plugin->controlOuts = 0;
-
-    for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) 
-    {
-        PYFX_PortDescriptor pod = plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
-
-        if (PYFX_IS_PORT_AUDIO(pod)) 
-        {
-            if (PYFX_IS_PORT_INPUT(pod)) ++plugin->ins;
-            else if (PYFX_IS_PORT_OUTPUT(pod)) ++plugin->outs;
-        }
-        else if (PYFX_IS_PORT_CONTROL(pod)) 
-        {
-            if (PYFX_IS_PORT_INPUT(pod)) ++plugin->controlIns;
-            else if (PYFX_IS_PORT_OUTPUT(pod)) ++plugin->controlOuts;
-        }
-    }
 
     /* set up instances */
     
@@ -599,7 +583,7 @@ int main(int argc, char **argv)
     controlInsTotal += plugin->controlIns;
     controlOutsTotal += plugin->controlOuts;
         
-    pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));            
+    //pluginInputBuffers = (float **)malloc(insTotal * sizeof(float *));            
     pluginOutputBuffers = (float **)malloc(outsTotal * sizeof(float *));
     
     instanceHandles = (PYFX_Handle *)malloc(sizeof(PYFX_Handle));
@@ -903,22 +887,11 @@ int main(int argc, char **argv)
     in = out = controlIn = controlOut = 0;
     
     plugin = this_instance->plugin;
-    for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) // j is LADSPA port number
+    
+    for (j = 0; j < 2; j++)
     {
-        PYFX_PortDescriptor pod = plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
-
-        if (PYFX_IS_PORT_AUDIO(pod)) 
-        {
-            if (PYFX_IS_PORT_INPUT(pod)) 
-            {
-                v_pydaw_connect_port(instanceHandles, j, pluginInputBuffers[in++]);
-            } 
-            else if (PYFX_IS_PORT_OUTPUT(pod)) 
-            {
-                v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
-            }
-        }
-    }  /* 'for (j...'  LADSPA port number */
+        v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);            
+    }
     
     v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity);    
 

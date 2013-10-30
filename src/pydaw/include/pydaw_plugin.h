@@ -118,37 +118,11 @@ typedef float PYFX_Data;
 /*****************************************************************************/
 
 /* Plugin Ports: 
-
-   Plugins have `ports' that are inputs or outputs for audio or
-   data. Ports can communicate arrays of PYFX_Data (for audio
-   inputs/outputs) or single PYFX_Data values (for control
-   input/outputs). This information is encapsulated in the
-   PYFX_PortDescriptor type which is assembled by ORing individual
-   properties together.
-
-   Note that a port must be an input or an output port but not both
-   and that a port must be a control or audio port but not both. */
+ * Set this to 1 if the port is valid, 0 if not
+ *  */
 
 typedef int PYFX_PortDescriptor;
 
-/* Property PYFX_PORT_INPUT indicates that the port is an input. */
-#define PYFX_PORT_INPUT   0x1
-
-/* Property PYFX_PORT_OUTPUT indicates that the port is an output. */
-#define PYFX_PORT_OUTPUT  0x2
-
-/* Property PYFX_PORT_CONTROL indicates that the port is a control
-   port. */
-#define PYFX_PORT_CONTROL 0x4
-
-/* Property PYFX_PORT_AUDIO indicates that the port is a audio
-   port. */
-#define PYFX_PORT_AUDIO   0x8
-
-#define PYFX_IS_PORT_INPUT(x)   ((x) & PYFX_PORT_INPUT)
-#define PYFX_IS_PORT_OUTPUT(x)  ((x) & PYFX_PORT_OUTPUT)
-#define PYFX_IS_PORT_CONTROL(x) ((x) & PYFX_PORT_CONTROL)
-#define PYFX_IS_PORT_AUDIO(x)   ((x) & PYFX_PORT_AUDIO)
 
 typedef struct _PYFX_PortRangeHint {
 

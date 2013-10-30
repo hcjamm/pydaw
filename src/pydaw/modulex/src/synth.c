@@ -318,218 +318,218 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	    (const PYFX_PortRangeHint *) port_range_hints;
 
         
-	port_descriptors[MODULEX_FX0_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX0_KNOB0] = 1;
 	port_range_hints[MODULEX_FX0_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX0_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX0_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX0_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX0_KNOB1] = 1;
 	port_range_hints[MODULEX_FX0_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX0_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX0_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX0_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX0_KNOB2] = 1;
 	port_range_hints[MODULEX_FX0_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX0_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX0_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX0_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX0_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX0_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX0_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
                 	
-	port_descriptors[MODULEX_FX1_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX1_KNOB0] = 1;
 	port_range_hints[MODULEX_FX1_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX1_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX1_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX1_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX1_KNOB1] = 1;
 	port_range_hints[MODULEX_FX1_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX1_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX1_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX1_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX1_KNOB2] = 1;
 	port_range_hints[MODULEX_FX1_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX1_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX1_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX1_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX1_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX1_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX1_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;               
         
-        port_descriptors[MODULEX_FX2_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[MODULEX_FX2_KNOB0] = 1;
 	port_range_hints[MODULEX_FX2_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX2_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX2_KNOB0].UpperBound =  127.0f;
                 	
-	port_descriptors[MODULEX_FX2_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX2_KNOB1] = 1;
 	port_range_hints[MODULEX_FX2_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX2_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX2_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX2_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX2_KNOB2] = 1;
 	port_range_hints[MODULEX_FX2_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX2_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX2_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX2_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX2_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX2_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX2_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
-	port_descriptors[MODULEX_FX3_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX3_KNOB0] = 1;
 	port_range_hints[MODULEX_FX3_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX3_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX3_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX3_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX3_KNOB1] = 1;
 	port_range_hints[MODULEX_FX3_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX3_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX3_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX3_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX3_KNOB2] = 1;
 	port_range_hints[MODULEX_FX3_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX3_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX3_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX3_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX3_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX3_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX3_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         
-	port_descriptors[MODULEX_FX4_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX4_KNOB0] = 1;
 	port_range_hints[MODULEX_FX4_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX4_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX4_KNOB0].UpperBound =  127.0f;
                 	
-	port_descriptors[MODULEX_FX4_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX4_KNOB1] = 1;
 	port_range_hints[MODULEX_FX4_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX4_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX4_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX4_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX4_KNOB2] = 1;
 	port_range_hints[MODULEX_FX4_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX4_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX4_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX4_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX4_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX4_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX4_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX4_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
                 	
-	port_descriptors[MODULEX_FX5_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX5_KNOB0] = 1;
 	port_range_hints[MODULEX_FX5_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX5_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX5_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX5_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX5_KNOB1] = 1;
 	port_range_hints[MODULEX_FX5_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX5_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX5_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX5_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX5_KNOB2] = 1;
 	port_range_hints[MODULEX_FX5_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX5_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX5_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX5_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX5_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX5_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX5_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX5_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;                
         
-        port_descriptors[MODULEX_FX6_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[MODULEX_FX6_KNOB0] = 1;
 	port_range_hints[MODULEX_FX6_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX6_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX6_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX6_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX6_KNOB1] = 1;
 	port_range_hints[MODULEX_FX6_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX6_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX6_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX6_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX6_KNOB2] = 1;
 	port_range_hints[MODULEX_FX6_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX6_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX6_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX6_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX6_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX6_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX6_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX6_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
-	port_descriptors[MODULEX_FX7_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX7_KNOB0] = 1;
 	port_range_hints[MODULEX_FX7_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX7_KNOB0].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX7_KNOB0].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX7_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX7_KNOB1] = 1;
 	port_range_hints[MODULEX_FX7_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX7_KNOB1].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX7_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[MODULEX_FX7_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX7_KNOB2] = 1;
 	port_range_hints[MODULEX_FX7_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[MODULEX_FX7_KNOB2].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX7_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[MODULEX_FX7_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FX7_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX7_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX7_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
-	port_descriptors[MODULEX_DELAY_TIME] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_DELAY_TIME] = 1;
 	port_range_hints[MODULEX_DELAY_TIME].DefaultValue = 50.0f;
 	port_range_hints[MODULEX_DELAY_TIME].LowerBound =  10.0f;
 	port_range_hints[MODULEX_DELAY_TIME].UpperBound =  100.0f;
         
-	port_descriptors[MODULEX_FEEDBACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_FEEDBACK] = 1;
 	port_range_hints[MODULEX_FEEDBACK].DefaultValue = -12.0f;
 	port_range_hints[MODULEX_FEEDBACK].LowerBound =  -15.0f;
 	port_range_hints[MODULEX_FEEDBACK].UpperBound =  0.0f;
 
-	port_descriptors[MODULEX_DRY] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_DRY] = 1;
 	port_range_hints[MODULEX_DRY].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_DRY].LowerBound =  -30.0f;
 	port_range_hints[MODULEX_DRY].UpperBound =  0.0f;
         
-	port_descriptors[MODULEX_WET] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_WET] = 1;
 	port_range_hints[MODULEX_WET].DefaultValue = -30.0f;
 	port_range_hints[MODULEX_WET].LowerBound =  -30.0f;
 	port_range_hints[MODULEX_WET].UpperBound =  0.0f;
         
-	port_descriptors[MODULEX_DUCK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_DUCK] = 1;
 	port_range_hints[MODULEX_DUCK].DefaultValue = -20.0f;
 	port_range_hints[MODULEX_DUCK].LowerBound =  -40.0f;
 	port_range_hints[MODULEX_DUCK].UpperBound =  0.0f;
         
-	port_descriptors[MODULEX_CUTOFF] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_CUTOFF] = 1;
 	port_range_hints[MODULEX_CUTOFF].DefaultValue = 66.0f;
 	port_range_hints[MODULEX_CUTOFF].LowerBound =  40.0f;
 	port_range_hints[MODULEX_CUTOFF].UpperBound =  118.0f;
                 
         /* Parameters for stereo */
-	port_descriptors[MODULEX_STEREO] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[MODULEX_STEREO] = 1;
 	port_range_hints[MODULEX_STEREO].DefaultValue = 100.0f;
 	port_range_hints[MODULEX_STEREO].LowerBound =  0.0f;
 	port_range_hints[MODULEX_STEREO].UpperBound =  100.0f;
         
-        port_descriptors[MODULEX_VOL_SLIDER] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[MODULEX_VOL_SLIDER] = 1;
 	port_range_hints[MODULEX_VOL_SLIDER].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_VOL_SLIDER].LowerBound =  -50.0f;
 	port_range_hints[MODULEX_VOL_SLIDER].UpperBound =  0.0f;
         
-        port_descriptors[MODULEX_REVERB_TIME] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[MODULEX_REVERB_TIME] = 1;
 	port_range_hints[MODULEX_REVERB_TIME].DefaultValue = 50.0f;
 	port_range_hints[MODULEX_REVERB_TIME].LowerBound =  0.0f;
 	port_range_hints[MODULEX_REVERB_TIME].UpperBound =  100.0f;
         
-        port_descriptors[MODULEX_REVERB_WET] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[MODULEX_REVERB_WET] = 1;
 	port_range_hints[MODULEX_REVERB_WET].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_REVERB_WET].LowerBound =  0.0f;
 	port_range_hints[MODULEX_REVERB_WET].UpperBound =  100.0f;
         
-        port_descriptors[MODULEX_REVERB_COLOR] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[MODULEX_REVERB_COLOR] = 1;
 	port_range_hints[MODULEX_REVERB_COLOR].DefaultValue = 50.0f;
 	port_range_hints[MODULEX_REVERB_COLOR].LowerBound =  0.0f;
 	port_range_hints[MODULEX_REVERB_COLOR].UpperBound =  100.0f;

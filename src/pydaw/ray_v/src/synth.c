@@ -521,22 +521,22 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	    (const PYFX_PortRangeHint *) port_range_hints;
 	
                 
-	port_descriptors[RAYV_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
+	port_descriptors[RAYV_ATTACK] = 1;	
 	port_range_hints[RAYV_ATTACK].DefaultValue = 10.0f;
 	port_range_hints[RAYV_ATTACK].LowerBound = 0.0f; 
 	port_range_hints[RAYV_ATTACK].UpperBound = 100.0f;
 
-	port_descriptors[RAYV_DECAY] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
+	port_descriptors[RAYV_DECAY] = 1;	
 	port_range_hints[RAYV_DECAY].DefaultValue = 10.0f;
 	port_range_hints[RAYV_DECAY].LowerBound = 10.0f; 
 	port_range_hints[RAYV_DECAY].UpperBound = 100.0f;
         
-	port_descriptors[RAYV_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
+	port_descriptors[RAYV_SUSTAIN] = 1;	
 	port_range_hints[RAYV_SUSTAIN].DefaultValue = 0.0f;
 	port_range_hints[RAYV_SUSTAIN].LowerBound = -60.0f;
 	port_range_hints[RAYV_SUSTAIN].UpperBound = 0.0f;
 
-	port_descriptors[RAYV_RELEASE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
+	port_descriptors[RAYV_RELEASE] = 1;	
 	port_range_hints[RAYV_RELEASE].DefaultValue = 50.0f;
 	port_range_hints[RAYV_RELEASE].LowerBound = 10.0f; 
 	port_range_hints[RAYV_RELEASE].UpperBound = 200.0f;
@@ -556,7 +556,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_DIST].LowerBound =  -6.0f;
 	port_range_hints[RAYV_DIST].UpperBound =  36.0f;
         
-	port_descriptors[RAYV_FILTER_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[RAYV_FILTER_ATTACK] = 1;
 	port_range_hints[RAYV_FILTER_ATTACK].DefaultValue = 10.0f;
 	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 0.0f;
 	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 100.0f;
@@ -566,7 +566,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_FILTER_DECAY].LowerBound = 10.0f;
 	port_range_hints[RAYV_FILTER_DECAY].UpperBound = 100.0f;
 
-	port_descriptors[RAYV_FILTER_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[RAYV_FILTER_SUSTAIN] = 1;
 	port_range_hints[RAYV_FILTER_SUSTAIN].DefaultValue = 100.0f;
 	port_range_hints[RAYV_FILTER_SUSTAIN].LowerBound = 0.0f; 
 	port_range_hints[RAYV_FILTER_SUSTAIN].UpperBound = 100.0f; 

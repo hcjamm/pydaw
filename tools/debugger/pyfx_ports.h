@@ -29,48 +29,24 @@ PYFX_Data get_port_default(const PYFX_Descriptor *plugin, int port, int sample_r
 }
 
 void set_PYFX_ports(const PYINST_Descriptor * a_ddesc, PYFX_Handle * a_handle, float * a_control_ins)
-{   
-    int in, out, controlIn, controlOut, j;
-    
-    in = out = controlIn = controlOut = j = 0;
+{
+    int j;
     
     for (j = 0; j < a_ddesc->PYFX_Plugin->PortCount; j++) 
     {
-        PYFX_PortDescriptor pod =
-            a_ddesc->PYFX_Plugin->PortDescriptors[j];
+        PYFX_PortDescriptor pod = a_ddesc->PYFX_Plugin->PortDescriptors[j];
 
-        a_control_ins[j] = -1;
+        a_control_ins[j] = 0.0f;
 
-        if (PYFX_IS_PORT_AUDIO(pod)) {
-
-            if (PYFX_IS_PORT_INPUT(pod)) 
-            {
-                //f_result->pluginInputBuffers[in] = (float*)calloc(8192, sizeof(float));
-                //a_ddesc->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginInputBuffers[in]);                                
-                in++;
-            } 
-            else if (PYFX_IS_PORT_OUTPUT(pod)) 
-            {
-                //f_result->pluginOutputBuffers[out] = (float*)calloc(8192, sizeof(float));
-                //a_ddesc->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginOutputBuffers[out]);                
-                out++;
-            }
-
-        } 
-        else if (PYFX_IS_PORT_CONTROL(pod)) 
+        if(pod)
         {
-            if (PYFX_IS_PORT_INPUT(pod)) {
-                //f_result->pluginControlInPortNumbers[controlIn] = j;
-                //f_result->pluginPortControlInNumbers[j] = controlIn;
+            //f_result->pluginControlInPortNumbers[controlIn] = j;
+            //f_result->pluginPortControlInNumbers[j] = controlIn;
 
-                a_control_ins[controlIn] = get_port_default(a_ddesc->PYFX_Plugin, j, 44100);
+            a_control_ins[j] = get_port_default(a_ddesc->PYFX_Plugin, j, 44100);
 
-                a_ddesc->PYFX_Plugin->connect_port(a_handle, j, &a_control_ins[controlIn++]);
-
-            } else if (PYFX_IS_PORT_OUTPUT(pod)) {
-                //a_ddesc->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, &f_result->pluginControlOuts[controlOut++]);
-            }
-        }
+            a_ddesc->PYFX_Plugin->connect_port(a_handle, j, &a_control_ins[j]);
+        }        
     }
 }
     

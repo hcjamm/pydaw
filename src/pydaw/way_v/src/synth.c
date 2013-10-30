@@ -830,62 +830,62 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	    (const PYFX_PortRangeHint *) port_range_hints;
 
         
-	port_descriptors[WAYV_ATTACK_MAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_ATTACK_MAIN] = 1;
 	port_range_hints[WAYV_ATTACK_MAIN].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK_MAIN].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK_MAIN].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_DECAY_MAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_DECAY_MAIN] = 1;
 	port_range_hints[WAYV_DECAY_MAIN].DefaultValue = 50.0f;
 	port_range_hints[WAYV_DECAY_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY_MAIN].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_SUSTAIN_MAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_SUSTAIN_MAIN] = 1;
 	port_range_hints[WAYV_SUSTAIN_MAIN].DefaultValue = 0.0f;
 	port_range_hints[WAYV_SUSTAIN_MAIN].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN_MAIN].UpperBound = 0.0f;
 
-	port_descriptors[WAYV_RELEASE_MAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_RELEASE_MAIN] = 1;
 	port_range_hints[WAYV_RELEASE_MAIN].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE_MAIN].UpperBound = 200.0f;
 
-	port_descriptors[WAYV_ATTACK1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_ATTACK1] = 1;
 	port_range_hints[WAYV_ATTACK1].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK1].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK1].UpperBound = 100.0f; 
 
-	port_descriptors[WAYV_DECAY1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_DECAY1] = 1;
 	port_range_hints[WAYV_DECAY1].DefaultValue = 50.0f;
 	port_range_hints[WAYV_DECAY1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY1].UpperBound = 100.0f; 
 
-	port_descriptors[WAYV_SUSTAIN1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_SUSTAIN1] = 1;
 	port_range_hints[WAYV_SUSTAIN1].DefaultValue = 0.0f;
 	port_range_hints[WAYV_SUSTAIN1].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN1].UpperBound = 0.0f;
 
-	port_descriptors[WAYV_RELEASE1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_RELEASE1] = 1;
 	port_range_hints[WAYV_RELEASE1].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE1].UpperBound = 200.0f; 
                 
-	port_descriptors[WAYV_ATTACK2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_ATTACK2] = 1;
 	port_range_hints[WAYV_ATTACK2].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK2].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK2].UpperBound = 100.0f; 
 
-	port_descriptors[WAYV_DECAY2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_DECAY2] = 1;
 	port_range_hints[WAYV_DECAY2].DefaultValue = 50.0f;
 	port_range_hints[WAYV_DECAY2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY2].UpperBound = 100.0f; 
 
-	port_descriptors[WAYV_SUSTAIN2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_SUSTAIN2] = 1;
 	port_range_hints[WAYV_SUSTAIN2].DefaultValue = 0.0f;
 	port_range_hints[WAYV_SUSTAIN2].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN2].UpperBound = 0.0f;
 
-	port_descriptors[WAYV_RELEASE2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_RELEASE2] = 1;
 	port_range_hints[WAYV_RELEASE2].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE2].UpperBound = 200.0f; 
@@ -960,27 +960,27 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
         
-	port_descriptors[WAYV_ATTACK_PFX1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_ATTACK_PFX1] = 1;
 	port_range_hints[WAYV_ATTACK_PFX1].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK_PFX1].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK_PFX1].UpperBound = 100.0f; 
         
-	port_descriptors[WAYV_DECAY_PFX1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_DECAY_PFX1] = 1;
 	port_range_hints[WAYV_DECAY_PFX1].DefaultValue = 50.0f;
 	port_range_hints[WAYV_DECAY_PFX1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY_PFX1].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_SUSTAIN_PFX1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_SUSTAIN_PFX1] = 1;
 	port_range_hints[WAYV_SUSTAIN_PFX1].DefaultValue = 0.0f;
 	port_range_hints[WAYV_SUSTAIN_PFX1].LowerBound = -60.0f;
 	port_range_hints[WAYV_SUSTAIN_PFX1].UpperBound = 0.0f;
 
-	port_descriptors[WAYV_RELEASE_PFX1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_RELEASE_PFX1] = 1;
 	port_range_hints[WAYV_RELEASE_PFX1].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE_PFX1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE_PFX1].UpperBound = 200.0f; 
         
-	port_descriptors[WAYV_ATTACK_PFX2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_ATTACK_PFX2] = 1;
 	port_range_hints[WAYV_ATTACK_PFX2].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK_PFX2].UpperBound = 100.0f; 
@@ -990,7 +990,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_DECAY_PFX2].LowerBound = 10.0f;
 	port_range_hints[WAYV_DECAY_PFX2].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_SUSTAIN_PFX2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_SUSTAIN_PFX2] = 1;
 	port_range_hints[WAYV_SUSTAIN_PFX2].DefaultValue = 100.0f;
 	port_range_hints[WAYV_SUSTAIN_PFX2].LowerBound = 0.0f; 
 	port_range_hints[WAYV_SUSTAIN_PFX2].UpperBound = 100.0f; 
@@ -1020,289 +1020,289 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_LFO_TYPE].LowerBound = 0.0f; 
 	port_range_hints[WAYV_LFO_TYPE].UpperBound = 2.0f;
         
-        port_descriptors[WAYV_FX0_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAYV_FX0_KNOB0] = 1;
 	port_range_hints[WAYV_FX0_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX0_KNOB0].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX0_KNOB0].UpperBound =  127.0f;
                 
-	port_descriptors[WAYV_FX0_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX0_KNOB1] = 1;
 	port_range_hints[WAYV_FX0_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX0_KNOB1].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX0_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX0_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX0_KNOB2] = 1;
 	port_range_hints[WAYV_FX0_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX0_KNOB2].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX0_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[WAYV_FX0_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX0_COMBOBOX] = 1;
 	port_range_hints[WAYV_FX0_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_FX0_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
-	port_descriptors[WAYV_FX1_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX1_KNOB0] = 1;
 	port_range_hints[WAYV_FX1_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX1_KNOB0].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX1_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX1_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX1_KNOB1] = 1;
 	port_range_hints[WAYV_FX1_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX1_KNOB1].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX1_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX1_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX1_KNOB2] = 1;
 	port_range_hints[WAYV_FX1_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX1_KNOB2].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX1_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[WAYV_FX1_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX1_COMBOBOX] = 1;
 	port_range_hints[WAYV_FX1_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_FX1_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
                 
-        port_descriptors[WAYV_FX2_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAYV_FX2_KNOB0] = 1;
 	port_range_hints[WAYV_FX2_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX2_KNOB0].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX2_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX2_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX2_KNOB1] = 1;
 	port_range_hints[WAYV_FX2_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX2_KNOB1].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX2_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX2_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX2_KNOB2] = 1;
 	port_range_hints[WAYV_FX2_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX2_KNOB2].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX2_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[WAYV_FX2_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX2_COMBOBOX] = 1;
 	port_range_hints[WAYV_FX2_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_FX2_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
-	port_descriptors[WAYV_FX3_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX3_KNOB0] = 1;
 	port_range_hints[WAYV_FX3_KNOB0].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX3_KNOB0].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX3_KNOB0].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX3_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX3_KNOB1] = 1;
 	port_range_hints[WAYV_FX3_KNOB1].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX3_KNOB1].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX3_KNOB1].UpperBound =  127.0f;
         	
-	port_descriptors[WAYV_FX3_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX3_KNOB2] = 1;
 	port_range_hints[WAYV_FX3_KNOB2].DefaultValue = 64.0f;
 	port_range_hints[WAYV_FX3_KNOB2].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX3_KNOB2].UpperBound =  127.0f;
         
-	port_descriptors[WAYV_FX3_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_FX3_COMBOBOX] = 1;
 	port_range_hints[WAYV_FX3_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_FX3_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
-        port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1].UpperBound =  100;
 
-	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2] = 1;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].DefaultValue = 0.0f;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
                 	
-        port_descriptors[LMS_NOISE_TYPE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[LMS_NOISE_TYPE] = 1;
 	port_range_hints[LMS_NOISE_TYPE].DefaultValue = 0.0f;
 	port_range_hints[LMS_NOISE_TYPE].LowerBound =  0;
 	port_range_hints[LMS_NOISE_TYPE].UpperBound =  2;
         
-        port_descriptors[WAYV_ADSR1_CHECKBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAYV_ADSR1_CHECKBOX] = 1;
 	port_range_hints[WAYV_ADSR1_CHECKBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_ADSR1_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR1_CHECKBOX].UpperBound =  1;
         
-        port_descriptors[WAYV_ADSR2_CHECKBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAYV_ADSR2_CHECKBOX] = 1;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].UpperBound =  1;        
@@ -1412,27 +1412,27 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC3_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM3].UpperBound =  100.0f;
         
-        port_descriptors[WAYV_ATTACK3] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAYV_ATTACK3] = 1;
 	port_range_hints[WAYV_ATTACK3].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK3].LowerBound = 0.0f; 
 	port_range_hints[WAYV_ATTACK3].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_DECAY3] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_DECAY3] = 1;
 	port_range_hints[WAYV_DECAY3].DefaultValue = 50.0f;
 	port_range_hints[WAYV_DECAY3].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY3].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_SUSTAIN3] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_SUSTAIN3] = 1;
 	port_range_hints[WAYV_SUSTAIN3].DefaultValue = 0.0f;
 	port_range_hints[WAYV_SUSTAIN3].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN3].UpperBound = 0.0f;
 
-	port_descriptors[WAYV_RELEASE3] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+	port_descriptors[WAYV_RELEASE3] = 1;
 	port_range_hints[WAYV_RELEASE3].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE3].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE3].UpperBound = 200.0f; 
         
-        port_descriptors[WAYV_ADSR3_CHECKBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[WAYV_ADSR3_CHECKBOX] = 1;
 	port_range_hints[WAYV_ADSR3_CHECKBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_ADSR3_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR3_CHECKBOX].UpperBound =  1;

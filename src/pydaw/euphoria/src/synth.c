@@ -1117,32 +1117,32 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     
     /* Parameters for selected sample */
-    port_descriptors[EUPHORIA_SELECTED_SAMPLE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_SELECTED_SAMPLE] = 1;
     port_range_hints[EUPHORIA_SELECTED_SAMPLE].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_SELECTED_SAMPLE].LowerBound = 0;
     port_range_hints[EUPHORIA_SELECTED_SAMPLE].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
 
-    port_descriptors[EUPHORIA_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_ATTACK] = 1;
     port_range_hints[EUPHORIA_ATTACK].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_ATTACK].LowerBound = 0.0f; 
     port_range_hints[EUPHORIA_ATTACK].UpperBound = 100.0f; 
 
-    port_descriptors[EUPHORIA_DECAY] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_DECAY] = 1;
     port_range_hints[EUPHORIA_DECAY].DefaultValue = 50.0f;
     port_range_hints[EUPHORIA_DECAY].LowerBound = 10; 
     port_range_hints[EUPHORIA_DECAY].UpperBound = 100; 
 
-    port_descriptors[EUPHORIA_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_SUSTAIN] = 1;
     port_range_hints[EUPHORIA_SUSTAIN].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_SUSTAIN].LowerBound = -60;
     port_range_hints[EUPHORIA_SUSTAIN].UpperBound = 0;
 
-    port_descriptors[EUPHORIA_RELEASE] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_RELEASE] = 1;
     port_range_hints[EUPHORIA_RELEASE].DefaultValue = 50.0f;
     port_range_hints[EUPHORIA_RELEASE].LowerBound = 10; 
     port_range_hints[EUPHORIA_RELEASE].UpperBound = 200; 
     
-    port_descriptors[EUPHORIA_FILTER_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FILTER_ATTACK] = 1;
     port_range_hints[EUPHORIA_FILTER_ATTACK].DefaultValue = 10.0f;
     port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 0.0f; 
     port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 100.0f; 
@@ -1152,7 +1152,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_range_hints[EUPHORIA_FILTER_DECAY].LowerBound = 10.0f;
     port_range_hints[EUPHORIA_FILTER_DECAY].UpperBound = 100.0f;
     
-    port_descriptors[EUPHORIA_FILTER_SUSTAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FILTER_SUSTAIN] = 1;
     port_range_hints[EUPHORIA_FILTER_SUSTAIN].DefaultValue = 100.0f;
     port_range_hints[EUPHORIA_FILTER_SUSTAIN].LowerBound = 0.0f; 
     port_range_hints[EUPHORIA_FILTER_SUSTAIN].UpperBound = 100.0f; 
@@ -1192,279 +1192,279 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_range_hints[EUPHORIA_LFO_TYPE].LowerBound = 0; 
     port_range_hints[EUPHORIA_LFO_TYPE].UpperBound = 2;
 
-    port_descriptors[EUPHORIA_FX0_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX0_KNOB0] = 1;
     port_range_hints[EUPHORIA_FX0_KNOB0].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX0_KNOB0].LowerBound =  0;
     port_range_hints[EUPHORIA_FX0_KNOB0].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX0_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX0_KNOB1] = 1;
     port_range_hints[EUPHORIA_FX0_KNOB1].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX0_KNOB1].LowerBound =  0;
     port_range_hints[EUPHORIA_FX0_KNOB1].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX0_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX0_KNOB2] = 1;
     port_range_hints[EUPHORIA_FX0_KNOB2].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX0_KNOB2].LowerBound =  0;
     port_range_hints[EUPHORIA_FX0_KNOB2].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX0_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX0_COMBOBOX] = 1;
     port_range_hints[EUPHORIA_FX0_COMBOBOX].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_FX0_COMBOBOX].LowerBound =  0;
     port_range_hints[EUPHORIA_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
 
-    port_descriptors[EUPHORIA_FX1_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX1_KNOB0] = 1;
     port_range_hints[EUPHORIA_FX1_KNOB0].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX1_KNOB0].LowerBound =  0;
     port_range_hints[EUPHORIA_FX1_KNOB0].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX1_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX1_KNOB1] = 1;
     port_range_hints[EUPHORIA_FX1_KNOB1].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX1_KNOB1].LowerBound =  0;
     port_range_hints[EUPHORIA_FX1_KNOB1].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX1_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX1_KNOB2] = 1;
     port_range_hints[EUPHORIA_FX1_KNOB2].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX1_KNOB2].LowerBound =  0;
     port_range_hints[EUPHORIA_FX1_KNOB2].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX1_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX1_COMBOBOX] = 1;
     port_range_hints[EUPHORIA_FX1_COMBOBOX].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_FX1_COMBOBOX].LowerBound =  0;
     port_range_hints[EUPHORIA_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
 
-    port_descriptors[EUPHORIA_FX2_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX2_KNOB0] = 1;
     port_range_hints[EUPHORIA_FX2_KNOB0].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX2_KNOB0].LowerBound =  0;
     port_range_hints[EUPHORIA_FX2_KNOB0].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX2_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX2_KNOB1] = 1;
     port_range_hints[EUPHORIA_FX2_KNOB1].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX2_KNOB1].LowerBound =  0;
     port_range_hints[EUPHORIA_FX2_KNOB1].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX2_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX2_KNOB2] = 1;
     port_range_hints[EUPHORIA_FX2_KNOB2].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX2_KNOB2].LowerBound =  0;
     port_range_hints[EUPHORIA_FX2_KNOB2].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX2_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX2_COMBOBOX] = 1;
     port_range_hints[EUPHORIA_FX2_COMBOBOX].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_FX2_COMBOBOX].LowerBound =  0;
     port_range_hints[EUPHORIA_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
 
-    port_descriptors[EUPHORIA_FX3_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX3_KNOB0] = 1;
     port_range_hints[EUPHORIA_FX3_KNOB0].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX3_KNOB0].LowerBound =  0;
     port_range_hints[EUPHORIA_FX3_KNOB0].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX3_KNOB1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX3_KNOB1] = 1;
     port_range_hints[EUPHORIA_FX3_KNOB1].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX3_KNOB1].LowerBound =  0;
     port_range_hints[EUPHORIA_FX3_KNOB1].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX3_KNOB2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX3_KNOB2] = 1;
     port_range_hints[EUPHORIA_FX3_KNOB2].DefaultValue = 64.0f;
     port_range_hints[EUPHORIA_FX3_KNOB2].LowerBound =  0;
     port_range_hints[EUPHORIA_FX3_KNOB2].UpperBound =  127;
 
-    port_descriptors[EUPHORIA_FX3_COMBOBOX] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_FX3_COMBOBOX] = 1;
     port_range_hints[EUPHORIA_FX3_COMBOBOX].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_FX3_COMBOBOX].LowerBound =  0;
     port_range_hints[EUPHORIA_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
 
-    port_descriptors[EUPHORIA_LFO_PITCH] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+    port_descriptors[EUPHORIA_LFO_PITCH] = 1;
     port_range_hints[EUPHORIA_LFO_PITCH].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_LFO_PITCH].LowerBound = -36.0f;
     port_range_hints[EUPHORIA_LFO_PITCH].UpperBound = 36.0f;
@@ -1473,7 +1473,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 60.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
         f_i++;
@@ -1481,7 +1481,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
         f_i++;
@@ -1489,7 +1489,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 120.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
         f_i++;
@@ -1497,7 +1497,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = -50; port_range_hints[f_i].UpperBound = 36;            
         f_i++;
@@ -1505,7 +1505,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
         f_i++;
@@ -1513,7 +1513,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
         f_i++;
@@ -1521,7 +1521,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 10.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 20;            
         f_i++;
@@ -1529,7 +1529,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1537,7 +1537,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 127.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1545,7 +1545,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_PITCH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = -36; port_range_hints[f_i].UpperBound = 36;            
         f_i++;
@@ -1553,7 +1553,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_TUNE_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = -100; port_range_hints[f_i].UpperBound = 100;            
         f_i++;
@@ -1561,7 +1561,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 1.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 3;            
         f_i++;
@@ -1569,7 +1569,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
         f_i++;
@@ -1577,7 +1577,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
         f_i++;
@@ -1585,7 +1585,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 1;
 
@@ -1594,7 +1594,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;        
+        port_descriptors[f_i] = 1;        
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1602,7 +1602,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1610,7 +1610,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1618,7 +1618,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
@@ -1626,7 +1626,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1634,7 +1634,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1642,7 +1642,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1650,7 +1650,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
@@ -1658,7 +1658,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1666,7 +1666,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1674,7 +1674,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1682,7 +1682,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
@@ -1690,7 +1690,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1698,7 +1698,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1706,7 +1706,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
         f_i++;
@@ -1714,7 +1714,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     
     while(f_i < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
@@ -1722,7 +1722,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
         f_i++;
@@ -1730,7 +1730,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_NOISE_AMP_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = -30.0f;
         port_range_hints[f_i].LowerBound = -60.0f; 
         port_range_hints[f_i].UpperBound = 0.0f;
@@ -1739,7 +1739,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     while(f_i < EUPHORIA_NOISE_TYPE_MAX)
     {
-        port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
+        port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0.0f; 
         port_range_hints[f_i].UpperBound = 2.0f;

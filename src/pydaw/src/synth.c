@@ -310,15 +310,9 @@ void v_pydaw_constructor()
         
         for(f_i = PYDAW_INPUT_MIN; f_i < PYDAW_INPUT_MAX; f_i++)
         {
-            port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_AUDIO;
+            port_descriptors[f_i] = 1;
             //port_range_hints[f_i].HintDescriptor = 0;
-        }
-                
-	/* Parameters for output */
-	port_descriptors[PYDAW_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	
-        port_descriptors[PYDAW_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	        	
+        }	        	
     }
 
     LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
