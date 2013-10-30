@@ -1435,8 +1435,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
 	LMSLDescriptor->connect_port = v_wayv_connect_port;
 	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = g_wayv_instantiate;
-	LMSLDescriptor->run = NULL;
+	LMSLDescriptor->instantiate = g_wayv_instantiate;	
         LMSLDescriptor->panic = wayvPanic;
     }
 

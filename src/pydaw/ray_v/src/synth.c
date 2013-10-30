@@ -699,8 +699,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	LMSLDescriptor->cleanup = v_cleanup_rayv;
 	LMSLDescriptor->connect_port = v_rayv_connect_port;
 	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = g_rayv_instantiate;
-	LMSLDescriptor->run = NULL;
+	LMSLDescriptor->instantiate = g_rayv_instantiate;	
         LMSLDescriptor->panic = rayvPanic;
     }
 

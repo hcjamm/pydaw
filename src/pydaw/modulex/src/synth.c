@@ -136,12 +136,6 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
     plugin_data->i_slow_index = MODULEX_SLOW_INDEX_ITERATIONS;
 }
 
-static void v_modulex_run_wrapper(PYFX_Handle instance,
-			 int sample_count)
-{
-    v_modulex_run(instance, sample_count, NULL, 0);
-}
-
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event *events, int event_count)
 {
@@ -546,8 +540,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	LMSLDescriptor->cleanup = v_modulex_cleanup;
 	LMSLDescriptor->connect_port = v_modulex_connect_port;
 	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = g_modulex_instantiate;
-	LMSLDescriptor->run = v_modulex_run_wrapper;
+	LMSLDescriptor->instantiate = g_modulex_instantiate;	
     }
         
     return LMSLDescriptor;    

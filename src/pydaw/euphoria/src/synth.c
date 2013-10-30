@@ -1745,8 +1745,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     desc->cleanup = cleanupSampler;
     desc->connect_port = connectPortSampler;
     desc->deactivate = NULL;
-    desc->instantiate = instantiateSampler;
-    desc->run = NULL;
+    desc->instantiate = instantiateSampler;    
     desc->panic = euphoriaPanic;
     
     

@@ -282,22 +282,6 @@ typedef struct _PYFX_Descriptor {
      activate(). */
   void (*activate)(PYFX_Handle Instance, float * a_port_table);
 
-  /* This method is a function pointer that runs an instance of a
-     plugin for a block. Two parameters are required: the first is a
-     handle to the particular instance to be run and the second
-     indicates the block size (in samples) for which the plugin
-     instance may run.
-
-     Note that if an activate() function exists then it must be called
-     before run() or run_adding(). If deactivate() is called for a
-     plugin instance then the plugin instance may not be reused until
-     activate() has been called again.
-
-     If the plugin has the property PYFX_PROPERTY_HARD_RT_CAPABLE
-     then there are various things that the plugin should not do
-     within the run() or run_adding() functions (see above). */
-  void (*run)(PYFX_Handle Instance, int SampleCount);
-
   /* This is the counterpart to activate() (see above). If there is
      nothing for deactivate() to do then the plugin writer may provide
      a NULL rather than an empty function.
