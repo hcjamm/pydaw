@@ -165,9 +165,7 @@ typedef struct
     pthread_mutex_t main_mutex;
     t_pysong * pysong;
     t_pytrack * track_pool[PYDAW_MIDI_TRACK_COUNT];
-    t_pytrack * record_armed_track;
-    int record_armed_track_type;
-    int record_armed_track_index;  //index within the track type
+    t_pytrack * record_armed_track;    
     int record_armed_track_index_all;  //index within track_pool_all
     t_pytrack * bus_pool[PYDAW_BUS_TRACK_COUNT];
     pthread_spinlock_t bus_spinlocks[PYDAW_BUS_TRACK_COUNT];

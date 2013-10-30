@@ -1393,16 +1393,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                     a_pydaw_data->record_armed_track = a_pydaw_data->audio_track_pool[f_track_num];
                     a_pydaw_data->record_armed_track_index_all = f_track_num + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
                     break;
-            }
-            a_pydaw_data->record_armed_track_index = f_track_num;
-            a_pydaw_data->record_armed_track_type = f_type;
+            }            
         }   
         else
         {
             a_pydaw_data->record_armed_track = 0;
-            a_pydaw_data->record_armed_track_index_all = -1;
-            a_pydaw_data->record_armed_track_index = -1;
-            a_pydaw_data->record_armed_track_type = -1;
+            a_pydaw_data->record_armed_track_index_all = -1;            
         }
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         g_free_1d_char_array(f_val_arr);
