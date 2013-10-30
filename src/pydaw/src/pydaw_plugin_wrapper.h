@@ -28,7 +28,6 @@ extern "C" {
 #include "../way_v/src/synth.c"
 #include "../ray_v/src/synth.c"
     
-#define PYDAW_MAX_BUFFER_SIZE 4096
     
 PYFX_Data g_pydaw_get_port_default(const PYFX_Descriptor *plugin, int port)
 {
