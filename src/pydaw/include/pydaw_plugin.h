@@ -16,14 +16,6 @@ GNU General Public License for more details.
 
 #include <pthread.h>
 
-#define PYFX_VERSION "1.1"
-#define PYFX_VERSION_MAJOR 1
-#define PYFX_VERSION_MINOR 1
-
-#define PYINST_VERSION "1.0"
-#define PYINST_VERSION_MAJOR 1
-#define PYINST_VERSION_MINOR 0
-
 #ifdef __cplusplus
 extern "C" {
 #endif
