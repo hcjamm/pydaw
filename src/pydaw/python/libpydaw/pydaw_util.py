@@ -135,7 +135,7 @@ def pydaw_gen_uid():
 
 def note_num_to_string(a_note_num):
     f_note = int(a_note_num) % 12
-    f_octave = (int(a_note_num) / 12) - 2
+    f_octave = (int(a_note_num) // 12) - 2
     return int_to_note_array[f_note] + str(f_octave)
 
 def bool_to_int(a_bool):
