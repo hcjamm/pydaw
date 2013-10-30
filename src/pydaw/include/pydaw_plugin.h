@@ -500,25 +500,6 @@ const PYINST_Descriptor *dssi_descriptor(int Index);
   
 typedef const PYINST_Descriptor *(*PYINST_Descriptor_Function)(int Index);
 
-/*
- * Macros to specify particular MIDI controllers in return values from
- * get_midi_controller_for_port()
- */
-
-#define PYINST_CC_BITS			0x20000000
-#define PYINST_NRPN_BITS			0x40000000
-
-#define PYINST_NONE			-1
-#define PYINST_CONTROLLER_IS_SET(n)	(PYINST_NONE != (n))
-
-#define PYINST_CC(n)			(PYINST_CC_BITS | (n))
-#define PYINST_IS_CC(n)			(PYINST_CC_BITS & (n))
-#define PYINST_CC_NUMBER(n)		((n) & 0x7f)
-
-#define PYINST_NRPN(n)			(PYINST_NRPN_BITS | ((n) << 7))
-#define PYINST_IS_NRPN(n)			(PYINST_NRPN_BITS & (n))
-#define PYINST_NRPN_NUMBER(n)		(((n) >> 7) & 0x3fff)
-
 #ifdef __cplusplus
 }
 #endif

@@ -218,7 +218,7 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
     }
 }
 
-void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, t_pydaw_seq_event * a_event_buffer, 
+inline void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, t_pydaw_seq_event * a_event_buffer, 
         int a_event_count)
 {
     a_plugin->descriptor->run_synth(a_plugin->PYFX_handle, a_sample_count, a_event_buffer, a_event_count);
