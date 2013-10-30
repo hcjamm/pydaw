@@ -100,7 +100,13 @@ int main(int argc, char** argv)
     f_midi_events[2].tick = 1000;
 
 #ifdef DEBUGGER_SIMULATE_RECORD
+    pydaw_data->overdub_mode = 1;
     v_set_playback_mode(pydaw_data, 2, 0, 0);
+#endif
+
+#ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI    
+    pydaw_data->record_armed_track = pydaw_data->track_pool[0];
+    pydaw_data->record_armed_track_index_all = 0;
 #endif
     
     //Run it a few times to get the kinks out...  Ideally this shouldn't have to be done, though...
