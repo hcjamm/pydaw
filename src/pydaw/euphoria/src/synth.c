@@ -427,12 +427,12 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
     return (PYFX_Handle) plugin_data;
 }
 
-static void v_euphoria_activate(PYFX_Handle instance)
+static void v_euphoria_activate(PYFX_Handle instance, float * a_port_table)
 {
     t_euphoria *plugin_data = (t_euphoria *) instance;
+    
+    plugin_data->port_table = a_port_table;
     int i;
-
-    //pthread_mutex_lock(&plugin_data->mutex);
 
     plugin_data->sampleNo = 0;
 
@@ -442,8 +442,6 @@ static void v_euphoria_activate(PYFX_Handle instance)
     }
     
     v_euphoria_slow_index(plugin_data);
-
-    //pthread_mutex_unlock(&plugin_data->mutex);
 }
 
 
@@ -1746,7 +1744,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     desc->activate = v_euphoria_activate;
     desc->cleanup = cleanupSampler;
     desc->connect_port = connectPortSampler;
-    desc->deactivate = v_euphoria_activate;
+    desc->deactivate = NULL;
     desc->instantiate = instantiateSampler;
     desc->run = NULL;
     desc->panic = euphoriaPanic;

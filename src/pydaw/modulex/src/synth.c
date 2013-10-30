@@ -125,9 +125,11 @@ static PYFX_Handle g_modulex_instantiate(const PYFX_Descriptor * descriptor,
     return (PYFX_Handle) plugin_data;
 }
 
-static void v_modulex_activate(PYFX_Handle instance)
+static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
 {
     t_modulex *plugin_data = (t_modulex *) instance;
+    
+    plugin_data->port_table = a_port_table;
         
     plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));  //initialize all monophonic modules
     

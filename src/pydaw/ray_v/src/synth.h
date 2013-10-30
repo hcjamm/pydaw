@@ -141,6 +141,8 @@ typedef struct {
     float midi_event_values[200];
     int midi_event_ports[200];
     int midi_event_count;
+    
+    float * port_table;
 } t_rayv;
 
 

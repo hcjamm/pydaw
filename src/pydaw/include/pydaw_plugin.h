@@ -280,7 +280,7 @@ typedef struct _PYFX_Descriptor {
      called again unless deactivate() is called first. Note that
      connect_port() may be called before or after a call to
      activate(). */
-  void (*activate)(PYFX_Handle Instance);
+  void (*activate)(PYFX_Handle Instance, float * a_port_table);
 
   /* This method is a function pointer that runs an instance of a
      plugin for a block. Two parameters are required: the first is a

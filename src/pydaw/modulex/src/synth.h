@@ -113,6 +113,7 @@ typedef struct {
     int i_slow_index;
     int is_on;
     
+    float * port_table;
 } t_modulex;
 
 #ifdef	__cplusplus

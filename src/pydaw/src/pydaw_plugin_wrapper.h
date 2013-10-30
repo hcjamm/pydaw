@@ -191,7 +191,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
         }
     }
     
-    f_result->descriptor->PYFX_Plugin->activate(f_result->PYFX_handle);
+    f_result->descriptor->PYFX_Plugin->activate(f_result->PYFX_handle, f_result->pluginControlIns);
     
     return f_result;
 }

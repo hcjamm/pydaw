@@ -200,10 +200,13 @@ static PYFX_Handle g_rayv_instantiate(const PYFX_Descriptor * descriptor,
     return (PYFX_Handle) plugin_data;
 }
 
-static void v_rayv_activate(PYFX_Handle instance)
+static void v_rayv_activate(PYFX_Handle instance, float * a_port_table)
 {
     t_rayv *plugin_data = (t_rayv *) instance;
-    unsigned int i;
+    
+    plugin_data->port_table = a_port_table;
+    
+    int i;
     
     plugin_data->voices = g_voc_get_voices(RAYV_POLYPHONY);    
     
