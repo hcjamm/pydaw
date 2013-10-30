@@ -47,6 +47,24 @@ static void v_modulex_cleanup(PYFX_Handle instance)
     free(instance);
 }
 
+static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index, float * DataLocation)
+{
+    t_modulex *plugin = (t_modulex*)instance;
+    
+    switch(a_index)
+    {
+        case 0:
+            plugin->output0 = DataLocation;
+            break;
+        case 1:
+            plugin->output1 = DataLocation;
+            break;
+        default:
+            assert(0);
+            break;                    
+    }
+}
+
 static void v_modulex_connect_port(PYFX_Handle instance, int port, PYFX_Data * data)
 {
     t_modulex *plugin;
@@ -55,11 +73,6 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port, PYFX_Data * d
     
     switch (port) 
     {
-        case MODULEX_INPUT0: plugin->input0 = data; break;
-        case MODULEX_INPUT1: plugin->input1 = data; break;
-        case MODULEX_OUTPUT0: plugin->output0 = data; break;
-        case MODULEX_OUTPUT1: plugin->output1 = data; break;   
-
         case MODULEX_FX0_KNOB0: plugin->fx_knob0[0] = data; break;
         case MODULEX_FX0_KNOB1:	plugin->fx_knob1[0] = data; break;    
         case MODULEX_FX0_KNOB2: plugin->fx_knob2[0] = data; break;    
@@ -190,8 +203,8 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
         while((plugin_data->i_mono_out) < sample_count)
         {
-            plugin_data->mono_modules->current_sample0 = plugin_data->input0[(plugin_data->i_mono_out)];
-            plugin_data->mono_modules->current_sample1 = plugin_data->input1[(plugin_data->i_mono_out)];
+            plugin_data->mono_modules->current_sample0 = plugin_data->output0[(plugin_data->i_mono_out)];
+            plugin_data->mono_modules->current_sample1 = plugin_data->output1[(plugin_data->i_mono_out)];
 
             f_i = 0;
 
@@ -304,21 +317,6 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	LMSLDescriptor->PortRangeHints =
 	    (const PYFX_PortRangeHint *) port_range_hints;
 
-        
-        /* Parameters for input */
-	port_descriptors[MODULEX_INPUT0] = PYFX_PORT_INPUT | PYFX_PORT_AUDIO;
-	port_range_hints[MODULEX_INPUT0].DefaultValue = 0.0f;
-
-        port_descriptors[MODULEX_INPUT1] = PYFX_PORT_INPUT | PYFX_PORT_AUDIO;
-	port_range_hints[MODULEX_INPUT1].DefaultValue = 0.0f;
-        
-	/* Parameters for output */
-	port_descriptors[MODULEX_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_range_hints[MODULEX_OUTPUT0].DefaultValue = 0.0f;
-
-        port_descriptors[MODULEX_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_range_hints[MODULEX_OUTPUT1].DefaultValue = 0.0f;
-        
         
 	port_descriptors[MODULEX_FX0_KNOB0] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_range_hints[MODULEX_FX0_KNOB0].DefaultValue = 64.0f;
@@ -539,6 +537,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	LMSLDescriptor->activate = v_modulex_activate;
 	LMSLDescriptor->cleanup = v_modulex_cleanup;
 	LMSLDescriptor->connect_port = v_modulex_connect_port;
+        LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_modulex_instantiate;	
     }

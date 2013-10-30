@@ -54,6 +54,24 @@ static void wayvPanic(PYFX_Handle instance)
     }    
 }
 
+static void v_wayv_connect_buffer(PYFX_Handle instance, int a_index, float * DataLocation)
+{
+    t_wayv *plugin = (t_wayv*)instance;
+    
+    switch(a_index)
+    {
+        case 0:
+            plugin->output0 = DataLocation;
+            break;
+        case 1:
+            plugin->output1 = DataLocation;
+            break;
+        default:
+            assert(0);
+            break;                    
+    }
+}
+
 static void v_wayv_connect_port(PYFX_Handle instance, int port,
 			  PYFX_Data * data)
 {
@@ -63,243 +81,238 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
     
     /*Add the ports from step 9 to the connectPortLMS event handler*/
     
-    switch (port) {
-    case WAYV_OUTPUT0:
-	plugin->output0 = data;
-	break;
-    case WAYV_OUTPUT1:
-	plugin->output1 = data;
-	break;
-    case WAYV_ATTACK_MAIN:
-	plugin->attack_main = data;
-	break;
-    case WAYV_DECAY_MAIN:
-	plugin->decay_main = data;
-	break;
-    case WAYV_SUSTAIN_MAIN:
-	plugin->sustain_main = data;
-	break;
-    case WAYV_RELEASE_MAIN:
-	plugin->release_main = data;
-	break;
-        
-    case WAYV_ATTACK1:
-	plugin->attack1 = data;
-	break;
-    case WAYV_DECAY1:
-	plugin->decay1 = data;
-	break;
-    case WAYV_SUSTAIN1:
-	plugin->sustain1 = data;
-	break;
-    case WAYV_RELEASE1:
-	plugin->release1 = data;
-	break;
-        
-    case WAYV_ATTACK2:
-	plugin->attack2 = data;
-	break;
-    case WAYV_DECAY2:
-	plugin->decay2 = data;
-	break;
-    case WAYV_SUSTAIN2:
-	plugin->sustain2 = data;
-	break;
-    case WAYV_RELEASE2:
-	plugin->release2 = data;
-	break;
-        
-    case WAYV_NOISE_AMP:
-        plugin->noise_amp = data;
-        break;
-    case WAYV_MASTER_VOLUME:
-        plugin->master_vol = data;
-        break;
-    case WAYV_OSC1_PITCH:
-        plugin->osc1pitch = data;
-        break;
-    case WAYV_OSC1_TUNE:
-        plugin->osc1tune = data;
-        break;
-    case WAYV_OSC1_TYPE:
-        plugin->osc1type = data;
-        break;
-    case WAYV_OSC1_VOLUME:
-        plugin->osc1vol = data;
-        break;
-    case WAYV_OSC2_PITCH:
-        plugin->osc2pitch = data;
-        break;
-    case WAYV_OSC2_TUNE:
-        plugin->osc2tune = data;
-        break;
-    case WAYV_OSC2_TYPE:
-        plugin->osc2type = data;
-        break;
-    case WAYV_OSC2_VOLUME:
-        plugin->osc2vol = data;
-        break;
-    case WAYV_OSC1_UNISON_VOICES:
-        plugin->osc1_uni_voice = data;
-        break;
-    case WAYV_OSC1_UNISON_SPREAD:
-        plugin->osc1_uni_spread = data;        
-        break;
-    case WAYV_OSC2_UNISON_VOICES:
-        plugin->osc2_uni_voice = data;
-        break;
-    case WAYV_OSC2_UNISON_SPREAD:
-        plugin->osc2_uni_spread = data;        
-        break;
-    case WAYV_OSC3_UNISON_VOICES:
-        plugin->osc3_uni_voice = data;
-        break;
-    case WAYV_OSC3_UNISON_SPREAD:
-        plugin->osc3_uni_spread = data;        
-        break;
-    case WAYV_MASTER_GLIDE:
-        plugin->master_glide = data;
-        break;
-    case WAYV_MASTER_PITCHBEND_AMT:
-        plugin->master_pb_amt = data;
-        break;
-        
-        
-    case WAYV_ATTACK_PFX1:
-        plugin->attack = data;
-        break;
-    case WAYV_DECAY_PFX1:
-        plugin->decay = data;
-        break;
-    case WAYV_SUSTAIN_PFX1:
-        plugin->sustain = data;
-        break;
-    case WAYV_RELEASE_PFX1:
-        plugin->release = data;
-        break;
-    case WAYV_ATTACK_PFX2:
-        plugin->attack_f = data;
-        break;
-    case WAYV_DECAY_PFX2:
-        plugin->decay_f = data;
-        break;
-    case WAYV_SUSTAIN_PFX2:
-        plugin->sustain_f = data;
-        break;
-    case WAYV_RELEASE_PFX2:
-        plugin->release_f = data;
-        break;
-    case WAYV_RAMP_ENV_TIME:
-        plugin->pitch_env_time = data;
-        break;
-    case WAYV_LFO_FREQ:
-        plugin->lfo_freq = data;
-        break;
-    case WAYV_LFO_TYPE:
-        plugin->lfo_type = data;
-        break;
+    switch (port) 
+    {
+        case WAYV_ATTACK_MAIN:
+            plugin->attack_main = data;
+            break;
+        case WAYV_DECAY_MAIN:
+            plugin->decay_main = data;
+            break;
+        case WAYV_SUSTAIN_MAIN:
+            plugin->sustain_main = data;
+            break;
+        case WAYV_RELEASE_MAIN:
+            plugin->release_main = data;
+            break;
 
-    case WAYV_FX0_KNOB0: plugin->pfx_mod_knob[0][0][0] = data; break;
-    case WAYV_FX0_KNOB1: plugin->pfx_mod_knob[0][0][1] = data; break;
-    case WAYV_FX0_KNOB2: plugin->pfx_mod_knob[0][0][2] = data; break;
-    case WAYV_FX1_KNOB0: plugin->pfx_mod_knob[0][1][0] = data; break;
-    case WAYV_FX1_KNOB1: plugin->pfx_mod_knob[0][1][1] = data; break;
-    case WAYV_FX1_KNOB2: plugin->pfx_mod_knob[0][1][2] = data; break;
-    case WAYV_FX2_KNOB0: plugin->pfx_mod_knob[0][2][0] = data; break;
-    case WAYV_FX2_KNOB1: plugin->pfx_mod_knob[0][2][1] = data; break;
-    case WAYV_FX2_KNOB2: plugin->pfx_mod_knob[0][2][2] = data; break;
-    case WAYV_FX3_KNOB0: plugin->pfx_mod_knob[0][3][0] = data; break;
-    case WAYV_FX3_KNOB1: plugin->pfx_mod_knob[0][3][1] = data; break;
-    case WAYV_FX3_KNOB2: plugin->pfx_mod_knob[0][3][2] = data; break;
+        case WAYV_ATTACK1:
+            plugin->attack1 = data;
+            break;
+        case WAYV_DECAY1:
+            plugin->decay1 = data;
+            break;
+        case WAYV_SUSTAIN1:
+            plugin->sustain1 = data;
+            break;
+        case WAYV_RELEASE1:
+            plugin->release1 = data;
+            break;
 
-    case WAYV_FX0_COMBOBOX: plugin->fx_combobox[0][0] = data; break;    
-    case WAYV_FX1_COMBOBOX: plugin->fx_combobox[0][1] = data; break;    
-    case WAYV_FX2_COMBOBOX: plugin->fx_combobox[0][2] = data; break;    
-    case WAYV_FX3_COMBOBOX: plugin->fx_combobox[0][3] = data; break;    
-    //End from Modulex
-    /*PolyFX mod matrix port connections*/
-    case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0: plugin->polyfx_mod_matrix[0][0][0][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1: plugin->polyfx_mod_matrix[0][0][0][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2: plugin->polyfx_mod_matrix[0][0][0][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0: plugin->polyfx_mod_matrix[0][0][1][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1: plugin->polyfx_mod_matrix[0][0][1][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2: plugin->polyfx_mod_matrix[0][0][1][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0: plugin->polyfx_mod_matrix[0][0][2][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1: plugin->polyfx_mod_matrix[0][0][2][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2: plugin->polyfx_mod_matrix[0][0][2][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0: plugin->polyfx_mod_matrix[0][0][3][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1: plugin->polyfx_mod_matrix[0][0][3][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2: plugin->polyfx_mod_matrix[0][0][3][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0: plugin->polyfx_mod_matrix[0][1][0][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1: plugin->polyfx_mod_matrix[0][1][0][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2: plugin->polyfx_mod_matrix[0][1][0][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0: plugin->polyfx_mod_matrix[0][1][1][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1: plugin->polyfx_mod_matrix[0][1][1][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2: plugin->polyfx_mod_matrix[0][1][1][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0: plugin->polyfx_mod_matrix[0][1][2][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1: plugin->polyfx_mod_matrix[0][1][2][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2: plugin->polyfx_mod_matrix[0][1][2][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0: plugin->polyfx_mod_matrix[0][1][3][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1: plugin->polyfx_mod_matrix[0][1][3][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2: plugin->polyfx_mod_matrix[0][1][3][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0: plugin->polyfx_mod_matrix[0][2][0][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1: plugin->polyfx_mod_matrix[0][2][0][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2: plugin->polyfx_mod_matrix[0][2][0][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0: plugin->polyfx_mod_matrix[0][2][1][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1: plugin->polyfx_mod_matrix[0][2][1][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2: plugin->polyfx_mod_matrix[0][2][1][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0: plugin->polyfx_mod_matrix[0][2][2][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1: plugin->polyfx_mod_matrix[0][2][2][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2: plugin->polyfx_mod_matrix[0][2][2][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0: plugin->polyfx_mod_matrix[0][2][3][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1: plugin->polyfx_mod_matrix[0][2][3][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2: plugin->polyfx_mod_matrix[0][2][3][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0: plugin->polyfx_mod_matrix[0][3][0][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1: plugin->polyfx_mod_matrix[0][3][0][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2: plugin->polyfx_mod_matrix[0][3][0][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0: plugin->polyfx_mod_matrix[0][3][1][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1: plugin->polyfx_mod_matrix[0][3][1][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2: plugin->polyfx_mod_matrix[0][3][1][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0: plugin->polyfx_mod_matrix[0][3][2][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1: plugin->polyfx_mod_matrix[0][3][2][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2: plugin->polyfx_mod_matrix[0][3][2][2] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0: plugin->polyfx_mod_matrix[0][3][3][0] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1: plugin->polyfx_mod_matrix[0][3][3][1] = data; break;
-    case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2: plugin->polyfx_mod_matrix[0][3][3][2] = data; break;
-    
-    case LMS_NOISE_TYPE: plugin->noise_type = data; break;
-    case WAYV_ADSR1_CHECKBOX: plugin->adsr1_checked = data; break;
-    case WAYV_ADSR2_CHECKBOX: plugin->adsr2_checked = data; break;
-    
-    case WAYV_LFO_AMP: plugin->lfo_amp = data; break;
-    case WAYV_LFO_PITCH: plugin->lfo_pitch = data; break;
-    
-    case WAYV_PITCH_ENV_AMT: plugin->pitch_env_amt = data; break;
-    case WAYV_LFO_AMOUNT: plugin->lfo_amount = data; break;
-    
-    case WAYV_OSC3_PITCH: plugin->osc3pitch = data; break;
-    case WAYV_OSC3_TUNE: plugin->osc3tune = data; break;
-    case WAYV_OSC3_TYPE: plugin->osc3type = data; break;
-    case WAYV_OSC3_VOLUME: plugin->osc3vol = data;  break;
-    
-    case WAYV_OSC1_FM1: plugin->osc1fm1 = data;  break;
-    case WAYV_OSC1_FM2: plugin->osc1fm2 = data;  break;
-    case WAYV_OSC1_FM3: plugin->osc1fm3 = data;  break;
-    
-    case WAYV_OSC2_FM1: plugin->osc2fm1 = data;  break;
-    case WAYV_OSC2_FM2: plugin->osc2fm2 = data;  break;
-    case WAYV_OSC2_FM3: plugin->osc2fm3 = data;  break;
-    
-    case WAYV_OSC3_FM1: plugin->osc3fm1 = data;  break;
-    case WAYV_OSC3_FM2: plugin->osc3fm2 = data;  break;
-    case WAYV_OSC3_FM3: plugin->osc3fm3 = data;  break;
-    
-    case WAYV_ATTACK3: plugin->attack3 = data; break;
-    case WAYV_DECAY3: plugin->decay3 = data; break;
-    case WAYV_SUSTAIN3: plugin->sustain3 = data; break;
-    case WAYV_RELEASE3: plugin->release3 = data; break;
-    
-    case WAYV_ADSR3_CHECKBOX: plugin->adsr3_checked = data; break;
+        case WAYV_ATTACK2:
+            plugin->attack2 = data;
+            break;
+        case WAYV_DECAY2:
+            plugin->decay2 = data;
+            break;
+        case WAYV_SUSTAIN2:
+            plugin->sustain2 = data;
+            break;
+        case WAYV_RELEASE2:
+            plugin->release2 = data;
+            break;
+
+        case WAYV_NOISE_AMP:
+            plugin->noise_amp = data;
+            break;
+        case WAYV_MASTER_VOLUME:
+            plugin->master_vol = data;
+            break;
+        case WAYV_OSC1_PITCH:
+            plugin->osc1pitch = data;
+            break;
+        case WAYV_OSC1_TUNE:
+            plugin->osc1tune = data;
+            break;
+        case WAYV_OSC1_TYPE:
+            plugin->osc1type = data;
+            break;
+        case WAYV_OSC1_VOLUME:
+            plugin->osc1vol = data;
+            break;
+        case WAYV_OSC2_PITCH:
+            plugin->osc2pitch = data;
+            break;
+        case WAYV_OSC2_TUNE:
+            plugin->osc2tune = data;
+            break;
+        case WAYV_OSC2_TYPE:
+            plugin->osc2type = data;
+            break;
+        case WAYV_OSC2_VOLUME:
+            plugin->osc2vol = data;
+            break;
+        case WAYV_OSC1_UNISON_VOICES:
+            plugin->osc1_uni_voice = data;
+            break;
+        case WAYV_OSC1_UNISON_SPREAD:
+            plugin->osc1_uni_spread = data;        
+            break;
+        case WAYV_OSC2_UNISON_VOICES:
+            plugin->osc2_uni_voice = data;
+            break;
+        case WAYV_OSC2_UNISON_SPREAD:
+            plugin->osc2_uni_spread = data;        
+            break;
+        case WAYV_OSC3_UNISON_VOICES:
+            plugin->osc3_uni_voice = data;
+            break;
+        case WAYV_OSC3_UNISON_SPREAD:
+            plugin->osc3_uni_spread = data;        
+            break;
+        case WAYV_MASTER_GLIDE:
+            plugin->master_glide = data;
+            break;
+        case WAYV_MASTER_PITCHBEND_AMT:
+            plugin->master_pb_amt = data;
+            break;
+
+
+        case WAYV_ATTACK_PFX1:
+            plugin->attack = data;
+            break;
+        case WAYV_DECAY_PFX1:
+            plugin->decay = data;
+            break;
+        case WAYV_SUSTAIN_PFX1:
+            plugin->sustain = data;
+            break;
+        case WAYV_RELEASE_PFX1:
+            plugin->release = data;
+            break;
+        case WAYV_ATTACK_PFX2:
+            plugin->attack_f = data;
+            break;
+        case WAYV_DECAY_PFX2:
+            plugin->decay_f = data;
+            break;
+        case WAYV_SUSTAIN_PFX2:
+            plugin->sustain_f = data;
+            break;
+        case WAYV_RELEASE_PFX2:
+            plugin->release_f = data;
+            break;
+        case WAYV_RAMP_ENV_TIME:
+            plugin->pitch_env_time = data;
+            break;
+        case WAYV_LFO_FREQ:
+            plugin->lfo_freq = data;
+            break;
+        case WAYV_LFO_TYPE:
+            plugin->lfo_type = data;
+            break;
+
+        case WAYV_FX0_KNOB0: plugin->pfx_mod_knob[0][0][0] = data; break;
+        case WAYV_FX0_KNOB1: plugin->pfx_mod_knob[0][0][1] = data; break;
+        case WAYV_FX0_KNOB2: plugin->pfx_mod_knob[0][0][2] = data; break;
+        case WAYV_FX1_KNOB0: plugin->pfx_mod_knob[0][1][0] = data; break;
+        case WAYV_FX1_KNOB1: plugin->pfx_mod_knob[0][1][1] = data; break;
+        case WAYV_FX1_KNOB2: plugin->pfx_mod_knob[0][1][2] = data; break;
+        case WAYV_FX2_KNOB0: plugin->pfx_mod_knob[0][2][0] = data; break;
+        case WAYV_FX2_KNOB1: plugin->pfx_mod_knob[0][2][1] = data; break;
+        case WAYV_FX2_KNOB2: plugin->pfx_mod_knob[0][2][2] = data; break;
+        case WAYV_FX3_KNOB0: plugin->pfx_mod_knob[0][3][0] = data; break;
+        case WAYV_FX3_KNOB1: plugin->pfx_mod_knob[0][3][1] = data; break;
+        case WAYV_FX3_KNOB2: plugin->pfx_mod_knob[0][3][2] = data; break;
+
+        case WAYV_FX0_COMBOBOX: plugin->fx_combobox[0][0] = data; break;    
+        case WAYV_FX1_COMBOBOX: plugin->fx_combobox[0][1] = data; break;    
+        case WAYV_FX2_COMBOBOX: plugin->fx_combobox[0][2] = data; break;    
+        case WAYV_FX3_COMBOBOX: plugin->fx_combobox[0][3] = data; break;    
+        //End from Modulex
+        /*PolyFX mod matrix port connections*/
+        case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0: plugin->polyfx_mod_matrix[0][0][0][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1: plugin->polyfx_mod_matrix[0][0][0][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2: plugin->polyfx_mod_matrix[0][0][0][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0: plugin->polyfx_mod_matrix[0][0][1][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1: plugin->polyfx_mod_matrix[0][0][1][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2: plugin->polyfx_mod_matrix[0][0][1][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0: plugin->polyfx_mod_matrix[0][0][2][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1: plugin->polyfx_mod_matrix[0][0][2][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2: plugin->polyfx_mod_matrix[0][0][2][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0: plugin->polyfx_mod_matrix[0][0][3][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1: plugin->polyfx_mod_matrix[0][0][3][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2: plugin->polyfx_mod_matrix[0][0][3][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0: plugin->polyfx_mod_matrix[0][1][0][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1: plugin->polyfx_mod_matrix[0][1][0][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2: plugin->polyfx_mod_matrix[0][1][0][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0: plugin->polyfx_mod_matrix[0][1][1][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1: plugin->polyfx_mod_matrix[0][1][1][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2: plugin->polyfx_mod_matrix[0][1][1][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0: plugin->polyfx_mod_matrix[0][1][2][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1: plugin->polyfx_mod_matrix[0][1][2][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2: plugin->polyfx_mod_matrix[0][1][2][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0: plugin->polyfx_mod_matrix[0][1][3][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1: plugin->polyfx_mod_matrix[0][1][3][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2: plugin->polyfx_mod_matrix[0][1][3][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0: plugin->polyfx_mod_matrix[0][2][0][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1: plugin->polyfx_mod_matrix[0][2][0][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2: plugin->polyfx_mod_matrix[0][2][0][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0: plugin->polyfx_mod_matrix[0][2][1][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1: plugin->polyfx_mod_matrix[0][2][1][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2: plugin->polyfx_mod_matrix[0][2][1][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0: plugin->polyfx_mod_matrix[0][2][2][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1: plugin->polyfx_mod_matrix[0][2][2][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2: plugin->polyfx_mod_matrix[0][2][2][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0: plugin->polyfx_mod_matrix[0][2][3][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1: plugin->polyfx_mod_matrix[0][2][3][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2: plugin->polyfx_mod_matrix[0][2][3][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0: plugin->polyfx_mod_matrix[0][3][0][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1: plugin->polyfx_mod_matrix[0][3][0][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2: plugin->polyfx_mod_matrix[0][3][0][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0: plugin->polyfx_mod_matrix[0][3][1][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1: plugin->polyfx_mod_matrix[0][3][1][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2: plugin->polyfx_mod_matrix[0][3][1][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0: plugin->polyfx_mod_matrix[0][3][2][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1: plugin->polyfx_mod_matrix[0][3][2][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2: plugin->polyfx_mod_matrix[0][3][2][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0: plugin->polyfx_mod_matrix[0][3][3][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1: plugin->polyfx_mod_matrix[0][3][3][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2: plugin->polyfx_mod_matrix[0][3][3][2] = data; break;
+
+        case LMS_NOISE_TYPE: plugin->noise_type = data; break;
+        case WAYV_ADSR1_CHECKBOX: plugin->adsr1_checked = data; break;
+        case WAYV_ADSR2_CHECKBOX: plugin->adsr2_checked = data; break;
+
+        case WAYV_LFO_AMP: plugin->lfo_amp = data; break;
+        case WAYV_LFO_PITCH: plugin->lfo_pitch = data; break;
+
+        case WAYV_PITCH_ENV_AMT: plugin->pitch_env_amt = data; break;
+        case WAYV_LFO_AMOUNT: plugin->lfo_amount = data; break;
+
+        case WAYV_OSC3_PITCH: plugin->osc3pitch = data; break;
+        case WAYV_OSC3_TUNE: plugin->osc3tune = data; break;
+        case WAYV_OSC3_TYPE: plugin->osc3type = data; break;
+        case WAYV_OSC3_VOLUME: plugin->osc3vol = data;  break;
+
+        case WAYV_OSC1_FM1: plugin->osc1fm1 = data;  break;
+        case WAYV_OSC1_FM2: plugin->osc1fm2 = data;  break;
+        case WAYV_OSC1_FM3: plugin->osc1fm3 = data;  break;
+
+        case WAYV_OSC2_FM1: plugin->osc2fm1 = data;  break;
+        case WAYV_OSC2_FM2: plugin->osc2fm2 = data;  break;
+        case WAYV_OSC2_FM3: plugin->osc2fm3 = data;  break;
+
+        case WAYV_OSC3_FM1: plugin->osc3fm1 = data;  break;
+        case WAYV_OSC3_FM2: plugin->osc3fm2 = data;  break;
+        case WAYV_OSC3_FM3: plugin->osc3fm3 = data;  break;
+
+        case WAYV_ATTACK3: plugin->attack3 = data; break;
+        case WAYV_DECAY3: plugin->decay3 = data; break;
+        case WAYV_SUSTAIN3: plugin->sustain3 = data; break;
+        case WAYV_RELEASE3: plugin->release3 = data; break;
+
+        case WAYV_ADSR3_CHECKBOX: plugin->adsr3_checked = data; break;
     }
 }
 
@@ -815,13 +828,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
 	    (const PYFX_PortRangeHint *) port_range_hints;
-	
-	/* Parameters for output */
-	port_descriptors[WAYV_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_range_hints[WAYV_OUTPUT0].DefaultValue = 0.0f;
 
-        port_descriptors[WAYV_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
-	port_range_hints[WAYV_OUTPUT1].DefaultValue = 0.0f;
         
 	port_descriptors[WAYV_ATTACK_MAIN] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;
 	port_range_hints[WAYV_ATTACK_MAIN].DefaultValue = 10.0f;
@@ -1434,6 +1441,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
 	LMSLDescriptor->connect_port = v_wayv_connect_port;
+        LMSLDescriptor->connect_buffer = v_wayv_connect_buffer;
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_wayv_instantiate;	
         LMSLDescriptor->panic = wayvPanic;

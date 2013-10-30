@@ -61,6 +61,24 @@ static void rayvPanic(PYFX_Handle instance)
     }    
 }
 
+static void v_rayv_connect_buffer(PYFX_Handle instance, int a_index, float * DataLocation)
+{
+    t_rayv *plugin = (t_rayv*)instance;
+    
+    switch(a_index)
+    {
+        case 0:
+            plugin->output0 = DataLocation;
+            break;
+        case 1:
+            plugin->output1 = DataLocation;
+            break;
+        default:
+            assert(0);
+            break;                    
+    }
+}
+
 static void v_rayv_connect_port(PYFX_Handle instance, int port,
 			  PYFX_Data * data)
 {
@@ -72,12 +90,6 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
     
     switch (port) 
     {
-        case RAYV_OUTPUT0:
-            plugin->output0 = data;
-            break;
-        case RAYV_OUTPUT1:
-            plugin->output1 = data;
-            break;
         case RAYV_ATTACK:
             plugin->attack = data;
             break;
@@ -508,12 +520,6 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	LMSLDescriptor->PortRangeHints =
 	    (const PYFX_PortRangeHint *) port_range_hints;
 	
-	/* Parameters for output */
-	port_descriptors[RAYV_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;	
-	port_range_hints[RAYV_OUTPUT0].DefaultValue = 0.0f;
-
-        port_descriptors[RAYV_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;	
-	port_range_hints[RAYV_OUTPUT1].DefaultValue = 0.0f;
                 
 	port_descriptors[RAYV_ATTACK] = PYFX_PORT_INPUT | PYFX_PORT_CONTROL;	
 	port_range_hints[RAYV_ATTACK].DefaultValue = 10.0f;
@@ -698,6 +704,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;
 	LMSLDescriptor->connect_port = v_rayv_connect_port;
+        LMSLDescriptor->connect_buffer = v_rayv_connect_buffer;
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_rayv_instantiate;	
         LMSLDescriptor->panic = rayvPanic;

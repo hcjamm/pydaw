@@ -79,9 +79,8 @@ extern "C" {
 #define MODULEX_LAST_CONTROL_PORT 46
 #define MODULEX_COUNT 47 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
-typedef struct {
-    PYFX_Data *input0;
-    PYFX_Data *input1;
+typedef struct 
+{
     PYFX_Data *output0;
     PYFX_Data *output1;
     

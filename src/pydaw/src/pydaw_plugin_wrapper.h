@@ -43,9 +43,7 @@ typedef struct st_pydaw_plugin
     PYFX_Handle PYFX_handle;
     
     const PYINST_Descriptor *descriptor;
-    int    ins;
-    int    outs;
-    float **pluginInputBuffers, **pluginOutputBuffers;
+    float **pluginOutputBuffers;
     float *pluginControlIns;    
 }t_pydaw_plugin;
 
@@ -96,32 +94,18 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
     
     f_result->descriptor = f_result->descfn(0);
     
-    f_result->ins = 0;
-    f_result->outs = 0;
-
     int j;
     
-    for (j = 0; j < f_result->descriptor->PYFX_Plugin->PortCount; j++) 
-    {
-        PYFX_PortDescriptor pod = f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
-
-        if (PYFX_IS_PORT_AUDIO(pod)) 
-        {
-            if (PYFX_IS_PORT_INPUT(pod)) ++f_result->ins;
-            else if (PYFX_IS_PORT_OUTPUT(pod)) ++f_result->outs;
-        } 
-    }
-       
-    
-    f_result->pluginInputBuffers = (float**)malloc((f_result->ins) * sizeof(float*));    
-    f_result->pluginOutputBuffers = (float**)malloc((f_result->outs) * sizeof(float*));
-    
+    f_result->pluginOutputBuffers = (float**)malloc(2 * sizeof(float*));
+   
+    int f_i = 0;
+            
     if(posix_memalign((void**)(&f_result->pluginControlIns), 16, (sizeof(float) * f_result->descriptor->PYFX_Plugin->PortCount)) != 0)
     {
         return 0;
     }
 
-    int f_i = 0;
+    f_i = 0;
     while(f_i < f_result->descriptor->PYFX_Plugin->PortCount)
     {
         f_result->pluginControlIns[f_i] = 0.0f;
@@ -130,64 +114,33 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
     
     f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate, a_host_wavpool_func);
     
-    int in, out;
-    
-    in = out = 0;
+    for (j = 0; j < 2; j++) 
+    {
+        if(posix_memalign((void**)(&f_result->pluginOutputBuffers[j]), 16, (sizeof(float) * 8192)) != 0)
+        {
+            return 0;
+        }
+        
+        f_i = 0;
+        
+        while(f_i < 8192)
+        {
+            f_result->pluginOutputBuffers[j][f_i] = 0.0f;
+            f_i++;
+        }
+        
+        f_result->descriptor->PYFX_Plugin->connect_buffer(f_result->PYFX_handle, j, f_result->pluginOutputBuffers[j]);
+    }
     
     for (j = 0; j < f_result->descriptor->PYFX_Plugin->PortCount; j++) 
     {
-        PYFX_PortDescriptor pod =
-            f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
-
-        f_result->pluginControlIns[j] = 0.0f;
-
-        if (PYFX_IS_PORT_AUDIO(pod)) {
-
-            if (PYFX_IS_PORT_INPUT(pod)) 
-            {
-                if(posix_memalign((void**)(&f_result->pluginInputBuffers[in]), 16, (sizeof(float) * 8192)) != 0)
-                {
-                    return 0;
-                }
-                
-                f_i = 0;
-                while(f_i < 8192)
-                {
-                    f_result->pluginInputBuffers[in][f_i] = 0.0f;
-                    f_i++;
-                }
-
-                f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginInputBuffers[in]);                                
-                in++;
-            } 
-            else if (PYFX_IS_PORT_OUTPUT(pod)) 
-            {
-                if(posix_memalign((void**)(&f_result->pluginOutputBuffers[out]), 16, (sizeof(float) * 8192)) != 0)
-                {
-                    return 0;
-                }                
-                
-                f_i = 0;
-                while(f_i < 8192)
-                {
-                    f_result->pluginOutputBuffers[out][f_i] = 0.0f;
-                    f_i++;
-                }
-
-                f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginOutputBuffers[out]);                
-                out++;
-            }
-
-        } 
-        else if (PYFX_IS_PORT_CONTROL(pod)) 
+        PYFX_PortDescriptor pod = f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
+        
+        if(pod)
         {
-            if (PYFX_IS_PORT_INPUT(pod))
-            {
-                f_result->pluginControlIns[j] = g_pydaw_get_port_default(f_result->descriptor->PYFX_Plugin, j);
+            f_result->pluginControlIns[j] = g_pydaw_get_port_default(f_result->descriptor->PYFX_Plugin, j);
 
-                f_result->descriptor->PYFX_Plugin->connect_port
-                    (f_result->PYFX_handle, j, &f_result->pluginControlIns[j]);
-            }
+            f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, &f_result->pluginControlIns[j]);
         }
     }
     

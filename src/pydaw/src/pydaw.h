@@ -1041,10 +1041,10 @@ inline void v_pydaw_run_pre_effect_vol(t_pydaw_data * a_pydaw_data, t_pytrack * 
     int f_i = 0;
     while(f_i < (a_pydaw_data->sample_count))
     {
-        a_track->effect->pluginInputBuffers[0][f_i] = 
-                (a_track->effect->pluginInputBuffers[0][f_i]) * (a_track->volume_linear);
-        a_track->effect->pluginInputBuffers[1][f_i] = 
-                (a_track->effect->pluginInputBuffers[1][f_i]) * (a_track->volume_linear);
+        a_track->effect->pluginOutputBuffers[0][f_i] = 
+                (a_track->effect->pluginOutputBuffers[0][f_i]) * (a_track->volume_linear);
+        a_track->effect->pluginOutputBuffers[1][f_i] = 
+                (a_track->effect->pluginOutputBuffers[1][f_i]) * (a_track->volume_linear);
         f_i++;
     }
 }
@@ -1061,9 +1061,9 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data, t_pytrack * a
 
         while(f_i2 < a_pydaw_data->sample_count)
         {
-            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginInputBuffers[0][f_i2] = 
+            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginOutputBuffers[0][f_i2] = 
                     (a_track->effect->pluginOutputBuffers[0][f_i2]);
-            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginInputBuffers[1][f_i2] = 
+            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginOutputBuffers[1][f_i2] = 
                     (a_track->effect->pluginOutputBuffers[1][f_i2]);
             f_i2++;
         }
@@ -1076,9 +1076,9 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data, t_pytrack * a
 
         while(f_i2 < a_pydaw_data->sample_count)
         {
-            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginInputBuffers[0][f_i2] += 
+            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginOutputBuffers[0][f_i2] += 
                     (a_track->effect->pluginOutputBuffers[0][f_i2]);
-            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginInputBuffers[1][f_i2] += 
+            a_pydaw_data->bus_pool[(bus_num)]->effect->pluginOutputBuffers[1][f_i2] += 
                     (a_track->effect->pluginOutputBuffers[1][f_i2]);
             f_i2++;
         }
@@ -1247,8 +1247,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             while(f_i2 < f_args->pydaw_data->sample_count)
             {
-                f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
-                f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
+                f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[0][f_i2] = 0.0f;
+                f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[1][f_i2] = 0.0f;
                 f_i2++;
             }
             
@@ -1257,8 +1257,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                 ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
             {                    
                 if(v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
-                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0],
-                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1],
+                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[0],
+                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[1],
                         f_item.track_number, 0))
                 {
                     v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
@@ -4154,15 +4154,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
     if(a_index == -1)  //bus track
     {
         f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1, g_pydaw_wavpool_item_get);
-        
-        free(f_result_fx->pluginOutputBuffers[0]);
-        free(f_result_fx->pluginOutputBuffers[1]);
-        
-        f_result_fx->pluginOutputBuffers = f_result_fx->pluginInputBuffers;
-        
-        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 2, f_result_fx->pluginOutputBuffers[0]);
-        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 3, f_result_fx->pluginOutputBuffers[1]);
-        
+                        
         t_pydaw_plugin * f_fx = a_track->effect;
                 
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
@@ -4228,18 +4220,13 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index, g_pydaw_wavpool_item_get);
         f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1, g_pydaw_wavpool_item_get);
         
-        free(f_result_fx->pluginInputBuffers[0]);
-        free(f_result_fx->pluginInputBuffers[1]);
         free(f_result_fx->pluginOutputBuffers[0]);
         free(f_result_fx->pluginOutputBuffers[1]);
-        
-        f_result_fx->pluginInputBuffers = f_result->pluginOutputBuffers;
-        f_result_fx->pluginOutputBuffers = f_result_fx->pluginInputBuffers;
-        
-        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 0, f_result_fx->pluginInputBuffers[0]);
-        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 1, f_result_fx->pluginInputBuffers[1]);
-        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 2, f_result_fx->pluginOutputBuffers[0]);
-        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 3, f_result_fx->pluginOutputBuffers[1]);
+        f_result_fx->pluginOutputBuffers[0] = f_result->pluginOutputBuffers[0];
+        f_result_fx->pluginOutputBuffers[1] = f_result->pluginOutputBuffers[1];
+                
+        f_result_fx->descriptor->PYFX_Plugin->connect_buffer(f_result_fx->PYFX_handle, 0, f_result->pluginOutputBuffers[0]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_buffer(f_result_fx->PYFX_handle, 1, f_result->pluginOutputBuffers[1]);
                 
         /* If switching from a different plugin(but not from no plugin), delete the preset file */
         if(((a_track->plugin_index) != 0) && i_pydaw_file_exists(f_file_name))

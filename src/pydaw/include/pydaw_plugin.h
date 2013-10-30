@@ -260,6 +260,10 @@ typedef struct _PYFX_Descriptor {
      However, overlapped buffers or use of a single buffer for both
      audio and control data may result in unexpected behaviour. */
    void (*connect_port)(PYFX_Handle Instance, int Port, PYFX_Data * DataLocation);
+   
+   /* Assign the audio buffer at DataLocation to index a_index
+    */
+   void (*connect_buffer)(PYFX_Handle Instance, int a_index, float * DataLocation);
 
   /* This member is a function pointer that initialises a plugin
      instance and activates it for use. This is separated from
