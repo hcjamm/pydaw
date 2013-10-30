@@ -134,7 +134,7 @@ static PYFX_Handle g_modulex_instantiate(const PYFX_Descriptor * descriptor,
 {
     t_modulex *plugin_data = (t_modulex *) malloc(sizeof(t_modulex));
     
-    plugin_data->fs = s_rate;        
+    plugin_data->fs = s_rate;    
     return (PYFX_Handle) plugin_data;
 }
 
@@ -154,8 +154,26 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 {
     t_modulex *plugin_data = (t_modulex *) instance;
     
-    int f_i = 0;
+    int event_pos = 0;
+    int midi_event_pos = 0;
+    plugin_data->midi_event_count = 0;
     
+    while (event_pos < event_count)
+    {
+        if (events[event_pos].type == PYDAW_EVENT_CONTROLLER) 
+        {
+            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
+            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
+            plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
+            plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
+            plugin_data->midi_event_count++;            
+        }
+        
+        event_pos++;
+    }
+    
+    int f_i = 0;
+            
     if(plugin_data->i_slow_index >= MODULEX_SLOW_INDEX_ITERATIONS)
     {
         plugin_data->i_slow_index = 0;
@@ -203,6 +221,17 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
         while((plugin_data->i_mono_out) < sample_count)
         {
+            while(midi_event_pos < plugin_data->midi_event_count && plugin_data->midi_event_ticks[midi_event_pos] == plugin_data->i_mono_out)
+            {
+                if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_CONTROLLER)
+                {
+                    plugin_data->port_table[plugin_data->midi_event_ports[midi_event_pos]] = 
+                            plugin_data->midi_event_values[midi_event_pos];
+                }
+
+                midi_event_pos++;
+            }
+            
             plugin_data->mono_modules->current_sample0 = plugin_data->output0[(plugin_data->i_mono_out)];
             plugin_data->mono_modules->current_sample1 = plugin_data->output1[(plugin_data->i_mono_out)];
 

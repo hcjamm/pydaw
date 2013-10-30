@@ -333,13 +333,19 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             {
                 v_voc_note_off(plugin_data->voices, events[(plugin_data->event_pos)].note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].tick));
             }
-        } 
-        /*Note-off event*/
+        }
         else if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_NOTEOFF) 
         {
             v_voc_note_off(plugin_data->voices, events[(plugin_data->event_pos)].note, (plugin_data->sampleNo), (events[(plugin_data->event_pos)].tick));
-        } 
-        /*Pitch-bend sequencer event, modify the voices pitch*/
+        }
+        else if (events[plugin_data->event_pos].type == PYDAW_EVENT_CONTROLLER) 
+        {
+            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
+            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
+            plugin_data->midi_event_values[plugin_data->midi_event_count] = events[plugin_data->event_pos].value;
+            plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[plugin_data->event_pos].port;
+            plugin_data->midi_event_count++;            
+        }
         else if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_PITCHBEND) 
         {
             plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
@@ -363,6 +369,11 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_PITCHBEND)
             {
                 plugin_data->sv_pitch_bend_value = plugin_data->midi_event_values[midi_event_pos];
+            }
+            else if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_CONTROLLER)
+            {
+                plugin_data->port_table[plugin_data->midi_event_ports[midi_event_pos]] = 
+                        plugin_data->midi_event_values[midi_event_pos];
             }
             
             midi_event_pos++;
