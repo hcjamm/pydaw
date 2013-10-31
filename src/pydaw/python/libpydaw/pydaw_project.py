@@ -30,7 +30,7 @@ def track_all_to_type_and_index(a_index):
     f_index = int(a_index)
     """ Convert global track number to track type + track number  """
     if f_index >= pydaw_midi_track_count + pydaw_bus_count:
-        return 2, f_index - pydaw_midi_track_count + pydaw_bus_count
+        return 2, f_index - pydaw_midi_track_count - pydaw_bus_count
     elif f_index >= pydaw_midi_track_count:
         return 1, f_index - pydaw_midi_track_count
     else:

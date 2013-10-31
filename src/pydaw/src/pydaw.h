@@ -1895,7 +1895,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                         a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick = 
                                 (events[f_i2].tick);
                         
-                        v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->instrument, controlIn, 
+                        v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->effect, controlIn, 
                                 &a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)],
                                 a_pydaw_data, 0, a_pydaw_data->record_armed_track_index_all);
                         
@@ -2228,8 +2228,21 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         f_i++;
     }
     
-    //Run the master channels effects    
-    v_run_plugin(a_pydaw_data->bus_pool[0]->effect, sample_count, a_pydaw_data->bus_pool[0]->event_buffer, a_pydaw_data->bus_pool[0]->current_period_event_index);
+    //Run the master channels effects
+    
+    if(a_pydaw_data->playback_mode > 0)
+    {
+        v_pydaw_process_midi(a_pydaw_data, PYDAW_MIDI_TRACK_COUNT, a_pydaw_data->sample_count);
+    }
+
+    if(a_pydaw_data->record_armed_track_index_all == PYDAW_MIDI_TRACK_COUNT)  //PYDAW_MIDI_TRACK_COUNT == master bus track#
+    {
+        v_pydaw_process_external_midi(a_pydaw_data, a_pydaw_data->sample_count, 
+                a_pydaw_data->events, a_pydaw_data->event_count);
+    }
+    
+    v_run_plugin(a_pydaw_data->bus_pool[0]->effect, sample_count, a_pydaw_data->bus_pool[0]->event_buffer, 
+            a_pydaw_data->bus_pool[0]->current_period_event_index);
     
     int f_i2 = 0;
 
@@ -2258,14 +2271,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         a_pydaw_data->ml_cur_loop_prevent = a_pydaw_data->ml_next_bar;
         sprintf(a_pydaw_data->osc_cursor_message, "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
         v_queue_osc_message(a_pydaw_data, "cur", a_pydaw_data->osc_cursor_message);
-    }
-    
+    }    
     
     if((a_pydaw_data->playback_mode) > 0)
     {
         v_pydaw_finish_time_params(a_pydaw_data, a_pydaw_data->f_region_length_bars);
-    }
-    
+    }    
     
     //We run everything else as normal to prevent hung notes and other oddities, even though the buffer is overwritten...
     if(a_pydaw_data->is_ab_ing)
