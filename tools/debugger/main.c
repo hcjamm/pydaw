@@ -90,14 +90,14 @@ int main(int argc, char** argv)
     v_pydaw_ev_set_noteon(&f_midi_events[0], 0, 66, 66);
     f_midi_events[0].tick = 0;
     v_pydaw_ev_clear(&f_midi_events[1]);
-    v_pydaw_ev_set_controller(&f_midi_events[1], 0, 1, 100);
+    v_pydaw_ev_set_controller(&f_midi_events[1], 0, 16, 100);
     f_midi_events[1].tick = 50;
     v_pydaw_ev_clear(&f_midi_events[2]);
     v_pydaw_ev_set_pitchbend(&f_midi_events[2], 0, 1000);
     f_midi_events[2].tick = 100;
     v_pydaw_ev_clear(&f_midi_events[3]);
     v_pydaw_ev_set_noteoff(&f_midi_events[3], 0, 66, 0);
-    f_midi_events[2].tick = 500;
+    f_midi_events[3].tick = 500;
 
 #ifdef DEBUGGER_SIMULATE_RECORD
     pydaw_data->overdub_mode = 1;
