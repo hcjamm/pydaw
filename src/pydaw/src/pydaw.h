@@ -35,13 +35,10 @@ extern "C" {
 #define PYDAW_PLAYBACK_MODE_OFF 0
 #define PYDAW_PLAYBACK_MODE_PLAY 1
 #define PYDAW_PLAYBACK_MODE_REC 2
-    
-//arbitrary, I may change these 3 after evaluating memory use vs. probable item count in a real project
+
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 1024
-    
-//#define PYDAW_MAX_EVENTS_PER_TRACK_COUNT 2048  //Song-level CC events
     
 #define PYDAW_BUS_TRACK_COUNT 5
 #define PYDAW_AUDIO_INPUT_TRACK_COUNT 5
@@ -52,7 +49,7 @@ extern "C" {
 #define PYDAW_MAX_EVENT_BUFFER_SIZE 512  //This could probably be made smaller
 #define PYDAW_MAX_REGION_SIZE 256
 #define PYDAW_MIDI_NOTE_COUNT 128
-#define PYDAW_MIDI_RECORD_BUFFER_LENGTH 600 //(PYDAW_MAX_REGION_COUNT * PYDAW_REGION_SIZE)  //recording buffer for MIDI, in bars
+#define PYDAW_MIDI_RECORD_BUFFER_LENGTH 600 //recording buffer for MIDI, in bars
 #define PYDAW_MAX_WORK_ITEMS_PER_THREAD 128
     
 #define PYDAW_VERSION "pydaw4"
@@ -101,8 +98,7 @@ typedef struct
     int item_indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_REGION_SIZE];  //Refers to the index of items in the master item pool     
     int uid;
     /*This flag is set to 1 if created during recording, signifying that it requires a default name to be created for it*/
-    int not_yet_saved;
-    
+    int not_yet_saved;    
     int region_length_bars;    //0 to use pydaw_data default
     int region_length_beats;    //0 to use pydaw_data default
     int bar_length;  //0 to use pydaw_data default
