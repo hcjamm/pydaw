@@ -29,7 +29,8 @@ GNU General Public License for more details.
 #include <unistd.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
-#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw4/default-project to work without crashing...
+//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw4/default-project to 
+                                    //work without crashing...  THIS WILL WRITE EVENTS INTO YOUR PROJECT!!!!!!
 #define DEBUGGER_SAMPLE_COUNT 512
 
 
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
     v_pydaw_ev_set_noteon(&f_midi_events[0], 0, 66, 66);
     f_midi_events[0].tick = 0;
     v_pydaw_ev_clear(&f_midi_events[1]);
-    v_pydaw_ev_set_controller(&f_midi_events[1], 0, 16, 100);
+    v_pydaw_ev_set_controller(&f_midi_events[1], 0, 84, 100);
     f_midi_events[1].tick = 50;
     v_pydaw_ev_clear(&f_midi_events[2]);
     v_pydaw_ev_set_pitchbend(&f_midi_events[2], 0, 1000);
@@ -105,8 +106,8 @@ int main(int argc, char** argv)
 #endif
 
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI    
-    pydaw_data->record_armed_track = pydaw_data->track_pool[0];
-    pydaw_data->record_armed_track_index_all = 0;
+    pydaw_data->record_armed_track = pydaw_data->track_pool_all[PYDAW_MIDI_TRACK_COUNT];
+    pydaw_data->record_armed_track_index_all = PYDAW_MIDI_TRACK_COUNT;
 #endif
     
     while(f_i < 10)
