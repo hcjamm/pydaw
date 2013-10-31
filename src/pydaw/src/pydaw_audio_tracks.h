@@ -46,23 +46,32 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
     }
         
     f_result->uid = a_uid;
-                
+    f_result->is_loaded = 0;
+    f_result->host_sr = a_sr;
+        
+    sprintf(f_result->path, "%s", a_path);
+    
+    return f_result;
+}
+
+int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
+{
     SF_INFO info;
     SNDFILE *file;
     size_t samples = 0;
     float *tmpFrames, *tmpSamples[2];
     
     info.format = 0;
-    file = sf_open(a_path, SFM_READ, &info);
+    file = sf_open(a_wav_pool_item->path, SFM_READ, &info);
 
     if (!file) {
 
-	const char *filename = strrchr(a_path, '/');
+	const char *filename = strrchr(a_wav_pool_item->path, '/');
 	if (filename) ++filename;
-	else filename = a_path;
+	else filename = a_wav_pool_item->path;
         
 	if (!file) {
-            printf("error: unable to load sample file '%s'", a_path);
+            printf("error: unable to load sample file '%s'", a_wav_pool_item->path);
 	    return 0;
 	}
     }
@@ -73,14 +82,14 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
     sf_readf_float(file, tmpFrames, info.frames);
     sf_close(file);
 
-    if ((int)(info.samplerate) != (int)(a_sr)) 
+    if ((int)(info.samplerate) != (int)(a_wav_pool_item->host_sr)) 
     {	
-	double ratio = (double)(info.samplerate)/(double)(a_sr);
-        f_result->ratio_orig = (float)ratio;
+	double ratio = (double)(info.samplerate)/(double)(a_wav_pool_item->host_sr);
+        a_wav_pool_item->ratio_orig = (float)ratio;
     }
     else
     {
-        f_result->ratio_orig = 1.0f;
+        a_wav_pool_item->ratio_orig = 1.0f;
     }
            
     int f_adjusted_channel_count = 1;
@@ -153,26 +162,24 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
         
     free(tmpFrames);
     
-    f_result->samples[0] = tmpSamples[0];
+    a_wav_pool_item->samples[0] = tmpSamples[0];
     
     if(f_adjusted_channel_count > 1)
     {
-        f_result->samples[1] = tmpSamples[1];
+        a_wav_pool_item->samples[1] = tmpSamples[1];
     }
     else
     {
-        f_result->samples[1] = 0;
+        a_wav_pool_item->samples[1] = 0;
     }
     
-    f_result->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
+    a_wav_pool_item->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
     
-    f_result->sample_rate = info.samplerate;
+    a_wav_pool_item->sample_rate = info.samplerate;
     
-    f_result->channels = f_adjusted_channel_count;
+    a_wav_pool_item->channels = f_adjusted_channel_count;
     
-    sprintf(f_result->path, "%s", a_path);
-    
-    return f_result;
+    return 1;
 }
 
 void v_wav_pool_item_free(t_wav_pool_item *a_wav_pool_item)
@@ -298,6 +305,13 @@ t_wav_pool_item * g_wav_pool_get_item_by_uid(t_wav_pool* a_wav_pool, int a_uid)
     {
         if(a_wav_pool->items[f_i] && a_wav_pool->items[f_i]->uid == a_uid)
         {
+            if(!a_wav_pool->items[f_i]->is_loaded)
+            {
+                if(!i_wav_pool_item_load(a_wav_pool->items[f_i]))
+                {
+                    return 0;
+                }
+            }
             return a_wav_pool->items[f_i];
         }        
         f_i++;

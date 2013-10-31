@@ -52,7 +52,9 @@ typedef struct
     float ratio_orig;
     int channels;
     int length;
-    float sample_rate;    
+    float sample_rate;
+    int is_loaded;  //wav's are now loaded dynamically when they are first seen
+    float host_sr;  //host sample-rate, cached here for easy access
 }t_wav_pool_item;
     
 void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
