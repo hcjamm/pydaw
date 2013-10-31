@@ -29,7 +29,7 @@ GNU General Public License for more details.
 #include <unistd.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
-//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw4/default-project to work without crashing...
+#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw4/default-project to work without crashing...
 #define DEBUGGER_SAMPLE_COUNT 512
 
 
@@ -91,13 +91,13 @@ int main(int argc, char** argv)
     f_midi_events[0].tick = 0;
     v_pydaw_ev_clear(&f_midi_events[1]);
     v_pydaw_ev_set_controller(&f_midi_events[1], 0, 1, 100);
-    f_midi_events[1].tick = 5;
+    f_midi_events[1].tick = 50;
     v_pydaw_ev_clear(&f_midi_events[2]);
     v_pydaw_ev_set_pitchbend(&f_midi_events[2], 0, 1000);
-    f_midi_events[2].tick = 10;
+    f_midi_events[2].tick = 100;
     v_pydaw_ev_clear(&f_midi_events[3]);
     v_pydaw_ev_set_noteoff(&f_midi_events[3], 0, 66, 0);
-    f_midi_events[2].tick = 1000;
+    f_midi_events[2].tick = 500;
 
 #ifdef DEBUGGER_SIMULATE_RECORD
     pydaw_data->overdub_mode = 1;
@@ -109,8 +109,7 @@ int main(int argc, char** argv)
     pydaw_data->record_armed_track_index_all = 0;
 #endif
     
-    //Run it a few times to get the kinks out...  Ideally this shouldn't have to be done, though...
-    while(f_i < 100)
+    while(f_i < 10)
     {
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI
         v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 4);
