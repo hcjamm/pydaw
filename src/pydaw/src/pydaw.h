@@ -3431,8 +3431,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     {
         f_result->track_pool[f_i] = g_pytrack_get(f_i, 0);        
         f_result->track_pool_all[f_track_total] = f_result->track_pool[f_i];
-        f_result->track_current_item_event_indexes[f_i] = 0;
-        
+                
         int f_i2 = 0;
         
         while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
@@ -3443,7 +3442,15 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         
         f_i++;
         f_track_total++;
-    }     
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
+    {        
+        f_result->track_current_item_event_indexes[f_i] = 0;
+        f_i++;
+    }    
     
     f_i = 0;
     
