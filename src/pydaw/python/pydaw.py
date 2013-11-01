@@ -6704,7 +6704,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         for f_line in arr[0].split("\n"):
             if f_line == "":
                 break
-            print(f_line)
             a_key, a_val = f_line.split("|", 1)
             if a_key == "pc":
                 f_is_inst, f_track_num, f_port, f_val = a_val.split("|")
