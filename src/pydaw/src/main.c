@@ -1172,7 +1172,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         
         switch(f_track_type)
@@ -1196,7 +1195,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         }
         
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX))
@@ -1321,7 +1319,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         assert(f_mode == 0 || f_mode == 1);
         int f_track_type = atoi(f_val_arr->array[2]);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         switch(f_track_type)
         {
             case 0:  //MIDI
@@ -1339,7 +1336,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         v_pydaw_set_is_soloed(a_pydaw_data);
         
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
@@ -1349,7 +1345,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
         int f_track_type = atoi(f_val_arr->array[2]);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         switch(f_track_type)
         {
@@ -1366,7 +1361,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 break;
         }        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
