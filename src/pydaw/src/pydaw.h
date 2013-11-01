@@ -4673,25 +4673,32 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
     
     if(f_result)
     {
-        t_wav_pool_item * f_old = a_pydaw_data->preview_wav_item;
-        
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        
-        a_pydaw_data->preview_wav_item = f_result;
-
-        a_pydaw_data->preview_audio_item->ratio = a_pydaw_data->preview_wav_item->ratio_orig;
-
-        a_pydaw_data->is_previewing = 1;
-
-        v_ifh_retrigger(a_pydaw_data->preview_audio_item->sample_read_head, 
-                PYDAW_AUDIO_ITEM_PADDING_DIV2); 
-        v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
-
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-
-        if(f_old)
+        if(i_wav_pool_item_load(f_result))
         {
-            v_wav_pool_item_free(f_old);
+            t_wav_pool_item * f_old = a_pydaw_data->preview_wav_item;
+
+            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+            a_pydaw_data->preview_wav_item = f_result;
+
+            a_pydaw_data->preview_audio_item->ratio = a_pydaw_data->preview_wav_item->ratio_orig;
+
+            a_pydaw_data->is_previewing = 1;
+
+            v_ifh_retrigger(a_pydaw_data->preview_audio_item->sample_read_head, 
+                    PYDAW_AUDIO_ITEM_PADDING_DIV2); 
+            v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
+
+            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+            if(f_old)
+            {
+                v_wav_pool_item_free(f_old);
+            }
+        }
+        else
+        {
+            printf("i_wav_pool_item_load(f_result) failed in v_pydaw_set_preview_file\n");
         }
     }
     else
