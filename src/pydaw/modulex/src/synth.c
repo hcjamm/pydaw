@@ -197,24 +197,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
     }
 
     f_i = 0;
-    
-    while(f_i < 8)
-    {
-        if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
-        {
-            v_smr_iir_run_fast(plugin_data->mono_modules->smoothers[f_i][0], *plugin_data->fx_knob0[f_i]);
-            v_smr_iir_run_fast(plugin_data->mono_modules->smoothers[f_i][1], *plugin_data->fx_knob1[f_i]);
-            v_smr_iir_run_fast(plugin_data->mono_modules->smoothers[f_i][2], *plugin_data->fx_knob2[f_i]);
             
-            v_mf3_set(plugin_data->mono_modules->multieffect[f_i], 
-                    plugin_data->mono_modules->smoothers[f_i][0]->output, 
-                    plugin_data->mono_modules->smoothers[f_i][1]->output, 
-                    plugin_data->mono_modules->smoothers[f_i][2]->output
-                    );
-        }
-        f_i++;
-    }
-    
     if(plugin_data->is_on)
     {
         plugin_data->i_mono_out = 0;
@@ -239,10 +222,22 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
             while(f_i < 8)
             {
-                plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+                if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
+                {
+                    v_smr_iir_run(plugin_data->mono_modules->smoothers[f_i][0], *plugin_data->fx_knob0[f_i]);
+                    v_smr_iir_run(plugin_data->mono_modules->smoothers[f_i][1], *plugin_data->fx_knob1[f_i]);
+                    v_smr_iir_run(plugin_data->mono_modules->smoothers[f_i][2], *plugin_data->fx_knob2[f_i]);
+                    
+                    v_mf3_set(plugin_data->mono_modules->multieffect[f_i], 
+                    plugin_data->mono_modules->smoothers[f_i][0]->output, 
+                    plugin_data->mono_modules->smoothers[f_i][1]->output, 
+                    plugin_data->mono_modules->smoothers[f_i][2]->output  );
 
-                plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect[f_i]->output0;
-                plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect[f_i]->output1;
+                    plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+
+                    plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect[f_i]->output0;
+                    plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect[f_i]->output1;
+                }
                 f_i++;
             }
 
