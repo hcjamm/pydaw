@@ -1215,7 +1215,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                     f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
 
-            f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
+            //f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
 
             v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number],
                     f_args->pydaw_data->track_pool[f_item.track_number]->bus_num);
@@ -1436,7 +1436,9 @@ void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name)
 }
 
 inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sample_count)
-{    
+{
+    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = 0;
+    
     /* Situations where the track is effectively muted*/
     if((a_pydaw_data->track_pool_all[f_i]->plugin_index == 0) ||
         (a_pydaw_data->track_pool_all[f_i]->mute) ||
