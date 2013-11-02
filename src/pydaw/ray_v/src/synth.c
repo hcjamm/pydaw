@@ -353,7 +353,9 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             plugin_data->midi_event_values[plugin_data->midi_event_count] = 
                     0.00012207 * events[plugin_data->event_pos].value;
             plugin_data->midi_event_count++;
-        }        
+        }
+        
+        assert(plugin_data->midi_event_count < 200);
     }
     
     plugin_data->i_iterator = 0;

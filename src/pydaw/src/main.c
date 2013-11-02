@@ -275,7 +275,7 @@ void midiReceive(unsigned char status, unsigned char control, char value)
     midiEventBuffer[midiEventWriteIndex].tv_sec = tv.tv_sec;
     midiEventBuffer[midiEventWriteIndex].tv_nsec = tv.tv_usec * 1000L;
     
-    if(midiEventWriteIndex > EVENT_BUFFER_SIZE)
+    if(midiEventWriteIndex >= EVENT_BUFFER_SIZE)
     {
         midiEventWriteIndex = 0;
     }
@@ -423,16 +423,19 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 	evtv.tv_usec = ev->tv_nsec / 1000;
 
 	if (evtv.tv_sec > tv.tv_sec ||
-	    (evtv.tv_sec == tv.tv_sec &&
-	     evtv.tv_usec > tv.tv_usec)) {
+	    (evtv.tv_sec == tv.tv_sec && evtv.tv_usec > tv.tv_usec)) 
+        {
 	    break;
 	}
 
 	diff.tv_sec = tv.tv_sec - evtv.tv_sec;
-	if (tv.tv_usec < evtv.tv_usec) {
+	if (tv.tv_usec < evtv.tv_usec) 
+        {
 	    --diff.tv_sec;
 	    diff.tv_usec = tv.tv_usec + 1000000 - evtv.tv_usec;
-	} else {
+	}
+        else 
+        {
 	    diff.tv_usec = tv.tv_usec - evtv.tv_usec;
 	}
 
@@ -464,7 +467,8 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
             { 
                 // bank select MSB
                 
-	    } else if (controller == 32) 
+	    } 
+            else if (controller == 32) 
             { 
                 // bank select LSB
 	    } 
@@ -473,6 +477,10 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
                 instanceEventBuffers[instanceEventCounts] = *ev;
                 instanceEventCounts++;
 	    }
+            else
+            {
+                assert(0);
+            }
 	} 
         else 
         {
@@ -490,6 +498,8 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
     i = 0;
     outCount = 0;
     outCount += this_instance->plugin->outs;
+    
+    assert(instanceEventCounts < EVENT_BUFFER_SIZE);
     
     v_pydaw_run(instanceHandles,  framesPerBuffer, instanceEventBuffers, instanceEventCounts);    
     

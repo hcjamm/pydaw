@@ -1643,6 +1643,8 @@ inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i)
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sample_count, t_pydaw_seq_event *events, int event_count)
 {
+    assert(event_count < 200);
+    
     if((a_pydaw_data->record_armed_track) && ((a_pydaw_data->record_armed_track->plugin_index) != 0))
     {
         int f_i2 = 0;
@@ -1864,6 +1866,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     }
                 }
             }
+            
+            assert(a_pydaw_data->record_armed_track->current_period_event_index < 200);
+            
             f_i2++;
         }
         
