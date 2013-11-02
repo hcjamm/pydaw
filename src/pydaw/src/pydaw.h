@@ -4641,23 +4641,30 @@ void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file)
 {
     t_wav_pool_item * f_result = g_wav_pool_item_get(0, a_file, a_pydaw_data->sample_rate);
     
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
-    
-    t_wav_pool_item * f_old = a_pydaw_data->ab_wav_item;
-    a_pydaw_data->ab_wav_item = f_result;
-    
-    if(!f_result)
+    if(i_wav_pool_item_load(f_result))
     {
-        a_pydaw_data->ab_mode = 0;
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+        t_wav_pool_item * f_old = a_pydaw_data->ab_wav_item;
+        a_pydaw_data->ab_wav_item = f_result;
+
+        if(!f_result)
+        {
+            a_pydaw_data->ab_mode = 0;
+        }
+
+        a_pydaw_data->ab_audio_item->ratio = a_pydaw_data->ab_wav_item->ratio_orig;
+
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+        if(f_old)
+        {
+            v_wav_pool_item_free(f_old);
+        }
     }
-    
-    a_pydaw_data->ab_audio_item->ratio = a_pydaw_data->ab_wav_item->ratio_orig;
-    
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-    
-    if(f_old)
+    else
     {
-        v_wav_pool_item_free(f_old);
+        printf("i_wav_pool_item_load failed in v_pydaw_set_ab_file\n");
     }
 }
 
