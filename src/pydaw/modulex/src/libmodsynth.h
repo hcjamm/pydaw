@@ -18,22 +18,17 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include <stdio.h>
 #include "../../libmodsynth/constants.h"
-    
-/*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
 #include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/delay/lms_delay.h"
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/modules/modulation/env_follower.h"
-    
 #include "../../libmodsynth/modules/delay/reverb.h"
-//#include "../../libmodsynth/modules/dynamics/compressor.h"
+
 
 typedef struct
 {
@@ -41,7 +36,7 @@ typedef struct
     fp_mf3_run fx_func_ptr[8];
         
     t_lms_delay * delay;
-    t_smoother_iir * time_smoother;
+    t_smoother_linear * time_smoother;
     t_enf_env_follower * env_follower;
     
     t_rvb_reverb * reverb;
@@ -54,7 +49,7 @@ typedef struct
     t_smoother_linear * volume_smoother;
     t_smoother_linear * reverb_smoother;
     
-    t_smoother_iir * smoothers[8][3];
+    t_smoother_linear * smoothers[8][3];
     
     t_amp * amp_ptr;    
 }t_modulex_mono_modules;
@@ -74,7 +69,7 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
         int f_i2 = 0;
         while(f_i2 < 3)
         {
-            a_mono->smoothers[f_i][f_i2] = g_smr_iir_get_smoother();
+            a_mono->smoothers[f_i][f_i2] = g_sml_get_smoother_linear(a_sr, 127.0f, 0.0f, 0.1f);
             f_i2++;
         }
         f_i++;
@@ -83,7 +78,7 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     a_mono->amp_ptr = g_amp_get();
     
     a_mono->delay = g_ldl_get_delay(1, a_sr);    
-    a_mono->time_smoother = g_smr_iir_get_smoother();
+    a_mono->time_smoother = g_sml_get_smoother_linear(a_sr, 100.0f, 10.0f, 0.1f);
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
     
     a_mono->reverb = g_rvb_reverb_get(a_sr);

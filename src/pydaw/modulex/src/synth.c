@@ -243,14 +243,14 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             {
                 if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
                 {
-                    v_smr_iir_run(plugin_data->mono_modules->smoothers[f_i][0], *plugin_data->fx_knob0[f_i]);
-                    v_smr_iir_run(plugin_data->mono_modules->smoothers[f_i][1], *plugin_data->fx_knob1[f_i]);
-                    v_smr_iir_run(plugin_data->mono_modules->smoothers[f_i][2], *plugin_data->fx_knob2[f_i]);
+                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][0], *plugin_data->fx_knob0[f_i]);
+                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][1], *plugin_data->fx_knob1[f_i]);
+                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][2], *plugin_data->fx_knob2[f_i]);
                     
                     v_mf3_set(plugin_data->mono_modules->multieffect[f_i], 
-                    plugin_data->mono_modules->smoothers[f_i][0]->output, 
-                    plugin_data->mono_modules->smoothers[f_i][1]->output, 
-                    plugin_data->mono_modules->smoothers[f_i][2]->output  );
+                    plugin_data->mono_modules->smoothers[f_i][0]->last_value, 
+                    plugin_data->mono_modules->smoothers[f_i][1]->last_value, 
+                    plugin_data->mono_modules->smoothers[f_i][2]->last_value  );
 
                     plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
 
@@ -273,9 +273,9 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         
         while((plugin_data->i_mono_out) < sample_count)
         {
-            v_smr_iir_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time) * .01));
+            v_sml_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time) * .01));
             
-            v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), *(plugin_data->feedback), 
+            v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->last_value), *(plugin_data->feedback), 
                     *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01), (*plugin_data->duck), (*plugin_data->cutoff));
 
             v_ldl_run_delay(plugin_data->mono_modules->delay, 
