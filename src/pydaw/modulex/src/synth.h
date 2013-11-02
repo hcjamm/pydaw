@@ -21,7 +21,7 @@ extern "C" {
 #include "../../include/pydaw_plugin.h"
 #include "libmodsynth.h"
    
-#define MODULEX_SLOW_INDEX_ITERATIONS 50
+#define MODULEX_SLOW_INDEX_ITERATIONS 30
     
 #define MODULEX_INPUT0  0
 #define MODULEX_INPUT1  1    

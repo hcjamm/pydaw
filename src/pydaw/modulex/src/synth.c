@@ -147,6 +147,24 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
     plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));  //initialize all monophonic modules
     
     plugin_data->i_slow_index = MODULEX_SLOW_INDEX_ITERATIONS;
+    plugin_data->is_on = 0;
+}
+
+static void v_modulex_check_if_on(t_modulex *plugin_data)
+{
+    int f_i = 0;
+        
+    while(f_i < 8)
+    {
+        plugin_data->mono_modules->fx_func_ptr[f_i] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[f_i])));
+
+        if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
+        {
+            plugin_data->is_on = 1;
+        }
+
+        f_i++;
+    }
 }
 
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
@@ -166,7 +184,19 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
             plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
             plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
-            plugin_data->midi_event_count++;            
+                        
+            if(!plugin_data->is_on)
+            {
+                v_modulex_check_if_on(plugin_data);
+                
+                if(!plugin_data->is_on)  //Meaning that we now have set the port anyways because the main loop won't be running
+                {
+                    plugin_data->port_table[plugin_data->midi_event_ports[plugin_data->midi_event_count]] = 
+                            plugin_data->midi_event_values[plugin_data->midi_event_count];
+                }
+            }
+            
+            plugin_data->midi_event_count++;
         }
         
         event_pos++;
@@ -177,19 +207,8 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
     if(plugin_data->i_slow_index >= MODULEX_SLOW_INDEX_ITERATIONS)
     {
         plugin_data->i_slow_index = 0;
-        plugin_data->is_on = 0;
-        
-        while(f_i < 8)
-        {
-            plugin_data->mono_modules->fx_func_ptr[f_i] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[f_i])));
-            
-            if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
-            {
-                plugin_data->is_on = 1;
-            }
-            
-            f_i++;
-        }
+        plugin_data->is_on = 0;        
+        v_modulex_check_if_on(plugin_data);
     }
     else
     {
