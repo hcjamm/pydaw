@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #include "pyfx_ports.h"
 #include <unistd.h>
 
-#define DEBUGGER_SIMULATE_EXTERNAL_MIDI
+//#define DEBUGGER_SIMULATE_EXTERNAL_MIDI
 //#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw4/default-project to 
                                     //work without crashing...  THIS WILL WRITE EVENTS INTO YOUR PROJECT!!!!!!
 #define DEBUGGER_SAMPLE_COUNT 512
@@ -83,9 +83,7 @@ int main(int argc, char** argv)
     
     float * f_control_ins = (float*)malloc(sizeof(float) * 3000);
     set_PYFX_ports(f_ddesc, f_handle, f_control_ins);
-    
-    f_i = 0;
-    
+            
     t_pydaw_seq_event * f_midi_events = (t_pydaw_seq_event*)malloc(sizeof(t_pydaw_seq_event) * 512);
     v_pydaw_ev_clear(&f_midi_events[0]);
     v_pydaw_ev_set_noteon(&f_midi_events[0], 0, 66, 66);
@@ -110,15 +108,28 @@ int main(int argc, char** argv)
     pydaw_data->record_armed_track_index_all = PYDAW_MIDI_TRACK_COUNT;
 #endif
     
-    while(f_i < 10)
-    {
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI
+    f_i = 0;
+    
+    while(f_i < 50)
+    {
         v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 4);
-#else
-        f_ddesc->run_synth(f_handle, DEBUGGER_SAMPLE_COUNT, NULL, 0);
-#endif
+        v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 0);
+        v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 0);
+        v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 0);
         f_i++;
     }
+#else
+    f_i = 0;
+    
+    while(f_i < 100)
+    {
+        v_pydaw_run(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 0);        
+        f_i++;
+    }
+#endif
+
+
 
 #ifdef DEBUGGER_SIMULATE_RECORD
     v_set_playback_mode(pydaw_data, 0, 0, 0);
