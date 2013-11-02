@@ -232,7 +232,7 @@ static void v_rayv_activate(PYFX_Handle instance, float * a_port_table)
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 60.0f;  //For glide
     
-    plugin_data->mono_modules = v_rayv_mono_init();  //initialize all monophonic modules
+    plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);  //initialize all monophonic modules
 }
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,
@@ -351,12 +351,11 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
             plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
             plugin_data->midi_event_values[plugin_data->midi_event_count] = 
-                    0.00012207 * events[plugin_data->event_pos].value * (*(plugin_data->master_pb_amt));
+                    0.00012207 * events[plugin_data->event_pos].value;
             plugin_data->midi_event_count++;
         }        
     }
     
-    /*Clear the output buffer*/
     plugin_data->i_iterator = 0;
 
     while((plugin_data->i_iterator) < sample_count)
@@ -379,8 +378,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
         
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (*plugin_data->timbre));
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));        
+        v_sml_run(plugin_data->mono_modules->filter_smoother, (*plugin_data->timbre));
+        v_sml_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));        
     
         plugin_data->i_run_poly_voice = 0; 
         while ((plugin_data->i_run_poly_voice) < RAYV_POLYPHONY) 
@@ -448,7 +447,8 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
     if(a_voice->hard_sync)
     {
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
+                + (plugin_data->mono_modules->pitchbend_smoother->last_value * (*(plugin_data->master_pb_amt))) + 
+                (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
 
         v_osc_set_unison_pitch(a_voice->osc_unison1, a_voice->unison_spread,
                 ((a_voice->target_pitch) + (a_voice->osc1_pitch_adjust) ));
@@ -468,7 +468,8 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
     else
     {        
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
+                + (plugin_data->mono_modules->pitchbend_smoother->last_value * (*(plugin_data->master_pb_amt))) + 
+                (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
 
         v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
                 ((a_voice->base_pitch) + (a_voice->osc1_pitch_adjust) ));
@@ -485,7 +486,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
 
     v_adsr_run(a_voice->adsr_filter);
 
-    v_svf_set_cutoff_base(a_voice->svf_filter,  (plugin_data->mono_modules->filter_smoother->output));//vals->timbre);
+    v_svf_set_cutoff_base(a_voice->svf_filter,  (plugin_data->mono_modules->filter_smoother->last_value));
 
     v_svf_add_cutoff_mod(a_voice->svf_filter, 
             (((a_voice->adsr_filter->output) * (*plugin_data->filter_env_amt)) + (a_voice->lfo_filter_output)));        

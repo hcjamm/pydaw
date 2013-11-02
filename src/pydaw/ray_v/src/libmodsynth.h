@@ -32,7 +32,6 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/adsr.h"
 #include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
@@ -60,8 +59,8 @@ void v_rayv_init_lms(float f_sr)
 
 typedef struct st_rayv_mono_modules
 {
-    t_smoother_iir * filter_smoother;
-    t_smoother_iir * pitchbend_smoother;
+    t_smoother_linear * filter_smoother;
+    t_smoother_linear * pitchbend_smoother;
     t_amp * amp_ptr;
 }t_rayv_mono_modules;
     
@@ -197,16 +196,16 @@ void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast)
     v_adsr_release(a_voice->adsr_filter);    
 }
 
-t_rayv_mono_modules * v_rayv_mono_init();
+t_rayv_mono_modules * v_rayv_mono_init(float);
 
 
 /*Initialize any modules that will be run monophonically*/
-t_rayv_mono_modules * v_rayv_mono_init()
+t_rayv_mono_modules * v_rayv_mono_init(float a_sr)
 {
     t_rayv_mono_modules * a_mono = (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));
-    a_mono->filter_smoother = g_smr_iir_get_smoother();
-    a_mono->filter_smoother->output = 100.0f;  //To prevent low volume and brightness at the first note-on(s)
-    a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
+    a_mono->filter_smoother = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.2f);
+    a_mono->filter_smoother->last_value = 100.0f;  //To prevent low volume and brightness at the first note-on(s)
+    a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.1f);
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
 }
