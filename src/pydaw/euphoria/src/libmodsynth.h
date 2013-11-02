@@ -25,7 +25,7 @@ extern "C" {
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/modules/modulation/adsr.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
+#include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 #include "../../libmodsynth/modules/oscillator/noise.h"
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
@@ -47,7 +47,7 @@ extern "C" {
 
 typedef struct st_euphoria_mono_modules
 {
-    t_smoother_iir * pitchbend_smoother;
+    t_smoother_linear * pitchbend_smoother;
     t_amp * amp_ptr;
     t_sinc_interpolator * sinc_interpolator;
     t_dco_dc_offset_filter * dc_offset_filters[EUPHORIA_CHANNEL_COUNT];
@@ -197,7 +197,7 @@ t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr)
         return 0;
     }
     
-    a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
+    a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
     a_mono->amp_ptr = g_amp_get();
     a_mono->sinc_interpolator = g_sinc_get(EUPHORIA_SINC_INTERPOLATION_POINTS, 6000, 8000.0f, a_sr, 0.42f);
     a_mono->noise_current_index = 0;

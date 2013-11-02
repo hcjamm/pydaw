@@ -347,7 +347,7 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 60.0f;  //For glide
     
-    plugin_data->mono_modules = v_wayv_mono_init();  //initialize all monophonic modules
+    plugin_data->mono_modules = v_wayv_mono_init(plugin_data->fs);  //initialize all monophonic modules
 }
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
@@ -602,7 +602,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
             plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
             plugin_data->midi_event_values[plugin_data->midi_event_count] = 
-                    0.00012207 * events[plugin_data->event_pos].value * (*(plugin_data->master_pb_amt));
+                    0.00012207 * events[plugin_data->event_pos].value;
             plugin_data->midi_event_count++;
         }        
     }
@@ -630,7 +630,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
         
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        v_sml_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
     
         plugin_data->i_run_poly_voice = 0; 
         while ((plugin_data->i_run_poly_voice) < WAYV_POLYPHONY) 
@@ -704,7 +704,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
     a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);        
 
     a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + ((a_voice->ramp_env->output_multiplied) * (*plugin_data->pitch_env_amt))
-            + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
+            + (plugin_data->mono_modules->pitchbend_smoother->last_value  * (*(plugin_data->master_pb_amt))) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
 
     if(a_voice->osc1_on)
     {

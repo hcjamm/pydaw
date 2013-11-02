@@ -23,10 +23,7 @@ extern "C" {
 //How many modular PolyFX
 #define EUPHORIA_MODULAR_POLYFX_COUNT 4
     
-#include <stdio.h>
 #include "../../libmodsynth/constants.h"
-    
-/*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
@@ -37,7 +34,6 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/adsr.h"
 #include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 #include "../../libmodsynth/modules/oscillator/osc_wavetable.h"
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
@@ -58,7 +54,7 @@ void v_wayv_init(float f_sr)
 
 typedef struct
 {    
-    t_smoother_iir * pitchbend_smoother;
+    t_smoother_linear * pitchbend_smoother;
     t_amp * amp_ptr;
 }t_wayv_mono_modules;
     
@@ -253,14 +249,14 @@ void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
     v_adsr_release(a_voice->adsr_amp3);
 }
 
-t_wayv_mono_modules * v_wayv_mono_init();
+t_wayv_mono_modules * v_wayv_mono_init(float);
 
 
 /*Initialize any modules that will be run monophonically*/
-t_wayv_mono_modules * v_wayv_mono_init()
+t_wayv_mono_modules * v_wayv_mono_init(float a_sr)
 {
     t_wayv_mono_modules * a_mono = (t_wayv_mono_modules*)malloc(sizeof(t_wayv_mono_modules));    
-    a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
+    a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
 }

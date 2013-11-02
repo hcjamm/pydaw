@@ -426,13 +426,11 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
         }
     }
     
-    plugin_data->sampleRate = s_rate;
-    //plugin_data->projectDir = 0;    
+    plugin_data->sampleRate = s_rate;    
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 36.0f;
     plugin_data->channels = 2;
-    plugin_data->amp_ptr = g_amp_get();    
-    //memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));    
+    plugin_data->amp_ptr = g_amp_get();      
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);    
     plugin_data->fs = s_rate;
     
@@ -575,7 +573,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
     v_lfs_run(plugin_data->data[n]->lfo1);
 
     plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied)
-            +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
+            +  (plugin_data->mono_modules->pitchbend_smoother->last_value * (*(plugin_data->master_pb_amt)))  //(plugin_data->sv_pitch_bend_value)
             + (plugin_data->data[n]->last_pitch) + ((plugin_data->data[n]->lfo1->output) * (*(plugin_data->lfo_pitch)));
 
     if(plugin_data->voices->voices[n].off == plugin_data->sampleNo)
@@ -934,7 +932,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
             plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
             plugin_data->midi_event_values[plugin_data->midi_event_count] = 
-                    0.00012207 * events[event_pos].value * (*(plugin_data->master_pb_amt));
+                    0.00012207 * events[event_pos].value;
             plugin_data->midi_event_count++;            
         }
 
@@ -963,7 +961,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
     
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        v_sml_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
         {            
