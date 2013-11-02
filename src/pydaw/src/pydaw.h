@@ -385,29 +385,6 @@ t_wav_pool_item * g_pydaw_wavpool_item_get(int a_uid)
     return g_wav_pool_get_item_by_uid(pydaw_data->wav_pool, a_uid);
 }
 
-/*OSC Handlers*/
-
-int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
-{
-    const char *key = (const char *)&argv[0]->s;
-    const char *value = (const char *)&argv[1]->s;
-    char *message;
-
-    if (instance->descriptor->configure) 
-    {
-        message = instance->descriptor->configure(instance->PYFX_handle, key, value, &pydaw_data->main_mutex);
-        if (message) 
-        {
-            printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);
-            free(message);
-        }	    
-    }
-
-    return 0;
-}
-
-
-/*End OSC Handlers*/
 void v_pysong_free(t_pysong * a_pysong)
 {
     int f_i = 0;

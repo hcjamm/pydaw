@@ -34,125 +34,6 @@ static PYINST_Descriptor *LMSDDescriptor = NULL;
 
 void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count);
 
-int pydaw_osc_debug_handler(const char *path, const char *types, lo_arg **argv,
-                      int argc, void *data, void *user_data)
-{
-    int i;
-
-    printf("PyDAW: got unhandled OSC message:\npath: <%s>\n", path);
-    for (i=0; i<argc; i++) 
-    {
-        printf("PyDAW: arg %d '%c' ", i, types[i]);
-        lo_arg_pp(types[i], argv[i]);
-        printf("\n");
-    }
-    
-    return 1;
-}
-
-int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv,
-                        int argc, void *data, void *user_data)
-{
-    int i;
-    t_pydaw_plugin *instance = 0;
-    const char *method;
-    unsigned int flen = 0;    
-    char tmp[32];
-    
-    //printf("\npydaw_osc_message_handler: %s\n\n", path);
-    
-    if (strncmp(path, "/dssi/", 6))
-    {
-        printf("\nstrncmp(path, \"/dssi/\", 6)\n\n");
-        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
-    }
-      
-    flen = 2;    
-    
-    for (i = 0; i < PYDAW_MIDI_TRACK_COUNT; i++) 
-    {
-        sprintf(tmp, "%i-mi", i);
-	flen = strlen(tmp);
-        if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
-        {
-            instance = pydaw_data->track_pool[i]->instrument; //&instances[i];
-            break;
-        }
-        
-        sprintf(tmp, "%i-mfx", i);
-	flen = strlen(tmp);
-        if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
-        {
-            instance = pydaw_data->track_pool[i]->effect; //&instances[i];
-            break;
-        }
-    }
-    
-    if(!instance)  //Try the audio tracks
-    {        
-        for (i = 0; i < PYDAW_AUDIO_TRACK_COUNT; i++) 
-        {     
-            sprintf(tmp, "%i-afx", i);
-            flen = strlen(tmp);
-            if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
-            {
-                instance = pydaw_data->audio_track_pool[i]->effect;
-                break;
-            }
-        }
-    }
-    
-    if(!instance)  //Try the bus tracks
-    {        
-        for (i = 0; i < PYDAW_BUS_TRACK_COUNT; i++) 
-        {     
-            sprintf(tmp, "%i-bfx", i);
-            flen = strlen(tmp);
-            if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
-            {
-                instance = pydaw_data->bus_pool[i]->effect;
-                break;
-            }
-        }
-    }    
-    
-    if (!instance)
-    {
-        printf("\n!instance\n");
-        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
-    }    
-    
-    method = path + 20 + flen;
-    
-    if (*method != '/')
-    {
-        printf("\n(*method != '/')\n\n%s\n\n", method);
-        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
-    }
-    else if(*(method + 1) == 0)
-    {
-        printf("\n(*(method + 1) == 0)\n\n%s\n\n", method);
-        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
-    }
-    /*else
-    {
-        printf("method == %s\n", method);
-    }*/
-    
-    method++;    
-            
-    if (!strcmp(method, "configure") && argc == 2 && !strcmp(types, "ss")) 
-    {
-        return pydaw_osc_configure_handler(instance, argv);
-    }
-    else
-    {
-        printf("Did not match any known method: %s\n", method);
-    }
-    
-    return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
-}
-
 
 __attribute__ ((visibility("default")))
 const PYFX_Descriptor *PYFX_descriptor(int index)
@@ -216,7 +97,6 @@ static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s
 void v_pydaw_activate(PYFX_Handle instance, int a_thread_count, int a_set_thread_affinity)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;    
-    v_pydaw_activate_osc_thread(pydaw_data, pydaw_osc_message_handler);
     v_pydaw_init_worker_threads(pydaw_data, a_thread_count, a_set_thread_affinity);
     //v_pydaw_init_busses(pydaw_data);
     v_open_default_project(pydaw_data);
