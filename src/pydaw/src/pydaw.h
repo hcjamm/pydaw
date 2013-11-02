@@ -188,8 +188,8 @@ typedef struct
     char * busfx_folder;
     char * audiofx_folder;
         
-    double playback_cursor; //only refers to the fractional position within the current bar.
-    double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
+    float playback_cursor; //only refers to the fractional position within the current bar.
+    float playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region    
     //int samples_per_bar;
@@ -213,7 +213,7 @@ typedef struct
     /*Counts the number of beats elapsed since record was pressed.*/
     int recorded_note_current_beat;
     /*The position of the note_on in the bar it was first pressed, in beats*/
-    double recorded_notes_start_tracker[PYDAW_MIDI_NOTE_COUNT];
+    float recorded_notes_start_tracker[PYDAW_MIDI_NOTE_COUNT];
     int recorded_notes_velocity_tracker[PYDAW_MIDI_NOTE_COUNT];
     /*Boolean for whether the current bar has been added to the item pool*/
     int recording_in_current_bar;
@@ -247,18 +247,18 @@ typedef struct
     t_pydaw_audio_item * audio_items_running[512];
             
     //Main-loop variables, prefixed with ml_
-    double ml_sample_period_inc;
-    double ml_sample_period_inc_beats;
-    double ml_next_playback_cursor;
-    double ml_current_period_beats;
-    double ml_next_period_beats;
+    float ml_sample_period_inc;
+    float ml_sample_period_inc_beats;
+    float ml_next_playback_cursor;
+    float ml_current_period_beats;
+    float ml_next_period_beats;
     //New additions, to eventually replace some of the older variables
     int ml_current_region;
     int ml_current_bar;
-    double ml_current_beat;
+    float ml_current_beat;
     int ml_next_region;
     int ml_next_bar;
-    double ml_next_beat;
+    float ml_next_beat;
     int ml_starting_new_bar;  //1 if a new bar starts in this sample period, 0 otherwise
     int ml_is_looping;  //0 if false, or 1 if the next bar loops.  Consumers of this value should check for the ->loop_mode variable..
     
@@ -1449,9 +1449,9 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sampl
 
     int f_current_track_region = a_pydaw_data->current_region;
     int f_current_track_bar = a_pydaw_data->current_bar;
-    double f_track_current_period_beats = (a_pydaw_data->ml_current_period_beats);
-    double f_track_next_period_beats = (a_pydaw_data->ml_next_period_beats);
-    double f_track_beats_offset = 0.0f;
+    float f_track_current_period_beats = (a_pydaw_data->ml_current_period_beats);
+    float f_track_next_period_beats = (a_pydaw_data->ml_next_period_beats);
+    float f_track_beats_offset = 0.0f;
 
     if((!a_pydaw_data->overdub_mode) && (a_pydaw_data->playback_mode == 2) && (a_pydaw_data->record_armed_track_index_all == f_i))
     {
@@ -1762,7 +1762,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note] = (a_pydaw_data->recorded_note_current_beat);
                     a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note] = (a_pydaw_data->recording_current_item_pool_index);
                     a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note] = 
-                            ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].tick))/((double)sample_count)) 
+                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count)) 
                             * (a_pydaw_data->playback_inc))) * 4.0f;
                     a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = events[f_i2].note;
                 }
@@ -1782,8 +1782,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
 
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
-                    double f_length = ((double)((a_pydaw_data->recorded_note_current_beat) - (a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note])))
-                            +  ((((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].tick))/((double)sample_count)) 
+                    float f_length = ((float)((a_pydaw_data->recorded_note_current_beat) - (a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note])))
+                            +  ((((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count)) 
                             * (a_pydaw_data->playback_inc))) * 4.0f) - (a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note]));
 
                     int f_index = (a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note]);                                
@@ -1812,8 +1812,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
                     int f_index = (a_pydaw_data->recording_current_item_pool_index);
-                    double f_start =
-                            ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].tick))/((double)sample_count)) 
+                    float f_start =
+                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count)) 
                             * (a_pydaw_data->playback_inc))) * 4.0f;
                     a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
                             g_pypitchbend_get(f_start, (float)events[f_i2].value);
@@ -1833,8 +1833,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 if(a_pydaw_data->cc_map[controller])
                 {
                     int f_index = (a_pydaw_data->recording_current_item_pool_index);
-                    double f_start =
-                            ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].tick))/((double)sample_count)) 
+                    float f_start =
+                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count)) 
                             * (a_pydaw_data->playback_inc))) * 4.0f;
                     
                     int controlIn;
@@ -2068,7 +2068,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
 
 inline void v_pydaw_set_time_params(t_pydaw_data * a_pydaw_data, int sample_count)
 {
-    a_pydaw_data->ml_sample_period_inc = ((a_pydaw_data->playback_inc) * ((double)(sample_count)));
+    a_pydaw_data->ml_sample_period_inc = ((a_pydaw_data->playback_inc) * ((float)(sample_count)));
     a_pydaw_data->ml_sample_period_inc_beats = (a_pydaw_data->ml_sample_period_inc) * 4.0f;
     a_pydaw_data->ml_next_playback_cursor = (a_pydaw_data->playback_cursor) + (a_pydaw_data->ml_sample_period_inc);
     a_pydaw_data->ml_current_period_beats = (a_pydaw_data->playback_cursor) * 4.0f;
@@ -2178,13 +2178,13 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         v_pydaw_set_time_params(a_pydaw_data, sample_count);
 
         a_pydaw_data->f_region_length_bars = a_pydaw_data->default_region_length_bars;
-        //double f_bar_length = (double)(a_pydaw_data->default_bar_length);
+        //float f_bar_length = (float)(a_pydaw_data->default_bar_length);
         
         if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
         {
             if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length)
             {
-                //f_bar_length = (double)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length);
+                //f_bar_length = (float)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length);
             }
 
             if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars)
@@ -2197,7 +2197,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 
                     if((a_pydaw_data->current_bar) == (a_pydaw_data->f_region_length_bars - 1))
                     {                
-                        //f_bar_length = (double)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_beats);
+                        //f_bar_length = (float)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_beats);
                     }
                 }
             }
@@ -2440,8 +2440,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     {
         int f_i = 0;
         
-        double f_adjusted_song_pos_beats;
-        double f_adjusted_next_song_pos_beats;
+        float f_adjusted_song_pos_beats;
+        float f_adjusted_next_song_pos_beats;
         int f_current_region = a_pydaw_data->ml_current_region;
         
         f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_current_region, 
@@ -2453,9 +2453,9 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
         {            
             if(f_i6 == 0)
             {   
-                double test1 = f_adjusted_next_song_pos_beats - 4.0f;
-                double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
-                double test3 = (test1 / test2) * ((double)(a_sample_count));
+                float test1 = f_adjusted_next_song_pos_beats - 4.0f;
+                float test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
+                float test3 = (test1 / test2) * ((float)(a_sample_count));
                 f_adjusted_sample_count = (int)test3;
                 
                 f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_current_region, 
@@ -2485,7 +2485,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     //I think the references to a_pydaw_data->current_region
                     //in this block are OK because if looping the region won't
                     //change anyways...
-                    double test1 = 0.0f;
+                    float test1 = 0.0f;
 
                     if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR)
                     {
@@ -2505,7 +2505,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     }
                     else
                     {
-                        double test2 = test1 * (a_pydaw_data->samples_per_beat) * 
+                        float test2 = test1 * (a_pydaw_data->samples_per_beat) * 
                         (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->ratio);
                         v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head, 
                                 test2 + 
@@ -3975,7 +3975,7 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
     
     int f_i = 0;
 
-    double f_adjusted_song_pos_beats = 
+    float f_adjusted_song_pos_beats = 
         v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_region, a_bar, 0.0f);
     
     if(f_adjusted_song_pos_beats < 0.0f)  //clip at zero, lest it somehow by rounding error is -0.0000001
@@ -3992,8 +3992,8 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
 
             if((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat) <= f_adjusted_song_pos_beats)
             {            
-                double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat);
-                double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->ratio);
+                float test1 = f_adjusted_song_pos_beats - (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat);
+                float test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->ratio);
                 v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
                 v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adsr);
             }
@@ -4510,7 +4510,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     f_beat_total += f_bar_count * 4;
     
-    double f_sample_count = a_pydaw_data->samples_per_beat * ((double)f_beat_total);
+    float f_sample_count = a_pydaw_data->samples_per_beat * ((float)f_beat_total);
     long f_sample_count_long = (((long)f_sample_count) * 2) + 6000000;
     
     long f_size = 0;
