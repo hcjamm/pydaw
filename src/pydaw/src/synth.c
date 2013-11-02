@@ -56,9 +56,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     int i;
     t_pydaw_plugin *instance = 0;
     const char *method;
-    unsigned int flen = 0;
-    lo_message message;
-    lo_address source;    
+    unsigned int flen = 0;    
     char tmp[32];
     
     //printf("\npydaw_osc_message_handler: %s\n\n", path);
@@ -142,31 +140,16 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     }*/
     
     method++;    
-    
-    message = (lo_message)data;
-    source = lo_message_get_source(message);
-    
+            
     if (!strcmp(method, "configure") && argc == 2 && !strcmp(types, "ss")) 
     {
         return pydaw_osc_configure_handler(instance, argv);
-    } 
-    else if (!strcmp(method, "control") && argc == 2 && !strcmp(types, "if")) 
-    {
-        return pydaw_osc_control_handler(instance, argv);
-
-    }
-    else if (!strcmp(method, "update") && argc == 1 && !strcmp(types, "s")) 
-    {
-        return pydaw_osc_update_handler(instance, argv, source);
-    }
-    else if (!strcmp(method, "exiting") && argc == 0) 
-    {
-        return pydaw_osc_exiting_handler(instance, argv);
     }
     else
     {
         printf("Did not match any known method: %s\n", method);
     }
+    
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 

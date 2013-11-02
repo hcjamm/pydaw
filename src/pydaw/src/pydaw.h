@@ -387,22 +387,6 @@ t_wav_pool_item * g_pydaw_wavpool_item_get(int a_uid)
 
 /*OSC Handlers*/
 
-int pydaw_osc_control_handler(t_pydaw_plugin *instance, lo_arg **argv)
-{
-    int port = argv[0]->i;
-    PYFX_Data value = argv[1]->f;
-
-    if (port < 0 || port >= instance->descriptor->PYFX_Plugin->PortCount)
-    {
-	fprintf(stderr, "PyDAW: OSC: port number (%d) is out of range\n", port);
-	return 0;
-    }
-    
-    instance->pluginControlIns[port] = value;
-        
-    return 0;
-}
-
 int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
 {
     const char *key = (const char *)&argv[0]->s;
@@ -422,15 +406,6 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
     return 0;
 }
 
-int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address source)
-{    
-    return 0;
-}
-
-int pydaw_osc_exiting_handler(t_pydaw_plugin *instance, lo_arg **argv)
-{
-    return 0;
-}
 
 /*End OSC Handlers*/
 void v_pysong_free(t_pysong * a_pysong)
