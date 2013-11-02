@@ -60,7 +60,6 @@ GNU General Public License for more details.
 #endif
 
 #include "main.h"
-#include "message_buffer.h"
 #include "synth.c"
 
 //Define this to run with no audio or MIDI, but still able to fully interact with the UI
@@ -899,17 +898,13 @@ int main(int argc, char **argv)
     assert(out == outsTotal);
     assert(controlIn == controlInsTotal);
     assert(controlOut == controlOutsTotal);
-    
-    mb_init("host: ");
-    
+        
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGHUP, signalHandler);
     signal(SIGQUIT, signalHandler);
     pthread_sigmask(SIG_UNBLOCK, &_signals, 0);
     
-    MB_MESSAGE("Ready\n");
-
     exiting = 0;
 #ifndef PYDAW_NO_HARDWARE    
     err = Pa_StartStream( stream );
