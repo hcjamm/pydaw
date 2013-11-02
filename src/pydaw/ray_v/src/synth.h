@@ -22,10 +22,6 @@ extern "C" {
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
     
-#define RAYV_OUTPUT0  0
-#define RAYV_OUTPUT1  1
-    
-#define RAYV_FIRST_CONTROL_PORT 2
 #define RAYV_ATTACK  2
 #define RAYV_DECAY   3
 #define RAYV_SUSTAIN 4
@@ -62,7 +58,6 @@ extern "C" {
 #define RAYV_LFO_FILTER 35
 #define RAYV_OSC_HARD_SYNC 36
 #define RAYV_RAMP_CURVE 37
-#define RAYV_LAST_CONTROL_PORT 37
 #define RAYV_COUNT 38 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define RAYV_POLYPHONY   16
@@ -120,10 +115,7 @@ typedef struct {
     PYFX_Data *sync_hard;
         
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
-    t_voc_voices * voices;
-    
-    //long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
-    //long         offs[VOICES_MAX_MIDI_NOTE_NUMBER];
+    t_voc_voices * voices;    
     long         sampleNo;
     
     float fs;    
