@@ -64,14 +64,8 @@ class pydaw_osc:
     def pydaw_save_item(self, a_uid):
         self.send_configure("si", str(a_uid))
 
-    def pydaw_delete_item(self):
-        self.send_configure("di", "TODO")
-
     def pydaw_save_region(self, a_name):
         self.send_configure("sr", str(a_name))
-
-    def pydaw_delete_region(self):
-        self.send_configure("dr", "TODO")
 
     def pydaw_play(self, a_region_num="0", a_bar="0"):
         self.send_configure("play", str(a_region_num) + "|" + str(a_bar))
