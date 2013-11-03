@@ -1207,6 +1207,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                         f_item.track_number, 0))
                 {
                     v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
+                    
                     v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
                     f_args->pydaw_data->audio_track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->audio_track_pool[f_item.track_number]->current_period_event_index);
@@ -2398,7 +2399,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
         if(f_region_count == 2)
         {            
             if(f_i6 == 0)
-            {   
+            {
                 float test1 = f_adjusted_next_song_pos_beats - 4.0f;
                 float test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 float test3 = (test1 / test2) * ((float)(a_sample_count));
@@ -2425,41 +2426,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         a_pydaw_data->ml_next_bar, 0.0f);
                 f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region, 
                         a_pydaw_data->ml_next_bar, a_pydaw_data->ml_next_beat);
-                
-                if(a_pydaw_data->ml_is_looping)
-                {
-                    //I think the references to a_pydaw_data->current_region
-                    //in this block are OK because if looping the region won't
-                    //change anyways...
-                    float test1 = 0.0f;
-
-                    if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR)
-                    {
-                        test1 = f_adjusted_next_song_pos_beats - 4.0f - 
-                                (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_start_beat);                                
-                    }
-                    else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
-                    {                                
-                        test1 = f_adjusted_next_song_pos_beats - 4.0f - 
-                                (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_start_beat);
-                    }
-
-                    if(test1 < 0.0f)  //meaning the audio item starts in mid-region...
-                    {
-                        //v_adsr_release(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
-                        a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->stage = 4;
-                    }
-                    else
-                    {
-                        float test2 = test1 * (a_pydaw_data->samples_per_beat) * 
-                        (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->ratio);
-                        v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head, 
-                                test2 + 
-                                a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_start_offset_float); 
-                        //PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
-                        v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);                                
-                    }
-                }                
             }
             
             if(!a_pydaw_data->pysong->audio_items[f_current_region])
@@ -2671,11 +2637,46 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         v_adsr_run_db(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr);
 
                         f_i2++;
-                    }
+                    }//while < sample count
+                    
+                    if(a_pydaw_data->ml_is_looping)
+                    {
+                        //I think the references to a_pydaw_data->current_region
+                        //in this block are OK because if looping the region won't
+                        //change anyways...
+                        float test1 = 0.0f;
+
+                        if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR)
+                        {
+                            test1 = f_adjusted_next_song_pos_beats - 4.0f - 
+                                    (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_start_beat);                                
+                        }
+                        else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
+                        {                                
+                            test1 = f_adjusted_next_song_pos_beats - 4.0f - 
+                                    (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_start_beat);
+                        }
+
+                        if(test1 < 0.0f)  //meaning the audio item starts in mid-region...
+                        {
+                            //v_adsr_release(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
+                            a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->stage = 4;
+                        }
+                        else
+                        {
+                            float test2 = test1 * (a_pydaw_data->samples_per_beat) * 
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->ratio);
+                            v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head, 
+                                    test2 + 
+                                    a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_start_offset_float); 
+                            //PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
+                            v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);                                
+                        }
+                    }// if is looping                    
                 }  //if stage
             } //if this track_num
             f_i++;
-        }
+        } //while < audio item count
         f_i6++;
     } //region count loop
     return f_return_value;
