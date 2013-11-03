@@ -34,7 +34,7 @@ typedef struct st_ramp_env
     t_cubic_interpolater * interpolator;
     float curve;  //0.0-1.0, for the interpolator
     float last_curve;  //0.0-1.0, for the interpolator
-    float curve_table[4];
+    float curve_table[5];
 }t_ramp_env;
 
 
@@ -216,6 +216,7 @@ t_ramp_env * g_rmp_get_ramp_env(float a_sr)
     f_result->curve_table[1] = 0.3333f;
     f_result->curve_table[2] = 0.6666f;
     f_result->curve_table[3] = 1.0f;
+    f_result->curve_table[4] = 1.0f;
     
     return f_result;
 }
