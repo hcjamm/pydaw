@@ -980,6 +980,11 @@ inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
 
 inline void v_pydaw_run_pre_effect_vol(t_pydaw_data * a_pydaw_data, t_pytrack * a_track)
 {
+    if(a_track->volume == 0.0f)
+    {
+        return;
+    }
+    
     int f_i = 0;
     while(f_i < (a_pydaw_data->sample_count))
     {
