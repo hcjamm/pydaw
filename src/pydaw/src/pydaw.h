@@ -144,8 +144,8 @@ typedef struct
     int track_type;  //0 == MIDI/plugin-instrument, 1 == Bus, 2 == Audio
     
     int bus_count;  //Only for busses, the count of plugins writing to the buffer
-    int bus_counter;  //This is reset to bus_count each cycle and the bus track processed when count reaches 0
-    int bus_buffer_state; //0 = Not ready, 1 = being cleared, 2 = ready    
+    int bus_counter __attribute__((aligned(16)));  //This is reset to bus_count each cycle and the bus track processed when count reaches 0
+    int bus_buffer_state __attribute__((aligned(16))); //0 = Not ready, 1 = being cleared, 2 = ready    
 }t_pytrack;
 
 typedef struct
@@ -1217,14 +1217,22 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                 }
                 else
                 {
+                    pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]);
+                    
                     f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter = 
                             (f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter) - 1;
+                    
+                    pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]);
                 }
             }
             else
             {
+                pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]);
+                
                 f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter = 
                         (f_args->pydaw_data->bus_pool[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]->bus_counter) - 1;
+                
+                pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]);
             }
         }
         else if(f_item.track_type == 1)  //Bus track
@@ -1244,17 +1252,23 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
             
             if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count) == 0)
             {
+                pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[0]);
+                
                 f_args->pydaw_data->bus_pool[0]->bus_counter = (f_args->pydaw_data->bus_pool[0]->bus_counter) - 1;
+                
+                pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[0]);
             }
             else
             {   
                 while(1)
                 {
                     pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
+                    
                     if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_counter) <= 0)
                     {
                         break;
                     }
+                    
                     pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
                 }
 
@@ -2385,8 +2399,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     
     while(f_i6 < f_region_count)
     {
-        int f_i = 0;
-        
         float f_adjusted_song_pos_beats;
         float f_adjusted_next_song_pos_beats;
         int f_current_region = a_pydaw_data->ml_current_region;
@@ -2433,7 +2445,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                 break;
             }
         }
-        
+     
+        int f_i = 0;
         
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {
