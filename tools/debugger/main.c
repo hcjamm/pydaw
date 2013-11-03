@@ -41,7 +41,7 @@ int main(int argc, char** argv)
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
     const PYINST_Descriptor * f_ddesc = PYINST_descriptor(0);
     PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, 44100);
-    v_pydaw_activate(f_handle, 1, 1);
+    v_pydaw_activate(f_handle, 0, 1);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         

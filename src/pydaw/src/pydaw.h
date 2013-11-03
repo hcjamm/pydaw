@@ -1008,11 +1008,9 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data, t_pytrack * a
             a_pydaw_data->bus_pool[(bus_num)]->effect->pluginOutputBuffers[1][f_i2] = 
                     (a_track->effect->pluginOutputBuffers[1][f_i2]);
             f_i2++;
-        }
-
-        a_pydaw_data->bus_pool[(bus_num)]->bus_buffer_state = 2;
+        }        
     }
-    else if((a_pydaw_data->bus_pool[(bus_num)]->bus_buffer_state) == 2)
+    else if((a_pydaw_data->bus_pool[(bus_num)]->bus_buffer_state) == 1)
     {
         int f_i2 = 0;
 
