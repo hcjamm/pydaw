@@ -61,6 +61,7 @@ typedef struct st_rayv_mono_modules
 {
     t_smoother_linear * filter_smoother;
     t_smoother_linear * pitchbend_smoother;
+    t_smoother_linear * lfo_smoother;
     t_amp * amp_ptr;
 }t_rayv_mono_modules;
     
@@ -204,6 +205,7 @@ t_rayv_mono_modules * v_rayv_mono_init(float a_sr)
 {
     t_rayv_mono_modules * a_mono = (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));
     a_mono->filter_smoother = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.2f);
+    a_mono->lfo_smoother = g_sml_get_smoother_linear(a_sr, 1600.0f, 10.0f, 0.2f);
     a_mono->filter_smoother->last_value = 100.0f;  //To prevent low volume and brightness at the first note-on(s)
     a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.1f);
     a_mono->amp_ptr = g_amp_get();

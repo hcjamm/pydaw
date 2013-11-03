@@ -14,10 +14,6 @@ GNU General Public License for more details.
 */
 
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
@@ -380,6 +376,7 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
         
+        v_sml_run(plugin_data->mono_modules->lfo_smoother, (*plugin_data->lfo_freq));
         v_sml_run(plugin_data->mono_modules->filter_smoother, (*plugin_data->timbre));
         v_sml_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));        
     
@@ -440,7 +437,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
     f_rmp_run_ramp_curve(a_voice->pitch_env);
     f_rmp_run_ramp(a_voice->glide_env);
 
-    v_lfs_set(a_voice->lfo1, (*plugin_data->lfo_freq) * 0.01f);
+    v_lfs_set(a_voice->lfo1, (plugin_data->mono_modules->lfo_smoother->last_value) * 0.01f);
     v_lfs_run(a_voice->lfo1);
     a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);
     a_voice->lfo_filter_output = (*plugin_data->lfo_filter) * (a_voice->lfo1->output);
