@@ -226,8 +226,6 @@ typedef struct
     int recording_first_item;
     t_amp * amp_ptr;
     
-    pthread_mutex_t quit_mutex;  //must be acquired to free memory, to protect saving on exit...
-    
     //pthread_mutex_t * track_cond_mutex;  //For signaling to process the instruments
     pthread_cond_t * track_cond;   //For broadcasting to the threads that it's time to process the tracks
     pthread_mutex_t * track_block_mutexes;  //For preventing the main thread from continuing until the workers finish
@@ -3273,8 +3271,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
     
-    pthread_mutex_init(&f_result->main_mutex, NULL);
-    pthread_mutex_init(&f_result->quit_mutex, NULL);
+    pthread_mutex_init(&f_result->main_mutex, NULL);    
     pthread_mutex_init(&f_result->offline_mutex, NULL);    
     pthread_mutex_init(&f_result->audio_inputs_mutex, NULL);
     

@@ -192,11 +192,7 @@ void v_pydaw_destructor()
     {
         pydaw_data->audio_recording_quit_notifier = 1;        
         lo_address_free(pydaw_data->uiTarget);
-        
-        //This ensures that the destructor doesn't start freeing memory before save-on-exit finishes...
-        pthread_mutex_lock(&pydaw_data->quit_mutex);
-        pthread_mutex_unlock(&pydaw_data->quit_mutex);
-        
+                
         int f_i = 0;
 
         char tmp_sndfile_name[2048];
