@@ -273,9 +273,9 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         
         while((plugin_data->i_mono_out) < sample_count)
         {
-            v_sml_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time) * .01));
+            v_sml_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time)));
             
-            v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->last_value), *(plugin_data->feedback), 
+            v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->last_value * 0.01f), *(plugin_data->feedback), 
                     *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01), (*plugin_data->duck), (*plugin_data->cutoff));
 
             v_ldl_run_delay(plugin_data->mono_modules->delay, 
