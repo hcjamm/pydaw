@@ -286,7 +286,7 @@ typedef struct
     int preview_max_sample_count;        
     char * per_audio_item_fx_folder;
     lo_address uiTarget;
-    char * osc_cursor_message;
+    char * osc_cursor_message[PYDAW_TRACK_COUNT_ALL];
     void * main_thread_args;
     int audio_glue_indexes[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int ml_cur_loop_prevent;
@@ -921,8 +921,8 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, t_pyda
     float f_diff = f_ub - f_lb;    
     event->value = (event->value * 0.0078125f * f_diff) + f_lb;
     event->port = controlIn;  //this may or may not already be set.  TODO:  simplify    
-    sprintf(a_pydaw_data->osc_cursor_message, "%i|%i|%i|%f", a_is_inst, a_track_num, controlIn, event->value);
-    v_queue_osc_message(a_pydaw_data, "pc", a_pydaw_data->osc_cursor_message);
+    sprintf(a_pydaw_data->osc_cursor_message[a_track_num], "%i|%i|%i|%f", a_is_inst, a_track_num, controlIn, event->value);
+    v_queue_osc_message(a_pydaw_data, "pc", a_pydaw_data->osc_cursor_message[a_track_num]);
 }
 
 inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
@@ -1719,8 +1719,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = events[f_i2].note;
                 }
                 
-                sprintf(a_pydaw_data->osc_cursor_message, "1|%i", events[f_i2].note);                
-                v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message);
+                sprintf(a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all], "1|%i", events[f_i2].note);                
+                v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 
             }
             else if(events[f_i2].type == PYDAW_EVENT_NOTEOFF)
@@ -1751,8 +1751,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = -1;
                 }
                 
-                sprintf(a_pydaw_data->osc_cursor_message, "0|%i", events[f_i2].note);
-                v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message);
+                sprintf(a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all], "0|%i", events[f_i2].note);
+                v_queue_osc_message(a_pydaw_data, "ne", a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
             }
             else if(events[f_i2].type == PYDAW_EVENT_PITCHBEND)
             {
@@ -1778,8 +1778,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                 
                 if(a_pydaw_data->midi_learn)
                 {
-                    sprintf(a_pydaw_data->osc_cursor_message, "%i", controller);
-                    v_queue_osc_message(a_pydaw_data, "ml", a_pydaw_data->osc_cursor_message);
+                    sprintf(a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all], "%i", controller);
+                    v_queue_osc_message(a_pydaw_data, "ml", a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
                 
                 if(a_pydaw_data->cc_map[controller])
@@ -2225,8 +2225,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
             (a_pydaw_data->ml_cur_loop_prevent != a_pydaw_data->ml_next_bar)))
     {       
         a_pydaw_data->ml_cur_loop_prevent = a_pydaw_data->ml_next_bar;
-        sprintf(a_pydaw_data->osc_cursor_message, "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
-        v_queue_osc_message(a_pydaw_data, "cur", a_pydaw_data->osc_cursor_message);
+        sprintf(a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT], "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
+        v_queue_osc_message(a_pydaw_data, "cur", a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT]);
     }    
     
     if((a_pydaw_data->playback_mode) > 0)
@@ -3463,7 +3463,14 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     free(tmp);
 
     f_result->uiTarget = lo_address_new_from_url("osc.udp://localhost:30321/");
-    f_result->osc_cursor_message = (char*)malloc(sizeof(char) * 1024);
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
+    {
+        f_result->osc_cursor_message[f_i] = (char*)malloc(sizeof(char) * 1024);
+        f_i++;
+    }
     
     return f_result;
 }
