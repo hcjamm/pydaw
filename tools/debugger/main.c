@@ -25,7 +25,6 @@ GNU General Public License for more details.
 
 #include "../../src/pydaw/src/synth.c"
 #include "../../src/pydaw/include/pydaw_plugin.h"
-#include "pyfx_ports.h"
 #include <unistd.h>
 
 //#define DEBUGGER_SIMULATE_EXTERNAL_MIDI
@@ -38,8 +37,7 @@ int main(int argc, char** argv)
 {
     v_pydaw_constructor();
 
-    const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
-    const PYINST_Descriptor * f_ddesc = PYINST_descriptor(0);
+    const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);    
     PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, 44100);
     v_pydaw_activate(f_handle, 0, 1);
 
@@ -80,10 +78,7 @@ int main(int argc, char** argv)
         
         f_i++;
     }
-    
-    float * f_control_ins = (float*)malloc(sizeof(float) * 3000);
-    set_PYFX_ports(f_ddesc, f_handle, f_control_ins);
-            
+                
     t_pydaw_seq_event * f_midi_events = (t_pydaw_seq_event*)malloc(sizeof(t_pydaw_seq_event) * 512);
     v_pydaw_ev_clear(&f_midi_events[0]);
     v_pydaw_ev_set_noteon(&f_midi_events[0], 0, 66, 66);
