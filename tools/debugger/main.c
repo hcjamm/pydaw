@@ -101,9 +101,7 @@ int main(int argc, char** argv)
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI    
     pydaw_data->record_armed_track = pydaw_data->track_pool_all[PYDAW_MIDI_TRACK_COUNT];
     pydaw_data->record_armed_track_index_all = PYDAW_MIDI_TRACK_COUNT;
-#endif
-    
-#ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI
+
     f_i = 0;
     
     while(f_i < 50)
