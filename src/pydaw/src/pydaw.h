@@ -1241,17 +1241,6 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                         f_args->pydaw_data->events, f_args->pydaw_data->event_count);
             }
             
-            //Not necessary because it's assigned by the first plugin that writes to it...
-            /*
-            int f_i2 = 0;                
-            while(f_i2 < f_args->pydaw_data->sample_count)
-            {
-                f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
-                f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
-                f_i2++;
-            }
-            */
-
             if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count) == 0)
             {
                 f_args->pydaw_data->bus_pool[0]->bus_counter = (f_args->pydaw_data->bus_pool[0]->bus_counter) - 1;
@@ -1274,8 +1263,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                         f_args->pydaw_data->bus_pool[f_item.track_number]->event_buffer, 
                         f_args->pydaw_data->bus_pool[f_item.track_number]->current_period_event_index);
 
-                v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number],
-                        0);
+                v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number], 0);
             }                
 
             f_args->pydaw_data->bus_pool[f_item.track_number]->bus_buffer_state = 0;
