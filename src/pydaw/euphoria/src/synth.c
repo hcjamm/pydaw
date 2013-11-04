@@ -775,11 +775,11 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
                         plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
                                 ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) * 
-                                ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+                                ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .001)));
                         
                         plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
                                 ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) * 
-                                ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+                                ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .001)));
 
                         /* If loop mode is enabled for this sample, set the sample end to be the same as the
                            loop end.  Then, in the main loop, we'll recalculate sample_end to be the real sample end once
@@ -787,17 +787,15 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                            in the main loop */
                         if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->loaded_samples[i])]))) == 0)
                         {
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
-                                    ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 +                                     
                                     ((int)(((float)((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 5)) * 
-                                    ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                                    ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .001))));
                         }
                         else
                         {
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + 
-                                    ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 +                                    
                                     ((int)(((float)((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) - 5)) * 
-                                    ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                                    ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .001))));
                         }
 
                         if((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) > 
@@ -1724,15 +1722,17 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 1000.0f;            
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX)
     {
         port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
+        port_range_hints[f_i].DefaultValue = 1000.0f;
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 1000.0f;            
         f_i++;
     }
 
@@ -1740,7 +1740,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 10.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 20;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 20;            
         f_i++;
     }
 
@@ -1748,7 +1749,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
 
@@ -1756,7 +1758,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 127.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
 
@@ -1764,7 +1767,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -36; port_range_hints[f_i].UpperBound = 36;            
+        port_range_hints[f_i].LowerBound = -36; 
+        port_range_hints[f_i].UpperBound = 36;            
         f_i++;
     }
 
@@ -1772,7 +1776,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -100.0f; port_range_hints[f_i].UpperBound = 100.0f;            
+        port_range_hints[f_i].LowerBound = -100.0f; 
+        port_range_hints[f_i].UpperBound = 100.0f;            
         f_i++;
     }
 
@@ -1780,7 +1785,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 1.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 3;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 3;            
         f_i++;
     }
 
@@ -1788,15 +1794,17 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 1000.0f;
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX)
     {
         port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
+        port_range_hints[f_i].DefaultValue = 1000.0f;
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 1000.0f;            
         f_i++;
     }
 
@@ -1804,7 +1812,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 1;
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 1;
 
         f_i++;
     }
@@ -1813,7 +1822,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;        
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1821,7 +1831,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1829,7 +1840,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1837,7 +1849,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
     }
     
@@ -1845,7 +1858,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1853,7 +1867,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1861,7 +1876,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1869,7 +1885,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
     }
     
@@ -1877,7 +1894,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1885,7 +1903,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1893,7 +1912,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1901,7 +1921,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
     }
     
@@ -1909,7 +1930,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1917,7 +1939,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1925,7 +1948,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = 127;            
         f_i++;
     }
     
@@ -1933,7 +1957,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
         f_i++;
     }
 
@@ -1941,7 +1966,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
+        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
         f_i++;
     }
 
@@ -1962,6 +1988,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
         port_range_hints[f_i].UpperBound = 2.0f;
         f_i++;
     }
+    
 
     desc->activate = v_euphoria_activate;
     desc->cleanup = cleanupSampler;

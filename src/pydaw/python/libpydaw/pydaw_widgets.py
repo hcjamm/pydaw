@@ -945,17 +945,14 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
 
     def set_pos(self):
         if self.marker_type == 0:
-            f_new_val = self.value * 0.6
+            f_new_val = self.value * 6.0
         elif self.marker_type == 1:
-            f_new_val = ((10000 - self.value) * 0.6) - self.audio_item_marker_height
+            f_new_val = (self.value * 6.0) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
     def set_other(self, a_other):
         self.other = a_other
-
-    def get_inverted_value(self, a_val):  #TODO:  Get rid of this inversion goofyness at PyDAWv4
-        return (a_val - 10000.0) * -1.0
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
@@ -963,24 +960,21 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
-            f_new_val = self.pos_x * 1.666666
+            f_new_val = self.pos_x * .1666666
         elif self.marker_type == 1:
-            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * 1.666666 # / 6.0
-            f_new_val = (f_new_val - 10000) * -1.0
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 9940.0)
+            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * .1666666 # / 6.0
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 994.0)
         self.value = f_new_val
         if self.other is not None:
             if self.marker_type == 0:
-                f_inverted = self.get_inverted_value(self.other.value)
-                if self.value > f_inverted - 60:
-                    self.other.value = self.get_inverted_value(self.value) - 60
-                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 0.0, 9940.0)
+                if self.value > self.other.value - 6.0:
+                    self.other.value = self.value + 6.0
+                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 6.0, 1000.0, a_round=True)
                     self.other.set_pos()
             elif self.marker_type == 1:
-                f_inverted = self.get_inverted_value(self.value)
-                if self.other.value > f_inverted - 60:
-                    self.other.value = f_inverted - 60
-                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 0.0, 9940.0)
+                if self.other.value > self.value - 6.0:
+                    self.other.value = self.value - 6.0
+                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 0.0, 994.0, a_round=True)
                     self.other.set_pos()
 
     def mouseReleaseEvent(self, a_event):
@@ -992,12 +986,15 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
 
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
-    def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback, a_loop_end_callback):
+    def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
+                 a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
         QtGui.QGraphicsView.__init__(self)
         self.start_callback = a_start_callback
         self.end_callback = a_end_callback
         self.loop_start_callback = a_loop_start_callback
         self.loop_end_callback = a_loop_end_callback
+        self.fade_in_callback = a_fade_in_callback
+        self.fade_out_callback = a_fade_out_callback
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -1028,11 +1025,11 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
-        self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient, "S", 0, self.start_callback)
+        self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient, "S", 1, self.start_callback)
         self.scene.addItem(self.start_marker)
         self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, "E", 0, self.end_callback)
         self.scene.addItem(self.end_marker)
-        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, "L", 1, self.loop_start_callback)
+        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, "L", 2, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
         self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, "L", 1, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
@@ -2146,7 +2143,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)  #TODO: at PyDAWv4 make it 10000
+            f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict)  #TODO: at PyDAWv4 make it 10000
             self.sample_ends.append(f_sample_end)
 
         self.loop_starts = []
@@ -2164,7 +2161,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_loop_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict) #TODO: at PyDAWv4 make it 10000
+            f_loop_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict) #TODO: at PyDAWv4 make it 10000
             self.loop_ends.append(f_loop_end)
         #MonoFX0
         self.monofx0knob0_ctrls = []
@@ -2354,7 +2351,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.view_sample_tab_main_vlayout.setContentsMargins(0, 0, 0, 0)
 
         #Sample Graph
-        self.sample_graph = pydaw_audio_item_viewer_widget(self.sample_start_callback, self.sample_end_callback, self.loop_start_callback, self.loop_end_callback)
+        self.sample_graph = pydaw_audio_item_viewer_widget(self.sample_start_callback, self.sample_end_callback,
+                                                           self.loop_start_callback,   self.loop_end_callback,
+                                                           self.fade_in_callback,      self.fade_out_callback)
         self.view_sample_tab_main_vlayout.addWidget(self.sample_graph)
         #The combobox for selecting the sample on the 'view' tab
         self.sample_view_select_sample_widget = QtGui.QWidget()
@@ -2557,6 +2556,16 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_starts[f_index].control_value_changed(a_val)
 
     def loop_end_callback(self, a_val):
+        f_index = self.selected_sample_index_combobox.currentIndex()
+        self.loop_ends[f_index].set_value(a_val)
+        self.loop_ends[f_index].control_value_changed(a_val)
+
+    def fade_in_callback(self, a_val):
+        f_index = self.selected_sample_index_combobox.currentIndex()
+        self.loop_starts[f_index].set_value(a_val)
+        self.loop_starts[f_index].control_value_changed(a_val)
+
+    def fade_out_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
         self.loop_ends[f_index].set_value(a_val)
         self.loop_ends[f_index].control_value_changed(a_val)
