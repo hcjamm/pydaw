@@ -20,8 +20,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "../../libmodsynth/constants.h"
-    
-/*includes for any libmodsynth modules you'll be using*/
+
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/modules/modulation/adsr.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
@@ -101,6 +100,9 @@ typedef struct st_euphoria_poly_voice
     
     int noise_index;
     
+    float velocity_track;
+    float keyboard_track;
+    
 }t_euphoria_poly_voice __attribute__((aligned(16)));
 
 t_euphoria_poly_voice * g_euphoria_poly_init(float);
@@ -161,6 +163,8 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
     f_voice->modulator_outputs[1] = &(f_voice->adsr_filter->output);
     f_voice->modulator_outputs[2] = &(f_voice->ramp_env->output);
     f_voice->modulator_outputs[3] = &(f_voice->lfo1->output);
+    f_voice->modulator_outputs[4] = &(f_voice->keyboard_track);
+    f_voice->modulator_outputs[5] = &(f_voice->velocity_track);
         
     f_voice->noise_index = 0;
     

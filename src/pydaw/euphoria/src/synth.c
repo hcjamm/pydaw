@@ -198,6 +198,34 @@ static void connectPortSampler(PYFX_Handle instance, int port,
             case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0: plugin->polyfx_mod_matrix[0][3][3][0] = data; break;
             case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1: plugin->polyfx_mod_matrix[0][3][3][1] = data; break;
             case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2: plugin->polyfx_mod_matrix[0][3][3][2] = data; break;
+            
+            //keyboard tracking
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0: plugin->polyfx_mod_matrix[0][0][4][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1: plugin->polyfx_mod_matrix[0][0][4][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2: plugin->polyfx_mod_matrix[0][0][4][2] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0: plugin->polyfx_mod_matrix[0][1][4][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1: plugin->polyfx_mod_matrix[0][1][4][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2: plugin->polyfx_mod_matrix[0][1][4][2] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0: plugin->polyfx_mod_matrix[0][2][4][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1: plugin->polyfx_mod_matrix[0][2][4][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2: plugin->polyfx_mod_matrix[0][2][4][2] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0: plugin->polyfx_mod_matrix[0][3][4][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1: plugin->polyfx_mod_matrix[0][3][4][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2: plugin->polyfx_mod_matrix[0][3][4][2] = data; break;
+
+            //velocity tracking
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0: plugin->polyfx_mod_matrix[0][0][5][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1: plugin->polyfx_mod_matrix[0][0][5][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2: plugin->polyfx_mod_matrix[0][0][5][2] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0: plugin->polyfx_mod_matrix[0][1][5][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1: plugin->polyfx_mod_matrix[0][1][5][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2: plugin->polyfx_mod_matrix[0][1][5][2] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0: plugin->polyfx_mod_matrix[0][2][5][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1: plugin->polyfx_mod_matrix[0][2][5][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2: plugin->polyfx_mod_matrix[0][2][5][2] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0: plugin->polyfx_mod_matrix[0][3][5][0] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1: plugin->polyfx_mod_matrix[0][3][5][1] = data; break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2: plugin->polyfx_mod_matrix[0][3][5][2] = data; break;
 
             //End PolyFX mod matrix        
             case EUPHORIA_LFO_PITCH: plugin->lfo_pitch = data; break;
@@ -727,6 +755,9 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 int f_voice_num = i_pick_voice(plugin_data->voices, f_note, (plugin_data->sampleNo), events[event_pos].tick);
                 plugin_data->velocities[f_voice_num] = events[event_pos].velocity;
 
+                plugin_data->data[f_voice_num]->keyboard_track = ((float)(events[(event_pos)].note)) * 0.007874016f;
+                plugin_data->data[f_voice_num]->velocity_track = ((float)(events[(event_pos)].velocity)) * 0.007874016f;
+                
                 plugin_data->sample_indexes_count[f_voice_num] = 0;
 
                 //Figure out which samples to play and stash all relevant values
@@ -1140,8 +1171,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     port_descriptors[EUPHORIA_DECAY] = 1;
     port_range_hints[EUPHORIA_DECAY].DefaultValue = 50.0f;
-    port_range_hints[EUPHORIA_DECAY].LowerBound = 10; 
-    port_range_hints[EUPHORIA_DECAY].UpperBound = 100; 
+    port_range_hints[EUPHORIA_DECAY].LowerBound = 10.0f; 
+    port_range_hints[EUPHORIA_DECAY].UpperBound = 100.0f; 
 
     port_descriptors[EUPHORIA_SUSTAIN] = 1;
     port_range_hints[EUPHORIA_SUSTAIN].DefaultValue = 0.0f;
@@ -1285,195 +1316,370 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].UpperBound =  100;
-
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].UpperBound =  100.0f;
+    
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2] = 1;
     port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100.0f;
+
+
+    /* Keyboard tracking */
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2].UpperBound =  100.0f;
+
+
+    /* Velocity tracking */
+
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1].UpperBound =  100.0f;
+
+    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2] = 1;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2].LowerBound =  -100.0f; 
+    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2].UpperBound =  100.0f;
 
     port_descriptors[EUPHORIA_LFO_PITCH] = 1;
     port_range_hints[EUPHORIA_LFO_PITCH].DefaultValue = 0.0f;
@@ -1566,7 +1772,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -100; port_range_hints[f_i].UpperBound = 100;            
+        port_range_hints[f_i].LowerBound = -100.0f; port_range_hints[f_i].UpperBound = 100.0f;            
         f_i++;
     }
 
