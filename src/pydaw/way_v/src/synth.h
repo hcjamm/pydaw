@@ -22,8 +22,6 @@ extern "C" {
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
     
-//Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
-#define WAYV_MODULATOR_COUNT 4
 //How many modular PolyFX
 #define WAYV_MODULAR_POLYFX_COUNT 4
 //How many ports per PolyFX, 3 knobs and a combobox
@@ -175,16 +173,41 @@ extern "C" {
 #define WAYV_SUSTAIN3 130
 #define WAYV_RELEASE3 131
 #define WAYV_ADSR3_CHECKBOX 132
-    
-#define WAYV_LAST_CONTROL_PORT 132
-#define WAYV_COUNT 133 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+
+#define WAVV_PFXMATRIX_GRP0DST0SRC4CTRL0  133
+#define WAVV_PFXMATRIX_GRP0DST0SRC4CTRL1  134
+#define WAVV_PFXMATRIX_GRP0DST0SRC4CTRL2  135
+#define WAVV_PFXMATRIX_GRP0DST1SRC4CTRL0  136
+#define WAVV_PFXMATRIX_GRP0DST1SRC4CTRL1  137
+#define WAVV_PFXMATRIX_GRP0DST1SRC4CTRL2  138
+#define WAVV_PFXMATRIX_GRP0DST2SRC4CTRL0  139
+#define WAVV_PFXMATRIX_GRP0DST2SRC4CTRL1  140
+#define WAVV_PFXMATRIX_GRP0DST2SRC4CTRL2  141
+#define WAVV_PFXMATRIX_GRP0DST3SRC4CTRL0  142
+#define WAVV_PFXMATRIX_GRP0DST3SRC4CTRL1  143
+#define WAVV_PFXMATRIX_GRP0DST3SRC4CTRL2  144
+
+#define WAVV_PFXMATRIX_GRP0DST0SRC5CTRL0  145
+#define WAVV_PFXMATRIX_GRP0DST0SRC5CTRL1  146
+#define WAVV_PFXMATRIX_GRP0DST0SRC5CTRL2  147
+#define WAVV_PFXMATRIX_GRP0DST1SRC5CTRL0  148
+#define WAVV_PFXMATRIX_GRP0DST1SRC5CTRL1  149
+#define WAVV_PFXMATRIX_GRP0DST1SRC5CTRL2  150
+#define WAVV_PFXMATRIX_GRP0DST2SRC5CTRL0  151
+#define WAVV_PFXMATRIX_GRP0DST2SRC5CTRL1  152
+#define WAVV_PFXMATRIX_GRP0DST2SRC5CTRL2  153
+#define WAVV_PFXMATRIX_GRP0DST3SRC5CTRL0  154
+#define WAVV_PFXMATRIX_GRP0DST3SRC5CTRL1  155
+#define WAVV_PFXMATRIX_GRP0DST3SRC5CTRL2  156
+
+#define WAYV_COUNT 157 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
 #define WAYV_POLYPHONY   16
 
-typedef struct {
+typedef struct
+{
     PYFX_Data *output0;
     PYFX_Data *output1;
-    //PYFX_Data *tune;
     PYFX_Data *attack_main;
     PYFX_Data *decay_main;
     PYFX_Data *sustain_main;
@@ -256,7 +279,6 @@ typedef struct {
     PYFX_Data *osc3_uni_voice;
     PYFX_Data *osc3_uni_spread;
     
-    
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;
         
@@ -272,8 +294,7 @@ typedef struct {
     
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
-    PYFX_Data *lfo_amount;
-        
+    PYFX_Data *lfo_amount;        
        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     PYFX_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];

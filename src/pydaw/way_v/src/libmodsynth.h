@@ -19,9 +19,9 @@ extern "C" {
 #endif
 
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
-#define EUPHORIA_MODULATOR_COUNT 4
+#define WAYV_MODULATOR_COUNT 6
 //How many modular PolyFX
-#define EUPHORIA_MODULAR_POLYFX_COUNT 4
+#define WAYV_MODULAR_POLYFX_COUNT 4
     
 #include "../../libmodsynth/constants.h"
 #include "../../libmodsynth/lib/osc_core.h"
@@ -105,10 +105,10 @@ typedef struct
     float noise_linamp;           
     int i_voice;  //for the runVoice function to iterate the current block    
     
-    t_mf3_multi * multieffect[EUPHORIA_MODULAR_POLYFX_COUNT]; //[EUPHORIA_MAX_SAMPLE_COUNT];
-    fp_mf3_run fx_func_ptr[EUPHORIA_MODULAR_POLYFX_COUNT];        
+    t_mf3_multi * multieffect[WAYV_MODULAR_POLYFX_COUNT]; //[WAYV_MAX_SAMPLE_COUNT];
+    fp_mf3_run fx_func_ptr[WAYV_MODULAR_POLYFX_COUNT];        
     float modulex_current_sample[2];        
-    float * modulator_outputs[EUPHORIA_MODULATOR_COUNT];    
+    float * modulator_outputs[WAYV_MODULATOR_COUNT];    
     fp_noise_func_ptr noise_func_ptr;    
     t_lfs_lfo * lfo1;    
     float lfo_amount_output, lfo_amp_output, lfo_pitch_output;    
@@ -122,6 +122,9 @@ typedef struct
     int osc1_on;
     int osc2_on;
     int osc3_on;
+    
+    float velocity_track;
+    float keyboard_track;
     
 }t_wayv_poly_voice;
 
@@ -214,7 +217,7 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->adsr_amp2_on = 0;
     f_voice->adsr_amp3_on = 0;
         
-    for(f_i = 0; f_i < EUPHORIA_MODULAR_POLYFX_COUNT; f_i++)
+    for(f_i = 0; f_i < WAYV_MODULAR_POLYFX_COUNT; f_i++)
     {        
         f_voice->multieffect[f_i] = g_mf3_get(a_sr);        
         f_voice->fx_func_ptr[f_i] = v_mf3_run_off;
@@ -224,6 +227,8 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->modulator_outputs[1] = &(f_voice->adsr_filter->output);
     f_voice->modulator_outputs[2] = &(f_voice->ramp_env->output);
     f_voice->modulator_outputs[3] = &(f_voice->lfo_amount_output);
+    f_voice->modulator_outputs[4] = &(f_voice->keyboard_track);
+    f_voice->modulator_outputs[5] = &(f_voice->velocity_track);
     
     f_voice->noise_func_ptr = f_run_noise_off;
     

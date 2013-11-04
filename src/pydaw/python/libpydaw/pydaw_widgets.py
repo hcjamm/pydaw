@@ -1905,18 +1905,31 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout6.addWidget(self.fx3.group_box)
 
         self.mod_matrix = QtGui.QTableWidget()
-        self.mod_matrix.setRowCount(4)
+        self.mod_matrix.setRowCount(6)
         self.mod_matrix.setColumnCount(12)
-        self.mod_matrix.setFixedHeight(172)
+        self.mod_matrix.setFixedHeight(222)
         self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setHorizontalHeaderLabels(["FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3", "FX2\nCtrl1",
             "FX2\nCtrl2", "FX2\nCtrl3", "FX3\nCtrl1", "FX3\nCtrl2", "FX3\nCtrl3" ])
-        self.mod_matrix.setVerticalHeaderLabels(["ADSR 1", "ADSR 2", "Ramp Env", "LFO"])
+        self.mod_matrix.setVerticalHeaderLabels(["ADSR 1", "ADSR 2", "Ramp Env", "LFO", "Pitch", "Velocity"])
+
         f_port_num = pydaw_ports.WAVV_PFXMATRIX_FIRST_PORT
 
         for f_i_dst in range(4):
             for f_i_src in range(4):
+                for f_i_ctrl in range(3):
+                    f_ctrl = pydaw_spinbox_control(None, f_port_num, self.plugin_rel_callback, self.plugin_val_callback, -100, 100, 0, kc_none, \
+                    self.port_dict, self.preset_manager)
+                    f_x = (f_i_dst * 3) + f_i_ctrl
+                    self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
+                    f_port_num += 1
+
+        #The new pitch and velocity tracking controls
+        f_port_num = pydaw_ports.WAVV_PFXMATRIX_GRP0DST0SRC4CTRL0
+
+        for f_i_src in range(4, 6):
+            for f_i_dst in range(4):
                 for f_i_ctrl in range(3):
                     f_ctrl = pydaw_spinbox_control(None, f_port_num, self.plugin_rel_callback, self.plugin_val_callback, -100, 100, 0, kc_none, \
                     self.port_dict, self.preset_manager)
