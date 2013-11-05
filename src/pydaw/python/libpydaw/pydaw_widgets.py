@@ -969,7 +969,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
         elif self.marker_type == 1:
-            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * .1666666
+            f_new_val = (self.pos_x + self.audio_item_marker_height) * .1666666
             if self.fade_marker is not None and self.fade_marker.pos().x() > self.pos_x:
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
