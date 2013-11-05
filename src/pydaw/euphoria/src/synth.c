@@ -646,7 +646,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
         {
             f_fade_vol = 
                     ((float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number) -
-                    (plugin_data->sampleStartPos[plugin_data->current_sample])) /
+                    (plugin_data->sampleStartPos[plugin_data->current_sample])) *
                     plugin_data->data[n]->sample_fade_in_inc[plugin_data->current_sample];
             f_fade_vol = (f_fade_vol * 24.0f) - 24.0f;
             f_fade_vol = f_db_to_linear_fast(f_fade_vol, plugin_data->amp_ptr);
@@ -656,7 +656,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
         {
             f_fade_vol = 
                     ((plugin_data->sampleEndPos[plugin_data->current_sample]) - 
-                    (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number)) /
+                    (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number)) *
                     plugin_data->data[n]->sample_fade_out_dec[plugin_data->current_sample];
             f_fade_vol = (f_fade_vol * 24.0f) - 24.0f;
             f_fade_vol = f_db_to_linear_fast(f_fade_vol, plugin_data->amp_ptr);
@@ -857,7 +857,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                         if(plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] >
                                 (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]))
                         {
-                                plugin_data->data[f_voice_num]->sample_fade_in_inc[(plugin_data->loaded_samples[i])] = 
+                                plugin_data->data[f_voice_num]->sample_fade_in_inc[(plugin_data->loaded_samples[i])] = 1.0f /
                                     (plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] -
                                         (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]));
                         }
@@ -887,7 +887,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                         if(plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] <
                                 (plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]))
                         {
-                                plugin_data->data[f_voice_num]->sample_fade_out_dec[(plugin_data->loaded_samples[i])] = 
+                                plugin_data->data[f_voice_num]->sample_fade_out_dec[(plugin_data->loaded_samples[i])] = 1.0f /
                                     ((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) -
                                     plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])]);
                         }
