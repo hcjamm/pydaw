@@ -408,11 +408,11 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
 }
 
 /* t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, 
- * t_pydaw_audio_items * a_items, float a_tempo)
+ * t_pydaw_audio_items * a_items)
  *
  */
 t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, 
-        t_pydaw_audio_items * a_items, t_wav_pool * a_wav_pool, float a_tempo)
+        t_pydaw_audio_items * a_items, t_wav_pool * a_wav_pool)
 {
     t_pydaw_audio_item * f_result;
         

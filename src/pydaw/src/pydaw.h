@@ -4124,7 +4124,7 @@ t_pydaw_audio_items * v_audio_items_load_all(t_pydaw_data * a_pydaw_data, int a_
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
             t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_data->sample_rate, 
-                    f_current_string, 0, a_pydaw_data->wav_pool, a_pydaw_data->tempo);
+                    f_current_string, 0, a_pydaw_data->wav_pool);
             if(!f_new)  //EOF'd...
             {
                 break;
