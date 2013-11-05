@@ -1649,11 +1649,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_save_paif = False
 
             f_event_pos = a_event.pos().x()
-            f_pos = f_event_pos - (f_event_pos - self.quantize(f_event_pos))
+            f_pos = f_event_pos - (f_event_pos - self.quantize(f_event_pos)) # for items whose start/end is not quantized
             f_scene_pos = self.quantize(a_event.scenePos().x())
             f_musical_pos = self.pos_to_musical_time(f_scene_pos)
             f_sample_shown = f_item.sample_end - f_item.sample_start
-            f_sample_rect_pos = f_pos /  self.length_px_minus_start #self.rect().width()
+            f_sample_rect_pos = f_pos / self.rect().width()
             f_item.sample_start = (f_sample_rect_pos * f_sample_shown) + f_item.sample_start
             f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
             f_item.start_bar = f_musical_pos[0]
