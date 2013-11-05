@@ -905,6 +905,8 @@ pydaw_start_end_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 30, 30))
 pydaw_start_end_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 42, 42))
 pydaw_start_end_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 12.0)
 
+pydaw_fade_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 4.0)
+
 pydaw_audio_item_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
 pydaw_audio_item_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 246, 30))
 pydaw_audio_item_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 226, 42))
@@ -929,6 +931,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
         self.other = None
+        self.fade_marker = None
         if a_type == 0:
             self.min_x = 0.0
             self.y_pos = 0.0 + (a_offset * self.audio_item_marker_height)
@@ -951,8 +954,9 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
-    def set_other(self, a_other):
+    def set_other(self, a_other, a_fade_marker=None):
         self.other = a_other
+        self.fade_marker = a_fade_marker
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
@@ -961,8 +965,14 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
             f_new_val = self.pos_x * .1666666
+            if self.fade_marker is not None and self.fade_marker.pos().x() < self.pos_x:
+                self.fade_marker.value = f_new_val
+                self.fade_marker.set_pos()
         elif self.marker_type == 1:
-            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * .1666666 # / 6.0
+            f_new_val = (a_event.scenePos().x() + self.audio_item_marker_height) * .1666666
+            if self.fade_marker is not None and self.fade_marker.pos().x() > self.pos_x:
+                self.fade_marker.value = f_new_val
+                self.fade_marker.set_pos()
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 994.0)
         self.value = f_new_val
         if self.other is not None:
@@ -976,6 +986,8 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
                     self.other.value = self.value - 6.0
                     self.other.value = pydaw_util.pydaw_clip_value(self.other.value, 0.0, 994.0, a_round=True)
                     self.other.set_pos()
+        if self.fade_marker is not None:
+            self.fade_marker.draw_lines()
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
@@ -983,6 +995,99 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.callback(self.value)
         if self.other.callback is not None:
             self.other.callback(self.other.value)
+        if self.fade_marker is not None:
+            self.fade_marker.callback(self.fade_marker.value)
+
+
+class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
+    def __init__(self, a_type, a_val, a_pen, a_brush, a_label, a_channel_count, a_offset=0, a_callback=None):
+        """ a_type:  0 == start, 1 == end, more types eventually... """
+        self.audio_item_marker_height = 66.0
+        QtGui.QGraphicsRectItem.__init__(self, 0, 0, self.audio_item_marker_height, self.audio_item_marker_height)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.callback = a_callback
+        self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
+        self.line.setParentItem(self)
+        self.line.setPen(a_pen)
+        self.marker_type = a_type
+        self.pos_x = 0.0
+        self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
+        self.value = a_val
+        self.other = None
+        self.start_end_marker = None
+        if a_type == 0:
+            self.min_x = 0.0
+            self.y_pos = 0.0 + (a_offset * self.audio_item_marker_height)
+            self.line.setPos(0.0, self.y_pos * -1.0)
+        elif a_type == 1:
+            self.min_x = 66.0
+            self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - (a_offset * self.audio_item_marker_height)
+            self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
+        self.setPen(a_pen)
+        self.setBrush(a_brush)
+        self.text_item = QtGui.QGraphicsTextItem(a_label)
+        self.text_item.setParentItem(self)
+        self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+        self.amp_lines = []
+        self.channel_count = a_channel_count
+        for f_i in range(a_channel_count * 2):
+            f_line = QtGui.QGraphicsLineItem()
+            self.amp_lines.append(f_line)
+            f_line.setPen(a_pen)
+
+    def draw_lines(self):
+        f_inc = pydaw_audio_item_scene_height / float(len(self.amp_lines))
+        f_y_pos = 0
+        f_x_inc = 0
+        if self.marker_type == 0:
+            f_x_list = [self.scenePos().x(), self.start_end_marker.scenePos().x()]
+        elif self.marker_type == 1:
+            f_x_list = [self.scenePos().x() + self.audio_item_marker_height,
+                        self.start_end_marker.scenePos().x() + self.audio_item_marker_height]
+        for f_line in self.amp_lines:
+            if f_x_inc == 0:
+                f_line.setLine(f_x_list[0], f_y_pos, f_x_list[1], f_y_pos + f_inc)
+            else:
+                f_line.setLine(f_x_list[1], f_y_pos, f_x_list[0], f_y_pos + f_inc)
+            f_y_pos += f_inc
+            f_x_inc += 1
+            if f_x_inc > 1:
+                f_x_inc = 0
+
+    def set_pos(self):
+        if self.marker_type == 0:
+            f_new_val = self.value * 6.0
+        elif self.marker_type == 1:
+            f_new_val = (self.value * 6.0) - self.audio_item_marker_height
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
+        self.setPos(f_new_val, self.y_pos)
+
+    def set_other(self, a_other, a_start_end_marker):
+        self.other = a_other
+        self.start_end_marker = a_start_end_marker
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+        self.pos_x = a_event.scenePos().x()
+        self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
+        if self.marker_type == 0:
+            self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.start_end_marker.scenePos().x(), self.other.scenePos().x())
+        elif self.marker_type == 1:
+            self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.other.scenePos().x(), self.start_end_marker.scenePos().x())
+
+        self.setPos(self.pos_x, self.y_pos)
+        if self.marker_type == 0:
+            f_new_val = self.pos_x * .1666666
+        elif self.marker_type == 1:
+            f_new_val = (self.pos_x + self.audio_item_marker_height) * .1666666
+        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 1000.0)
+        self.value = f_new_val
+        self.draw_lines()
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        if self.callback is not None:
+            self.callback(self.value)
 
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
@@ -1014,7 +1119,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
     def clear_drawn_items(self):
         self.scene.clear()
 
-    def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end):
+    def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end, a_fade_in, a_fade_out):
         self.clear_drawn_items()
         f_path_inc = pydaw_audio_item_scene_height / len(a_path_list)
         f_path_y_pos = 0.0
@@ -1027,20 +1132,38 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             f_path_y_pos += f_path_inc
         self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient, "S", 1, self.start_callback)
         self.scene.addItem(self.start_marker)
-        self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, "E", 0, self.end_callback)
+        self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, "E", 1, self.end_callback)
         self.scene.addItem(self.end_marker)
         self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, "L", 2, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
-        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, "L", 1, self.loop_end_callback)
+        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, "L", 2, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
-        self.start_marker.set_other(self.end_marker)
-        self.end_marker.set_other(self.start_marker)
+        #new:  fade stuff
+        self.fade_in_marker = pydaw_audio_fade_marker_widget(0, a_fade_in, pydaw_fade_pen, pydaw_start_end_gradient, "I",
+                                                             len(a_path_list), 0, self.fade_in_callback)
+        self.scene.addItem(self.fade_in_marker)
+        for f_line in self.fade_in_marker.amp_lines:
+            self.scene.addItem(f_line)
+        self.fade_out_marker = pydaw_audio_fade_marker_widget(1, a_fade_out, pydaw_fade_pen, pydaw_start_end_gradient, "O",
+                                                              len(a_path_list), 0, self.fade_out_callback)
+        self.scene.addItem(self.fade_out_marker)
+        for f_line in self.fade_out_marker.amp_lines:
+            self.scene.addItem(f_line)
+        self.fade_in_marker.set_other(self.fade_out_marker, self.start_marker)
+        self.fade_out_marker.set_other(self.fade_in_marker, self.end_marker)
+        #end fade stuff
+        self.start_marker.set_other(self.end_marker, self.fade_in_marker)
+        self.end_marker.set_other(self.start_marker, self.fade_out_marker)
         self.loop_start_marker.set_other(self.loop_end_marker)
         self.loop_end_marker.set_other(self.loop_start_marker)
         self.start_marker.set_pos()
         self.end_marker.set_pos()
         self.loop_start_marker.set_pos()
         self.loop_end_marker.set_pos()
+        self.fade_in_marker.set_pos()
+        self.fade_out_marker.set_pos()
+        self.fade_in_marker.draw_lines()
+        self.fade_out_marker.draw_lines()
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
@@ -2143,7 +2266,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict)  #TODO: at PyDAWv4 make it 10000
+            f_sample_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict)
             self.sample_ends.append(f_sample_end)
 
         self.loop_starts = []
@@ -2161,8 +2284,21 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_loop_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict) #TODO: at PyDAWv4 make it 10000
+            f_loop_end = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict)
             self.loop_ends.append(f_loop_end)
+
+        self.fade_in_ends = []
+        f_port_start = pydaw_ports.EUPHORIA_SAMPLE_FADE_IN_MIN
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_fade_in = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
+            self.fade_in_ends.append(f_fade_in)
+
+        self.fade_out_starts = []
+        f_port_start = pydaw_ports.EUPHORIA_SAMPLE_FADE_OUT_MIN
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_fade_out = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 1000, self.port_dict)
+            self.fade_out_starts.append(f_fade_out)
+
         #MonoFX0
         self.monofx0knob0_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN
@@ -2562,13 +2698,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def fade_in_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.loop_starts[f_index].set_value(a_val)
-        self.loop_starts[f_index].control_value_changed(a_val)
+        self.fade_in_ends[f_index].set_value(a_val)
+        self.fade_in_ends[f_index].control_value_changed(a_val)
 
     def fade_out_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.loop_ends[f_index].set_value(a_val)
-        self.loop_ends[f_index].control_value_changed(a_val)
+        self.fade_out_starts[f_index].set_value(a_val)
+        self.fade_out_starts[f_index].control_value_changed(a_val)
 
     def set_sample_graph(self):
         self.find_selected_radio_button()
@@ -2576,9 +2712,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_file_name = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
             if f_file_name != "":
                 f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
-                self.sample_graph.draw_item(f_graph.create_sample_graph(True), self.sample_starts[self.selected_row_index].get_value(), \
-                self.sample_ends[self.selected_row_index].get_value(), self.loop_starts[self.selected_row_index].get_value(), \
-                self.loop_ends[self.selected_row_index].get_value())
+                self.sample_graph.draw_item(f_graph.create_sample_graph(True),
+                                            self.sample_starts[self.selected_row_index].get_value(),
+                                            self.sample_ends[self.selected_row_index].get_value(),
+                                            self.loop_starts[self.selected_row_index].get_value(),
+                                            self.loop_ends[self.selected_row_index].get_value(),
+                                            self.fade_in_ends[self.selected_row_index].get_value(),
+                                            self.fade_out_starts[self.selected_row_index].get_value())
             else:
                 self.sample_graph.clear_drawn_items()
         else:

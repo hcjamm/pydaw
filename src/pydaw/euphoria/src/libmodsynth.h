@@ -103,6 +103,14 @@ typedef struct st_euphoria_poly_voice
     float velocity_track;
     float keyboard_track;
     
+    int sample_fade_in_end_sample[EUPHORIA_MAX_SAMPLE_COUNT];
+    float sample_fade_in_inc[EUPHORIA_MAX_SAMPLE_COUNT];
+    
+    int sample_fade_out_start_sample[EUPHORIA_MAX_SAMPLE_COUNT];
+    float sample_fade_out_dec[EUPHORIA_MAX_SAMPLE_COUNT];
+    
+    float sample_fade_amp[EUPHORIA_MAX_SAMPLE_COUNT];
+    
 }t_euphoria_poly_voice __attribute__((aligned(16)));
 
 t_euphoria_poly_voice * g_euphoria_poly_init(float);

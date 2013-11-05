@@ -376,6 +376,14 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     else if(port >= EUPHORIA_NOISE_TYPE_MIN && port < EUPHORIA_NOISE_TYPE_MAX)
     {
         plugin->noise_type[(port - EUPHORIA_NOISE_TYPE_MIN)] = data;
+    }    
+    else if(port >= EUPHORIA_SAMPLE_FADE_IN_MIN && port < EUPHORIA_SAMPLE_FADE_IN_MAX)
+    {
+        plugin->sampleFadeInEnds[(port - EUPHORIA_SAMPLE_FADE_IN_MIN)] = data;
+    }    
+    else if(port >= EUPHORIA_SAMPLE_FADE_OUT_MIN && port < EUPHORIA_SAMPLE_FADE_OUT_MAX)
+    {
+        plugin->sampleFadeOutStarts[(port - EUPHORIA_SAMPLE_FADE_OUT_MIN)] = data;
     }
 }
 
@@ -630,7 +638,30 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
             plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;                
             continue;
         }
-
+        
+        float f_fade_vol = 1.0f;
+        
+        if(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number <
+           plugin_data->data[n]->sample_fade_in_end_sample[plugin_data->current_sample])
+        {
+            f_fade_vol = 
+                    ((float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number) -
+                    (plugin_data->sampleStartPos[plugin_data->current_sample])) /
+                    plugin_data->data[n]->sample_fade_in_inc[plugin_data->current_sample];
+            f_fade_vol = (f_fade_vol * 24.0f) - 24.0f;
+            f_fade_vol = f_db_to_linear_fast(f_fade_vol, plugin_data->amp_ptr);
+        }
+        else if(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number >
+                plugin_data->data[n]->sample_fade_out_start_sample[plugin_data->current_sample])
+        {
+            f_fade_vol = 
+                    ((plugin_data->sampleEndPos[plugin_data->current_sample]) - 
+                    (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number)) /
+                    plugin_data->data[n]->sample_fade_out_dec[plugin_data->current_sample];
+            f_fade_vol = (f_fade_vol * 24.0f) - 24.0f;
+            f_fade_vol = f_db_to_linear_fast(f_fade_vol, plugin_data->amp_ptr);
+        }
+        
         plugin_data->data[n]->noise_sample = 
                 ((plugin_data->mono_modules->noise_func_ptr[(plugin_data->current_sample)](plugin_data->mono_modules->white_noise1[(plugin_data->data[n]->noise_index)])) 
                 * (plugin_data->mono_modules->noise_linamp[(plugin_data->current_sample)])); //add noise
@@ -639,7 +670,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
         {                
             interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
-            plugin_data->sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
+            plugin_data->sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] * f_fade_vol;
 
             plugin_data->sample[ch] += (plugin_data->data[n]->noise_sample);
 
@@ -804,6 +835,69 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                             plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = 
                                     (float)(plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length);
                         }
+                        
+                        //get the fade in values
+                        plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] = 
+                                (int)((*plugin_data->sampleFadeInEnds[(plugin_data->loaded_samples[i])]) * 0.001f *
+                                (float)(plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length));
+                        
+                        if(plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] <
+                                (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]))
+                        {
+                            plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] =
+                                (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]);
+                        }
+                        else if(plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] >
+                                (plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]))
+                        {
+                            plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] =
+                                (plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]);
+                        }
+                        
+                        if(plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] >
+                                (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]))
+                        {
+                                plugin_data->data[f_voice_num]->sample_fade_in_inc[(plugin_data->loaded_samples[i])] = 
+                                    (plugin_data->data[f_voice_num]->sample_fade_in_end_sample[(plugin_data->loaded_samples[i])] -
+                                        (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]));
+                        }
+                        else
+                        {
+                            plugin_data->data[f_voice_num]->sample_fade_in_inc[(plugin_data->loaded_samples[i])] = 1.0f;
+                        }
+                        
+                        //get the fade out values
+                        plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] = 
+                                (int)((*plugin_data->sampleFadeOutStarts[(plugin_data->loaded_samples[i])]) * 0.001f *
+                                (float)(plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length));
+                        
+                        if(plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] <
+                                (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]))
+                        {
+                            plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] =
+                                (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]);
+                        }
+                        else if(plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] >
+                                (plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]))
+                        {
+                            plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] =
+                                (plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]);
+                        }
+                        
+                        if(plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])] <
+                                (plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]))
+                        {
+                                plugin_data->data[f_voice_num]->sample_fade_out_dec[(plugin_data->loaded_samples[i])] = 
+                                    ((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) -
+                                    plugin_data->data[f_voice_num]->sample_fade_out_start_sample[(plugin_data->loaded_samples[i])]);
+                        }
+                        else
+                        {
+                            plugin_data->data[f_voice_num]->sample_fade_in_inc[(plugin_data->loaded_samples[i])] = 1.0f;
+                        }
+                        
+                        
+                        //end fade stuff
 
                         plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])]))
                                 - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
@@ -1986,6 +2080,24 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
         port_range_hints[f_i].DefaultValue = 0.0f;
         port_range_hints[f_i].LowerBound = 0.0f; 
         port_range_hints[f_i].UpperBound = 2.0f;
+        f_i++;
+    }
+    
+    while(f_i < EUPHORIA_SAMPLE_FADE_IN_MAX)
+    {
+        port_descriptors[f_i] = 1;
+        port_range_hints[f_i].DefaultValue = 0.0f;
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 1000.0f;
+        f_i++;
+    }
+    
+    while(f_i < EUPHORIA_SAMPLE_FADE_OUT_MAX)
+    {
+        port_descriptors[f_i] = 1;
+        port_range_hints[f_i].DefaultValue = 1000.0f;
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 1000.0f;
         f_i++;
     }
     

@@ -44,7 +44,9 @@ typedef struct {
     PYFX_Data *sampleEnds[EUPHORIA_MAX_SAMPLE_COUNT];
     PYFX_Data *sampleLoopStarts[EUPHORIA_MAX_SAMPLE_COUNT];
     PYFX_Data *sampleLoopEnds[EUPHORIA_MAX_SAMPLE_COUNT];
-    PYFX_Data *sampleLoopModes[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sampleLoopModes[EUPHORIA_MAX_SAMPLE_COUNT];    
+    PYFX_Data *sampleFadeInEnds[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sampleFadeOutStarts[EUPHORIA_MAX_SAMPLE_COUNT];
     PYFX_Data *sample_vel_sens[EUPHORIA_MAX_SAMPLE_COUNT];
     PYFX_Data *sample_vel_low[EUPHORIA_MAX_SAMPLE_COUNT];
     PYFX_Data *sample_vel_high[EUPHORIA_MAX_SAMPLE_COUNT];
@@ -101,13 +103,11 @@ typedef struct {
     int         i_selected_sample;
     int          channels;
     float       sample_last_interpolated_value[EUPHORIA_MAX_SAMPLE_COUNT];
-    t_wav_pool_item * wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];
-    //size_t       sampleCount[EUPHORIA_TOTAL_SAMPLE_COUNT];
+    t_wav_pool_item * wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];    
     float       sampleStartPos[EUPHORIA_MAX_SAMPLE_COUNT];         
     float       sampleEndPos[EUPHORIA_MAX_SAMPLE_COUNT];
     float       sampleLoopStartPos[EUPHORIA_MAX_SAMPLE_COUNT];   //There is no sampleLoopEndPos because the regular sample end is re-used for this purpose
-    float       sample_amp[EUPHORIA_MAX_SAMPLE_COUNT];     //linear, for multiplying
-    /*TODO: Initialize these at startup*/
+    float       sample_amp[EUPHORIA_MAX_SAMPLE_COUNT];     //linear, for multiplying    
     int         sample_indexes[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
     int         sample_indexes_count[EUPHORIA_POLYPHONY]; //The count of sample indexes to iterate through
     float vel_sens_output[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];
@@ -120,12 +120,6 @@ typedef struct {
         
     int monofx_index_contained;  //Used as a boolean
     
-    //These 2 calculate which effects are enabled and should be processed.  Not yet implemented
-    /*
-    int monofx_effect_index[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
-    int monofx_effect_index_count[LMS_MONO_FX_GROUPS_COUNT]; 
-    */
-        
     float adjusted_base_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
     
     t_lin_interpolater * linear_interpolator;
