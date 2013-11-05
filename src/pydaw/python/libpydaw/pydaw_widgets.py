@@ -473,7 +473,8 @@ class pydaw_note_selector_widget:
     def control_value_changed(self, a_val=None):
         self.selected_note = (self.note_combobox.currentIndex()) + (((self.octave_spinbox.value()) + 2) * 12)
         if not self.suppress_changes:
-            self.val_callback(self.port_num, self.selected_note)
+            if self.val_callback is not None:
+                self.val_callback(self.port_num, self.selected_note)
             if self.rel_callback is not None:
                 self.rel_callback(self.port_num, self.selected_note)
 
@@ -2503,8 +2504,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_select_sample_widget.setMaximumHeight(200)
         self.sample_view_select_sample_hlayout =  QtGui.QHBoxLayout(self.sample_view_select_sample_widget)
 
-        self.sample_view_extra_controls_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.sample_view_select_sample_hlayout.addItem(self.sample_view_extra_controls_left_hspacer)
+        self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding))
         self.sample_view_extra_controls_gridview =  QtGui.QGridLayout()
         self.selected_sample_index_combobox =  QtGui.QComboBox()
         sizePolicy1 = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
@@ -2519,17 +2519,23 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_combobox, 1, 0, 1, 1)
         self.selected_sample_index_label =  QtGui.QLabel("Selected Sample")
         self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_label, 0, 0, 1, 1)
+        self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(30, 1))
         self.sample_view_select_sample_hlayout.addLayout(self.sample_view_extra_controls_gridview)
-        self.sample_view_extra_controls_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.sample_view_select_sample_hlayout.addItem(self.sample_view_extra_controls_right_hspacer)
+        self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding))
         self.view_sample_tab_main_vlayout.addWidget(self.sample_view_select_sample_widget)
         #The loop mode combobox
         self.loop_mode_combobox =  QtGui.QComboBox(self.view_sample_tab)
         self.loop_mode_combobox.addItems(["Off", "On"])
-        self.loop_mode_label =  QtGui.QLabel("Loop Mode")
         self.loop_mode_combobox.currentIndexChanged.connect(self.loopModeChanged)
-        self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_label, 0, 1, 1, 1)
-        self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1, 1, 1)
+        self.loop_tune_note_selector = pydaw_note_selector_widget(0, None, None)
+        self.loop_tune_button = QtGui.QPushButton("Tune")
+        self.loop_tune_button.pressed.connect(self.on_loop_tune)
+        self.sample_view_extra_controls_gridview.addWidget(QtGui.QLabel("Loop Mode"), 0, 1)
+        self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1)
+        self.sample_view_extra_controls_gridview.addItem(QtGui.QSpacerItem(30, 1), 1, 2)
+        self.sample_view_extra_controls_gridview.addWidget(QtGui.QLabel("Loop Tune"), 0, 3)
+        self.sample_view_extra_controls_gridview.addWidget(self.loop_tune_note_selector.widget, 1, 3)
+        self.sample_view_extra_controls_gridview.addWidget(self.loop_tune_button, 2, 3)
 
         #The file select on the 'view' tab
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
@@ -2712,6 +2718,25 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_index = self.selected_sample_index_combobox.currentIndex()
         self.fade_out_starts[f_index].set_value(a_val)
         self.fade_out_starts[f_index].control_value_changed(a_val)
+
+    def on_loop_tune(self):
+        self.find_selected_radio_button()
+        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
+            f_file_name = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
+            if f_file_name != "":
+                f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
+                f_note = self.loop_tune_note_selector.get_value()
+                f_hz = pydaw_util.pydaw_pitch_to_hz(f_note)
+                f_time = 1.0 / f_hz
+                f_loop_length = (f_time / f_graph.length_in_seconds) * 1000.0
+                f_loop_end_value = self.loop_starts[self.selected_row_index].get_value() + f_loop_length
+                f_loop_end_value = pydaw_util.pydaw_clip_value(f_loop_end_value,
+                                                               self.loop_starts[self.selected_row_index].get_value() + 6.0,
+                                                               1000.0, a_round=True)
+                self.loop_ends[self.selected_row_index].set_value(f_loop_end_value)
+                self.loop_ends[self.selected_row_index].control_value_changed(f_loop_end_value)
+                self.set_sample_graph()
+                self.loop_mode_combobox.setCurrentIndex(1)
 
     def set_sample_graph(self):
         self.find_selected_radio_button()
