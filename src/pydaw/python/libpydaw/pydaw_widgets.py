@@ -1071,15 +1071,20 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         self.pos_x = a_event.scenePos().x()
         self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
         if self.marker_type == 0:
-            self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.start_end_marker.scenePos().x(), self.other.scenePos().x())
+            self.pos_x = pydaw_util.pydaw_clip_max(self.pos_x, self.other.scenePos().x())
         elif self.marker_type == 1:
-            self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.other.scenePos().x(), self.start_end_marker.scenePos().x())
-
+            self.pos_x = pydaw_util.pydaw_clip_min(self.pos_x, self.other.scenePos().x())
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
             f_new_val = self.pos_x * .1666666
+            if self.pos_x < self.start_end_marker.scenePos().x():
+                self.start_end_marker.value = f_new_val
+                self.start_end_marker.set_pos()
         elif self.marker_type == 1:
             f_new_val = (self.pos_x + self.audio_item_marker_height) * .1666666
+            if self.pos_x > self.start_end_marker.scenePos().x():
+                self.start_end_marker.value = f_new_val
+                self.start_end_marker.set_pos()
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 1000.0)
         self.value = f_new_val
         self.draw_lines()
@@ -1088,6 +1093,8 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         if self.callback is not None:
             self.callback(self.value)
+        if self.start_end_marker is not None:
+            self.start_end_marker.callback(self.start_end_marker.value)
 
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
