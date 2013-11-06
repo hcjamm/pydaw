@@ -471,12 +471,16 @@ class region_settings:
                 f_region_length = 8
                 f_commit_message = "Set region '" + f_region_name + "' length to default value"
             this_pydaw_project.save_region(f_region_name, global_current_region)
-            if global_audio_items.set_region_length(f_region_length):
-                this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
-            this_pydaw_project.commit(f_commit_message)
+            this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             self.open_region(self.region_name_lineedit.text())
             pydaw_update_region_lengths_dict()
-            #global_open_audio_items()  #Redundant
+            f_resave = False
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.clip_at_region_end():
+                    f_resave = True
+            if f_resave:
+                this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+            this_pydaw_project.commit(f_commit_message)
 
     def __init__(self):
         self.enabled = False
@@ -1487,7 +1491,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.audio_item.sample_end = ((self.rect().width() + self.length_px_start) / self.length_seconds_orig_px) * 1000.0
             self.audio_item.sample_end = pydaw_util.pydaw_clip_value(self.audio_item.sample_end, 1.0, 1000.0, True)
             self.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_height)
-
+            return True
+        else:
+            return False
 
     def set_brush(self, a_index=None):
         if self.isSelected():
