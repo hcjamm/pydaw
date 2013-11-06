@@ -2415,10 +2415,11 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
         {            
             if(f_i6 == 0)
             {
-                float test1 = f_adjusted_next_song_pos_beats - 4.0f;
-                float test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
-                float test3 = (test1 / test2) * ((float)(a_sample_count));
+                float test1 = (int)(f_adjusted_next_song_pos_beats);
+                float test2 = test1 - f_adjusted_song_pos_beats;
+                float test3 = (a_pydaw_data->ml_sample_period_inc / test2) * ((float)(a_sample_count));
                 f_adjusted_sample_count = (int)test3;
+                assert(f_adjusted_sample_count < a_sample_count);
                 
                 f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_current_region, 
                     a_pydaw_data->ml_current_bar, a_pydaw_data->ml_current_beat);
@@ -2522,7 +2523,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         ((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number) >  
                         (a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_start_offset)))
                         ))
-                    {   
+                    {
+                        assert(f_i2 < a_sample_count);
                         v_pydaw_audio_item_set_fade_vol(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]);
 
                         if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->wav_pool_item->channels == 1)
@@ -2556,7 +2558,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                                     }
                                 }
                             }
-
+                                                        
                             a_output0[f_i2] += f_tmp_sample0;
                             a_output1[f_i2] += f_tmp_sample1;
                         }
