@@ -1200,22 +1200,25 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
             if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
                 ((!f_args->pydaw_data->is_soloed) ||
                 ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
-            {                    
-                if(v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
+            {
+                int f_audio_items_result = v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count),
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[0],
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[1],
-                        f_item.track_number, 0))
+                        f_item.track_number, 0);
+                
+                if(f_audio_items_result)
                 {
                     v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
-                    
-                    v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
-                    f_args->pydaw_data->audio_track_pool[f_item.track_number]->event_buffer, 
+                }
+                
+                v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count),
+                    f_args->pydaw_data->audio_track_pool[f_item.track_number]->event_buffer,
                     f_args->pydaw_data->audio_track_pool[f_item.track_number]->current_period_event_index);
 
-                    v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number],
-                            f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num);
-                }
-                else
+                v_pydaw_sum_track_outputs(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number],
+                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num);
+                
+                if(!f_audio_items_result)
                 {
                     pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[(f_args->pydaw_data->audio_track_pool[f_item.track_number]->bus_num)]);
                     
