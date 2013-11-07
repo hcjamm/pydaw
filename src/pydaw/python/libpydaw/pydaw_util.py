@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import random, os
+import random, os, re
 from time import sleep
 from math import log, pow
 
@@ -314,3 +314,110 @@ def global_delete_file_bookmark(a_key):
     f_dict = global_get_file_bookmarks()
     f_dict.pop(str(a_key))
     global_write_file_bookmarks(f_dict)
+
+class sfz_exception(Exception):
+    pass
+
+class sfz_sample:
+    """ Corresponds to the settings for a single sample """
+    def __init__(self, a_path):
+        self.path = str(a_path)
+        self.base_pitch = 60
+        self.min_pitch = 0
+        self.max_pitch = 127
+        self.min_velocity = 1
+        self.max_velocity = 127
+
+class sfz_group:
+    """ Corresponds to the settings for a single sample """
+    def __init__(self):
+        self.path = None
+        self.base_pitch = None
+        self.min_pitch = None
+        self.max_pitch = None
+        self.min_velocity = None
+        self.max_velocity = None
+
+class sfz_file:
+    """ Abstracts an .sfz file. Since sfz is such a terrible clusterf.ck of
+    a format that tries very hard to stick a square peg into a round hole
+    (while using a custom markup language even worse than XML),
+    we only store the basics like key and velocity mapping while happily
+    choosing to ignore opcodes that make no sense for PyDAW. """
+    def __init__(self, a_file_path):
+        self.path = str(a_file_path)
+        if not os.path.exists(self.path):
+            raise sfz_exception("%s does not exist." % (self.path,))
+        f_file_text = pydaw_read_file_text(self.path)
+        # In the wild, people can and often do put tags and opcodes on the same
+        # line, move all tags and opcodes to their own line
+        f_file_text = f_file_text.replace("<", "\n<")
+        f_file_text = f_file_text.replace(">", ">\n")
+        f_file_text = f_file_text.replace("/*", "\n/*")
+        f_file_text = f_file_text.replace("*/", "*/\n")
+        f_file_text = f_file_text.replace("\t", " ")
+        f_file_text = f_file_text.replace("\r", "")
+
+        f_file_text_new = ""
+
+        for f_line in f_file_text.split("\n"):
+            if f_line.strip().startswith("//"):
+                continue
+            if "=" in f_line:
+                f_line_arr = f_line.split(" ")
+                for f_opcode in f_line_arr:
+                    f_file_text_new += "\n%s\n" % (f_opcode,)
+            else:
+                f_file_text_new += "%s\n" % (f_line,)
+
+        f_file_text = f_file_text_new
+        self.adjusted_file_text = f_file_text_new
+
+        self.global_sample = None
+        self.global_base_pitch = None
+        self.global_min_pitch = None
+        self.global_max_pitch = None
+        self.global_min_velocity = None
+        self.global_max_velocity = None
+
+        f_current_group = None
+        f_extended_comment = False
+
+        self.samples = []
+        f_current_mode = None #None = unsupported, 0 = global, 1 = region, 2 = group
+
+        for f_line in f_file_text.split("\n"):
+            f_line = f_line.strip()
+
+            if f_line.startswith("/*"):
+                f_extended_comment = True
+                continue
+
+            if f_extended_comment:
+                if "*/" in f_line:
+                    f_extended_comment = False
+                continue
+
+            if f_line == "" or f_line.startswith("//"):
+                continue
+            if re.match("<(.*)>", f_line) is not None:
+                if f_line.startswith("<global>"):
+                    f_current_mode = 0
+                elif f_line.startswith("<region>"):
+                    f_current_mode = 1
+                elif f_line.startswith("<group>"):
+                    f_current_mode = 2
+                else:
+                    f_current_mode = None
+            else:
+                if f_current_mode is None:
+                    continue
+                try:
+                    f_key, f_value = f_line.split("=")
+                except:
+                    print("ERROR:  %s" % (f_line,))
+                    continue
+
+
+    def __str__(self):
+        return self.adjusted_file_text
