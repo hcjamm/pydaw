@@ -5869,7 +5869,7 @@ class transport_widget:
         f_lower_ctrl_layout = QtGui.QHBoxLayout()
         f_upper_ctrl_layout.addWidget(QtGui.QLabel("Loop Mode:"))
         self.loop_mode_combobox = QtGui.QComboBox()
-        self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
+        self.loop_mode_combobox.addItems(["Off", "Region"])
         self.loop_mode_combobox.setMinimumWidth(90)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
         f_upper_ctrl_layout.addWidget(self.loop_mode_combobox)
