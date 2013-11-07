@@ -18,6 +18,8 @@ from math import log, pow
 
 global_pydaw_version_string = "pydaw4"
 global_pydaw_file_type_string = 'PyDAW4 Project (*.pydaw4)'
+global_euphoria_file_type_string = 'PyDAW4 Euphoria Sample File (*.u4ia4)'
+global_euphoria_file_type_ext = '.u4ia4'
 
 global_pydaw_bin_path = None
 global_pydaw_is_sandboxed = False

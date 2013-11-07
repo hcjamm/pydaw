@@ -10,6 +10,10 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
+
+Special note:  Please ignore any bizarre coding style you may see, these
+were mostly converted to Python/PyQt from C++/Qt by a script.
 """
 
 import os
@@ -2134,10 +2138,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.track_name = str(a_track_name)
         self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
         self.is_instrument = True
-        #Begin Euphoria C++
+
         self.selected_row_index = 0
         self.handle_control_updates = True
-        self.creating_instrument_file = False
         self.suppress_selected_sample_changed = False
         f_interpolation_modes = [("Pitched") , ("Percussion") , ("No Pitch")]
         f_sample_table_columns = [
@@ -2423,25 +2426,22 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.file_path.setMinimumWidth(480)
         """Set all of the array variables that are per-sample"""
 
-        actionMove_files_to_single_directory =  QtGui.QAction("Move files to single directory", self.widget)
-        #actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
-        #actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
+        actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
+        actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
         actionMapToWhiteKeys =  QtGui.QAction("Map All Samples to 1 White Key", self.widget)
         actionMapToMonoFX =  QtGui.QAction("Map All Samples to Own MonoFX Group", self.widget)
         actionClearAllSamples =  QtGui.QAction("Clear All Samples", self.widget)
         menubar =  QtGui.QMenuBar(self.widget)
         menuFile =  QtGui.QMenu("Menu", menubar)
         menubar.addAction(menuFile.menuAction())
-        menuFile.addAction(actionMove_files_to_single_directory)
-        #menuFile.addAction(actionSave_instrument_to_file)
-        #menuFile.addAction(actionOpen_instrument_from_file)
+        menuFile.addAction(actionSave_instrument_to_file)
+        menuFile.addAction(actionOpen_instrument_from_file)
         menuFile.addAction(actionMapToWhiteKeys)
         menuFile.addAction(actionMapToMonoFX)
         menuFile.addAction(actionClearAllSamples)
 
-        actionMove_files_to_single_directory.triggered.connect(self.moveSamplesToSingleDirectory)
-        #actionSave_instrument_to_file.triggered.connect(self.saveToFile)
-        #actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
+        actionSave_instrument_to_file.triggered.connect(self.saveToFile)
+        actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
         actionMapToWhiteKeys.triggered.connect(self.mapAllSamplesToOneWhiteKey)
         actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
         actionClearAllSamples.triggered.connect(self.clearAllSamples)
@@ -2965,30 +2965,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             (str(self.file_browser.folder_path_lineedit.text()).strip(), str(f_list[0].text()).strip())
             self.pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_preview_file)
 
-    def moveSamplesToSingleDirectory(self):
-        f_selected_path = ("")
-        if(self.creating_instrument_file):
-            f_selected_path = self.inst_file_tmp_path
-        else:
-            f_selected_path = QtGui.QFileDialog.getExistingDirectory(self, "Select a directory to move the samples to...", ".")
-        if not f_selected_path.isEmpty():
-            #TODO: check that the directory is empty...
-            self.find_selected_radio_button()
-            for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-                f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX).text()
-                if (f_current_file_path is None) or (f_current_file_path == "") or \
-                f_current_file_path.startswith(f_selected_path):
-                    continue
-                f_file_arr = str(f_current_file_path).split("/")
-                f_new_file_path = f_selected_path + ("/") + f_file_arr[-1]
-                os.system('cp "' + '" "' + f_new_file_path + '"')
-                f_item =  QtGui.QTableWidgetItem()
-                f_item.setText(f_new_file_path)
-                f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-                self.sample_table.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
-                self.generate_files_string()
-                self.configure_plugin("load", self.files_string)
-
     def sample_selected_monofx_groupChanged(self, a_value):
         self.mono_fx0.knobs[0].set_value(self.monofx0knob0_ctrls[a_value].get_value())
         self.mono_fx0.knobs[1].set_value(self.monofx0knob1_ctrls[a_value].get_value())
@@ -3014,8 +2990,76 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def setSelectedMonoFX(self):
         self.mono_fx_tab_selected_group.setCurrentIndex(self.monofx_groups[self.selected_row_index].get_value())
 
+    def copySamplesToSingleDirectory(self, a_dir):
+        f_dir = str(a_dir)
+        f_result = ""
+        self.find_selected_radio_button()
+        for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX).text()
+            if (f_current_file_path is None) or (f_current_file_path == ""):
+                continue
+            f_file_name = os.path.basename(str(f_current_file_path))
+            f_new_file_path = "%s/%s" % (f_dir, f_file_name)
+            os.system('cp "%s" "%s"' % (f_current_file_path, f_new_file_path))
+            f_result += "sample|%s|%s\n" % (i, f_file_name)
+        return f_result
+
     def saveToFile(self):
-        pass
+        while True:
+            f_selected_path = QtGui.QFileDialog.getSaveFileName(self.widget,
+            "Select a directory to move the samples to...", pydaw_util.global_home,
+            filter=pydaw_util.global_euphoria_file_type_string)
+            if f_selected_path is not None:
+                f_selected_path = str(f_selected_path)
+                if f_selected_path == "":
+                    break
+                if not f_selected_path.endswith(pydaw_util.global_euphoria_file_type_ext):
+                    f_selected_path += pydaw_util.global_euphoria_file_type_ext
+                f_dir = os.path.dirname(f_selected_path)
+                if len(os.listdir(f_dir)) > 0:
+                    QtGui.QMessageBox.warning(self.widget, "Error", "%s is not an empty directory." % (f_dir,))
+                    continue
+                f_sample_str = self.copySamplesToSingleDirectory(f_dir)
+                f_plugin_file = pydaw_plugin_file.from_dict(self.port_dict, {})
+                f_result_str = f_sample_str + str(f_plugin_file)
+                pydaw_util.pydaw_write_file_text(f_selected_path, f_result_str)
+                break
+            else:
+                break
 
     def openFromFile(self):
-        pass
+        f_selected_path = QtGui.QFileDialog.getOpenFileName(self.widget,
+        "Select a directory to move the samples to...", pydaw_util.global_home,
+        filter=pydaw_util.global_euphoria_file_type_string)
+        if f_selected_path is not None:
+            f_selected_path = str(f_selected_path)
+            if f_selected_path == "":
+                return
+            f_dir = os.path.dirname(f_selected_path)
+            f_file_str = pydaw_util.pydaw_read_file_text(f_selected_path)
+            #clear the existing samples
+            for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+                f_item =  QtGui.QTableWidgetItem()
+                f_item.setText("")
+                f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+                self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item)
+            self.generate_files_string()
+            self.configure_plugin("load", self.files_string)
+
+            for f_line in f_file_str.split("\n"):
+                f_line_arr = f_line.split("|")
+                if f_line_arr[0] == "\\":
+                    break
+                if f_line_arr[0] == "sample":
+                    f_index = int(f_line_arr[1])
+                    f_new_file_path = "%s/%s" % (f_dir, f_line_arr[2])
+                    f_item =  QtGui.QTableWidgetItem()
+                    f_item.setText(f_new_file_path)
+                    f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+                    self.sample_table.setItem(f_index, SMP_TB_FILE_PATH_INDEX, f_item)
+                    self.generate_files_string()
+                    self.configure_plugin("load", self.files_string)
+                else:
+                    f_port = int(f_line_arr[0])
+                    f_value = int(f_line_arr[1])
+                    self.set_control_val(f_port, f_value)
