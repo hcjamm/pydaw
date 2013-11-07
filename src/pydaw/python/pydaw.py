@@ -471,6 +471,7 @@ class region_settings:
                 f_region_length = 8
                 f_commit_message = "Set region '%s' length to default value" % (f_region_name,)
             this_pydaw_project.save_region(f_region_name, global_current_region)
+            global_audio_items.set_region_length(f_region_length)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             self.open_region(self.region_name_lineedit.text())
             pydaw_update_region_lengths_dict()
