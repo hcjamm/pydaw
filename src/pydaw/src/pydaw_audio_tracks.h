@@ -207,8 +207,8 @@ typedef struct
     int uid;
     int start_bar;
     float start_beat;
-    double adjusted_start_beat;
-    //double adjusted_end_beat;
+    float adjusted_start_beat;
+    float adjusted_end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
     float pitch_shift;    
     float sample_start;
@@ -367,9 +367,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     }
     
     f_result->ratio = 1.0f;    
-    f_result->uid = -1;
-    f_result->adjusted_start_beat = 99999999.0f;
-    
+    f_result->uid = -1;    
     f_result->adsr = g_adsr_get_adsr(1.0f/a_sr);
     v_adsr_set_adsr_db(f_result->adsr, 0.003f, 0.1f, 0.0f, 0.2f);
     v_adsr_retrigger(f_result->adsr);
