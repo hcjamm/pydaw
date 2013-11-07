@@ -3057,9 +3057,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_item.setText(f_new_file_path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
                     self.sample_table.setItem(f_index, SMP_TB_FILE_PATH_INDEX, f_item)
-                    self.generate_files_string()
-                    self.configure_plugin("load", self.files_string)
                 else:
                     f_port = int(f_line_arr[0])
                     f_value = int(f_line_arr[1])
-                    self.set_control_val(f_port, f_value)
+                    self.port_dict[f_port].set_value(f_value)
+                    self.port_dict[f_port].control_value_changed(f_value)
+
+            self.generate_files_string()
+            self.configure_plugin("load", self.files_string)
+            self.sample_table.resizeColumnsToContents()
+            self.selectionChanged()
