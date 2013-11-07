@@ -3047,7 +3047,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.configure_plugin("load", self.files_string)
 
             for f_line in f_file_str.split("\n"):
-                f_line_arr = f_line.split("|")
+                f_line_arr = f_line.split("|", 2)
                 if f_line_arr[0] == "\\":
                     break
                 if f_line_arr[0] == "sample":
