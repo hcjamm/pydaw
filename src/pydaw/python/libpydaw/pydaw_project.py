@@ -88,12 +88,12 @@ if not os.path.exists(pydaw_paulstretch_util):
 class pydaw_project:
     def create_file(self, a_folder, a_file, a_text):
         """  Call save_file only if the file doesn't exist... """
-        if not os.path.isfile(self.project_folder + "/" + str(a_folder) + "/" + str(a_file)):
+        if not os.path.isfile("%s/%s/%s" % (self.project_folder, a_folder, a_file)):
             self.save_file(a_folder, a_file, a_text)
 
     def save_file(self, a_folder, a_file, a_text, a_force_new=False):
         """ Writes a file to disk and updates the project history to reflect the changes """
-        f_full_path = self.project_folder + "/" + str(a_folder) + "/" + str(a_file)
+        f_full_path = "%s/%s/%s" % (self.project_folder, a_folder, a_file)
         if not a_force_new and os.path.isfile(f_full_path):
             f_old = pydaw_read_file_text(f_full_path)
             if f_old == a_text:
@@ -140,7 +140,7 @@ class pydaw_project:
         else:
             f_files = os.listdir(a_folder)
         for f_file in f_files:
-            f_result[f_file] = pydaw_read_file_text(a_folder + "/" + f_file)
+            f_result[f_file] = pydaw_read_file_text("%s/%s" % (a_folder, f_file))
         return f_result
 
     def get_bus_fx_files(self):
@@ -150,7 +150,7 @@ class pydaw_project:
         return os.listdir(self.audiofx_folder)
 
     def delete_inst_file(self, a_track_num):
-        f_file_path = self.instrument_folder + "/" + str(a_track_num) + ".pyinst"
+        f_file_path = "%s/%s.pyinst" % (self.instrument_folder, a_track_num)
         if os.path.isfile(f_file_path):
             os.system("rm '%s'" % (f_file_path,))
 
@@ -162,13 +162,13 @@ class pydaw_project:
 
     def save_project_as(self, a_file_name):
         f_file_name = str(a_file_name)
-        print(("Saving project as " + f_file_name + " ..."))
+        print(("Saving project as %s ..." % (f_file_name,)))
         f_new_project_folder = os.path.dirname(f_file_name)
         #The below is safe because we already checked that the folder should be empty before calling this
-        f_cmd = 'rm -rf "' + f_new_project_folder + '"'
+        f_cmd = 'rm -rf "%s"' % (f_new_project_folder,)
         print(f_cmd)
         os.system(f_cmd)
-        f_cmd = 'cp -r "' + self.project_folder + '" "' + f_new_project_folder + '"'
+        f_cmd = 'cp -r "%s" "%s"' % (self.project_folder, f_new_project_folder)
         print(f_cmd)
         os.system(f_cmd)
         print((f_new_project_folder + "/" + self.project_file + " | " + a_file_name))
@@ -232,8 +232,9 @@ class pydaw_project:
                 os.makedirs(project_dir)
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
-        self.create_file("", "version.txt", "Created with " + global_pydaw_version_string + "-" + \
-        pydaw_read_file_text(global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
+        self.create_file("", "version.txt", "Created with %s-%s" % (global_pydaw_version_string,
+        pydaw_read_file_text("%s/lib/%s/%s-version.txt" % (global_pydaw_install_prefix,
+                                               global_pydaw_version_string, global_pydaw_version_string))))
         self.create_file("", os.path.basename(a_project_file), "This file is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
         self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)
@@ -429,7 +430,6 @@ class pydaw_project:
     def timestretch_audio_item(self, a_audio_item):
         """ Return path, uid for a time-stretched audio item and update all project files,
         or None if the UID already exists in the cache"""
-
         a_audio_item.timestretch_amt = round(a_audio_item.timestretch_amt, 6)
         a_audio_item.pitch_shift = round(a_audio_item.pitch_shift, 6)
         a_audio_item.timestretch_amt_end = round(a_audio_item.timestretch_amt_end, 6)
@@ -451,7 +451,7 @@ class pydaw_project:
             return None
         else:
             f_uid = pydaw_gen_uid()
-            f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
+            f_dest_path = "%s/%s.wav" % (self.timestretch_folder, f_uid)
 
             f_cmd = None
             if a_audio_item.time_stretch_mode == 1:
@@ -479,7 +479,6 @@ class pydaw_project:
                 else:
                     f_cmd = [pydaw_paulstretch_util,
                          "-s", str(a_audio_item.timestretch_amt), "-d", f_tmp_file, f_dest_path ]
-
 
             self.timestretch_cache[f_key] = f_uid
             self.timestretch_reverse_lookup[f_dest_path] = f_src_path
