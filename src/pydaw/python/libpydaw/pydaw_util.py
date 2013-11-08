@@ -364,9 +364,14 @@ class sfz_file:
             if f_line.strip().startswith("//"):
                 continue
             if "=" in f_line:
-                f_line_arr = f_line.split(" ")
-                for f_opcode in f_line_arr:
-                    f_file_text_new += "\n%s\n" % (f_opcode,)
+                f_line_arr = f_line.split("=")
+                for f_i in range(1, len(f_line_arr)):
+                    f_opcode = f_line_arr[f_i - 1].rsplit(" ")[-1]
+                    if f_i == (len(f_line_arr) - 1):
+                        f_value = f_line_arr[f_i]
+                    else:
+                        f_value = f_line_arr[f_i].rsplit(" ", 1)[0]
+                    f_file_text_new += "\n%s=%s\n" % (f_opcode, f_value)
             else:
                 f_file_text_new += "%s\n" % (f_line,)
 
