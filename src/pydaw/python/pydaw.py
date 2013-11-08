@@ -2317,8 +2317,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_val = int(a_event.pos().x() / global_audio_px_per_bar)
             this_transport.set_bar_value(f_val)
 
-    def draw_headers(self, a_cursor_pos=None):
-        if global_current_region is None or global_current_region.region_length_bars == 0:
+    def draw_headers(self, a_cursor_pos=None, a_default_length=False):
+        if a_default_length or global_current_region is None or global_current_region.region_length_bars == 0:
             f_region_length = 8
         else:
             f_region_length = global_current_region.region_length_bars
@@ -2356,7 +2356,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos(a_cursor_pos)
 
-    def clear_drawn_items(self):
+    def clear_drawn_items(self, a_default_length=False):
         if self.is_playing:
             f_was_playing = True
             self.is_playing = False
@@ -2364,7 +2364,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_was_playing = False
         self.audio_items = []
         self.scene.clear()
-        self.draw_headers()
+        self.draw_headers(a_default_length=a_default_length)
         if f_was_playing:
             self.is_playing = True
 
@@ -5611,7 +5611,9 @@ class transport_widget:
                     this_region_settings.open_region(f_item.text())
                 else:
                     this_region_settings.clear_items()
-                    this_audio_items_viewer.clear_drawn_items()
+                    this_audio_items_viewer.clear_drawn_items(a_default_length=True)
+                    for f_region_editor in global_region_editors:
+                        f_region_editor.set_region_length()
 
     def get_pos_in_seconds(self):
         f_bars = pydaw_get_pos_in_bars(self.get_region_value(), self.get_bar_value(), 0.0)
