@@ -72,17 +72,17 @@ pydaw_min_note_length = 4.0/128.0  #Anything smaller gets deleted when doing a t
 pydaw_terminating_char = "\\"
 
 #if not os.path.exists usually indicates that PyDAW is being run in debug mode, so just use the default installed version
-pydaw_rubberband_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
+pydaw_rubberband_util = "%s/lib/%s/rubberband/bin/rubberband" % (global_pydaw_install_prefix, global_pydaw_version_string)
 if not os.path.exists(pydaw_rubberband_util):
-    pydaw_rubberband_util = "/usr/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
+    pydaw_rubberband_util = "/usr/lib/%s/rubberband/bin/rubberband" % (global_pydaw_version_string,)
 
-pydaw_sbsms_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
+pydaw_sbsms_util = "%s/lib/%s/sbsms/bin/sbsms" % (global_pydaw_install_prefix, global_pydaw_version_string)
 if not os.path.exists(pydaw_sbsms_util):
-    pydaw_sbsms_util = "/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
+    pydaw_sbsms_util = "/usr/lib/%s/sbsms/bin/sbsms" % (global_pydaw_version_string,)
 
-pydaw_paulstretch_util = global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
+pydaw_paulstretch_util = "%s/lib/%s/pydaw/python/libpydaw/pydaw_paulstretch.py" % (global_pydaw_install_prefix, global_pydaw_version_string)
 if not os.path.exists(pydaw_paulstretch_util):
-    pydaw_paulstretch_util = "/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
+    pydaw_paulstretch_util = "/usr/lib/%s/pydaw/python/libpydaw/pydaw_paulstretch.py" % (global_pydaw_version_string,)
 
 
 class pydaw_project:
@@ -172,7 +172,6 @@ class pydaw_project:
         print(f_cmd)
         os.system(f_cmd)
         print((f_new_project_folder + "/" + self.project_file + " | " + a_file_name))
-        #f_cmd = 'mv "%s/%s.%s" "%s"' % (f_new_project_folder, self.project_file, global_pydaw_version_string, a_file_name)
         self.set_project_folders(f_file_name)
         self.this_pydaw_osc.pydaw_open_song(self.project_folder)
         self.history = pydaw_history.pydaw_history(self.project_folder)
@@ -181,28 +180,28 @@ class pydaw_project:
         #folders
         self.project_folder = os.path.dirname(a_project_file)
         self.project_file = os.path.splitext(os.path.basename(a_project_file))[0]
-        self.instrument_folder = self.project_folder + "/" + pydaw_folder_instruments
-        self.regions_folder = self.project_folder + "/" + pydaw_folder_regions
-        self.regions_audio_folder = self.project_folder + "/" + pydaw_folder_regions_audio
-        self.items_folder = self.project_folder + "/" + pydaw_folder_items
-        self.audio_folder = self.project_folder + "/" + pydaw_folder_audio
-        self.audio_tmp_folder = self.project_folder + "/audio/tmp"
-        self.samples_folder = self.project_folder + "/" + pydaw_folder_samples
-        self.audiofx_folder = self.project_folder + "/" + pydaw_folder_audiofx
-        self.audio_per_item_fx_folder = self.project_folder + "/" + pydaw_folder_audio_per_item_fx
-        self.busfx_folder = self.project_folder + "/" + pydaw_folder_busfx
-        self.samplegraph_folder = self.project_folder + "/" + pydaw_folder_samplegraph
-        self.timestretch_folder = self.project_folder + "/" + pydaw_folder_timestretch
-        self.glued_folder = self.project_folder + "/" + pydaw_folder_glued
-        self.user_folder = self.project_folder + "/" + pydaw_folder_user
+        self.instrument_folder = "%s/%s" % (self.project_folder, pydaw_folder_instruments)
+        self.regions_folder = "%s/%s" % (self.project_folder, pydaw_folder_regions)
+        self.regions_audio_folder = "%s/%s" % (self.project_folder, pydaw_folder_regions_audio)
+        self.items_folder = "%s/%s" % (self.project_folder, pydaw_folder_items)
+        self.audio_folder = "%s/%s" % (self.project_folder, pydaw_folder_audio)
+        self.audio_tmp_folder = "%s/audio/tmp" % (self.project_folder,)
+        self.samples_folder = "%s/%s" % (self.project_folder, pydaw_folder_samples)
+        self.audiofx_folder = "%s/%s" % (self.project_folder, pydaw_folder_audiofx)
+        self.audio_per_item_fx_folder = "%s/%s" % (self.project_folder, pydaw_folder_audio_per_item_fx)
+        self.busfx_folder = "%s/%s" % (self.project_folder, pydaw_folder_busfx)
+        self.samplegraph_folder = "%s/%s" % (self.project_folder, pydaw_folder_samplegraph)
+        self.timestretch_folder = "%s/%s" % (self.project_folder, pydaw_folder_timestretch)
+        self.glued_folder = "%s/%s" % (self.project_folder, pydaw_folder_glued)
+        self.user_folder = "%s/%s" % (self.project_folder, pydaw_folder_user)
         self.sendfx_folder = "%s/%s" % (self.project_folder, pydaw_folder_sendfx)
         #files
-        self.pyregions_file = self.project_folder + "/default.pyregions"
-        self.pyitems_file = self.project_folder + "/default.pyitems"
-        self.pywavs_file = self.project_folder + "/default.pywavs"
-        self.pystretch_file = self.project_folder + "/" + pydaw_file_pystretch
-        self.pystretch_map_file = self.project_folder + "/" + pydaw_file_pystretch_map
-        self.pyscale_file = self.project_folder + "/default.pyscale"
+        self.pyregions_file = "%s/default.pyregions" % (self.project_folder,)
+        self.pyitems_file = "%s/default.pyitems" % (self.project_folder,)
+        self.pywavs_file = "%s/default.pywavs" % (self.project_folder,)
+        self.pystretch_file = "%s/%s" % (self.project_folder, pydaw_file_pystretch)
+        self.pystretch_map_file = "%s/%s" % (self.project_folder, pydaw_file_pystretch_map)
+        self.pyscale_file = "%s/default.pyscale" % (self.project_folder,)
 
         pydaw_clear_sample_graph_cache()
 
