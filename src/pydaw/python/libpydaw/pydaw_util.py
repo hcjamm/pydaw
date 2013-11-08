@@ -320,30 +320,23 @@ class sfz_exception(Exception):
 
 class sfz_sample:
     """ Corresponds to the settings for a single sample """
-    def __init__(self, a_path):
-        self.path = str(a_path)
-        self.base_pitch = 60
-        self.min_pitch = 0
-        self.max_pitch = 127
-        self.min_velocity = 1
-        self.max_velocity = 127
-
-class sfz_group:
-    """ Corresponds to the settings for a single sample """
     def __init__(self):
-        self.path = None
-        self.base_pitch = None
-        self.min_pitch = None
-        self.max_pitch = None
-        self.min_velocity = None
-        self.max_velocity = None
+        self.dict = {}
+
+    def set_from_group(self, a_group_list):
+        for f_group in a_group_list:
+            if f_group is not None:
+                for k, v in f_group.dict.items():
+                    if k not in self.dict or v is not None:
+                        self.dict[k] = v
+
+    def __str__(self):
+        return str(self.dict)
+
 
 class sfz_file:
-    """ Abstracts an .sfz file. Since sfz is such a terrible clusterf.ck of
-    a format that tries very hard to stick a square peg into a round hole
-    (while using a custom markup language even worse than XML),
-    we only store the basics like key and velocity mapping while happily
-    choosing to ignore opcodes that make no sense for PyDAW. """
+    """ Abstracts an .sfz file into a list of dicts that correspond to
+    the attributes of a single sample."""
     def __init__(self, a_file_path):
         self.path = str(a_file_path)
         if not os.path.exists(self.path):
@@ -366,26 +359,24 @@ class sfz_file:
             if "=" in f_line:
                 f_line_arr = f_line.split("=")
                 for f_i in range(1, len(f_line_arr)):
-                    f_opcode = f_line_arr[f_i - 1].rsplit(" ")[-1]
+                    f_opcode = f_line_arr[f_i - 1].strip().rsplit(" ")[-1]
                     if f_i == (len(f_line_arr) - 1):
                         f_value = f_line_arr[f_i]
                     else:
-                        f_value = f_line_arr[f_i].rsplit(" ", 1)[0]
-                    f_file_text_new += "\n%s=%s\n" % (f_opcode, f_value)
+                        f_value = f_line_arr[f_i].strip().rsplit(" ", 1)[0]
+                    f_file_text_new += "\n%s=%s" % (f_opcode, f_value)
             else:
                 f_file_text_new += "%s\n" % (f_line,)
 
         f_file_text = f_file_text_new
         self.adjusted_file_text = f_file_text_new
 
-        self.global_sample = None
-        self.global_base_pitch = None
-        self.global_min_pitch = None
-        self.global_max_pitch = None
-        self.global_min_velocity = None
-        self.global_max_velocity = None
-
+        f_global_settings = None
         f_current_group = None
+        f_current_region = None
+        f_current_object = None
+
+
         f_extended_comment = False
 
         self.samples = []
@@ -408,10 +399,17 @@ class sfz_file:
             if re.match("<(.*)>", f_line) is not None:
                 if f_line.startswith("<global>"):
                     f_current_mode = 0
+                    f_global_settings = sfz_sample()
+                    f_current_object = f_global_settings
                 elif f_line.startswith("<region>"):
                     f_current_mode = 1
+                    f_current_region = sfz_sample()
+                    f_current_object = f_current_region
+                    self.samples.append(f_current_region)
                 elif f_line.startswith("<group>"):
                     f_current_mode = 2
+                    f_current_group = sfz_sample()
+                    f_current_object = f_current_group
                 else:
                     f_current_mode = None
             else:
@@ -422,7 +420,15 @@ class sfz_file:
                 except:
                     print("ERROR:  %s" % (f_line,))
                     continue
+                f_current_object.dict[f_key] = f_value
+                if f_current_mode == 1:
+                    f_current_object.set_from_group([f_global_settings, f_current_group,])
 
 
     def __str__(self):
-        return self.adjusted_file_text
+        #return self.adjusted_file_text
+        f_result = ""
+        for f_sample in self.samples:
+            f_result += "\n\n%s\n\n" % (f_sample,)
+        return f_result
+
