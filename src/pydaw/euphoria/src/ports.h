@@ -23,7 +23,7 @@ GNU General Public License for more details.
 #define EUPHORIA_FILE_PORT_VALUE_SEPARATOR ":"
 
 /*Provide an arbitrary maximum number of samples the user can load*/
-#define EUPHORIA_MAX_SAMPLE_COUNT 64
+#define EUPHORIA_MAX_SAMPLE_COUNT 128
 
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
 #define EUPHORIA_MODULATOR_COUNT 6
