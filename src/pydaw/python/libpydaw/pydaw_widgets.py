@@ -2830,6 +2830,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_high_notes[f_i].control_value_changed(f_current_note)
             self.sample_low_notes[f_i].control_value_changed(f_current_note)
             f_current_note += f_white_notes[i_white_notes]
+            if f_current_note >= 120:
+                break
             i_white_notes+= 1
             if i_white_notes >= 7:
                 i_white_notes = 0
@@ -3132,7 +3134,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     (len(f_sfz.samples), pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT))
                     return
                 if "sample" in f_sample.dict:
-                    f_new_file_path = "%s/%s" % (f_sfz_dir, f_sample.dict["sample"])
+                    f_sample_file = f_sample.dict["sample"].replace("\\", "/")
+                    f_new_file_path = "%s/%s" % (f_sfz_dir, f_sample_file)
                     yield f_new_file_path
                     #self.selected_radiobuttons[f_index].setChecked(True)
                     #self.load_files([f_new_file_path])
