@@ -2042,6 +2042,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         elif len(f_selected_items) == 0:
             global_current_audio_item_index = None
             this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
+        else:
+            this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
 
         this_audio_items_viewer_widget.set_paif_buttons_enabled(len(f_selected_items))
 
