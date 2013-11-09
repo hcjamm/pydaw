@@ -2422,31 +2422,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.clear_button.pressed.connect(self.clearFile)
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
         self.file_selector.file_path.setMinimumWidth(480)
+
         """Set all of the array variables that are per-sample"""
-
-        actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
-        actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
-        actionMapToWhiteKeys =  QtGui.QAction("Map All Samples to 1 White Key", self.widget)
-        actionMapToMonoFX =  QtGui.QAction("Map All Samples to Own MonoFX Group", self.widget)
-        actionClearAllSamples =  QtGui.QAction("Clear All Samples", self.widget)
-        actionImportSfz =  QtGui.QAction("Import SFZ", self.widget)
-
-        menubar =  QtGui.QMenuBar(self.widget)
-        menuFile =  QtGui.QMenu("Menu", menubar)
-        menubar.addAction(menuFile.menuAction())
-        menuFile.addAction(actionSave_instrument_to_file)
-        menuFile.addAction(actionOpen_instrument_from_file)
-        menuFile.addAction(actionMapToWhiteKeys)
-        menuFile.addAction(actionMapToMonoFX)
-        menuFile.addAction(actionClearAllSamples)
-        menuFile.addAction(actionImportSfz)
-
-        actionSave_instrument_to_file.triggered.connect(self.saveToFile)
-        actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
-        actionMapToWhiteKeys.triggered.connect(self.mapAllSamplesToOneWhiteKey)
-        actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
-        actionClearAllSamples.triggered.connect(self.clearAllSamples)
-        actionImportSfz.triggered.connect(self.sfz_dialog)
 
         self.widget.resize(1200, 680)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
@@ -2454,7 +2431,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
-        self.layout.addWidget(menubar)
         self.main_tab =  QtGui.QTabWidget()
 
         self.sample_tab =  QtGui.QWidget()
@@ -2473,7 +2449,24 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_tab_horizontal_splitter.addWidget(self.smp_tab_main_widget)
 
         self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
-        self.smp_tab_main_verticalLayout.addLayout(self.file_selector.layout)
+
+        actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
+        actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
+        actionMapToWhiteKeys =  QtGui.QAction("Map All Samples to 1 White Key", self.widget)
+        actionMapToMonoFX =  QtGui.QAction("Map All Samples to Own MonoFX Group", self.widget)
+        actionClearAllSamples =  QtGui.QAction("Clear All Samples", self.widget)
+        actionImportSfz =  QtGui.QAction("Import SFZ", self.widget)
+
+        menubar =  QtGui.QPushButton("Menu")
+        self.menubar_layout = QtGui.QHBoxLayout()
+        self.main_bottom_layout = QtGui.QVBoxLayout()
+        self.main_bottom_hlayout = QtGui.QHBoxLayout()
+        self.main_bottom_hlayout.addLayout(self.main_bottom_layout)
+        self.main_bottom_layout.addLayout(self.menubar_layout)
+        self.main_bottom_layout.addLayout(self.file_selector.layout)
+        self.menubar_layout.addWidget(menubar)
+        self.menubar_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.smp_tab_main_verticalLayout.addLayout(self.main_bottom_hlayout)
 
         f_logo_label =  QtGui.QLabel()
         f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/euphoria.png" %
@@ -2481,7 +2474,24 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         )).scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.file_selector.layout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
+        self.main_bottom_hlayout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
+
+        menuFile =  QtGui.QMenu("Menu", menubar)
+        menubar.setMenu(menuFile)
+        menuFile.addAction(actionSave_instrument_to_file)
+        menuFile.addAction(actionOpen_instrument_from_file)
+        menuFile.addAction(actionMapToWhiteKeys)
+        menuFile.addAction(actionMapToMonoFX)
+        menuFile.addAction(actionClearAllSamples)
+        menuFile.addAction(actionImportSfz)
+
+        actionSave_instrument_to_file.triggered.connect(self.saveToFile)
+        actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
+        actionMapToWhiteKeys.triggered.connect(self.mapAllSamplesToOneWhiteKey)
+        actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
+        actionClearAllSamples.triggered.connect(self.clearAllSamples)
+        actionImportSfz.triggered.connect(self.sfz_dialog)
+
         self.main_tab.addTab(self.sample_tab, "Samples")
         self.poly_fx_tab =  QtGui.QWidget()
         self.main_tab.addTab(self.poly_fx_tab, "Poly FX")
