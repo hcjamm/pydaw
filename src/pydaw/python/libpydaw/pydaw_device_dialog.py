@@ -59,13 +59,13 @@ class pydaw_device_dialog:
         f_window_layout.addWidget(QtGui.QLabel("Worker Threads:"), 3, 0)
         f_worker_threads_combobox = QtGui.QComboBox()
         f_worker_threads_combobox.addItems(["Auto", "1", "2", "3", "4", "5", "6", "7", "8"])
-        f_worker_threads_combobox.setToolTip("%s\n%s\n\n%s\n%s\n\n%s\n%s" %
-        ("This control sets the number of worker threads for processing plugins and effects.",
-         "Setting to 1 can result in the best latency.",
-         "If your projects require more CPU power than one CPU core can provide, for best latency it is ",
-         "recommended that you only add the required number of cores, and not more than one thread per CPU core.",
-         "Auto attempts to pick a sane number of worker threads automatically based on your CPU,",
-         "if you're not sure how to use this setting, you should leave it on 'Auto'."))
+        f_worker_threads_combobox.setToolTip(
+        "This control sets the number of worker threads for processing plugins and effects."
+         "Setting to 1 can result in the best latency."
+         "If your projects require more CPU power than one CPU core can provide, for best latency it is "
+         "recommended that you only add the required number of cores, and not more than one thread per CPU core."
+         "Auto attempts to pick a sane number of worker threads automatically based on your CPU,"
+         "if you're not sure how to use this setting, you should leave it on 'Auto'.")
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_window_layout.addWidget(QtGui.QLabel("Audio Engine"), 4, 0)
         f_audio_engine_combobox = QtGui.QComboBox()

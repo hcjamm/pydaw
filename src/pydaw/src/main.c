@@ -534,6 +534,14 @@ int main(int argc, char **argv)
     int f_performance = 0;
     int j;
     int in, out, controlIn, controlOut;
+    
+    j = 0;
+    
+    while(j < argc)
+    {
+        printf("%s\n", argv[j]);
+        j++;
+    }
 
 #ifndef PYDAW_NO_HARDWARE
     timer_t timerid;

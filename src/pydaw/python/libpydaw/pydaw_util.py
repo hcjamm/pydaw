@@ -31,9 +31,9 @@ if "src/pydaw/python/" in __file__:
 else:
     global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
 
-def set_bin_path():
+def pydaw_set_bin_path():
     global global_pydaw_bin_path
-    global_pydaw_bin_path = global_pydaw_install_prefix + "/bin/" + global_pydaw_version_string + "-engine"
+    global_pydaw_bin_path = "%s/bin/%s-engine" % (global_pydaw_install_prefix, global_pydaw_version_string)
 
 def pydaw_escape_stylesheet(a_stylesheet, a_path):
     f_dir = os.path.dirname(str(a_path))
@@ -300,7 +300,7 @@ def pydaw_read_device_config():
                 f_line_arr = f_line.split("|", 1)
                 global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
 
-        set_bin_path()
+        pydaw_set_bin_path()
         global_pydaw_is_sandboxed = False
         global_pydaw_with_audio = True
 
@@ -319,9 +319,7 @@ def pydaw_read_device_config():
             elif int(global_device_val_dict["audioEngine"]) == 6:
                 global_pydaw_with_audio = False
                 global_pydaw_bin_path = None
-
-
-            print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
+    print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
 
 pydaw_read_device_config()
 
