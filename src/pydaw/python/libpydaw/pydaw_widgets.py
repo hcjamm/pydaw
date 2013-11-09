@@ -2441,7 +2441,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_browser =  pydaw_file_browser_widget()
         self.file_browser.load_pushButton.pressed.connect(self.file_browser_load_button_pressed)
         self.file_browser.preview_pushButton.pressed.connect(self.file_browser_preview_button_pressed)
-        self.preview_file = ""  #TODO:  Get rid of this at PyDAWv4, it's no longer needed
         self.sample_tab_horizontal_splitter.addWidget(self.file_browser.file_browser_vsplitter)
 
         self.smp_tab_main_widget = QtGui.QWidget()
@@ -2791,7 +2790,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
-        self.configure_callback(True, 0, self.track_num, a_key, a_message)  #TODO:  Get rid of this at PyDAWv4 and use a single delimiter
+        self.configure_callback(True, 0, self.track_num, a_key, a_message)
 
     def set_configure(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
@@ -3114,7 +3113,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         f_window = QtGui.QDialog(self.widget)
         f_window.setWindowTitle("Import SFZ")
-        f_window.setFixedSize(600, 120)
+        f_window.setFixedSize(720, 180)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
         f_hlayout0 = QtGui.QHBoxLayout()
@@ -3124,6 +3123,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_open_file_button.pressed.connect(on_file_open)
         f_hlayout0.addWidget(f_open_file_button)
         f_layout.addLayout(f_hlayout0)
+        f_layout.addWidget(QtGui.QLabel("Euphoria only supports basic SFZ parameters such as "
+        "key and velocity mapping.\nAny effects such as filters, etc... should be set manually after import."))
         f_hlayout1 = QtGui.QHBoxLayout()
         f_layout.addItem(QtGui.QSpacerItem(10, 10, vPolicy=QtGui.QSizePolicy.Expanding))
         f_layout.addLayout(f_hlayout1)
