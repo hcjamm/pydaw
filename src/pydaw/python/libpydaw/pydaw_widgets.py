@@ -3004,8 +3004,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 continue
             f_file_name = os.path.basename(str(f_current_file_path))
             f_new_file_path = "%s/%s" % (f_dir, f_file_name)
-            os.system('cp "%s" "%s"' % (f_current_file_path, f_new_file_path))
-            f_result += "sample|%s|%s\n" % (i, f_file_name)
+            if f_current_file_path == f_new_file_path:
+                print("Source and destination are the same, not copying:\n%s\n%s" % \
+                (f_current_file_path, f_new_file_path))
+            else:
+                os.system('cp "%s" "%s"' % (f_current_file_path, f_new_file_path))
+                f_result += "sample|%s|%s\n" % (i, f_file_name)
         return f_result
 
     def saveToFile(self):
@@ -3021,8 +3025,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_selected_path += pydaw_util.global_euphoria_file_type_ext
                 f_dir = os.path.dirname(f_selected_path)
                 if len(os.listdir(f_dir)) > 0:
-                    QtGui.QMessageBox.warning(self.widget, "Error", "%s is not an empty directory." % (f_dir,))
-                    continue
+                    f_answer = QtGui.QMessageBox.warning(self.widget, "Warning",
+                    "%s is not an empty directory, are you sure you want to save here?." % (f_dir,),
+                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                    if f_answer == QtGui.QMessageBox.No:
+                        continue
                 f_sample_str = self.copySamplesToSingleDirectory(f_dir)
                 f_plugin_file = pydaw_plugin_file.from_dict(self.port_dict, {})
                 f_result_str = f_sample_str + str(f_plugin_file)
