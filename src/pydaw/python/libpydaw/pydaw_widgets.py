@@ -3054,6 +3054,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_item.setText(f_new_file_path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
                     self.sample_table.setItem(f_index, SMP_TB_FILE_PATH_INDEX, f_item)
+                    f_path_sections = f_new_file_path.split(("/"))
+                    self.set_selected_sample_combobox_item(f_index, f_path_sections[-1])
                 else:
                     f_port = int(f_line_arr[0])
                     f_value = int(f_line_arr[1])
