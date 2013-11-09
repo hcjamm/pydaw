@@ -24,7 +24,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/interpolate-linear.h"
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 
-#define EUPHORIA_POLYPHONY 24
+#define EUPHORIA_POLYPHONY 20
 #define EUPHORIA_FRAMES_MAX 16777216
 //Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
 #define EUPHORIA_Sample_Padding 100
