@@ -324,19 +324,21 @@ class sfz_sample:
         self.dict = {}
 
     def set_from_group(self, a_group_list):
-        for f_group in a_group_list:
-            if f_group is not None:
-                for k, v in f_group.dict.items():
-                    if k not in self.dict or v is not None:
-                        self.dict[k] = v
+        """ a_group_list: should be in order of least precedence to
+        most precedence, ie:  values in the last group can overwrite
+        values set by the first group."""
+        for f_group in filter(None, a_group_list):
+            for k, v in f_group.dict.items():
+                if k not in self.dict or v is not None:
+                    self.dict[k] = v
 
     def __str__(self):
         return str(self.dict)
 
 
 class sfz_file:
-    """ Abstracts an .sfz file into a list of dicts that correspond to
-    the attributes of a single sample."""
+    """ Abstracts an .sfz file into a list of sfz_sample whose dicts
+    correspond to the attributes of a single sample."""
     def __init__(self, a_file_path):
         self.path = str(a_file_path)
         if not os.path.exists(self.path):
@@ -364,7 +366,7 @@ class sfz_file:
                         f_value = f_line_arr[f_i]
                     else:
                         f_value = f_line_arr[f_i].strip().rsplit(" ", 1)[0]
-                    f_file_text_new += "\n%s=%s" % (f_opcode, f_value)
+                    f_file_text_new += "\n%s=%s\n" % (f_opcode, f_value)
             else:
                 f_file_text_new += "%s\n" % (f_line,)
 
@@ -376,10 +378,11 @@ class sfz_file:
         f_current_region = None
         f_current_object = None
 
-
         f_extended_comment = False
 
         self.samples = []
+        f_samples_list = []
+
         f_current_mode = None #None = unsupported, 0 = global, 1 = region, 2 = group
 
         for f_line in f_file_text.split("\n"):
@@ -405,7 +408,7 @@ class sfz_file:
                     f_current_mode = 1
                     f_current_region = sfz_sample()
                     f_current_object = f_current_region
-                    self.samples.append(f_current_region)
+                    f_samples_list.append(f_current_region)
                 elif f_line.startswith("<group>"):
                     f_current_mode = 2
                     f_current_group = sfz_sample()
@@ -417,13 +420,18 @@ class sfz_file:
                     continue
                 try:
                     f_key, f_value = f_line.split("=")
-                except:
+                except Exception as ex:
                     print("ERROR:  %s" % (f_line,))
-                    continue
-                f_current_object.dict[f_key] = f_value
+                    raise sfz_exception("Error parsing key/value pair\n%s\n%s" % (f_line, ex))
+                if f_key.lower() == "sample" and not f_value.lower().strip().endswith(".wav"):
+                    raise sfz_exception("%s not supported, only .wav supported." % (f_value,))
+                f_current_object.dict[f_key.lower()] = f_value
                 if f_current_mode == 1:
                     f_current_object.set_from_group([f_global_settings, f_current_group,])
 
+        for f_region in f_samples_list:
+            if "sample" in f_region.dict:
+                self.samples.append(f_region)
 
     def __str__(self):
         #return self.adjusted_file_text
@@ -431,4 +439,42 @@ class sfz_file:
         for f_sample in self.samples:
             f_result += "\n\n%s\n\n" % (f_sample,)
         return f_result
+
+
+# TODO:  Remove this once SFZ support is finished
+# also note:  These tests of random .sfz files from the internet only works on
+# my PC unless you happen to have the same SFZ folder :)
+if __name__ == "__main__":
+    f_home = "%s/Desktop/sfz_test/" % (os.path.expanduser("~"),)
+    f_sfz_list  =  ("%ssolo_cello_sfz/solo_cello_Alchemy.sfz",
+                    "%ssolo_cello_sfz/solo_cello_Rapture_Dimension.sfz",
+                    "%ssolo_cello_sfz/solo_cello_sforzando.sfz",
+                    "%stubed_bass/slow_tubed_bass.sfz",
+                    "%sYamha__rbx_170/finger_bass/finger_bass.sfz",
+                    "%sYamha__rbx_170/picked_bass/picked_bass.sfz",
+                    "%sPOORMAN_ROCK_KIT Samples/poorman_rock_kit.sfz",
+                    "%ssolo_cello_sfz/solo_cello_sforzando.sfz",
+                    "%ssolo_cello_sfz/solo_cello_Rapture_Dimension.sfz",
+                    "%ssolo_cello_sfz/solo_cello_Alchemy.sfz",
+                    "%sWaveformlessDXDirtyBass/DX_Dirty_Bass.sfz",
+                    "%sPWMBass_KRM/PWMBass_KRM.sfz",
+                    "%stubed_bass/slow_tubed_bass.sfz",
+                    "%sGSCW-DrumKit-2.sfz",
+                    "%ssq-synpiano/sq-synpiano.sfz",
+                    "%sTubeLately_sfz/TubeLately.sfz",
+                    "%sjunoseqbass01/junoseqbass01.sfz",
+                    "%srungpiano/rungpiano.sfz",
+                    "%sjunohollowpad/junohollowpad.sfz",
+                    "%sGSCW-DrumKit-1.sfz",
+                    "%sguitar_steel_chords/EpiphoneSteelChords.sfz",
+                    "%sAnalogueBass2/AnalogueBass2.sfz",
+                    "%sCymbals-Performance.sfz")
+
+    for f_sfz in f_sfz_list:
+        f_sfz_path = f_sfz % (f_home,)
+        f_instance = sfz_file(f_sfz_path)
+        #print(str(f_instance))
+        #sfz_file(f_sfz)
+        print("\n^^^^%s\nlength: %s\n" % (f_sfz_path, len(f_instance.samples)))
+
 

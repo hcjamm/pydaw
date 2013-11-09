@@ -2208,7 +2208,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_vel_sens = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             0, 20, 10, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 6, f_vel_sens.control)
-            self.sample_vols.append(f_vel_sens)
+            self.sample_vel_sens.append(f_vel_sens)
 
         self.sample_low_vels = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN
@@ -2216,7 +2216,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_vel_low = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             0, 127, 0, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 7, f_vel_low.control)
-            self.sample_vols.append(f_vel_low)
+            self.sample_low_vels.append(f_vel_low)
 
         self.sample_high_vels = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN
@@ -2224,7 +2224,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_vel_high = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             0, 127, 127, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 8, f_vel_high.control)
-            self.sample_vols.append(f_vel_high)
+            self.sample_high_vels.append(f_vel_high)
 
         self.sample_pitches = []
         f_port_start = pydaw_ports.EUPHORIA_PITCH_PORT_RANGE_MIN
@@ -2232,7 +2232,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_sample_pitch = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             -36, 36, 0, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 9, f_sample_pitch.control)
-            self.sample_vols.append(f_sample_pitch)
+            self.sample_pitches.append(f_sample_pitch)
 
         self.sample_tunes = []
         f_port_start = pydaw_ports.EUPHORIA_TUNE_PORT_RANGE_MIN
@@ -2240,7 +2240,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_sample_tune = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             -100, 100, 0, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 10, f_sample_tune.control)
-            self.sample_vols.append(f_sample_tune)
+            self.sample_tunes.append(f_sample_tune)
 
         self.sample_modes = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN
@@ -2248,7 +2248,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_sample_mode = pydaw_combobox_control(120, None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             f_interpolation_modes, self.port_dict, 1)
             self.sample_table.setCellWidget(f_i, 11, f_sample_mode.control)
-            self.sample_vols.append(f_sample_mode)
+            self.sample_modes.append(f_sample_mode)
 
         self.noise_types = []
         f_port_start = pydaw_ports.EUPHORIA_NOISE_TYPE_MIN
@@ -2265,8 +2265,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             -60, 0, -30, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 13, f_noise_amp.control)
             self.noise_amps.append(f_noise_amp)
-
-
 
         self.sample_starts = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_START_PORT_RANGE_MIN
@@ -2431,6 +2429,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         actionMapToWhiteKeys =  QtGui.QAction("Map All Samples to 1 White Key", self.widget)
         actionMapToMonoFX =  QtGui.QAction("Map All Samples to Own MonoFX Group", self.widget)
         actionClearAllSamples =  QtGui.QAction("Clear All Samples", self.widget)
+        actionImportSfz =  QtGui.QAction("Import SFZ", self.widget)
+
         menubar =  QtGui.QMenuBar(self.widget)
         menuFile =  QtGui.QMenu("Menu", menubar)
         menubar.addAction(menuFile.menuAction())
@@ -2439,12 +2439,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         menuFile.addAction(actionMapToWhiteKeys)
         menuFile.addAction(actionMapToMonoFX)
         menuFile.addAction(actionClearAllSamples)
+        menuFile.addAction(actionImportSfz)
 
         actionSave_instrument_to_file.triggered.connect(self.saveToFile)
         actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
         actionMapToWhiteKeys.triggered.connect(self.mapAllSamplesToOneWhiteKey)
         actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
         actionClearAllSamples.triggered.connect(self.clearAllSamples)
+        actionImportSfz.triggered.connect(self.sfz_dialog)
 
         self.widget.resize(1200, 680)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
@@ -3037,14 +3039,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 return
             f_dir = os.path.dirname(f_selected_path)
             f_file_str = pydaw_util.pydaw_read_file_text(f_selected_path)
-            #clear the existing samples
-            for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-                f_item =  QtGui.QTableWidgetItem()
-                f_item.setText("")
-                f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-                self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item)
-            self.generate_files_string()
-            self.configure_plugin("load", self.files_string)
+            self.clearAllSamples()
 
             for f_line in f_file_str.split("\n"):
                 f_line_arr = f_line.split("|", 2)
@@ -3067,3 +3062,173 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.configure_plugin("load", self.files_string)
             self.sample_table.resizeColumnsToContents()
             self.selectionChanged()
+
+    def sfz_dialog(self):
+        def on_file_open(a_val=None):
+            f_selected_path = QtGui.QFileDialog.getOpenFileName(self.widget,
+            "Import SFZ instrument...", pydaw_util.global_home,
+            filter="SFZ file (*.sfz)")
+            if f_selected_path is not None:
+                f_selected_path = str(f_selected_path)
+                if f_selected_path == "":
+                    return
+                try:
+                    pydaw_util.sfz_file(f_selected_path)  #Ensuring that it does not raise an exception
+                    f_file_lineedit.setText(f_selected_path)
+                except Exception as ex:
+                    QtGui.QMessageBox.warning(self.widget, "Error",
+                          "Error importing %s\n%s" % (f_selected_path, ex))
+                    return
+
+        def on_ok(a_val=None):
+            f_text = str(f_file_lineedit.text())
+            if f_text != "":
+                for f_path in self.import_sfz(f_text):
+                    f_status_label.setText("Loading %s" % (f_path,))
+                    QtGui.qApp.processEvents()
+                f_window.close()
+
+        def on_cancel(a_val=None):
+            f_window.close()
+
+        f_window = QtGui.QDialog(self.widget)
+        f_window.setWindowTitle("Import SFZ")
+        f_window.setFixedSize(600, 120)
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_hlayout0 = QtGui.QHBoxLayout()
+        f_file_lineedit = QtGui.QLineEdit()
+        f_hlayout0.addWidget(f_file_lineedit)
+        f_open_file_button = QtGui.QPushButton("Open")
+        f_open_file_button.pressed.connect(on_file_open)
+        f_hlayout0.addWidget(f_open_file_button)
+        f_layout.addLayout(f_hlayout0)
+        f_hlayout1 = QtGui.QHBoxLayout()
+        f_layout.addItem(QtGui.QSpacerItem(10, 10, vPolicy=QtGui.QSizePolicy.Expanding))
+        f_layout.addLayout(f_hlayout1)
+        f_status_label = QtGui.QLabel()
+        f_hlayout1.addWidget(f_status_label)
+        f_hlayout2 = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout2)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button.pressed.connect(on_ok)
+        f_hlayout2.addWidget(f_ok_button)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button.pressed.connect(on_cancel)
+        f_hlayout2.addWidget(f_cancel_button)
+        f_window.exec_()
+
+    def import_sfz(self, a_sfz_path):
+        #try:
+            f_sfz_path = str(a_sfz_path)
+            f_sfz = pydaw_util.sfz_file(f_sfz_path)
+            f_sfz_dir = os.path.dirname(f_sfz_path)
+            self.clearAllSamples()
+
+            for f_index, f_sample in zip(range(len(f_sfz.samples)), f_sfz.samples):
+                if f_index >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT:
+                    QtGui.QMessageBox.warning(self.widget, "Error",
+                    "Sample count %s exceeds maximum of %s, not loading all samples" % \
+                    (len(f_sfz.samples), pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT))
+                    return
+                if "sample" in f_sample.dict:
+                    f_new_file_path = "%s/%s" % (f_sfz_dir, f_sample.dict["sample"])
+                    yield f_new_file_path
+                    #self.selected_radiobuttons[f_index].setChecked(True)
+                    #self.load_files([f_new_file_path])
+
+                    f_item =  QtGui.QTableWidgetItem()
+                    f_item.setText(f_new_file_path)
+                    f_item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    self.sample_table.setItem(f_index, SMP_TB_FILE_PATH_INDEX, f_item)
+                    f_path_sections = f_new_file_path.split(("/"))
+                    self.set_selected_sample_combobox_item(f_index, f_path_sections[-1])
+
+                    f_graph = self.pydaw_project.get_sample_graph_by_name(f_new_file_path)
+                    f_frame_count = float(f_graph.frame_count)
+
+                    if "key" in f_sample.dict:
+                        f_val = int(float(f_sample.dict["key"]))
+                        self.sample_base_pitches[f_index].set_value(f_val)
+                        self.sample_base_pitches[f_index].control_value_changed(f_val)
+                        self.sample_high_notes[f_index].set_value(f_val)
+                        self.sample_high_notes[f_index].control_value_changed(f_val)
+                        self.sample_low_notes[f_index].set_value(f_val)
+                        self.sample_low_notes[f_index].control_value_changed(f_val)
+
+                    if "pitch_keycenter" in f_sample.dict:
+                        f_val = int(float(f_sample.dict["pitch_keycenter"]))
+                        self.sample_base_pitches[f_index].set_value(f_val)
+                        self.sample_base_pitches[f_index].control_value_changed(f_val)
+
+                    if "lokey" in f_sample.dict:
+                        f_val = int(float(f_sample.dict["lokey"]))
+                        self.sample_low_notes[f_index].set_value(f_val)
+                        self.sample_low_notes[f_index].control_value_changed(f_val)
+
+                    if "hikey" in f_sample.dict:
+                        f_val = int(float(f_sample.dict["hikey"]))
+                        self.sample_high_notes[f_index].set_value(f_val)
+                        self.sample_high_notes[f_index].control_value_changed(f_val)
+
+                    if "offset" in f_sample.dict:
+                        f_val = (float(f_sample.dict["offset"]) / f_frame_count) * 1000.0
+                        f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 998.0)
+                        self.sample_starts[f_index].set_value(f_val)
+                    else:
+                        self.sample_starts[f_index].set_value(0.0)
+
+                    self.sample_starts[f_index].control_value_changed(self.sample_starts[f_index].get_value())
+
+                    if "end" in f_sample.dict:
+                        f_val = (float(f_sample.dict["end"]) / f_frame_count) * 1000.0
+                        f_val = pydaw_util.pydaw_clip_value(f_val, 1.0, 999.0)
+                        self.sample_ends[f_index].set_value(f_val)
+                    else:
+                        self.sample_ends[f_index].set_value(999.0)
+
+                    self.sample_ends[f_index].control_value_changed(self.sample_starts[f_index].get_value())
+
+                    if "loop_mode" in f_sample.dict:
+                        if f_sample.dict["loop_mode"].strip() == "loop_continuous":
+                            self.loop_modes[f_index].set_value(1)
+                        else:
+                            self.loop_modes[f_index].set_value(0)
+                    else:
+                        self.loop_modes[f_index].set_value(0)
+
+                    self.loop_modes[f_index].control_value_changed(self.loop_modes[f_index].get_value())
+
+                    if "loop_start" in f_sample.dict:
+                        f_val = (float(f_sample.dict["loop_start"]) / f_frame_count) * 1000.0
+                        f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 1000.0)
+                        self.loop_starts[f_index].set_value(f_val)
+                    else:
+                        self.loop_starts[f_index].set_value(0.0)
+
+                    self.loop_starts[f_index].control_value_changed(self.loop_starts[f_index].get_value())
+
+                    if "loop_end" in f_sample.dict:
+                        f_val = (float(f_sample.dict["loop_end"]) / f_frame_count) * 1000.0
+                        f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 1000.0)
+                        self.loop_ends[f_index].set_value(f_val)
+                    else:
+                        self.loop_ends[f_index].set_value(1000.0)
+
+                    self.loop_ends[f_index].control_value_changed(self.loop_ends[f_index].get_value())
+
+                    if "volume" in f_sample.dict:
+                        f_val = int(float(f_sample.dict["volume"]))
+                        f_val = pydaw_util.pydaw_clip_value(f_val, -40, 12)
+                        self.sample_vols[f_index].set_value(f_val)
+                        self.sample_vols[f_index].control_value_changed(f_val)
+
+            self.generate_files_string()
+            self.configure_plugin("load", self.files_string)
+            self.sample_table.resizeColumnsToContents()
+            self.selectionChanged()
+
+        #except Exception as ex:
+        #    QtGui.QMessageBox.warning(self.widget, "Error",
+        #    "Error parsing %s\n%s" % (a_sfz_path, ex))
+        #    return

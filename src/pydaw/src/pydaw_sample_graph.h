@@ -89,6 +89,12 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     sprintf(f_temp_char, "meta|channels|%i\n", f_adjusted_channel_count);
     strcat(f_result, f_temp_char);
     
+    sprintf(f_temp_char, "meta|frame_count|%i\n", (int)(info.frames));
+    strcat(f_result, f_temp_char);
+    
+    sprintf(f_temp_char, "meta|sample_rate|%i\n", info.samplerate);
+    strcat(f_result, f_temp_char);
+    
     float f_length_seconds = ((float)info.frames)/((float)(info.samplerate));
             
     sprintf(f_temp_char, "meta|length|%f\n", f_length_seconds);

@@ -2108,6 +2108,8 @@ class pydaw_sample_graph:
         self.low_peaks = ([],[])
         self.count = None
         self.length_in_seconds = None
+        self.sample_rate = None
+        self.frame_count = None
 
         if not os.path.isfile(f_file_name):
             return
@@ -2134,6 +2136,10 @@ class pydaw_sample_graph:
                     self.count = int(f_line_arr[2])
                 elif f_line_arr[1] == "length":
                     self.length_in_seconds = float(f_line_arr[2])
+                elif f_line_arr[1] == "frame_count":
+                    self.frame_count = int(f_line_arr[2])
+                elif f_line_arr[1] == "sample_rate":
+                    self.sample_rate = int(f_line_arr[2])
             elif f_line_arr[0] == "p":
                 f_p_val = float(f_line_arr[3])
                 if f_p_val > 1.0:
@@ -2151,16 +2157,19 @@ class pydaw_sample_graph:
 
     def is_valid(self):
         if (self.file is None):
-            print(("\n\npydaw_sample_graph.is_valid() self.file is None " + str(self.file) + "\n"))
+            print("\n\npydaw_sample_graph.is_valid() self.file is None %s\n" % (self.file,))
             return False
         if self.timestamp is None:
-            print(("\n\npydaw_sample_graph.is_valid() self.timestamp is None " + str(self.file) + "\n"))
+            print("\n\npydaw_sample_graph.is_valid() self.timestamp is None %s\n" % (self.file,))
             return False
         if self.channels is None:
-            print(("\n\npydaw_sample_graph.is_valid() self.channels is None " + str(self.file) + "\n"))
+            print("\n\npydaw_sample_graph.is_valid() self.channels is None %s\n" % (self.file,))
             return False
-        if self.count is None:
-            print(("\n\npydaw_sample_graph.is_valid() self.count is None " + str(self.file) + "\n"))
+        if self.frame_count is None:
+            print("\n\npydaw_sample_graph.is_valid() self.frame_count is None %s\n" % (self.file,))
+            return False
+        if self.sample_rate is None:
+            print("\n\npydaw_sample_graph.is_valid() self.sample_rate is None %s\n" % (self.file,))
             return False
         return True
 

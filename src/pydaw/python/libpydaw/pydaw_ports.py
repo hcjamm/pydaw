@@ -13,10 +13,9 @@ GNU General Public License for more details.
 """
 
 #Euphoria
-EUPHORIA_FILES_STRING_DELIMITER = '|' #'|'
-EUPHORIA_MAX_SAMPLE_COUNT = 32
-#+1 to LMS_MAX_SAMPLE_COUNT, the highest index is for the preview sample
-EUPHORIA_TOTAL_SAMPLE_COUNT = 33
+EUPHORIA_FILES_STRING_DELIMITER = '|'
+EUPHORIA_MAX_SAMPLE_COUNT = 64
+
 #Total number of LFOs, ADSRs, other envelopes, etc... Used for the PolyFX mod matrix
 EUPHORIA_MODULATOR_COUNT = 4
 #How many modular PolyFX
