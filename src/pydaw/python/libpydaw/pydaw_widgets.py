@@ -3136,9 +3136,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 if "sample" in f_sample.dict:
                     f_sample_file = f_sample.dict["sample"].replace("\\", "/")
                     f_new_file_path = "%s/%s" % (f_sfz_dir, f_sample_file)
+                    f_new_file_path = pydaw_util.case_insensitive_path(f_new_file_path)
+                    f_new_file_path = f_new_file_path.replace("//", "/")
+
                     yield f_new_file_path
-                    #self.selected_radiobuttons[f_index].setChecked(True)
-                    #self.load_files([f_new_file_path])
 
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(f_new_file_path)

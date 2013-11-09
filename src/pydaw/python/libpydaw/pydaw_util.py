@@ -68,6 +68,30 @@ def pydaw_str_has_bad_chars(a_str):
             return False
     return True
 
+def case_insensitive_path(a_path):
+    f_path = os.path.abspath(str(a_path))
+    if os.path.exists(f_path):
+        return a_path
+    else:
+        f_path_arr = f_path.split("/")
+        f_path = ""
+        for f_dir in f_path_arr:
+            if os.path.exists("%s/%s" % (f_path, f_dir)):
+                f_path = "%s/%s" % (f_path, f_dir)
+            else:
+                f_found = False
+                for f_real_dir in os.listdir(f_path):
+                    if f_dir.lower() == f_real_dir.lower():
+                        f_found = True
+                        f_path = "%s/%s" % (f_path, f_real_dir)
+                        break
+                if not f_found:
+                    assert(False)
+        print(f_path)
+        return f_path
+
+
+
 beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2', '1/1']
 
 def beat_frac_text_to_float(f_index):
