@@ -17,13 +17,9 @@ GNU General Public License for more details.
 //Delimits the file string sent with configure().  Also used in the file saving format
 #define EUPHORIA_FILES_STRING_DELIMITER '|'
 //When used in place of "|", it tells the sampler to load the sample even if it's already been loaded once.
-#define EUPHORIA_FILES_STRING_RELOAD_DELIMITER '>'
-/* defines used for the file saving format */
-
-#define EUPHORIA_FILE_PORT_VALUE_SEPARATOR ":"
 
 /*Provide an arbitrary maximum number of samples the user can load*/
-#define EUPHORIA_MAX_SAMPLE_COUNT 128
+#define EUPHORIA_MAX_SAMPLE_COUNT 100
 
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
 #define EUPHORIA_MODULATOR_COUNT 6

@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 #Euphoria
 EUPHORIA_FILES_STRING_DELIMITER = '|'
-EUPHORIA_MAX_SAMPLE_COUNT = 128
+EUPHORIA_MAX_SAMPLE_COUNT = 100
 
 #Total number of LFOs, ADSRs, other envelopes, etc... Used for the PolyFX mod matrix
 EUPHORIA_MODULATOR_COUNT = 4
