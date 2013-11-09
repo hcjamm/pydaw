@@ -58,6 +58,7 @@ typedef struct st_euphoria_mono_modules
     int noise_current_index;
     
     fp_noise_func_ptr noise_func_ptr[EUPHORIA_MAX_SAMPLE_COUNT];
+    int noise_index[EUPHORIA_MAX_SAMPLE_COUNT];
     float noise_linamp[EUPHORIA_MAX_SAMPLE_COUNT];
 }t_euphoria_mono_modules __attribute__((aligned(16)));
     

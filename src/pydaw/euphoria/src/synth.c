@@ -760,6 +760,18 @@ static inline void v_euphoria_slow_index(t_euphoria* plugin_data)
             plugin_data->mono_modules->fx_func_ptr[i2][i3] = g_mf3_get_function_pointer((int)(*(plugin_data->mfx_comboboxes[i2][i3])));
         }
     }
+    
+    for(i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)
+    {
+        int f_index = (int)*(plugin_data->noise_type[i]);
+        //Get the noise function pointer
+        plugin_data->mono_modules->noise_func_ptr[i] = fp_get_noise_func_ptr(f_index);
+        
+        if(f_index > 0)
+        {
+            plugin_data->mono_modules->noise_linamp[i] = f_db_to_linear_fast(*(plugin_data->noise_amp[i]), plugin_data->mono_modules->amp_ptr);
+        }
+    }
 }
 
 static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
@@ -985,21 +997,13 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                         }
                     }
                 }
-                
-                for(i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)
+
+                plugin_data->data[f_voice_num]->noise_index = (plugin_data->mono_modules->noise_current_index);
+                plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
+
+                if((plugin_data->mono_modules->noise_current_index) >= EUPHORIA_NOISE_COUNT)
                 {
-                    //Get the noise function pointer
-                    plugin_data->mono_modules->noise_func_ptr[i] = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type[i])));
-
-                    plugin_data->data[f_voice_num]->noise_index = (plugin_data->mono_modules->noise_current_index);
-                    plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
-
-                    if((plugin_data->mono_modules->noise_current_index) >= EUPHORIA_NOISE_COUNT)
-                    {
-                        plugin_data->mono_modules->noise_current_index = 0;
-                    }
-           
-                    plugin_data->mono_modules->noise_linamp[i] = f_db_to_linear_fast(*(plugin_data->noise_amp[i]), plugin_data->mono_modules->amp_ptr);
+                    plugin_data->mono_modules->noise_current_index = 0;
                 }
                 
                 plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
