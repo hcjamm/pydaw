@@ -137,49 +137,49 @@ def pydaw_set_tooltips_enabled(a_enabled):
     global_tooltips_enabled = a_enabled
     if a_enabled:
         pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "True")
-        this_song_editor.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of regions,\n" + \
-        "click here to add a region, click and drag to move a region, or press the 'delete' button to delete\n" + \
-        "the selected regions.  Click on a region to edit it in the region editor below." + \
+        this_song_editor.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of regions,\n"
+        "click here to add a region, click and drag to move a region, or press the 'delete' button to delete\n"
+        "the selected regions.  Click on a region to edit it in the region editor below."
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
         for f_region_editor in global_region_editors:
-            f_region_editor.table_widget.setToolTip("This is a region editor, it consists of items and tracks.\n" + \
-            "A track is either a plugin instrument, audio track or bus track.\n" + \
-            "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n" + \
-            "Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'\n\n" + \
-            "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted with CTRL+V, and deleted by pressing 'Delete'\n\n" + \
-            "Additional functions can be found by right-clicking on the items, the term 'unlink' means to create a new copy of the item that\n" + \
-            "does not change it's parent item when edited (by default all items are 'ghost items' that update all items with the same name)\n\n" + \
+            f_region_editor.table_widget.setToolTip("This is a region editor, it consists of items and tracks.\n"
+            "A track is either a plugin instrument, audio track or bus track.\n"
+            "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n"
+            "Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'\n\n"
+            "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted with CTRL+V, and deleted by pressing 'Delete'\n\n"
+            "Additional functions can be found by right-clicking on the items, the term 'unlink' means to create a new copy of the item that\n"
+            "does not change it's parent item when edited (by default all items are 'ghost items' that update all items with the same name)\n\n"
             "Click the 'tooltips' checkbox in the transport to disable these tooltips")
-        this_audio_items_viewer.setToolTip("Drag .wav files from the file browser onto here.  You can edit item properties with the\n" + \
-        "'Edit' tab to the left, or by clicking and dragging the item handles." + \
+        this_audio_items_viewer.setToolTip("Drag .wav files from the file browser onto here.  You can edit item properties with the\n"
+        "'Edit' tab to the left, or by clicking and dragging the item handles."
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
         this_audio_items_viewer_widget.hsplitter.setToolTip("Use this handle to expand or collapse the file browser.")
-        this_audio_items_viewer_widget.folders_widget.setToolTip("Use this tab to browse your folders and files.\n" + \
-        "Drag and drop one file at a time onto the sequencer.\n.wav files are the only supported audio file format.\n" + \
-        "Click the 'Bookmark' button to save the current folder to your bookmarks located on the 'Bookmarks' tab." + \
+        this_audio_items_viewer_widget.folders_widget.setToolTip("Use this tab to browse your folders and files.\n"
+        "Drag and drop one file at a time onto the sequencer.\n.wav files are the only supported audio file format.\n"
+        "Click the 'Bookmark' button to save the current folder to your bookmarks located on the 'Bookmarks' tab."
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
-        this_audio_items_viewer_widget.modulex.widget.setToolTip("This tab allows you to set effects per-item.\n" + \
+        this_audio_items_viewer_widget.modulex.widget.setToolTip("This tab allows you to set effects per-item.\n"
         "The tab is only enabled when you have exactly one item selected, the copy and paste buttons allow you to copy settings between multipe items.")
         this_main_window.transport_splitter.setToolTip("Use this handle to expand or collapse the transport.")
         this_main_window.song_region_splitter.setToolTip("Use this handle to expand or collapse the song editor and region info.")
-        this_piano_roll_editor.setToolTip("Click+drag to draw notes\nCTRL+click+drag to marquee select multiple items\n" + \
-        "Press the Del button to delete selected notes\nTo edit velocity, use the velocity button\n" + \
-        "Double-click to edit note properties\nClick and drag the note end to change length\nShift+click to delete a note\n" + \
-        "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'\n" + \
-        "The Quantize, Transpose and Velocity buttons open dialogs to manipulate the selected notes (or all notes if none are selected)" + \
+        this_piano_roll_editor.setToolTip("Click+drag to draw notes\nCTRL+click+drag to marquee select multiple items\n"
+        "Press the Del button to delete selected notes\nTo edit velocity, use the velocity button\n"
+        "Double-click to edit note properties\nClick and drag the note end to change length\nShift+click to delete a note\n"
+        "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'\n"
+        "The Quantize, Transpose and Velocity buttons open dialogs to manipulate the selected notes (or all notes if none are selected)"
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
-        this_transport.group_box.setToolTip("This is the transport, use this control to start/stop playback or recording.\n" + \
-        "IMPORTANT:  The MIDI controller dropdown that used to be here is now in the File->HardwareSettings menu\n" + \
-        "The 'Loop Mode' combobox can be used to change the loop mode to region or bar.\n" + \
-        "The 'Follow' checkbox causes playback to UI change the current song/region to follow playback.\n" + \
-        "The 'Overdub' checkbox causes recorded MIDI notes to be appended to existing items, rather than placed in new items that replace the existing items.\n" + \
-        "The 'Scope' button launches an oscilloscope attached to the master outputs.\n" + \
-        "You can start or stop playback by pressing spacebar\n" + \
-        "The '!' (panic) button sends a note-off event on every note to every plugin.  Use this when you get a stuck note." + \
+        this_transport.group_box.setToolTip("This is the transport, use this control to start/stop playback or recording.\n"
+        "IMPORTANT:  The MIDI controller dropdown that used to be here is now in the File->HardwareSettings menu\n"
+        "The 'Loop Mode' combobox can be used to change the loop mode to region or bar.\n"
+        "The 'Follow' checkbox causes playback to UI change the current song/region to follow playback.\n"
+        "The 'Overdub' checkbox causes recorded MIDI notes to be appended to existing items, rather than placed in new items that replace the existing items.\n"
+        "The 'Scope' button launches an oscilloscope attached to the master outputs.\n"
+        "You can start or stop playback by pressing spacebar\n"
+        "The '!' (panic) button sends a note-off event on every note to every plugin.  Use this when you get a stuck note."
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
-        this_main_window.cc_map_tab.setToolTip("Use this tab to create CC maps for your MIDI controller to PyDAW's built-in plugins\n" + \
+        this_main_window.cc_map_tab.setToolTip("Use this tab to create CC maps for your MIDI controller to PyDAW's built-in plugins\n"
         "Each CC routes to a different control for each instrument, or if the CC is 'Effects Only', it routes only to Modulex")
-        this_ab_widget.widget.setToolTip("This tab allows you to A/B your track against a .wav file.\n" + \
+        this_ab_widget.widget.setToolTip("This tab allows you to A/B your track against a .wav file.\n"
         "Click the 'Open' button to open the .wav file, then click the 'Enabled?' checkbox to disable normal audio and enable the A/B track")
         this_audio_item_editor_widget.set_tooltips(True)
         this_audio_items_viewer.set_tooltips(True)
