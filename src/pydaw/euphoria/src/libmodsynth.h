@@ -91,7 +91,7 @@ typedef struct st_euphoria_poly_voice
     
     int i_voice;  //for the runVoice function to iterate the current block
     
-    t_mf3_multi * multieffect[EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MAX_SAMPLE_COUNT];
+    t_mf3_multi * multieffect[EUPHORIA_MODULAR_POLYFX_COUNT];
     fp_mf3_run fx_func_ptr[EUPHORIA_MODULAR_POLYFX_COUNT];
         
     float modulex_current_sample[2];    
@@ -157,13 +157,8 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
     //From Modulex
     
     for(f_i = 0; f_i < EUPHORIA_MODULAR_POLYFX_COUNT; f_i++)
-    {
-        int f_i2;
-        for(f_i2 = 0; f_i2 < EUPHORIA_MAX_SAMPLE_COUNT; f_i2++)
-        {
-            f_voice->multieffect[f_i][f_i2] = g_mf3_get(a_sr);    
-        }
-        
+    {        
+        f_voice->multieffect[f_i] = g_mf3_get(a_sr);
         f_voice->fx_func_ptr[f_i] = v_mf3_run_off;
     }
     

@@ -626,6 +626,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
 
     plugin_data->sample[0] = 0.0f;
     plugin_data->sample[1] = 0.0f;
+    plugin_data->data[n]->modulex_current_sample[0] = 0.0f;
+    plugin_data->data[n]->modulex_current_sample[1] = 0.0f;
 
     plugin_data->i_loaded_samples = 0;
 
@@ -676,46 +678,51 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
 
             plugin_data->sample[ch] = (plugin_data->sample[ch]) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
 
-            plugin_data->data[n]->modulex_current_sample[ch] = (plugin_data->sample[ch]);
+            plugin_data->data[n]->modulex_current_sample[ch] += (plugin_data->sample[ch]);
 
 
             if((plugin_data->wavpool_items[(plugin_data->current_sample)]->channels) == 1)
             {
-                plugin_data->data[n]->modulex_current_sample[1] = plugin_data->sample[0];
+                plugin_data->data[n]->modulex_current_sample[1] += plugin_data->sample[0];
                 break;
             }
         }
-
-        //Modular PolyFX, processed from the index created during note_on
-        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
-        {            
-            v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][(plugin_data->current_sample)],
-                *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][2])); 
-
-            int f_mod_test;
-
-            for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]); f_mod_test++)
-            {
-                v_mf3_mod_single(
-                        plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][(plugin_data->current_sample)],                    
-                        *(plugin_data->data[n]->modulator_outputs[(plugin_data->polyfx_mod_src_index[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])]),
-                        (plugin_data->polyfx_mod_matrix_values[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test]),
-                        (plugin_data->polyfx_mod_ctrl_indexes[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])
-                        );
-            }
-
-            plugin_data->data[n]->fx_func_ptr[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])](plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][(plugin_data->current_sample)], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
-
-            plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][(plugin_data->current_sample)]->output0;
-            plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][(plugin_data->current_sample)]->output1;
-
-        }
-
-        plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0][i] += (plugin_data->data[n]->modulex_current_sample[0]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp);
-        plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1][i] += (plugin_data->data[n]->modulex_current_sample[1]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp);
-
+    
         plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;            
     }
+    
+    //Modular PolyFX, processed from the index created during note_on
+    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+    {            
+        v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],
+            *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][0]), 
+                *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][1]), 
+                *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][2])); 
+
+        int f_mod_test;
+
+        for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]); f_mod_test++)
+        {
+            v_mf3_mod_single(
+                    plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],
+                    *(plugin_data->data[n]->modulator_outputs[(plugin_data->polyfx_mod_src_index[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])]),
+                    (plugin_data->polyfx_mod_matrix_values[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test]),
+                    (plugin_data->polyfx_mod_ctrl_indexes[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])
+                    );
+        }
+
+        plugin_data->data[n]->fx_func_ptr[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])](
+                plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])], 
+                (plugin_data->data[n]->modulex_current_sample[0]), 
+                (plugin_data->data[n]->modulex_current_sample[1])); 
+
+        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output0;
+        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output1;
+    }
+    
+    plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0][i] += (plugin_data->data[n]->modulex_current_sample[0]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp);
+    plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1][i] += (plugin_data->data[n]->modulex_current_sample[1]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp);
+
 
 }
 
