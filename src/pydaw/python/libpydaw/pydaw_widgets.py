@@ -2220,7 +2220,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_vel_low = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
-            0, 127, 0, kc_none, self.port_dict)
+            1, 127, 1, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 7, f_vel_low.control)
             self.sample_low_vels.append(f_vel_low)
 
@@ -2228,7 +2228,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_vel_high = pydaw_spinbox_control(None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
-            0, 127, 127, kc_none, self.port_dict)
+            1, 128, 128, kc_none, self.port_dict)
             self.sample_table.setCellWidget(f_i, 8, f_vel_high.control)
             self.sample_high_vels.append(f_vel_high)
 

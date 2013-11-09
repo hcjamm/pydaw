@@ -813,10 +813,10 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 //Figure out which samples to play and stash all relevant values
                 for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
                 {
-                    if((f_note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
-                    (f_note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
-                    (plugin_data->velocities[f_voice_num] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
-                    (plugin_data->velocities[f_voice_num] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                    if((f_note >= ((int)(*(plugin_data->low_note[(plugin_data->loaded_samples[i])])))) && 
+                    (f_note <= ((int)(*(plugin_data->high_note[(plugin_data->loaded_samples[i])])))) &&
+                    (plugin_data->velocities[f_voice_num] <= ((int)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])))) &&
+                    (plugin_data->velocities[f_voice_num] >= ((int)(*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))))
                     {
                         plugin_data->sample_indexes[f_voice_num][(plugin_data->sample_indexes_count[f_voice_num])] = (plugin_data->loaded_samples[i]);
                         plugin_data->sample_indexes_count[f_voice_num] = (plugin_data->sample_indexes_count[f_voice_num]) + 1;                            
@@ -1798,7 +1798,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 60.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
+        port_range_hints[f_i].LowerBound = 0;
+        port_range_hints[f_i].UpperBound = 120;            
         f_i++;
     }
 
@@ -1806,7 +1807,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
+        port_range_hints[f_i].LowerBound = 0;
+        port_range_hints[f_i].UpperBound = 120;            
         f_i++;
     }
 
@@ -1814,7 +1816,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 120.0f;
-        port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
+        port_range_hints[f_i].LowerBound = 0;
+        port_range_hints[f_i].UpperBound = 120;            
         f_i++;
     }
 
@@ -1822,7 +1825,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -50; port_range_hints[f_i].UpperBound = 36;            
+        port_range_hints[f_i].LowerBound = -50;
+        port_range_hints[f_i].UpperBound = 36;            
         f_i++;
     }
 
@@ -1848,26 +1852,26 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 10.0f;
-        port_range_hints[f_i].LowerBound = 0; 
-        port_range_hints[f_i].UpperBound = 20;            
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 20.0f;            
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX)
     {
         port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; 
-        port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].DefaultValue = 1.0f;
+        port_range_hints[f_i].LowerBound = 1.0f; 
+        port_range_hints[f_i].UpperBound = 127.0f;            
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX)
     {
         port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 127.0f;
-        port_range_hints[f_i].LowerBound = 0; 
-        port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].DefaultValue = 128.0f;
+        port_range_hints[f_i].LowerBound = 1.0f; 
+        port_range_hints[f_i].UpperBound = 128.0f;            
         f_i++;
     }
 
@@ -1875,8 +1879,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -36; 
-        port_range_hints[f_i].UpperBound = 36;            
+        port_range_hints[f_i].LowerBound = -36.0f; 
+        port_range_hints[f_i].UpperBound = 36.0f;
         f_i++;
     }
 
@@ -1893,8 +1897,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 1.0f;
-        port_range_hints[f_i].LowerBound = 0; 
-        port_range_hints[f_i].UpperBound = 3;            
+        port_range_hints[f_i].LowerBound = 0.0f;
+        port_range_hints[f_i].UpperBound = 3.0f;
         f_i++;
     }
 
@@ -1902,7 +1906,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].LowerBound = 0.0f; 
         port_range_hints[f_i].UpperBound = 1000.0f;
         f_i++;
     }
@@ -1911,7 +1915,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 1000.0f;
-        port_range_hints[f_i].LowerBound = 0; 
+        port_range_hints[f_i].LowerBound = 0.0f; 
         port_range_hints[f_i].UpperBound = 1000.0f;            
         f_i++;
     }
@@ -1920,8 +1924,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;
         port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0; 
-        port_range_hints[f_i].UpperBound = 1;
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 1.0f;
 
         f_i++;
     }
@@ -1930,8 +1934,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     {
         port_descriptors[f_i] = 1;        
         port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0; 
-        port_range_hints[f_i].UpperBound = 127;            
+        port_range_hints[f_i].LowerBound = 0.0f; 
+        port_range_hints[f_i].UpperBound = 127.0f;            
         f_i++;
     }
     
