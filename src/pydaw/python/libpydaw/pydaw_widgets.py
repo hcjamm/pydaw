@@ -270,6 +270,7 @@ class pydaw_spinbox_control(pydaw_abstract_ui_control):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, \
         a_port_dict, a_preset_mgr, a_default_val)
         self.control = QtGui.QSpinBox()
+        self.widget = self.control
         self.control.setRange(a_min_val, a_max_val)
         self.control.setKeyboardTracking(False)
         self.control.valueChanged.connect(self.control_value_changed)
@@ -284,6 +285,7 @@ class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, \
         a_port_dict, a_preset_mgr, a_default_val)
         self.control = QtGui.QDoubleSpinBox()
+        self.widget = self.control
         self.control.setRange(a_min_val, a_max_val)
         self.control.setKeyboardTracking(False)
         self.control.valueChanged.connect(self.control_value_changed)
@@ -297,6 +299,7 @@ class pydaw_checkbox_control(pydaw_abstract_ui_control):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_port_dict=a_port_dict, \
         a_preset_mgr=a_preset_mgr, a_default_value=0)
         self.control = QtGui.QCheckBox(a_label)
+        self.widget = self.control
         self.control.stateChanged.connect(self.control_value_changed)
         self.control.stateChanged.connect(self.control_released)
         self.value_label = None
@@ -330,6 +333,7 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
         self.control = QtGui.QComboBox()
+        self.widget = self.control
         self.control.setMinimumWidth(a_size)
         self.control.addItems(a_items_list)
         self.control.setCurrentIndex(0)
@@ -2142,7 +2146,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.selected_row_index = 0
         self.handle_control_updates = True
         self.suppress_selected_sample_changed = False
-        f_interpolation_modes = [("Pitched") , ("Percussion") , ("No Pitch")]
+        self.interpolation_modes_list = [("Pitched") , ("Percussion") , ("No Pitch")]
         f_sample_table_columns = [
             "", #Selected row
             "Path", #File path
@@ -2159,6 +2163,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             "Noise Type",
             "Noise Amp",
         ]
+
+        self.noise_types_list = [("Off") , ("White") , ("Pink")]
 
         self.selected_sample_port = pydaw_null_control(pydaw_ports.EUPHORIA_SELECTED_SAMPLE, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
 
@@ -2246,7 +2252,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_sample_mode = pydaw_combobox_control(120, None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
-            f_interpolation_modes, self.port_dict, 1)
+            self.interpolation_modes_list, self.port_dict, 1)
             self.sample_table.setCellWidget(f_i, 11, f_sample_mode.control)
             self.sample_modes.append(f_sample_mode)
 
@@ -2254,7 +2260,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_NOISE_TYPE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_noise_type = pydaw_combobox_control(75, None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
-            [("Off") , ("White") , ("Pink")], self.port_dict, 0)
+            self.noise_types_list, self.port_dict, 0)
             self.sample_table.setCellWidget(f_i, 12, f_noise_type.control)
             self.noise_types.append(f_noise_type)
 
@@ -2449,13 +2455,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
 
-        actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
-        actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
-        actionMapToWhiteKeys =  QtGui.QAction("Map All Samples to 1 White Key", self.widget)
-        actionMapToMonoFX =  QtGui.QAction("Map All Samples to Own MonoFX Group", self.widget)
-        actionClearAllSamples =  QtGui.QAction("Clear All Samples", self.widget)
-        actionImportSfz =  QtGui.QAction("Import SFZ", self.widget)
-
         menubar =  QtGui.QPushButton("Menu")
         self.menubar_layout = QtGui.QHBoxLayout()
         self.main_bottom_layout = QtGui.QVBoxLayout()
@@ -2475,6 +2474,25 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
         self.main_bottom_hlayout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
 
+        actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
+        actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
+        actionMapToWhiteKeys =  QtGui.QAction("Map All Samples to 1 White Key", self.widget)
+        actionMapToMonoFX =  QtGui.QAction("Map All Samples to Own MonoFX Group", self.widget)
+        actionClearAllSamples =  QtGui.QAction("Clear All Samples", self.widget)
+        actionImportSfz =  QtGui.QAction("Import SFZ", self.widget)
+
+        actionSetAllHighPitches = QtGui.QAction("High Notes", self.widget)
+        actionSetAllLowPitches = QtGui.QAction("Low Notes", self.widget)
+        actionSetAllVolumes = QtGui.QAction("Volumes", self.widget)
+        actionSetAllVelSens = QtGui.QAction("Velocity Sensitivity", self.widget)
+        actionSetAllHighVels = QtGui.QAction("High Velocities", self.widget)
+        actionSetAllLowVels = QtGui.QAction("Low Velocities", self.widget)
+        actionSetAllPitches = QtGui.QAction("Pitches", self.widget)
+        actionSetAllTunes = QtGui.QAction("Tunes", self.widget)
+        actionSetAllModes = QtGui.QAction("Interpolation Modes", self.widget)
+        actionSetAllNoiseTypes = QtGui.QAction("Noise Types", self.widget)
+        actionSetAllNoiseAmps = QtGui.QAction("Noise Amps", self.widget)
+
         menuFile =  QtGui.QMenu("Menu", menubar)
         menubar.setMenu(menuFile)
         menuFile.addAction(actionSave_instrument_to_file)
@@ -2484,12 +2502,37 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         menuFile.addAction(actionClearAllSamples)
         menuFile.addAction(actionImportSfz)
 
+        menuSetAll = menuFile.addMenu("Set all...")
+        menuSetAll.addAction(actionSetAllHighPitches)
+        menuSetAll.addAction(actionSetAllLowPitches)
+        menuSetAll.addAction(actionSetAllVolumes)
+        menuSetAll.addAction(actionSetAllVelSens)
+        menuSetAll.addAction(actionSetAllHighVels)
+        menuSetAll.addAction(actionSetAllLowVels)
+        menuSetAll.addAction(actionSetAllPitches)
+        menuSetAll.addAction(actionSetAllTunes)
+        menuSetAll.addAction(actionSetAllModes)
+        menuSetAll.addAction(actionSetAllNoiseTypes)
+        menuSetAll.addAction(actionSetAllNoiseAmps)
+
         actionSave_instrument_to_file.triggered.connect(self.saveToFile)
         actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
         actionMapToWhiteKeys.triggered.connect(self.mapAllSamplesToOneWhiteKey)
         actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
         actionClearAllSamples.triggered.connect(self.clearAllSamples)
         actionImportSfz.triggered.connect(self.sfz_dialog)
+
+        actionSetAllHighPitches.triggered.connect(self.set_all_high_notes)
+        actionSetAllLowPitches.triggered.connect(self.set_all_low_notes)
+        actionSetAllVolumes.triggered.connect(self.set_all_volumes)
+        actionSetAllVelSens.triggered.connect(self.set_all_vel_sens)
+        actionSetAllHighVels.triggered.connect(self.set_all_high_vels)
+        actionSetAllLowVels.triggered.connect(self.set_all_low_vels)
+        actionSetAllPitches.triggered.connect(self.set_all_pitches)
+        actionSetAllTunes.triggered.connect(self.set_all_tunes)
+        actionSetAllModes.triggered.connect(self.set_all_interpolation_modes)
+        actionSetAllNoiseTypes.triggered.connect(self.set_all_noise_types)
+        actionSetAllNoiseAmps.triggered.connect(self.set_all_noise_amps)
 
         self.main_tab.addTab(self.sample_tab, "Samples")
         self.poly_fx_tab =  QtGui.QWidget()
@@ -2807,6 +2850,83 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
             print(("Unknown configure message '%s'" % (a_key,)))
+
+    def set_all_base_pitches(self):
+        f_widget = pydaw_note_selector_widget(0, None, None)
+        self.set_all_dialog(f_widget, self.sample_base_pitches, "Set all base pitches")
+
+    def set_all_low_notes(self):
+        f_widget = pydaw_note_selector_widget(0, None, None)
+        self.set_all_dialog(f_widget, self.sample_low_notes, "Set all low notes")
+
+    def set_all_high_notes(self):
+        f_widget = pydaw_note_selector_widget(0, None, None)
+        self.set_all_dialog(f_widget, self.sample_high_notes, "Set all high notes")
+
+    def set_all_volumes(self):
+        f_widget = pydaw_spinbox_control("Low Velocity", 0, None, None, -60, 36, 0)
+        self.set_all_dialog(f_widget, self.sample_vols, "Set all volumes")
+
+    def set_all_vel_sens(self):
+        f_widget = pydaw_spinbox_control("Velocity Sensitivity", 0, None, None, 0, 20, 0)
+        self.set_all_dialog(f_widget, self.sample_vel_sens, "Set all velocity sensitivity")
+
+    def set_all_low_vels(self):
+        f_widget = pydaw_spinbox_control("Low Velocity", 0, None, None, 0, 127, 0)
+        self.set_all_dialog(f_widget, self.sample_low_vels, "Set all low velocities")
+
+    def set_all_high_vels(self):
+        f_widget = pydaw_spinbox_control("High Velocity", 0, None, None, 0, 127, 127)
+        self.set_all_dialog(f_widget, self.sample_high_vels, "Set all high velocities")
+
+    def set_all_pitches(self):
+        f_widget = pydaw_spinbox_control("Pitch", 0, None, None, -36, 36, 0)
+        self.set_all_dialog(f_widget, self.sample_pitches, "Set all sample pitches")
+
+    def set_all_tunes(self):
+        f_widget = pydaw_spinbox_control("Tune", 0, None, None, -100, 100, 0)
+        self.set_all_dialog(f_widget, self.sample_tunes, "Set all sample tunes")
+
+    def set_all_interpolation_modes(self):
+        f_widget = pydaw_combobox_control(120, "Mode", 0, None, None, self.interpolation_modes_list)
+        self.set_all_dialog(f_widget, self.sample_modes, "Set all sample interpolation modes")
+
+    def set_all_noise_types(self):
+        f_widget = pydaw_combobox_control(120, "Noise Type", 0, None, None, self.noise_types_list)
+        self.set_all_dialog(f_widget, self.noise_types, "Set all sample interpolation modes")
+
+    def set_all_noise_amps(self):
+        f_widget = pydaw_spinbox_control("Tune", 0, None, None, -60, 0, -30)
+        self.set_all_dialog(f_widget, self.noise_amps, "Set all noise amps")
+
+    def set_all_dialog(self, a_widget, a_list, a_title):
+        def on_ok(a_val=None):
+            f_val = a_widget.get_value()
+            for f_item in a_list:
+                f_item.set_value(f_val)
+                f_item.control_value_changed(f_val)
+            f_window.close()
+
+        def on_cancel(a_val=None):
+            f_window.close()
+
+        f_window = QtGui.QDialog(self.widget)
+        f_window.setMinimumWidth(300)
+        f_window.setWindowTitle(a_title)
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_hlayout0 = QtGui.QHBoxLayout()
+        f_hlayout0.addWidget(a_widget.widget)
+        f_layout.addLayout(f_hlayout0)
+        f_hlayout2 = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout2)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button.pressed.connect(on_ok)
+        f_hlayout2.addWidget(f_ok_button)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button.pressed.connect(on_cancel)
+        f_hlayout2.addWidget(f_cancel_button)
+        f_window.exec_()
 
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
