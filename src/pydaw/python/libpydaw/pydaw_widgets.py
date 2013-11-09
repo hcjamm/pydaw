@@ -3119,7 +3119,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_window.exec_()
 
     def import_sfz(self, a_sfz_path):
-        #try:
+        try:
             f_sfz_path = str(a_sfz_path)
             f_sfz = pydaw_util.sfz_file(f_sfz_path)
             f_sfz_dir = os.path.dirname(f_sfz_path)
@@ -3223,12 +3223,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         self.sample_vols[f_index].set_value(f_val)
                         self.sample_vols[f_index].control_value_changed(f_val)
 
-            self.generate_files_string()
-            self.configure_plugin("load", self.files_string)
-            self.sample_table.resizeColumnsToContents()
-            self.selectionChanged()
+        except Exception as ex:
+            QtGui.QMessageBox.warning(self.widget, "Error",
+            "Error parsing %s\n%s" % (a_sfz_path, ex))
 
-        #except Exception as ex:
-        #    QtGui.QMessageBox.warning(self.widget, "Error",
-        #    "Error parsing %s\n%s" % (a_sfz_path, ex))
-        #    return
+        self.generate_files_string()
+        self.configure_plugin("load", self.files_string)
+        self.sample_table.resizeColumnsToContents()
+        self.selectionChanged()
+
+
