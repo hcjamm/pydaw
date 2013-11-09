@@ -231,7 +231,7 @@ it's only default for Ubuntu.""")
                 f_window.close()
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s\n\n%s" % (ex,
-                        "This may (or may not) be because the device already open by PyDAW or another application."))
+                        "This may (or may not) be because the device already open by PyDAW or another application such as a DAW, or Jack."))
 
         def on_cancel(a_self=None):
             f_window.close()
