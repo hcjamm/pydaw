@@ -950,7 +950,10 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 {
                     int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
                     plugin_data->data[f_voice_num]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
-
+                    plugin_data->data[f_voice_num]->fx_reset_ptr[(plugin_data->i_dst)] = g_mf3_get_reset_function_pointer(f_pfx_combobox_index); 
+                    
+                    plugin_data->data[f_voice_num]->fx_reset_ptr[(plugin_data->i_dst)](plugin_data->data[f_voice_num]->multieffect[(plugin_data->i_dst)]);
+                    
                     if(f_pfx_combobox_index != 0)
                     {
                         plugin_data->active_polyfx[f_voice_num][(plugin_data->active_polyfx_count[f_voice_num])] = (plugin_data->i_dst);

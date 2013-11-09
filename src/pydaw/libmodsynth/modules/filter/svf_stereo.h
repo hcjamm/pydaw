@@ -81,6 +81,34 @@ inline void v_svf2_run_no_filter(t_svf2_filter*, float, float);
 
 inline void v_svf2_run_2_pole_allpass(t_svf2_filter*, float, float);
 
+inline void v_svf2_reset(t_svf2_filter*);
+
+
+inline void v_svf2_reset(t_svf2_filter * a_svf2)
+{
+    int f_i = 0;
+    while(f_i < SVF_MAX_CASCADE)
+    {
+        a_svf2->filter_kernels[f_i][0]->bp = 0.0f;
+        a_svf2->filter_kernels[f_i][0]->bp_m1 = 0.0f;
+        a_svf2->filter_kernels[f_i][0]->filter_input = 0.0f;
+        a_svf2->filter_kernels[f_i][0]->filter_last_input = 0.0f;
+        a_svf2->filter_kernels[f_i][0]->hp = 0.0f;
+        a_svf2->filter_kernels[f_i][0]->lp = 0.0f;
+        a_svf2->filter_kernels[f_i][0]->lp_m1 = 0.0f;
+        
+        a_svf2->filter_kernels[f_i][1]->bp = 0.0f;
+        a_svf2->filter_kernels[f_i][1]->bp_m1 = 0.0f;
+        a_svf2->filter_kernels[f_i][1]->filter_input = 0.0f;
+        a_svf2->filter_kernels[f_i][1]->filter_last_input = 0.0f;
+        a_svf2->filter_kernels[f_i][1]->hp = 0.0f;
+        a_svf2->filter_kernels[f_i][1]->lp = 0.0f;
+        a_svf2->filter_kernels[f_i][1]->lp_m1 = 0.0f;
+        
+        f_i++;
+    }
+}
+
 void v_svf2_free(t_svf2_filter*);
 
 void v_svf2_free(t_svf2_filter* a_svf2)

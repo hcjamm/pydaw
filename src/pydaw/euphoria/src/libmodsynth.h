@@ -93,6 +93,7 @@ typedef struct st_euphoria_poly_voice
     
     t_mf3_multi * multieffect[EUPHORIA_MODULAR_POLYFX_COUNT];
     fp_mf3_run fx_func_ptr[EUPHORIA_MODULAR_POLYFX_COUNT];
+    fp_mf3_reset fx_reset_ptr[EUPHORIA_MODULAR_POLYFX_COUNT];
         
     float modulex_current_sample[2];    
     

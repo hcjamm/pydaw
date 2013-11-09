@@ -98,7 +98,7 @@ inline void v_mf3_run_lofi(t_mf3_multi*, float, float);
 inline void v_mf3_run_s_and_h(t_mf3_multi*, float, float);
 inline void v_mf3_run_hp_dw(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_dw(t_mf3_multi*,float,float);
-inline void v_mf3_run_lp_monofier(t_mf3_multi*,float,float);
+inline void v_mf3_run_monofier(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_hp(t_mf3_multi*,float,float);
 inline void v_mf3_run_growl_filter(t_mf3_multi*,float,float);
 
@@ -135,10 +135,61 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_run_s_and_h, //20
         v_mf3_run_lp_dw, //21
         v_mf3_run_hp_dw, //22
-        v_mf3_run_lp_monofier, //23
+        v_mf3_run_monofier, //23
         v_mf3_run_lp_hp, //24
         v_mf3_run_growl_filter //25
 };
+
+
+void v_mf3_reset_null(t_mf3_multi*);
+void v_mf3_reset_svf(t_mf3_multi*);
+
+
+/*A function pointer for switching between effect types*/
+typedef void (*fp_mf3_reset)(t_mf3_multi*);
+
+const fp_mf3_reset mf3_reset_function_pointers[MULTIFX3KNOB_MAX_INDEX] = 
+{    
+        v_mf3_reset_null, //0    
+        v_mf3_reset_svf, //1    
+        v_mf3_reset_svf, //2    
+        v_mf3_reset_svf, //3    
+        v_mf3_reset_svf, //4    
+        v_mf3_reset_svf, //5    
+        v_mf3_reset_svf, //6    
+        v_mf3_reset_svf, //7    
+        v_mf3_reset_svf, //8    
+        v_mf3_reset_null, //9    
+        v_mf3_reset_null, //10    
+        v_mf3_reset_null, //11    
+        v_mf3_reset_null, //12    
+        v_mf3_reset_null, //13    
+        v_mf3_reset_null, //14    
+        v_mf3_reset_null, //15    
+        v_mf3_reset_null, //16    
+        v_mf3_reset_null, //17    
+        v_mf3_reset_null, //18    
+        v_mf3_reset_null, //19    
+        v_mf3_reset_null, //20
+        v_mf3_reset_svf, //21
+        v_mf3_reset_svf, //22
+        v_mf3_reset_null, //23
+        v_mf3_reset_svf, //24
+        v_mf3_reset_null //25
+};
+
+
+
+void v_mf3_reset_null(t_mf3_multi* a_mf3)
+{
+    //do nothing
+}
+
+void v_mf3_reset_svf(t_mf3_multi* a_mf3)
+{
+    v_svf2_reset(a_mf3->svf);
+}
+
 
 /* void v_mf3_set(t_fx3_multi* a_mf3, int a_fx_index)  
  */
@@ -146,6 +197,14 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
 {    
     return mf3_function_pointers[a_fx_index];
 }
+
+/* void v_mf3_set(t_fx3_multi* a_mf3, int a_fx_index)  
+ */
+inline fp_mf3_reset g_mf3_get_reset_function_pointer(int a_fx_index)
+{    
+    return mf3_reset_function_pointers[a_fx_index];
+}
+
 
 inline void v_mf3_set(t_mf3_multi*__restrict a_mf3, float a_control0, float a_control1, float a_control2)
 {    
@@ -500,7 +559,7 @@ inline void v_mf3_run_hp_dw(t_mf3_multi*__restrict a_mf3, float a_in0, float a_i
     a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, a_mf3->svf->output1);
 }
 
-inline void v_mf3_run_lp_monofier(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_monofier(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
     
