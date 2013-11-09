@@ -371,13 +371,13 @@ inline void v_mf3_run_dist(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in
     v_mf3_commit_mod(a_mf3);
     a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.283464567f);
     a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016f);
-    a_mf3->control_value[2] = (((a_mf3->control[2]) * 0.094488189f) - 12.0f);
+    a_mf3->control_value[2] = (((a_mf3->control[2]) * 0.236220472f) - 30.0f);
     a_mf3->outgain = f_db_to_linear((a_mf3->control_value[2]), a_mf3->amp_ptr);
     v_clp_set_in_gain(a_mf3->clipper, (a_mf3->control_value[0]));
     v_axf_set_xfade(a_mf3->xfader, (a_mf3->control_value[1]));
     
-    a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in0)));
-    a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in1)));
+    a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, (f_clp_clip(a_mf3->clipper, a_in0))) * (a_mf3->outgain);
+    a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, (f_clp_clip(a_mf3->clipper, a_in1))) * (a_mf3->outgain);
 }
 
 

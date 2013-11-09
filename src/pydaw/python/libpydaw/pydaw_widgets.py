@@ -1322,7 +1322,7 @@ class pydaw_modulex_single:
             self.knobs[1].val_conversion = kc_none
             self.knobs[1].value_label.setText((""))
             self.knobs[2].val_conversion = kc_127_zero_to_x
-            self.knobs[2].set_127_min_max(-12.0, 0.0)
+            self.knobs[2].set_127_min_max(-30.0, 0.0)
         elif a_val == 11: #Comb Filter
             self.knobs[0].name_label.setText(("Cutoff"))
             self.knobs[1].name_label.setText(("Amt"))
