@@ -140,6 +140,27 @@ def note_num_to_string(a_note_num):
     f_octave = (int(a_note_num) // 12) - 2
     return int_to_note_array[f_note] + str(f_octave)
 
+def string_to_note_num(a_str):
+    f_str = str(a_str).lower()
+    if len(f_str) >=2 and len(f_str) < 5 and re.match('[a-g](.*)[0-8]', f_str):
+        f_notes = {'c':0, 'd':2, 'e':4, 'f':5, 'g':7, 'a':9, 'b':11}
+        for k, v in f_notes.items():
+            if f_str.startswith(k):
+                f_str = f_str.replace(k, "", 1)
+                f_sharp_flat = 0
+                if f_str.startswith("#"):
+                    f_sharp_flat = 1
+                    f_str = f_str[1:]
+                elif f_str.startswith("b"):
+                    f_sharp_flat = -1
+                    f_str = f_str[1:]
+                f_result = (int(f_str) * 12) + v + f_sharp_flat
+                assert(f_result >= 0 and f_result <= 127)
+                return f_result
+        return a_str
+    else:
+        return a_str
+
 def bool_to_int(a_bool):
     if a_bool:
         return "1"
@@ -420,6 +441,7 @@ class sfz_file:
                     continue
                 try:
                     f_key, f_value = f_line.split("=")
+                    f_value = string_to_note_num(f_value)
                 except Exception as ex:
                     print("ERROR:  %s" % (f_line,))
                     raise sfz_exception("Error parsing key/value pair\n%s\n%s" % (f_line, ex))
@@ -439,42 +461,3 @@ class sfz_file:
         for f_sample in self.samples:
             f_result += "\n\n%s\n\n" % (f_sample,)
         return f_result
-
-
-# TODO:  Remove this once SFZ support is finished
-# also note:  These tests of random .sfz files from the internet only works on
-# my PC unless you happen to have the same SFZ folder :)
-if __name__ == "__main__":
-    f_home = "%s/Desktop/sfz_test/" % (os.path.expanduser("~"),)
-    f_sfz_list  =  ("%ssolo_cello_sfz/solo_cello_Alchemy.sfz",
-                    "%ssolo_cello_sfz/solo_cello_Rapture_Dimension.sfz",
-                    "%ssolo_cello_sfz/solo_cello_sforzando.sfz",
-                    "%stubed_bass/slow_tubed_bass.sfz",
-                    "%sYamha__rbx_170/finger_bass/finger_bass.sfz",
-                    "%sYamha__rbx_170/picked_bass/picked_bass.sfz",
-                    "%sPOORMAN_ROCK_KIT Samples/poorman_rock_kit.sfz",
-                    "%ssolo_cello_sfz/solo_cello_sforzando.sfz",
-                    "%ssolo_cello_sfz/solo_cello_Rapture_Dimension.sfz",
-                    "%ssolo_cello_sfz/solo_cello_Alchemy.sfz",
-                    "%sWaveformlessDXDirtyBass/DX_Dirty_Bass.sfz",
-                    "%sPWMBass_KRM/PWMBass_KRM.sfz",
-                    "%stubed_bass/slow_tubed_bass.sfz",
-                    "%sGSCW-DrumKit-2.sfz",
-                    "%ssq-synpiano/sq-synpiano.sfz",
-                    "%sTubeLately_sfz/TubeLately.sfz",
-                    "%sjunoseqbass01/junoseqbass01.sfz",
-                    "%srungpiano/rungpiano.sfz",
-                    "%sjunohollowpad/junohollowpad.sfz",
-                    "%sGSCW-DrumKit-1.sfz",
-                    "%sguitar_steel_chords/EpiphoneSteelChords.sfz",
-                    "%sAnalogueBass2/AnalogueBass2.sfz",
-                    "%sCymbals-Performance.sfz")
-
-    for f_sfz in f_sfz_list:
-        f_sfz_path = f_sfz % (f_home,)
-        f_instance = sfz_file(f_sfz_path)
-        #print(str(f_instance))
-        #sfz_file(f_sfz)
-        print("\n^^^^%s\nlength: %s\n" % (f_sfz_path, len(f_instance.samples)))
-
-
