@@ -1463,10 +1463,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\n" +
-            "Shift+click to split items\nCtrl+drag to copy selected items\n" +
-            "You can multi-select individual items by CTRL+Alt clicking on them.\n\n" +
-            "You can glue together multiple items by selecting items and pressing CTRL+G\n" +
+            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\n"
+            "Shift+click to split items\nCtrl+drag to copy selected items\n"
+            "You can multi-select individual items by CTRL+Alt clicking on them.\n\n"
+            "You can glue together multiple items by selecting items and pressing CTRL+G\n"
             ", the glued item will retain all of the fades, stretches and per-item fx of the original items.\n")
             self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
             self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
@@ -2893,28 +2893,28 @@ class audio_item_editor_widget:
 
     def set_tooltips(self, a_on):
         if a_on:
-            f_sbsms_tooltip = "This control is only valid for the SBSMS and %s modes,\n" + \
-            "the start/end values are for the full sample length, not the edited start/end points\n" + \
+            f_sbsms_tooltip = "This control is only valid for the SBSMS and %s modes,\n"
+            "the start/end values are for the full sample length, not the edited start/end points\n"
             "setting the start/end time to different values will cause the timestretch handle to disappear on the audio item."
             self.timestretch_amt_end.setToolTip((f_sbsms_tooltip % ("Time(affecting pitch)",)))
             self.pitch_shift_end.setToolTip((f_sbsms_tooltip % ("Pitch(affecting time)",)))
             self.ok.setToolTip("Changes are not saved until you push this button")
-            self.widget.setToolTip("To edit the properties of one or more audio item(s),\n" + \
-            "click or marquee select items, then change their properties and click 'Save Changes'\n" + \
-            "Only the control section(s) whose checkbox is checked will be updated.\n\n" + \
+            self.widget.setToolTip("To edit the properties of one or more audio item(s),\n"
+            "click or marquee select items, then change their properties and click 'Save Changes'\n"
+            "Only the control section(s) whose checkbox is checked will be updated.\n\n"
             "Click the 'tooltips' checkbox in the transport to disable these tooltips")
             self.crispness_combobox.setToolTip("Affects the sharpness of transients, only for modes using Rubberband")
-            self.timestretch_mode.setToolTip("Modes:\n\nNone:  No stretching or pitch adjustment\n" + \
-            "Pitch affecting time:  Repitch the item, it will become shorter at higher pitches, and longer at lower pitches\n" + \
-            "Time affecting pitch:  Stretch the item to the desired length, it will have lower pitch at longer lengths, and higher pitch at shorter lengths\n" + \
-            "Rubberband:  Adjust pitch and time independently\nRubberband (formants): Same as Rubberband, but preserves formants\n" + \
-            "SBSMS:  Adjust pitch and time independently, also with the ability to set start/end pitch/time differently\n" + \
+            self.timestretch_mode.setToolTip("Modes:\n\nNone:  No stretching or pitch adjustment\n"
+            "Pitch affecting time:  Repitch the item, it will become shorter at higher pitches, and longer at lower pitches\n"
+            "Time affecting pitch:  Stretch the item to the desired length, it will have lower pitch at longer lengths, and higher pitch at shorter lengths\n"
+            "Rubberband:  Adjust pitch and time independently\nRubberband (formants): Same as Rubberband, but preserves formants\n"
+            "SBSMS:  Adjust pitch and time independently, also with the ability to set start/end pitch/time differently\n"
             "Paulstretch:  Mostly for stretching items very long, creates a very smeared, atmospheric sound")
-            self.output_combobox.setToolTip("Use this combobox to select the output audio track on the 'Audio Tracks' tab\n" + \
-            "where you can apply effects and automation.  Please note that if you use a lot of audio sequencing in your projects,\n" + \
-            "you must assign audio items to multiple tracks to take advantage of multiple CPU cores, otherwise all items will be \n" +
+            self.output_combobox.setToolTip("Use this combobox to select the output audio track on the 'Audio Tracks' tab\n"
+            "where you can apply effects and automation.  Please note that if you use a lot of audio sequencing in your projects,\n"
+            "you must assign audio items to multiple tracks to take advantage of multiple CPU cores, otherwise all items will be \n"
             "processed on a single core")
-            self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n" +\
+            self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n"
             "use the fade-in/fade-out handles, or automate the volume on the audio track specified in the Output: combobox.")
             self.is_reversed_checkbox.setToolTip("Checking this causes the sample to play backwards")
         else:
