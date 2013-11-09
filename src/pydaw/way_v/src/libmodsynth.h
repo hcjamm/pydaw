@@ -84,6 +84,7 @@ typedef struct
     t_amp * amp_ptr;
 
     float   amp;
+    float master_vol_lin;
     float note_f;
     int note;
     float osc1_linamp;

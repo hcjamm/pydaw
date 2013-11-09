@@ -395,8 +395,10 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             {
                 int f_voice = i_pick_voice(plugin_data->voices, events[(plugin_data->event_pos)].note, plugin_data->sampleNo, events[(plugin_data->event_pos)].tick);
                 
-                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((events[(plugin_data->event_pos)].velocity * 0.094488) - 12 + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
+                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((events[(plugin_data->event_pos)].velocity * 0.094488) - 12), //-12db to 0db
                         plugin_data->mono_modules->amp_ptr); 
+                
+                plugin_data->data[f_voice]->master_vol_lin = f_db_to_linear_fast((*(plugin_data->master_vol)), plugin_data->mono_modules->amp_ptr);
                 
                 plugin_data->data[f_voice]->keyboard_track = ((float)(events[(plugin_data->event_pos)].note)) * 0.007874016f;
                 plugin_data->data[f_voice]->velocity_track = ((float)(events[(plugin_data->event_pos)].velocity)) * 0.007874016f;
@@ -837,8 +839,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
     }
 
     /*Run the envelope and assign to the output buffers*/
-    out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) * (a_voice->adsr_main->output);
-    out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) * (a_voice->adsr_main->output);       
+    out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) * (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
+    out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) * (a_voice->adsr_main->output) * (a_voice->master_vol_lin);       
     
 }
 
