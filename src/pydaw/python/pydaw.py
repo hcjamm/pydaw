@@ -1491,7 +1491,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
             self.audio_item.sample_end = ((self.rect().width() + self.length_px_start) / self.length_seconds_orig_px) * 1000.0
             self.audio_item.sample_end = pydaw_util.pydaw_clip_value(self.audio_item.sample_end, 1.0, 1000.0, True)
-            self.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_height)
+            self.draw()
             return True
         else:
             return False
