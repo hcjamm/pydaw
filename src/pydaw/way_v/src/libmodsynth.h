@@ -38,19 +38,6 @@ extern "C" {
 #include "../../libmodsynth/modules/oscillator/osc_wavetable.h"
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
 
-static float va_rayv_sr_recip;
-static float va_rayv_sample_rate;
-
-void v_wayv_init(float f_sr);
-
-void v_wayv_init(float f_sr)
-{
-    va_rayv_sample_rate = f_sr;
-    va_rayv_sr_recip = 1.0f/f_sr;    
-}
-
-/*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
- of an instrument, you will most likely want to define all of your modules here*/
 
 typedef struct
 {    
@@ -134,11 +121,13 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr);
 
 t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 {
+    float f_sr_recip = 1.0f / a_sr;
+    
     t_wayv_poly_voice * f_voice = (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
     
-    f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
-    f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
-    f_voice->osc_wavtable3 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
+    f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(a_sr);
+    f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(a_sr);
+    f_voice->osc_wavtable3 = g_osc_get_osc_wav_unison(a_sr);
     f_voice->wavetables = g_wt_wavetables_get();    
     
     f_voice->osc1_uni_spread = 0.0f;
@@ -159,15 +148,15 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->fm2_last = 0.0;
     f_voice->fm3_last = 0.0;
     
-    f_voice->adsr_main = g_adsr_get_adsr(va_rayv_sr_recip);
-    f_voice->adsr_amp1 = g_adsr_get_adsr(va_rayv_sr_recip);
-    f_voice->adsr_amp2 = g_adsr_get_adsr(va_rayv_sr_recip);
-    f_voice->adsr_amp3 = g_adsr_get_adsr(va_rayv_sr_recip);
+    f_voice->adsr_main = g_adsr_get_adsr(f_sr_recip);
+    f_voice->adsr_amp1 = g_adsr_get_adsr(f_sr_recip);
+    f_voice->adsr_amp2 = g_adsr_get_adsr(f_sr_recip);
+    f_voice->adsr_amp3 = g_adsr_get_adsr(f_sr_recip);
             
-    f_voice->white_noise1 = g_get_white_noise(va_rayv_sample_rate);    
+    f_voice->white_noise1 = g_get_white_noise(a_sr);    
     f_voice->noise_amp = 0;
         
-    f_voice->glide_env = g_rmp_get_ramp_env(va_rayv_sample_rate);    
+    f_voice->glide_env = g_rmp_get_ramp_env(a_sr);    
         
     //f_voice->real_pitch = 60.0f;
     
@@ -197,8 +186,6 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     
     int f_i = 0;
    
-    float f_sr_recip = 1.0f/a_sr;
-
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
     f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
     
