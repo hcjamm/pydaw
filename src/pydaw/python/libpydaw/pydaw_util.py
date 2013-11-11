@@ -192,6 +192,9 @@ def bool_to_int(a_bool):
         return "0"
 
 def int_to_bool(a_int):
+    if isinstance(a_int, bool):
+        return a_int
+
     if int(a_int) == 0:
         return False
     elif int(a_int) == 1:

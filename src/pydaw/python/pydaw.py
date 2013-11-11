@@ -3322,7 +3322,7 @@ class audio_track:
 
     def get_track(self):
         return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), \
-        str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex())
+        str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex(), self.track_number)
 
 global_item_editing_count = 1
 
@@ -5577,9 +5577,10 @@ class seq_track:
     def get_track(self):
         if self.is_instrument:
             return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), \
-            str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex())
+            str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex(),
+            self.track_number)
         else:
-            return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
+            return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked(), self.track_number)
 
 class transport_widget:
     def set_region_value(self, a_val):

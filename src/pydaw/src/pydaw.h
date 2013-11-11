@@ -3604,6 +3604,8 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             char * f_name_str = c_iterate_2d_char_array(f_2d_array);
             char * f_plugin_index_str = c_iterate_2d_char_array(f_2d_array);
             char * f_bus_num_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_track_pos = c_iterate_2d_char_array(f_2d_array);  //ignored
+            free(f_track_pos);
 
             int f_track_index = atoi(f_track_index_str);
             free(f_track_index_str);
@@ -3685,6 +3687,8 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             }
             
             char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_track_pos = c_iterate_2d_char_array(f_2d_array);  //ignored
+            free(f_track_pos);
                         
             int f_track_index = atoi(f_track_index_str);
             free(f_track_index_str);
@@ -3743,6 +3747,8 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
             char * f_name_str = c_iterate_2d_char_array(f_2d_array);            
             char * f_bus_num_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_track_pos = c_iterate_2d_char_array(f_2d_array);  //ignored
+            free(f_track_pos);
                         
             int f_track_index = atoi(f_track_index_str);
             free(f_track_index_str);

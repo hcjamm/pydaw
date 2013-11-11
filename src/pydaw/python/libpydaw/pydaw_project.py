@@ -245,15 +245,15 @@ class pydaw_project:
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
         f_midi_tracks_instance = pydaw_tracks()
         for i in range(pydaw_midi_track_count):
-            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1)))
+            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1), a_track_pos=i))
         self.create_file("", pydaw_file_pytracks, str(f_midi_tracks_instance))
         f_pyaudio_instance = pydaw_audio_tracks()
         for i in range(pydaw_audio_track_count):
-            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1)))
+            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1), a_track_pos=i))
         self.create_file("", pydaw_file_pyaudio, str(f_pyaudio_instance))
         f_pybus_instance = pydaw_busses()
         for i in range(pydaw_bus_count):
-            f_pybus_instance.add_bus(i, pydaw_bus())
+            f_pybus_instance.add_bus(i, pydaw_bus(a_track_pos=i))
         self.create_file("", pydaw_file_pybus, str(f_pybus_instance))
         self.open_stretch_dicts()
         self.commit("Created project")
@@ -1654,7 +1654,7 @@ class pydaw_pitchbend(pydaw_abstract_midi_event):
 
 class pydaw_tracks:
     def add_track(self, a_index, a_track):
-        self.tracks[a_index] = a_track
+        self.tracks[int(a_index)] = a_track
 
     def __init__(self):
         self.tracks = {}
@@ -1673,22 +1673,31 @@ class pydaw_tracks:
         for f_line in f_arr:
             if not f_line == pydaw_terminating_char:
                 f_line_arr = f_line.split("|")
-                f_result.add_track(int(f_line_arr[0]), pydaw_track(int_to_bool(f_line_arr[1]), int_to_bool(f_line_arr[2]), \
-                f_line_arr[3], f_line_arr[4], f_line_arr[5], f_line_arr[6]))
+                f_result.add_track(f_line_arr[0], pydaw_track(*f_line_arr[1:]))
         return f_result
 
-class pydaw_track:
-    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_inst=0, a_bus_num=0):
-        self.name = str(a_name)
-        self.solo = bool(a_solo)
-        self.mute = bool(a_mute)
+class pydaw_abstract_track:
+    def set_track_pos(self, a_track_pos):
+        self.track_pos = int(a_track_pos)
+        assert(self.track_pos >= 0)
+
+    def set_vol(self, a_vol):
         self.vol = int(a_vol)
+
+
+class pydaw_track(pydaw_abstract_track):
+    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_inst=0, a_bus_num=0, a_track_pos=-1):
+        self.name = str(a_name)
+        self.solo = int_to_bool(a_solo)
+        self.mute = int_to_bool(a_mute)
+        self.set_vol(a_vol)
         self.inst = int(a_inst)
         self.bus_num = int(a_bus_num)
+        self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + str(self.vol) + "|" + self.name + "|" + \
-        str(self.inst) + "|" + str(self.bus_num) + "\n"
+        return "%s|%s|%s|%s|%s|%s|%s\n" % (bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
+                                      self.name, self.inst, self.bus_num, self.track_pos)
 
 class pydaw_busses:
     def add_bus(self, a_index, a_bus):
@@ -1696,7 +1705,7 @@ class pydaw_busses:
 
     def add_bus_from_str(self, a_str):
         f_arr = a_str.split("|")
-        self.add_bus(f_arr[0], pydaw_bus(f_arr[1]))
+        self.add_bus(f_arr[0], pydaw_bus(*f_arr[1:]))
 
     def __init__(self):
         self.busses = {}
@@ -1718,12 +1727,13 @@ class pydaw_busses:
             f_result.add_bus_from_str(f_line)
         return f_result
 
-class pydaw_bus:
-    def __init__(self, a_vol=0):
+class pydaw_bus(pydaw_abstract_track):
+    def __init__(self, a_vol=0, a_track_pos=-1):
         self.vol = int(a_vol)
+        self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return str(self.vol) + "\n"
+        return "%s|%s\n" % (self.vol, self.track_pos)
 
 class pydaw_audio_tracks:
     def add_track(self, a_index, a_track):
@@ -1749,23 +1759,18 @@ class pydaw_audio_tracks:
                 f_result.add_track(f_line_arr[0], pydaw_audio_track(*f_line_arr[1:]))
         return f_result
 
-class pydaw_audio_track:
-    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_bus_num=0):
+class pydaw_audio_track(pydaw_abstract_track):
+    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_bus_num=0, a_track_pos=-1):
         self.name = str(a_name)
-        if isinstance(a_solo, bool):
-            self.solo = a_solo
-        else:
-            self.solo = int_to_bool(a_solo)
-        if isinstance(a_mute, bool):
-            self.mute = a_mute
-        else:
-            self.mute = int_to_bool(a_mute)
-        self.vol = int(a_vol)
+        self.solo = int_to_bool(a_solo)
+        self.mute = int_to_bool(a_mute)
+        self.set_vol(a_vol)
         self.bus_num = int(a_bus_num)
+        self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "%s|%s|%s|%s|%s\n" % \
-        (bool_to_int(self.solo), bool_to_int(self.mute), self.vol, self.name, self.bus_num)
+        return "%s|%s|%s|%s|%s|%s\n" % \
+        (bool_to_int(self.solo), bool_to_int(self.mute), self.vol, self.name, self.bus_num, self.track_pos)
 
 class pydaw_audio_region:
     def __init__(self):
