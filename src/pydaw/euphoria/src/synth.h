@@ -115,8 +115,8 @@ typedef struct {
     //These 2 calculate which channels are assigned to a sample and should be processed
     int monofx_channel_index[EUPHORIA_MONO_FX_GROUPS_COUNT];
     int monofx_channel_index_count;
-
-    int monofx_index_contained;  //Used as a boolean
+    //Tracks which indexes are in use
+    int monofx_channel_index_tracker[EUPHORIA_MONO_FX_GROUPS_COUNT];
 
     float adjusted_base_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
 
@@ -161,7 +161,7 @@ typedef struct {
     t_euphoria_poly_voice * data[EUPHORIA_POLYPHONY];
 
     //These are used for storing the mono FX buffers from the polyphonic voices.
-    float mono_fx_buffers[EUPHORIA_MONO_FX_GROUPS_COUNT][2][4096];
+    float mono_fx_buffers[EUPHORIA_MONO_FX_GROUPS_COUNT][2];
 
     int i_slow_index;  //For indexing operations that don't need to track realtime events closely
 
