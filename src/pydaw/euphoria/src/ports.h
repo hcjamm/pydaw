@@ -29,7 +29,7 @@ GNU General Public License for more details.
 #define EUPHORIA_PORTS_PER_MOD_EFFECT 4
 //How many knobs per PolyFX, 3 knobs
 #define EUPHORIA_CONTROLS_PER_MOD_EFFECT 3
-//How many groups of effects.  This will become useful when each sample has an "effects group" choice  
+//How many groups of effects.  This will become useful when each sample has an "effects group" choice
 //EDIT:  This may or may not ever come to fruition with my new strategy.  Delete this and re-arrange everywhere it's used...
 #define EUPHORIA_EFFECTS_GROUPS_COUNT 1
 //The number of mono_fx groups
@@ -44,7 +44,7 @@ GNU General Public License for more details.
 
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
-#define EUPHORIA_FIRST_CONTROL_PORT 2   
+#define EUPHORIA_FIRST_CONTROL_PORT 2
 #define EUPHORIA_SELECTED_SAMPLE 2
 #define EUPHORIA_ATTACK  3
 #define EUPHORIA_DECAY   4
@@ -163,7 +163,7 @@ GNU General Public License for more details.
 /*This is the last control port, + 1 */
 #define EUPHORIA_LAST_REGULAR_CONTROL_PORT 106
 
-/*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
+/*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential,
  * any additional ports should prepend this port number*/
 #define EUPHORIA_FIRST_SAMPLE_TABLE_PORT 106
 

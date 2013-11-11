@@ -74,10 +74,10 @@ static void v_pydaw_connect_port(PYFX_Handle instance, int port, PYFX_Data * dat
     }
     else
     {
-        switch (port) 
-        {     
+        switch (port)
+        {
             case PYDAW_OUTPUT0: plugin->output0 = data; break;
-            case PYDAW_OUTPUT1: plugin->output1 = data; break;        
+            case PYDAW_OUTPUT1: plugin->output1 = data; break;
         }
     }
 }
@@ -86,17 +86,17 @@ static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
     plugin_data->input_arr = (PYFX_Data**)malloc(sizeof(PYFX_Data*) * PYDAW_INPUT_COUNT);
-    
+
     pydaw_data = g_pydaw_data_get(s_rate);
-    
+
     plugin_data->fs = s_rate;
-        
+
     return (PYFX_Handle) plugin_data;
 }
 
 void v_pydaw_activate(PYFX_Handle instance, int a_thread_count, int a_set_thread_affinity)
 {
-    //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;    
+    //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     v_pydaw_init_worker_threads(pydaw_data, a_thread_count, a_set_thread_affinity);
     //v_pydaw_init_busses(pydaw_data);
     v_open_default_project(pydaw_data);
@@ -112,20 +112,20 @@ static void runLMSWrapper(PYFX_Handle instance, int sample_count)
 void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
-               
+
     int f_lock_result = pthread_mutex_trylock(&pydaw_data->offline_mutex);
-    
+
     if(f_lock_result == 0)  //Don't try to process the main loop if another process, ie:  offline rendering of a project, has locked it
     {
         pthread_mutex_lock(&pydaw_data->main_mutex);
         pydaw_data->input_buffers_active = 1;
         long f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
-        v_pydaw_run_main_loop(pydaw_data, sample_count, events, event_count, f_next_current_sample, 
+        v_pydaw_run_main_loop(pydaw_data, sample_count, events, event_count, f_next_current_sample,
                 plugin_data->output0, plugin_data->output1, plugin_data->input_arr);
         /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
-        
+
         pydaw_data->current_sample = f_next_current_sample;
-        
+
         pthread_mutex_unlock(&pydaw_data->main_mutex);
         pthread_mutex_unlock(&pydaw_data->offline_mutex);
     }
@@ -133,8 +133,8 @@ void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *even
     {
         /*Clear the output buffer*/
         pydaw_data->input_buffers_active = 0;
-        plugin_data->i_buffer_clear = 0;    
-        
+        plugin_data->i_buffer_clear = 0;
+
         while((plugin_data->i_buffer_clear) < sample_count)
         {
             plugin_data->output0[(plugin_data->i_buffer_clear)] = 0.0f;
@@ -167,21 +167,21 @@ void v_pydaw_constructor()
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
 	    (const PYFX_PortRangeHint *) port_range_hints;
-	
+
         /* Parameters for input */
         int f_i;
-        
+
         for(f_i = PYDAW_INPUT_MIN; f_i < PYDAW_INPUT_MAX; f_i++)
         {
             port_descriptors[f_i] = 1;
             //port_range_hints[f_i].HintDescriptor = 0;
-        }	        	
+        }
     }
 
     LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-    if (LMSDDescriptor) 
+    if (LMSDDescriptor)
     {
-	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;	
+	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
     }
 }
 
@@ -190,13 +190,13 @@ void v_pydaw_destructor()
 {
     if(pydaw_data)
     {
-        pydaw_data->audio_recording_quit_notifier = 1;        
+        pydaw_data->audio_recording_quit_notifier = 1;
         lo_address_free(pydaw_data->uiTarget);
-                
+
         int f_i = 0;
 
         char tmp_sndfile_name[2048];
-        
+
         while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
         {
             if(pydaw_data->audio_inputs[f_i]->sndfile)
@@ -208,16 +208,16 @@ void v_pydaw_destructor()
             }
             f_i++;
         }
-        
+
         f_i = 1;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
-            //pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
-            pydaw_data->track_thread_quit_notifier[f_i] = 1;        
+            //pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
+            pydaw_data->track_thread_quit_notifier[f_i] = 1;
             //pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
             f_i++;
         }
-        
+
         f_i = 1;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
@@ -228,7 +228,7 @@ void v_pydaw_destructor()
         }
 
         sleep(1);
-        
+
         f_i = 1;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
@@ -238,9 +238,9 @@ void v_pydaw_destructor()
             f_i++;
         }
     }
-        
+
     if (LMSLDescriptor) {
-	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);	
+	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((PYFX_PortRangeHint *) LMSLDescriptor->PortRangeHints);
 	free(LMSLDescriptor);
     }
