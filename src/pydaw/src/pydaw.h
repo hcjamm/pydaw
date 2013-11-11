@@ -3930,7 +3930,7 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
     int f_i = 0;
 
     float f_adjusted_song_pos_beats = 
-        v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_region, a_bar, 0.0f);
+        v_pydaw_count_beats(a_pydaw_data, a_region, 0, 0.0f, a_region, a_bar, 0.0f);
     
     if(f_adjusted_song_pos_beats < 0.0f)  //clip at zero, lest it somehow by rounding error is -0.0000001
     {
@@ -3944,6 +3944,12 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
             a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->wav_pool_item = 
                     g_wav_pool_get_item_by_uid(a_pydaw_data->wav_pool, a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->uid);
 
+            a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat = 
+                    v_pydaw_count_beats(a_pydaw_data, a_region, 0, 0.0f,
+                    a_region,                    
+                    a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->start_bar, 
+                    a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->start_beat);
+            
             if((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat) <= f_adjusted_song_pos_beats)
             {            
                 float test1 = f_adjusted_song_pos_beats - (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat);
