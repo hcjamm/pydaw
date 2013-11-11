@@ -2470,6 +2470,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     continue;
                 }
 
+                int f_i2 = f_start_sample;
+
                 if(((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat) >= f_adjusted_song_pos_beats) &&
                     ((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat) < f_adjusted_next_song_pos_beats))
                 {
@@ -2485,13 +2487,16 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     }
 
                     v_adsr_retrigger(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr);
-                }
 
+                    float f_diff = (f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats);
+                    float f_distance = f_adjusted_next_song_pos_beats -
+                    (a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat);
+
+                    f_i2 = (int)((f_distance / f_diff) * ((float)(f_adjusted_sample_count - f_start_sample)));
+                }
 
                 if((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage) != 4)
                 {
-                    int f_i2 = f_start_sample;
-
                     while((f_i2 < f_adjusted_sample_count) &&
                         (((!a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->is_reversed) &&
                         ((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number) <
@@ -2635,6 +2640,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         f_i2++;
                     }//while < sample count
 
+                    /*
                     if(a_pydaw_data->ml_is_looping)
                     {
                         //I think the references to a_pydaw_data->current_region
@@ -2664,6 +2670,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
                         }
                     }// if is looping
+                    */
+
                 }  //if stage
             } //if this track_num
             f_i++;
