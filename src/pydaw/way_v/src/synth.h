@@ -21,21 +21,20 @@ extern "C" {
 #include "../../include/pydaw_plugin.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
-    
+
 //How many modular PolyFX
 #define WAYV_MODULAR_POLYFX_COUNT 4
 //How many ports per PolyFX, 3 knobs and a combobox
 #define WAYV_PORTS_PER_MOD_EFFECT 4
 //How many knobs per PolyFX, 3 knobs
 #define WAYV_CONTROLS_PER_MOD_EFFECT 3
-//How many groups of effects.  This will become useful when each sample has an "effects group" choice  
-//EDIT:  This may or may not ever come to fruition with my new strategy.  Delete this and re-arrange everywhere it's used...
+//TODO:  Delete thjs
 #define WAYV_EFFECTS_GROUPS_COUNT 1
 
-    
+
 #define WAYV_OUTPUT0  0
 #define WAYV_OUTPUT1  1
-    
+
 #define WAYV_FIRST_CONTROL_PORT 2
 #define WAYV_ATTACK_MAIN  2
 #define WAYV_DECAY_MAIN   3
@@ -165,7 +164,7 @@ extern "C" {
 #define WAYV_OSC2_FM1 122
 #define WAYV_OSC2_FM2 123
 #define WAYV_OSC2_FM3 124
-#define WAYV_OSC3_FM1 125 
+#define WAYV_OSC3_FM1 125
 #define WAYV_OSC3_FM2 126
 #define WAYV_OSC3_FM3 127
 #define WAYV_ATTACK3  128
@@ -201,7 +200,7 @@ extern "C" {
 #define WAVV_PFXMATRIX_GRP0DST3SRC5CTRL2  156
 
 #define WAYV_COUNT 157 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-    
+
 #define WAYV_POLYPHONY   16
 
 typedef struct
@@ -211,134 +210,134 @@ typedef struct
     PYFX_Data *attack_main;
     PYFX_Data *decay_main;
     PYFX_Data *sustain_main;
-    PYFX_Data *release_main;    
-    
+    PYFX_Data *release_main;
+
     PYFX_Data *attack1;
     PYFX_Data *decay1;
     PYFX_Data *sustain1;
-    PYFX_Data *release1;    
-    
+    PYFX_Data *release1;
+
     PYFX_Data *attack2;
     PYFX_Data *decay2;
     PYFX_Data *sustain2;
-    PYFX_Data *release2;    
-    
+    PYFX_Data *release2;
+
     PYFX_Data *attack3;
     PYFX_Data *decay3;
     PYFX_Data *sustain3;
-    PYFX_Data *release3;    
-    
+    PYFX_Data *release3;
+
     //PYFX_Data pitch;
-        
+
     PYFX_Data *osc1pitch;
     PYFX_Data *osc1tune;
     PYFX_Data *osc1type;
     PYFX_Data *osc1vol;
-    
+
     PYFX_Data *osc2pitch;
     PYFX_Data *osc2tune;
     PYFX_Data *osc2type;
     PYFX_Data *osc2vol;
-    
+
     PYFX_Data *osc3pitch;
     PYFX_Data *osc3tune;
     PYFX_Data *osc3type;
     PYFX_Data *osc3vol;
-    
+
     PYFX_Data *osc1fm1;
     PYFX_Data *osc1fm2;
     PYFX_Data *osc1fm3;
-    
+
     PYFX_Data *osc2fm1;
     PYFX_Data *osc2fm2;
     PYFX_Data *osc2fm3;
-    
+
     PYFX_Data *osc3fm1;
     PYFX_Data *osc3fm2;
     PYFX_Data *osc3fm3;
-    
+
     PYFX_Data *master_vol;
-    
+
     PYFX_Data *attack;
     PYFX_Data *decay;
     PYFX_Data *sustain;
     PYFX_Data *release;
-        
+
     PYFX_Data *attack_f;
     PYFX_Data *decay_f;
     PYFX_Data *sustain_f;
     PYFX_Data *release_f;
-    
+
     PYFX_Data *noise_amp;
     PYFX_Data *noise_type;
-        
+
     PYFX_Data *osc1_uni_voice;
     PYFX_Data *osc1_uni_spread;
     PYFX_Data *osc2_uni_voice;
     PYFX_Data *osc2_uni_spread;
     PYFX_Data *osc3_uni_voice;
     PYFX_Data *osc3_uni_spread;
-    
+
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;
-        
+
     PYFX_Data *pitch_env_time;
     PYFX_Data *pitch_env_amt;
-    
+
     PYFX_Data *lfo_freq;
     PYFX_Data *lfo_type;
-    
+
     PYFX_Data * adsr1_checked;
     PYFX_Data * adsr2_checked;
     PYFX_Data * adsr3_checked;
-    
+
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
-    PYFX_Data *lfo_amount;        
-       
+    PYFX_Data *lfo_amount;
+
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     PYFX_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
-    
+
     PYFX_Data *fx_combobox[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT];
-        
+
     //PolyFX Mod Matrix
     //Corresponds to the mod matrix spinboxes
     PYFX_Data *polyfx_mod_matrix[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_MODULATOR_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
-    
+
     int active_polyfx[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];
     int active_polyfx_count[WAYV_POLYPHONY];
-        
+
     int polyfx_mod_ctrl_indexes[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
     int polyfx_mod_counts[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
     int polyfx_mod_src_index[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
     float polyfx_mod_matrix_values[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
-        
+
     t_wayv_poly_voice * data[WAYV_POLYPHONY];
     t_voc_voices * voices;
-    
+
     long         sampleNo;
-    
-    float fs;    
+
+    float fs;
     t_wayv_mono_modules * mono_modules;
-        
+
     int event_pos;
     int i_run_poly_voice;
-    int i_iterator;    
-    
+    int i_iterator;
+
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
-    
+
     int i_fx_grps;
     int i_dst;
-    int i_src;    
+    int i_src;
     int i_ctrl;
-    
+
     int midi_event_types[200];
     int midi_event_ticks[200];
     float midi_event_values[200];
     int midi_event_ports[200];
     int midi_event_count;
-    
+
     float * port_table;
 } t_wayv;
 

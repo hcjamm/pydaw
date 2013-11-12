@@ -180,23 +180,26 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
     {
         if (events[event_pos].type == PYDAW_EVENT_CONTROLLER)
         {
-            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
-            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
-            plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
-            plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
-
-            if(!plugin_data->is_on)
+            if(events[event_pos].plugin_index == -1)
             {
-                v_modulex_check_if_on(plugin_data);
+                plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
+                plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
+                plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
+                plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
 
-                if(!plugin_data->is_on)  //Meaning that we now have set the port anyways because the main loop won't be running
+                if(!plugin_data->is_on)
                 {
-                    plugin_data->port_table[plugin_data->midi_event_ports[plugin_data->midi_event_count]] =
-                            plugin_data->midi_event_values[plugin_data->midi_event_count];
-                }
-            }
+                    v_modulex_check_if_on(plugin_data);
 
-            plugin_data->midi_event_count++;
+                    if(!plugin_data->is_on)  //Meaning that we now have set the port anyways because the main loop won't be running
+                    {
+                        plugin_data->port_table[plugin_data->midi_event_ports[plugin_data->midi_event_count]] =
+                                plugin_data->midi_event_values[plugin_data->midi_event_count];
+                    }
+                }
+
+                plugin_data->midi_event_count++;
+            }
         }
 
         event_pos++;

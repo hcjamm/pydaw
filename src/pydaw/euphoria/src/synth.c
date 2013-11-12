@@ -1043,11 +1043,14 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
         }
         else if (events[event_pos].type == PYDAW_EVENT_CONTROLLER)
         {
-            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
-            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
-            plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
-            plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
-            plugin_data->midi_event_count++;
+            if (events[event_pos].plugin_index != -1) //The host already filters out messages for other instruments
+            {
+                plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
+                plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
+                plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
+                plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
+                plugin_data->midi_event_count++;
+            }
         }
         else if (events[event_pos].type == PYDAW_EVENT_PITCHBEND)
         {
