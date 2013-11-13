@@ -1725,7 +1725,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note] =
                             ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count))
                             * (a_pydaw_data->playback_inc))) * 4.0f;
-                    a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = events[f_i2].note;
+                    a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = events[f_i2].velocity;
                 }
 
                 sprintf(a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all], "1|%i", events[f_i2].note);
