@@ -1882,6 +1882,26 @@ class pydaw_audio_item:
         self.start_bar = int(a_bar)
         self.start_beat = round(float(a_beat), 4)
 
+    def clip_at_region_end(self, a_region_length, a_tempo, a_sample_length_seconds):
+        f_region_length_beats = a_region_length * 4
+        f_seconds_per_beat = (60.0 / a_tempo)
+        f_region_length_seconds = f_seconds_per_beat * f_region_length_beats
+        f_item_start_beats = (self.start_bar * 4.0) + self.start_beat
+        f_item_start_seconds = f_item_start_beats * f_seconds_per_beat
+        f_sample_start_seconds = (self.sample_start * 0.001 * a_sample_length_seconds)
+        f_sample_end_seconds = (self.sample_end * 0.001 * a_sample_length_seconds)
+        f_actual_sample_length = f_sample_end_seconds - f_sample_start_seconds
+        f_actual_item_end = f_item_start_seconds + f_actual_sample_length
+
+        if f_actual_item_end > f_region_length_seconds:
+            f_new_item_end_seconds = (f_region_length_seconds - f_item_start_seconds) + f_sample_start_seconds
+            f_new_item_end = (f_new_item_end_seconds / a_sample_length_seconds) * 1000.0
+            print("clip_at_region_end:  new end: %s" % (f_new_item_end,))
+            self.sample_end = f_new_item_end
+            return True
+        else:
+            return False
+
     def clone(self):
         """ Using and abusing the functions that are already there... """
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
