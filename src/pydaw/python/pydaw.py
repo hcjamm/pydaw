@@ -1753,7 +1753,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_x = self.quantize_all(f_x)
         return f_x
 
-
     def update_fade_in_line(self):
         f_pos = self.fade_in_handle.pos()
         self.fade_in_handle_line.setLine(f_pos.x(), 0.0, 0.0, global_audio_item_height)
@@ -1816,7 +1815,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.stretch_handle.setPos(f_x - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_height * 0.5))
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
-            f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - global_audio_item_handle_size
+            if global_audio_quantize:
+                f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - global_audio_quantize_px
+            else:
+                f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - global_audio_item_handle_size
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_pos_x = f_item.pos().x()
