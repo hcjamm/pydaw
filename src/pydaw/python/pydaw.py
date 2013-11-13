@@ -5737,6 +5737,7 @@ class transport_widget:
         f_layout.addWidget(QtGui.QLabel("Save recorded MIDI items"), 0, 2)
         f_layout.addWidget(QtGui.QLabel("Item Name:"), 3, 1)
         f_file = QtGui.QLineEdit()
+        f_file.setMaxLength(24)
         f_file.textEdited.connect(text_edit_handler)
         f_layout.addWidget(f_file, 3, 2)
         f_ok_button = QtGui.QPushButton("Save")
