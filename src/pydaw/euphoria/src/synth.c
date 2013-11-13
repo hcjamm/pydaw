@@ -897,7 +897,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                         }
                         else
                         {
-                            plugin_data->data[f_voice_num]->sample_fade_in_inc[(plugin_data->loaded_samples[i])] = 1.0f;
+                            plugin_data->data[f_voice_num]->sample_fade_out_dec[(plugin_data->loaded_samples[i])] = 1.0f;
                         }
 
 
