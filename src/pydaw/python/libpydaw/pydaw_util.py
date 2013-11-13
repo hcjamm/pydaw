@@ -202,6 +202,11 @@ def int_to_bool(a_int):
     else:
         assert(False)
 
+def print_sorted_dict(a_dict):
+    """ Mostly intended for printing locals() and globals() """
+    for k in sorted(list(a_dict.keys())):
+            print("%s : %s" % (k, a_dict[k]))
+
 def time_quantize_round(a_input):
     """Properly quantize time values from QDoubleSpinBoxes that measure beats"""
     if round(a_input) == round(a_input, 2):
