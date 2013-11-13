@@ -669,6 +669,12 @@ for f_fx in range(4):
     f_port_iter = _euphoria_port_mins[f_fx]
     for f_knob in range(3):
         for f_group in range(1, EUPHORIA_MAX_SAMPLE_COUNT + 1):
-            EUPHORIA_PORT_MAP.append(("Mono FX%s Knob%s Group %s" % (f_fx, f_knob, f_group),
+            if f_group < 10:
+                f_group_str = "00%s" % (f_group,)
+            elif f_group < 100:
+                f_group_str = "0%s" % (f_group,)
+            else:
+                f_group_str = "%s" % (f_group,)
+            EUPHORIA_PORT_MAP.append(("Mono FX%s Knob%s Group %s" % (f_fx, f_knob, f_group_str),
                                       str(f_port_iter), "0", "0.0", "127.0"))
             f_port_iter += 1
