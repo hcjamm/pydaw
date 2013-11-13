@@ -215,6 +215,7 @@ class pydaw_null_control:
         self.value = a_default_val
         a_port_dict[self.port_num] = self
         self.default_value = a_default_val
+        self.control_callback = None
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
 
@@ -228,6 +229,11 @@ class pydaw_null_control:
 
     def set_value(self, a_val):
         self.value = a_val
+        if self.control_callback is not None:
+            self.control_callback.set_value(self.value)
+
+    def set_control_callback(self, a_callback=None):
+        self.control_callback = a_callback
 
     def control_released(self):
         if self.rel_callback is not None:
@@ -2417,6 +2423,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_monofx_group = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.monofx_groups.append(f_monofx_group)
 
+        self.monofx_null_controls_tuple = (self.monofx0knob0_ctrls, self.monofx0knob1_ctrls, self.monofx0knob2_ctrls,
+                                           self.monofx1knob0_ctrls, self.monofx1knob1_ctrls, self.monofx1knob2_ctrls,
+                                           self.monofx2knob0_ctrls, self.monofx2knob1_ctrls, self.monofx2knob2_ctrls,
+                                           self.monofx3knob0_ctrls, self.monofx3knob1_ctrls, self.monofx3knob2_ctrls,)
 
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
         self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
@@ -2712,6 +2722,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout12.addWidget(self.mono_fx2.group_box)
         self.mono_fx3 =  pydaw_modulex_single("FX3", 0, None, self.monofx3_callback)
         self.hlayout12.addWidget(self.mono_fx3.group_box)
+
+        self.monofx_knob_tuple = tuple(self.mono_fx0.knobs + self.mono_fx1.knobs + self.mono_fx2.knobs + self.mono_fx3.knobs)
+
+        self.last_monofx_group = None
+        self.set_monofx_knob_callbacks(0)
 
         self.master =  pydaw_master_widget(55, self.plugin_rel_callback, self.plugin_val_callback, pydaw_ports.EUPHORIA_MASTER_VOLUME, \
         pydaw_ports.EUPHORIA_MASTER_GLIDE, pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT, self.port_dict, "Master")
@@ -3115,9 +3130,20 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx3.knobs[1].set_value(self.monofx3knob1_ctrls[a_value].get_value())
         self.mono_fx3.knobs[2].set_value(self.monofx3knob2_ctrls[a_value].get_value())
         self.mono_fx3.combobox.set_value(self.monofx3comboboxes[a_value].get_value())
+
         if not self.suppress_selected_sample_changed:
             self.monofx_groups[self.selected_row_index].set_value(a_value)
             self.monofx_groups[self.selected_row_index].control_value_changed(a_value)
+
+        self.set_monofx_knob_callbacks(a_value)
+
+    def set_monofx_knob_callbacks(self, a_value):
+        for f_knob, f_nc in zip(self.monofx_knob_tuple, self.monofx_null_controls_tuple):
+            if self.last_monofx_group is not None:
+                f_nc[self.last_monofx_group].set_control_callback()
+            f_nc[a_value].set_control_callback(f_knob)
+
+        self.last_monofx_group = a_value
 
 
     def setSelectedMonoFX(self):
