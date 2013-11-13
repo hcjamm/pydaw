@@ -41,9 +41,6 @@ GNU General Public License for more details.
 #define EUPHORIA_OUTPUT_LEFT 0
 #define EUPHORIA_OUTPUT_RIGHT 1
 
-
-/*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
- as they are iterated through*/
 #define EUPHORIA_FIRST_CONTROL_PORT 2
 #define EUPHORIA_SELECTED_SAMPLE 2
 #define EUPHORIA_ATTACK  3

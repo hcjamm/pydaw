@@ -182,6 +182,8 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         {
             if(events[event_pos].plugin_index == -1)
             {
+                assert(events[event_pos].port < MODULEX_COUNT && events[event_pos].port >= MODULEX_FIRST_CONTROL_PORT);
+                
                 plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
                 plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
                 plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;

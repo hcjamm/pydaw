@@ -1045,6 +1045,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
         {
             if (events[event_pos].plugin_index != -1) //The host already filters out messages for other instruments
             {
+                assert(events[event_pos].port >= EUPHORIA_FIRST_CONTROL_PORT && events[event_pos].port < EUPHORIA_PORT_COUNT);
+
                 plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
                 plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
                 plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;

@@ -338,6 +338,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
         {
             if (events[plugin_data->event_pos].plugin_index != -1) //The host already filters out messages for other instruments
             {
+                assert(events[plugin_data->event_pos].port >= RAYV_ATTACK && events[plugin_data->event_pos].port < RAYV_COUNT);
+
                 plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
                 plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
                 plugin_data->midi_event_values[plugin_data->midi_event_count] = events[plugin_data->event_pos].value;
