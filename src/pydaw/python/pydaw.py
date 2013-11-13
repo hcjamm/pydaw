@@ -2168,13 +2168,18 @@ class audio_items_viewer(QtGui.QGraphicsView):
         if self.check_running():
             return
         if global_current_region.region_length_bars == 0:
-            f_max_start = 8
+            f_max_start = 7
         else:
             f_max_start = global_current_region.region_length_bars - 1
 
         f_pos_bars = int(f_x / global_audio_px_per_bar)
         f_pos_bars = pydaw_clip_value(f_pos_bars, 0, f_max_start)
-        f_beat_frac = (f_x % global_audio_px_per_bar)
+
+        if f_pos_bars == f_max_start:
+            f_beat_frac = 0.0
+        else:
+            f_beat_frac = (f_x % global_audio_px_per_bar)
+            f_beat_frac = pydaw_clip_value(f_beat_frac, 0.0, 3.99, a_round=True)
 
         if global_audio_quantize:
             f_beat_frac = int(f_beat_frac / global_audio_quantize_px) * global_audio_quantize_px
