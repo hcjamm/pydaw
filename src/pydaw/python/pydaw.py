@@ -3131,7 +3131,7 @@ class audio_item_editor_widget:
                         f_was_stretching = True
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
                         if f_ts_result is not None:
-                            f_stretched_items.append(f_ts_result)
+                            f_stretched_items.append((f_ts_result, f_item.audio_item))
 
                 if self.reversed_checkbox.isChecked():
                     f_is_reversed = self.is_reversed_checkbox.isChecked()
@@ -3151,16 +3151,20 @@ class audio_item_editor_widget:
             QtGui.QMessageBox.warning(self.widget, "Error", "No items selected")
         else:
             if f_was_stretching:
+                f_current_region_length = pydaw_get_current_region_length()
+                f_global_tempo = float(this_transport.tempo_spinbox.value())
                 this_pydaw_project.save_stretch_dicts()
-                for f_stretch_item in f_stretched_items:
+                for f_stretch_item, f_audio_item in f_stretched_items:
                     f_stretch_item[2].wait()
-                    this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0], a_uid=f_stretch_item[1])
+                    f_new_uid = this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0], a_uid=f_stretch_item[1])
+                    f_graph = this_pydaw_project.get_sample_graph_by_uid(f_new_uid)
+                    f_audio_item.clip_at_region_end(f_current_region_length, f_global_tempo, f_graph.length_in_seconds)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             global_open_audio_items(True)
             this_pydaw_project.commit("Update audio items")
 
     def sample_vol_changed(self, a_val=None):
-        self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
+        self.sample_vol_label.setText("%sdB" % (self.sample_vol_slider.value(),))
         self.vol_checkbox.setChecked(True)
 
 global_audio_items = None
@@ -3178,7 +3182,7 @@ def global_open_audio_items(a_update_viewer=True):
             try:
                 f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
                 if f_graph is None:
-                    print(("Error drawing item for " + str(v.uid) + ", could not get sample graph object"))
+                    print(("Error drawing item for %s, could not get sample graph object" % (v.uid,)))
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
             except:
