@@ -562,8 +562,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 
         port_descriptors[MODULEX_VOL_SLIDER] = 1;
 	port_range_hints[MODULEX_VOL_SLIDER].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_VOL_SLIDER].LowerBound =  -60.0f;
-	port_range_hints[MODULEX_VOL_SLIDER].UpperBound =  24.0f;
+	port_range_hints[MODULEX_VOL_SLIDER].LowerBound =  -50.0f;
+	port_range_hints[MODULEX_VOL_SLIDER].UpperBound =  0.0f;
 
         port_descriptors[MODULEX_REVERB_TIME] = 1;
 	port_range_hints[MODULEX_REVERB_TIME].DefaultValue = 50.0f;

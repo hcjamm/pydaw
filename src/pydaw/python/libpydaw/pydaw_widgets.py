@@ -1643,7 +1643,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.volume_gridlayout = QtGui.QGridLayout()
         self.fx_hlayout.addLayout(self.volume_gridlayout)
         self.volume_slider = pydaw_slider_control(QtCore.Qt.Vertical, "Vol", pydaw_ports.MODULEX_VOL_SLIDER, self.plugin_rel_callback, \
-        self.plugin_val_callback, -60, 24, 0, kc_integer, self.port_dict)
+        self.plugin_val_callback, -50, 0, 0, kc_integer, self.port_dict)
         self.volume_slider.add_to_grid_layout(self.volume_gridlayout, 0)
 
         delay_groupbox =  QtGui.QGroupBox("Delay")
