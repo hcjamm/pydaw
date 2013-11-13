@@ -1874,8 +1874,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
                                 a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
-                                        g_pycc_get(a_pydaw_data->record_armed_track->plugin_index, controlIn,
-                                        (float)events[f_i2].value, f_start);
+                                        g_pycc_get(-1, controlIn, (float)events[f_i2].value, f_start);
                                 a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
                             }
                         }
