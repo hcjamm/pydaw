@@ -569,8 +569,8 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 
 	port_descriptors[RAYV_DIST] = port_descriptors[RAYV_ATTACK];
 	port_range_hints[RAYV_DIST].DefaultValue = 15.0f;
-	port_range_hints[RAYV_DIST].LowerBound =  -6.0f;
-	port_range_hints[RAYV_DIST].UpperBound =  36.0f;
+	port_range_hints[RAYV_DIST].LowerBound =  0.0f;
+	port_range_hints[RAYV_DIST].UpperBound =  48.0f;
 
 	port_descriptors[RAYV_FILTER_ATTACK] = 1;
 	port_range_hints[RAYV_FILTER_ATTACK].DefaultValue = 10.0f;

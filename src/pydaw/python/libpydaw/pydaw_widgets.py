@@ -1791,7 +1791,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.groupbox_distortion_layout = QtGui.QGridLayout(self.groupbox_distortion)
         self.hlayout1.addWidget(self.groupbox_distortion)
         self.dist =  pydaw_knob_control(64, "Gain", pydaw_ports.RAYV_DIST, self.plugin_rel_callback, self.plugin_val_callback, \
-        -6, 36, 12, kc_integer, self.port_dict, self.preset_manager)
+        0, 48, 15, kc_integer, self.port_dict, self.preset_manager)
         self.dist.add_to_grid_layout(self.groupbox_distortion_layout, 0)
         self.dist_wet =  pydaw_knob_control(64, "Wet", pydaw_ports.RAYV_DIST_WET, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_none, self.port_dict, self.preset_manager)
