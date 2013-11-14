@@ -1320,8 +1320,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     port_descriptors[EUPHORIA_PITCH_ENV_TIME] = port_descriptors[EUPHORIA_ATTACK];
     port_range_hints[EUPHORIA_PITCH_ENV_TIME].DefaultValue = 100.0f;
-    port_range_hints[EUPHORIA_PITCH_ENV_TIME].LowerBound = 0;
-    port_range_hints[EUPHORIA_PITCH_ENV_TIME].UpperBound = 200;
+    port_range_hints[EUPHORIA_PITCH_ENV_TIME].LowerBound = 1.0f;
+    port_range_hints[EUPHORIA_PITCH_ENV_TIME].UpperBound = 600.0f;
 
     port_descriptors[EUPHORIA_LFO_FREQ] = port_descriptors[EUPHORIA_ATTACK];
     port_range_hints[EUPHORIA_LFO_FREQ].DefaultValue = 200.0f;

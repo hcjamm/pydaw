@@ -679,8 +679,8 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 
 	port_descriptors[RAYV_PITCH_ENV_TIME] = port_descriptors[RAYV_ATTACK];
 	port_range_hints[RAYV_PITCH_ENV_TIME].DefaultValue = 100.0f;
-	port_range_hints[RAYV_PITCH_ENV_TIME].LowerBound = 0.0f;
-	port_range_hints[RAYV_PITCH_ENV_TIME].UpperBound = 200.0f;
+	port_range_hints[RAYV_PITCH_ENV_TIME].LowerBound = 1.0f;
+	port_range_hints[RAYV_PITCH_ENV_TIME].UpperBound = 600.0f;
 
 	port_descriptors[RAYV_LFO_FREQ] = port_descriptors[RAYV_ATTACK];
 	port_range_hints[RAYV_LFO_FREQ].DefaultValue = 200.0f;

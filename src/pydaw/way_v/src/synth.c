@@ -626,7 +626,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             if (events[plugin_data->event_pos].plugin_index != -1) //The host already filters out messages for other instruments
             {
                 assert(events[plugin_data->event_pos].port >= WAYV_FIRST_CONTROL_PORT && events[plugin_data->event_pos].port < WAYV_COUNT);
-                
+
                 plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
                 plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
                 plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[plugin_data->event_pos].port;
@@ -938,72 +938,72 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_RELEASE2].LowerBound = 10.0f;
 	port_range_hints[WAYV_RELEASE2].UpperBound = 200.0f;
 
-	port_descriptors[WAYV_NOISE_AMP] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_NOISE_AMP] = 1;
 	port_range_hints[WAYV_NOISE_AMP].DefaultValue = -30.0f;
 	port_range_hints[WAYV_NOISE_AMP].LowerBound =  -60.0f;
 	port_range_hints[WAYV_NOISE_AMP].UpperBound =  0.0f;
 
-	port_descriptors[WAYV_OSC1_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC1_TYPE] = 1;
 	port_range_hints[WAYV_OSC1_TYPE].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC1_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
 
-	port_descriptors[WAYV_OSC1_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC1_PITCH] = 1;
 	port_range_hints[WAYV_OSC1_PITCH].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC1_PITCH].LowerBound =  -36.0f;
 	port_range_hints[WAYV_OSC1_PITCH].UpperBound =  36.0f;
 
-	port_descriptors[WAYV_OSC1_TUNE] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC1_TUNE] = 1;
 	port_range_hints[WAYV_OSC1_TUNE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC1_TUNE].LowerBound = -100.0f;
 	port_range_hints[WAYV_OSC1_TUNE].UpperBound =  100.0f;
 
-	port_descriptors[WAYV_OSC1_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC1_VOLUME] = 1;
 	port_range_hints[WAYV_OSC1_VOLUME].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC1_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC1_VOLUME].UpperBound =  0.0f;
 
-	port_descriptors[WAYV_OSC2_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC2_TYPE] = 1;
 	port_range_hints[WAYV_OSC2_TYPE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
 
-	port_descriptors[WAYV_OSC2_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC2_PITCH] = 1;
 	port_range_hints[WAYV_OSC2_PITCH].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_PITCH].LowerBound =  -36.0f;
 	port_range_hints[WAYV_OSC2_PITCH].UpperBound =  36.0f;
 
-	port_descriptors[WAYV_OSC2_TUNE] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC2_TUNE] = 1;
 	port_range_hints[WAYV_OSC2_TUNE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_TUNE].LowerBound = -100.0f;
 	port_range_hints[WAYV_OSC2_TUNE].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_OSC2_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC2_VOLUME] = 1;
 	port_range_hints[WAYV_OSC2_VOLUME].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC2_VOLUME].UpperBound =  0.0f;
 
-	port_descriptors[WAYV_MASTER_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_MASTER_VOLUME] = 1;
 	port_range_hints[WAYV_MASTER_VOLUME].DefaultValue = -6.0f;
 	port_range_hints[WAYV_MASTER_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_MASTER_VOLUME].UpperBound =  12.0f;
 
-	port_descriptors[WAYV_OSC1_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC1_UNISON_VOICES] = 1;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].DefaultValue = 4.0f;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].UpperBound =  7.0f;
 
-	port_descriptors[WAYV_OSC1_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC1_UNISON_SPREAD] = 1;
 	port_range_hints[WAYV_OSC1_UNISON_SPREAD].DefaultValue = 50.0f;
 	port_range_hints[WAYV_OSC1_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_UNISON_SPREAD].UpperBound =  100.0f;
 
-	port_descriptors[WAYV_MASTER_GLIDE] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_MASTER_GLIDE] = 1;
 	port_range_hints[WAYV_MASTER_GLIDE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_MASTER_GLIDE].LowerBound =  0.0f;
 	port_range_hints[WAYV_MASTER_GLIDE].UpperBound =  200.0f;
 
-	port_descriptors[WAYV_MASTER_PITCHBEND_AMT] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_MASTER_PITCHBEND_AMT] = 1;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].DefaultValue = 18.0f;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
@@ -1056,7 +1056,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_RAMP_ENV_TIME] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_range_hints[WAYV_RAMP_ENV_TIME].DefaultValue = 100.0f;
 	port_range_hints[WAYV_RAMP_ENV_TIME].LowerBound = 0.0f;
-	port_range_hints[WAYV_RAMP_ENV_TIME].UpperBound = 200.0f;
+	port_range_hints[WAYV_RAMP_ENV_TIME].UpperBound = 600.0f;
 
 	port_descriptors[WAYV_LFO_FREQ] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_range_hints[WAYV_LFO_FREQ].DefaultValue = 200.0f;
@@ -1403,107 +1403,107 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_ADSR2_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].UpperBound =  1;
 
-	port_descriptors[WAYV_LFO_AMP] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_LFO_AMP] = 1;
 	port_range_hints[WAYV_LFO_AMP].DefaultValue = 0.0f;
 	port_range_hints[WAYV_LFO_AMP].LowerBound = -24.0f;
 	port_range_hints[WAYV_LFO_AMP].UpperBound = 24.0f;
 
-	port_descriptors[WAYV_LFO_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_LFO_PITCH] = 1;
 	port_range_hints[WAYV_LFO_PITCH].DefaultValue = 0.0f;
 	port_range_hints[WAYV_LFO_PITCH].LowerBound = -36.0f;
 	port_range_hints[WAYV_LFO_PITCH].UpperBound = 36.0f;
 
-	port_descriptors[WAYV_PITCH_ENV_AMT] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_PITCH_ENV_AMT] = 1;
 	port_range_hints[WAYV_PITCH_ENV_AMT].DefaultValue = 0.0f;
 	port_range_hints[WAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
 	port_range_hints[WAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
 
-	port_descriptors[WAYV_OSC2_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC2_UNISON_VOICES] = 1;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].DefaultValue = 4.0f;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].UpperBound =  7.0f;
 
-	port_descriptors[WAYV_OSC2_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC2_UNISON_SPREAD] = 1;
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].DefaultValue = 50.0f;
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].UpperBound =  100.0f;
 
-	port_descriptors[WAYV_LFO_AMOUNT] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_LFO_AMOUNT] = 1;
 	port_range_hints[WAYV_LFO_AMOUNT].DefaultValue = 100.0f;
 	port_range_hints[WAYV_LFO_AMOUNT].LowerBound = 0.0f;
 	port_range_hints[WAYV_LFO_AMOUNT].UpperBound = 100.0f;
 
-        port_descriptors[WAYV_OSC3_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC3_TYPE] = 1;
 	port_range_hints[WAYV_OSC3_TYPE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
 
-	port_descriptors[WAYV_OSC3_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC3_PITCH] = 1;
 	port_range_hints[WAYV_OSC3_PITCH].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_PITCH].LowerBound =  -36.0f;
 	port_range_hints[WAYV_OSC3_PITCH].UpperBound =  36.0f;
 
-	port_descriptors[WAYV_OSC3_TUNE] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC3_TUNE] = 1;
 	port_range_hints[WAYV_OSC3_TUNE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_TUNE].LowerBound = -100.0f;
 	port_range_hints[WAYV_OSC3_TUNE].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_OSC3_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC3_VOLUME] = 1;
 	port_range_hints[WAYV_OSC3_VOLUME].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC3_VOLUME].UpperBound =  0.0f;
 
-        port_descriptors[WAYV_OSC3_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC3_UNISON_VOICES] = 1;
 	port_range_hints[WAYV_OSC3_UNISON_VOICES].DefaultValue = 4.0f;
 	port_range_hints[WAYV_OSC3_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC3_UNISON_VOICES].UpperBound =  7.0f;
 
-	port_descriptors[WAYV_OSC3_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_descriptors[WAYV_OSC3_UNISON_SPREAD] = 1;
 	port_range_hints[WAYV_OSC3_UNISON_SPREAD].DefaultValue = 50.0f;
 	port_range_hints[WAYV_OSC3_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_UNISON_SPREAD].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC1_FM1] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC1_FM1] = 1;
 	port_range_hints[WAYV_OSC1_FM1].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC1_FM1].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_FM1].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC1_FM2] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC1_FM2] = 1;
 	port_range_hints[WAYV_OSC1_FM2].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC1_FM2].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_FM2].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC1_FM3] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC1_FM3] = 1;
 	port_range_hints[WAYV_OSC1_FM3].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC1_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_FM3].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC2_FM1] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC2_FM1] = 1;
 	port_range_hints[WAYV_OSC2_FM1].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_FM1].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_FM1].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC2_FM2] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC2_FM2] = 1;
 	port_range_hints[WAYV_OSC2_FM2].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_FM2].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_FM2].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC2_FM3] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC2_FM3] = 1;
 	port_range_hints[WAYV_OSC2_FM3].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC2_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_FM3].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC3_FM1] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC3_FM1] = 1;
 	port_range_hints[WAYV_OSC3_FM1].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_FM1].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM1].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC3_FM2] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC3_FM2] = 1;
 	port_range_hints[WAYV_OSC3_FM2].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_FM2].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM2].UpperBound =  100.0f;
 
-        port_descriptors[WAYV_OSC3_FM3] = port_descriptors[WAYV_ATTACK_MAIN];
+        port_descriptors[WAYV_OSC3_FM3] = 1;
 	port_range_hints[WAYV_OSC3_FM3].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC3_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM3].UpperBound =  100.0f;

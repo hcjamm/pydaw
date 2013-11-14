@@ -414,7 +414,7 @@ class pydaw_ramp_env_widget:
             -36, 36, 0, kc_integer, a_port_dict, a_preset_mgr)
             self.amt_knob.add_to_grid_layout(self.layout, 0)
         self.time_knob = pydaw_knob_control(a_size, "Time", a_time_port, a_rel_callback, a_val_callback, \
-        1, 200, 100, kc_decimal, a_port_dict, a_preset_mgr)
+        1, 600, 100, kc_decimal, a_port_dict, a_preset_mgr)
         self.time_knob.add_to_grid_layout(self.layout, 1)
         if a_curve_port is not None:
             self.curve_knob = pydaw_knob_control(a_size, "Curve", a_curve_port, a_rel_callback, a_val_callback, \
