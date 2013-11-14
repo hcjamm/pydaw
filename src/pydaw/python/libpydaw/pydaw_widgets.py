@@ -1324,7 +1324,7 @@ class pydaw_modulex_single:
             self.knobs[1].name_label.setText(("Dry/Wet"))
             self.knobs[2].name_label.setText(("Out Gain"))
             self.knobs[0].val_conversion = kc_127_zero_to_x
-            self.knobs[0].set_127_min_max(0.0, 36.0)
+            self.knobs[0].set_127_min_max(0.0, 48.0)
             self.knobs[1].val_conversion = kc_none
             self.knobs[1].value_label.setText((""))
             self.knobs[2].val_conversion = kc_127_zero_to_x

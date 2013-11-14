@@ -369,7 +369,7 @@ inline void v_mf3_run_eq(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 inline void v_mf3_run_dist(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.283464567f);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.377952756f);
     a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016f);
     a_mf3->control_value[2] = (((a_mf3->control[2]) * 0.236220472f) - 30.0f);
     a_mf3->outgain = f_db_to_linear((a_mf3->control_value[2]), a_mf3->amp_ptr);
