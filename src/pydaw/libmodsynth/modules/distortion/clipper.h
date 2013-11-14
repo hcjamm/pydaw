@@ -17,11 +17,11 @@ GNU General Public License for more details.
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
+
 #include "../../lib/amp.h"
-    
+
 //#define CLP_DEBUG_MODE
-    
+
 typedef struct st_clipper
 {
     float clip_high, clip_low, input_gain_linear, clip_db, in_db, result;
@@ -48,11 +48,11 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
     /*Already set, don't set again*/
     if(a_db == (a_clp->clip_db))
         return;
-    
+
     a_clp->clip_db = a_db;
-    
+
     float f_value = f_db_to_linear_fast(a_db, a_clp->amp_ptr);
-    
+
 #ifdef CLP_DEBUG_MODE
         printf("Clipper value == %f", f_value);
 #endif
@@ -68,23 +68,22 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
  */
 void v_clp_set_in_gain(t_clipper * a_clp, float a_db)
 {
-    if((a_clp->in_db) == a_db)
-        return;
-    
-    a_clp->in_db = a_db;
-    
-    a_clp->input_gain_linear = f_db_to_linear_fast(a_db, a_clp->amp_ptr);
+    if((a_clp->in_db) != a_db)
+    {
+        a_clp->in_db = a_db;
+        a_clp->input_gain_linear = f_db_to_linear(a_db, a_clp->amp_ptr);
+    }
 }
 
 t_clipper * g_clp_get_clipper()
 {
     t_clipper * f_result;
-    
+
     if(posix_memalign((void**)&f_result, 16, (sizeof(t_clipper))) != 0)
     {
         return 0;
     }
-    
+
     f_result->clip_high = 1.0f;
     f_result->clip_low = -1.0f;
     f_result->input_gain_linear = 1.0f;
@@ -92,7 +91,7 @@ t_clipper * g_clp_get_clipper()
     f_result->result = 0.0f;
     f_result->clip_db = 7654567.0f;  //A nonsensical value for the sake of forcing a change on the first comparison
     f_result->amp_ptr = g_amp_get();
-    
+
     return f_result;
 };
 
@@ -100,18 +99,18 @@ t_clipper * g_clp_get_clipper()
  * t_clipper *,
  * float a_input  //value to be clipped
  * )
- * 
+ *
  * This function performs the actual clipping, and returns a float
  */
 inline float f_clp_clip(t_clipper * a_clp, float a_input)
 {
     a_clp->result = a_input * (a_clp->input_gain_linear);
-    
+
     if(a_clp->result > (a_clp->clip_high))
         a_clp->result = (a_clp->clip_high);
     else if(a_clp->result < (a_clp->clip_low))
         a_clp->result = (a_clp->clip_low);
-   
+
     return (a_clp->result);
 }
 
