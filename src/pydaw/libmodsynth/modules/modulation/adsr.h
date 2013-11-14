@@ -352,7 +352,7 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
                 else
                 {
                     a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->a_inc_db);
-                    a_adsr_ptr->output = f_db_to_linear((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    a_adsr_ptr->output = f_db_to_linear_fast((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
 
                     if((a_adsr_ptr->output) >= 1.0f)
                     {
@@ -369,7 +369,7 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
                 else
                 {
                     a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->d_inc_db);
-                    a_adsr_ptr->output = f_db_to_linear((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    a_adsr_ptr->output = f_db_to_linear_fast((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
                 }
 
                 if((a_adsr_ptr->output) <= (a_adsr_ptr->s_value))
@@ -383,19 +383,13 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
             case 3:
                 if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR_RELEASE)
                 {
-                    a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->r_inc);
-
-                    if((a_adsr_ptr->output) <= 0.0f)
-                    {
-                        a_adsr_ptr->output = 0.0f;
-                        a_adsr_ptr->stage = 4;
-                        //printf("ADSR stage4\n");
-                    }
+                    a_adsr_ptr->stage = 4;
+                    a_adsr_ptr->output = 0.0f;
                 }
                 else
                 {
                     a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->r_inc_db);
-                    a_adsr_ptr->output = f_db_to_linear((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    a_adsr_ptr->output = f_db_to_linear_fast((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
                 }
 
                 break;
