@@ -1616,6 +1616,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.layout.addLayout(self.presets_hlayout)
         self.tab_widget = QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
+        self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
         self.fx_tab = QtGui.QWidget()
         self.tab_widget.addTab(self.fx_tab, "Effects")
@@ -1769,6 +1770,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.preset_manager =  pydaw_preset_manager_widget("RAYV")
         self.main_layout = QtGui.QVBoxLayout()
         self.layout.addLayout(self.main_layout)
+        self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout0)
         self.hlayout0.addWidget(self.preset_manager.group_box)
@@ -1877,6 +1879,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_lfo_types = [ "Off" , "Sine" , "Triangle"]
         self.tab_widget =  QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
+        self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         self.osc_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.osc_tab, ("Oscillators"))
         self.poly_fx_tab =  QtGui.QWidget()
@@ -2116,6 +2119,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 4)
 
         self.open_plugin_file()
+
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
