@@ -1674,7 +1674,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.plugin_val_callback, -40, 0, 0, kc_integer, self.port_dict, self.preset_manager)
         m_duck.add_to_grid_layout(delay_gridlayout, 4)
         m_cutoff =  pydaw_knob_control(51, "Cutoff", pydaw_ports.MODULEX_CUTOFF, self.plugin_rel_callback, \
-        self.plugin_val_callback, 20, 124, 66, kc_pitch, self.port_dict, self.preset_manager)
+        self.plugin_val_callback, 40, 118, 90, kc_pitch, self.port_dict, self.preset_manager)
         m_cutoff.add_to_grid_layout(delay_gridlayout, 5)
         m_stereo =  pydaw_knob_control(51, "Stereo", pydaw_ports.MODULEX_STEREO, self.plugin_rel_callback, \
         self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)

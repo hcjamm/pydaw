@@ -183,7 +183,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             if(events[event_pos].plugin_index == -1)
             {
                 assert(events[event_pos].port < MODULEX_COUNT && events[event_pos].port >= MODULEX_FIRST_CONTROL_PORT);
-                
+
                 plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
                 plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
                 plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
@@ -552,7 +552,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_range_hints[MODULEX_DUCK].UpperBound =  0.0f;
 
 	port_descriptors[MODULEX_CUTOFF] = 1;
-	port_range_hints[MODULEX_CUTOFF].DefaultValue = 66.0f;
+	port_range_hints[MODULEX_CUTOFF].DefaultValue = 90.0f;
 	port_range_hints[MODULEX_CUTOFF].LowerBound =  40.0f;
 	port_range_hints[MODULEX_CUTOFF].UpperBound =  118.0f;
 
