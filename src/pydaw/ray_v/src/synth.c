@@ -540,12 +540,12 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_descriptors[RAYV_ATTACK] = 1;
 	port_range_hints[RAYV_ATTACK].DefaultValue = 10.0f;
 	port_range_hints[RAYV_ATTACK].LowerBound = 0.0f;
-	port_range_hints[RAYV_ATTACK].UpperBound = 100.0f;
+	port_range_hints[RAYV_ATTACK].UpperBound = 200.0f;
 
 	port_descriptors[RAYV_DECAY] = 1;
 	port_range_hints[RAYV_DECAY].DefaultValue = 10.0f;
 	port_range_hints[RAYV_DECAY].LowerBound = 10.0f;
-	port_range_hints[RAYV_DECAY].UpperBound = 100.0f;
+	port_range_hints[RAYV_DECAY].UpperBound = 200.0f;
 
 	port_descriptors[RAYV_SUSTAIN] = 1;
 	port_range_hints[RAYV_SUSTAIN].DefaultValue = 0.0f;
@@ -575,12 +575,12 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_descriptors[RAYV_FILTER_ATTACK] = 1;
 	port_range_hints[RAYV_FILTER_ATTACK].DefaultValue = 10.0f;
 	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 0.0f;
-	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 100.0f;
+	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 200.0f;
 
 	port_descriptors[RAYV_FILTER_DECAY]= 1;
 	port_range_hints[RAYV_FILTER_DECAY].DefaultValue = 50.0f;
 	port_range_hints[RAYV_FILTER_DECAY].LowerBound = 10.0f;
-	port_range_hints[RAYV_FILTER_DECAY].UpperBound = 100.0f;
+	port_range_hints[RAYV_FILTER_DECAY].UpperBound = 200.0f;
 
 	port_descriptors[RAYV_FILTER_SUSTAIN] = 1;
 	port_range_hints[RAYV_FILTER_SUSTAIN].DefaultValue = 100.0f;

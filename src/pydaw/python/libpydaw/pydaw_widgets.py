@@ -374,8 +374,8 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port, a_sustain_port, a_release_port, \
             a_label, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None, a_attack_default=10):
-        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, a_attack_default, kc_decimal, a_port_dict, a_preset_mgr)
-        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 50, kc_decimal, a_port_dict, a_preset_mgr)
+        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 200, a_attack_default, kc_decimal, a_port_dict, a_preset_mgr)
+        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 200, 50, kc_decimal, a_port_dict, a_preset_mgr)
         if a_sustain_in_db:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -30, 0, 0, kc_integer, a_port_dict, a_preset_mgr)
         else:

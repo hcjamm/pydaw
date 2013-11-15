@@ -1266,12 +1266,12 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_descriptors[EUPHORIA_ATTACK] = 1;
     port_range_hints[EUPHORIA_ATTACK].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_ATTACK].LowerBound = 0.0f;
-    port_range_hints[EUPHORIA_ATTACK].UpperBound = 100.0f;
+    port_range_hints[EUPHORIA_ATTACK].UpperBound = 200.0f;
 
     port_descriptors[EUPHORIA_DECAY] = 1;
     port_range_hints[EUPHORIA_DECAY].DefaultValue = 50.0f;
     port_range_hints[EUPHORIA_DECAY].LowerBound = 10.0f;
-    port_range_hints[EUPHORIA_DECAY].UpperBound = 100.0f;
+    port_range_hints[EUPHORIA_DECAY].UpperBound = 200.0f;
 
     port_descriptors[EUPHORIA_SUSTAIN] = 1;
     port_range_hints[EUPHORIA_SUSTAIN].DefaultValue = 0.0f;
@@ -1286,12 +1286,12 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_descriptors[EUPHORIA_FILTER_ATTACK] = 1;
     port_range_hints[EUPHORIA_FILTER_ATTACK].DefaultValue = 10.0f;
     port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 0.0f;
-    port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 100.0f;
+    port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 200.0f;
 
     port_descriptors[EUPHORIA_FILTER_DECAY]= 1;
     port_range_hints[EUPHORIA_FILTER_DECAY].DefaultValue = 50.0f;
     port_range_hints[EUPHORIA_FILTER_DECAY].LowerBound = 10.0f;
-    port_range_hints[EUPHORIA_FILTER_DECAY].UpperBound = 100.0f;
+    port_range_hints[EUPHORIA_FILTER_DECAY].UpperBound = 200.0f;
 
     port_descriptors[EUPHORIA_FILTER_SUSTAIN] = 1;
     port_range_hints[EUPHORIA_FILTER_SUSTAIN].DefaultValue = 100.0f;

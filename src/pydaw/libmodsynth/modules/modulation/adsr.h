@@ -347,7 +347,7 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
             case 0:
                 if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR)
                 {
-                    a_adsr_ptr->output = (a_adsr_ptr->output) + (a_adsr_ptr->a_inc);
+                    a_adsr_ptr->output = (a_adsr_ptr->output) + 0.005f;
                 }
                 else
                 {
