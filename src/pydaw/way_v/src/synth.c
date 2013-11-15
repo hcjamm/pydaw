@@ -916,7 +916,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_RELEASE1] = 1;
 	port_range_hints[WAYV_RELEASE1].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE1].LowerBound = 10.0f;
-	port_range_hints[WAYV_RELEASE1].UpperBound = 200.0f;
+	port_range_hints[WAYV_RELEASE1].UpperBound = 400.0f;
 
 	port_descriptors[WAYV_ATTACK2] = 1;
 	port_range_hints[WAYV_ATTACK2].DefaultValue = 10.0f;
@@ -936,7 +936,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_RELEASE2] = 1;
 	port_range_hints[WAYV_RELEASE2].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE2].LowerBound = 10.0f;
-	port_range_hints[WAYV_RELEASE2].UpperBound = 200.0f;
+	port_range_hints[WAYV_RELEASE2].UpperBound = 400.0f;
 
 	port_descriptors[WAYV_NOISE_AMP] = 1;
 	port_range_hints[WAYV_NOISE_AMP].DefaultValue = -30.0f;
@@ -1033,7 +1033,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 0.0f;
 	port_range_hints[WAYV_ATTACK_PFX2].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_DECAY_PFX2] = port_descriptors[WAYV_ATTACK_PFX1];
+	port_descriptors[WAYV_DECAY_PFX2]= 1;
 	port_range_hints[WAYV_DECAY_PFX2].DefaultValue = 50.0f;
 	port_range_hints[WAYV_DECAY_PFX2].LowerBound = 10.0f;
 	port_range_hints[WAYV_DECAY_PFX2].UpperBound = 100.0f;
@@ -1043,27 +1043,27 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_SUSTAIN_PFX2].LowerBound = 0.0f;
 	port_range_hints[WAYV_SUSTAIN_PFX2].UpperBound = 100.0f;
 
-	port_descriptors[WAYV_RELEASE_PFX2] = port_descriptors[WAYV_ATTACK_PFX1];
+	port_descriptors[WAYV_RELEASE_PFX2]= 1;
 	port_range_hints[WAYV_RELEASE_PFX2].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE_PFX2].LowerBound = 10.0f;
 	port_range_hints[WAYV_RELEASE_PFX2].UpperBound = 200.0f;
 
-	port_descriptors[WAYV_NOISE_AMP] = port_descriptors[WAYV_ATTACK_PFX1];
+	port_descriptors[WAYV_NOISE_AMP]= 1;
 	port_range_hints[WAYV_NOISE_AMP].DefaultValue = -60.0f;
 	port_range_hints[WAYV_NOISE_AMP].LowerBound =  -60.0f;
 	port_range_hints[WAYV_NOISE_AMP].UpperBound =  0.0f;
 
-	port_descriptors[WAYV_RAMP_ENV_TIME] = port_descriptors[WAYV_ATTACK_PFX1];
+	port_descriptors[WAYV_RAMP_ENV_TIME]= 1;
 	port_range_hints[WAYV_RAMP_ENV_TIME].DefaultValue = 100.0f;
 	port_range_hints[WAYV_RAMP_ENV_TIME].LowerBound = 0.0f;
 	port_range_hints[WAYV_RAMP_ENV_TIME].UpperBound = 600.0f;
 
-	port_descriptors[WAYV_LFO_FREQ] = port_descriptors[WAYV_ATTACK_PFX1];
+	port_descriptors[WAYV_LFO_FREQ]= 1;
 	port_range_hints[WAYV_LFO_FREQ].DefaultValue = 200.0f;
 	port_range_hints[WAYV_LFO_FREQ].LowerBound = 10;
 	port_range_hints[WAYV_LFO_FREQ].UpperBound = 1600;
 
-	port_descriptors[WAYV_LFO_TYPE] = port_descriptors[WAYV_ATTACK_PFX1];
+	port_descriptors[WAYV_LFO_TYPE]= 1;
 	port_range_hints[WAYV_LFO_TYPE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_LFO_TYPE].LowerBound = 0.0f;
 	port_range_hints[WAYV_LFO_TYPE].UpperBound = 2.0f;
@@ -1526,7 +1526,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_descriptors[WAYV_RELEASE3] = 1;
 	port_range_hints[WAYV_RELEASE3].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RELEASE3].LowerBound = 10.0f;
-	port_range_hints[WAYV_RELEASE3].UpperBound = 200.0f;
+	port_range_hints[WAYV_RELEASE3].UpperBound = 400.0f;
 
         port_descriptors[WAYV_ADSR3_CHECKBOX] = 1;
 	port_range_hints[WAYV_ADSR3_CHECKBOX].DefaultValue = 0.0f;
