@@ -53,9 +53,11 @@ for f_i_gradient in range(pydaw_midi_track_count):
             f_rainbox_pos -= len(pydaw_rainbow_gradient)
     pydaw_track_gradients.append(f_gradient)
 
-pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
-pydaw_region_gradient.setColorAt(0, QtGui.QColor(190, 170, 40))
-pydaw_region_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
+pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 50))
+pydaw_region_gradient.setColorAt(0.0, QtGui.QColor(230, 221, 45))
+pydaw_region_gradient.setColorAt(0.5, QtGui.QColor(220, 210, 43))
+pydaw_region_gradient.setColorAt(0.6, QtGui.QColor(210, 196, 42))
+pydaw_region_gradient.setColorAt(1.0, QtGui.QColor(150, 140, 33))
 
 pydaw_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
 #ffa02f, #d7801a)
