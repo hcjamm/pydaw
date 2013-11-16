@@ -885,7 +885,7 @@ class region_list_editor:
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.verticalHeader().setVisible(False)
         self.table_widget.horizontalHeader().sectionClicked.connect(self.column_clicked)
-        self.table_widget.setMinimumHeight(360)
+        self.table_widget.setMinimumHeight(300)
         self.table_widget.setAutoScroll(True)
         self.table_widget.setAutoScrollMargin(1)
         self.table_widget.setColumnCount(9)
@@ -2854,7 +2854,7 @@ class audio_item_editor_widget:
         self.timestretch_amt_end.valueChanged.connect(self.timestretch_changed)
         self.crispness_combobox.currentIndexChanged.connect(self.timestretch_changed)
 
-        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.output_hlayout = QtGui.QHBoxLayout()
         self.output_checkbox = QtGui.QCheckBox("Output:")
         self.output_hlayout.addWidget(self.output_checkbox)
@@ -2867,7 +2867,7 @@ class audio_item_editor_widget:
         self.output_hlayout.addWidget(self.output_combobox)
         self.vlayout2.addLayout(self.output_hlayout)
 
-        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.reversed_layout = QtGui.QHBoxLayout()
         self.reversed_checkbox = QtGui.QCheckBox()
         self.reversed_layout.addWidget(self.reversed_checkbox)
@@ -2877,9 +2877,9 @@ class audio_item_editor_widget:
         self.reversed_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.reversed_layout)
 
-        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.fadein_vol_layout = QtGui.QHBoxLayout()
-        self.fadein_vol_checkbox = QtGui.QCheckBox("Fade-in start volume(dB):")
+        self.fadein_vol_checkbox = QtGui.QCheckBox("Fade-in:")
         self.fadein_vol_layout.addWidget(self.fadein_vol_checkbox)
         self.fadein_vol_spinbox = QtGui.QSpinBox()
         self.fadein_vol_spinbox.setRange(-50, -6)
@@ -2889,16 +2889,13 @@ class audio_item_editor_widget:
         self.fadein_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.fadein_vol_layout)
 
-        self.fadeout_vol_layout = QtGui.QHBoxLayout()
-        self.fadeout_vol_checkbox = QtGui.QCheckBox("Fade-out end volume(dB):")
-        self.fadeout_vol_layout.addWidget(self.fadeout_vol_checkbox)
+        self.fadeout_vol_checkbox = QtGui.QCheckBox("Fade-out:")
+        self.fadein_vol_layout.addWidget(self.fadeout_vol_checkbox)
         self.fadeout_vol_spinbox = QtGui.QSpinBox()
         self.fadeout_vol_spinbox.setRange(-50, -6)
         self.fadeout_vol_spinbox.setValue(-40)
         self.fadeout_vol_spinbox.valueChanged.connect(self.fadeout_vol_changed)
-        self.fadeout_vol_layout.addWidget(self.fadeout_vol_spinbox)
-        self.fadeout_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
-        self.vlayout2.addLayout(self.fadeout_vol_layout)
+        self.fadein_vol_layout.addWidget(self.fadeout_vol_spinbox)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
         self.ok_layout = QtGui.QHBoxLayout()
@@ -2935,6 +2932,8 @@ class audio_item_editor_widget:
             self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n"
             "use the fade-in/fade-out handles, or automate the volume on the audio track specified in the Output: combobox.")
             self.is_reversed_checkbox.setToolTip("Checking this causes the sample to play backwards")
+            self.fadein_vol_spinbox.setToolTip("Sets the initial volume in dB when fading in.")
+            self.fadeout_vol_spinbox.setToolTip("Sets the end volume in dB when fading out.")
         else:
             self.timestretch_amt_end.setToolTip("")
             self.pitch_shift_end.setToolTip("")
@@ -2945,6 +2944,8 @@ class audio_item_editor_widget:
             self.output_combobox.setToolTip("")
             self.sample_vol_slider.setToolTip("")
             self.is_reversed_checkbox.setToolTip("")
+            self.fadein_vol_spinbox.setToolTip("")
+            self.fadeout_vol_spinbox.setToolTip("")
 
     def reverse_changed(self, a_val=None):
         self.reversed_checkbox.setChecked(True)
