@@ -99,23 +99,20 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
 """)
         f_window_layout.addWidget(f_audio_engine_combobox, 4, 1)
         f_thread_affinity_checkbox = QtGui.QCheckBox("Lock worker threads to own core?")
-        f_thread_affinity_checkbox.setToolTip( \
-"""This may give better performance with fewer Xruns at low latency, but may perform badly
-on certain configurations.
-
-The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.""")
+        f_thread_affinity_checkbox.setToolTip("This may give better performance with fewer Xruns at low latency, but may perform badly\n"
+            "on certain configurations."
+            "The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.")
         f_window_layout.addWidget(f_thread_affinity_checkbox, 5, 1)
 
         f_governor_checkbox = QtGui.QCheckBox("Force CPU governor to performance mode when PyDAW is running?")
-        f_governor_checkbox.setToolTip( \
-"""This forces the CPU to use more aggressive clockspeeds when PyDAW is running, and reverts back to "On Demand"
-when PyDAW is closed.  Use this for best performance if possible.
-
-The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.
-Also, support for cpufreq must be compiled in, which requires different dependencies in each distro, currently
-it's only default for Ubuntu.""")
+        f_governor_checkbox.setToolTip("This forces the CPU to use more aggressive clockspeeds when PyDAW is running, and reverts back to 'On Demand'\n"
+            "when PyDAW is closed.  Use this for best performance if possible.\n"
+            "The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.\n"
+            "Also, support for cpufreq must be compiled in, which requires different dependencies in each distro, currently\n"
+            "it's only default for Ubuntu.\n\n"
+            "IMPORTANT:  Enabling this usually crashes the audio engine when run from within Virtualbox or on systems with\n"
+            "certain security configurations.  Disable this if PyDAW's engine crashes on startup.")
         f_window_layout.addWidget(f_governor_checkbox, 6, 1)
-
 
         f_window_layout.addWidget(QtGui.QLabel("MIDI In Device:"), 7, 0)
         f_midi_in_device_combobox = QtGui.QComboBox()
