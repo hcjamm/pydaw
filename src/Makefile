@@ -9,6 +9,10 @@ PYDAW_VERSION = pydaw4
 # --------------------------------------------------------------
 
 all:
+	make deps
+	make pydaw
+
+pydaw_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
 
 # --------------------------------------------------------------
