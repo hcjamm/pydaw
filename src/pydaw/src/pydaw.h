@@ -2398,31 +2398,34 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
         float f_adjusted_next_song_pos_beats;
         int f_current_region = a_pydaw_data->ml_current_region;
 
-        f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_current_region,
-                a_pydaw_data->ml_current_bar, a_pydaw_data->ml_current_beat);
-        f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region,
-                a_pydaw_data->ml_next_bar, a_pydaw_data->ml_next_beat);
+        f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, a_pydaw_data->ml_current_region, 0, 0.0f,
+                a_pydaw_data->ml_current_region, a_pydaw_data->ml_current_bar, a_pydaw_data->ml_current_beat);
 
         if(f_region_count == 2)
         {
             if(f_i6 == 0)
             {
-                float test1 = (int)(f_adjusted_next_song_pos_beats);
-                float test2 = test1 - f_adjusted_song_pos_beats;
-                float test3 = (a_pydaw_data->ml_sample_period_inc / test2) * ((float)(a_sample_count));
-                f_adjusted_sample_count = (int)test3;
-                assert(f_adjusted_sample_count < a_sample_count);
-
-                f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_current_region,
-                    a_pydaw_data->ml_current_bar, a_pydaw_data->ml_current_beat);
-                f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region,
-                        a_pydaw_data->ml_next_bar, 0.0f);
-
                 if(!a_pydaw_data->pysong->audio_items[f_current_region])
                 {
                     f_i6++;
                     continue;
                 }
+
+                if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length == 0)
+                {
+                    f_adjusted_next_song_pos_beats = 32.0f;
+                }
+                else
+                {
+                    f_adjusted_next_song_pos_beats = (float)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length * 4);
+                }
+
+                float test1 = (int)(f_adjusted_next_song_pos_beats);
+                float test2 = test1 - f_adjusted_song_pos_beats;
+                float test3 = (test2 / (a_pydaw_data->ml_sample_period_inc_beats)) * ((float)(a_sample_count));
+                f_adjusted_sample_count = (int)test3;
+                assert(f_adjusted_sample_count < a_sample_count);
+
             }
             else
             {
@@ -2430,16 +2433,20 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                 f_adjusted_sample_count = a_sample_count; // - f_adjusted_sample_count;
 
                 f_current_region = a_pydaw_data->ml_next_region;
-                f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region,
-                        a_pydaw_data->ml_next_bar, 0.0f);
-                f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region,
-                        a_pydaw_data->ml_next_bar, a_pydaw_data->ml_next_beat);
-            }
 
-            if(!a_pydaw_data->pysong->audio_items[f_current_region])
-            {
-                break;
+                if(!a_pydaw_data->pysong->audio_items[f_current_region])
+                {
+                    break;
+                }
+
+                f_adjusted_song_pos_beats = 0.0f;
+                f_adjusted_next_song_pos_beats = a_pydaw_data->ml_next_beat;
             }
+        }
+        else
+        {
+            f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, a_pydaw_data->ml_current_region, 0, 0.0f, a_pydaw_data->ml_next_region,
+                    a_pydaw_data->ml_next_bar, a_pydaw_data->ml_next_beat);
         }
 
         int f_i = 0;
@@ -2471,7 +2478,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                 f_return_value = 1;
 
                 a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat =
-                        v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f,
+                        v_pydaw_count_beats(a_pydaw_data, f_current_region, 0, 0.0f,
                         f_current_region,
                         //a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->start_region,
                         a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->start_bar,
