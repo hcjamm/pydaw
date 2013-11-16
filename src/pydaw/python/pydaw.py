@@ -1950,6 +1950,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.commit("Update audio items")
             global_open_audio_items(f_reset_selection)
 
+global_audio_items_header_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_audio_ruler_height)
+global_audio_items_header_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(61, 61, 61))
+global_audio_items_header_gradient.setColorAt(0.5, QtGui.QColor.fromRgb(50,50, 50))
+global_audio_items_header_gradient.setColorAt(0.6, QtGui.QColor.fromRgb(43, 43, 43))
+global_audio_items_header_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(65, 65, 65))
+
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
         QtGui.QGraphicsView.__init__(self)
@@ -2336,6 +2342,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
         f_size = global_audio_px_per_bar * f_region_length
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
+        f_ruler.setBrush(global_audio_items_header_gradient)
         f_ruler.mousePressEvent = self.ruler_click_event
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
