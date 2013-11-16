@@ -3359,14 +3359,6 @@ global_piano_roll_note_count = 120
 global_piano_roll_header_height = 20
 global_piano_roll_total_height = 1000  #gets updated by the piano roll to it's real value
 
-pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
-pydaw_note_gradient.setColorAt(0.0, QtGui.QColor(230, 221, 45))
-pydaw_note_gradient.setColorAt(0.6, QtGui.QColor(220, 211, 39))
-pydaw_note_gradient.setColorAt(0.7, QtGui.QColor(193, 166, 36))
-pydaw_note_gradient.setColorAt(1.0, QtGui.QColor(163, 136, 30))
-
-
-
 pydaw_note_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
 pydaw_note_selected_gradient.setColorAt(0, QtGui.QColor(180, 172, 100))
 pydaw_note_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))

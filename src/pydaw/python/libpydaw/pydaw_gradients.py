@@ -29,6 +29,8 @@ pydaw_rainbow_gradient = [((pydaw_g_lo, pydaw_g_hi, pydaw_g_lo), (pydaw_g_lo, py
 
 pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 50))
 
+pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
+
 def pydaw_linear_interpolate_gradient(a_pos):
     f_frac = a_pos % 1
     f_int = int(a_pos - f_frac)
@@ -61,6 +63,7 @@ def pydaw_set_track_gradients():
     for f_i2 in range(4):
         f_colors = pydaw_linear_interpolate_gradient(f_rainbox_pos)
         pydaw_region_gradient.setColorAt(f_rainbox_intervals[f_i2], QtGui.QColor(f_colors[0], f_colors[1], f_colors[2]))
+        pydaw_note_gradient.setColorAt(f_rainbox_intervals[f_i2], QtGui.QColor(f_colors[0], f_colors[1], f_colors[2]))
         f_rainbox_pos += pydaw_rainbow_inc
         if f_rainbox_pos >= len(pydaw_rainbow_gradient):
             f_rainbox_pos -= len(pydaw_rainbow_gradient)
