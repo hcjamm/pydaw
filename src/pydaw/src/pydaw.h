@@ -2568,15 +2568,11 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         }
                         else if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->wav_pool_item->channels == 2)
                         {
-                            /*Kludge code TODO:  remove*/
-
                             assert(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number <=
                                     a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->wav_pool_item->length);
 
                             assert(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number >=
                                     PYDAW_AUDIO_ITEM_PADDING_DIV2);
-
-                            /*End kludge*/
 
                             float f_tmp_sample0 = f_cubic_interpolate_ptr_ifh(
                             (a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->wav_pool_item->samples[0]),
@@ -2660,39 +2656,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
 
                         f_i2++;
                     }//while < sample count
-
-                    /*
-                    if(a_pydaw_data->ml_is_looping)
-                    {
-                        //I think the references to a_pydaw_data->current_region
-                        //in this block are OK because if looping the region won't
-                        //change anyways...
-                        float test1 = 0.0f;
-
-                        if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
-                        {
-                            test1 = f_adjusted_next_song_pos_beats - 4.0f -
-                                    (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_start_beat);
-                        }
-
-                        if(test1 < 0.0f)  //meaning the audio item starts in mid-region...
-                        {
-                            //v_adsr_release(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
-                            a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->stage = 4;
-                        }
-                        else
-                        {
-                            float test2 = test1 * (a_pydaw_data->samples_per_beat) *
-                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->ratio);
-                            v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head,
-                                    test2 +
-                                    a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_start_offset_float);
-                            //PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
-                            v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
-                        }
-                    }// if is looping
-                    */
-
                 }  //if stage
             } //if this track_num
             f_i++;
