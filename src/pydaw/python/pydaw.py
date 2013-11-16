@@ -247,6 +247,7 @@ class song_editor:
             f_is_playing = True
             this_transport.follow_checkbox.setChecked(False)
             this_region_editor.table_widget.clearSelection()
+            this_audio_items_viewer.stop_playback(0)
         f_cell = self.table_widget.item(x, y)
         if f_cell is None:
             def song_ok_handler():
@@ -2286,11 +2287,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_timer.start(f_interval)
         self.playback_inc_count = 0
 
-    def stop_playback(self):
-        self.playback_timer.stop()
-        self.is_playing = False
-        self.reset_selection()
-        self.set_playback_pos()
+    def stop_playback(self, a_bar=None):
+        if self.is_playing:
+            self.is_playing = False
+            self.playback_timer.stop()
+            self.reset_selection()
+            self.set_playback_pos(a_bar)
 
     def playback_timeout(self):
         if self.is_playing and self.playback_inc_count < 300:
@@ -5820,6 +5822,8 @@ class transport_widget:
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
             if self.is_playing or self.is_recording:
+                this_audio_items_viewer.stop_playback(0)
+            else:
                 this_audio_items_viewer.stop_playback()
 
     def open_transport(self, a_notify_osc=False):
