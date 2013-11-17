@@ -382,6 +382,7 @@ class pydaw_adsr_widget:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, 0, 100, 100, kc_decimal, a_port_dict, a_preset_mgr)
         self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 400, 50, kc_decimal, a_port_dict, a_preset_mgr)
         self.groupbox = QtGui.QGroupBox(a_label)
+        self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.attack_knob.add_to_grid_layout(self.layout, 0)
         self.decay_knob.add_to_grid_layout(self.layout, 1)
@@ -391,6 +392,7 @@ class pydaw_adsr_widget:
 class pydaw_filter_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_cutoff_port, a_res_port, a_type_port=None, a_label="Filter", a_preset_mgr=None):
         self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.cutoff_knob = pydaw_knob_control(a_size, "Cutoff", a_cutoff_port, a_rel_callback, a_val_callback, \
         20, 124, 124, kc_pitch, a_port_dict, a_preset_mgr)
@@ -408,6 +410,7 @@ class pydaw_ramp_env_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_time_port, a_amt_port, a_label="Ramp Env",
                  a_preset_mgr=None, a_curve_port=None):
         self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
         if a_amt_port is not None:
             self.amt_knob = pydaw_knob_control(a_size, "Amt", a_amt_port, a_rel_callback, a_val_callback, \
@@ -424,6 +427,7 @@ class pydaw_ramp_env_widget:
 class pydaw_lfo_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_freq_port, a_type_port, a_type_list, a_label="LFO", a_preset_mgr=None):
         self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port, a_rel_callback, a_val_callback, \
         10, 1600, 200, kc_decimal, a_port_dict, a_preset_mgr)
@@ -446,6 +450,7 @@ class pydaw_osc_widget:
         a_preset_mgr=a_preset_mgr, a_default_index=a_default_type)
         self.grid_layout = QtGui.QGridLayout()
         self.group_box = QtGui.QGroupBox(str(a_label))
+        self.group_box.setObjectName("plugin_groupbox")
         self.group_box.setLayout(self.grid_layout)
         self.pitch_knob.add_to_grid_layout(self.grid_layout, 0)
         self.fine_knob.add_to_grid_layout(self.grid_layout, 1)
@@ -755,6 +760,7 @@ class pydaw_preset_manager_widget:
                 self.preset_path = f_text
 
         self.group_box = QtGui.QGroupBox()
+        self.group_box.setObjectName("plugin_groupbox")
         self.layout = QtGui.QHBoxLayout(self.group_box)
         self.program_combobox = QtGui.QComboBox()
         self.program_combobox.setEditable(True)
@@ -894,6 +900,7 @@ class pydaw_master_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_master_vol_port, a_master_glide_port, a_master_pitchbend_port, \
     a_port_dict, a_title="Master", a_master_uni_voices_port=None, a_master_uni_spread_port=None, a_preset_mgr=None):
         self.group_box = QtGui.QGroupBox()
+        self.group_box.setObjectName("plugin_groupbox")
         self.group_box.setTitle(str(a_title))
         self.layout = QtGui.QGridLayout(self.group_box)
         self.vol_knob = pydaw_knob_control(a_size, "Vol", a_master_vol_port, a_rel_callback, a_val_callback, -30, 12, -6, kc_integer, a_port_dict, a_preset_mgr)
@@ -1200,6 +1207,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None):
         self.group_box = QtGui.QGroupBox()
+        self.group_box.setObjectName("plugin_groupbox")
         if a_title is not None:
             self.group_box.setTitle(str(a_title))
         self.layout = QtGui.QGridLayout()
@@ -1791,6 +1799,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         "ADSR Amp", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, self.preset_manager)
         self.hlayout1.addWidget(self.adsr_amp.groupbox)
         self.groupbox_distortion =  QtGui.QGroupBox("Distortion")
+        self.groupbox_distortion.setObjectName("plugin_groupbox")
         self.groupbox_distortion_layout = QtGui.QGridLayout(self.groupbox_distortion)
         self.hlayout1.addWidget(self.groupbox_distortion)
         self.dist =  pydaw_knob_control(64, "Gain", pydaw_ports.RAYV_DIST, self.plugin_rel_callback, self.plugin_val_callback, \
@@ -1800,6 +1809,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         0, 100, 0, kc_none, self.port_dict, self.preset_manager)
         self.dist_wet.add_to_grid_layout(self.groupbox_distortion_layout, 1)
         self.groupbox_noise =  QtGui.QGroupBox("Noise")
+        self.groupbox_noise.setObjectName("plugin_groupbox")
         self.noise_layout = QtGui.QGridLayout(self.groupbox_noise)
         self.hlayout1.addWidget(self.groupbox_noise)
         self.noise_amp =  pydaw_knob_control(64, "Vol", pydaw_ports.RAYV_NOISE_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
@@ -1811,6 +1821,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 2", self.port_dict, self.preset_manager, 4)
         self.hlayout2.addWidget(self.osc2.group_box)
         self.sync_groupbox =  QtGui.QGroupBox("Sync")
+        self.sync_groupbox.setObjectName("plugin_groupbox")
         self.hlayout2.addWidget(self.sync_groupbox)
         self.sync_gridlayout = QtGui.QGridLayout(self.sync_groupbox)
         self.hard_sync =  pydaw_checkbox_control("On", pydaw_ports.RAYV_OSC_HARD_SYNC, self.plugin_rel_callback, self.plugin_val_callback, \
@@ -1918,6 +1929,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.groupbox_osc1_fm =  QtGui.QGroupBox("Osc1 FM")
         self.groupbox_osc1_fm_layout = QtGui.QGridLayout(self.groupbox_osc1_fm)
+        self.groupbox_osc1_fm.setObjectName("plugin_groupbox")
 
         self.osc1_fm1 =  pydaw_knob_control(51, "Osc1", pydaw_ports.WAYV_OSC1_FM1, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict, self.preset_manager)
@@ -1958,6 +1970,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.groupbox_osc2_fm =  QtGui.QGroupBox("Osc2 FM")
         self.groupbox_osc2_fm_layout = QtGui.QGridLayout(self.groupbox_osc2_fm)
+        self.groupbox_osc2_fm.setObjectName("plugin_groupbox")
 
         self.osc2_fm1 =  pydaw_knob_control(51, "Osc1", pydaw_ports.WAYV_OSC2_FM1, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict, self.preset_manager)
@@ -1998,6 +2011,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.groupbox_osc3_fm =  QtGui.QGroupBox("Osc3 FM")
         self.groupbox_osc3_fm_layout = QtGui.QGridLayout(self.groupbox_osc3_fm)
+        self.groupbox_osc3_fm.setObjectName("plugin_groupbox")
 
         self.osc3_fm1 =  pydaw_knob_control(51, "Osc1", pydaw_ports.WAYV_OSC3_FM1, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict, self.preset_manager)
@@ -2027,6 +2041,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout4.addWidget(self.adsr_amp_main.groupbox)
 
         self.groupbox_noise =  QtGui.QGroupBox("Noise")
+        self.groupbox_noise.setObjectName("plugin_groupbox")
         self.groupbox_noise_layout = QtGui.QGridLayout(self.groupbox_noise)
         self.hlayout4.addWidget(self.groupbox_noise)
         self.noise_amp =  pydaw_knob_control(51, "Vol", pydaw_ports.WAYV_NOISE_AMP, self.plugin_rel_callback, self.plugin_val_callback, \

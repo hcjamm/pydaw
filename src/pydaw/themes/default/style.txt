@@ -314,7 +314,7 @@ margin-top: 1ex;
 
 QGroupBox#plugin_groupbox
 {
-background-color  :  qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 0.1 #222222, stop: 0.5 #333333, stop: 0.9 #494949, stop: 1 #4d4d4d);
+background-color  :  qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3a3a3a, stop: 0.2 #333333, stop: 0.5 #2a2a2a, stop: 0.7 #333333, stop: 1 #151515);
 border: 2px solid white;
 border-radius: 18px;
 margin-top: 1ex;
