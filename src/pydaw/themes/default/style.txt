@@ -320,6 +320,12 @@ border-radius: 18px;
 margin-top: 1ex;
 }
 
+QWidget#track_panel
+{
+background-color  :  qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #444444, stop: 0.2 #333333, stop: 0.5 #2a2a2a, stop: 0.8 #333333, stop: 1 #444444);
+border: 1px solid #aaaaaa;
+}
+
 QGroupBox::title 
 { 
 subcontrol-origin: margin; 

@@ -3271,8 +3271,7 @@ class audio_track:
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
-        self.group_box.setAutoFillBackground(True)
-        self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
+        self.group_box.setObjectName("track_panel")
         self.group_box.setMinimumWidth(330)
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
@@ -5504,9 +5503,7 @@ class seq_track:
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
-        self.group_box.setAutoFillBackground(True)
-        self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
-        #self.group_box.setObjectName("seqtrack")
+        self.group_box.setObjectName("track_panel")
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.hlayout2 = QtGui.QHBoxLayout()
