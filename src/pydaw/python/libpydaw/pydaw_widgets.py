@@ -459,7 +459,6 @@ class pydaw_note_selector_widget:
         self.port_num = a_port_num
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
-        self.selected_note = 48
         self.note_combobox = QtGui.QComboBox()
         self.note_combobox.setMinimumWidth(60)
         self.note_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])
@@ -480,7 +479,10 @@ class pydaw_note_selector_widget:
         self.name_label = None
         self.value_label = None
         if a_default_value is not None:
+            self.selected_note = a_default_value
             self.set_value(a_default_value)
+        else:
+            self.selected_note = 60
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
 
@@ -3037,8 +3039,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             for i in range(len(paths)):
                 path = str(paths[i])
                 if path != "":
-                    if( not os.path.isfile(path)):
-                        QtGui.QMessageBox.warning(self, "Error", "File cannot be read.")
+                    if not os.path.isfile(path):
+                        QtGui.QMessageBox.warning(self, "Error", "File '%s' cannot be read." % (path,))
                         continue
                     self.pydaw_project.get_wav_uid_by_name(path)
                     f_path_sections = path.split(("/"))
