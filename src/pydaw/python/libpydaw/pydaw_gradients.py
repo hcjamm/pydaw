@@ -18,7 +18,7 @@ from libpydaw.pydaw_project import pydaw_midi_track_count
 pydaw_track_gradients = []
 
 pydaw_g_hi = 100.0
-pydaw_g_hi2 = 231.0
+pydaw_g_hi2 = 255.0
 pydaw_g_lo = 36.0
 
 pydaw_rainbow_gradient = [((pydaw_g_lo, pydaw_g_hi, pydaw_g_lo), (pydaw_g_lo, pydaw_g_hi2, pydaw_g_lo)),
@@ -45,7 +45,7 @@ def pydaw_linear_interpolate_gradient(a_pos):
 def pydaw_set_track_gradients():
     pydaw_rainbow_inc = 0.25
     f_rainbox_pos = 0.0
-    f_rainbox_intervals = [0.0, 0.5, 0.6, 1.0]
+    f_rainbox_intervals = [0.0, 0.15, 0.5, 1.0]
 
 
     for f_i_gradient in range(pydaw_midi_track_count):
