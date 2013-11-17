@@ -1663,6 +1663,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.volume_slider.add_to_grid_layout(self.volume_gridlayout, 0)
 
         delay_groupbox =  QtGui.QGroupBox("Delay")
+        delay_groupbox.setObjectName("plugin_groupbox")
         delay_groupbox.setMaximumSize(387, 126)
         self.delay_hlayout.addWidget(delay_groupbox)
         delay_groupbox.setGeometry(0, 0, 10, 10)
@@ -1690,6 +1691,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
         m_stereo.add_to_grid_layout(delay_gridlayout, 6)
         self.bpm_groupbox =  QtGui.QGroupBox()
+        self.bpm_groupbox.setObjectName("plugin_groupbox")
         self.delay_hlayout.addWidget(self.bpm_groupbox)
         self.delay_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.bpm_groupbox.setGeometry(0, 0, 10, 10)
@@ -1720,6 +1722,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.bpm_groupbox_layout.addWidget(self.beat_frac_combobox, 1, 1, QtCore.Qt.AlignCenter)
         self.bpm_groupbox_layout.addWidget(self.bpm_sync_button, 2, 1, QtCore.Qt.AlignCenter)
         reverb_groupbox =  QtGui.QGroupBox("Reverb")
+        reverb_groupbox.setObjectName("plugin_groupbox")
         reverb_groupbox.setMaximumSize(186, 126)
         self.reverb_groupbox_gridlayout = QtGui.QGridLayout(reverb_groupbox)
         self.reverb_hlayout = QtGui.QHBoxLayout()
