@@ -1794,13 +1794,8 @@ class pydaw_audio_region:
         for k, v in list(self.items.items()):
             if v.start_bar >= a_index:
                 v.start_bar -= a_index
-                if v.end_mode == 1:
-                    v.end_bar -= a_index
                 f_region1.items[k] = v
             else:
-                if v.end_mode == 1 and v.end_bar >= a_index:
-                    v.end_bar = a_index - 1
-                    v.end_beat = 3.99
                 f_region0.items[k] = v
         return f_region0, f_region1
 
@@ -1831,7 +1826,7 @@ class pydaw_audio_region:
         for k, v in list(self.items.items()):
             if v.start_bar >= f_length:
                 f_to_delete.append(k)
-                print(("Item begins after new region length of " + str(a_length) + ", deleting: " + str(v)))
+                print("Item begins after new region length of %s, deleting: %s" % (a_length, v))
         for f_key in f_to_delete:
             self.items.pop(f_key)
 
