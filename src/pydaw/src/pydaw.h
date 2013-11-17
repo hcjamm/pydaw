@@ -2405,13 +2405,13 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     continue;
                 }
 
-                if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length == 0)
+                if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars == 0)
                 {
                     f_adjusted_next_song_pos_beats = 32.0f;
                 }
                 else
                 {
-                    f_adjusted_next_song_pos_beats = (float)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length * 4);
+                    f_adjusted_next_song_pos_beats = (float)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars * 4);
                 }
 
                 float test1 = (int)(f_adjusted_next_song_pos_beats);
