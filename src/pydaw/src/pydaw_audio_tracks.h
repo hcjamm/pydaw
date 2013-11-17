@@ -579,9 +579,27 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_out_start = f_result->sample_start_offset +
             ((int)((float)(f_result->sample_fade_out_start) * f_result->sample_fade_out)) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
 
-    f_result->sample_fade_in_divisor = 1.0f / (float)(f_result->sample_fade_in_end - f_result->sample_start_offset - (PYDAW_AUDIO_ITEM_PADDING_DIV2));
+    int f_fade_diff = (f_result->sample_fade_in_end - f_result->sample_start_offset - (PYDAW_AUDIO_ITEM_PADDING_DIV2));
 
-    f_result->sample_fade_out_divisor = 1.0f / (float)(f_result->sample_end_offset - f_result->sample_fade_out_start);
+    if(f_fade_diff != 0)
+    {
+        f_result->sample_fade_in_divisor = 1.0f / (float)f_fade_diff;
+    }
+    else
+    {
+        f_result->sample_fade_in_divisor = 0.0f;
+    }
+
+    f_fade_diff = (f_result->sample_end_offset - f_result->sample_fade_out_start);
+
+    if(f_fade_diff != 0)
+    {
+        f_result->sample_fade_out_divisor = 1.0f / (float)f_fade_diff;
+    }
+    else
+    {
+        f_result->sample_fade_out_divisor = 0.0f;
+    }
 
     if(f_result->is_reversed)
     {
@@ -621,21 +639,11 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         }
             break;
         /*
+        //Don't have to do anything with these, they comes pre-stretched...
         case 3:  //Rubberband
-        {
-            //Don't have to do anything here, this comes pre-stretched...
-        }
-            break;
         case 4:  //Rubberband (preserving formants)
-        {
-            //Don't have to do anything here, this comes pre-stretched...
-        }
-            break;
         case 5:  //SBSMS
-        {
-            //Don't have to do anything here, this comes pre-stretched...
-        }
-            break;
+        case 6: Paulstretch
         */
     }
 
