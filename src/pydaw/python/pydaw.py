@@ -6169,7 +6169,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.start_reg = i + 1
                     break
 
-            for i in range(self.start_reg + 1, 300):
+            for i in range(self.start_reg, 300):
                 f_item = this_song_editor.table_widget.item(0, i)
                 if f_item is None or f_item.text() == "":
                     self.end_reg = i + 1

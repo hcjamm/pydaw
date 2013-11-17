@@ -1196,9 +1196,9 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                 f_i2++;
             }
 
-            if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
-                ((!f_args->pydaw_data->is_soloed) ||
-                ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
+            if(((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) && (!f_args->pydaw_data->is_soloed))
+                ||
+                ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo)))
             {
                 int f_audio_items_result = v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count),
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginOutputBuffers[0],
