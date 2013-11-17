@@ -1826,6 +1826,9 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.filter_env_amt =  pydaw_knob_control(64, "Env Amt", pydaw_ports.RAYV_FILTER_ENV_AMT, self.plugin_rel_callback, self.plugin_val_callback, \
         -36, 36, 0, kc_integer, self.port_dict, self.preset_manager)
         self.filter_env_amt.add_to_grid_layout(self.filter.layout, 2)
+        self.filter_keytrk = pydaw_knob_control(64, "KeyTrk", pydaw_ports.RAYV_FILTER_KEYTRK, self.plugin_rel_callback, self.plugin_val_callback, \
+        0, 100, 0, kc_none, self.port_dict, self.preset_manager)
+        self.filter_keytrk.add_to_grid_layout(self.filter.layout, 3)
         self.hlayout3 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout3)
         self.master =  pydaw_master_widget(64, self.plugin_rel_callback, self.plugin_val_callback, pydaw_ports.RAYV_MASTER_VOLUME, \

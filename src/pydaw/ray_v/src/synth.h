@@ -21,7 +21,7 @@ extern "C" {
 #include "../../include/pydaw_plugin.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
-    
+
 #define RAYV_ATTACK  2
 #define RAYV_DECAY   3
 #define RAYV_SUSTAIN 4
@@ -58,7 +58,8 @@ extern "C" {
 #define RAYV_LFO_FILTER 35
 #define RAYV_OSC_HARD_SYNC 36
 #define RAYV_RAMP_CURVE 37
-#define RAYV_COUNT 38 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define RAYV_FILTER_KEYTRK 38
+#define RAYV_COUNT 39 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define RAYV_POLYPHONY   16
 
@@ -74,57 +75,58 @@ typedef struct {
     PYFX_Data *res;
     PYFX_Data *dist;
     PYFX_Data pitch;
-    
+
     PYFX_Data *attack_f;
     PYFX_Data *decay_f;
     PYFX_Data *sustain_f;
     PYFX_Data *release_f;
-    
+
     PYFX_Data *osc1pitch;
     PYFX_Data *osc1tune;
     PYFX_Data *osc1type;
     PYFX_Data *osc1vol;
-    
+
     PYFX_Data *osc2pitch;
     PYFX_Data *osc2tune;
     PYFX_Data *osc2type;
     PYFX_Data *osc2vol;
-    
+
     PYFX_Data *filter_env_amt;
+    PYFX_Data *filter_keytrk;
     PYFX_Data *dist_wet;
     PYFX_Data *master_vol;
-    
+
     PYFX_Data *noise_amp;
-    
-    
+
+
     PYFX_Data *master_uni_voice;
     PYFX_Data *master_uni_spread;
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;
-    
+
     PYFX_Data *pitch_env_amt;
     PYFX_Data *pitch_env_time;
-    
+
     PYFX_Data *lfo_freq;
     PYFX_Data *lfo_type;
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
     PYFX_Data *lfo_filter;
     PYFX_Data *ramp_curve;
-    
+
     PYFX_Data *sync_hard;
-        
+
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
-    t_voc_voices * voices;    
+    t_voc_voices * voices;
     long         sampleNo;
-    
-    float fs;    
+
+    float fs;
     t_rayv_mono_modules * mono_modules;
-        
+
     int event_pos;
     int i_run_poly_voice;
-    int i_iterator;    
-    
+    int i_iterator;
+
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
 
@@ -133,7 +135,7 @@ typedef struct {
     float midi_event_values[200];
     int midi_event_ports[200];
     int midi_event_count;
-    
+
     float * port_table;
 } t_rayv;
 

@@ -194,6 +194,9 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
         case RAYV_RAMP_CURVE:
             plugin->ramp_curve = data;
             break;
+        case RAYV_FILTER_KEYTRK:
+            plugin->filter_keytrk = data;
+            break;
     }
 }
 
@@ -255,6 +258,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice]->note_f = (float)events[(plugin_data->event_pos)].note;
                 plugin_data->data[f_voice]->note = events[(plugin_data->event_pos)].note;
+
+                plugin_data->data[f_voice]->filter_keytrk = (*plugin_data->filter_keytrk) * 0.01f * (plugin_data->data[f_voice]->note_f);
 
                 plugin_data->data[f_voice]->target_pitch = (plugin_data->data[f_voice]->note_f);
                 plugin_data->data[f_voice]->last_pitch = (plugin_data->sv_last_note);
@@ -493,7 +498,8 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
     v_svf_set_cutoff_base(a_voice->svf_filter,  (plugin_data->mono_modules->filter_smoother->last_value));
 
     v_svf_add_cutoff_mod(a_voice->svf_filter,
-            (((a_voice->adsr_filter->output) * (*plugin_data->filter_env_amt)) + (a_voice->lfo_filter_output)));
+            (((a_voice->adsr_filter->output) * (*plugin_data->filter_env_amt)) + (a_voice->lfo_filter_output) +
+            (a_voice->filter_keytrk)));
 
     v_svf_set_cutoff(a_voice->svf_filter);
 
@@ -716,6 +722,11 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_RAMP_CURVE].DefaultValue = 50.0f;
 	port_range_hints[RAYV_RAMP_CURVE].LowerBound = 0.0f;
 	port_range_hints[RAYV_RAMP_CURVE].UpperBound = 100.0f;
+
+        port_descriptors[RAYV_FILTER_KEYTRK]= 1;
+	port_range_hints[RAYV_FILTER_KEYTRK].DefaultValue = 0.0f;
+	port_range_hints[RAYV_FILTER_KEYTRK].LowerBound = 0.0f;
+	port_range_hints[RAYV_FILTER_KEYTRK].UpperBound = 100.0f;
 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;
