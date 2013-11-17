@@ -1372,7 +1372,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.split_line.mapFromParent(0.0, 0.0)
         self.split_line.hide()
         self.split_line_is_shown = False
-        self.split_line.setPen(QtGui.QPen(QtCore.Qt.red, 1.0))
+        self.split_line.setPen(QtGui.QPen(QtCore.Qt.white, 1.0))
 
         self.setAcceptHoverEvents(True)
 
