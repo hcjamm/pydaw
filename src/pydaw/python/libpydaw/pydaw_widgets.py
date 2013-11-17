@@ -551,7 +551,7 @@ class pydaw_file_select_widget:
         return f_result
 
     def clear_button_pressed(self):
-        self.file_path.setText((""))
+        self.file_path.setText("")
 
     def get_file(self):
         return self.file_path.text()
@@ -666,9 +666,9 @@ class pydaw_file_browser_widget:
             return
         if(a_relative_path):
             if str(self.folder_path_lineedit.text()) == "/":
-                self.enumerate_folders_and_files(("/") + a_folder)
+                self.enumerate_folders_and_files("/%s" % (a_folder,))
             else:
-                self.enumerate_folders_and_files(self.folder_path_lineedit.text() + ("/") + a_folder)
+                self.enumerate_folders_and_files("%s/%s" % (self.folder_path_lineedit.text(), a_folder))
         else:
             self.enumerate_folders_and_files(a_folder)
 
@@ -681,7 +681,7 @@ class pydaw_file_browser_widget:
             pydaw_util.global_delete_file_bookmark(str(f_items[0].text()))
 
     def files_selected(self):
-        f_dir_path = str(self.folder_path_lineedit.text()) + "/"
+        f_dir_path = "%s/" % (self.folder_path_lineedit.text(),)
         f_result = []
         for f_item in self.files_listWidget.selectedItems():
             f_result.append(f_dir_path + str(f_item.text()))
@@ -708,7 +708,7 @@ class pydaw_file_browser_widget:
         global global_audio_items_to_drop
         global_audio_items_to_drop = []
         for f_item in self.files_listWidget.selectedItems():
-            global_audio_items_to_drop.append(self.last_open_dir + "/" + str(f_item.text()))
+            global_audio_items_to_drop.append("%s/%s" % (self.last_open_dir, f_item.text()))
 
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
@@ -736,9 +736,8 @@ class pydaw_file_browser_widget:
                     if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
                         self.files_listWidget.addItem(f_file)
                     else:
-                        print(("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:"))
-                        print(("\n".join(pydaw_util.pydaw_bad_chars)))
-
+                        print("Not adding '%s' because it contains bad chars, you must rename this file path without:\n%s" % \
+                        (f_full_path, "\n".join(pydaw_util.pydaw_bad_chars)))
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
 
@@ -1548,7 +1547,7 @@ class pydaw_abstract_plugin_ui:
         self.save_file_on_exit = False
 
     def open_plugin_file(self):
-        f_file_path = self.pydaw_project.project_folder + "/" + self.folder + "/" + self.file
+        f_file_path = "%s/%s/%s" % (self.pydaw_project.project_folder, self.folder, self.file)
         if os.path.isfile(f_file_path):
             f_file = pydaw_plugin_file(f_file_path)
             for k, v in list(f_file.port_dict.items()):
@@ -1556,12 +1555,12 @@ class pydaw_abstract_plugin_ui:
             for k, v in list(f_file.configure_dict.items()):
                 self.set_configure(k, v)
         else:
-            print(("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading."))
+            print("pydaw_abstract_plugin_ui.open_plugin_file(): '%s' did not exist, not loading." % (f_file_path,))
 
     def save_plugin_file(self):
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
-        self.pydaw_project.commit("Update controls for " + self.track_name)
+        self.pydaw_project.commit("Update controls for %s" % (self.track_name,))
         self.pydaw_project.flush_history()
 
     def widget_close_event(self, a_event):
@@ -1607,7 +1606,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = str(self.track_num) + ".pyfx"
+        self.file =  "%s.pyfx" % (self.track_num,)
         self.set_window_title(a_track_name)
         self.is_instrument = False
 
@@ -1764,7 +1763,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = str(self.track_num) + ".pyinst"
+        self.file = "%s.pyinst" % (self.track_num,)
         self.set_window_title(a_track_name)
         self.is_instrument = True
         f_osc_types = ["Saw" , "Square" , "Triangle" , "Sine" , "Off"]
@@ -1778,8 +1777,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap(pydaw_util.global_pydaw_install_prefix + "/lib/" + pydaw_util.global_pydaw_version_string +
-        "/themes/default/rayv.png").scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
+        f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/rayv.png" % (pydaw_util.global_pydaw_install_prefix,
+            pydaw_util.global_pydaw_version_string)).scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
         self.hlayout0.addWidget(f_logo_label)
@@ -1854,7 +1853,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Ray-V - " + self.track_name)
+        self.widget.setWindowTitle("PyDAW Ray-V - %s" % (self.track_name,))
 
 
 
@@ -1864,7 +1863,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = str(self.track_num) + ".pyinst"
+        self.file = "%s.pyinst" % (self.track_num,)
         self.set_window_title(a_track_name)
         self.is_instrument = True
 
@@ -2149,16 +2148,16 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, \
         a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = str(self.track_num) + ".pyinst"
+        self.file = "%s.pyinst" % (self.track_num)
         self.set_window_title(a_track_name)
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
+        self.widget.setWindowTitle("PyDAW Euphoria - %s" % (self.track_name,))
         self.is_instrument = True
 
         self.selected_row_index = 0
         self.handle_control_updates = True
         self.suppress_selected_sample_changed = False
-        self.interpolation_modes_list = [("Pitched") , ("Percussion") , ("No Pitch")]
+        self.interpolation_modes_list = ["Pitched", "Percussion", "No Pitch"]
         f_sample_table_columns = [
             "", #Selected row
             "Path", #File path
@@ -2176,7 +2175,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             "Noise Amp",
         ]
 
-        self.noise_types_list = [("Off") , ("White") , ("Pink")]
+        self.noise_types_list = ["Off", "White", "Pink"]
 
         self.selected_sample_port = pydaw_null_control(pydaw_ports.EUPHORIA_SELECTED_SAMPLE, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
 
@@ -2444,8 +2443,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.clear_button.pressed.connect(self.clearFile)
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
         self.file_selector.file_path.setMinimumWidth(480)
-
-        """Set all of the array variables that are per-sample"""
 
         self.widget.resize(1200, 680)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
