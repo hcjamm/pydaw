@@ -348,7 +348,6 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0,
         float* a_output1, int a_audio_track_num, int a_is_audio_glue);
-void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
 void * v_pydaw_audio_recording_thread(void* a_arg);
 inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, float a_start_beat,
@@ -371,7 +370,7 @@ void v_paif_set_control(t_pydaw_data *, int, int, int, float);
 void v_pysong_free(t_pysong *);
 inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i);
 inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sample_count);
-inline void v_pydaw_reset_audio_item_read_head_single(t_pydaw_data * a_pydaw_data, int a_region, int a_item_num, float a_adjusted_song_pos_beats);
+
 
 /*End declarations.  Begin implementations.*/
 
@@ -2221,11 +2220,6 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     a_pydaw_data->bus_pool[0]->bus_buffer_state = 0;
     a_pydaw_data->bus_pool[0]->bus_counter = (a_pydaw_data->bus_pool[0]->bus_count);
 
-    if(a_pydaw_data->ml_is_looping)
-    {
-        v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
-    }
-
     if(a_pydaw_data->playback_mode != PYDAW_PLAYBACK_MODE_OFF &&
             a_pydaw_data->ml_starting_new_bar && !a_pydaw_data->is_offline_rendering &&
             (a_pydaw_data->ml_cur_loop_prevent != a_pydaw_data->ml_next_bar))
@@ -3900,51 +3894,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
     v_pydaw_print_benchmark("v_open_project", f_start);
 }
 
-inline void v_pydaw_reset_audio_item_read_head_single(t_pydaw_data * a_pydaw_data, int a_region, int a_item_num, float a_adjusted_song_pos_beats)
-{
-    a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->adjusted_start_beat =
-            v_pydaw_count_beats(a_pydaw_data, a_region, 0, 0.0f,
-            a_region,
-            a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->start_bar,
-            a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->start_beat);
-
-    if((a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->adjusted_start_beat) <= a_adjusted_song_pos_beats)
-    {
-        float test1 = a_adjusted_song_pos_beats - (a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->adjusted_start_beat);
-        float test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->ratio);
-        v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
-        v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_region]->items[a_item_num]->adsr);
-    }
-}
-
-/* Moved to it's own function for re-usability, because the mutex must be held when calling*/
-void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
-{
-    if(!a_pydaw_data->pysong->audio_items[a_region])
-    {
-        return;
-    }
-
-    int f_i = 0;
-
-    float f_adjusted_song_pos_beats =
-        v_pydaw_count_beats(a_pydaw_data, a_region, 0, 0.0f, a_region, a_bar, 0.0f);
-
-    if(f_adjusted_song_pos_beats < 0.0f)  //clip at zero, lest it somehow by rounding error is -0.0000001
-    {
-        f_adjusted_song_pos_beats = 0.0f;
-    }
-
-    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
-    {
-        if(a_pydaw_data->pysong->audio_items[a_region]->items[f_i])
-        {
-            v_pydaw_reset_audio_item_read_head_single(a_pydaw_data, a_region, f_i, f_adjusted_song_pos_beats);
-        }
-        f_i++;
-    }
-}
-
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data,
  * int a_mode, //
  * int a_region, //The region index to start playback on
@@ -4050,7 +3999,6 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
             a_pydaw_data->playback_mode = a_mode;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
-            v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             if(a_pydaw_data->ab_wav_item)
             {
                 a_pydaw_data->is_ab_ing = a_pydaw_data->ab_mode;
@@ -4076,7 +4024,6 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             a_pydaw_data->recording_in_current_bar = 0;
             a_pydaw_data->recording_current_item_pool_index = -1;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
-            v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             break;
     }
