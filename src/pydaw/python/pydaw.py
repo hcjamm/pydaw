@@ -7152,7 +7152,7 @@ class a_b_widget:
     def vol_changed(self, a_val=None):
         f_result = self.vol_slider.value()
         this_pydaw_project.this_pydaw_osc.pydaw_ab_vol(f_result)
-        self.vol_label.setText(str(f_result) + "db")
+        self.vol_label.setText("%sdB" % (f_result,))
 
     def on_file_open(self):
         if not os.path.isdir(self.last_folder):
@@ -7171,7 +7171,7 @@ class a_b_widget:
         f_rate = f_wav.getframerate()
         self.duration = f_frames/float(f_rate)
         f_wav.close()
-        print(("Duration:  " + str(self.duration)))
+        print("Duration:  %s" % (self.duration,))
         #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True
@@ -7185,9 +7185,9 @@ class a_b_widget:
             f_minutes = int(f_seconds * self.sixty_recip)
             f_seconds = int(f_seconds % 60.0)
             if f_seconds < 10:
-                self.time_label.setText(str(f_minutes) + ":0" + str(f_seconds))
+                self.time_label.setText("%s:0%s" % (f_minutes, f_seconds))
             else:
-                self.time_label.setText(str(f_minutes) + ":" + str(f_seconds))
+                self.time_label.setText("%s:%s" % (f_minutes, f_seconds))
 
     def transport_sync(self):
         if self.transport_checkbox.isChecked() and self.has_loaded_file:
