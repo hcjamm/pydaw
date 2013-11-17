@@ -2119,6 +2119,8 @@ global_sample_graph_cache = {}
 class pydaw_sample_graph:
     @staticmethod
     def create(a_file_name, a_sample_dir):
+        """ Used to instantiate a pydaw_sample_graph, but grabs from the cache
+        if it already exists... Prefer this over directly instantiating."""
         f_file_name = str(a_file_name)
         global global_sample_graph_cache
         if f_file_name in global_sample_graph_cache:
@@ -2129,9 +2131,13 @@ class pydaw_sample_graph:
             return f_result
 
     def __init__(self, a_file_name, a_sample_dir):
+        """
+        a_file_name:  The full path to /.../sample_graphs/uid
+        a_sample_dir:  The project's sample dir
+        """
         self.sample_graph_cache = None
         f_file_name = str(a_file_name)
-        self.file = None
+        self._file = None
         self.sample_dir = str(a_sample_dir)
         self.sample_dir_file = None
         self.timestamp = None
@@ -2159,8 +2165,8 @@ class pydaw_sample_graph:
                 break
             elif f_line_arr[0] == "meta":
                 if f_line_arr[1] == "filename":
-                    self.file = str(f_line_arr[2]).strip("\n")  #Why does this have a newline on the end???
-                    self.sample_dir_file = "%s%s" % (self.sample_dir, self.file)
+                    self._file = str(f_line_arr[2]).strip("\n")  #Why does this have a newline on the end???
+                    self.sample_dir_file = "%s%s" % (self.sample_dir, self._file)
                 elif f_line_arr[1] == "timestamp":
                     self.timestamp = int(f_line_arr[2])
                 elif f_line_arr[1] == "channels":
@@ -2189,20 +2195,20 @@ class pydaw_sample_graph:
             f_list.reverse()
 
     def is_valid(self):
-        if (self.file is None):
-            print("\n\npydaw_sample_graph.is_valid() self.file is None %s\n" % (self.file,))
+        if (self._file is None):
+            print("\n\npydaw_sample_graph.is_valid() self._file is None %s\n" % (self._file,))
             return False
         if self.timestamp is None:
-            print("\n\npydaw_sample_graph.is_valid() self.timestamp is None %s\n" % (self.file,))
+            print("\n\npydaw_sample_graph.is_valid() self.timestamp is None %s\n" % (self._file,))
             return False
         if self.channels is None:
-            print("\n\npydaw_sample_graph.is_valid() self.channels is None %s\n" % (self.file,))
+            print("\n\npydaw_sample_graph.is_valid() self.channels is None %s\n" % (self._file,))
             return False
         if self.frame_count is None:
-            print("\n\npydaw_sample_graph.is_valid() self.frame_count is None %s\n" % (self.file,))
+            print("\n\npydaw_sample_graph.is_valid() self.frame_count is None %s\n" % (self._file,))
             return False
         if self.sample_rate is None:
-            print("\n\npydaw_sample_graph.is_valid() self.sample_rate is None %s\n" % (self.file,))
+            print("\n\npydaw_sample_graph.is_valid() self.sample_rate is None %s\n" % (self._file,))
             return False
         return True
 
@@ -2253,10 +2259,13 @@ class pydaw_sample_graph:
         return self.sample_graph_cache
 
     def check_mtime(self):
-        """ Returns False if the sample graph is older than the file modified time """
+        """ Returns False if the sample graph is older than the file modified time
+
+            UPDATE:  Now obsolete, will require some fixing if used again...
+        """
         try:
-            if os.path.isfile(self.file):
-                f_timestamp = int(os.path.getmtime(self.file))
+            if os.path.isfile(self._file):
+                f_timestamp = int(os.path.getmtime(self._file))
             elif os.path.isfile(self.sample_dir_file):
                 return True #f_timestamp = int(os.path.getmtime(self.sample_dir_file))
             else:
