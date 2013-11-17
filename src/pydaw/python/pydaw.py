@@ -6288,7 +6288,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
             if not f_file is None and not f_file == "":
                 f_style = pydaw_read_file_text(f_file)
-                f_style = pydaw_escape_stylesheet(f_style)
+                f_dir = os.path.dirname(f_file)
+                f_style = pydaw_escape_stylesheet(f_style, f_dir)
                 pydaw_write_file_text(self.user_style_file, f_file)
                 self.setStyleSheet(f_style)
         except Exception as ex:
