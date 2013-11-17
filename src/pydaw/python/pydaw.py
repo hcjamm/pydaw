@@ -6969,9 +6969,12 @@ class pydaw_cc_map_editor:
         f_window.setMinimumWidth(240)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
+        f_layout.addWidget(QtGui.QLabel("Move your MIDI controller to set the CC number,\n"
+        "you must select a MIDI controller and record arm a track first.\n\n"
+        "Checking the 'Effects tracks only?' box will cause the controller to only\n"
+        "modify Modulex and all instrument controls will be ignored."), 0, 1)
         self.cc_spinbox = QtGui.QSpinBox()
         self.cc_spinbox.setRange(1, 127)
-        self.cc_spinbox.setToolTip("Move your MIDI controller to set the CC number, you must select a MIDI controller and record arm a track first.")
         if x is not None:
             self.cc_spinbox.setValue(int(self.cc_table.item(x, 0).text()))
         f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
