@@ -2477,13 +2477,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             {
                 f_return_value = 1;
 
-                a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat =
-                        v_pydaw_count_beats(a_pydaw_data, f_current_region, 0, 0.0f,
-                        f_current_region,
-                        //a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->start_region,
-                        a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->start_bar,
-                        a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->start_beat);
-
                 if((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat) >=
                         f_adjusted_next_song_pos_beats)
                 {

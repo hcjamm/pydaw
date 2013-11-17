@@ -208,7 +208,6 @@ typedef struct
     int start_bar;
     float start_beat;
     float adjusted_start_beat;
-    float adjusted_end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
     float pitch_shift;
     float sample_start;
@@ -600,6 +599,8 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     {
         f_result->sample_fade_out_divisor = 0.0f;
     }
+
+    f_result->adjusted_start_beat = ((float)f_result->start_bar * 4) + f_result->start_beat;
 
     if(f_result->is_reversed)
     {
