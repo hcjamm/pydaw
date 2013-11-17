@@ -633,14 +633,14 @@ class pydaw_project:
         return self.get_sample_graph_by_uid(f_uid)
 
     def get_sample_graph_by_uid(self, a_uid):
-        f_pygraph_file = self.samplegraph_folder + "/" + str(a_uid)
-        f_result = pydaw_sample_graph.create(f_pygraph_file)
-        if not f_result.is_valid() or not f_result.check_mtime():
+        f_pygraph_file = "%s/%s" % (self.samplegraph_folder, a_uid)
+        f_result = pydaw_sample_graph.create(f_pygraph_file, self.samples_folder)
+        if not f_result.is_valid(): # or not f_result.check_mtime():
             print("\n\nNot valid, or else mtime is newer than graph time, deleting sample graph...\n")
-            os.system('rm "' + f_pygraph_file + '"')
+            os.system('rm "%s"' % (f_pygraph_file,))
             pydaw_remove_item_from_sg_cache(f_pygraph_file)
             self.create_sample_graph(self.get_wav_path_by_uid(a_uid), a_uid)
-            return pydaw_sample_graph.create(f_pygraph_file)
+            return pydaw_sample_graph.create(f_pygraph_file, self.samples_folder)
         else:
             return f_result
 
@@ -655,7 +655,7 @@ class pydaw_project:
             return f_uid_dict.get_uid_by_name(f_path)
         else:
             f_uid = f_uid_dict.add_new_item(f_path, a_uid)
-            f_cp_path = "%s/%s" % (self.samples_folder, f_path)
+            f_cp_path = "%s%s" % (self.samples_folder, f_path)
             f_cp_dir = os.path.dirname(f_cp_path)
             if not os.path.isdir(f_cp_dir):
                 os.makedirs(f_cp_dir)
@@ -683,18 +683,23 @@ class pydaw_project:
 
     def create_sample_graph(self, a_path, a_uid):
         f_uid = int(a_uid)
-        self.this_pydaw_osc.pydaw_generate_sample_graph(a_path, f_uid)
-        f_pygraph_file = self.samplegraph_folder + "/" + str(f_uid)
+        f_sample_dir_path = "%s%s" % (self.samples_folder, a_path)
+        if os.path.isfile(a_path):
+            f_path = a_path
+        elif os.path.isfile(f_sample_dir_path):
+            f_path = f_sample_dir_path
+        else:
+            raise Exception("Cannot create sample graph, the following do not exist:\n%s\n%s\n" % (a_path, f_sample_dir_path))
+        self.this_pydaw_osc.pydaw_generate_sample_graph(f_path, f_uid)
+        f_pygraph_file = "%s/%s" % (self.samplegraph_folder, f_uid)
         for i in range(100):
             if os.path.isfile(f_pygraph_file):
                 sleep(0.1)
                 return
             else:
                 sleep(0.1)
-        print("\n\n\n\n")
-        print((str(a_path)))
-        print((str(a_uid)))
-        raise Exception
+
+        raise Exception("Could not generate sample graph for %s\n%s\n, the engine did not return a file." % (a_uid, a_path))
 
     def verify_history(self):
         self.flush_history()
@@ -2107,26 +2112,28 @@ def pydaw_remove_item_from_sg_cache(a_path):
     try:
         global_sample_graph_cache.pop(a_path)
     except KeyError:
-        print(("\n\npydaw_remove_item_from_sg_cache: " + a_path + " not found.\n\n"))
+        print("\n\npydaw_remove_item_from_sg_cache: %s not found.\n\n" % (a_path,))
 
 global_sample_graph_cache = {}
 
 class pydaw_sample_graph:
     @staticmethod
-    def create(a_file_name):
+    def create(a_file_name, a_sample_dir):
         f_file_name = str(a_file_name)
         global global_sample_graph_cache
         if f_file_name in global_sample_graph_cache:
             return global_sample_graph_cache[f_file_name]
         else:
-            f_result = pydaw_sample_graph(f_file_name)
+            f_result = pydaw_sample_graph(f_file_name, a_sample_dir)
             global_sample_graph_cache[f_file_name] = f_result
             return f_result
 
-    def __init__(self, a_file_name):
+    def __init__(self, a_file_name, a_sample_dir):
         self.sample_graph_cache = None
         f_file_name = str(a_file_name)
         self.file = None
+        self.sample_dir = str(a_sample_dir)
+        self.sample_dir_file = None
         self.timestamp = None
         self.channels = None
         self.high_peaks = ([],[])
@@ -2153,6 +2160,7 @@ class pydaw_sample_graph:
             elif f_line_arr[0] == "meta":
                 if f_line_arr[1] == "filename":
                     self.file = str(f_line_arr[2]).strip("\n")  #Why does this have a newline on the end???
+                    self.sample_dir_file = "%s%s" % (self.sample_dir, self.file)
                 elif f_line_arr[1] == "timestamp":
                     self.timestamp = int(f_line_arr[2])
                 elif f_line_arr[1] == "channels":
@@ -2247,11 +2255,15 @@ class pydaw_sample_graph:
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time """
         try:
-            f_timestamp = int(os.path.getmtime(self.file))
-            #print((str(self.timestamp) + " > " + str(f_timestamp)))
+            if os.path.isfile(self.file):
+                f_timestamp = int(os.path.getmtime(self.file))
+            elif os.path.isfile(self.sample_dir_file):
+                return True #f_timestamp = int(os.path.getmtime(self.sample_dir_file))
+            else:
+                raise Exception("Neither original nor cached file exists.")
             return self.timestamp > f_timestamp
         except Exception as f_ex:
-            print(("\n\nError getting mtime: " + str(f_ex.message) + "\n\n"))
+            print("\n\nError getting mtime: \n%s\n\n" % (f_ex.message,))
             return False
 
 class pydaw_midicomp_event:
