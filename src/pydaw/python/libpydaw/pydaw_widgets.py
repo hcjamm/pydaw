@@ -2868,7 +2868,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - " + self.track_name)
+        self.widget.setWindowTitle("PyDAW Euphoria - %s" % (self.track_name,))
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message

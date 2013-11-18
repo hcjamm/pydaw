@@ -663,7 +663,7 @@ class pydaw_project:
                 os.system('cp "%s" "%s"' % (f_path, f_cp_path))
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
-            self.commit("Add " + str(f_path) + " to pool")
+            self.commit("Add %s to wav pool" % (f_path,))
             return f_uid
 
     def get_wav_name_by_uid(self, a_uid, a_uid_dict=None):

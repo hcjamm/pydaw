@@ -530,7 +530,7 @@ class region_settings:
             this_pydaw_project.save_region(f_region_name, f_midi_tuple[1])
             this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_tuple[0])
             this_pydaw_project.save_audio_region(f_new_uid, f_audio_tuple[1])
-            this_pydaw_project.commit("Split region " + global_current_region_name + " into " + f_region_name)
+            this_pydaw_project.commit("Split region %s  into %s" % (global_current_region_name, f_region_name))
             this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
             f_window.close()

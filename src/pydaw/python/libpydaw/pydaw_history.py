@@ -96,13 +96,13 @@ are differences, that indicates a bug in PyDAW.
             for f_file in files:
                 if f_file == "history.db" or f_file.endswith(".wav") or root.endswith("samplegraph"):
                     continue
-                f_current_file = root + "/" + f_file
+                f_current_file = "%s/%s" % (root, f_file)
                 f_current_text = pydaw_util.pydaw_read_file_text(f_current_file)
                 if root == self.project_dir:
                     f_dir_name = ""
                 else:
                     f_dir_name = root.split("/")[-1]
-                print(("Testing file %s/%s" % (f_dir_name, f_file)))
+                print("Testing file %s/%s" % (f_dir_name, f_file))
                 f_history_text = self.get_latest_version_of_file(f_dir_name, f_file)
                 if f_current_text != f_history_text:
                     if f_history_text is None:
