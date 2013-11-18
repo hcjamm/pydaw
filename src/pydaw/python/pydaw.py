@@ -5850,6 +5850,7 @@ class transport_widget:
         self.last_open_dir = global_home
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
+        self.group_box.setObjectName("track_panel")
         self.vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.vlayout)
         self.hlayout1 = QtGui.QHBoxLayout()
