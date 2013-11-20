@@ -2594,13 +2594,19 @@ class audio_items_viewer_widget():
             return
         self.audio_items_clipboard = []
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+        f_count = False
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected():
+                f_count = True
                 self.audio_items_clipboard.append((str(f_item.audio_item), f_per_item_fx_dict.get_row(f_item.track_num, True)))
+        if not f_count:
+            QtGui.QMessageBox.warning(self.widget, "Error", "Nothing selected.")
 
     def on_paste(self):
         if global_current_region is None or global_transport_is_playing:
             return
+        if len(self.audio_items_clipboard) == 0:
+            QtGui.QMessageBox.warning(self.widget, "Error", "Nothing copied to the clipboard.")
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
         for f_str, f_list in self.audio_items_clipboard:
             f_index = global_audio_items.get_next_index()
