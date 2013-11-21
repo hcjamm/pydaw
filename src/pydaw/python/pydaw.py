@@ -6306,7 +6306,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setFixedSize(420, 90)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_version = QtGui.QLabel(pydaw_read_file_text(pydaw_util.global_pydaw_install_prefix + "/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
+        f_version = QtGui.QLabel(pydaw_read_file_text( "%s/lib/%s/%s-version.txt" % \
+        (pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string, global_pydaw_version_string)))
+        f_version.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         f_layout.addWidget(f_version)
         f_window.exec_()
 
