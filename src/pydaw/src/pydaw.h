@@ -1524,7 +1524,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sampl
                                             f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->plugin_index;
 
                                     v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn,
-                                            f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])],
+                                            &a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)],
                                             a_pydaw_data, 1, f_i);
 
                                     a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
@@ -1555,7 +1555,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sampl
                                             -1;
 
                                     v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn,
-                                            f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])],
+                                            &a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)],
                                             a_pydaw_data, 0, f_i);
 
                                     a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
