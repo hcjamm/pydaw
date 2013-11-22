@@ -2764,7 +2764,7 @@ class audio_items_viewer_widget():
         it necessary to interpolate the inbetween values"""
         if self.last_scale_value > self.h_zoom_slider.value():
             for i in range(self.h_zoom_slider.value(), self.last_scale_value):
-                this_audio_items_viewer.set_zoom(0.97)
+                this_audio_items_viewer.set_zoom(1.0 / 1.03)
         else:
             for i in range(self.last_scale_value, self.h_zoom_slider.value()):
                 this_audio_items_viewer.set_zoom(1.03)
