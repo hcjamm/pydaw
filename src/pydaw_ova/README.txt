@@ -6,7 +6,9 @@ Login credentials for unlocking the screen or installing software:
 
 How to run PyDAW:
 
-	Simply click the "PyDAW" icon on the left
+	Simply click the PyDAW 4 icon on the left (looks like:  [4] )
+
+	PyDAWv3 is available by clicking the top icon and searching for pydaw3
 
 How do I browse the internet?
 
@@ -40,10 +42,13 @@ How do I upgrade to the latest version of PyDAW?
 	You do not need to download the Virtualbox .ova image again.  Instead, open Midori (the green leaf icon on the 
 	left), and browse to this URL:
 
-	http://sourceforge.net/projects/libmodsynth/files/linux/
+	http://sourceforge.net/projects/libmodsynth/files/pydaw4/linux
 
-	...and download the 32-bit .deb package of PyDAW and install(ie: not the one that says AMD64, and 
+	...and download the 32-bit (aka i386) .deb package of PyDAW and install(ie: not the one that says AMD64, and 
 	not the one that says source-code).  It will only be a few megabytes.
+
+	IMPORTANT:  Virtualbox will sometimes act strange after updating PyDAW (not sure why), it's recommended that
+	you reboot the VM after updating.
 
 How do I use the other software in the VM?
 	
