@@ -6077,7 +6077,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_print_generic_exception(ex)
 
     def show_offline_rendering_wait_window(self, a_file_name):
-        f_file_name = str(a_file_name) + ".finished"
+        f_file_name = "%s.finished" % (a_file_name,)
         def ok_handler():
             f_window.close()
 
@@ -6088,8 +6088,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             if os.path.isfile(f_file_name):
                 f_ok.setEnabled(True)
                 f_timer.stop()
-                f_time_label.setText("Finished in " + str(f_time_label.text()))
-                os.system('rm "' + f_file_name + '"')
+                f_time_label.setText("Finished in %s" % (f_time_label.text(),))
+                os.system('rm "%s"' % (f_file_name,))
             else:
                 f_elapsed_time = time.time() - f_start_time
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
@@ -6114,7 +6114,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         #f_cancel.pressed.connect(cancel_handler)
         #f_layout.addWidget(f_cancel, 9, 2)
         #TODO:  Send a 'cancel_offline_render' message to the engine...
-        f_timer.start(200)
+        f_timer.start(100)
         f_window.exec_()
 
     def on_offline_render(self):
