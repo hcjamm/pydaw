@@ -5769,6 +5769,10 @@ class transport_widget:
         if self.is_playing:
             self.play_button.setChecked(True)
             return
+        if self.overdub_checkbox.isChecked() and self.loop_mode_combobox.currentIndex() > 0:
+            QtGui.QMessageBox.warning(self.group_box, "Error", "Cannot use overdub mode with loop mode to record")
+            self.stop_button.setChecked(True)
+            return
         this_song_editor.table_widget.setEnabled(False)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
