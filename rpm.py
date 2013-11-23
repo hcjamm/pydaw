@@ -32,6 +32,20 @@ os.system('cp "%s" "%s"' % (global_tarball_name, global_sources_dir))
 
 global_spec_file = "%s.spec" % (global_pydaw_version_string,)
 
+global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "r")
+global_macro_text = global_rpmmacros_file.read()
+
+# Creating separate debug packages screw up the inclusion of both debug,
+# non-debug and setuid binaries, so we need to force rpmbuild not to strip
+if not "%debug_package %{nil}" in global_macro_text:
+    global_rpmmacros_file.close()
+    global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "a")
+    global_rpmmacros_file.write("\n%debug_package %{nil}\n")
+else:
+    global_macro_text = None
+
+global_rpmmacros_file.close()
+
 # Escaping/substitution is done a little differently to avoid chaos with the
 # excessive use of the '%' char in .spec files
 f_spec_template = \
@@ -61,6 +75,7 @@ instrument and effects plugins.
 make
 
 %install
+export DONT_STRIP=1
 rm -rf $RPM_BUILD_ROOT
 %make_install
 
@@ -134,40 +149,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/doc/pydaw4/readme.txt
 /usr/share/pixmaps/pydaw4.png
 
-#TO BE DELETED:
-
-/usr/lib/pydaw4/mixxx/mixxx-launcher.pyc
-/usr/lib/pydaw4/mixxx/mixxx-launcher.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/portaudio.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/portaudio.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/portmidi.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/portmidi.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_device_dialog.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_device_dialog.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_gradients.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_gradients.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_history.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_history.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_osc.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_osc.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_ports.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_ports.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyo
-/usr/lib/pydaw4/pydaw/python/pydaw.pyc
-/usr/lib/pydaw4/pydaw/python/pydaw.pyo
-/usr/lib/pydaw4/themes/default/style.txt~
-
 %doc
 
 """
@@ -181,3 +162,7 @@ os.system('cp "%s" "%s"' % (global_spec_file, global_specs_dir))
 os.chdir(global_specs_dir)
 os.system("rpmbuild -ba %s" % (global_spec_file,))
 
+#Restore the ~/.rpmmacros file
+if global_macro_text is not None:
+    global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "w")
+    global_rpmmacros_file.write(global_macro_text)

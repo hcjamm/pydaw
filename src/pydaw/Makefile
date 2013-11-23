@@ -121,5 +121,5 @@ install:
 clean:
 	rm -f src/*.o *.so $(PYDAW_VERSION)-engine* core python/core  \
 	*.pyo *.pyc */*.pyo */*.pyc */*/*.pyo */*/*.pyc \
-	*~ */*~ */*/*~ 
+	*~ */*~ */*/*~ */*/*/*~ 
 
