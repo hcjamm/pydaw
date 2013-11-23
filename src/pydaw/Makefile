@@ -119,5 +119,7 @@ install:
                 fi
 
 clean:
-	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ $(PYDAW_VERSION)-engine* core python/core *~ src/*~
+	rm -f src/*.o *.so $(PYDAW_VERSION)-engine* core python/core  \
+	*.pyo *.pyc */*.pyo */*.pyc */*/*.pyo */*/*.pyc \
+	*~ */*~ */*/*~ 
 
