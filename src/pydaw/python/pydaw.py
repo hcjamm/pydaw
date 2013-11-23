@@ -1577,7 +1577,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.setSelected(True)
 
     def show_context_menu(self, a_event):
-        f_menu = QtGui.QMenu()
+        f_menu = QtGui.QMenu(this_main_window)
         f_save_a_copy_action = QtGui.QAction("Save a copy", this_audio_items_viewer)
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
         f_menu.addAction(f_save_a_copy_action)
@@ -2017,7 +2017,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             return
         QtGui.QGraphicsScene.contextMenuEvent(self.scene, a_event)
         self.context_menu_pos = a_event.scenePos()
-        f_menu = QtGui.QMenu()
+        f_menu = QtGui.QMenu(this_main_window)
         f_paste_action = QtGui.QAction("Paste file path from clipboard", self)
         f_paste_action.triggered.connect(self.on_scene_paste_paths)
         f_menu.addAction(f_paste_action)
@@ -2508,7 +2508,7 @@ class audio_items_viewer_widget():
 
         self.menu_button = QtGui.QPushButton("Menu")
         self.controls_grid_layout.addWidget(self.menu_button, 0, 10)
-        self.action_menu = QtGui.QMenu()
+        self.action_menu = QtGui.QMenu(self.widget)
         self.clone_action = QtGui.QAction("Clone from region...", self.widget)
         self.clone_action.triggered.connect(self.on_clone)
         self.action_menu.addAction(self.clone_action)
