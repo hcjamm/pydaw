@@ -4815,7 +4815,6 @@ class item_list_editor:
         self.master_hlayout = QtGui.QHBoxLayout()
         self.master_vlayout.addLayout(self.master_hlayout)
         self.item_list_label = QtGui.QLabel("")
-        self.item_list_label.setMaximumWidth(1200)
         self.master_hlayout.addWidget(self.item_list_label,  QtCore.Qt.AlignLeft)
         self.zoom_combobox = QtGui.QComboBox()
         self.zoom_combobox.setMaximumWidth(120)
@@ -4841,8 +4840,6 @@ class item_list_editor:
         self.main_vlayout.addLayout(self.main_hlayout)
 
         self.notes_groupbox = QtGui.QGroupBox("Notes")
-        self.notes_groupbox.setMinimumWidth(450)
-        self.notes_groupbox.setMaximumWidth(450)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
 
 
@@ -4918,8 +4915,6 @@ class item_list_editor:
         self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
-        self.ccs_groupbox.setMaximumWidth(420)
-        self.ccs_groupbox.setMinimumWidth(420)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
@@ -4991,8 +4986,6 @@ class item_list_editor:
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
 
         self.tab_widget.addTab(self.notes_tab, "List Editors")
-        self.notes_hlayout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding))
-        #self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.set_headers()
         self.default_note_start = 0.0
