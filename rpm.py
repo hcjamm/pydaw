@@ -83,13 +83,22 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %files
-/usr/bin/pydaw4
-/usr/bin/pydaw4-engine
-/usr/bin/pydaw4-engine-dbg
-/usr/bin/pydaw4-engine-no-hw
-/usr/bin/pydaw4-engine-no-root
-/usr/bin/pydaw4-project-recover
-/usr/lib/pydaw4/mixxx/mixxx-launcher.py
+
+%defattr(644, root, root)
+
+%attr(4755, root, root) /usr/bin/pydaw4-engine
+
+%attr(755, root, root) /usr/bin/pydaw4
+%attr(755, root, root) /usr/bin/pydaw4-engine-dbg
+%attr(755, root, root) /usr/bin/pydaw4-engine-no-hw
+%attr(755, root, root) /usr/bin/pydaw4-engine-no-root
+%attr(755, root, root) /usr/bin/pydaw4-project-recover
+%attr(755, root, root) /usr/lib/pydaw4/mixxx/mixxx-launcher.py
+%attr(755, root, root) /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.py
+%attr(755, root, root) /usr/lib/pydaw4/pydaw/python/pydaw.py
+%attr(755, root, root) /usr/lib/pydaw4/rubberband/bin/rubberband
+%attr(755, root, root) /usr/lib/pydaw4/sbsms/bin/sbsms
+
 /usr/lib/pydaw4/mixxx/mixxx.desktop
 /usr/lib/pydaw4/presets/MODULEX.pypresets
 /usr/lib/pydaw4/presets/RAYV.pypresets
@@ -104,15 +113,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_gradients.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_history.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_osc.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_ports.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.py
-/usr/lib/pydaw4/pydaw/python/pydaw.py
 /usr/lib/pydaw4/pydaw4-version.txt
-/usr/lib/pydaw4/rubberband/bin/rubberband
 /usr/lib/pydaw4/rubberband/include/rubberband/RubberBandStretcher.h
 /usr/lib/pydaw4/rubberband/include/rubberband/rubberband-c.h
 /usr/lib/pydaw4/rubberband/lib/librubberband.a
@@ -120,7 +126,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/rubberband/lib/librubberband.so.2
 /usr/lib/pydaw4/rubberband/lib/librubberband.so.2.1.0
 /usr/lib/pydaw4/rubberband/lib/pkgconfig/rubberband.pc
-/usr/lib/pydaw4/sbsms/bin/sbsms
 /usr/lib/pydaw4/themes/default/drop-down.png
 /usr/lib/pydaw4/themes/default/euphoria.png
 /usr/lib/pydaw4/themes/default/h-fader.png
