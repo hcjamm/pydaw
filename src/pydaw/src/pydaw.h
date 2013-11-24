@@ -2500,7 +2500,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     float f_distance = f_adjusted_next_song_pos_beats -
                     (a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adjusted_start_beat);
 
-                    f_i2 = (int)((f_distance / f_diff) * ((float)(f_adjusted_sample_count - f_start_sample)));
+                    f_i2 = f_adjusted_sample_count - (int)((f_distance / f_diff) * ((float)(f_adjusted_sample_count - f_start_sample)));
                 }
 
                 if((a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage) != 4)
