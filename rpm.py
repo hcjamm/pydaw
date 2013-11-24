@@ -154,7 +154,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/doc/pydaw4/readme.txt
 /usr/share/pixmaps/pydaw4.png
 
-#
+#These seem like undesirable files to package, but it seems that rpmbuild
+#creates them even when I go to great lengths to ensure they're not in the
+#source tarball?  I guess that makes sense from a load-time perspective
+#to have the bytecode cache files, since only root would be able to create them
+#once installed.
+
 /usr/lib/pydaw4/mixxx/mixxx-launcher.pyc
 /usr/lib/pydaw4/mixxx/mixxx-launcher.pyo
 /usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyc
@@ -199,7 +204,7 @@ os.system('cp "%s" "%s"' % (global_spec_file, global_specs_dir))
 os.chdir(global_specs_dir)
 os.system("rpmbuild -ba %s" % (global_spec_file,))
 
-#Restore the ~/.rpmmacros file
+#Restore the ~/.rpmmacros file to it's original state.
 if global_macro_text is not None:
     global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "w")
     global_rpmmacros_file.write(global_macro_text)
