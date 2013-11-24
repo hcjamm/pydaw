@@ -179,6 +179,8 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
 
     a_wav_pool_item->channels = f_adjusted_channel_count;
 
+    a_wav_pool_item->is_loaded = 1;
+
     return 1;
 }
 

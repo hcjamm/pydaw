@@ -659,7 +659,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
                 ((plugin_data->mono_modules->noise_func_ptr[(plugin_data->current_sample)](plugin_data->mono_modules->white_noise1[(f_voice->noise_index)]))
                 * (plugin_data->mono_modules->noise_linamp[(plugin_data->current_sample)])); //add noise
 
-        for (ch = 0; ch < (plugin_data->wavpool_items[(plugin_data->i_loaded_samples)]->channels); ++ch)
+        for (ch = 0; ch < (plugin_data->wavpool_items[(plugin_data->current_sample)]->channels); ++ch)
         {
             interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
@@ -1137,15 +1137,15 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
     int f_total_index = 0;
 
     t_wav_pool_item * f_wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];
+    int f_loaded_samples[EUPHORIA_MAX_SAMPLE_COUNT];
 
     int f_i = 0;
     while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
     {
         f_wavpool_items[f_i] = 0;
+        f_loaded_samples[f_i] = 0;
         f_i++;
     }
-
-    int f_loaded_samples[EUPHORIA_MAX_SAMPLE_COUNT];
 
     char * f_result_string = (char*)malloc(sizeof(char) * 2048);
 
@@ -1157,13 +1157,13 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
 
             if(f_current_string_index == 0)
             {
-                f_wavpool_items[f_samples_loaded_count] = 0;
+                f_wavpool_items[f_total_index] = 0;
             }
             else
             {
                 int f_uid = atoi(f_result_string);
                 t_wav_pool_item * f_wavpool_item = wavpool_get_func(f_uid);
-                f_wavpool_items[f_samples_loaded_count] = f_wavpool_item;
+                f_wavpool_items[f_total_index] = f_wavpool_item;
                 f_loaded_samples[f_samples_loaded_count] = f_total_index;
                 f_samples_loaded_count++;
             }
