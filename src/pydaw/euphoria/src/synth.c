@@ -409,7 +409,6 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
     plugin_data->linear_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
     plugin_data->i_slow_index = 0;
-    plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
 
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
@@ -427,6 +426,7 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
         plugin_data->sampleEndPos[f_i] = 0.0f;
         plugin_data->sample_last_interpolated_value[f_i] = 0.0f;
         plugin_data->adjusted_base_pitch[f_i] = 60.0f;
+        plugin_data->wavpool_items[f_i] = 0;
 
         f_i++;
     }
@@ -1131,14 +1131,20 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
 static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pthread_mutex_t * a_mutex)
 {
-    sprintf(plugin_data->sample_files, "%s", paths);
-
     int f_index = 0;
     int f_samples_loaded_count = 0;
     int f_current_string_index = 0;
     int f_total_index = 0;
 
     t_wav_pool_item * f_wavpool_items[EUPHORIA_MAX_SAMPLE_COUNT];
+
+    int f_i = 0;
+    while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
+    {
+        f_wavpool_items[f_i] = 0;
+        f_i++;
+    }
+
     int f_loaded_samples[EUPHORIA_MAX_SAMPLE_COUNT];
 
     char * f_result_string = (char*)malloc(sizeof(char) * 2048);
@@ -1186,8 +1192,7 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
         pthread_mutex_lock(a_mutex);
     }
 
-
-    int f_i = 0;
+    f_i = 0;
 
     while(f_i < f_samples_loaded_count)
     {
