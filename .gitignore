@@ -1,3 +1,4 @@
+src/pydaw-build/*.rpm
 src/pydaw-build/fedora/*.ks
 src/pydaw-build/fedora/cache/
 *.spec
