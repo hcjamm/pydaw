@@ -53,6 +53,13 @@ def pydaw_which(a_file):
             return f_file_path
     return None
 
+#hack for the XFCE live USB/DVD and that panel thing that takes up 2 inches of vertical space at the bottom
+if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query" is not None):
+    try:
+        os.system("xfconf-query -c xfce4-panel -p /panels/panel-2/autohide -s true")
+    except Exception as ex:
+        print("Exception while trying to set autohide for XFCE-Panel:\n%s" % (ex,))
+
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
     f_str = str(a_str)
@@ -259,7 +266,8 @@ else:
     print("Warning, gksudo and sudo not found.  If the GUI hangs before opening, this could be the reason why")
     global_pydaw_sudo_command = None
 
-if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
+if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
+    os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
     if not os.path.isdir("/media/pydaw_data"):
         print("Attempting to mount /media/pydaw_data.  If this causes the GUI to hang, please try mounting the pydaw_data partition before starting")
         try:
