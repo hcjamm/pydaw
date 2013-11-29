@@ -56,7 +56,7 @@ def pydaw_which(a_file):
 #hack for the XFCE live USB/DVD and that panel thing that takes up 2 inches of vertical space at the bottom
 if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query") is not None:
     try:
-        os.system("xfconf-query -c xfce4-panel -p /panels/panel-2/autohide -s true")
+        os.system("xfconf-query -c xfce4-panel -p /panels/panel-2/autohide -s true --create -t bool")
     except Exception as ex:
         print("Exception while trying to set autohide for XFCE-Panel:\n%s" % (ex,))
 
