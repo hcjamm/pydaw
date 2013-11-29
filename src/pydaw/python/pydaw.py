@@ -7435,7 +7435,7 @@ else:
 if global_show_create_folder_error:
     QtGui.QMessageBox.warning(this_main_window, "Warning",
                               "Error creating folder in %s , this is probably a permission issue"
-                              "if you didn't use FAT as the filesystem, settings will NOT persist between sessions"
+                              "if you didn't use FAT as the filesystem, settings will NOT persist between sessions "
                               "until you make %s writable." % (global_home, global_home))
 
 global_tooltips_enabled_file = "%s/tooltips.txt" % (global_pydaw_home,)
