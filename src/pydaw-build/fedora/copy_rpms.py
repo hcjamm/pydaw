@@ -17,4 +17,4 @@ import os
 
 rpm_dir = "%s/rpmbuild/RPMS/x86_64/" % (os.path.expanduser("~"))
 
-os.system('cp %s/pydaw*rpm ..')
+os.system('cp %s/pydaw*rpm ..' % (rpm_dir,))
