@@ -1,3 +1,5 @@
+src/pydaw-build/fedora/*.ks
+src/pydaw-build/fedora/cache/
 *.spec
 src/pydaw_sbsms/Makefile
 src/pydaw_sbsms/cli/sbsms
