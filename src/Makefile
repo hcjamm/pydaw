@@ -26,6 +26,14 @@ deps:
 	cd pydaw_sbsms && ./configure && make
 	cd pydaw_sbsms/cli && make
 	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make
+
+deps_clean:
+	make -C pydaw/midicomp clean
+	cd pydaw/pyliblo-0.9.1 && python3 setup.py clean
+	make -C pydaw/portaudio clean
+	make -C pydaw_sbsms clean
+	make -C pydaw_sbsms/cli clean
+	make -C pydaw_rubberband clean
 		
 # --------------------------------------------------------------
 
@@ -44,7 +52,6 @@ install:
 
 clean:
 	make -C pydaw clean
-	#make -C pydaw_sbsms clean
-	#make -C pydaw_sbsms/cli clean
-	#make -C pydaw_rubberband clean
+
+
 
