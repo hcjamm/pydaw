@@ -54,7 +54,7 @@ def pydaw_which(a_file):
     return None
 
 #hack for the XFCE live USB/DVD and that panel thing that takes up 2 inches of vertical space at the bottom
-if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query" is not None):
+if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query") is not None:
     try:
         os.system("xfconf-query -c xfce4-panel -p /panels/panel-2/autohide -s true")
     except Exception as ex:
