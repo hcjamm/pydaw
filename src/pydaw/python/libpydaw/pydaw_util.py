@@ -268,17 +268,22 @@ else:
 
 if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
     os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
-    if not os.path.isdir("/media/pydaw_data"):
-        print("Attempting to mount /media/pydaw_data.  If this causes the GUI to hang, please try mounting the pydaw_data partition before starting")
+    if os.path.isdir("/home/liveuser"): #presumed to be Fedora or Fedora-like
+        global_home = "/run/media/liveuser/pydaw_data"
+    else: #presumed to be Ubuntu or Ubuntu-like.
+        global_home = "/media/pydaw_data"
+    if not os.path.isdir(global_home):
+        print("Attempting to mount %s."
+        "If this causes the GUI to hang, please try mounting the pydaw_data partition before starting" % (global_home,))
         try:
-            os.system("%s mkdir /media/pydaw_data" % (global_pydaw_sudo_command,))
-            os.system("%s mount /dev/disk/by-label/pydaw_data /media/pydaw_data" % (global_pydaw_sudo_command,))
+            os.system("%s mkdir %s" % (global_pydaw_sudo_command, global_home))
+            os.system("%s mount /dev/disk/by-label/pydaw_data %s" % (global_pydaw_sudo_command, global_home))
         except:
             print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive or permissions")
+
     global_is_live_mode = True
-    global_home = "/media/pydaw_data"
-    global_pydaw_home = "/media/pydaw_data/" + global_pydaw_version_string
-    global_default_project_folder = global_home + "/" + global_pydaw_version_string + "_projects"
+    global_pydaw_home = "%s/%s" % (global_home, global_pydaw_version_string)
+    global_default_project_folder = "%s/%s_projects" % (global_home, global_pydaw_version_string)
     try:
         if not os.path.isdir(global_pydaw_home):
             os.mkdir(global_pydaw_home)
@@ -290,7 +295,7 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
         global_is_live_mode = False
         global_home = os.path.expanduser("~")
         global_default_project_folder = global_home
-        global_pydaw_home = os.path.expanduser("~") + "/" + global_pydaw_version_string
+        global_pydaw_home = "%s/%s" % (global_home, global_pydaw_version_string)
 else:
     global_is_live_mode = False
     global_home = os.path.expanduser("~")
