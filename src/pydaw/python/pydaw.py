@@ -136,7 +136,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
     global global_tooltips_enabled
     global_tooltips_enabled = a_enabled
     if a_enabled:
-        pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "True")
+        pydaw_write_file_text("%s/tooltips.txt" % (global_pydaw_home,), "True")
         this_song_editor.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of regions,\n"
         "click here to add a region, click and drag to move a region, or press the 'delete' button to delete\n"
         "the selected regions.  Click on a region to edit it in the region editor below."
@@ -184,7 +184,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_audio_item_editor_widget.set_tooltips(True)
         this_audio_items_viewer.set_tooltips(True)
     else:
-        pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "False")
+        pydaw_write_file_text("%s/tooltips.txt" % (global_pydaw_home,), "False")
         this_song_editor.table_widget.setToolTip("")
         for f_region_editor in global_region_editors:
             f_region_editor.table_widget.setToolTip("")
@@ -7434,12 +7434,14 @@ else:
 
 if global_show_create_folder_error:
     QtGui.QMessageBox.warning(this_main_window, "Warning",
-"""Error creating folder in /media/pydaw_data , this is probably a permission issue
-if you didn't use FAT as the filesystem, settings will NOT persist between sessions
-until you make /media/pydaw_data writable.""".replace("\n", " "))
+                              "Error creating folder in %s , this is probably a permission issue"
+                              "if you didn't use FAT as the filesystem, settings will NOT persist between sessions"
+                              "until you make %s writable." % (global_home, global_home))
 
-if os.path.isfile(global_pydaw_home + "/" + "tooltips.txt"):
-    if pydaw_read_file_text(global_pydaw_home + "/" + "tooltips.txt") == "True":
+global_tooltips_enabled_file = "%s/tooltips.txt" % (global_pydaw_home,)
+
+if os.path.isfile(global_tooltips_enabled_file):
+    if pydaw_read_file_text(global_tooltips_enabled_file) == "True":
         this_transport.tooltips_checkbox.setChecked(True)
 else:
     this_transport.tooltips_checkbox.setChecked(True)

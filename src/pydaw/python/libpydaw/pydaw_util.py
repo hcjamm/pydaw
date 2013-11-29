@@ -245,17 +245,26 @@ def pydaw_wait_for_finished_file(a_file):
                 os.remove(a_file)
                 break
             except:
-                print(("pydaw_wait_for_finished_file:  Exception when deleting " + a_file))
+                print("pydaw_wait_for_finished_file:  Exception when deleting %s" % (a_file,))
         else:
             sleep(0.1)
 
 def pydaw_get_wait_file_path(a_file):
-    f_wait_file = str(a_file) + ".finished"
+    f_wait_file = "%s.finished" % (a_file,)
     if os.path.isfile(f_wait_file):
         os.remove(f_wait_file)
     return f_wait_file
 
 global_show_create_folder_error = False
+
+def pydaw_set_live_mode_off():
+    global global_is_live_mode, global_home, global_default_project_folder, global_pydaw_home
+    global_is_live_mode = False
+    global_home = os.path.expanduser("~")
+    global_default_project_folder = global_home
+    global_pydaw_home = "%s/%s" % (os.path.expanduser("~"), global_pydaw_version_string)
+    if not os.path.isdir(global_pydaw_home):
+        os.mkdir(global_pydaw_home)
 
 if pydaw_which("gksudo") is not None:
     global_pydaw_sudo_command = "gksudo"
@@ -284,30 +293,31 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
     global_is_live_mode = True
     global_pydaw_home = "%s/%s" % (global_home, global_pydaw_version_string)
     global_default_project_folder = "%s/%s_projects" % (global_home, global_pydaw_version_string)
+
     try:
         if not os.path.isdir(global_pydaw_home):
-            os.mkdir(global_pydaw_home)
+            print("%s did not exist, attempting to create." % (global_pydaw_home,))
+            os.system("%s mkdir '%s'" % (global_pydaw_sudo_command, global_pydaw_home,))
+            os.system("%s chmod -R 777 '%s'" % (global_pydaw_sudo_command, global_pydaw_home,))
         if not os.path.isdir(global_default_project_folder):
-            os.mkdir(global_default_project_folder)
-            pydaw_write_file_text(global_default_project_folder + "/README.txt", "Create subfolders in here and save your live projects to those subfolders.  Saving in the regular filesystem will not persist between live sessions.")
-    except:
+            print("%s did not exist, attempting to create." % (global_default_project_folder,))
+            os.system("%s mkdir '%s'" % (global_pydaw_sudo_command, global_default_project_folder,))
+            os.system("%s chmod -R 777 '%s'" % (global_pydaw_sudo_command, global_default_project_folder,))
+            pydaw_write_file_text("%s/README.txt" % (global_default_project_folder,),
+            "Create subfolders in here and save your live projects to those subfolders.  "
+            "Saving in the regular filesystem will not persist between live sessions.")
+    except Exception as ex:
+        print("pydaw_util :  Exception while creating folder.")
         global_show_create_folder_error = True
-        global_is_live_mode = False
-        global_home = os.path.expanduser("~")
-        global_default_project_folder = global_home
-        global_pydaw_home = "%s/%s" % (global_home, global_pydaw_version_string)
+        pydaw_set_live_mode_off()
 else:
-    global_is_live_mode = False
-    global_home = os.path.expanduser("~")
-    global_default_project_folder = global_home
-    global_pydaw_home = os.path.expanduser("~") + "/" + global_pydaw_version_string
-    if not os.path.isdir(global_pydaw_home):
-        os.mkdir(global_pydaw_home)
+    pydaw_set_live_mode_off()
+
 
 global_bookmarks_file_path = "%s/file_browser_bookmarks.txt" % (global_pydaw_home,)
 
 global_device_val_dict = {}
-global_pydaw_device_config = global_pydaw_home + "/device.txt"
+global_pydaw_device_config = "%s/device.txt" % (global_pydaw_home,)
 
 def pydaw_read_device_config():
     global global_pydaw_bin_path, global_device_val_dict, global_pydaw_is_sandboxed, global_pydaw_with_audio
