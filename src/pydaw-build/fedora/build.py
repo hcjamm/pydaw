@@ -22,7 +22,6 @@ if not os.getuid() == 0:
 os.system("setenforce 0")
 
 global_pydaw_version = "pydaw4"
-fedora_version = "19"
 
 pydaw_version_file = open("../../%s-version.txt" % (global_pydaw_version,))
 pydaw_version = pydaw_version_file.read().strip()
