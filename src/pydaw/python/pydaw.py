@@ -6036,7 +6036,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         try:
             while True:
-                f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=global_home + "/default." + global_pydaw_version_string, filter=global_pydaw_file_type_string)
+                f_file = QtGui.QFileDialog.getSaveFileName(parent=self, caption='New Project',
+                             directory="%s/default.%s" % (global_home, global_pydaw_version_string),
+                             filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
                     f_file = str(f_file)
                     if not self.check_for_empty_directory(f_file):
@@ -6309,6 +6311,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_print_generic_exception(ex)
 
     def on_version(self):
+        def on_ok():
+            f_window.close()
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Version Info")
         f_window.setFixedSize(420, 90)
@@ -6318,6 +6322,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         (pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string, global_pydaw_version_string)))
         f_version.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         f_layout.addWidget(f_version)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button)
+        f_ok_button.pressed.connect(on_ok)
         f_window.exec_()
 
     def on_website(self):
