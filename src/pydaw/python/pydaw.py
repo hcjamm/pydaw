@@ -183,6 +183,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "Click the 'Open' button to open the .wav file, then click the 'Enabled?' checkbox to disable normal audio and enable the A/B track")
         this_audio_item_editor_widget.set_tooltips(True)
         this_audio_items_viewer.set_tooltips(True)
+        this_transport.set_tooltips(True)
     else:
         pydaw_write_file_text("%s/tooltips.txt" % (global_pydaw_home,), "False")
         this_song_editor.table_widget.setToolTip("")
@@ -200,6 +201,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_main_window.cc_map_tab.setToolTip("")
         this_ab_widget.widget.setToolTip("")
         this_audio_items_viewer.set_tooltips(False)
+        this_transport.set_tooltips(False)
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
@@ -5899,27 +5901,36 @@ class transport_widget:
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
         f_upper_ctrl_layout.addWidget(self.loop_mode_combobox)
         self.follow_checkbox = QtGui.QCheckBox("Follow")
-        self.follow_checkbox.setToolTip("Checking this box causes the region editor to follow playback")
         self.follow_checkbox.setChecked(True)
         self.follow_checkbox.clicked.connect(self.on_follow_cursor_check_changed)
         f_lower_ctrl_layout.addWidget(self.follow_checkbox)
         self.overdub_checkbox = QtGui.QCheckBox("Overdub")
         self.overdub_checkbox.clicked.connect(self.on_overdub_changed)
-        self.overdub_checkbox.setToolTip("Checking this box causes recording to unlink existing items and append new events to the existing events")
         f_lower_ctrl_layout.addWidget(self.overdub_checkbox)
         self.panic_button = QtGui.QPushButton("Panic")
-        self.panic_button.setToolTip("Panic button:   Sends a note-off signal on every note to every instrument")
         self.panic_button.pressed.connect(self.on_panic)
         f_lower_ctrl_layout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding))
         f_lower_ctrl_layout.addWidget(self.panic_button)
         self.tooltips_checkbox = QtGui.QCheckBox("Tooltips")
-        self.tooltips_checkbox.setToolTip("Check this box to show really annoying (but useful) tooltips for everything")
         self.tooltips_checkbox.stateChanged.connect(pydaw_set_tooltips_enabled)
         f_upper_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
         self.last_region_num = -99
         self.suppress_osc = False
+
+    def set_tooltips(self, a_enabled):
+        if a_enabled:
+            self.tooltips_checkbox.setToolTip("Check this box to show really annoying (but useful) tooltips for everything")
+            self.panic_button.setToolTip("Panic button:   Sends a note-off signal on every note to every instrument")
+            self.overdub_checkbox.setToolTip("Checking this box causes recording to unlink existing items and append new events to the existing events")
+            self.follow_checkbox.setToolTip("Checking this box causes the region editor to follow playback")
+        else:
+            self.tooltips_checkbox.setToolTip("")
+            self.panic_button.setToolTip("")
+            self.overdub_checkbox.setToolTip("")
+            self.follow_checkbox.setToolTip("")
+
 
 global_open_fx_ui_dicts = [{}, {}, {}]
 global_open_inst_ui_dict = {}
