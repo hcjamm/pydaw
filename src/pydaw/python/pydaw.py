@@ -3981,25 +3981,28 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(self.scale_combobox, 0, 6)
 
         self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
-        f_button_width = 82
-        self.notes_quantize_button = QtGui.QPushButton("Quantize")
-        self.notes_quantize_button.setMinimumWidth(f_button_width)
-        self.notes_quantize_button.pressed.connect(self.quantize_dialog)
-        self.controls_grid_layout.addWidget(self.notes_quantize_button, 0, 10)
-        self.notes_transpose_button = QtGui.QPushButton("Transpose")
-        self.notes_transpose_button.setMinimumWidth(f_button_width)
-        self.notes_transpose_button.pressed.connect(self.transpose_dialog)
-        self.controls_grid_layout.addWidget(self.notes_transpose_button, 0, 12)
 
-        self.notes_velocity_button = QtGui.QPushButton("Velocity")
-        self.notes_velocity_button.setMinimumWidth(f_button_width)
-        self.notes_velocity_button.pressed.connect(self.velocity_dialog)
-        self.controls_grid_layout.addWidget(self.notes_velocity_button, 0, 15)
-        self.controls_grid_layout.addItem(QtGui.QSpacerItem(200, 10, QtGui.QSizePolicy.Minimum), 0, 16)
-        self.notes_clear_button = QtGui.QPushButton("Clear")
-        self.notes_clear_button.setMinimumWidth(f_button_width)
-        self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.controls_grid_layout.addWidget(self.notes_clear_button, 0, 17)
+        self.edit_menu_button = QtGui.QPushButton("Edit")
+        self.edit_menu = QtGui.QMenu(self.widget)
+        self.edit_menu_button.setMenu(self.edit_menu)
+        self.controls_grid_layout.addWidget(self.edit_menu_button, 0, 10)
+
+        self.quantize_action = QtGui.QAction("Quantize", self.widget)
+        self.edit_menu.addAction(self.quantize_action)
+        self.quantize_action.triggered.connect(self.quantize_dialog)
+
+        self.transpose_action = QtGui.QAction("Transpose", self.widget)
+        self.edit_menu.addAction(self.transpose_action)
+        self.transpose_action.triggered.connect(self.transpose_dialog)
+
+        self.velocity_action = QtGui.QAction("Velocity", self.widget)
+        self.edit_menu.addAction(self.velocity_action)
+        self.velocity_action.triggered.connect(self.velocity_dialog)
+
+        self.clear_action = QtGui.QAction("Clear All", self.widget)
+        self.edit_menu.addAction(self.clear_action)
+        self.clear_action.triggered.connect(self.clear_notes)
+
         self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 18)
 
         self.vlayout.addLayout(self.controls_grid_layout)
