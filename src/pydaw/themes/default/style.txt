@@ -301,11 +301,11 @@ QFrame
 QToolTip
 {
 	color: white;
-	border: 1px solid white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(10, 10, 10, 255), stop:0.5 rgba(30, 30, 30, 255), stop:1 rgba(10, 10, 10, 255));
-	padding: 1px;
-	border-radius: 3px;
-	/*opacity: 100;*/
+	font-size: 15px;
+	border: 2px solid white;
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(120, 120, 120, 255), stop:0.1 rgba(45, 45, 45, 255), stop:0.5 rgba(39, 39, 39, 255),  stop:0.9 rgba(42, 42, 42, 255), stop:1 rgba(10, 10, 10, 255));
+	padding: 6px;
+	border-radius: 9px;
 }
 
 QWidget
@@ -387,17 +387,16 @@ QMenuBar::item:pressed
 	padding-bottom:1px;
 }
 
-/*
 QMenu
-{
-	border: 1px solid #000;
+{	
+	color: white;
+	font-size: 15px;
+	border: 1px solid white;	
+	padding: 4px;
+	margin: 4px;
+	border-radius: 3px;
+	background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10, 10, 10, 255), stop:0.1 rgba(45, 45, 45, 255), stop:0.5 rgba(39, 39, 39, 255),  stop:0.9 rgba(42, 42, 42, 255), stop:1 rgba(10, 10, 10, 255));
 }
-
-QMenu::item
-{
-	padding: 2px 20px 2px 20px;
-}
-*/
 
 QMenu::item:selected
 {
