@@ -59,6 +59,8 @@ GNU General Public License for more details.
 #include <cpufreq.h>
 #endif
 
+#include <sched.h>
+
 #include "main.h"
 #include "synth.c"
 
@@ -559,6 +561,22 @@ int main(int argc, char **argv)
     }
 #endif
 
+    int f_current_proc_sched = sched_getscheduler(0);
+    
+    if(f_current_proc_sched == SCHED_FIFO)
+    {
+        printf("Process scheduler already set to real-time.");
+    }
+    else
+    {
+        printf("\n\nProcess scheduler set to %i, attempting to set real-time scheduler.", f_current_proc_sched);
+        //Attempt to set the process priority to real-time
+        const struct sched_param f_proc_param = {sched_get_priority_max(SCHED_FIFO)};    
+        printf("Attempting to set scheduler for process\n");
+        sched_setscheduler(0, SCHED_FIFO, &f_proc_param);
+        printf("Process scheduler is now %i\n\n", sched_getscheduler(0));
+    }
+    
     setsid();
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
