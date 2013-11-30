@@ -6424,7 +6424,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         for f_app in (f_avconv, f_lame):
             if pydaw_which(f_app) is None:
                 QtGui.QMessageBox.warning(self, "Error", \
-                "Please ensure that %s is installed, can't open audio converter dialog" % (f_app,))
+                "Please ensure that avconv and lame are installed, can't open audio converter dialog.\n"
+                "Check your normal sources for packages or visit:\n\n"
+                "http://lame.sourceforge.net/\n"
+                "http://libav.org\n\nCan't find %s" % (f_app,))
                 return
 
         if global_transport_is_playing:
