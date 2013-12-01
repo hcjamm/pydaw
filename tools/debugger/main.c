@@ -41,7 +41,12 @@ int main(int argc, char** argv)
 
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
     PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, 44100);
-    v_pydaw_activate(f_handle, 1, 1);
+
+    char f_project_dir[2048];
+    f_project_dir[0] = '\0';
+    sprintf(f_project_dir, "%s/%s/default-project", getenv("HOME"), PYDAW_VERSION);
+
+    v_pydaw_activate(f_handle, 1, 1, f_project_dir);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
 
