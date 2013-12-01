@@ -518,11 +518,17 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 #define RTLD_LOCAL  (0)
 #endif
 
+/* argv positional args:
+ * [1] Install prefix (ie: /usr)
+ * [2] Project path
+ * Optional args:
+ * --sleep
+ */
 int main(int argc, char **argv)
 {
-    if(argc < 2)
+    if(argc < 3)
     {
-        printf("\nUsage: %s [install prefix]\n\n", argv[0]);
+        printf("\nUsage: %s install_prefix project_path [--sleep]\n\n", argv[0]);
         exit(9996);
     }
 
@@ -555,14 +561,26 @@ int main(int argc, char **argv)
 #else
     int f_usleep = 0;
 
-    if(argc >= 3 && !strcmp(argv[2], "--sleep"))
+    if(argc >= 4)
     {
-        f_usleep = 1;
+        j = 3;
+        while(j < argc)
+        {
+            if(!strcmp(argv[j], "--sleep"))
+            {
+                f_usleep = 1;
+            }
+            else
+            {
+                printf("Invalid argument [%i] %s\n", j, argv[j]);
+            }
+            j++;
+        }
     }
 #endif
 
     int f_current_proc_sched = sched_getscheduler(0);
-    
+
     if(f_current_proc_sched == SCHED_FIFO)
     {
         printf("Process scheduler already set to real-time.");
@@ -571,12 +589,12 @@ int main(int argc, char **argv)
     {
         printf("\n\nProcess scheduler set to %i, attempting to set real-time scheduler.", f_current_proc_sched);
         //Attempt to set the process priority to real-time
-        const struct sched_param f_proc_param = {sched_get_priority_max(SCHED_FIFO)};    
+        const struct sched_param f_proc_param = {sched_get_priority_max(SCHED_FIFO)};
         printf("Attempting to set scheduler for process\n");
         sched_setscheduler(0, SCHED_FIFO, &f_proc_param);
         printf("Process scheduler is now %i\n\n", sched_getscheduler(0));
     }
-    
+
     setsid();
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
@@ -928,7 +946,7 @@ int main(int argc, char **argv)
         v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
     }
 
-    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity);
+    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity, argv[2]);
 
     assert(in == insTotal);
     assert(out == outsTotal);

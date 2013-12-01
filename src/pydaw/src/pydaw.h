@@ -336,7 +336,6 @@ void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data,  t_pytrack * a_track,
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
 void v_pydaw_init_worker_threads(t_pydaw_data*, int, int);
-void v_open_default_project(t_pydaw_data * a_data);
 inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, t_pydaw_seq_event *events, int event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count,
         t_pydaw_seq_event *events, int event_count, long f_next_current_sample,
@@ -3444,14 +3443,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     }
 
     return f_result;
-}
-
-void v_open_default_project(t_pydaw_data * a_data)
-{
-    char * f_home = getenv("HOME");
-    char f_default_project_folder[512];
-    sprintf(f_default_project_folder, "%s/%s/default-project", f_home, PYDAW_VERSION);
-    v_open_project(a_data, f_default_project_folder, 1);
 }
 
 void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler osc_message_handler)

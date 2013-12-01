@@ -94,12 +94,12 @@ static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s
     return (PYFX_Handle) plugin_data;
 }
 
-void v_pydaw_activate(PYFX_Handle instance, int a_thread_count, int a_set_thread_affinity)
+void v_pydaw_activate(PYFX_Handle instance, int a_thread_count, int a_set_thread_affinity, char * a_project_path)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     v_pydaw_init_worker_threads(pydaw_data, a_thread_count, a_set_thread_affinity);
     //v_pydaw_init_busses(pydaw_data);
-    v_open_default_project(pydaw_data);
+    v_open_project(pydaw_data, a_project_path, 1);
 }
 
 /*

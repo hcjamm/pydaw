@@ -208,7 +208,7 @@ class pydaw_project:
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
         if not os.path.exists(a_project_file):
-            print(("project file " + a_project_file + " does not exist, creating as new project"))
+            print("project file %s does not exist, creating as new project" % (a_project_file,))
             self.new_project(a_project_file)
         else:
             self.history = pydaw_history.pydaw_history(self.project_folder)
@@ -219,8 +219,7 @@ class pydaw_project:
     def new_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
 
-        project_folders = [
-            self.project_folder, self.instrument_folder, self.regions_folder,
+        project_folders = [self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.audio_per_item_fx_folder, self.busfx_folder, self.samplegraph_folder,
             self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder, self.glued_folder,

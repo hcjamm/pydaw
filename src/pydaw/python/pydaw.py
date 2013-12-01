@@ -6812,23 +6812,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if global_pydaw_with_audio: #Wait up to 6 seconds and then kill the process
                     self.subprocess_timer.stop()
                     if not "--debug" in sys.argv:
-                        f_exited = False
-                        for i in range(20):
-                            if global_pydaw_subprocess.poll() == None:
-                                f_exited = True
-                                break
-                            else:
-                                sleep(0.3)
-                        if not f_exited:
-                            try:
-                                if pydaw_util.global_pydaw_is_sandboxed:
-                                    print("global_pydaw_subprocess did not exit on it's own, sending SIGTERM to helper script...")
-                                    global_pydaw_subprocess.terminate()
-                                else:
-                                    print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
-                                    global_pydaw_subprocess.kill()
-                            except Exception as ex:
-                                print(("Exception raised while trying to kill process: %s" % (ex,)))
+                        close_pydaw_engine()
                 if self.osc_server is not None:
                     self.osc_server.free()
                 self.ignore_close_event = False
@@ -7271,6 +7255,7 @@ def set_default_project(a_project_path):
     f_handle.close()
 
 def global_close_all():
+    close_pydaw_engine()
     global_close_all_plugin_windows()
     this_region_settings.clear_new()
     this_item_editor.clear_new()
@@ -7305,12 +7290,13 @@ def global_ui_refresh_callback(a_restore_all=False):
 def set_window_title():
     this_main_window.setWindowTitle('PyDAW4 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
 #Opens or creates a new project
-def global_open_project(a_project_file, a_notify_osc=True):
+def global_open_project(a_project_file):
     global_close_all()
     global this_pydaw_project
+    open_pydaw_engine(a_project_file)
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.suppress_updates = True
-    this_pydaw_project.open_project(a_project_file, a_notify_osc)
+    this_pydaw_project.open_project(a_project_file, False)
     this_song_editor.open_song()
     pydaw_update_region_lengths_dict()
     for f_editor in global_region_editors:
@@ -7330,6 +7316,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
 def global_new_project(a_project_file):
     global_close_all()
     global this_pydaw_project
+    open_pydaw_engine(a_project_file)
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.new_project(a_project_file)
     this_pydaw_project.save_transport(this_transport.transport)
@@ -7389,6 +7376,30 @@ if not os.path.isfile(pydaw_util.global_pydaw_device_config):
 
 global_pydaw_subprocess = None
 
+def close_pydaw_engine():
+    """ Ask the engine to gracefully stop itself, then kill the process if it
+    doesn't exit on it's own"""
+    global global_pydaw_subprocess
+    if global_pydaw_subprocess is not None:
+        f_exited = False
+        for i in range(20):
+            if global_pydaw_subprocess.poll() == None:
+                f_exited = True
+                break
+            else:
+                sleep(0.3)
+        if not f_exited:
+            try:
+                if pydaw_util.global_pydaw_is_sandboxed:
+                    print("global_pydaw_subprocess did not exit on it's own, sending SIGTERM to helper script...")
+                    global_pydaw_subprocess.terminate()
+                else:
+                    print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
+                    global_pydaw_subprocess.kill()
+            except Exception as ex:
+                print(("Exception raised while trying to kill process: %s" % (ex,)))
+        global_pydaw_subprocess = None
+
 def kill_pydaw_engine():
     """ Kill any zombie instances of the engine if they exist. Otherwise, the
     UI won't be able to control the engine"""
@@ -7429,7 +7440,8 @@ def kill_pydaw_engine():
                 except Exception as ex:
                     print("kill_pydaw_engine : Exception: %s" % (ex,))
 
-def open_pydaw_engine():
+def open_pydaw_engine(a_project_path):
+    f_project_dir = os.path.dirname(a_project_path)
     print("Starting audio engine")
     global global_pydaw_subprocess
     if pydaw_util.pydaw_which("pasuspender") is not None:
@@ -7449,22 +7461,23 @@ def open_pydaw_engine():
         else:
             f_run_with = ""
         if f_pa_suspend:
-            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" %s ; read' """ % \
-            (f_run_with, pydaw_util.global_pydaw_bin_path, global_pydaw_install_prefix, f_sleep)
+            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s ; read' """ % \
+            (f_run_with, pydaw_util.global_pydaw_bin_path, global_pydaw_install_prefix, f_project_dir, f_sleep)
         else:
-            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" %s ; read' """ % \
-            (f_run_with, pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_sleep)
+            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s ; read' """ % \
+            (f_run_with, pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_sleep)
     else:
         if f_pa_suspend:
-            f_cmd = 'pasuspender -- "%s" "%s"' % (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix)
+            f_cmd = 'pasuspender -- "%s" "%s" "%s"' % \
+            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir)
         else:
-            f_cmd = '"%s" "%s"' % (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix,)
+            f_cmd = '"%s" "%s" "%s"' % \
+            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir)
     print(f_cmd)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
 
 if global_pydaw_with_audio:
-    kill_pydaw_engine()
-    open_pydaw_engine()
+    kill_pydaw_engine() #ensure no running instances of the engine
 else:
     print("Not starting with audio because of the audio engine setting, you can change this in File->HardwareSettings")
 
