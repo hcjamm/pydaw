@@ -7389,6 +7389,46 @@ if not os.path.isfile(pydaw_util.global_pydaw_device_config):
 
 global_pydaw_subprocess = None
 
+def kill_pydaw_engine():
+    """ Kill any zombie instances of the engine if they exist. Otherwise, the
+    UI won't be able to control the engine"""
+    try:
+        f_val = subprocess.check_output(['ps', '-ef'])
+    except Exception as ex:
+        print("kill_pydaw_engine raised Exception during process search, assuming no zombie processes %s\n" % (ex,))
+        return
+    f_engine_name = "%s-engine" % (global_pydaw_version_string,)
+    f_val = f_val.decode()
+    f_result = []
+    for f_line in f_val.split("\n"):
+        #print(f_line)
+        if f_engine_name in f_line:
+            try:
+                f_arr = f_line.split()
+                f_result.append(int(f_arr[1]))
+            except Exception as ex:
+                print("kill_pydaw_engine Exception adding PID %s\n\t%s" % (f_arr[1], ex,))
+
+    if len(f_result) > 0:
+        f_answer = QtGui.QMessageBox.warning(this_audio_item_editor_widget.widget, "Warning",
+        "Detected that there are instances of the PyDAW audio engine already running.\n"
+        "This could mean that you already have PyDAW running, if so you should click 'Cancel'\n"
+        "and close the other instance.\n\n"
+        "This could also mean that for some reason the engine didn't properly terminate from "
+        "another session.  If so, click 'OK' to kill the other process(es)",
+        buttons=QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+        if f_answer == QtGui.QMessageBox.Cancel:
+            exit(1)
+        else:
+            for f_pid in set(f_result):
+                try:
+                    f_kill = ["kill", "-9", f_arr[1]]
+                    print(f_kill)
+                    f_result = subprocess.check_output(f_kill)
+                    print(f_result)
+                except Exception as ex:
+                    print("kill_pydaw_engine : Exception: %s" % (ex,))
+
 def open_pydaw_engine():
     print("Starting audio engine")
     global global_pydaw_subprocess
@@ -7423,6 +7463,7 @@ def open_pydaw_engine():
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
 
 if global_pydaw_with_audio:
+    kill_pydaw_engine()
     open_pydaw_engine()
 else:
     print("Not starting with audio because of the audio engine setting, you can change this in File->HardwareSettings")
