@@ -18,9 +18,9 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include "../oscillator/osc_simple.h"    
-    
-typedef struct 
+#include "../oscillator/osc_simple.h"
+
+typedef struct
 {
     float pitch;
     float last_wet, wet_lin;
@@ -48,12 +48,12 @@ void v_rmd_ring_mod_free(t_rmd_ring_mod* a_rmd)
 t_rmd_ring_mod * g_rmd_ring_mod_get(float a_sr)
 {
     t_rmd_ring_mod * f_result;
-    
+
     if(posix_memalign((void**)&f_result, 16, (sizeof(t_rmd_ring_mod))) != 0)
     {
         return 0;
     }
-    
+
     f_result->osc = g_osc_get_osc_simple_single(a_sr);
     v_osc_set_simple_osc_unison_type(f_result->osc, 3);
     v_osc_set_uni_voice_count(f_result->osc, 1);
@@ -64,7 +64,7 @@ t_rmd_ring_mod * g_rmd_ring_mod_get(float a_sr)
     f_result->wet_lin = 0.0f;
     f_result->amp = g_amp_get();
     f_result->osc_output = 0.0f;
-    
+
     return f_result;
 }
 
@@ -73,9 +73,17 @@ void v_rmd_ring_mod_set(t_rmd_ring_mod* a_rmd, float a_pitch, float a_wet)
     if(a_rmd->last_wet != a_wet)
     {
         a_rmd->last_wet = a_wet;
-        a_rmd->wet_lin = f_db_to_linear_fast(a_wet, a_rmd->amp);
+
+        if(a_wet < -29.5f)
+        {
+            a_rmd->wet_lin = 0.0f;
+        }
+        else
+        {
+            a_rmd->wet_lin = f_db_to_linear_fast(a_wet, a_rmd->amp);
+        }
     }
-    
+
     if(a_rmd->pitch != a_pitch)
     {
         a_rmd->pitch = a_pitch;
@@ -85,8 +93,8 @@ void v_rmd_ring_mod_set(t_rmd_ring_mod* a_rmd, float a_pitch, float a_wet)
 
 void v_rmd_ring_mod_run(t_rmd_ring_mod* a_rmd, float a_input0, float a_input1)
 {
-    a_rmd->osc_output = f_osc_run_unison_osc(a_rmd->osc) * (a_rmd->wet_lin);
-    
+    a_rmd->osc_output = (f_osc_run_unison_osc(a_rmd->osc) * (a_rmd->wet_lin)) + 1.0f;
+
     a_rmd->output0 = a_input0 * (a_rmd->osc_output);
     a_rmd->output1 = a_input1 * (a_rmd->osc_output);
 }

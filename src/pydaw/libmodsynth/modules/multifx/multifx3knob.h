@@ -503,8 +503,8 @@ inline void v_mf3_run_glitch(t_mf3_multi*__restrict a_mf3, float a_in0, float a_
 inline void v_mf3_run_ring_mod(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.40944f) + 31.0f;
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.18897f) -24.0f;
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.44094f) + 24.0f;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.23622f) -30.0f;
 
     v_rmd_ring_mod_set(a_mf3->ring_mod, a_mf3->control_value[0], a_mf3->control_value[1]);
     v_rmd_ring_mod_run(a_mf3->ring_mod, a_in0, a_in1);
