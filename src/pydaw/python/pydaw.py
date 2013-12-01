@@ -6800,7 +6800,6 @@ class pydaw_main_window(QtGui.QMainWindow):
                 self.setEnabled(True)
                 return
             else:
-                this_pydaw_project.quit_handler()
                 this_audio_items_viewer.prepare_to_quit()
                 this_piano_roll_editor.prepare_to_quit()
                 for f_viewer in this_cc_automation_viewers:
@@ -6813,6 +6812,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.subprocess_timer.stop()
                     if not "--debug" in sys.argv:
                         close_pydaw_engine()
+                else:
+                    this_pydaw_project.flush_history()
                 if self.osc_server is not None:
                     self.osc_server.free()
                 self.ignore_close_event = False
@@ -7288,11 +7289,15 @@ def global_ui_refresh_callback(a_restore_all=False):
     global_set_record_armed_track()
 
 def set_window_title():
-    this_main_window.setWindowTitle('PyDAW4 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+    this_main_window.setWindowTitle('PyDAW4 - %s/%s.%s' % (this_pydaw_project.project_folder, this_pydaw_project.project_file,
+                                                           global_pydaw_version_string))
+
 #Opens or creates a new project
-def global_open_project(a_project_file):
+def global_open_project(a_project_file, a_wait=True):
     global_close_all()
     global this_pydaw_project
+    if a_wait:
+        sleep(3.0)
     open_pydaw_engine(a_project_file)
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.suppress_updates = True
@@ -7313,9 +7318,11 @@ def global_open_project(a_project_file):
     this_song_editor.open_first_region()
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
 
-def global_new_project(a_project_file):
+def global_new_project(a_project_file, a_wait=True):
     global_close_all()
     global this_pydaw_project
+    if a_wait:
+        sleep(3.0)
     open_pydaw_engine(a_project_file)
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.new_project(a_project_file)
@@ -7381,6 +7388,7 @@ def close_pydaw_engine():
     doesn't exit on it's own"""
     global global_pydaw_subprocess
     if global_pydaw_subprocess is not None:
+        this_pydaw_project.quit_handler()
         f_exited = False
         for i in range(20):
             if global_pydaw_subprocess.poll() == None:
@@ -7439,11 +7447,17 @@ def kill_pydaw_engine():
                     print(f_result)
                 except Exception as ex:
                     print("kill_pydaw_engine : Exception: %s" % (ex,))
+            sleep(3.0)
 
 def open_pydaw_engine(a_project_path):
+    if not global_pydaw_with_audio:
+        print("Not starting audio because of the audio engine setting, you can change this in File->HardwareSettings")
+        return
+
+    kill_pydaw_engine() #ensure no running instances of the engine
     f_project_dir = os.path.dirname(a_project_path)
     f_pid = os.getpid()
-    print("Starting audio engine")
+    print("Starting audio engine with %s" % (a_project_path,))
     global global_pydaw_subprocess
     if pydaw_util.pydaw_which("pasuspender") is not None:
         f_pa_suspend = True
@@ -7477,11 +7491,6 @@ def open_pydaw_engine(a_project_path):
     print(f_cmd)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
 
-if global_pydaw_with_audio:
-    kill_pydaw_engine() #ensure no running instances of the engine
-else:
-    print("Not starting with audio because of the audio engine setting, you can change this in File->HardwareSettings")
-
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
 
@@ -7507,9 +7516,9 @@ if os.path.exists(f_def_file):
 else:
     default_project_file = global_pydaw_home + "/default-project/default." + global_pydaw_version_string
 if os.path.exists(default_project_file):
-    global_open_project(default_project_file)
+    global_open_project(default_project_file, a_wait=False)
 else:
-    global_new_project(default_project_file)
+    global_new_project(default_project_file, a_wait=False)
 
 if global_show_create_folder_error:
     QtGui.QMessageBox.warning(this_main_window, "Warning",
