@@ -49,6 +49,9 @@ GNU General Public License for more details.
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <errno.h>
+
 #include <lo/lo.h>
 
 //  If you define this, you must also link to cpufreq appropriately with
@@ -514,6 +517,33 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
     return paContinue;
 }
 
+typedef struct
+{
+    int pid;
+}ui_thread_args;
+
+void * ui_process_monitor_thread(void * a_thread_args)
+{
+    char f_proc_path[256];
+    f_proc_path[0] = '\0';
+    ui_thread_args * f_thread_args = (ui_thread_args*)(a_thread_args);
+    sprintf(f_proc_path, "/proc/%i", f_thread_args->pid);
+    struct stat sts;
+
+    while(!exiting)
+    {
+        sleep(1);
+        if (stat(f_proc_path, &sts) == -1 && errno == ENOENT)
+        {
+            printf("UI process doesn't exist, exiting.\n");
+            exiting = 1;
+            break;
+        }
+    }
+
+    return (void*)0;
+}
+
 #ifndef RTLD_LOCAL
 #define RTLD_LOCAL  (0)
 #endif
@@ -521,14 +551,15 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 /* argv positional args:
  * [1] Install prefix (ie: /usr)
  * [2] Project path
+ * [3] UI PID  //for monitoring that the UI hasn't crashed
  * Optional args:
  * --sleep
  */
 int main(int argc, char **argv)
 {
-    if(argc < 3)
+    if(argc < 4)
     {
-        printf("\nUsage: %s install_prefix project_path [--sleep]\n\n", argv[0]);
+        printf("\nUsage: %s install_prefix project_path ui_pid [--sleep]\n\n", argv[0]);
         exit(9996);
     }
 
@@ -542,6 +573,19 @@ int main(int argc, char **argv)
     int f_performance = 0;
     int j;
     int in, out, controlIn, controlOut;
+
+    pthread_attr_t f_ui_threadAttr;
+    struct sched_param param;
+    param.__sched_priority = 1; //90;
+    pthread_attr_init(&f_ui_threadAttr);
+    pthread_attr_setschedparam(&f_ui_threadAttr, &param);
+    pthread_attr_setstacksize(&f_ui_threadAttr, 1000000); //8388608);
+    pthread_attr_setdetachstate(&f_ui_threadAttr, PTHREAD_CREATE_DETACHED);
+
+    pthread_t f_ui_monitor_thread;
+    ui_thread_args * f_ui_thread_args = (ui_thread_args*)malloc(sizeof(ui_thread_args));
+    f_ui_thread_args->pid = atoi(argv[3]);
+    pthread_create(&f_ui_monitor_thread, &f_ui_threadAttr, ui_process_monitor_thread, (void*)f_ui_thread_args);
 
     j = 0;
 
@@ -561,9 +605,9 @@ int main(int argc, char **argv)
 #else
     int f_usleep = 0;
 
-    if(argc >= 4)
+    if(argc >= 5)
     {
-        j = 3;
+        j = 4;
         while(j < argc)
         {
             if(!strcmp(argv[j], "--sleep"))

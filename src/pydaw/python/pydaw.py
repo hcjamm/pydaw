@@ -7442,6 +7442,7 @@ def kill_pydaw_engine():
 
 def open_pydaw_engine(a_project_path):
     f_project_dir = os.path.dirname(a_project_path)
+    f_pid = os.getpid()
     print("Starting audio engine")
     global global_pydaw_subprocess
     if pydaw_util.pydaw_which("pasuspender") is not None:
@@ -7461,18 +7462,18 @@ def open_pydaw_engine(a_project_path):
         else:
             f_run_with = ""
         if f_pa_suspend:
-            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s ; read' """ % \
-            (f_run_with, pydaw_util.global_pydaw_bin_path, global_pydaw_install_prefix, f_project_dir, f_sleep)
+            f_cmd = """pasuspender -- x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s %s ; read' """ % \
+            (f_run_with, pydaw_util.global_pydaw_bin_path, global_pydaw_install_prefix, f_project_dir, f_pid, f_sleep)
         else:
-            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s ; read' """ % \
-            (f_run_with, pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_sleep)
+            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s %s ; read' """ % \
+            (f_run_with, pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_pid, f_sleep)
     else:
         if f_pa_suspend:
-            f_cmd = 'pasuspender -- "%s" "%s" "%s"' % \
-            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir)
+            f_cmd = 'pasuspender -- "%s" "%s" "%s" %s' % \
+            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_pid)
         else:
-            f_cmd = '"%s" "%s" "%s"' % \
-            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir)
+            f_cmd = '"%s" "%s" "%s" %s' % \
+            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_pid)
     print(f_cmd)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
 
