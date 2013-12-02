@@ -4661,6 +4661,10 @@ class item_list_editor:
                         f_end_beat_val = f_note.start
 
         def ok_handler():
+            if f_draw_line.isChecked() and not f_add_values.isChecked() and f_end_amount.value() < 1:
+                QtGui.QMessageBox.warning(f_window, "Error", "Cannot have end value less than 1 if not using 'Add Values'")
+                return
+
             if a_is_list:
                 if f_multiselect:
                     self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
