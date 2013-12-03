@@ -19,15 +19,17 @@ extern "C" {
 #endif
 
 #include "../oscillator/osc_simple.h"
+#include "../signal_routing/audio_xfade.h"
 
 typedef struct
 {
     float pitch;
-    float last_wet, wet_lin;
+    float last_wet;
     float output0, output1;
     t_osc_simple_unison * osc;
     float osc_output;
     t_amp * amp;
+    t_audio_xfade * xfade;
 }t_rmd_ring_mod;
 
 t_rmd_ring_mod * g_rmd_ring_mod_get(float);
@@ -40,6 +42,7 @@ void v_rmd_ring_mod_free(t_rmd_ring_mod* a_rmd)
     if(a_rmd)
     {
         v_amp_free(a_rmd->amp);
+        free(a_rmd->xfade);
         //TODO:  Free the unison osc
         free(a_rmd);
     }
@@ -61,9 +64,9 @@ t_rmd_ring_mod * g_rmd_ring_mod_get(float a_sr)
     f_result->output1 = 0.0f;
     f_result->last_wet = -110.0f;
     f_result->pitch = -99.99f;
-    f_result->wet_lin = 0.0f;
     f_result->amp = g_amp_get();
     f_result->osc_output = 0.0f;
+    f_result->xfade = g_axf_get_audio_xfade(0.5f);
 
     return f_result;
 }
@@ -73,15 +76,7 @@ void v_rmd_ring_mod_set(t_rmd_ring_mod* a_rmd, float a_pitch, float a_wet)
     if(a_rmd->last_wet != a_wet)
     {
         a_rmd->last_wet = a_wet;
-
-        if(a_wet < -29.5f)
-        {
-            a_rmd->wet_lin = 0.0f;
-        }
-        else
-        {
-            a_rmd->wet_lin = f_db_to_linear_fast(a_wet, a_rmd->amp);
-        }
+        v_axf_set_xfade(a_rmd->xfade, a_wet);
     }
 
     if(a_rmd->pitch != a_pitch)
@@ -93,10 +88,10 @@ void v_rmd_ring_mod_set(t_rmd_ring_mod* a_rmd, float a_pitch, float a_wet)
 
 void v_rmd_ring_mod_run(t_rmd_ring_mod* a_rmd, float a_input0, float a_input1)
 {
-    a_rmd->osc_output = (f_osc_run_unison_osc(a_rmd->osc) * (a_rmd->wet_lin)) + 1.0f;
+    a_rmd->osc_output = f_osc_run_unison_osc(a_rmd->osc);
 
-    a_rmd->output0 = a_input0 * (a_rmd->osc_output);
-    a_rmd->output1 = a_input1 * (a_rmd->osc_output);
+    a_rmd->output0 = f_axf_run_xfade(a_rmd->xfade, a_input0, (a_input0 * (a_rmd->osc_output)));
+    a_rmd->output1 = f_axf_run_xfade(a_rmd->xfade, a_input1, (a_input1 * (a_rmd->osc_output)));
 }
 
 
