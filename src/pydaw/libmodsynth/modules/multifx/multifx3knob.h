@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 26
+#define MULTIFX3KNOB_MAX_INDEX 27
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf_stereo.h"
@@ -101,6 +101,7 @@ inline void v_mf3_run_lp_dw(t_mf3_multi*,float,float);
 inline void v_mf3_run_monofier(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_hp(t_mf3_multi*,float,float);
 inline void v_mf3_run_growl_filter(t_mf3_multi*,float,float);
+inline void v_mf3_run_screech_lp(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -137,7 +138,8 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_run_hp_dw, //22
         v_mf3_run_monofier, //23
         v_mf3_run_lp_hp, //24
-        v_mf3_run_growl_filter //25
+        v_mf3_run_growl_filter, //25
+        v_mf3_run_screech_lp //26
 };
 
 
@@ -175,7 +177,8 @@ const fp_mf3_reset mf3_reset_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_reset_svf, //22
         v_mf3_reset_null, //23
         v_mf3_reset_svf, //24
-        v_mf3_reset_null //25
+        v_mf3_reset_null, //25
+        v_mf3_reset_svf, //26
 };
 
 
@@ -595,6 +598,36 @@ inline void v_mf3_run_growl_filter(t_mf3_multi*__restrict a_mf3, float a_in0, fl
 
     a_mf3->output0 = a_mf3->growl_filter->output0;
     a_mf3->output1 = a_mf3->growl_filter->output1;
+}
+
+inline void v_mf3_run_screech_lp(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    f_mfx_transform_svf_filter(a_mf3);
+    v_svf2_run_4_pole_lp(a_mf3->svf, a_in0, a_in1);
+
+    //a_mf3->output0 = a_mf3->svf->output0;
+    //a_mf3->output1 = a_mf3->svf->output1;
+
+    v_clp_set_clip_sym(a_mf3->clipper, -3.0f);
+    v_sat_set(a_mf3->saturator, 0.0f, 100.0f, 0.0f);
+    v_sat_run(a_mf3->saturator, a_mf3->svf->output0, a_mf3->svf->output1);
+
+    //cutoff
+    //a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.692913386) + 20.0f);
+    //res
+    //a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.157480315) - 24.0f;
+
+    v_cmb_set_all(a_mf3->comb_filter0, (a_mf3->control_value[1]), (a_mf3->control_value[1]),
+                    (a_mf3->control_value[0]));
+
+    v_cmb_set_all(a_mf3->comb_filter1, (a_mf3->control_value[1]), (a_mf3->control_value[1]),
+            (a_mf3->control_value[0]));
+
+    v_cmb_set_input(a_mf3->comb_filter0, f_clp_clip(a_mf3->clipper, a_mf3->saturator->output0));
+    v_cmb_set_input(a_mf3->comb_filter1, f_clp_clip(a_mf3->clipper, a_mf3->saturator->output1));
+
+    a_mf3->output0 = (a_mf3->saturator->output0 - a_mf3->comb_filter0->wet_sample);
+    a_mf3->output1 = (a_mf3->saturator->output1 - a_mf3->comb_filter1->wet_sample);
 }
 
 /* t_mf3_multi g_mf3_get(
