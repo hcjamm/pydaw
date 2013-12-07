@@ -2157,8 +2157,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.track_name = str(a_track_name)
         self.widget.setWindowTitle("PyDAW Way-V - " + self.track_name)
 
-"""Used for outputting sampler parameters to text files"""
-LMS_DELIMITER  =  "|"
 
 SMP_TB_RADIOBUTTON_INDEX  =  0
 SMP_TB_FILE_PATH_INDEX  =  1

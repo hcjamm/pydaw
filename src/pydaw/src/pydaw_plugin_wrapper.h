@@ -74,23 +74,17 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
     {
         case -1:
             f_result->descfn = (PYINST_Descriptor_Function)modulex_PYINST_descriptor;
-            //f_result->lib_handle = dlopen("/usr/lib/dssi/lms_modulex.so", RTLD_NOW | RTLD_LOCAL);
             break;
         case 1:
             f_result->descfn = (PYINST_Descriptor_Function)euphoria_PYINST_descriptor;
-            //f_result->lib_handle = dlopen("/usr/lib/dssi/euphoria.so", RTLD_NOW | RTLD_LOCAL);
             break;
         case 2:
             f_result->descfn = (PYINST_Descriptor_Function)rayv_PYINST_descriptor;
-            //f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);
             break;
         case 3:
             f_result->descfn = (PYINST_Descriptor_Function)wayv_PYINST_descriptor;
-            //f_result->lib_handle = dlopen("/usr/lib/dssi/way_v.so", RTLD_NOW | RTLD_LOCAL);
             break;
     }
-
-    //f_result->descfn = (PYINST_Descriptor_Function)dlsym(f_result->lib_handle, "PYINST_descriptor");
 
     f_result->descriptor = f_result->descfn(0);
 
