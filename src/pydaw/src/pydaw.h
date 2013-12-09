@@ -369,11 +369,34 @@ void v_paif_set_control(t_pydaw_data *, int, int, int, float);
 void v_pysong_free(t_pysong *);
 inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i);
 inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sample_count);
-
+void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data);
 
 /*End declarations.  Begin implementations.*/
 
 t_pydaw_data * pydaw_data;
+
+/* void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
+ * The offline_mutex should be held while calling this.
+ */
+void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
+    {
+        if(a_pydaw_data->track_pool_all[f_i]->effect)
+        {
+            int f_i2 = 0;
+            
+            while(f_i2 < 8192)
+            {
+                a_pydaw_data->track_pool_all[f_i]->effect->pluginOutputBuffers[0][f_i2] = 0.0f;
+                a_pydaw_data->track_pool_all[f_i]->effect->pluginOutputBuffers[1][f_i2] = 0.0f;
+                f_i2++;
+            }
+        }
+        f_i++;
+    }
+}
 
 /*Function for passing to plugins that re-use the wav pool*/
 t_wav_pool_item * g_pydaw_wavpool_item_get(int a_uid)
@@ -4498,6 +4521,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
 
     v_set_playback_cursor(a_pydaw_data, a_start_region, a_start_bar);
     v_pydaw_set_time_params(a_pydaw_data, f_block_size);
+
+    v_pydaw_zero_all_buffers(a_pydaw_data);
 
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;

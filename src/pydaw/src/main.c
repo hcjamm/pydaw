@@ -1584,7 +1584,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         int f_i = 0;
 
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_mutex_lock(&a_pydaw_data->offline_mutex);
         while(f_i < PYDAW_MIDI_TRACK_COUNT)
         {
             if(a_pydaw_data->track_pool[f_i]->plugin_index > 0 &&
@@ -1598,7 +1598,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             }
             f_i++;
         }
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+        v_pydaw_zero_all_buffers(a_pydaw_data);
+
+        pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONV32F))
     {
