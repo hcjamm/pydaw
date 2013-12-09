@@ -1585,6 +1585,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_i = 0;
 
         pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+        
         while(f_i < PYDAW_MIDI_TRACK_COUNT)
         {
             if(a_pydaw_data->track_pool[f_i]->plugin_index > 0 &&
@@ -1595,6 +1596,24 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                     a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic(
                             a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
                 }
+
+                if(a_pydaw_data->track_pool[f_i]->effect->descriptor->PYFX_Plugin->panic)
+                {
+                    a_pydaw_data->track_pool[f_i]->effect->descriptor->PYFX_Plugin->panic(
+                            a_pydaw_data->track_pool[f_i]->effect->PYFX_handle);
+                }
+            }
+            f_i++;
+        }
+
+        f_i = PYDAW_MIDI_TRACK_COUNT;
+
+        while(f_i < PYDAW_TRACK_COUNT_ALL)
+        {
+            if(a_pydaw_data->track_pool_all[f_i]->effect->descriptor->PYFX_Plugin->panic)
+            {
+                a_pydaw_data->track_pool_all[f_i]->effect->descriptor->PYFX_Plugin->panic(
+                        a_pydaw_data->track_pool_all[f_i]->effect->PYFX_handle);
             }
             f_i++;
         }

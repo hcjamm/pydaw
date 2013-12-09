@@ -47,6 +47,19 @@ static void v_modulex_cleanup(PYFX_Handle instance)
     free(instance);
 }
 
+static void v_modulex_panic(PYFX_Handle instance)
+{
+    t_modulex *plugin = (t_modulex *)instance;
+
+    int f_i = 0;
+    while(f_i < plugin->mono_modules->delay->delay0->sample_count)
+    {
+        plugin->mono_modules->delay->delay0->buffer[f_i] = 0.0f;
+        plugin->mono_modules->delay->delay1->buffer[f_i] = 0.0f;
+        f_i++;
+    }
+}
+
 static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index, float * DataLocation)
 {
     t_modulex *plugin = (t_modulex*)instance;
@@ -588,6 +601,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
         LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = g_modulex_instantiate;
+        LMSLDescriptor->panic = v_modulex_panic;
     }
 
     return LMSLDescriptor;
