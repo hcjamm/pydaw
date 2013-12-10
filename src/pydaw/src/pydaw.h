@@ -370,6 +370,8 @@ void v_pysong_free(t_pysong *);
 inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i);
 inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i, int sample_count);
 void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data);
+void v_pydaw_panic(t_pydaw_data * a_pydaw_data);
+
 
 /*End declarations.  Begin implementations.*/
 
@@ -386,7 +388,7 @@ void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
         if(a_pydaw_data->track_pool_all[f_i]->effect)
         {
             int f_i2 = 0;
-            
+
             while(f_i2 < 8192)
             {
                 a_pydaw_data->track_pool_all[f_i]->effect->pluginOutputBuffers[0][f_i2] = 0.0f;
@@ -396,6 +398,49 @@ void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
         }
         f_i++;
     }
+}
+
+/* void v_pydaw_panic(t_pydaw_data * a_pydaw_data)
+ *
+ * The offline_mutex should be held while calling
+ */
+void v_pydaw_panic(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+
+    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    {
+        if(a_pydaw_data->track_pool[f_i]->plugin_index > 0 &&
+                a_pydaw_data->track_pool[f_i]->instrument)
+        {
+            if(a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic)
+            {
+                a_pydaw_data->track_pool[f_i]->instrument->descriptor->PYFX_Plugin->panic(
+                        a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
+            }
+
+            if(a_pydaw_data->track_pool[f_i]->effect->descriptor->PYFX_Plugin->panic)
+            {
+                a_pydaw_data->track_pool[f_i]->effect->descriptor->PYFX_Plugin->panic(
+                        a_pydaw_data->track_pool[f_i]->effect->PYFX_handle);
+            }
+        }
+        f_i++;
+    }
+
+    f_i = PYDAW_MIDI_TRACK_COUNT;
+
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
+    {
+        if(a_pydaw_data->track_pool_all[f_i]->effect->descriptor->PYFX_Plugin->panic)
+        {
+            a_pydaw_data->track_pool_all[f_i]->effect->descriptor->PYFX_Plugin->panic(
+                    a_pydaw_data->track_pool_all[f_i]->effect->PYFX_handle);
+        }
+        f_i++;
+    }
+
+    v_pydaw_zero_all_buffers(a_pydaw_data);
 }
 
 /*Function for passing to plugins that re-use the wav pool*/
@@ -4520,9 +4565,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     v_pydaw_write_to_file(f_tmp_finished, "finished");
 
     v_set_playback_cursor(a_pydaw_data, a_start_region, a_start_bar);
-    v_pydaw_set_time_params(a_pydaw_data, f_block_size);
-
-    v_pydaw_zero_all_buffers(a_pydaw_data);
+    
+    v_pydaw_panic(a_pydaw_data);  //ensure all notes are off before returning
 
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;
