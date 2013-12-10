@@ -1220,7 +1220,8 @@ class pydaw_modulex_single:
         self.combobox = pydaw_combobox_control(132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
                ["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
                 "Comb Filter", "Amp/Pan", "Limiter" , "Saturator", "Formant", "Chorus", "Glitch" , "RingMod",
-                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet", "Monofier", "LP<-->HP", "Growl Filter", "Screech LP"],
+                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet", "Monofier", "LP<-->HP", "Growl Filter",
+                "Screech LP", "Metal Comb"],
                 a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr, a_default_index=0)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
@@ -1489,7 +1490,7 @@ class pydaw_modulex_single:
             self.knobs[1].value_label.setText((""))
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText((""))
-        elif a_val == 26: #Ladder LP
+        elif a_val == 26: #Screech LP
             self.knobs[0].name_label.setText(("Cutoff"))
             self.knobs[1].name_label.setText(("Res"))
             self.knobs[2].name_label.setText(("unused"))
@@ -1497,6 +1498,16 @@ class pydaw_modulex_single:
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
+            self.knobs[2].value_label.setText((""))
+        elif a_val == 27: #Metal Comb
+            self.knobs[0].name_label.setText(("Cutoff"))
+            self.knobs[1].name_label.setText(("Amt"))
+            self.knobs[2].name_label.setText(("Detune"))
+            self.knobs[0].val_conversion = kc_none
+            self.knobs[1].val_conversion = kc_none
+            self.knobs[2].val_conversion = kc_none
+            self.knobs[0].value_label.setText((""))
+            self.knobs[1].value_label.setText((""))
             self.knobs[2].value_label.setText((""))
 
         self.knobs[0].set_value(self.knobs[0].control.value())

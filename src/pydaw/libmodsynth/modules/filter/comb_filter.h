@@ -26,6 +26,8 @@ extern "C" {
 #include "../../lib/smoother-linear.h"
 #include "../../lib/denormal.h"
 
+#define MC_CMB_COUNT 7
+
 typedef struct st_comb_filter
 {
     int buffer_size;  //The size of input_buffer
@@ -44,9 +46,9 @@ typedef struct st_comb_filter
     t_lin_interpolater * linear;
     t_pit_pitch_core * pitch_core;
     t_amp * amp_ptr;
-#ifdef LMS_CMB_DEBUG_MODE
-    int debug_counter;
-#endif
+    int mc_delay_samples[MC_CMB_COUNT];
+    float mc_detune;
+
 }t_comb_filter;
 
 inline void v_cmb_run(t_comb_filter*,float);
@@ -59,7 +61,7 @@ void v_cmb_free(t_comb_filter *);
  * float input value (audio sample, -1 to 1, typically)
  * );
  * This runs the filter.  You can then use the output sample in your plugin*/
-inline void v_cmb_run(t_comb_filter*__restrict a_cmb_ptr,float a_value)
+inline void v_cmb_run(t_comb_filter*__restrict a_cmb_ptr, float a_value)
 {
     a_cmb_ptr->delay_pointer = (a_cmb_ptr->input_pointer) - (a_cmb_ptr->delay_samples);
 
@@ -89,6 +91,46 @@ inline void v_cmb_run(t_comb_filter*__restrict a_cmb_ptr,float a_value)
     {
         a_cmb_ptr->input_pointer = 0;
     }
+}
+
+inline void v_cmb_mc_run(t_comb_filter*__restrict a_cmb_ptr, float a_value)
+{
+    a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] = a_value;
+    a_cmb_ptr->output_sample = a_value;
+
+    if((a_cmb_ptr->wet_db) > -20.0f)
+    {
+        int f_i = 0;
+        while(f_i < MC_CMB_COUNT)
+        {
+            a_cmb_ptr->delay_pointer = (a_cmb_ptr->input_pointer) - (a_cmb_ptr->mc_delay_samples[f_i]);
+
+            if((a_cmb_ptr->delay_pointer) < 0.0f)
+            {
+                a_cmb_ptr->delay_pointer = (a_cmb_ptr->delay_pointer) + (a_cmb_ptr->buffer_size);
+            }
+
+            a_cmb_ptr->wet_sample = (f_linear_interpolate_arr_wrap(a_cmb_ptr->input_buffer,
+                    (a_cmb_ptr->buffer_size), (a_cmb_ptr->delay_pointer), a_cmb_ptr->linear));
+
+            a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] +=
+                    ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->feedback_linear));
+
+            a_cmb_ptr->output_sample += ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->wet_linear));
+
+            f_i++;
+        }
+    }
+
+    a_cmb_ptr->input_pointer = (a_cmb_ptr->input_pointer) + 1;
+
+    if((a_cmb_ptr->input_pointer) >= (a_cmb_ptr->buffer_size))
+    {
+        a_cmb_ptr->input_pointer = 0;
+    }
+
+    a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] =
+            f_remove_denormal(a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)]);
 }
 
 /*v_cmb_set_all(
@@ -124,13 +166,31 @@ inline void v_cmb_set_all(t_comb_filter*__restrict a_cmb_ptr, float a_wet_db, fl
         a_cmb_ptr->feedback_linear = f_db_to_linear_fast((a_cmb_ptr->feedback_db), a_cmb_ptr->amp_ptr); // * -1;  //negative feedback, gives a comb-ier sound
     }
 
-    /*Set wet_linear, but only if it's changed since last time*/
     if((a_cmb_ptr->midi_note_number) != a_midi_note_number)
     {
         a_cmb_ptr->midi_note_number = a_midi_note_number;
         a_cmb_ptr->delay_samples = f_pit_midi_note_to_samples(a_midi_note_number, (a_cmb_ptr->sr), a_cmb_ptr->pitch_core);
     }
 
+}
+
+inline void v_cmb_mc_set_all(t_comb_filter*__restrict a_cmb, float a_wet_db, float a_midi_note_number, float a_detune)
+{
+    if(a_cmb->mc_detune != a_detune || (a_cmb->midi_note_number) != a_midi_note_number)
+    {
+        a_cmb->mc_detune = a_detune;
+        int f_i = 0;
+
+        while(f_i < MC_CMB_COUNT)
+        {
+            a_cmb->mc_delay_samples[f_i] = f_pit_midi_note_to_samples(
+                    a_midi_note_number + (a_detune * (float)f_i),
+                    (a_cmb->sr), a_cmb->pitch_core);
+            f_i++;
+        }
+    }
+
+    v_cmb_set_all(a_cmb, a_wet_db, a_wet_db - 17.0f, a_midi_note_number);
 }
 
 /* t_comb_filter * g_cmb_get_comb_filter(
@@ -174,6 +234,7 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     f_result->linear = g_lin_get();
     f_result->pitch_core = g_pit_get();
     f_result->amp_ptr = g_amp_get();
+    f_result->mc_detune = 999.999f;
 
 
     v_cmb_set_all(f_result,-6.0f, -6.0f, 66.0f);

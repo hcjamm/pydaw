@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 27
+#define MULTIFX3KNOB_MAX_INDEX 28
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf_stereo.h"
@@ -102,6 +102,7 @@ inline void v_mf3_run_monofier(t_mf3_multi*,float,float);
 inline void v_mf3_run_lp_hp(t_mf3_multi*,float,float);
 inline void v_mf3_run_growl_filter(t_mf3_multi*,float,float);
 inline void v_mf3_run_screech_lp(t_mf3_multi*,float,float);
+inline void v_mf3_run_metal_comb(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -139,7 +140,8 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_run_monofier, //23
         v_mf3_run_lp_hp, //24
         v_mf3_run_growl_filter, //25
-        v_mf3_run_screech_lp //26
+        v_mf3_run_screech_lp, //26
+        v_mf3_run_metal_comb   //27
 };
 
 
@@ -179,6 +181,7 @@ const fp_mf3_reset mf3_reset_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_reset_svf, //24
         v_mf3_reset_null, //25
         v_mf3_reset_svf, //26
+        v_mf3_reset_null, //27
 };
 
 
@@ -629,6 +632,32 @@ inline void v_mf3_run_screech_lp(t_mf3_multi*__restrict a_mf3, float a_in0, floa
     a_mf3->output0 = (a_mf3->saturator->output0 - a_mf3->comb_filter0->wet_sample);
     a_mf3->output1 = (a_mf3->saturator->output1 - a_mf3->comb_filter1->wet_sample);
 }
+
+
+inline void v_mf3_run_metal_comb(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+
+    //cutoff
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.24) + 30.0f);
+    //res
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.157480315) - 20.0f;
+    //detune
+    a_mf3->control_value[2] = ((a_mf3->control[2]) * 0.02362f) + 1.0f;
+
+    v_cmb_mc_set_all(a_mf3->comb_filter0, (a_mf3->control_value[1]),
+                    (a_mf3->control_value[0]), a_mf3->control_value[2]);
+
+    v_cmb_mc_set_all(a_mf3->comb_filter1, (a_mf3->control_value[1]),
+            (a_mf3->control_value[0]), a_mf3->control_value[2]);
+
+    v_cmb_mc_run(a_mf3->comb_filter0, a_in0);
+    v_cmb_mc_run(a_mf3->comb_filter1, a_in1);
+
+    a_mf3->output0 = (a_mf3->comb_filter0->output_sample);
+    a_mf3->output1 = (a_mf3->comb_filter1->output_sample);
+}
+
 
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
