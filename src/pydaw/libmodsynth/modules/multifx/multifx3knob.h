@@ -399,8 +399,8 @@ inline void v_mf3_run_comb(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in
     v_cmb_set_all(a_mf3->comb_filter1, (a_mf3->control_value[1]), (a_mf3->control_value[1]),
             (a_mf3->control_value[0]));
 
-    v_cmb_set_input(a_mf3->comb_filter0, a_in0);
-    v_cmb_set_input(a_mf3->comb_filter1, a_in1);
+    v_cmb_run(a_mf3->comb_filter0, a_in0);
+    v_cmb_run(a_mf3->comb_filter1, a_in1);
 
     a_mf3->output0 = (a_mf3->comb_filter0->output_sample);
     a_mf3->output1 = (a_mf3->comb_filter1->output_sample);
@@ -623,8 +623,8 @@ inline void v_mf3_run_screech_lp(t_mf3_multi*__restrict a_mf3, float a_in0, floa
     v_cmb_set_all(a_mf3->comb_filter1, (a_mf3->control_value[1]), (a_mf3->control_value[1]),
             (a_mf3->control_value[0]));
 
-    v_cmb_set_input(a_mf3->comb_filter0, f_clp_clip(a_mf3->clipper, a_mf3->saturator->output0));
-    v_cmb_set_input(a_mf3->comb_filter1, f_clp_clip(a_mf3->clipper, a_mf3->saturator->output1));
+    v_cmb_run(a_mf3->comb_filter0, f_clp_clip(a_mf3->clipper, a_mf3->saturator->output0));
+    v_cmb_run(a_mf3->comb_filter1, f_clp_clip(a_mf3->clipper, a_mf3->saturator->output1));
 
     a_mf3->output0 = (a_mf3->saturator->output0 - a_mf3->comb_filter0->wet_sample);
     a_mf3->output1 = (a_mf3->saturator->output1 - a_mf3->comb_filter1->wet_sample);
