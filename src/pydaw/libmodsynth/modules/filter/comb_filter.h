@@ -26,7 +26,7 @@ extern "C" {
 #include "../../lib/smoother-linear.h"
 #include "../../lib/denormal.h"
 
-#define MC_CMB_COUNT 7
+#define MC_CMB_COUNT 4
 
 typedef struct st_comb_filter
 {
@@ -190,7 +190,7 @@ inline void v_cmb_mc_set_all(t_comb_filter*__restrict a_cmb, float a_wet_db, flo
         }
     }
 
-    v_cmb_set_all(a_cmb, a_wet_db, a_wet_db - 17.0f, a_midi_note_number);
+    v_cmb_set_all(a_cmb, a_wet_db, a_wet_db - 13.0f, a_midi_note_number);
 }
 
 /* t_comb_filter * g_cmb_get_comb_filter(
