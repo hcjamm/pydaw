@@ -1415,8 +1415,8 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 
 	port_descriptors[WAYV_PITCH_ENV_AMT] = 1;
 	port_range_hints[WAYV_PITCH_ENV_AMT].DefaultValue = 0.0f;
-	port_range_hints[WAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[WAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
+	port_range_hints[WAYV_PITCH_ENV_AMT].LowerBound =  -60.0f;
+	port_range_hints[WAYV_PITCH_ENV_AMT].UpperBound =   60.0f;
 
 	port_descriptors[WAYV_OSC2_UNISON_VOICES] = 1;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].DefaultValue = 4.0f;

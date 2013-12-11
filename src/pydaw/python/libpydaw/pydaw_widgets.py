@@ -2143,6 +2143,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.pitch_env =  pydaw_ramp_env_widget(51, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
         pydaw_ports.WAYV_RAMP_ENV_TIME, pydaw_ports.WAYV_PITCH_ENV_AMT, "Ramp Env", self.preset_manager)
         self.pitch_env.amt_knob.name_label.setText("Pitch")
+        self.pitch_env.amt_knob.control.setRange(-60, 60)
         self.hlayout7.addWidget(self.pitch_env.groupbox)
 
         self.lfo =  pydaw_lfo_widget(51,  self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, pydaw_ports.WAYV_LFO_FREQ, \
