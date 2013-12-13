@@ -809,7 +809,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         }
     }
 
-    a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
+    a_voice->current_sample += (a_voice->noise_func_ptr(a_voice->white_noise1) * (a_voice->noise_linamp)); // noise
 
     v_adsr_run_db(a_voice->adsr_main);
 
