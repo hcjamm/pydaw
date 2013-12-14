@@ -1309,7 +1309,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_range_hints[EUPHORIA_FILTER_RELEASE].UpperBound = 400.0f;
 
     port_descriptors[EUPHORIA_MASTER_VOLUME]= 1;
-    port_range_hints[EUPHORIA_MASTER_VOLUME].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_MASTER_VOLUME].DefaultValue = -6.0f;
     port_range_hints[EUPHORIA_MASTER_VOLUME].LowerBound =  -24;
     port_range_hints[EUPHORIA_MASTER_VOLUME].UpperBound =  24;
 
