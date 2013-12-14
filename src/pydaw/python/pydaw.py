@@ -829,7 +829,8 @@ class region_list_editor:
                 f_uid = this_pydaw_project.copy_item(f_copy_from_text, f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
-            this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
+            this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()),
+                                           global_current_region)
             this_pydaw_project.commit("Add reference(s) to item (group) '{}' in region '{}'".format(
             f_cell_text, this_region_settings.region_name_lineedit.text()))
             self.last_item_copied = f_cell_text
@@ -4447,7 +4448,8 @@ class automation_viewer(QtGui.QGraphicsView):
                 for f_pb in f_item.pitchbends:
                     self.draw_point(f_pb, f_item_index)
             for f_note in f_item.notes:
-                f_note_start = (f_item_index * global_automation_width) + (f_note.start * 0.25 * global_automation_width) + global_automation_ruler_width
+                f_note_start = (f_item_index * global_automation_width) + (f_note.start * 0.25 * \
+                global_automation_width) + global_automation_ruler_width
                 f_note_end = f_note_start + (f_note.length * global_automation_width * 0.25)
                 f_note_y = global_automation_ruler_width + ((127.0 - (f_note.note_num)) * f_note_height)
                 f_note_item = QtGui.QGraphicsLineItem(f_note_start, f_note_y, f_note_end, f_note_y)
@@ -7647,7 +7649,7 @@ def close_pydaw_engine():
                     print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
                     global_pydaw_subprocess.kill()
             except Exception as ex:
-                print(("Exception raised while trying to kill process: {}".format(ex,)))
+                print("Exception raised while trying to kill process: {}".format(ex))
         global_pydaw_subprocess = None
 
 def kill_pydaw_engine():
@@ -7656,7 +7658,8 @@ def kill_pydaw_engine():
     try:
         f_val = subprocess.check_output(['ps', '-ef'])
     except Exception as ex:
-        print("kill_pydaw_engine raised Exception during process search, assuming no zombie processes {}\n".format(ex,))
+        print(
+        "kill_pydaw_engine raised Exception during process search, assuming no zombie processes {}\n".format(ex))
         return
     f_engine_name = "{}-engine".format(global_pydaw_version_string,)
     f_val = f_val.decode()

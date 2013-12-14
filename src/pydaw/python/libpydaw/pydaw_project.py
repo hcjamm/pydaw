@@ -1836,7 +1836,7 @@ class pydaw_audio_region:
             else:
                 f_values.append(f_str)
         for f_key in f_to_delete:
-            print(("Removing duplicate audio item at " + str(f_key)))
+            print("Removing duplicate audio item at {}".format(f_key))
             self.items.pop(f_key)
 
     def set_region_length(self, a_length):
@@ -2343,7 +2343,8 @@ class pydaw_midi_file_to_items:
                     print("{} {}".format(f_note_on_dict[f_tuple].tick, f_note_on_dict[f_tuple].length))
                     f_note_on_dict.pop(f_tuple)
                 else:
-                    print(("Error, note-off event does not correspond to a note-on event, ignoring event:\n" + str(f_event)))
+                    print("Error, note-off event does not correspond to a note-on event, ignoring event:\n{}".format(
+                        f_event))
             else:
                 print("Ignoring event: {}".format(f_line))
 
