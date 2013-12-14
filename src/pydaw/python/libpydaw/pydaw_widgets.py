@@ -1238,6 +1238,9 @@ class pydaw_modulex_single:
         f_paste_action = QtGui.QAction("Paste", self.group_box)
         f_paste_action.triggered.connect(self.paste_settings)
         f_menu.addAction(f_paste_action)
+        f_paste_and_copy_action = QtGui.QAction("Paste and Copy", self.group_box)
+        f_paste_and_copy_action.triggered.connect(self.paste_and_copy)
+        f_menu.addAction(f_paste_and_copy_action)
         f_reset_action = QtGui.QAction("Reset", self.group_box)
         f_reset_action.triggered.connect(self.reset_settings)
         f_menu.addAction(f_reset_action)
@@ -1247,14 +1250,21 @@ class pydaw_modulex_single:
         global global_modulex_clipboard
         global_modulex_clipboard = self.get_class()
 
-    def paste_settings(self):
+    def paste_and_copy(self):
+        """ Copy the existing setting and then paste, for rearranging effects """
+        self.paste_settings(True)
+
+    def paste_settings(self, a_copy=False):
         global global_modulex_clipboard
         if global_modulex_clipboard is None:
             QtGui.QMessageBox.warning(self.group_box, "Error",
             "Nothing copied to clipboard")
         else:
+            f_class = self.get_class()
             self.set_from_class(global_modulex_clipboard)
             self.update_all_values()
+            if a_copy:
+                global_modulex_clipboard = f_class
 
     def update_all_values(self):
         for f_knob in self.knobs:
