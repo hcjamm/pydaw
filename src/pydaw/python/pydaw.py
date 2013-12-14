@@ -137,7 +137,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
     global global_tooltips_enabled
     global_tooltips_enabled = a_enabled
     if a_enabled:
-        pydaw_write_file_text("%s/tooltips.txt" % (global_pydaw_home,), "True")
+        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "True")
         this_song_editor.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of "
         "regions,\nclick here to add a region, click and drag to move a region, or press the 'delete' button to "
         "delete\nthe selected regions.  Click on a region to edit it in the region editor below."
@@ -203,7 +203,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_audio_items_viewer.set_tooltips(True)
         this_transport.set_tooltips(True)
     else:
-        pydaw_write_file_text("%s/tooltips.txt" % (global_pydaw_home,), "False")
+        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "False")
         this_song_editor.table_widget.setToolTip("")
         for f_region_editor in global_region_editors:
             f_region_editor.table_widget.setToolTip("")
@@ -275,11 +275,11 @@ class song_editor:
             def song_ok_handler():
                 if f_new_radiobutton.isChecked():
                     f_uid = this_pydaw_project.create_empty_region(str(f_new_lineedit.text()))
-                    f_msg = "Create empty region '%s' at %s" % (f_new_lineedit.text(), y)
+                    f_msg = "Create empty region '{}' at {}".format(f_new_lineedit.text(), y)
                 elif f_copy_radiobutton.isChecked():
                     f_uid = this_pydaw_project.copy_region(str(f_copy_combobox.currentText()),
                                                            str(f_new_lineedit.text()))
-                    f_msg = "Create new region '%s' at %s copying from %s" % (f_new_lineedit.text(), y,
+                    f_msg = "Create new region '{}' at {} copying from {}".format(f_new_lineedit.text(), y,
                                                                               f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                 self.song.add_region_ref_by_uid(y, f_uid)
@@ -382,7 +382,7 @@ class song_editor:
         this_region_settings.region_name_lineedit.setText("")
         this_region_settings.enabled = False
         this_region_settings.update_region_length() #TODO:  Is this right?
-        this_pydaw_project.commit("Remove %s from song" % (f_item_text,))
+        this_pydaw_project.commit("Remove {} from song".format(f_item_text))
         pydaw_update_region_lengths_dict()
 
     def on_rename_region(self):
@@ -490,12 +490,12 @@ class region_settings:
             if self.length_alternate_radiobutton.isChecked():
                 f_region_length = self.length_alternate_spinbox.value()
                 global_current_region.region_length_bars = f_region_length
-                f_commit_message = "Set region '%s' length to %s" % (f_region_name,
+                f_commit_message = "Set region '{}' length to {}".format(f_region_name,
                                                                      self.length_alternate_spinbox.value())
             else:
                 global_current_region.region_length_bars = 0
                 f_region_length = 8
-                f_commit_message = "Set region '%s' length to default value" % (f_region_name,)
+                f_commit_message = "Set region '{}' length to default value".format(f_region_name,)
             this_pydaw_project.save_region(f_region_name, global_current_region)
             global_audio_items.set_region_length(f_region_length)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
@@ -555,7 +555,7 @@ class region_settings:
             this_pydaw_project.save_region(f_region_name, f_midi_tuple[1])
             this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_tuple[0])
             this_pydaw_project.save_audio_region(f_new_uid, f_audio_tuple[1])
-            this_pydaw_project.commit("Split region %s  into %s" % (global_current_region_name, f_region_name))
+            this_pydaw_project.commit("Split region {}  into {}".format(global_current_region_name, f_region_name))
             this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
             f_window.close()
@@ -799,7 +799,7 @@ class region_list_editor:
                 f_cell_text = str(f_new_lineedit.text())
                 if this_pydaw_project.item_exists(f_cell_text):
                     QtGui.QMessageBox.warning(self.table_widget, "Error",
-                    "An item named '%s' already exists." % (f_cell_text,))
+                    "An item named '{}' already exists.".format(f_cell_text))
                     return
                 f_uid = this_pydaw_project.create_empty_item(f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
@@ -808,9 +808,9 @@ class region_list_editor:
                 f_name_suffix = 1
                 f_cell_text = str(f_new_lineedit.text())
                 for i in range(f_item_count.value()):
-                    while this_pydaw_project.item_exists("%s-%s" % (f_cell_text, f_name_suffix)):
+                    while this_pydaw_project.item_exists("{}-{}".format(f_cell_text, f_name_suffix)):
                         f_name_suffix += 1
-                    f_item_name = "%s-%s" % (f_cell_text, f_name_suffix)
+                    f_item_name = "{}-{}".format(f_cell_text, f_name_suffix)
                     f_uid = this_pydaw_project.create_empty_item(f_item_name)
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
                     global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1 + i, f_uid)
@@ -824,14 +824,14 @@ class region_list_editor:
                 f_copy_from_text = str(f_copy_combobox.currentText())
                 if this_pydaw_project.item_exists(f_cell_text):
                     QtGui.QMessageBox.warning(self.table_widget, "Error",
-                    "An item named '%s' already exists." % (f_cell_text,))
+                    "An item named '{}' already exists.".format(f_cell_text))
                     return
                 f_uid = this_pydaw_project.copy_item(f_copy_from_text, f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
             this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
-            this_pydaw_project.commit("Add reference(s) to item (group) '%s' in region '%s'" % \
-            (f_cell_text, this_region_settings.region_name_lineedit.text()))
+            this_pydaw_project.commit("Add reference(s) to item (group) '{}' in region '{}'".format(
+            f_cell_text, this_region_settings.region_name_lineedit.text()))
             self.last_item_copied = f_cell_text
 
             f_window.close()
@@ -1676,11 +1676,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if os.path.isdir(f_dir):
             this_audio_items_viewer_widget.set_folder(f_dir, True)
             f_file = os.path.basename(f_path)
-            print("f_file %s" % (f_file,))
+            print("f_file {}".format(f_file,))
             this_audio_items_viewer_widget.select_file(f_file)
         else:
             QtGui.QMessageBox.warning(this_main_window, "Error", \
-            "The folder did not exist:\n\n%s" % (f_dir,))
+            "The folder did not exist:\n\n{}".format(f_dir,))
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -2110,7 +2110,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 self.add_items(self.context_menu_pos.x(), self.context_menu_pos.y(), [f_path])
             else:
                 f_path = f_path[100:]
-                QtGui.QMessageBox.warning(self, "Error", "%s is not a valid file" % (f_path,))
+                QtGui.QMessageBox.warning(self, "Error", "{} is not a valid file".format(f_path))
 
     def scene_selection_changed(self):
         f_selected_items = []
@@ -2439,7 +2439,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_cursor.setZValue(1000.0)
         i3 = 0.0
         for i in range(f_region_length):
-            f_number = QtGui.QGraphicsSimpleTextItem("%d" % (i + 1,), f_ruler)
+            f_number = QtGui.QGraphicsSimpleTextItem("{}".format(i + 1,), f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
             self.scene.addLine(i3, 0.0, i3, f_total_height, f_v_pen)
@@ -3007,12 +3007,12 @@ class audio_item_editor_widget:
 
     def set_tooltips(self, a_on):
         if a_on:
-            f_sbsms_tooltip = "This control is only valid for the SBSMS and %s modes,\n"
+            f_sbsms_tooltip = "This control is only valid for the SBSMS and {} modes,\n"
             "the start/end values are for the full sample length, not the edited start/end points\n"
             "setting the start/end time to different values will cause the timestretch handle to disappear "
             "on the audio item."
-            self.timestretch_amt_end.setToolTip((f_sbsms_tooltip % ("Time(affecting pitch)",)))
-            self.pitch_shift_end.setToolTip((f_sbsms_tooltip % ("Pitch(affecting time)",)))
+            self.timestretch_amt_end.setToolTip((f_sbsms_tooltip.format("Time(affecting pitch)",)))
+            self.pitch_shift_end.setToolTip((f_sbsms_tooltip.format("Pitch(affecting time)",)))
             self.ok.setToolTip("Changes are not saved until you push this button")
             self.widget.setToolTip("To edit the properties of one or more audio item(s),\n"
             "click or marquee select items, then change their properties and click 'Save Changes'\n"
@@ -3285,7 +3285,7 @@ class audio_item_editor_widget:
             this_pydaw_project.commit("Update audio items")
 
     def sample_vol_changed(self, a_val=None):
-        self.sample_vol_label.setText("%sdB" % (self.sample_vol_slider.value(),))
+        self.sample_vol_label.setText("{}dB".format(self.sample_vol_slider.value(),))
         self.vol_checkbox.setChecked(True)
 
 global_audio_items = None
@@ -3303,18 +3303,18 @@ def global_open_audio_items(a_update_viewer=True):
             try:
                 f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
                 if f_graph is None:
-                    print(("Error drawing item for %s, could not get sample graph object" % (v.uid,)))
+                    print(("Error drawing item for {}, could not get sample graph object".format(v.uid,)))
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
             except:
                 if global_transport_is_playing:
-                    print(("Exception while loading %s" % (v.uid,)))
+                    print(("Exception while loading {}".format(v.uid,)))
                 else:
                     f_path = this_pydaw_project.get_wav_path_by_uid(v.uid)
                     if os.path.isfile(f_path):
-                        f_error_msg = "Unknown error loading sample f_path %s, \n\n%s" % (f_path, locals())
+                        f_error_msg = "Unknown error loading sample f_path {}, \n\n{}".format(f_path, locals())
                     else:
-                        f_error_msg = "Error loading '%s', file does not exist." % (f_path,)
+                        f_error_msg = "Error loading '{}', file does not exist.".format(f_path,)
                     QtGui.QMessageBox.warning(this_main_window, "Error", f_error_msg)
         for f_item in this_audio_items_viewer.audio_items:
             if str(f_item.audio_item) in f_selected_list:
@@ -3550,7 +3550,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def update_note_text(self):
         f_octave = (self.note_item.note_num // 12) - 2
         f_note = global_piano_roll_note_labels[self.note_item.note_num % 12]
-        self.note_text.setText("%s%s" % (f_note, f_octave))
+        self.note_text.setText("{}{}".format(f_note, f_octave))
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
@@ -3904,7 +3904,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_index += 1
                 f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
                 if j == 12:
-                    f_label = QtGui.QGraphicsSimpleTextItem("C%d" % (self.end_octave - i,), f_key)
+                    f_label = QtGui.QGraphicsSimpleTextItem("C{}".format(self.end_octave - i), f_key)
                     f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                     f_label.setPos(4, 0)
                     f_label.setFont(f_piano_label)
@@ -6243,7 +6243,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         try:
             while True:
                 f_file = QtGui.QFileDialog.getSaveFileName(parent=self, caption='New Project',
-                             directory="%s/default.%s" % (global_home, global_pydaw_version_string),
+                             directory="{}/default.{}".format(global_home, global_pydaw_version_string),
                              filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
                     f_file = str(f_file)
@@ -6299,7 +6299,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_print_generic_exception(ex)
 
     def show_offline_rendering_wait_window(self, a_file_name):
-        f_file_name = "%s.finished" % (a_file_name,)
+        f_file_name = "{}.finished".format(a_file_name)
         def ok_handler():
             f_window.close()
 
@@ -6310,8 +6310,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             if os.path.isfile(f_file_name):
                 f_ok.setEnabled(True)
                 f_timer.stop()
-                f_time_label.setText("Finished in %s" % (f_time_label.text(),))
-                os.system('rm "%s"' % (f_file_name,))
+                f_time_label.setText("Finished in {}".format(f_time_label.text()))
+                os.system('rm "{}"'.format(f_file_name))
             else:
                 f_elapsed_time = time.time() - f_start_time
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
@@ -6539,8 +6539,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setFixedSize(420, 90)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_version = QtGui.QLabel(pydaw_read_file_text( "%s/lib/%s/%s-version.txt" % \
-        (pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string, global_pydaw_version_string)))
+        f_version = QtGui.QLabel(pydaw_read_file_text( "{}/lib/{}/{}-version.txt".format(
+        pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string, global_pydaw_version_string)))
         f_version.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         f_layout.addWidget(f_version)
         f_ok_button = QtGui.QPushButton("OK")
@@ -6651,7 +6651,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 "Please ensure that avconv and lame are installed, can't open audio converter dialog.\n"
                 "Check your normal sources for packages or visit:\n\n"
                 "http://lame.sourceforge.net/\n"
-                "http://libav.org\n\nCan't find %s" % (f_app,))
+                "http://libav.org\n\nCan't find {}".format(f_app))
                 return
 
         if global_transport_is_playing:
@@ -6974,15 +6974,15 @@ class pydaw_main_window(QtGui.QMainWindow):
             exitCode = global_pydaw_subprocess.returncode
             if (exitCode != 0):
                 QtGui.QMessageBox.warning(self, "Error",
-                          "The audio engine died with error code %s, please try restarting PyDAW" % (exitCode,))
+                          "The audio engine died with error code {}, please try restarting PyDAW".format(exitCode))
 
     def osc_time_callback(self):
         self.osc_server.recv(1)
 
     def osc_fallback(self, path, args, types, src):
-        print(("got unknown message '%s' from '%s'" % (path, src)))
+        print(("got unknown message '{}' from '{}'".format(path, src)))
         for a, t in zip(args, types):
-            print(("argument of type '%s': %s" % (t, a)))
+            print(("argument of type '{}': {}".format(t, a)))
 
     def configure_callback(self, path, arr):
         f_pc_dict = {}
@@ -7402,7 +7402,7 @@ class a_b_widget:
     def vol_changed(self, a_val=None):
         f_result = self.vol_slider.value()
         this_pydaw_project.this_pydaw_osc.pydaw_ab_vol(f_result)
-        self.vol_label.setText("%sdB" % (f_result,))
+        self.vol_label.setText("{}dB".format(f_result))
 
     def on_file_open(self):
         if not os.path.isdir(self.last_folder):
@@ -7422,7 +7422,7 @@ class a_b_widget:
         f_rate = f_wav.getframerate()
         self.duration = f_frames/float(f_rate)
         f_wav.close()
-        print("Duration:  %s" % (self.duration,))
+        print("Duration:  {}".format(self.duration))
         #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True
@@ -7436,9 +7436,9 @@ class a_b_widget:
             f_minutes = int(f_seconds * self.sixty_recip)
             f_seconds = int(f_seconds % 60.0)
             if f_seconds < 10:
-                self.time_label.setText("%s:0%s" % (f_minutes, f_seconds))
+                self.time_label.setText("{}:0{}".format(f_minutes, f_seconds))
             else:
-                self.time_label.setText("%s:%s" % (f_minutes, f_seconds))
+                self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
 
     def transport_sync(self):
         if self.transport_checkbox.isChecked() and self.has_loaded_file:
@@ -7527,7 +7527,7 @@ def global_ui_refresh_callback(a_restore_all=False):
     global_set_record_armed_track()
 
 def set_window_title():
-    this_main_window.setWindowTitle('PyDAW4 - %s/%s.%s' % (this_pydaw_project.project_folder,
+    this_main_window.setWindowTitle('PyDAW4 - {}/{}.{}'.format(this_pydaw_project.project_folder,
                                                            this_pydaw_project.project_file,
                                                            global_pydaw_version_string))
 
@@ -7647,7 +7647,7 @@ def close_pydaw_engine():
                     print("global_pydaw_subprocess did not exit on it's own, sending SIGKILL...")
                     global_pydaw_subprocess.kill()
             except Exception as ex:
-                print(("Exception raised while trying to kill process: %s" % (ex,)))
+                print(("Exception raised while trying to kill process: {}".format(ex,)))
         global_pydaw_subprocess = None
 
 def kill_pydaw_engine():
@@ -7656,9 +7656,9 @@ def kill_pydaw_engine():
     try:
         f_val = subprocess.check_output(['ps', '-ef'])
     except Exception as ex:
-        print("kill_pydaw_engine raised Exception during process search, assuming no zombie processes %s\n" % (ex,))
+        print("kill_pydaw_engine raised Exception during process search, assuming no zombie processes {}\n".format(ex,))
         return
-    f_engine_name = "%s-engine" % (global_pydaw_version_string,)
+    f_engine_name = "{}-engine".format(global_pydaw_version_string,)
     f_val = f_val.decode()
     f_result = []
     for f_line in f_val.split("\n"):
@@ -7668,7 +7668,7 @@ def kill_pydaw_engine():
                 f_arr = f_line.split()
                 f_result.append(int(f_arr[1]))
             except Exception as ex:
-                print("kill_pydaw_engine Exception adding PID %s\n\t%s" % (f_arr[1], ex,))
+                print("kill_pydaw_engine Exception adding PID {}\n\t{}".format(f_arr[1], ex,))
 
     if len(f_result) > 0:
         f_answer = QtGui.QMessageBox.warning(this_audio_item_editor_widget.widget, "Warning",
@@ -7688,7 +7688,7 @@ def kill_pydaw_engine():
                     f_result = subprocess.check_output(f_kill)
                     print(f_result)
                 except Exception as ex:
-                    print("kill_pydaw_engine : Exception: %s" % (ex,))
+                    print("kill_pydaw_engine : Exception: {}".format(ex,))
             sleep(3.0)
 
 def open_pydaw_engine(a_project_path):
@@ -7699,7 +7699,7 @@ def open_pydaw_engine(a_project_path):
     kill_pydaw_engine() #ensure no running instances of the engine
     f_project_dir = os.path.dirname(a_project_path)
     f_pid = os.getpid()
-    print("Starting audio engine with %s" % (a_project_path,))
+    print("Starting audio engine with {}".format(a_project_path,))
     global global_pydaw_subprocess
     if pydaw_util.pydaw_which("pasuspender") is not None:
         f_pa_suspend = True
@@ -7724,16 +7724,18 @@ def open_pydaw_engine(a_project_path):
             """{} "{}" "{}" "{}" {} {} ; read' """).format(f_run_with, pydaw_util.global_pydaw_bin_path,
                                                            global_pydaw_install_prefix, f_project_dir, f_pid, f_sleep)
         else:
-            f_cmd = """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; %s "%s" "%s" "%s" %s %s ; read' """ % \
-            (f_run_with, pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir,
+            f_cmd = \
+            """x-terminal-emulator -e bash -c 'ulimit -c unlimited ; {} "{}" "{}" "{}" {} {} ; read' """.format(
+            f_run_with, pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir,
              f_pid, f_sleep)
     else:
         if f_pa_suspend:
-            f_cmd = 'pasuspender -- "%s" "%s" "%s" %s' % \
-            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_pid)
+            f_cmd = 'pasuspender -- "{}" "{}" "{}" {}'.format(pydaw_util.global_pydaw_bin_path,
+                                                              pydaw_util.global_pydaw_install_prefix,
+                                                              f_project_dir, f_pid)
         else:
-            f_cmd = '"%s" "%s" "%s" %s' % \
-            (pydaw_util.global_pydaw_bin_path, pydaw_util.global_pydaw_install_prefix, f_project_dir, f_pid)
+            f_cmd = '"{}" "{}" "{}" {}'.format(pydaw_util.global_pydaw_bin_path,
+                                               pydaw_util.global_pydaw_install_prefix, f_project_dir, f_pid)
     print(f_cmd)
     global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
 
@@ -7769,11 +7771,11 @@ else:
 
 if global_show_create_folder_error:
     QtGui.QMessageBox.warning(this_main_window, "Warning",
-                              "Error creating folder in %s , this is probably a permission issue"
+                              "Error creating folder in {} , this is probably a permission issue"
                               "if you didn't use FAT as the filesystem, settings will NOT persist between sessions "
-                              "until you make %s writable." % (global_home, global_home))
+                              "until you make {} writable.".format(global_home, global_home))
 
-global_tooltips_enabled_file = "%s/tooltips.txt" % (global_pydaw_home,)
+global_tooltips_enabled_file = "{}/tooltips.txt".format(global_pydaw_home)
 
 if os.path.isfile(global_tooltips_enabled_file):
     if pydaw_read_file_text(global_tooltips_enabled_file) == "True":

@@ -58,9 +58,9 @@ class pydaw_plugin_file:
     def __str__(self):
         f_result = ""
         for k, v in list(self.configure_dict.items()):
-            f_result += "c|%s|%s\n" % (k, v)
+            f_result += "c|{}|{}\n".format(k, v)
         for k, v in list(self.port_dict.items()):
-            f_result += "%i|%i\n" % (k, v.get_value())
+            f_result += "{}|{}\n".format(int(k), int(v.get_value()))
         return f_result + "\\"
 
 global_pydaw_knob_pixmap = None
@@ -69,8 +69,8 @@ global_pydaw_knob_pixmap_cache = {}
 def get_scaled_pixmap_knob(a_size):
     global global_pydaw_knob_pixmap, global_pydaw_knob_pixmap_cache
     if global_pydaw_knob_pixmap is None:
-        global_pydaw_knob_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/pydaw-knob.png" %
-        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string))
+        global_pydaw_knob_pixmap = QtGui.QPixmap("{}/lib/{}/themes/default/pydaw-knob.png".format(
+        pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string))
 
     if not a_size in global_pydaw_knob_pixmap_cache:
         global_pydaw_knob_pixmap_cache[a_size] = \
@@ -600,7 +600,7 @@ class pydaw_file_select_widget:
             else:
                 #Don't show more than 100 chars just in case somebody had an entire book copied to the clipboard
                 f_str = f_text[100:]
-                QtGui.QMessageBox.warning(self.paste_from_clipboard, "Error", "%s does not exist." % (f_str,))
+                QtGui.QMessageBox.warning(self.paste_from_clipboard, "Error", "{} does not exist.".format(f_str,))
 
 
 
@@ -690,9 +690,9 @@ class pydaw_file_browser_widget:
             return
         if(a_relative_path):
             if str(self.folder_path_lineedit.text()) == "/":
-                self.enumerate_folders_and_files("/%s" % (a_folder,))
+                self.enumerate_folders_and_files("/{}".format(a_folder,))
             else:
-                self.enumerate_folders_and_files("%s/%s" % (self.folder_path_lineedit.text(), a_folder))
+                self.enumerate_folders_and_files("{}/{}".format(self.folder_path_lineedit.text(), a_folder))
         else:
             self.enumerate_folders_and_files(a_folder)
 
@@ -705,7 +705,7 @@ class pydaw_file_browser_widget:
             pydaw_util.global_delete_file_bookmark(str(f_items[0].text()))
 
     def files_selected(self):
-        f_dir_path = "%s/" % (self.folder_path_lineedit.text(),)
+        f_dir_path = "{}/".format(self.folder_path_lineedit.text(),)
         f_result = []
         for f_item in self.files_listWidget.selectedItems():
             f_result.append(f_dir_path + str(f_item.text()))
@@ -732,7 +732,7 @@ class pydaw_file_browser_widget:
         global global_audio_items_to_drop
         global_audio_items_to_drop = []
         for f_item in self.files_listWidget.selectedItems():
-            global_audio_items_to_drop.append("%s/%s" % (self.last_open_dir, f_item.text()))
+            global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
 
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
@@ -760,19 +760,18 @@ class pydaw_file_browser_widget:
                     if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
                         self.files_listWidget.addItem(f_file)
                     else:
-                        print("Not adding '%s' because it contains bad chars, you must rename this file path "
-                        "without:\n%s" % \
-                        (f_full_path, "\n".join(pydaw_util.pydaw_bad_chars)))
+                        print("Not adding '{}' because it contains bad chars, you must rename this file path "
+                        "without:\n{}".format(f_full_path, "\n".join(pydaw_util.pydaw_bad_chars)))
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name):
         self.plugin_name = str(a_plugin_name)
-        self.factory_preset_path = "%s/lib/%s/presets/%s.pypresets" % \
-        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string, a_plugin_name)
-        self.bank_file = "%s/%s.bank" % (pydaw_util.global_pydaw_home, a_plugin_name)
-        self.preset_path = "%s/%s.pypresets" % (pydaw_util.global_pydaw_home, a_plugin_name)
+        self.factory_preset_path = "{}/lib/{}/presets/{}.pypresets".format(
+        pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string, a_plugin_name)
+        self.bank_file = "{}/{}.bank".format(pydaw_util.global_pydaw_home, a_plugin_name)
+        self.preset_path = "{}/{}.pypresets".format(pydaw_util.global_pydaw_home, a_plugin_name)
 
         if os.path.isfile(self.bank_file):
             f_text = pydaw_util.pydaw_read_file_text(self.bank_file)
@@ -829,7 +828,7 @@ class pydaw_preset_manager_widget:
             f_file = str(f_file)
             if not f_file.endswith(".pypresets"):
                 f_file += ".pypresets"
-            os.system('cp "%s" "%s"' % (self.preset_path, f_file))
+            os.system('cp "{}" "{}"'.format(self.preset_path, f_file))
             self.preset_path = f_file
             pydaw_util.pydaw_write_file_text(self.bank_file, self.preset_path)
 
@@ -845,9 +844,9 @@ class pydaw_preset_manager_widget:
 
     def on_restore_bank(self):
         if os.path.isfile(self.bank_file):
-            os.system('rm "%s"' % (self.bank_file,))
-        self.preset_path = "%s/%s.pypresets" % (pydaw_util.global_pydaw_home, self.plugin_name)
-        os.system('rm "%s"' % (self.preset_path,))
+            os.system('rm "{}"'.format(self.bank_file,))
+        self.preset_path = "{}/{}.pypresets".format(pydaw_util.global_pydaw_home, self.plugin_name)
+        os.system('rm "{}"'.format(self.preset_path,))
         self.load_presets()
 
     def reset_controls(self):
@@ -860,7 +859,7 @@ class pydaw_preset_manager_widget:
             f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
             f_line_arr = f_text.split("\n")
         elif os.path.isfile(self.factory_preset_path):
-            os.system('cp "%s" "%s"' % (self.factory_preset_path, self.preset_path))
+            os.system('cp "{}" "{}"'.format(self.factory_preset_path, self.preset_path))
             print("loading factory presets")
             f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
             f_line_arr = f_text.split("\n")
@@ -870,9 +869,9 @@ class pydaw_preset_manager_widget:
         if len(f_line_arr) > 0:
             if f_line_arr[0].strip() != self.plugin_name:
                 QtGui.QMessageBox.warning(self.group_box, "Error", \
-                "The selected preset bank is for %s, please select one for %s" % (f_line_arr[0], self.plugin_name))
+                "The selected preset bank is for {}, please select one for {}".format(f_line_arr[0], self.plugin_name))
                 if os.path.isfile(self.bank_file):
-                    os.system('rm "%s"' % (self.bank_file,))
+                    os.system('rm "{}"'.format(self.bank_file,))
                 return
 
         f_line_arr = f_line_arr[1:]
@@ -896,9 +895,9 @@ class pydaw_preset_manager_widget:
             return
         f_result_values = [str(self.program_combobox.currentText())]
         for k, f_control in list(self.controls.items()):
-            f_result_values.append("%s:%s" % (f_control.port_num, f_control.get_value(),))
+            f_result_values.append("{}:{}".format(f_control.port_num, f_control.get_value(),))
         self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
-        f_result = "%s\n" % (self.plugin_name,)
+        f_result = "{}\n".format(self.plugin_name,)
         for f_list in self.presets_delimited:
             f_result += "|".join(f_list) + "\n"
         pydaw_util.pydaw_write_file_text(self.preset_path, f_result)
@@ -1662,7 +1661,7 @@ class pydaw_abstract_plugin_ui:
         self.save_file_on_exit = False
 
     def open_plugin_file(self):
-        f_file_path = "%s/%s/%s" % (self.pydaw_project.project_folder, self.folder, self.file)
+        f_file_path = "{}/{}/{}".format(self.pydaw_project.project_folder, self.folder, self.file)
         if os.path.isfile(f_file_path):
             f_file = pydaw_plugin_file(f_file_path)
             for k, v in list(f_file.port_dict.items()):
@@ -1670,12 +1669,12 @@ class pydaw_abstract_plugin_ui:
             for k, v in list(f_file.configure_dict.items()):
                 self.set_configure(k, v)
         else:
-            print("pydaw_abstract_plugin_ui.open_plugin_file(): '%s' did not exist, not loading." % (f_file_path,))
+            print("pydaw_abstract_plugin_ui.open_plugin_file(): '{}' did not exist, not loading.".format(f_file_path,))
 
     def save_plugin_file(self):
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
-        self.pydaw_project.commit("Update controls for %s" % (self.track_name,))
+        self.pydaw_project.commit("Update controls for {}".format(self.track_name,))
         self.pydaw_project.flush_history()
 
     def widget_close_event(self, a_event):
@@ -1721,7 +1720,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                                           a_track_type, a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file =  "%s.pyfx" % (self.track_num,)
+        self.file =  "{}.pyfx".format(self.track_num,)
         self.set_window_title(a_track_name)
         self.is_instrument = False
 
@@ -1894,7 +1893,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type,
                                           a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = "%s.pyinst" % (self.track_num,)
+        self.file = "{}.pyinst".format(self.track_num,)
         self.set_window_title(a_track_name)
         self.is_instrument = True
         f_osc_types = ["Saw" , "Square" , "Triangle" , "Sine" , "Off"]
@@ -1908,7 +1907,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/rayv.png" % (pydaw_util.global_pydaw_install_prefix,
+        f_pixmap = QtGui.QPixmap("{}/lib/{}/themes/default/rayv.png".format(pydaw_util.global_pydaw_install_prefix,
             pydaw_util.global_pydaw_version_string)).scaled(120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
@@ -2016,7 +2015,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Ray-V - %s" % (self.track_name,))
+        self.widget.setWindowTitle("PyDAW Ray-V - {}".format(self.track_name,))
 
 
 
@@ -2026,7 +2025,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                                           a_track_type, a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = "%s.pyinst" % (self.track_num,)
+        self.file = "{}.pyinst".format(self.track_num,)
         self.set_window_title(a_track_name)
         self.is_instrument = True
 
@@ -2375,10 +2374,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                                           a_track_type, a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = "%s.pyinst" % (self.track_num)
+        self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - %s" % (self.track_name,))
+        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name,))
         self.is_instrument = True
 
         self.selected_row_index = 0
@@ -2748,9 +2747,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.smp_tab_main_verticalLayout.addLayout(self.main_bottom_hlayout)
 
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("%s/lib/%s/themes/default/euphoria.png" %
-        (pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string \
-        )).scaled(80, 80, transformMode=QtCore.Qt.SmoothTransformation)
+        f_pixmap = QtGui.QPixmap("{}/lib/{}/themes/default/euphoria.png".format(
+        pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string)).scaled(
+        80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
         self.main_bottom_hlayout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
@@ -3136,7 +3135,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - %s" % (self.track_name,))
+        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name,))
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
@@ -3156,7 +3155,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_table_item = QtGui.QTableWidgetItem(f_path)
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
-            print(("Unknown configure message '%s'" % (a_key,)))
+            print(("Unknown configure message '{}'".format(a_key,)))
 
     def set_all_base_pitches(self):
         f_widget = pydaw_note_selector_widget(0, None, None)
@@ -3326,7 +3325,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 path = str(paths[i])
                 if path != "":
                     if not os.path.isfile(path):
-                        QtGui.QMessageBox.warning(self, "Error", "File '%s' cannot be read." % (path,))
+                        QtGui.QMessageBox.warning(self, "Error", "File '{}' cannot be read.".format(path,))
                         continue
                     self.pydaw_project.get_wav_uid_by_name(path)
                     f_path_sections = path.split(("/"))
@@ -3401,8 +3400,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def file_browser_preview_button_pressed(self):
         f_list = self.file_browser.files_listWidget.selectedItems()
         if len(f_list) > 0:
-            f_preview_file = "%s/%s" % \
-            (str(self.file_browser.folder_path_lineedit.text()).strip(), str(f_list[0].text()).strip())
+            f_preview_file = "{}/{}".format(str(self.file_browser.folder_path_lineedit.text()).strip(),
+                                            str(f_list[0].text()).strip())
             self.pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_preview_file)
 
     def sample_selected_monofx_groupChanged(self, a_value):
@@ -3450,13 +3449,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             if (f_current_file_path is None) or (f_current_file_path == ""):
                 continue
             f_file_name = os.path.basename(str(f_current_file_path))
-            f_new_file_path = "%s/%s" % (f_dir, f_file_name)
+            f_new_file_path = "{}/{}".format(f_dir, f_file_name)
             if f_current_file_path == f_new_file_path:
-                print("Source and destination are the same, not copying:\n%s\n%s" % \
-                (f_current_file_path, f_new_file_path))
+                print("Source and destination are the same, not copying:\n{}\n{}".format(f_current_file_path,
+                                                                                         f_new_file_path))
             else:
-                os.system('cp "%s" "%s"' % (f_current_file_path, f_new_file_path))
-                f_result += "sample|%s|%s\n" % (i, f_file_name)
+                os.system('cp "{}" "{}"'.format(f_current_file_path, f_new_file_path))
+                f_result += "sample|{}|{}\n".format(i, f_file_name)
         return f_result
 
     def saveToFile(self):
@@ -3473,7 +3472,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_dir = os.path.dirname(f_selected_path)
                 if len(os.listdir(f_dir)) > 0:
                     f_answer = QtGui.QMessageBox.warning(self.widget, "Warning",
-                    "%s is not an empty directory, are you sure you want to save here?." % (f_dir,),
+                    "{} is not an empty directory, are you sure you want to save here?.".format(f_dir,),
                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
                     if f_answer == QtGui.QMessageBox.No:
                         continue
@@ -3503,7 +3502,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     break
                 if f_line_arr[0] == "sample":
                     f_index = int(f_line_arr[1])
-                    f_new_file_path = "%s/%s" % (f_dir, f_line_arr[2])
+                    f_new_file_path = "{}/{}".format(f_dir, f_line_arr[2])
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(f_new_file_path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
@@ -3535,14 +3534,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_file_lineedit.setText(f_selected_path)
                 except Exception as ex:
                     QtGui.QMessageBox.warning(self.widget, "Error",
-                          "Error importing %s\n%s" % (f_selected_path, ex))
+                          "Error importing {}\n{}".format(f_selected_path, ex))
                     return
 
         def on_ok(a_val=None):
             f_text = str(f_file_lineedit.text())
             if f_text != "":
                 for f_path in self.import_sfz(f_text):
-                    f_status_label.setText("Loading %s" % (f_path,))
+                    f_status_label.setText("Loading {}".format(f_path,))
                     QtGui.qApp.processEvents()
                 f_window.close()
 
@@ -3588,12 +3587,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             for f_index, f_sample in zip(range(len(f_sfz.samples)), f_sfz.samples):
                 if f_index >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT:
                     QtGui.QMessageBox.warning(self.widget, "Error",
-                    "Sample count %s exceeds maximum of %s, not loading all samples" % \
-                    (len(f_sfz.samples), pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT))
+                    "Sample count {} exceeds maximum of {}, not loading all samples".format(
+                    len(f_sfz.samples), pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT))
                     return
                 if "sample" in f_sample.dict:
                     f_sample_file = f_sample.dict["sample"].replace("\\", "/")
-                    f_new_file_path = "%s/%s" % (f_sfz_dir, f_sample_file)
+                    f_new_file_path = "{}/{}".format(f_sfz_dir, f_sample_file)
                     f_new_file_path = pydaw_util.case_insensitive_path(f_new_file_path)
                     f_new_file_path = f_new_file_path.replace("//", "/")
 
@@ -3687,7 +3686,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         except Exception as ex:
             QtGui.QMessageBox.warning(self.widget, "Error",
-            "Error parsing %s\n%s" % (a_sfz_path, ex))
+            "Error parsing {}\n{}".format(a_sfz_path, ex))
 
         self.generate_files_string()
         self.configure_plugin("load", self.files_string)
