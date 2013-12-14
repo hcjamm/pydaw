@@ -6256,7 +6256,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     global_new_project(f_file)
                 break
         except Exception as ex:
-                pydaw_print_generic_exception(ex)
+            pydaw_print_generic_exception(ex)
 
     def on_open(self):
         if global_transport_is_playing:
@@ -6298,7 +6298,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 else:
                     break
         except Exception as ex:
-                pydaw_print_generic_exception(ex)
+            pydaw_print_generic_exception(ex)
 
     def show_offline_rendering_wait_window(self, a_file_name):
         f_file_name = "{}.finished".format(a_file_name)
@@ -6531,7 +6531,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_write_file_text(self.user_style_file, f_file)
                 self.setStyleSheet(f_style)
         except Exception as ex:
-                pydaw_print_generic_exception(ex)
+            pydaw_print_generic_exception(ex)
 
     def on_version(self):
         def on_ok():
