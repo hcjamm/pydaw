@@ -36,9 +36,12 @@ def pydaw_linear_interpolate_gradient(a_pos):
     f_int = int(a_pos - f_frac)
     if f_int >= len(pydaw_rainbow_gradient) - 1:
         f_int -= len(pydaw_rainbow_gradient)
-    f_red = ((pydaw_rainbow_gradient[f_int][0][0] - pydaw_rainbow_gradient[f_int][1][0]) * f_frac) + pydaw_rainbow_gradient[f_int][1][0]
-    f_green = ((pydaw_rainbow_gradient[f_int][0][1] - pydaw_rainbow_gradient[f_int][1][1]) * f_frac) + pydaw_rainbow_gradient[f_int][1][1]
-    f_blue = ((pydaw_rainbow_gradient[f_int][0][2] - pydaw_rainbow_gradient[f_int ][1][2]) * f_frac) + pydaw_rainbow_gradient[f_int][1][2]
+    f_red = ((pydaw_rainbow_gradient[f_int][0][0] - pydaw_rainbow_gradient[f_int][1][0]) * f_frac) + \
+    pydaw_rainbow_gradient[f_int][1][0]
+    f_green = ((pydaw_rainbow_gradient[f_int][0][1] - pydaw_rainbow_gradient[f_int][1][1]) * f_frac) + \
+    pydaw_rainbow_gradient[f_int][1][1]
+    f_blue = ((pydaw_rainbow_gradient[f_int][0][2] - pydaw_rainbow_gradient[f_int ][1][2]) * f_frac) + \
+    pydaw_rainbow_gradient[f_int][1][2]
 
     return (f_red, f_green, f_blue)
 

@@ -29,8 +29,8 @@ class pydaw_device_dialog:
 
 
     def show_device_dialog(self, a_msg=None, a_notify=False):
-        f_stylesheet_file = "%s/lib/%s/themes/default/style.txt" % (pydaw_util.global_pydaw_install_prefix,  \
-        pydaw_util.global_pydaw_version_string)
+        f_stylesheet_file = "%s/lib/%s/themes/default/style.txt" % (pydaw_util.global_pydaw_install_prefix,
+                                                                    pydaw_util.global_pydaw_version_string)
         f_stylesheet = pydaw_util.pydaw_read_file_text(f_stylesheet_file)
         f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet, f_stylesheet_file)
         if self.is_running:
@@ -69,7 +69,8 @@ class pydaw_device_dialog:
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_window_layout.addWidget(QtGui.QLabel("Audio Engine"), 4, 0)
         f_audio_engine_combobox = QtGui.QComboBox()
-        f_audio_engine_combobox.addItems(["Normal", "Elevated", "Elevated(sandbox)", "Debug", "GDB", "Valgrind", "GUI Only", "No Audio"])
+        f_audio_engine_combobox.addItems(["Normal", "Elevated", "Elevated(sandbox)", "Debug", "GDB", "Valgrind",
+                                          "GUI Only", "No Audio"])
         f_audio_engine_combobox.setToolTip( \
 """
 Normal:  Run the audio engine without elevated privileges.  This generally works
@@ -99,18 +100,22 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
 """)
         f_window_layout.addWidget(f_audio_engine_combobox, 4, 1)
         f_thread_affinity_checkbox = QtGui.QCheckBox("Lock worker threads to own core?")
-        f_thread_affinity_checkbox.setToolTip("This may give better performance with fewer Xruns at low latency, but may perform badly\n"
-            "on certain configurations."
-            "The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.")
+        f_thread_affinity_checkbox.setToolTip("This may give better performance with fewer Xruns at low latency, "
+        "but may perform badly\non certain configurations.  The audio engine setting must be set to 'Elevated' or "
+        "'Elevated(Sandbox)', otherwise this setting has no effect.")
         f_window_layout.addWidget(f_thread_affinity_checkbox, 5, 1)
 
         f_governor_checkbox = QtGui.QCheckBox("Force CPU governor to performance mode when PyDAW is running?")
-        f_governor_checkbox.setToolTip("This forces the CPU to use more aggressive clockspeeds when PyDAW is running, and reverts back to 'On Demand'\n"
+        f_governor_checkbox.setToolTip("This forces the CPU to use more aggressive clockspeeds when PyDAW is "
+        "running, and reverts back to 'On Demand'\n"
             "when PyDAW is closed.  Use this for best performance if possible.\n"
-            "The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has no effect.\n"
-            "Also, support for cpufreq must be compiled in, which requires different dependencies in each distro, currently\n"
+            "The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', otherwise this setting has "
+            "no effect.\n"
+            "Also, support for cpufreq must be compiled in, which requires different dependencies in each distro, "
+            "currently\n"
             "it's only default for Ubuntu.\n\n"
-            "IMPORTANT:  Enabling this usually crashes the audio engine when run from within Virtualbox or on systems with\n"
+            "IMPORTANT:  Enabling this usually crashes the audio engine when run from within Virtualbox or on "
+            "systems with\n"
             "certain security configurations.  Disable this if PyDAW's engine crashes on startup.")
         f_window_layout.addWidget(f_governor_checkbox, 6, 1)
 
@@ -200,7 +205,8 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
             try:
                 #This doesn't work if the device is open already, so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
-                if not self.is_running or "name" not in pydaw_util.global_device_val_dict or pydaw_util.global_device_val_dict["name"] != self.device_name:
+                if not self.is_running or "name" not in pydaw_util.global_device_val_dict or \
+                pydaw_util.global_device_val_dict["name"] != self.device_name:
                     f_output = portaudio.PaStreamParameters(f_name_to_index[self.device_name], 2, portaudio.paInt16,
                                                             float(f_buffer_size)/float(f_samplerate), None)
                     f_supported = f_pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output), f_samplerate)
@@ -242,16 +248,22 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         f_device_name_combobox.addItems(f_audio_device_names)
 
         if "name" in pydaw_util.global_device_val_dict and pydaw_util.global_device_val_dict["name"] in f_result_dict:
-            f_device_name_combobox.setCurrentIndex(f_device_name_combobox.findText(pydaw_util.global_device_val_dict["name"]))
+            f_device_name_combobox.setCurrentIndex(
+            f_device_name_combobox.findText(pydaw_util.global_device_val_dict["name"]))
 
-        if "bufferSize" in pydaw_util.global_device_val_dict and pydaw_util.global_device_val_dict["bufferSize"] in self.buffer_sizes:
-            f_buffer_size_combobox.setCurrentIndex(f_buffer_size_combobox.findText(pydaw_util.global_device_val_dict["bufferSize"]))
+        if "bufferSize" in pydaw_util.global_device_val_dict and \
+        pydaw_util.global_device_val_dict["bufferSize"] in self.buffer_sizes:
+            f_buffer_size_combobox.setCurrentIndex(
+            f_buffer_size_combobox.findText(pydaw_util.global_device_val_dict["bufferSize"]))
 
-        if "sampleRate" in pydaw_util.global_device_val_dict and pydaw_util.global_device_val_dict["sampleRate"] in self.sample_rates:
-            f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(pydaw_util.global_device_val_dict["sampleRate"]))
+        if "sampleRate" in pydaw_util.global_device_val_dict and \
+        pydaw_util.global_device_val_dict["sampleRate"] in self.sample_rates:
+            f_samplerate_combobox.setCurrentIndex(
+            f_samplerate_combobox.findText(pydaw_util.global_device_val_dict["sampleRate"]))
 
         if "threads" in pydaw_util.global_device_val_dict:
-            f_worker_threads_combobox.setCurrentIndex(int(pydaw_util.global_device_val_dict["threads"]))
+            f_worker_threads_combobox.setCurrentIndex(
+            int(pydaw_util.global_device_val_dict["threads"]))
 
         if "threadAffinity" in pydaw_util.global_device_val_dict:
             if int(pydaw_util.global_device_val_dict["threadAffinity"]) == 1:
@@ -262,7 +274,8 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
                 f_governor_checkbox.setChecked(True)
 
         if "midiInDevice" in pydaw_util.global_device_val_dict:
-            f_midi_in_device_combobox.setCurrentIndex(f_midi_in_device_combobox.findText(pydaw_util.global_device_val_dict["midiInDevice"]))
+            f_midi_in_device_combobox.setCurrentIndex(
+            f_midi_in_device_combobox.findText(pydaw_util.global_device_val_dict["midiInDevice"]))
 
         if "audioEngine" in pydaw_util.global_device_val_dict:
             f_audio_engine_combobox.setCurrentIndex(int(pydaw_util.global_device_val_dict["audioEngine"]))

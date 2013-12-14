@@ -51,7 +51,8 @@ class pydaw_osc:
         if self.with_osc:
             liblo.send(self.target, self.configure_path, key, value)
         else:
-            print(("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\""))
+            print(("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + \
+            "\" value: \"" + str(value) + "\""))
 
     #methods for sending PyDAW OSC messages
 
@@ -110,7 +111,8 @@ class pydaw_osc:
         self.send_configure("tn", str(a_track_num) + "|" + str(a_new_name) + "|" + str(a_type))
 
     def pydaw_offline_render(self, a_start_region, a_start_bar, a_end_region, a_end_bar, a_file_name):
-        self.send_configure("or", str(a_start_region) + "|" + str(a_start_bar) + "|" + str(a_end_region) + "|" + str(a_end_bar) + "|" + str(a_file_name))
+        self.send_configure("or", str(a_start_region) + "|" + str(a_start_bar) + "|" + str(a_end_region) + "|" + \
+        str(a_end_bar) + "|" + str(a_file_name))
 
     def pydaw_set_bus(self, a_track_num, a_bus_num, a_track_type):
         self.send_configure("bs", str(a_track_num) + "|" + str(a_bus_num) + "|" + str(a_track_type))
@@ -165,22 +167,26 @@ class pydaw_osc:
         pydaw_wait_for_finished_file(f_wait_file)
 
     def pydaw_audio_per_item_fx(self, a_region_uid, a_item_index, a_port_num, a_val):
-        self.send_configure("paif", str(a_region_uid) + "|" + str(a_item_index) + "|" + str(a_port_num) + "|" + str(a_val))
+        self.send_configure("paif", str(a_region_uid) + "|" + str(a_item_index) + "|" + str(a_port_num) + "|" + \
+        str(a_val))
 
     def pydaw_audio_per_item_fx_region(self, a_region_uid):
         self.send_configure("par", str(a_region_uid))
 
     def pydaw_update_plugin_control(self, a_is_instrument, a_track_type, a_track_num, a_port, a_val):
-        self.send_configure("pc", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_port) + "|" + str(a_val))
+        self.send_configure("pc", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + \
+        "|" + str(a_port) + "|" + str(a_val))
 
     def pydaw_configure_plugin(self, a_is_instrument, a_track_type, a_track_num, a_key, a_message):
-        self.send_configure("co", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_key) + "|" + str(a_message))
+        self.send_configure("co", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + \
+        "|" + str(a_key) + "|" + str(a_message))
 
     def pydaw_glue_audio(self, a_file_name, a_region_index, a_start_bar_index, a_end_bar_index, a_item_indexes):
         f_index_arr = []
         for f_index in a_item_indexes:
             f_index_arr.append(str(f_index))
-        self.send_configure("ga", "%s|%s|%s|%s|%s" % (a_file_name, a_region_index, a_start_bar_index, a_end_bar_index, "|".join(f_index_arr)))
+        self.send_configure("ga", "%s|%s|%s|%s|%s" % (a_file_name, a_region_index, a_start_bar_index,
+                                                      a_end_bar_index, "|".join(f_index_arr)))
         if self.with_osc:
             f_wait_file = pydaw_get_wait_file_path(a_file_name)
             pydaw_wait_for_finished_file(f_wait_file)

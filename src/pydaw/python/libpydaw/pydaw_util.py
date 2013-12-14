@@ -269,7 +269,8 @@ def pydaw_set_live_mode_off():
 if pydaw_which("gksudo") is not None:
     global_pydaw_sudo_command = "gksudo"
 elif pydaw_which("sudo") is not None:
-    print("Warning, gksudo not found, falling back to sudo.  If the GUI hangs before opening, this could be the reason why")
+    print("Warning, gksudo not found, falling back to sudo.  If the GUI hangs before opening, this could "
+    "be the reason why")
     global_pydaw_sudo_command = "sudo"
 else:
     print("Warning, gksudo and sudo not found.  If the GUI hangs before opening, this could be the reason why")
@@ -282,13 +283,14 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
     else: #presumed to be Ubuntu or Ubuntu-like.
         global_home = "/media/pydaw_data"
     if not os.path.isdir(global_home):
-        print("Attempting to mount %s."
-        "If this causes the GUI to hang, please try mounting the pydaw_data partition before starting" % (global_home,))
+        print("Attempting to mount %s.  If this causes the GUI to hang, please try mounting the pydaw_data "
+        "partition before starting" % (global_home,))
         try:
             os.system("%s mkdir %s" % (global_pydaw_sudo_command, global_home))
             os.system("%s mount /dev/disk/by-label/pydaw_data %s" % (global_pydaw_sudo_command, global_home))
         except:
-            print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive or permissions")
+            print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive "
+            "or permissions")
 
     global_is_live_mode = True
     global_pydaw_home = "%s/%s" % (global_home, global_pydaw_version_string)
@@ -368,7 +370,8 @@ def global_get_file_bookmarks():
             if os.path.isdir(f_full_path):
                 f_result[f_line_arr[0]] = f_line_arr[1]
             else:
-                print(("Warning:  Not loading bookmark '" + f_line_arr[0] + "' because the directory '" + f_full_path + "' does not exist."))
+                print("Warning:  Not loading bookmark '{}' because the directory '{}'"
+                " does not exist.".format(f_line_arr[0], f_full_path))
     return f_result
 
 def global_write_file_bookmarks(a_dict):
