@@ -1204,9 +1204,12 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scale(self.last_x_scale, self.last_y_scale)
 
 
+global_modulex_clipboard = None
+
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback, a_port_dict=None, a_preset_mgr=None):
         self.group_box = QtGui.QGroupBox()
+        self.group_box.contextMenuEvent = self.contextMenuEvent
         self.group_box.setObjectName("plugin_groupbox")
         if a_title is not None:
             self.group_box.setTitle(str(a_title))
@@ -1227,6 +1230,41 @@ class pydaw_modulex_single:
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
 
+    def contextMenuEvent(self, a_event):
+        f_menu = QtGui.QMenu(self.group_box)
+        f_copy_action = QtGui.QAction("Copy", self.group_box)
+        f_copy_action.triggered.connect(self.copy_settings)
+        f_menu.addAction(f_copy_action)
+        f_paste_action = QtGui.QAction("Paste", self.group_box)
+        f_paste_action.triggered.connect(self.paste_settings)
+        f_menu.addAction(f_paste_action)
+        f_reset_action = QtGui.QAction("Reset", self.group_box)
+        f_reset_action.triggered.connect(self.reset_settings)
+        f_menu.addAction(f_reset_action)
+        f_menu.exec_(QtGui.QCursor.pos())
+
+    def copy_settings(self):
+        global global_modulex_clipboard
+        global_modulex_clipboard = self.get_class()
+
+    def paste_settings(self):
+        global global_modulex_clipboard
+        if global_modulex_clipboard is None:
+            QtGui.QMessageBox.warning(self.group_box, "Error",
+            "Nothing copied to clipboard")
+        else:
+            self.set_from_class(global_modulex_clipboard)
+            self.update_all_values()
+
+    def update_all_values(self):
+        for f_knob in self.knobs:
+            f_knob.control_value_changed(f_knob.get_value())
+        self.combobox.control_value_changed(self.combobox.get_value())
+
+    def reset_settings(self):
+        self.set_from_class(pydaw_audio_item_fx(64, 64, 64, 0))
+        self.update_all_values()
+
     def set_from_class(self, a_class):
         """ a_class is a pydaw_audio_item_fx instance """
         self.knobs[0].set_value(a_class.knobs[0])
@@ -1236,7 +1274,8 @@ class pydaw_modulex_single:
 
     def get_class(self):
         """ return a pydaw_audio_item_fx instance """
-        return pydaw_audio_item_fx(self.knobs[0].control.value(), self.knobs[1].control.value(), self.knobs[2].control.value(), self.combobox.control.currentIndex())
+        return pydaw_audio_item_fx(self.knobs[0].control.value(), self.knobs[1].control.value(),
+                                   self.knobs[2].control.value(), self.combobox.control.currentIndex())
 
     def type_combobox_changed(self, a_val):
         if a_val == 0: #Off
