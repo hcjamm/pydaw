@@ -708,7 +708,7 @@ class pydaw_file_browser_widget:
         f_dir_path = "{}/".format(self.folder_path_lineedit.text(),)
         f_result = []
         for f_item in self.files_listWidget.selectedItems():
-            f_result.append(f_dir_path + str(f_item.text()))
+            f_result.append("{}{}".format(f_dir_path, f_item.text()))
         return f_result
 
     def open_bookmarks(self):
@@ -724,7 +724,7 @@ class pydaw_file_browser_widget:
     def bookmark_clicked(self, a_item):
         f_dict = pydaw_util.global_get_file_bookmarks()
         f_folder_name = str(a_item.text())
-        f_full_path = f_dict[f_folder_name] + "/" + f_folder_name
+        f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
         self.set_folder(f_full_path, True)
 
     def file_mouse_press_event(self, a_event):
@@ -746,13 +746,13 @@ class pydaw_file_browser_widget:
         if a_full_path:
             self.last_open_dir = str(a_folder)
         else:
-            self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
+            self.last_open_dir = os.path.abspath("{}/{}".format(self.last_open_dir, a_folder))
         self.last_open_dir = self.last_open_dir.replace("//", "/")
         self.folder_path_lineedit.setText(self.last_open_dir)
         f_list = os.listdir(self.last_open_dir)
         f_list.sort(key=str.lower)
         for f_file in f_list:
-            f_full_path = self.last_open_dir + "/" + f_file
+            f_full_path = "{}/{}".format(self.last_open_dir, f_file)
             if  not f_file.startswith("."):
                 if os.path.isdir(f_full_path):
                     self.folders_listWidget.addItem(f_file)
@@ -868,7 +868,7 @@ class pydaw_preset_manager_widget:
 
         if len(f_line_arr) > 0:
             if f_line_arr[0].strip() != self.plugin_name:
-                QtGui.QMessageBox.warning(self.group_box, "Error", \
+                QtGui.QMessageBox.warning(self.group_box, "Error",
                 "The selected preset bank is for {}, please select one for {}".format(f_line_arr[0], self.plugin_name))
                 if os.path.isfile(self.bank_file):
                     os.system('rm "{}"'.format(self.bank_file,))
@@ -899,7 +899,7 @@ class pydaw_preset_manager_widget:
         self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
         f_result = "{}\n".format(self.plugin_name,)
         for f_list in self.presets_delimited:
-            f_result += "|".join(f_list) + "\n"
+            f_result += "{}\n".format("|".join(f_list))
         pydaw_util.pydaw_write_file_text(self.preset_path, f_result)
         self.load_presets()
 
@@ -908,7 +908,7 @@ class pydaw_preset_manager_widget:
             print("empty")
         else:
             f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
-            print(("setting preset " + str(f_preset)))
+            print("setting preset {}".format(f_preset))
             for f_i in range(1, len(f_preset)):
                 f_port, f_val = f_preset[f_i].split(":")
                 f_port = int(f_port)
@@ -1607,7 +1607,7 @@ class pydaw_per_audio_item_fx_widget:
         self.widget.setLayout(self.layout)
         f_port = 0
         for f_i in range(8):
-            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, a_rel_callback, a_val_callback)
+            f_effect = pydaw_modulex_single("FX{}".format(f_i), f_port, a_rel_callback, a_val_callback)
             self.effects.append(f_effect)
             self.layout.addWidget(f_effect.group_box)
             f_port += 4
@@ -1699,7 +1699,7 @@ class pydaw_abstract_plugin_ui:
         if f_port in self.port_dict:
             self.port_dict[int(a_port)].set_value(a_val)
         else:
-            print(("pydaw_abstract_plugin_ui.set_control_val():  Did not have port " + str(f_port)))
+            print("pydaw_abstract_plugin_ui.set_control_val():  Did not have port {}".format(f_port))
 
     def configure_plugin(self, a_key, a_message):
         """ Override this function to allow str|str key/value pair messages to be sent to the back-end"""
@@ -1754,7 +1754,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         f_column = 0
         f_row = 0
         for f_i in range(8):
-            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, self.plugin_rel_callback,
+            f_effect = pydaw_modulex_single("FX{}".format(f_i), f_port, self.plugin_rel_callback,
                                             self.plugin_val_callback, self.port_dict, self.preset_manager)
             self.effects.append(f_effect)
             self.fx_layout.addWidget(f_effect.group_box, f_row, f_column)
@@ -1884,7 +1884,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Modulex - " + self.track_name)
+        self.widget.setWindowTitle("PyDAW Modulex - {}".format(self.track_name))
 
 
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
@@ -2352,7 +2352,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Way-V - " + self.track_name)
+        self.widget.setWindowTitle("PyDAW Way-V - {}".format(self.track_name))
 
 
 SMP_TB_RADIOBUTTON_INDEX  =  0
@@ -3478,7 +3478,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         continue
                 f_sample_str = self.copySamplesToSingleDirectory(f_dir)
                 f_plugin_file = pydaw_plugin_file.from_dict(self.port_dict, {})
-                f_result_str = f_sample_str + str(f_plugin_file)
+                f_result_str = "{}{}".format(f_sample_str, f_plugin_file)
                 pydaw_util.pydaw_write_file_text(f_selected_path, f_result_str)
                 break
             else:

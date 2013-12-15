@@ -175,7 +175,7 @@ class pydaw_project:
         f_cmd = 'cp -r "{}" "{}"'.format(self.project_folder, f_new_project_folder)
         print(f_cmd)
         os.system(f_cmd)
-        print((f_new_project_folder + "/" + self.project_file + " | " + a_file_name))
+        print("{}/{} | {}".format(f_new_project_folder, self.project_file, a_file_name))
         self.set_project_folders(f_file_name)
         self.this_pydaw_osc.pydaw_open_song(self.project_folder)
         self.history = pydaw_history.pydaw_history(self.project_folder)
@@ -249,11 +249,11 @@ class pydaw_project:
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
         f_midi_tracks_instance = pydaw_tracks()
         for i in range(pydaw_midi_track_count):
-            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1), a_track_pos=i))
+            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track{}".format(i + 1), a_track_pos=i))
         self.create_file("", pydaw_file_pytracks, str(f_midi_tracks_instance))
         f_pyaudio_instance = pydaw_audio_tracks()
         for i in range(pydaw_audio_track_count):
-            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1), a_track_pos=i))
+            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track{}".format(i + 1), a_track_pos=i))
         self.create_file("", pydaw_file_pyaudio, str(f_pyaudio_instance))
         f_pybus_instance = pydaw_busses()
         for i in range(pydaw_bus_count):
@@ -296,19 +296,19 @@ class pydaw_project:
         f_stretch_text = ""
         for k, v in list(self.timestretch_cache.items()):
             for f_tuple_val in k:
-                f_stretch_text += str(f_tuple_val) + "|"
-            f_stretch_text += "||" + str(v) + "\n"
+                f_stretch_text += "{}|".format(f_tuple_val)
+            f_stretch_text += "||{}\n".format(v)
         f_stretch_text += pydaw_terminating_char
         self.save_file("", pydaw_file_pystretch, f_stretch_text)
 
         f_map_text = ""
         for k, v in list(self.timestretch_reverse_lookup.items()):
-            f_map_text += str(k) + "|||" + str(v) + "\n"
+            f_map_text += "{}|||{}\n".format(k, v)
         f_map_text += pydaw_terminating_char
         self.save_file("", pydaw_file_pystretch_map, f_map_text)
 
     def set_midi_scale(self, a_key, a_scale):
-        pydaw_write_file_text(self.pyscale_file, str(a_key) + "|" + str(a_scale))
+        pydaw_write_file_text(self.pyscale_file, "{}|{}".format(a_key, a_scale))
 
     def get_midi_scale(self):
         if os.path.exists(self.pyscale_file):
@@ -355,7 +355,7 @@ class pydaw_project:
 
     def get_song_string(self):
         try:
-            f_file = open(self.project_folder + "/default.pysong", "r")
+            f_file = open("{}/default.pysong".format(self.project_folder), "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -367,7 +367,7 @@ class pydaw_project:
 
     def get_region_string(self, a_region_uid):
         try:
-            f_file = open(self.regions_folder + "/" + str(a_region_uid), "r")
+            f_file = open("{}/{}".format(self.regions_folder, a_region_uid), "r")
         except:
             return "\\"  #TODO:  allow the exception to happen???
         f_result = f_file.read()
@@ -388,9 +388,9 @@ class pydaw_project:
         f_items_dict = self.get_items_dict()
         if len(a_item_names) > 1 or f_items_dict.name_exists(a_new_item_name):
             f_suffix = 1
-            f_new_item_name = str(a_new_item_name) + "-"
+            f_new_item_name = "{}-".format(a_new_item_name)
             for f_item_name in a_item_names:
-                while f_items_dict.name_exists(f_new_item_name + str(f_suffix)):
+                while f_items_dict.name_exists("{}{}".format(f_new_item_name, f_suffix)):
                     f_suffix += 1
                 f_items_dict.rename_item(f_item_name, f_new_item_name + str(f_suffix))
         else:
@@ -401,7 +401,7 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         if f_regions_dict.name_exists(a_new_name):
             f_suffix = 1
-            f_new_name = str(a_new_name) + "-"
+            f_new_name = "{}-".format(a_new_name)
             while f_regions_dict.name_exists(f_new_name + str(f_suffix)):
                 f_suffix += 1
             f_regions_dict.rename_item(a_old_name, f_new_name)
@@ -411,7 +411,7 @@ class pydaw_project:
 
     def get_item_string(self, a_item_uid):
         try:
-            f_file = open(self.items_folder + "/" + str(a_item_uid), "r")
+            f_file = open("{}/{}".format(self.items_folder, a_item_uid), "r")
         except:
             return ""
         f_result = f_file.read()
@@ -494,7 +494,7 @@ class pydaw_project:
             a_audio_item.uid = self.timestretch_cache[f_key]
 
             if f_cmd is not None:
-                print(("Running " + " ".join(f_cmd)))
+                print("Running {}".format(" ".join(f_cmd)))
                 f_proc = subprocess.Popen(f_cmd)
                 return f_dest_path, f_uid, f_proc
             else:
@@ -513,10 +513,11 @@ class pydaw_project:
 
     def check_for_recorded_items(self, a_item_name):
         self.check_for_recorded_regions()
-        f_item_name = str(a_item_name) + "-"
-        if os.path.isfile(self.project_folder + "/recorded_items"):
-            f_str_list = pydaw_read_file_text(self.project_folder + "/recorded_items").split("\n")
-            os.remove(self.project_folder + "/recorded_items")
+        f_item_name = "{}-".format(a_item_name)
+        f_rec_items_file = "{}/recorded_items".format(self.project_folder)
+        if os.path.isfile(f_rec_items_file):
+            f_str_list = pydaw_read_file_text(f_rec_items_file).split("\n")
+            os.remove(f_rec_items_file)
         else:
             return
         f_int_list = []
@@ -533,16 +534,17 @@ class pydaw_project:
             f_item = self.get_item_by_uid(f_int)
             f_item.fix_overlaps()
             self.save_item_by_uid(f_int, f_item, a_new_item=True)
-            while f_item_name + str(f_suffix) in f_items_dict.uid_lookup:
+            while "{}{}".format(f_item_name, f_suffix) in f_items_dict.uid_lookup:
                 f_suffix += 1
             f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
             f_suffix += 1
         self.save_items_dict(f_items_dict)
 
     def check_for_recorded_regions(self):
-        if os.path.isfile(self.project_folder + "/recorded_regions"):
-            f_str_list = pydaw_read_file_text(self.project_folder + "/recorded_regions").split("\n")
-            os.remove(self.project_folder + "/recorded_regions")
+        f_rec_items_file = "{}/recorded_regions".format(self.project_folder)
+        if os.path.isfile(f_rec_items_file):
+            f_str_list = pydaw_read_file_text(f_rec_items_file).split("\n")
+            os.remove(f_rec_items_file)
         else:
             return
         f_int_list = []
@@ -558,31 +560,31 @@ class pydaw_project:
         for f_int in f_int_list:
             if not f_int in f_regions_dict.name_lookup:
                 self.save_file(pydaw_folder_regions_audio, f_int, pydaw_terminating_char)
-                while "recorded-" + str(f_suffix) in f_regions_dict.uid_lookup:
+                while "recorded-{}".format(f_suffix) in f_regions_dict.uid_lookup:
                     f_suffix += 1
-                f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
+                f_regions_dict.add_item(f_int, "recorded-{}".format(f_suffix))
                 f_suffix += 1
                 f_old_text = ""
                 f_existed = 0
             else:
                 f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
                 f_existed = 1
-            self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_regions, str(f_int), \
-            pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, f_existed))
+            self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_regions, str(f_int),
+            pydaw_read_file_text("{}/{}".format(self.regions_folder, f_int)), f_old_text, f_existed))
 
         self.save_regions_dict(f_regions_dict)
         f_old_text = self.history.get_latest_version_of_file("", pydaw_file_pysong)
-        f_new_text = pydaw_read_file_text(self.project_folder + "/" + pydaw_file_pysong)
+        f_new_text = pydaw_read_file_text("{}/{}".format(self.project_folder, pydaw_file_pysong))
         if f_old_text is not None and f_new_text != f_old_text:
             print("Appending history file for pysong")
             self.history_files.append(pydaw_history.pydaw_history_file("", pydaw_file_pysong, f_new_text,
                                                                        f_old_text, 1))
         else:
-            print(("f_old_text: " + f_old_text))
+            print("f_old_text: {}".format(f_old_text))
 
     def get_tracks_string(self):
         try:
-            f_file = open(self.project_folder + "/default.pytracks", "r")
+            f_file = open("{}/default.pytracks".format(self.project_folder), "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -594,7 +596,7 @@ class pydaw_project:
 
     def get_bus_tracks_string(self):
         try:
-            f_file = open(self.project_folder + "/default.pybus", "r")
+            f_file = open("{}/default.pybus".format(self.project_folder), "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -606,7 +608,7 @@ class pydaw_project:
 
     def get_audio_tracks_string(self):
         try:
-            f_file = open(self.project_folder + "/default.pyaudio", "r")
+            f_file = open("{}/default.pyaudio".format(self.project_folder), "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -617,7 +619,7 @@ class pydaw_project:
         return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
 
     def get_audio_region_string(self, a_region_uid):
-        f_file = open(self.regions_audio_folder + "/" + str(a_region_uid), "r")
+        f_file = open("{}/{}".format(self.regions_audio_folder, a_region_uid), "r")
         f_result = f_file.read()
         f_file.close()
         return f_result
@@ -626,7 +628,7 @@ class pydaw_project:
         return pydaw_audio_region.from_str(self.get_audio_region_string(a_region_uid))
 
     def get_audio_per_item_fx_region(self, a_region_uid):
-        f_path = self.audio_per_item_fx_folder + "/" + str(a_region_uid)
+        f_path = "{}/{}".format(self.audio_per_item_fx_folder, a_region_uid)
         if not os.path.isfile(f_path):  #TODO:  Sort this out at PyDAWv4 and create an empty file first
             return pydaw_audio_item_fx_region()
         else:
@@ -720,13 +722,13 @@ class pydaw_project:
 
     def get_transport(self):
         try:
-            f_file = open(self.project_folder + "/default.pytransport", "r")
+            f_file = open("{}/default.pytransport".format(self.project_folder), "r")
         except:
             return pydaw_transport()  #defaults
         f_str = f_file.read()
         f_file.close()
         f_result = pydaw_transport.from_str(f_str)
-        f_file_name = self.project_folder + "/default.pymididevice"
+        f_file_name = "{}/default.pymididevice".format(self.project_folder)
         if os.path.isfile(f_file_name):
             f_file = open(f_file_name)
             f_result.midi_keybd = f_file.read()
@@ -759,10 +761,10 @@ class pydaw_project:
         f_uid = f_regions_dict.add_new_item(a_new_region_name)
         f_old_uid = f_regions_dict.get_uid_by_name(a_old_region_name)
         self.save_file(pydaw_folder_regions,  str(f_uid),
-                       pydaw_read_file_text(self.regions_folder + "/" + str(f_old_uid)))
+                       pydaw_read_file_text("{}/{}".format(self.regions_folder, f_old_uid)))
         self.save_file(pydaw_folder_regions_audio,  str(f_uid),
-                       pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_old_uid)))
-        f_paif_file = self.audio_per_item_fx_folder + "/" + str(f_old_uid)
+                       pydaw_read_file_text("{}/{}".format(self.regions_audio_folder, f_old_uid)))
+        f_paif_file = "{}/{}".format(self.audio_per_item_fx_folder, f_old_uid)
         if os.path.isfile(f_paif_file):
             self.save_file(pydaw_folder_audio_per_item_fx, str(f_uid), pydaw_read_file_text(f_paif_file))
         self.save_regions_dict(f_regions_dict)
@@ -772,20 +774,21 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.get_uid_by_name(a_src_region_name)
         self.save_file(pydaw_folder_regions_audio, str(a_dest_region_uid),
-                       pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_uid)))
-        f_paif_file = self.audio_per_item_fx_folder + "/" + str(f_uid)
+                       pydaw_read_file_text("{}/{}".format(self.regions_audio_folder, f_uid)))
+        f_paif_file = "{}/{}".format(self.audio_per_item_fx_folder, f_uid)
         if os.path.isfile(f_paif_file):
             self.save_file(pydaw_folder_audio_per_item_fx, str(a_dest_region_uid),
                            pydaw_read_file_text(f_paif_file))
             self.this_pydaw_osc.pydaw_audio_per_item_fx_region(a_dest_region_uid)
         self.this_pydaw_osc.pydaw_reload_audio_items(a_dest_region_uid)
-        self.commit("Clone audio from region " + str(a_src_region_name))
+        self.commit("Clone audio from region {}".format(a_src_region_name))
 
     def copy_item(self, a_old_item, a_new_item):
         f_items_dict = self.get_items_dict()
         f_uid = f_items_dict.add_new_item(a_new_item)
         f_old_uid = f_items_dict.get_uid_by_name(a_old_item)
-        self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(self.items_folder + "/" + str(f_old_uid)))
+        self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(
+            "{}/{}".format(self.items_folder, f_old_uid)))
         self.this_pydaw_osc.pydaw_save_item(f_uid)
         self.save_items_dict(f_items_dict)
         return f_uid
@@ -914,13 +917,13 @@ class pydaw_project:
                     f_region.remove_item(f_key)
                 f_result += f_to_delete
                 self.save_audio_region(f_uid, f_region)
-                self.error_log_write("Removed missing audio item(s) from region " + str(f_uid))
+                self.error_log_write("Removed missing audio item(s) from region {}".format(f_uid))
         if f_commit:
             self.commit("")
         return f_result
 
     def error_log_write(self, a_message):
-        f_file = open(self.project_folder + "/error.log", "a")
+        f_file = open("{}/error.log".format(self.project_folder), "a")
         f_file.write(a_message)
         f_file.close()
 
@@ -987,7 +990,7 @@ class pydaw_song:
     def __str__(self):
         f_result = ""
         for k, v in list(self.regions.items()):
-            f_result += str(k) + "|" + str(v) + "\n"
+            f_result += "{}|{}\n".format(k, v)
         f_result += pydaw_terminating_char
         return f_result
     @staticmethod
@@ -1064,7 +1067,7 @@ class pydaw_name_uid_dict:
     def __str__(self):
         f_result = ""
         for k, v in list(self.name_lookup.items()):
-            f_result += str(k) + "|" + str(v) + "\n"
+            f_result += "{}|{}\n".format(k, v)
         return f_result + pydaw_terminating_char
 
 class pydaw_region:
@@ -1102,14 +1105,14 @@ class pydaw_region:
         for f_item in self.items:
             if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
                 self.items.remove(f_item)
-                print(("remove_item_ref removed bar: " + str(f_item.bar_num) + ", track: " + str(f_item.track_num)))
+                print("remove_item_ref removed bar: {}, track: {}".format(f_item.bar_num, f_item.track_num))
 
     def __str__(self):
         f_result = ""
         if self.region_length_bars > 0:
-            f_result += "L|" + str(self.region_length_bars) + "|0\n"
+            f_result += "L|{}|0\n".format(self.region_length_bars)
         for f_item in self.items:
-            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + str(f_item.item_uid) + "\n"
+            f_result += "{}|{}|{}\n".format(f_item.track_num, f_item.bar_num, f_item.item_uid)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1287,7 +1290,7 @@ class pydaw_item:
         try:
             self.notes.remove(a_note)
         except Exception as ex:
-            print(("\n\n\nException in remove_note:" + ex.message))
+            print("\n\n\nException in remove_note:\n{}".format(ex))
             print((repr(traceback.extract_stack())))
             print("\n\n\n")
 
@@ -1688,7 +1691,7 @@ class pydaw_tracks:
     def __str__(self):
         f_result = ""
         for k, v in list(self.tracks.items()):
-            f_result += str(k) + "|" + str(v)
+            f_result += "{}|{}".format(k, v)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1739,7 +1742,7 @@ class pydaw_busses:
     def __str__(self):
         f_result = ""
         for k, f_bus in list(self.busses.items()):
-            f_result += str(k) + "|" + str(f_bus)
+            f_result += "{}|{}".format(k, f_bus)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1771,7 +1774,7 @@ class pydaw_audio_tracks:
     def __str__(self):
         f_result = ""
         for k, v in list(self.tracks.items()):
-            f_result += str(k) + "|" + str(v)
+            f_result += "{}|{}".format(k, v)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1866,7 +1869,7 @@ class pydaw_audio_region:
     def __str__(self):
         f_result = ""
         for k, f_item in list(self.items.items()):
-            f_result += str(k) + "|" + str(f_item)
+            f_result += "{}|{}".format(k, f_item)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1952,7 +1955,7 @@ class pydaw_audio_item_fx_region:
     def __str__(self):
         f_result = ""
         for k, v in list(self.fx_list.items()):
-            f_result += self.get_row_str(k) + "\n"
+            f_result += "{}\n".format(self.get_row_str(k))
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1976,7 +1979,7 @@ class pydaw_audio_item_fx_region:
         if int(a_row_index) in self.fx_list:
             return self.fx_list[int(a_row_index)]
         else:
-            print(("Index " + str(a_row_index) + " not found in pydaw_audio_item_fx_region"))
+            print("Index {} not found in pydaw_audio_item_fx_region".format(a_row_index))
             if a_return_none:
                 return None
             else:
@@ -2018,7 +2021,7 @@ class pydaw_audio_item_fx:
             return self.fx_num < other.fx_num
 
     def __str__(self):
-        return "|" + str(self.knobs[0]) + "|" + str(self.knobs[1]) + "|" + str(self.knobs[2]) + "|" + str(self.fx_type)
+        return "|{}|{}|{}|{}".format(self.knobs[0], self.knobs[1], self.knobs[2], self.fx_type)
 
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):
@@ -2030,7 +2033,7 @@ class pydaw_audio_input_tracks:
     def __str__(self):
         f_result = ""
         for k, v in list(self.tracks.items()):
-            f_result += str(k) + "|" + str(v)
+            f_result += "{}|{}".format(k, v)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -2054,14 +2057,14 @@ class pydaw_audio_input_track:
         self.vol = int(a_vol)
 
     def __str__(self):
-        return str(self.vol) + "|" + str(self.output) + "|" + str(self.input) + "\n"
+        return "{}|{}|{}\n".format(self.vol, self.output, self.input)
 
 class pydaw_transport:
     def __init__(self, a_bpm=140):
         self.bpm = a_bpm
 
     def __str__(self):
-        return str(self.bpm) + "\n\\"
+        return "{}\n\\".format(self.bpm)
 
     @staticmethod
     def from_str(a_str):
@@ -2091,7 +2094,7 @@ class pydaw_cc_map:
     def __str__(self):
         f_result = ""
         for k, v in list(self.map.items()):
-            f_result += str(k) + "|" + str(v)
+            f_result += "{}|{}".format(k, v)
         f_result += pydaw_terminating_char
         return f_result
 

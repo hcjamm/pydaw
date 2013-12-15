@@ -223,8 +223,8 @@ def pydaw_set_tooltips_enabled(a_enabled):
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
-        QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in "
-        "the song editor above.")
+        QtGui.QMessageBox.warning(this_main_window, "",
+        "You must create or select a region first by clicking in the song editor above.")
         return True
     return False
 
@@ -704,14 +704,14 @@ class region_list_editor:
         self.tracks = []
         for i in range(0, self.track_count):
             if self.track_type == pydaw_track_type_enum.midi():
-                track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
+                track = seq_track(a_track_num=i, a_track_text="track{}".format(i + 1))
             elif self.track_type == pydaw_track_type_enum.bus():
                 if i == 0:
                     track = seq_track(a_track_num=i, a_track_text="Master", a_instrument=False)
                 else:
-                    track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False)
+                    track = seq_track(a_track_num=i, a_track_text="Bus{}".format(i), a_instrument=False)
             elif self.track_type == pydaw_track_type_enum.audio():
-                track = audio_track(a_track_num=i, a_track_text="track" + str(i + 1))
+                track = audio_track(a_track_num=i, a_track_text="track{}".format(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)
         self.table_widget.setColumnWidth(0, 390)
@@ -1170,9 +1170,9 @@ class region_list_editor:
                 if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
                     f_item_name = str(f_item.text())
                     f_name_suffix = 1
-                    while this_pydaw_project.item_exists(f_item_name + "-" + str(f_name_suffix)):
+                    while this_pydaw_project.item_exists("{}-{}".format(f_item_name, f_name_suffix)):
                         f_name_suffix += 1
-                    f_cell_text = f_item_name + "-" + str(f_name_suffix)
+                    f_cell_text = "{}-{}".format(f_item_name, f_name_suffix)
                     f_uid = this_pydaw_project.copy_item(f_item_name, f_cell_text)
                     self.add_qtablewidgetitem(f_cell_text, i, i2 - 1)
                     global_current_region.add_item_ref_by_uid(i + self.track_offset, i2 - 1, f_uid)
@@ -1666,7 +1666,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_file += ".wav"
             global_last_audio_item_dir = os.path.dirname(f_file)
             f_orig_path = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
-            f_cmd = 'cp "' + f_orig_path + '" "' + f_file + '"'
+            f_cmd = 'cp "{}" "{}"'.format(f_orig_path, f_file)
             print(f_cmd)
             os.system(f_cmd)
 
@@ -1681,7 +1681,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_audio_items_viewer_widget.select_file(f_file)
         else:
             QtGui.QMessageBox.warning(this_main_window, "Error", \
-            "The folder did not exist:\n\n{}".format(f_dir,))
+            "The folder did not exist:\n\n{}".format(f_dir))
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -2765,7 +2765,7 @@ class audio_items_viewer_widget():
     def bookmark_clicked(self, a_item):
         f_dict = global_get_file_bookmarks()
         f_folder_name = str(a_item.text())
-        f_full_path = f_dict[f_folder_name] + "/" + f_folder_name
+        f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
         self.set_folder(f_full_path, True)
         self.folders_tab_widget.setCurrentIndex(0)
 
@@ -2774,7 +2774,7 @@ class audio_items_viewer_widget():
         global global_audio_items_to_drop
         global_audio_items_to_drop = []
         for f_item in self.list_file.selectedItems():
-            global_audio_items_to_drop.append(self.last_open_dir + "/" + str(f_item.text()))
+            global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
 
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
@@ -4501,7 +4501,7 @@ class automation_viewer_widget:
             f_key_split = f_cc.split("|")
             f_plugin_name = global_plugin_names[global_plugin_indexes[int(f_key_split[0])]]
             f_map = global_controller_port_num_dict[f_plugin_name][int(f_key_split[1])]
-            self.ccs_in_use_combobox.addItem(f_plugin_name + "|" +f_map.name)
+            self.ccs_in_use_combobox.addItem("{}|{}".format(f_plugin_name, f_map.name))
         self.suppress_ccs_in_use = False
 
     def smooth_pressed(self):
@@ -4621,7 +4621,7 @@ def global_open_items(a_items=None):
         f_item = this_pydaw_project.get_item_by_uid(f_item_uid)
         this_item_editor.items.append(f_item)
         for cc in f_item.ccs:
-            f_key = str(cc.plugin_index) + "|" + str(cc.cc_num)
+            f_key = "{}|{}".format(cc.plugin_index, cc.cc_num)
             if not f_key in f_cc_dict:
                 f_cc_dict[f_key] = []
             f_cc_dict[f_key] = cc
@@ -5260,7 +5260,7 @@ class item_list_editor:
                     self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete notes from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Delete notes from item '{}'".format(self.item_name))
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5268,14 +5268,14 @@ class item_list_editor:
                 self.item.add_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Paste notes into item '" + self.item_name + "'")
+            this_pydaw_project.commit("Paste notes into item '{}'".format(self.item_name))
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
             for f_note in self.notes_clipboard:
                 self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Cut notes from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Cut notes from item '{}'".format(self.item_name))
         else:
             QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)
 
@@ -5287,7 +5287,7 @@ class item_list_editor:
                     self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete CCs from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Delete CCs from item '{}'".format(self.item_name))
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5295,14 +5295,14 @@ class item_list_editor:
                 self.item.add_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Paste CCs into item '" + self.item_name + "'")
+            this_pydaw_project.commit("Paste CCs into item '{}'".format(self.item_name))
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
             for f_cc in self.ccs_clipboard:
                 self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Cut CCs from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Cut CCs from item '{}'".format(self.item_name))
         else:
             QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)
 
@@ -5314,7 +5314,7 @@ class item_list_editor:
                     self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete pitchbends from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Delete pitchbends from item '{}'".format(self.item_name))
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5322,14 +5322,14 @@ class item_list_editor:
                 self.item.add_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Paste pitchbends into item '" + self.item_name + "'")
+            this_pydaw_project.commit("Paste pitchbends into item '{}'".format(self.item_name))
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
             for f_pb in self.pbs_clipboard:
                 self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Cut pitchbends from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Cut pitchbends from item '{}'".format(self.item_name))
         else:
             QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)
 
@@ -5348,7 +5348,7 @@ class item_list_editor:
                                              self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete note from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Delete note from item '{}'".format(self.item_name))
 
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
@@ -5363,7 +5363,7 @@ class item_list_editor:
                                                 self.pitchbend_table_widget.item(x, 1).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete pitchbend from item '" + self.item_name + "'")
+            this_pydaw_project.commit("Delete pitchbend from item '{}'".format(self.item_name))
 
     def notes_show_event_dialog(self, x, y, a_note=None, a_index=None):
         if a_note is not None:
@@ -5524,7 +5524,7 @@ class item_list_editor:
 
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Update pitchbends for item '" + self.item_name + "'")
+            this_pydaw_project.commit("Update pitchbends for item '{}'".format(self.item_name))
             if not f_add_another.isChecked():
                 f_window.close()
 
@@ -5651,8 +5651,8 @@ class seq_track:
                                                                     self.track_name_lineedit.text(), 0)
             this_pydaw_project.commit("Set name for MIDI track {} to {}".format(self.track_number,
                                       self.track_name_lineedit.text()))
-            global_inst_set_window_title(self.track_number, "MIDI Track: " + str(self.track_name_lineedit.text()))
-            global_fx_set_window_title(0, self.track_number, "MIDI Track: " + str(self.track_name_lineedit.text()))
+            global_inst_set_window_title(self.track_number, "MIDI Track: {}".format(self.track_name_lineedit.text()))
+            global_fx_set_window_title(0, self.track_number, "MIDI Track: {}".format(self.track_name_lineedit.text()))
 
     def on_instrument_change(self, selected_instrument):
         if not self.suppress_osc:
@@ -5667,7 +5667,7 @@ class seq_track:
         f_index = self.instrument_combobox.currentIndex()
         if f_index == 0:
             pass
-        global_open_inst_ui(self.track_number, f_index, "MIDI Track: " + str(self.track_name_lineedit.text()) )
+        global_open_inst_ui(self.track_number, f_index, "MIDI Track: {}".format(self.track_name_lineedit.text()))
 
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
@@ -5984,7 +5984,7 @@ class transport_widget:
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_tempo(a_tempo)
             this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.commit("Set project tempo to " + str(a_tempo))
+            this_pydaw_project.commit("Set project tempo to {}".format(a_tempo))
 
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
@@ -6288,8 +6288,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_new_file = str(f_new_file)
                     if not self.check_for_empty_directory(f_new_file):
                         continue
-                    if not f_new_file.endswith("." + global_pydaw_version_string):
-                        f_new_file += "." + global_pydaw_version_string
+                    if not f_new_file.endswith(".{}".format(global_pydaw_version_string)):
+                        f_new_file += ".{}".format(global_pydaw_version_string)
                     global_close_all_plugin_windows()
                     this_pydaw_project.save_project_as(f_new_file)
                     set_window_title()
@@ -6783,7 +6783,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.setObjectName("mainwindow")
         default_stylesheet_file = "{}/lib/{}/themes/default/style.txt".format(pydaw_util.global_pydaw_install_prefix,
                                                                               global_pydaw_version_string)
-        self.user_style_file = global_pydaw_home + "/default-style.txt"
+        self.user_style_file = "{}/default-style.txt".format(global_pydaw_home)
         if os.path.isfile(self.user_style_file):
             f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
             if os.path.isfile(f_current_style_file_text):
@@ -6952,7 +6952,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         try:
             self.osc_server = liblo.Server(30321)
         except liblo.ServerError as err:
-            print(("Error creating OSC server:  " + str(err)))
+            print("Error creating OSC server: {}".format(err))
             self.osc_server = None
         if self.osc_server is not None:
             print((self.osc_server.get_url()))
@@ -7084,10 +7084,10 @@ def pydaw_load_controller_maps():
         global_cc_names[k].sort()
 
 def pydaw_get_cc_map(a_name):
-    return pydaw_cc_map.from_str(pydaw_read_file_text(global_cc_map_folder + "/" + a_name))
+    return pydaw_cc_map.from_str(pydaw_read_file_text("{}/{}".format(global_cc_map_folder, a_name)))
 
 def pydaw_save_cc_map(a_name, a_map):
-    pydaw_write_file_text(global_cc_map_folder + "/" + str(a_name), str(a_map))
+    pydaw_write_file_text("{}/{}".format(global_cc_map_folder, a_name), str(a_map))
 
 class pydaw_cc_map_editor:
     def add_map(self, a_item):
@@ -7283,7 +7283,7 @@ class pydaw_cc_map_editor:
         f_local_dir = global_pydaw_home
         if not os.path.isdir(f_local_dir):
             os.mkdir(f_local_dir)
-        if not os.path.isfile(global_cc_map_folder + "/default"):
+        if not os.path.isfile("{}/default".format(global_cc_map_folder)):
             pydaw_save_cc_map("default", pydaw_cc_map())
         self.current_map_name = "default"
         self.cc_maps_list = os.listdir(global_cc_map_folder)
@@ -7328,9 +7328,9 @@ class pydaw_cc_map_editor:
         f_row_pos = 0
         for k, v in list(f_map.map.items()):
             if k < 10:
-                f_num = "00" + str(k)
+                f_num = "00{}".format(k)
             elif k < 100:
-                f_num = "0" + str(k)
+                f_num = "0{}".format(k)
             else:
                 f_num = str(k)
             self.cc_table.setItem(f_row_pos, 0, QtGui.QTableWidgetItem(f_num))
@@ -7489,7 +7489,7 @@ class a_b_widget:
                 this_transport.set_pos_in_seconds(f_pos)
 
 def set_default_project(a_project_path):
-    f_def_file = global_pydaw_home + "/last-project.txt"
+    f_def_file = "{}/last-project.txt".format(global_pydaw_home)
     f_handle = open(f_def_file, 'w')
     f_handle.write(str(a_project_path))
     f_handle.close()
@@ -7580,7 +7580,8 @@ this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
 app = QtGui.QApplication(sys.argv)
 
-global_cc_map_folder = global_pydaw_home + "/cc_maps"
+global_cc_map_folder = "{}/cc_maps".format(global_pydaw_home)
+
 if not os.path.isdir(global_cc_map_folder):
     os.makedirs(global_cc_map_folder)
 
@@ -7758,15 +7759,15 @@ this_item_editor.cc_auto_viewers[2].set_cc_num(3)
 
 # ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
-f_def_file = global_pydaw_home + "/last-project.txt"
+f_def_file = "{}/last-project.txt".format(global_pydaw_home)
 if os.path.exists(f_def_file):
     f_handle = open(f_def_file, 'r')
     default_project_file = f_handle.read()
     f_handle.close()
     if not os.path.exists(default_project_file):
-        default_project_file = global_pydaw_home + "/default-project/default." + global_pydaw_version_string
+        default_project_file = "{}/default-project/default.{}".format(global_pydaw_home, global_pydaw_version_string)
 else:
-    default_project_file = global_pydaw_home + "/default-project/default." + global_pydaw_version_string
+    default_project_file = "{}/default-project/default.{}".format(global_pydaw_home, global_pydaw_version_string)
 if os.path.exists(default_project_file):
     global_open_project(default_project_file, a_wait=False)
 else:

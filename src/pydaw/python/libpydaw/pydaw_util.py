@@ -29,18 +29,18 @@ global_pydaw_with_audio = True
 if "src/pydaw/python/" in __file__:
     global_pydaw_install_prefix = "/usr"
 else:
-    global_pydaw_install_prefix = os.path.abspath( os.path.dirname(__file__) + "/../../../../..")
+    global_pydaw_install_prefix = "{}/../../../../..".format(os.path.abspath( os.path.dirname(__file__)))
 
 def pydaw_set_bin_path():
     global global_pydaw_bin_path
-    global_pydaw_bin_path = "%s/bin/%s-engine" % (global_pydaw_install_prefix, global_pydaw_version_string)
+    global_pydaw_bin_path = "{}/bin/{}-engine".format(global_pydaw_install_prefix, global_pydaw_version_string)
 
 def pydaw_escape_stylesheet(a_stylesheet, a_path):
     f_dir = os.path.dirname(str(a_path))
     f_result = a_stylesheet.replace("$STYLE_FOLDER", f_dir)
     return f_result
 
-print(("\n\n\ninstall prefix:  %s\n\n\n" % (global_pydaw_install_prefix,)))
+print(("\n\n\ninstall prefix:  {}\n\n\n".format(global_pydaw_install_prefix,)))
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
@@ -48,7 +48,7 @@ def pydaw_which(a_file):
     """ Python equivalent of the UNIX "which" command """
     f_path_arr = os.getenv("PATH").split(":")
     for f_path in f_path_arr:
-        f_file_path = "%s/%s" % (f_path, a_file,)
+        f_file_path = "{}/{}".format(f_path, a_file,)
         if os.path.exists(f_file_path) and not os.path.isdir(f_file_path):
             return f_file_path
     return None
@@ -58,7 +58,7 @@ if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query") is not None:
     try:
         os.system("xfconf-query -c xfce4-panel -p /panels/panel-2/autohide -s true --create -t bool")
     except Exception as ex:
-        print("Exception while trying to set autohide for XFCE-Panel:\n%s" % (ex,))
+        print("Exception while trying to set autohide for XFCE-Panel:\n{}".format(ex,))
 
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
@@ -83,14 +83,14 @@ def case_insensitive_path(a_path):
         f_path_arr = f_path.split("/")
         f_path = ""
         for f_dir in f_path_arr:
-            if os.path.exists("%s/%s" % (f_path, f_dir)):
-                f_path = "%s/%s" % (f_path, f_dir)
+            if os.path.exists("{}/{}".format(f_path, f_dir)):
+                f_path = "{}/{}".format(f_path, f_dir)
             else:
                 f_found = False
                 for f_real_dir in os.listdir(f_path):
                     if f_dir.lower() == f_real_dir.lower():
                         f_found = True
-                        f_path = "%s/%s" % (f_path, f_real_dir)
+                        f_path = "{}/{}".format(f_path, f_real_dir)
                         break
                 if not f_found:
                     assert(False)
@@ -169,7 +169,7 @@ def pydaw_gen_uid():
 def note_num_to_string(a_note_num):
     f_note = int(a_note_num) % 12
     f_octave = (int(a_note_num) // 12) - 2
-    return int_to_note_array[f_note] + str(f_octave)
+    return "{}{}".format(int_to_note_array[f_note], f_octave)
 
 def string_to_note_num(a_str):
     f_str = str(a_str).lower()
@@ -212,7 +212,7 @@ def int_to_bool(a_int):
 def print_sorted_dict(a_dict):
     """ Mostly intended for printing locals() and globals() """
     for k in sorted(list(a_dict.keys())):
-            print("%s : %s" % (k, a_dict[k]))
+            print("{} : {}".format(k, a_dict[k]))
 
 def time_quantize_round(a_input):
     """Properly quantize time values from QDoubleSpinBoxes that measure beats"""
@@ -245,12 +245,12 @@ def pydaw_wait_for_finished_file(a_file):
                 os.remove(a_file)
                 break
             except:
-                print("pydaw_wait_for_finished_file:  Exception when deleting %s" % (a_file,))
+                print("pydaw_wait_for_finished_file:  Exception when deleting {}".format(a_file))
         else:
             sleep(0.1)
 
 def pydaw_get_wait_file_path(a_file):
-    f_wait_file = "%s.finished" % (a_file,)
+    f_wait_file = "{}.finished".format(a_file,)
     if os.path.isfile(f_wait_file):
         os.remove(f_wait_file)
     return f_wait_file
@@ -262,7 +262,7 @@ def pydaw_set_live_mode_off():
     global_is_live_mode = False
     global_home = os.path.expanduser("~")
     global_default_project_folder = global_home
-    global_pydaw_home = "%s/%s" % (os.path.expanduser("~"), global_pydaw_version_string)
+    global_pydaw_home = "{}/{}".format(os.path.expanduser("~"), global_pydaw_version_string)
     if not os.path.isdir(global_pydaw_home):
         os.mkdir(global_pydaw_home)
 
@@ -283,29 +283,29 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
     else: #presumed to be Ubuntu or Ubuntu-like.
         global_home = "/media/pydaw_data"
     if not os.path.isdir(global_home):
-        print("Attempting to mount %s.  If this causes the GUI to hang, please try mounting the pydaw_data "
-        "partition before starting" % (global_home,))
+        print("Attempting to mount {}.  If this causes the GUI to hang, please try mounting the pydaw_data "
+        "partition before starting".format(global_home))
         try:
-            os.system("%s mkdir %s" % (global_pydaw_sudo_command, global_home))
-            os.system("%s mount /dev/disk/by-label/pydaw_data %s" % (global_pydaw_sudo_command, global_home))
+            os.system("{} mkdir {}".format(global_pydaw_sudo_command, global_home))
+            os.system("{} mount /dev/disk/by-label/pydaw_data {}".format(global_pydaw_sudo_command, global_home))
         except:
             print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive "
             "or permissions")
 
     global_is_live_mode = True
-    global_pydaw_home = "%s/%s" % (global_home, global_pydaw_version_string)
-    global_default_project_folder = "%s/%s_projects" % (global_home, global_pydaw_version_string)
+    global_pydaw_home = "{}/{}".format(global_home, global_pydaw_version_string)
+    global_default_project_folder = "{}/{}_projects".format(global_home, global_pydaw_version_string)
 
     try:
         if not os.path.isdir(global_pydaw_home):
-            print("%s did not exist, attempting to create." % (global_pydaw_home,))
-            os.system("%s mkdir '%s'" % (global_pydaw_sudo_command, global_pydaw_home,))
-            os.system("%s chmod -R 777 '%s'" % (global_pydaw_sudo_command, global_pydaw_home,))
+            print("{} did not exist, attempting to create.".format(global_pydaw_home))
+            os.system("{} mkdir '{}'".format(global_pydaw_sudo_command, global_pydaw_home))
+            os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command, global_pydaw_home))
         if not os.path.isdir(global_default_project_folder):
-            print("%s did not exist, attempting to create." % (global_default_project_folder,))
-            os.system("%s mkdir '%s'" % (global_pydaw_sudo_command, global_default_project_folder,))
-            os.system("%s chmod -R 777 '%s'" % (global_pydaw_sudo_command, global_default_project_folder,))
-            pydaw_write_file_text("%s/README.txt" % (global_default_project_folder,),
+            print("{} did not exist, attempting to create.".format(global_default_project_folder))
+            os.system("{} mkdir '{}'".format(global_pydaw_sudo_command, global_default_project_folder))
+            os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command, global_default_project_folder))
+            pydaw_write_file_text("{}/README.txt".format(global_default_project_folder,),
             "Create subfolders in here and save your live projects to those subfolders.  "
             "Saving in the regular filesystem will not persist between live sessions.")
     except Exception as ex:
@@ -316,10 +316,10 @@ else:
     pydaw_set_live_mode_off()
 
 
-global_bookmarks_file_path = "%s/file_browser_bookmarks.txt" % (global_pydaw_home,)
+global_bookmarks_file_path = "{}/file_browser_bookmarks.txt".format(global_pydaw_home)
 
 global_device_val_dict = {}
-global_pydaw_device_config = "%s/device.txt" % (global_pydaw_home,)
+global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
 
 def pydaw_read_device_config():
     global global_pydaw_bin_path, global_device_val_dict, global_pydaw_is_sandboxed, global_pydaw_with_audio
@@ -341,7 +341,7 @@ def pydaw_read_device_config():
             if int(global_device_val_dict["audioEngine"]) == 0:
                 global_pydaw_bin_path += "-no-root"
             elif int(global_device_val_dict["audioEngine"]) == 2:
-                global_pydaw_bin_path = "%s/bin/%s" % (global_pydaw_install_prefix, global_pydaw_version_string)
+                global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix, global_pydaw_version_string)
                 global_pydaw_is_sandboxed = True
             elif int(global_device_val_dict["audioEngine"]) == 3:
                 global_pydaw_bin_path += "-dbg"
@@ -352,7 +352,7 @@ def pydaw_read_device_config():
             elif int(global_device_val_dict["audioEngine"]) == 6:
                 global_pydaw_with_audio = False
                 global_pydaw_bin_path = None
-    print(("global_pydaw_bin_path == %s" % (global_pydaw_bin_path,)))
+    print("global_pydaw_bin_path == {}".format(global_pydaw_bin_path))
 
 pydaw_read_device_config()
 
@@ -366,7 +366,7 @@ def global_get_file_bookmarks():
             f_line_arr = f_line.split("|||")
             if len(f_line_arr) < 2:
                 break
-            f_full_path = f_line_arr[1] + "/" + f_line_arr[0]
+            f_full_path = "{}/{}".format(f_line_arr[1], f_line_arr[0])
             if os.path.isdir(f_full_path):
                 f_result[f_line_arr[0]] = f_line_arr[1]
             else:
@@ -377,7 +377,7 @@ def global_get_file_bookmarks():
 def global_write_file_bookmarks(a_dict):
     f_result = ""
     for k, v in list(a_dict.items()):
-        f_result += str(k) + "|||" + str(v) + "\n"
+        f_result += "{}|||{}\n".format(k, v)
     pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
 
 def global_add_file_bookmark(a_folder):
@@ -419,7 +419,7 @@ class sfz_file:
     def __init__(self, a_file_path):
         self.path = str(a_file_path)
         if not os.path.exists(self.path):
-            raise sfz_exception("%s does not exist." % (self.path,))
+            raise sfz_exception("{} does not exist.".format(self.path))
         f_file_text = pydaw_read_file_text(self.path)
         # In the wild, people can and often do put tags and opcodes on the same
         # line, move all tags and opcodes to their own line
@@ -443,9 +443,9 @@ class sfz_file:
                         f_value = f_line_arr[f_i]
                     else:
                         f_value = f_line_arr[f_i].strip().rsplit(" ", 1)[0]
-                    f_file_text_new += "\n%s=%s\n" % (f_opcode, f_value)
+                    f_file_text_new += "\n{}={}\n".format(f_opcode, f_value)
             else:
-                f_file_text_new += "%s\n" % (f_line,)
+                f_file_text_new += "{}\n".format(f_line,)
 
         f_file_text = f_file_text_new
         self.adjusted_file_text = f_file_text_new
@@ -499,13 +499,13 @@ class sfz_file:
                     f_key, f_value = f_line.split("=")
                     f_value = string_to_note_num(f_value)
                 except Exception as ex:
-                    print("ERROR:  %s" % (f_line,))
-                    raise sfz_exception("Error parsing key/value pair\n%s\n%s" % (f_line, ex))
+                    print("ERROR:  {}".format(f_line))
+                    raise sfz_exception("Error parsing key/value pair\n{}\n{}".format(f_line, ex))
                 if f_key.lower() == "sample" and not f_value.lower().strip().endswith(".wav"):
-                    raise sfz_exception("%s not supported, only .wav supported." % (f_value,))
+                    raise sfz_exception("{} not supported, only .wav supported.".format(f_value))
                 f_current_object.dict[f_key.lower()] = f_value
                 if f_current_mode == 1:
-                    f_current_object.set_from_group([f_global_settings, f_current_group,])
+                    f_current_object.set_from_group([f_global_settings, f_current_group])
 
         for f_region in f_samples_list:
             if "sample" in f_region.dict:
@@ -515,5 +515,5 @@ class sfz_file:
         #return self.adjusted_file_text
         f_result = ""
         for f_sample in self.samples:
-            f_result += "\n\n%s\n\n" % (f_sample,)
+            f_result += "\n\n{}\n\n".format(f_sample)
         return f_result
