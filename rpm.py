@@ -17,48 +17,47 @@ import os
 os.system("./src.sh")
 
 global_pydaw_version_string = "pydaw4"
-global_pydaw_version_num = open("src/%s-version.txt" % (global_pydaw_version_string,)).read().strip()
+global_pydaw_version_num = open("src/{}-version.txt".format(global_pydaw_version_string)).read().strip()
 global_version_fedora = global_pydaw_version_num.replace("-", ".")
-global_pydaw_package_name = "%s-%s" % (global_pydaw_version_string, global_version_fedora,)
+global_pydaw_package_name = "{}-{}".format(global_pydaw_version_string, global_version_fedora,)
 
 global_home = os.path.expanduser("~")
-global_specs_dir = "%s/rpmbuild/SPECS/" % (global_home,)
-global_sources_dir = "%s/rpmbuild/SOURCES/" % (global_home,)
+global_specs_dir = "{}/rpmbuild/SPECS/".format(global_home)
+global_sources_dir = "{}/rpmbuild/SOURCES/".format(global_home)
 
-global_tarball_name = "%s-source-code.tar.gz"  % (global_pydaw_package_name,)
-global_tarball_url = "http://sourceforge.net/projects/libmodsynth/files/pydaw4/linux/%s" % (global_tarball_name,)
+global_tarball_name = "{}-source-code.tar.gz" .format(global_pydaw_package_name,)
+global_tarball_url = "http://sourceforge.net/projects/libmodsynth/files/pydaw4/linux/{}".format(global_tarball_name)
 
-os.system('cp "%s" "%s"' % (global_tarball_name, global_sources_dir))
+os.system('cp "{}" "{}"'.format(global_tarball_name, global_sources_dir))
 
-global_spec_file = "%s.spec" % (global_pydaw_version_string,)
+global_spec_file = "{}.spec".format(global_pydaw_version_string,)
 
-global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "r")
+global_rpmmacros_file = open("{}/.rpmmacros".format(global_home), "r")
 global_macro_text = global_rpmmacros_file.read()
 
 # Creating separate debug packages screw up the inclusion of both debug,
 # non-debug and setuid binaries, so we need to force rpmbuild not to strip
 if not "%debug_package %{nil}" in global_macro_text:
     global_rpmmacros_file.close()
-    global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "a")
+    global_rpmmacros_file = open("{}/.rpmmacros".format(global_home), "a")
     global_rpmmacros_file.write("\n%debug_package %{nil}\n")
 else:
     global_macro_text = None
 
 global_rpmmacros_file.close()
 
-# Escaping/substitution is done a little differently to avoid chaos with the
-# excessive use of the '%' char in .spec files
+
 f_spec_template = \
 """
-Name:           %s
-Version:        %s""" % (global_pydaw_version_string, global_version_fedora) + \
-"""
+Name:           {}
+Version:        {}
+
 Release:        1%{?dist}
 Summary:        A digital audio workstation with a full suite of instrument and effects plugins.
 
 License:        GPLv3
 URL:            http://sourceforge.net/projects/libmodsynth/
-Source0:        """ + global_tarball_url + """
+Source0:        {}
 
 Requires:      python3-PyQt4 gcc alsa-lib-devel liblo-devel \
 libsndfile-devel gcc-c++ git python3-numpy python3-scipy \
@@ -193,18 +192,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc
 
-"""
+""".format(global_pydaw_version_string, global_version_fedora, global_tarball_url)
 
 f_spec_file = open(global_spec_file, "w")
 f_spec_file.write(f_spec_template)
 f_spec_file.close()
 
-os.system('cp "%s" "%s"' % (global_spec_file, global_specs_dir))
+os.system('cp "{}" "{}"'.format(global_spec_file, global_specs_dir))
 
 os.chdir(global_specs_dir)
-os.system("rpmbuild -ba %s" % (global_spec_file,))
+os.system("rpmbuild -ba {}".format(global_spec_file))
 
 #Restore the ~/.rpmmacros file to it's original state.
 if global_macro_text is not None:
-    global_rpmmacros_file = open("%s/.rpmmacros" % (global_home,), "w")
+    global_rpmmacros_file = open("{}/.rpmmacros".format(global_home), "w")
     global_rpmmacros_file.write(global_macro_text)
