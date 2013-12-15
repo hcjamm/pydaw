@@ -29,7 +29,7 @@ class pydaw_device_dialog:
 
 
     def show_device_dialog(self, a_msg=None, a_notify=False):
-        f_stylesheet_file = "%s/lib/%s/themes/default/style.txt" % (pydaw_util.global_pydaw_install_prefix,
+        f_stylesheet_file = "{}/lib/{}/themes/default/style.txt".format(pydaw_util.global_pydaw_install_prefix,
                                                                     pydaw_util.global_pydaw_version_string)
         f_stylesheet = pydaw_util.pydaw_read_file_text(f_stylesheet_file)
         f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet, f_stylesheet_file)
@@ -71,7 +71,7 @@ class pydaw_device_dialog:
         f_audio_engine_combobox = QtGui.QComboBox()
         f_audio_engine_combobox.addItems(["Normal", "Elevated", "Elevated(sandbox)", "Debug", "GDB", "Valgrind",
                                           "GUI Only", "No Audio"])
-        f_audio_engine_combobox.setToolTip( \
+        f_audio_engine_combobox.setToolTip(
 """
 Normal:  Run the audio engine without elevated privileges.  This generally works
 well enough, but may require higher latency settings.
@@ -130,7 +130,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_ok_cancel_layout.addWidget(f_cancel_button)
 
-        f_portaudio_so_path = "%s/libportaudio.so" % (os.path.dirname(os.path.abspath(__file__)),)
+        f_portaudio_so_path = "{}/libportaudio.so".format(os.path.dirname(os.path.abspath(__file__)))
         ctypes.cdll.LoadLibrary(f_portaudio_so_path)
         f_pyaudio = ctypes.CDLL(f_portaudio_so_path)
         f_pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(portaudio.PaDeviceInfo)
@@ -143,7 +143,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         f_count = f_pyaudio.Pa_GetHostApiCount()
 
         f_count = f_pyaudio.Pa_GetDeviceCount()
-        print(("f_count == %s" % (f_count,)))
+        print(("f_count == {}".format(f_count,)))
 
         f_result_dict = {}
         f_name_to_index = {}
@@ -151,9 +151,9 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
 
         for i in range(f_count):
             f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
-            print(("\nDevice Index: %s" % (i,)))
+            print("\nDevice Index: {}".format(i))
             f_dev_name = f_dev.contents.name.decode("utf-8")
-            print(("Name : %s" % (f_dev_name,)))
+            print("Name : {}".format(f_dev_name))
             f_name_to_index[f_dev_name] = i
             f_result_dict[f_dev_name] = f_dev.contents
             f_audio_device_names.append(f_dev_name)
@@ -167,9 +167,8 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         for loop in range(pypm.Pm_CountDevices()):
             f_midi_device = pypm.Pm_GetDeviceInfo(loop)
             f_midi_device_name = f_midi_device.contents.name.decode("utf-8")
-            print(("DeviceID: %s Name: '%s' Input?: %s Output?: %s Opened: %s " %
-            (loop, f_midi_device_name, f_midi_device.contents.input, f_midi_device.contents.output,
-             f_midi_device.contents.opened)))
+            print("DeviceID: {} Name: '{}' Input?: {} Output?: {} Opened: {} ".format(loop, f_midi_device_name,
+                   f_midi_device.contents.input, f_midi_device.contents.output, f_midi_device.contents.opened))
             if f_midi_device.contents.input == 1:
                 f_midi_in_device_combobox.addItem(f_midi_device_name)
 
@@ -177,7 +176,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
             f_sample_rate = float(str(f_samplerate_combobox.currentText()))
             f_buffer_size = float(str(f_buffer_size_combobox.currentText()))
             f_latency = (f_buffer_size / f_sample_rate) * 1000.0
-            f_latency_label.setText(str(round(f_latency, 1)) + " ms")
+            f_latency_label.setText("{} ms".format(round(f_latency, 1)))
 
         f_samplerate_combobox.currentIndexChanged.connect(latency_changed)
         f_buffer_size_combobox.currentIndexChanged.connect(latency_changed)
@@ -213,14 +212,14 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
                     if not f_supported:
                         raise Exception()
                 f_file = open(pydaw_util.global_pydaw_device_config, "w")
-                f_file.write("name|%s\n" % (self.device_name,))
-                f_file.write("bufferSize|%s\n" % (f_buffer_size,))
-                f_file.write("sampleRate|%s\n" % (f_samplerate,))
-                f_file.write("audioEngine|%s\n" % (f_audio_engine,))
-                f_file.write("threads|%s\n" % (f_worker_threads,))
-                f_file.write("threadAffinity|%s\n" % (f_thread_affinity,))
-                f_file.write("performance|%s\n" % (f_performance,))
-                f_file.write("midiInDevice|%s\n" % (f_midi_in_device,))
+                f_file.write("name|{}\n".format(self.device_name))
+                f_file.write("bufferSize|{}\n".format(f_buffer_size))
+                f_file.write("sampleRate|{}\n".format(f_samplerate))
+                f_file.write("audioEngine|{}\n".format(f_audio_engine))
+                f_file.write("threads|{}\n".format(f_worker_threads))
+                f_file.write("threadAffinity|{}\n".format(f_thread_affinity))
+                f_file.write("performance|{}\n".format(f_performance))
+                f_file.write("midiInDevice|{}\n".format(f_midi_in_device))
 
                 f_file.write("\\")
                 f_file.close()
@@ -229,13 +228,13 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
 
                 if a_notify:
                     QtGui.QMessageBox.warning(f_window, "Settings changed",
-                      "Hardware setttings have been changed, and will be applied next time you start PyDAW.")
+                      "Hardware settings have been changed, and will be applied next time you start PyDAW.")
                 time.sleep(1.0)
                 f_window.close()
             except Exception as ex:
-                QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n%s\n\n"
+                QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n{}\n\n"
                         "This may (or may not) be because the device already open by PyDAW or "
-                        "another application such as a DAW, or Jack." % (ex,))
+                        "another application such as a DAW, or Jack.".format(ex))
 
         def on_cancel(a_self=None):
             f_window.close()
