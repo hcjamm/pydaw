@@ -15,6 +15,6 @@ GNU General Public License for more details.
 
 import os
 
-rpm_dir = "%s/rpmbuild/RPMS/x86_64/" % (os.path.expanduser("~"))
+rpm_dir = "{}/rpmbuild/RPMS/x86_64/".format(os.path.expanduser("~"))
 
-os.system('cp %s/pydaw*rpm ..' % (rpm_dir,))
+os.system('cp {}/pydaw*rpm ..'.format(rpm_dir))
