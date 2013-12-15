@@ -17,10 +17,10 @@ def pydaw_pitch_to_hz(a_pitch):
     return (440.0 * pow(2.0,(a_pitch - 57.0) * 0.0833333))
 
 def pydaw_hz_to_pitch(a_hz):
-    return "%sf" % round((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0, 3)
+    return "{}f".format(round((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0, 3))
 
 def pydaw_db_to_lin(a_value):
-    return "%sf" % round(pow(10.0, (0.05 * a_value)), 3)
+    return "{}f".format(round(pow(10.0, (0.05 * a_value)), 3))
 
 f_formant_dict = {
     "soprano a":((800, 1150, 2900, 3900, 4950), (0, -6, -32, -20, -50),  (80, 90, 120, 130, 140)),
@@ -50,19 +50,19 @@ f_formant_dict = {
     "bass u":((350, 600, 2400, 2675, 2950), (0, -20, -32, -28, -36), (40, 80, 100, 120, 120))
 }
 
-print(("static float pydaw_formant_table[%i][3][5] = \n{" % (len(f_formant_dict),)))
+print("static float pydaw_formant_table[{}][3][5] = \n{{".format(len(f_formant_dict)))
 
 for k in sorted(list(f_formant_dict.keys())):
     v = f_formant_dict[k]
     f_str = "{{"
     for f_val in v[0]:
-        f_str += "%s, " % (pydaw_hz_to_pitch(f_val),)
+        f_str += "{}, ".format(pydaw_hz_to_pitch(f_val))
     f_str += "}, {"
     for f_val in v[1]:
-        f_str += "%s, " % (pydaw_db_to_lin(f_val),)
+        f_str += "{}, ".format(pydaw_db_to_lin(f_val))
     f_str += "}, {"
     for f_val in v[2]:
-        f_str += "%s, " % (round((-140.0 / f_val) + 1.0, 3),)
+        f_str += "{}, ".format(round((-140.0 / f_val) + 1.0, 3))
     f_str += "}},"
-    print(("\t%s //%s"  % (f_str, k,)))
+    print(("\t{} //{}".format(f_str, k,)))
 print("}")
