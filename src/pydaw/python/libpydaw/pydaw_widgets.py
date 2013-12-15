@@ -632,8 +632,7 @@ class pydaw_file_browser_widget:
         self.bookmark_layout.addWidget(self.bookmarks_listWidget)
         self.bookmarks_button_widget = QtGui.QWidget()
         self.bookmarks_hlayout0 =  QtGui.QHBoxLayout(self.bookmarks_button_widget)
-        self.bookmarks_delete_button =  QtGui.QPushButton()
-        self.bookmarks_delete_button.setText(("Delete"))
+        self.bookmarks_delete_button =  QtGui.QPushButton("Delete")
         self.bookmarks_hlayout0.addWidget(self.bookmarks_delete_button)
         self.bookmarks_delete_button.pressed.connect(self.bookmark_delete_button_pressed)
         self.bookmark_layout.addWidget(self.bookmarks_button_widget)
@@ -703,9 +702,11 @@ class pydaw_file_browser_widget:
         f_items = self.bookmarks_listWidget.selectedItems()
         if len(f_items) > 0:
             pydaw_util.global_delete_file_bookmark(str(f_items[0].text()))
+            self.bookmarks_listWidget.clear()
+            self.open_bookmarks()
 
     def files_selected(self):
-        f_dir_path = "{}/".format(self.folder_path_lineedit.text(),)
+        f_dir_path = "{}/".format(self.folder_path_lineedit.text())
         f_result = []
         for f_item in self.files_listWidget.selectedItems():
             f_result.append("{}{}".format(f_dir_path, f_item.text()))
