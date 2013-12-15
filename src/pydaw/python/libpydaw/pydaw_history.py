@@ -25,22 +25,24 @@ from PyQt4 import QtGui, QtCore
 class pydaw_history:
     def __init__(self, a_project_dir):
         self.project_dir = a_project_dir
-        self.db_file = a_project_dir + "/history.db"
+        self.db_file = "{}/history.db".format(a_project_dir)
 
         if not os.path.isfile(self.db_file):
             f_conn = sqlite3.connect(self.db_file)
             f_cursor = f_conn.cursor()
             f_cursor.execute("CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text)")
-            f_cursor.execute("CREATE TABLE pydaw_diffs (commit_timestamp integer, commit_file text, commit_folder text, text_old text, text_new text, existed integer)")
+            f_cursor.execute("CREATE TABLE pydaw_diffs "
+            "(commit_timestamp integer, commit_file text, commit_folder text, text_old text, "
+            "text_new text, existed integer)")
             f_conn.commit()
             f_conn.close()
 
     def get_latest_version_of_file(self, a_folder, a_file):
-        f_query = "SELECT text_new, existed FROM pydaw_diffs WHERE commit_file = '" + str(a_file) + \
-        "' AND commit_folder = '" + str(a_folder) + "' ORDER BY commit_timestamp DESC LIMIT 1"
+        f_query = ("SELECT text_new, existed FROM pydaw_diffs WHERE commit_file = '{}' "
+        "AND commit_folder = '{}' ORDER BY commit_timestamp DESC LIMIT 1").format(a_file, a_folder)
         f_query_result = self.db_exec(f_query, True)
         if len(f_query_result) == 0:
-            print(("get_latest_version_of_file:  len(f_query_result) == 0 for \n\n%s\n\n" % (f_query,)))
+            print("get_latest_version_of_file:  len(f_query_result) == 0 for \n\n{}\n\n".format(f_query))
             return None
         else:
             return f_query_result[0][0]
@@ -50,7 +52,8 @@ class pydaw_history:
         f_cursor = f_conn.cursor()
         f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)", (a_commit.timestamp, a_commit.message))
         for f_file in a_commit.files:
-            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?, ?)", (a_commit.timestamp, f_file.file_name, f_file.folder, f_file.old_text, f_file.new_text, f_file.existed))
+            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?, ?)", (a_commit.timestamp,
+                             f_file.file_name, f_file.folder, f_file.old_text, f_file.new_text, f_file.existed))
         f_conn.commit()
         f_conn.close()
 
@@ -61,12 +64,14 @@ class pydaw_history:
         return self.db_exec(f_query, True)
 
     def revert_to(self, a_timestamp):
-        f_query = "SELECT * FROM pydaw_diffs WHERE commit_timestamp > " + str(a_timestamp) + " ORDER BY commit_timestamp DESC"
+        f_query = ("SELECT * FROM pydaw_diffs WHERE commit_timestamp > {} "
+                   "ORDER BY commit_timestamp DESC").format(a_timestamp)
         f_rows = self.db_exec(f_query, True)
         f_diff_arr = []
         for f_row in f_rows:
-            f_diff_arr.append(pydaw_history_file(f_row[2], f_row[1], f_row[3], f_row[4], f_row[5])) #deliberately crossing up the old and new text
-        f_commit = pydaw_history_commit(f_diff_arr, "Revert to commit " + str(a_timestamp))
+            f_diff_arr.append(pydaw_history_file(f_row[2], f_row[1], f_row[3],
+                                                 f_row[4], f_row[5])) #deliberately crossing up the old and new text
+        f_commit = pydaw_history_commit(f_diff_arr, "Revert to commit {}".format(a_timestamp))
         f_commit.redo(self.project_dir)
         self.commit(f_commit)
 
@@ -109,7 +114,8 @@ are differences, that indicates a bug in PyDAW.
                         f_history_arr = []
                     else:
                         f_history_arr = f_history_text.split("\n")
-                    for f_line in difflib.unified_diff(f_current_text.split("\n"), f_history_arr, f_current_file, "History version"):
+                    for f_line in difflib.unified_diff(f_current_text.split("\n"), f_history_arr,
+                                                       f_current_file, "History version"):
                         f_result += f_line + "\n"
         return f_result
 
@@ -126,7 +132,8 @@ class pydaw_history_file:
         """ Generate a human-readable summary of the changes """
         f_file_name = self.folder + "/" + self.file_name
         f_result = "\n\n" + f_file_name + ", existed: " + str(self.existed) + "\n"
-        for f_line in difflib.unified_diff(self.old_text.split("\n"), self.new_text.split("\n"), f_file_name, f_file_name):
+        for f_line in difflib.unified_diff(self.old_text.split("\n"), self.new_text.split("\n"),
+                                           f_file_name, f_file_name):
             f_result += f_line + "\n"
         return f_result
 
@@ -187,10 +194,12 @@ class pydaw_history_log_widget(QtGui.QWidget):
         #TODO:  Create a unified diff of all files...
         f_timestamp = int(self.table_widget.item(self.table_widget.currentRow(), 0).text())
         f_result = ""
-        f_rows = self.history_db.db_exec("SELECT * FROM pydaw_diffs WHERE commit_timestamp = " + str(f_timestamp), True)
+        f_rows = self.history_db.db_exec("SELECT * FROM pydaw_diffs WHERE commit_timestamp = {}".format(f_timestamp),
+                                         True)
         for f_row in f_rows:
             f_file_name = str(f_row[2]) + "/" + str(f_row[1])
-            for f_line in difflib.unified_diff(str(f_row[3]).split("\n"), str(f_row[4]).split("\n"), f_file_name, f_file_name):
+            for f_line in difflib.unified_diff(str(f_row[3]).split("\n"), str(f_row[4]).split("\n"),
+                                               f_file_name, f_file_name):
                 f_result += f_line + "\n"
         f_dialog = QtGui.QDialog(self)
         f_dialog.setWindowTitle("PyDAW Diff")
@@ -215,7 +224,8 @@ if __name__ == "__main__":
         import sys
         app = QtGui.QApplication(sys.argv)
         f_window = QtGui.QWidget()
-        f_file = QtGui.QFileDialog.getOpenFileName(caption='Open Project', filter=pydaw_util.global_pydaw_file_type_string)
+        f_file = QtGui.QFileDialog.getOpenFileName(caption='Open Project',
+                                                   filter=pydaw_util.global_pydaw_file_type_string)
         if f_file is not None:
             f_file = str(f_file)
             if f_file != "":
