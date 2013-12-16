@@ -136,6 +136,8 @@ def pydaw_set_tooltips_enabled(a_enabled):
     """ Set extensive tooltips as an alternative to maintaining a separate user manual """
     global global_tooltips_enabled
     global_tooltips_enabled = a_enabled
+    for f_automation_editor in global_automation_editors:
+            f_automation_editor.set_tooltip(a_enabled)
     if a_enabled:
         pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "True")
         this_song_editor.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of "
@@ -4185,6 +4187,7 @@ global_automation_gradient = QtGui.QLinearGradient(0, 0, global_automation_point
 global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
+
 class automation_item(QtGui.QGraphicsEllipseItem):
     def __init__(self, a_time, a_value, a_cc, a_view, a_is_cc, a_item_index):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_automation_point_diameter,
@@ -4270,6 +4273,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         global_save_and_reload_items()
         QtGui.QApplication.restoreOverrideCursor()
 
+global_automation_editors = []
+
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16, a_is_cc=True):
         self.is_cc = a_is_cc
@@ -4301,6 +4306,19 @@ class automation_viewer(QtGui.QGraphicsView):
         self.last_scale = 1.0
         self.plugin_index = 0
         self.last_x_scale = 1.0
+        global_automation_editors.append(self)
+
+    def set_tooltip(self, a_enabled=False):
+        if a_enabled:
+            if self.is_cc:
+                f_start = "Select the plugin/control you wish to automate using the comboboxes below\n"
+            else:
+                f_start = ""
+            self.setToolTip("{}Draw points by double-clicking, then click the 'smooth' button to draw extra "
+            "points between them.\nClick+drag to select points\nCtrl+click+drag selected points to copy\n"
+            "press the 'delete' button to delete selected points.".format(f_start))
+        else:
+            self.setToolTip("")
 
     def prepare_to_quit(self):
         self.scene.clearSelection()
