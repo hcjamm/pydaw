@@ -2526,6 +2526,7 @@ class audio_items_viewer_widget():
         self.bookmarks_tab = QtGui.QWidget()
         self.list_bookmarks = QtGui.QListWidget()
         self.list_bookmarks.itemClicked.connect(self.bookmark_clicked)
+        self.list_bookmarks.contextMenuEvent = self.bookmark_context_menu_event
         self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
         self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
@@ -2768,6 +2769,19 @@ class audio_items_viewer_widget():
         f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
         self.set_folder(f_full_path, True)
         self.folders_tab_widget.setCurrentIndex(0)
+
+    def delete_bookmark(self):
+        f_items = self.list_bookmarks.selectedItems()
+        if len(f_items) > 0:
+            global_delete_file_bookmark(f_items[0].text())
+            self.list_bookmarks.clear()
+            self.open_bookmarks()
+
+    def bookmark_context_menu_event(self, a_event):
+        f_menu = QtGui.QMenu(self.widget)
+        f_del_action = f_menu.addAction("Delete")
+        f_del_action.triggered.connect(self.delete_bookmark)
+        f_menu.exec_(QtGui.QCursor.pos())
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
