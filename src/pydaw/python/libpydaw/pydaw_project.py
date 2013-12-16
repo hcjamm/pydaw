@@ -66,6 +66,7 @@ pydaw_file_pyinput = "default.pyinput"
 pydaw_file_pywavs = "default.pywavs"
 pydaw_file_pystretch = "default.pystretch"
 pydaw_file_pystretch_map = "map.pystretch"
+pydaw_file_notes = "notes.txt"
 
 pydaw_min_note_length = 4.0/128.0  #Anything smaller gets deleted when doing a transform
 
@@ -206,6 +207,7 @@ class pydaw_project:
         self.pystretch_file = "{}/{}".format(self.project_folder, pydaw_file_pystretch)
         self.pystretch_map_file = "{}/{}".format(self.project_folder, pydaw_file_pystretch_map)
         self.pyscale_file = "{}/default.pyscale".format(self.project_folder)
+        self.pynotes_file = "{}/{}".format(self.project_folder, pydaw_file_notes)
 
         pydaw_clear_sample_graph_cache()
 
@@ -271,6 +273,15 @@ class pydaw_project:
             if not os.path.isfile(f_path):
                 break
         return f_path
+
+    def get_notes(self):
+        if os.path.isfile(self.pynotes_file):
+            return pydaw_read_file_text(self.pynotes_file)
+        else:
+            return ""
+
+    def write_notes(self, a_text):
+        pydaw_write_file_text(self.pynotes_file, a_text)
 
     def open_stretch_dicts(self):
         self.timestretch_cache = {}

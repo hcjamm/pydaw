@@ -6644,6 +6644,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_splitter.setSizes([100, 9999])
         self.transport_splitter.setSizes([100, 9999])
 
+    def on_edit_notes(self, a_event=None):
+        QtGui.QTextEdit.leaveEvent(self.notes_tab, a_event)
+        this_pydaw_project.write_notes(self.notes_tab.toPlainText())
+
     def audio_converter_dialog(self):
         f_avconv = "avconv"
         f_lame = "lame"
@@ -6948,6 +6952,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
         self.main_tabwidget.addTab(this_ab_widget.widget, "A/B")
+
+        self.notes_tab = QtGui.QTextEdit(self)
+        self.notes_tab.setAcceptRichText(False)
+        self.notes_tab.leaveEvent = self.on_edit_notes
+        self.main_tabwidget.addTab(self.notes_tab, "Project Notes")
 
         try:
             self.osc_server = liblo.Server(30321)
@@ -7558,6 +7567,7 @@ def global_open_project(a_project_file, a_wait=True):
         this_piano_roll_editor_widget.scale_combobox.setCurrentIndex(f_scale[1])
     this_song_editor.open_first_region()
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
+    this_main_window.notes_tab.setText(this_pydaw_project.get_notes())
 
 def global_new_project(a_project_file, a_wait=True):
     global_close_all()
@@ -7575,6 +7585,7 @@ def global_new_project(a_project_file, a_wait=True):
     global_update_audio_track_comboboxes()
     set_window_title()
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
+    this_main_window.notes_tab.setText("")
 
 this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
