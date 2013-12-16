@@ -2498,7 +2498,6 @@ def global_paif_rel_callback(a_port, a_val):
 class audio_items_viewer_widget():
     def __init__(self):
         self.hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.hsplitter.setSizes([200])
         self.vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.folders_tab_widget = QtGui.QTabWidget()
         self.hsplitter.addWidget(self.folders_tab_widget)
@@ -2628,6 +2627,7 @@ class audio_items_viewer_widget():
         self.open_bookmarks()
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
+        self.hsplitter.setSizes([100, 9999])
 
     def on_filter(self):
         f_text = str(self.filter_lineedit.text()).lower().strip()
