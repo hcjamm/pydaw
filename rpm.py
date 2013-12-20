@@ -17,16 +17,18 @@ import os
 os.system("./src.sh")
 
 global_pydaw_version_string = "pydaw4"
-global_pydaw_version_num = open("src/{}-version.txt".format(global_pydaw_version_string)).read().strip()
+global_pydaw_version_num = open("src/{}-version.txt".format(
+    global_pydaw_version_string)).read().strip()
 global_version_fedora = global_pydaw_version_num.replace("-", ".")
-global_pydaw_package_name = "{}-{}".format(global_pydaw_version_string, global_version_fedora,)
+global_pydaw_package_name = "{}-{}".format(global_pydaw_version_string, global_version_fedora)
 
 global_home = os.path.expanduser("~")
 global_specs_dir = "{}/rpmbuild/SPECS/".format(global_home)
 global_sources_dir = "{}/rpmbuild/SOURCES/".format(global_home)
 
 global_tarball_name = "{}-source-code.tar.gz" .format(global_pydaw_package_name,)
-global_tarball_url = "http://sourceforge.net/projects/libmodsynth/files/pydaw4/linux/{}".format(global_tarball_name)
+global_tarball_url = "http://sourceforge.net/projects/libmodsynth/files/pydaw4/linux/{}".format(
+    global_tarball_name)
 
 os.system('cp "{}" "{}"'.format(global_tarball_name, global_sources_dir))
 

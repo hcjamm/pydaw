@@ -39,10 +39,11 @@ f_gcc = ""
 if os.path.exists("/usr/bin/gcc-4.6"):
     f_gcc = " CC=gcc-4.6 "
 else:
-    print("Did not find GCC 4.6; Early versions of GCC 4.7 and 4.8 may cause stability issues, please consider "
-          "installing GCC 4.6")
+    print("Did not find GCC 4.6; Early versions of GCC 4.7 and 4.8 may cause "
+          "stability issues, please consider installing GCC 4.6")
 
-f_build_cmd = ('make clean && make {} LDFLAGS+="-lcpufreq" CFLAGS+="-DPYDAW_CPUFREQ" pydaw_src && '
+f_build_cmd = ('make clean && make {} LDFLAGS+="-lcpufreq" '
+               'CFLAGS+="-DPYDAW_CPUFREQ" pydaw_src && '
                'make DESTDIR="{}/pydaw-build/debian" install').format(f_gcc, f_base_dir)
 
 f_version_file = "{}/{}-version.txt".format(f_base_dir, global_pydaw_version_string)
@@ -59,7 +60,8 @@ os.system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;')
 f_makefile_exit_code = os.system(f_build_cmd)
 
 if f_makefile_exit_code != 0:
-    print("Makefile exited abnormally with exit code {}, see output for error messages.".format(f_makefile_exit_code))
+    print("Makefile exited abnormally with exit code {}, "
+          "see output for error messages.".format(f_makefile_exit_code))
     print("If the build failed while compiling Portaudio, you should try this workaround:")
     print("cd pydaw/portaudio")
     print("./configure --with-jack=no --with-oss=no && make clean && make")
@@ -89,13 +91,16 @@ f_debian_control = \
 "Maintainer: PyDAW Team <pydawteam@users.sf.net>\n"
 "Architecture: {}\n"
 "Version: {}\n"
-"Depends: libasound2-dev, liblo-dev, libsndfile1-dev, libportmidi-dev, python3-pyqt4, python3, python3-scipy, "
+"Depends: libasound2-dev, liblo-dev, libsndfile1-dev, "
+"libportmidi-dev, python3-pyqt4, python3, python3-scipy, "
 "python3-numpy, libsamplerate0-dev, libfftw3-dev, libcpufreq-dev, ffmpeg, lame\n"
 "Provides: {}\n"
 "Conflicts:\n"
 "Replaces:\n"
-"Description: A digital audio workstation with a full suite of instrument and effects plugins.\n"
-" PyDAW is a full featured audio and MIDI sequencer with a suite of high quality instrument and effects plugins.\n"
+"Description: A digital audio workstation with a full suite of "
+"instrument and effects plugins.\n"
+" PyDAW is a full featured audio and MIDI sequencer with a suite of "
+"high quality instrument and effects plugins.\n"
 "").format(f_short_name, f_size, f_arch, f_version, f_short_name)
 
 f_debian_dir = "{}/pydaw-build/debian/DEBIAN".format(f_base_dir)
@@ -128,11 +133,12 @@ f_package_name = "{}-{}-{}{}.deb".format(f_short_name, f_version, f_arch, f_buil
 os.system('rm -f "{}"/pydaw-build/pydaw*.deb'.format(f_base_dir))
 
 if os.geteuid() == 0:
-    f_eng_bin = '"{}"/pydaw-build/debian/usr/bin/{}-engine'.format(f_base_dir, global_pydaw_version_string)
+    f_eng_bin = '"{}"/pydaw-build/debian/usr/bin/{}-engine'.format(
+        f_base_dir, global_pydaw_version_string)
     os.system('chown root {}'.format(f_eng_bin))
     os.system('chmod 4755 {}'.format(f_eng_bin))
-    os.system('cd "{}"/pydaw-build && dpkg-deb --build debian && mv debian.deb "{}"'.format(f_base_dir,
-              f_package_name))
+    os.system('cd "{}"/pydaw-build && dpkg-deb --build debian && mv debian.deb "{}"'.format(
+        f_base_dir,f_package_name))
 else:
     print("Not running as root, using fakeroot to build Debian package.")
     os.system('cd "{}"/pydaw-build && fakeroot dpkg-deb --build '
