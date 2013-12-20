@@ -1567,16 +1567,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\n"
-            "Shift+click to split items\nCtrl+drag to copy selected items\n"
-            "You can multi-select individual items by CTRL+Alt clicking on them.\n\n"
-            "You can glue together multiple items by selecting items and pressing CTRL+G\n"
-            ", the glued item will retain all of the fades, stretches and per-item fx of the original items.\n")
-            self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
-            self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
+            self.setToolTip("Double click to open editor dialog\nClick and "
+                "drag selected to move.\n"
+                "Shift+click to split items\nCtrl+drag to copy selected items\n"
+                "You can multi-select individual items by CTRL+Alt clicking on them.\n\n"
+                "You can glue together multiple items by selecting items and pressing CTRL+G\n"
+                ", the glued item will retain all of the fades, stretches and per-item fx of "
+                "the original items.\n")
+            self.start_handle.setToolTip("Use this handle to resize the item "
+                                         "by changing the start point.")
+            self.length_handle.setToolTip("Use this handle to resize the item "
+                                          "by changing the end point.")
             self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
             self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
-            self.stretch_handle.setToolTip("Use this handle to resize the item by time-stretching it.")
+            self.stretch_handle.setToolTip("Use this handle to resize the item by "
+                                           "time-stretching it.")
         else:
             self.setToolTip("")
             self.start_handle.setToolTip("")
