@@ -3502,7 +3502,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].mute = self.mute_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
-        this_pydaw_project.commit("Set audio track {} muted to {}".format(self.tracks_number,
+        this_pydaw_project.commit("Set audio track {} muted to {}".format(self.track_number,
                                   self.mute_checkbox.isChecked()))
 
     def on_rec(self, value):
