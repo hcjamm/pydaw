@@ -77,14 +77,16 @@ pydaw_terminating_char = "\\"
 pydaw_rubberband_util = "{}/lib/{}/rubberband/bin/rubberband".format(global_pydaw_install_prefix,
                                                                  global_pydaw_version_string)
 if not os.path.exists(pydaw_rubberband_util):
-    pydaw_rubberband_util = "/usr/lib/{}/rubberband/bin/rubberband".format(global_pydaw_version_string)
+    pydaw_rubberband_util = "/usr/lib/{}/rubberband/bin/rubberband".format(
+        global_pydaw_version_string)
 
-pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefix, global_pydaw_version_string)
+pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefix,
+                                                      global_pydaw_version_string)
 if not os.path.exists(pydaw_sbsms_util):
     pydaw_sbsms_util = "/usr/lib/{}/sbsms/bin/sbsms".format(global_pydaw_version_string)
 
-pydaw_paulstretch_util = "{}/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(global_pydaw_install_prefix,
-                                                                                   global_pydaw_version_string)
+pydaw_paulstretch_util = "{}/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
+    global_pydaw_install_prefix, global_pydaw_version_string)
 if not os.path.exists(pydaw_paulstretch_util):
     pydaw_paulstretch_util = "/usr/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
     global_pydaw_version_string)
@@ -108,7 +110,8 @@ class pydaw_project:
             f_old = ""
             f_existed = 0
         pydaw_write_file_text(f_full_path, a_text)
-        f_history_file = pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old, f_existed)
+        f_history_file = pydaw_history.pydaw_history_file(a_folder, a_file, a_text,
+                                                          f_old, f_existed)
         self.history_files.append(f_history_file)
         #TODO:  debug/verbose mode this output...
         print((str(f_history_file)))
@@ -119,7 +122,8 @@ class pydaw_project:
             self.history_commits = self.history_commits[:self.history_undo_cursor]
             self.history_undo_cursor = 0
         if len(self.history_files) > 0:
-            self.history_commits.append(pydaw_history.pydaw_history_commit(self.history_files, a_message))
+            self.history_commits.append(pydaw_history.pydaw_history_commit(
+                self.history_files, a_message))
             self.history_files = []
 
     def undo(self):
@@ -169,7 +173,8 @@ class pydaw_project:
         f_file_name = str(a_file_name)
         print("Saving project as {} ...".format(f_file_name))
         f_new_project_folder = os.path.dirname(f_file_name)
-        #The below is safe because we already checked that the folder should be empty before calling this
+        #The below is safe because we already checked that the folder
+        #should be empty before calling this
         f_cmd = 'rm -rf "{}"'.format(f_new_project_folder,)
         print(f_cmd)
         os.system(f_cmd)
@@ -187,13 +192,15 @@ class pydaw_project:
         self.project_file = os.path.splitext(os.path.basename(a_project_file))[0]
         self.instrument_folder = "{}/{}".format(self.project_folder, pydaw_folder_instruments)
         self.regions_folder = "{}/{}".format(self.project_folder, pydaw_folder_regions)
-        self.regions_audio_folder = "{}/{}".format(self.project_folder, pydaw_folder_regions_audio)
+        self.regions_audio_folder = "{}/{}".format(self.project_folder,
+                                                   pydaw_folder_regions_audio)
         self.items_folder = "{}/{}".format(self.project_folder, pydaw_folder_items)
         self.audio_folder = "{}/{}".format(self.project_folder, pydaw_folder_audio)
         self.audio_tmp_folder = "{}/audio/tmp".format(self.project_folder,)
         self.samples_folder = "{}/{}".format(self.project_folder, pydaw_folder_samples)
         self.audiofx_folder = "{}/{}".format(self.project_folder, pydaw_folder_audiofx)
-        self.audio_per_item_fx_folder = "{}/{}".format(self.project_folder, pydaw_folder_audio_per_item_fx)
+        self.audio_per_item_fx_folder = "{}/{}".format(self.project_folder,
+pydaw_folder_audio_per_item_fx)
         self.busfx_folder = "{}/{}".format(self.project_folder, pydaw_folder_busfx)
         self.samplegraph_folder = "{}/{}".format(self.project_folder, pydaw_folder_samplegraph)
         self.timestretch_folder = "{}/{}".format(self.project_folder, pydaw_folder_timestretch)
@@ -227,9 +234,9 @@ class pydaw_project:
 
         project_folders = [self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
-            self.audiofx_folder, self.audio_per_item_fx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder, self.glued_folder,
-            self.user_folder, self.sendfx_folder]
+            self.audiofx_folder, self.audio_per_item_fx_folder, self.busfx_folder,
+            self.samplegraph_folder, self.audio_tmp_folder, self.regions_audio_folder,
+            self.timestretch_folder, self.glued_folder, self.user_folder, self.sendfx_folder]
 
         for project_dir in project_folders:
             print(project_dir)
@@ -237,11 +244,14 @@ class pydaw_project:
                 os.makedirs(project_dir)
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
-        self.create_file("", "version.txt", "Created with {}-{}".format(global_pydaw_version_string,
+        self.create_file("", "version.txt",
+                         "Created with {}-{}".format(global_pydaw_version_string,
         pydaw_read_file_text("{}/lib/{}/{}-version.txt".format(global_pydaw_install_prefix,
-                                               global_pydaw_version_string, global_pydaw_version_string))))
+                                               global_pydaw_version_string,
+                                               global_pydaw_version_string))))
         self.create_file("", os.path.basename(a_project_file),
-        "This file is not supposed to contain any data, it is only a placeholder for saving and opening the project")
+                         "This file is not supposed to contain any data, it is "
+                         "only a placeholder for saving and opening the project")
         self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
         self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)
         self.create_file("", pydaw_file_pystretch_map, pydaw_terminating_char)
@@ -251,11 +261,13 @@ class pydaw_project:
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
         f_midi_tracks_instance = pydaw_tracks()
         for i in range(pydaw_midi_track_count):
-            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track{}".format(i + 1), a_track_pos=i))
+            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track{}".format(i + 1),
+                                                            a_track_pos=i))
         self.create_file("", pydaw_file_pytracks, str(f_midi_tracks_instance))
         f_pyaudio_instance = pydaw_audio_tracks()
         for i in range(pydaw_audio_track_count):
-            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track{}".format(i + 1), a_track_pos=i))
+            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track{}".format(i + 1),
+                                                              a_track_pos=i))
         self.create_file("", pydaw_file_pyaudio, str(f_pyaudio_instance))
         f_pybus_instance = pydaw_busses()
         for i in range(pydaw_bus_count):
@@ -293,8 +305,10 @@ class pydaw_project:
                 break
             f_line_arr = f_line.split("|", 5)
             f_file_path_and_uid = f_line_arr[5].split("|||")
-            self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
-            float(f_line_arr[3]), float(f_line_arr[4]), f_file_path_and_uid[0])] = int(f_file_path_and_uid[1])
+            self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]),
+                                    float(f_line_arr[2]), float(f_line_arr[3]),
+                                    float(f_line_arr[4]),
+                                    f_file_path_and_uid[0])] = int(f_file_path_and_uid[1])
 
         f_map_text = pydaw_read_file_text(self.pystretch_map_file)
         for f_line in f_map_text.split("\n"):
@@ -434,7 +448,8 @@ class pydaw_project:
 
     def get_item_by_name(self, a_item_name):
         f_items_dict = self.get_items_dict()
-        return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
+        return pydaw_item.from_str(
+            self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
     def timestretch_lookup_orig_path(self, a_path):
         if a_path in self.timestretch_reverse_lookup:
@@ -454,10 +469,13 @@ class pydaw_project:
         if f_src_path in self.timestretch_reverse_lookup:
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
         else:
-            if (a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0 and \
+            if (a_audio_item.timestretch_amt == 1.0 and \
+            a_audio_item.pitch_shift == 0.0 and \
             a_audio_item.timestretch_amt_end == 1.0 and a_audio_item.pitch_shift_end == 0.0) or \
-            (a_audio_item.time_stretch_mode == 1 and a_audio_item.pitch_shift == a_audio_item.pitch_shift_end) or \
-            (a_audio_item.time_stretch_mode == 2 and a_audio_item.timestretch_amt == a_audio_item.timestretch_amt_end):
+            (a_audio_item.time_stretch_mode == 1 and \
+            a_audio_item.pitch_shift == a_audio_item.pitch_shift_end) or \
+            (a_audio_item.time_stretch_mode == 2 and \
+            a_audio_item.timestretch_amt == a_audio_item.timestretch_amt_end):
                 return None  #Don't process if the file is not being stretched/shifted yet
         f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, \
         a_audio_item.timestretch_amt_end, a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
@@ -470,11 +488,13 @@ class pydaw_project:
 
             f_cmd = None
             if a_audio_item.time_stretch_mode == 1:
-                self.this_pydaw_osc.pydaw_pitch_env(f_src_path, f_dest_path, a_audio_item.pitch_shift,
+                self.this_pydaw_osc.pydaw_pitch_env(f_src_path, f_dest_path,
+                                                    a_audio_item.pitch_shift,
                                                     a_audio_item.pitch_shift_end)
                 self.get_wav_uid_by_name(f_dest_path, a_uid=f_uid)  #add it to the pool
             elif a_audio_item.time_stretch_mode == 2:
-                self.this_pydaw_osc.pydaw_rate_env(f_src_path, f_dest_path, a_audio_item.timestretch_amt,
+                self.this_pydaw_osc.pydaw_rate_env(f_src_path, f_dest_path,
+                                                   a_audio_item.timestretch_amt,
                                                    a_audio_item.timestretch_amt_end)
                 self.get_wav_uid_by_name(f_dest_path, a_uid=f_uid)  #add it to the pool
             elif a_audio_item.time_stretch_mode == 3:
@@ -487,14 +507,16 @@ class pydaw_project:
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 5:
                 f_cmd = [pydaw_sbsms_util, f_src_path, f_dest_path,
-                         str(1.0 / a_audio_item.timestretch_amt), str(1.0 / a_audio_item.timestretch_amt_end),
+                         str(1.0 / a_audio_item.timestretch_amt),
+                         str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             elif a_audio_item.time_stretch_mode == 6:
                 f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
                 self.this_pydaw_osc.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
                 if a_audio_item.pitch_shift != 0.0:
                     f_cmd = [pydaw_paulstretch_util,
-                         "-s", str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift), "-d",
+                         "-s", str(a_audio_item.timestretch_amt), "-p",
+                         str(a_audio_item.pitch_shift), "-d",
                          f_tmp_file, f_dest_path ]
                 else:
                     f_cmd = [pydaw_paulstretch_util,
@@ -580,15 +602,18 @@ class pydaw_project:
             else:
                 f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
                 f_existed = 1
-            self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_regions, str(f_int),
-            pydaw_read_file_text("{}/{}".format(self.regions_folder, f_int)), f_old_text, f_existed))
+            self.history_files.append(
+                pydaw_history.pydaw_history_file(pydaw_folder_regions, str(f_int),
+            pydaw_read_file_text("{}/{}".format(self.regions_folder, f_int)),
+                                 f_old_text, f_existed))
 
         self.save_regions_dict(f_regions_dict)
         f_old_text = self.history.get_latest_version_of_file("", pydaw_file_pysong)
         f_new_text = pydaw_read_file_text("{}/{}".format(self.project_folder, pydaw_file_pysong))
         if f_old_text is not None and f_new_text != f_old_text:
             print("Appending history file for pysong")
-            self.history_files.append(pydaw_history.pydaw_history_file("", pydaw_file_pysong, f_new_text,
+            self.history_files.append(pydaw_history.pydaw_history_file("", pydaw_file_pysong,
+                                                                       f_new_text,
                                                                        f_old_text, 1))
         else:
             print("f_old_text: {}".format(f_old_text))
@@ -640,7 +665,8 @@ class pydaw_project:
 
     def get_audio_per_item_fx_region(self, a_region_uid):
         f_path = "{}/{}".format(self.audio_per_item_fx_folder, a_region_uid)
-        if not os.path.isfile(f_path):  #TODO:  Sort this out at PyDAWv4 and create an empty file first
+        #TODO:  Sort this out at PyDAWv4 and create an empty file first
+        if not os.path.isfile(f_path):
             return pydaw_audio_item_fx_region()
         else:
             f_text = pydaw_read_file_text(f_path)
@@ -660,7 +686,8 @@ class pydaw_project:
         f_pygraph_file = "{}/{}".format(self.samplegraph_folder, a_uid)
         f_result = pydaw_sample_graph.create(f_pygraph_file, self.samples_folder)
         if not f_result.is_valid(): # or not f_result.check_mtime():
-            print("\n\nNot valid, or else mtime is newer than graph time, deleting sample graph...\n")
+            print("\n\nNot valid, or else mtime is newer than graph time, "
+                  "deleting sample graph...\n")
             os.system('rm "{}"'.format(f_pygraph_file))
             pydaw_remove_item_from_sg_cache(f_pygraph_file)
             self.create_sample_graph(self.get_wav_path_by_uid(a_uid), a_uid)
@@ -713,8 +740,8 @@ class pydaw_project:
         elif os.path.isfile(f_sample_dir_path):
             f_path = f_sample_dir_path
         else:
-            raise Exception("Cannot create sample graph, the following do not exist:\n{}\n{}\n".format(a_path,
-                                                                                                   f_sample_dir_path))
+            raise Exception("Cannot create sample graph, the "
+            "following do not exist:\n{}\n{}\n".format(a_path, f_sample_dir_path))
         self.this_pydaw_osc.pydaw_generate_sample_graph(f_path, f_uid)
         f_pygraph_file = "{}/{}".format(self.samplegraph_folder, f_uid)
         for i in range(100):
@@ -724,8 +751,8 @@ class pydaw_project:
             else:
                 sleep(0.1)
 
-        raise Exception("Could not generate sample graph for {}\n{}\n, the engine did not return a file.".format(a_uid,
-                                                                                                             a_path))
+        raise Exception("Could not generate sample graph for {}\n{}\n, "
+                        "the engine did not return a file.".format(a_uid, a_path))
 
     def verify_history(self):
         self.flush_history()
@@ -777,7 +804,8 @@ class pydaw_project:
                        pydaw_read_file_text("{}/{}".format(self.regions_audio_folder, f_old_uid)))
         f_paif_file = "{}/{}".format(self.audio_per_item_fx_folder, f_old_uid)
         if os.path.isfile(f_paif_file):
-            self.save_file(pydaw_folder_audio_per_item_fx, str(f_uid), pydaw_read_file_text(f_paif_file))
+            self.save_file(pydaw_folder_audio_per_item_fx, str(f_uid),
+                           pydaw_read_file_text(f_paif_file))
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -1116,7 +1144,8 @@ class pydaw_region:
         for f_item in self.items:
             if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
                 self.items.remove(f_item)
-                print("remove_item_ref removed bar: {}, track: {}".format(f_item.bar_num, f_item.track_num))
+                print("remove_item_ref removed bar: {}, track: {}".format(f_item.bar_num,
+                      f_item.track_num))
 
     def __str__(self):
         f_result = ""
@@ -1139,7 +1168,8 @@ class pydaw_region:
                 if f_item_arr[0] == "L":
                     f_result.region_length_bars = int(f_item_arr[1])
                     continue
-                f_result.add_item_ref_by_uid(int(f_item_arr[0]), int(f_item_arr[1]), f_item_arr[2])
+                f_result.add_item_ref_by_uid(int(f_item_arr[0]),
+                                             int(f_item_arr[1]), f_item_arr[2])
         return f_result
 
     class region_item:
@@ -1158,7 +1188,8 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
         for f_item in a_items_list:
             for f_cc in f_item.ccs:
                 if f_cc.cc_num == f_cc_num:
-                    f_new_cc = pydaw_cc((f_cc.start + f_beat_offset), a_plugin_index, f_cc_num, f_cc.cc_val)
+                    f_new_cc = pydaw_cc((f_cc.start + f_beat_offset), a_plugin_index,
+                                        f_cc_num, f_cc.cc_val)
                     f_new_cc.item_index = f_index
                     f_new_cc.beat_offset = f_beat_offset
                     f_this_cc_arr.append(f_new_cc)
@@ -1183,7 +1214,8 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                 while f_adjusted_start >= 4.0:
                     f_index_offset += 1
                     f_adjusted_start -= 4.0
-                f_interpolated_cc = pydaw_cc(round((f_adjusted_start), 4), a_plugin_index, f_cc_num,
+                f_interpolated_cc = pydaw_cc(round((f_adjusted_start), 4),
+                                             a_plugin_index, f_cc_num,
                                              round(f_new_val, 4))
                 f_new_val += f_inc
                 f_new_index = f_this_cc_arr[i].item_index + f_index_offset
@@ -1217,7 +1249,8 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
             f_time_inc = 0.0625
             f_start = f_this_pb_arr[i].start + f_time_inc
 
-            f_val_inc = f_val_diff / ((f_this_pb_arr[i + 1].start - f_this_pb_arr[i].start) * 16.0)
+            f_val_inc = f_val_diff / ((f_this_pb_arr[i + 1].start -
+                f_this_pb_arr[i].start) * 16.0)
             if f_this_pb_arr[i].pb_val > f_this_pb_arr[i + 1].pb_val:
                 f_val_inc *= -1.0
             f_new_val = f_this_pb_arr[i].pb_val + f_val_inc
@@ -1228,9 +1261,11 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                 while f_adjusted_start >= 4.0:
                     f_index_offset += 1
                     f_adjusted_start -= 4.0
-                f_interpolated_pb = pydaw_pitchbend(round((f_adjusted_start), 4), round(f_new_val, 4))
+                f_interpolated_pb = pydaw_pitchbend(round((f_adjusted_start), 4),
+                                                    round(f_new_val, 4))
                 f_new_val += f_val_inc
-                f_result_arr[f_this_pb_arr[i].item_index + f_index_offset].append(f_interpolated_pb)
+                f_result_arr[f_this_pb_arr[i].item_index +
+                    f_index_offset].append(f_interpolated_pb)
                 f_start += f_time_inc
                 if f_start >= (f_this_pb_arr[i + 1].start - 0.0625):
                     break
@@ -1238,7 +1273,8 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
             a_items_list[f_i].pitchbends += f_result_arr[f_i]
             a_items_list[f_i].pitchbends.sort()
 
-def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127, a_add=False, a_selected_only=False):
+def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127,
+                       a_add=False, a_selected_only=False):
     f_start_beat = 0.0
     f_range_beats = 0.0
     f_tmp_index = 0
@@ -1290,7 +1326,8 @@ class pydaw_item:
         if a_check:
             for note in self.notes:
                 if note.overlaps(a_note):
-                    return False  #TODO:  return -1 instead of True, and the offending editor_index when False
+                    #TODO:  return -1 instead of True, and the offending editor_index when False
+                    return False
         self.notes.append(a_note)
         self.notes.sort()
         if not a_check:
@@ -1305,8 +1342,8 @@ class pydaw_item:
             print((repr(traceback.extract_stack())))
             print("\n\n\n")
 
-    def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end_amt=127, a_add=False,
-                     a_notes=None):
+    def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False,
+                     a_end_amt=127, a_add=False, a_notes=None):
         """ velocity_mod
         (self, a_amt, #The amount to add or subtract
          a_start_beat=0.0, #modify values with a start at >= this, and...
@@ -1347,7 +1384,8 @@ class pydaw_item:
                 elif note.velocity < 1:
                     note.velocity = 1
 
-    def quantize(self, a_beat_frac, a_events_move_with_item=False, a_notes=None, a_selected_only=False):
+    def quantize(self, a_beat_frac, a_events_move_with_item=False,
+                 a_notes=None, a_selected_only=False):
         f_notes = []
         f_ccs = []
         f_pbs = []
@@ -1394,7 +1432,8 @@ class pydaw_item:
             for pb in f_pbs:
                 pb.start -= shift_adjust
 
-    def transpose(self, a_semitones, a_octave=0, a_notes=None, a_selected_only=False, a_duplicate=False):
+    def transpose(self, a_semitones, a_octave=0, a_notes=None,
+                  a_selected_only=False, a_duplicate=False):
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
 
@@ -1627,7 +1666,8 @@ class pydaw_note(pydaw_abstract_midi_event):
 
 class pydaw_cc(pydaw_abstract_midi_event):
     def __eq__(self, other):
-        return ((self.start == other.start) and (self.cc_num == other.cc_num) and (self.cc_val == other.cc_val))
+        return ((self.start == other.start) and
+        (self.cc_num == other.cc_num) and (self.cc_val == other.cc_val))
 
     def __init__(self, a_start, a_plugin_index, a_port_num, a_cc_val):
         self.start = round(float(a_start), 4)
@@ -1726,7 +1766,8 @@ class pydaw_abstract_track:
 
 
 class pydaw_track(pydaw_abstract_track):
-    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_inst=0, a_bus_num=0, a_track_pos=-1):
+    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track",
+                 a_inst=0, a_bus_num=0, a_track_pos=-1):
         self.name = str(a_name)
         self.solo = int_to_bool(a_solo)
         self.mute = int_to_bool(a_mute)
@@ -1736,8 +1777,9 @@ class pydaw_track(pydaw_abstract_track):
         self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "{}|{}|{}|{}|{}|{}|{}\n".format(bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
-                                      self.name, self.inst, self.bus_num, self.track_pos)
+        return "{}|{}|{}|{}|{}|{}|{}\n".format(bool_to_int(self.solo),
+                                               bool_to_int(self.mute), self.vol,
+                                               self.name, self.inst, self.bus_num, self.track_pos)
 
 class pydaw_busses:
     def add_bus(self, a_index, a_bus):
@@ -1800,7 +1842,8 @@ class pydaw_audio_tracks:
         return f_result
 
 class pydaw_audio_track(pydaw_abstract_track):
-    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_bus_num=0, a_track_pos=-1):
+    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track",
+                 a_bus_num=0, a_track_pos=-1):
         self.name = str(a_name)
         self.solo = int_to_bool(a_solo)
         self.mute = int_to_bool(a_mute)
@@ -1809,7 +1852,8 @@ class pydaw_audio_track(pydaw_abstract_track):
         self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "{}|{}|{}|{}|{}|{}\n".format(bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
+        return "{}|{}|{}|{}|{}|{}\n".format(bool_to_int(self.solo),
+                                            bool_to_int(self.mute), self.vol,
                                             self.name, self.bus_num, self.track_pos)
 
 class pydaw_audio_region:
@@ -1861,7 +1905,8 @@ class pydaw_audio_region:
         for k, v in list(self.items.items()):
             if v.start_bar >= f_length:
                 f_to_delete.append(k)
-                print("Item begins after new region length of {}, deleting: {}".format(a_length, v))
+                print("Item begins after new region length of "
+                      "{}, deleting: {}".format(a_length, v))
         for f_key in f_to_delete:
             self.items.pop(f_key)
 
@@ -1885,10 +1930,12 @@ class pydaw_audio_region:
         return f_result
 
 class pydaw_audio_item:
-    def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0,
-    a_timestretch_mode=3, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0,
-    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False,
-    a_crispness=5, a_fadein_vol=-18, a_fadeout_vol=-18, a_paif_automation_uid=0):
+    def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0,
+                 a_start_bar=0, a_start_beat=0.0, a_timestretch_mode=3,
+                 a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0,
+                 a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0,
+                 a_timestretch_amt_end=1.0, a_reversed=False, a_crispness=5,
+                 a_fadein_vol=-18, a_fadeout_vol=-18, a_paif_automation_uid=0):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
@@ -1929,7 +1976,8 @@ class pydaw_audio_item:
         f_actual_item_end = f_item_start_seconds + f_actual_sample_length
 
         if f_actual_item_end > f_region_length_seconds:
-            f_new_item_end_seconds = (f_region_length_seconds - f_item_start_seconds) + f_sample_start_seconds
+            f_new_item_end_seconds = (f_region_length_seconds -
+                f_item_start_seconds) + f_sample_start_seconds
             f_new_item_end = (f_new_item_end_seconds / a_sample_length_seconds) * 1000.0
             print("clip_at_region_end:  new end: {}".format(f_new_item_end))
             self.sample_end = f_new_item_end
@@ -1945,7 +1993,8 @@ class pydaw_audio_item:
         return "{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}\n".format(
         self.uid, round(self.sample_start, 6), round(self.sample_end, 6),
         self.start_bar, round(self.start_beat, 6),
-        self.time_stretch_mode, self.pitch_shift, self.output_track, self.vol, round(self.timestretch_amt, 6),
+        self.time_stretch_mode, self.pitch_shift, self.output_track, self.vol,
+        round(self.timestretch_amt, 6),
         self.fade_in, self.fade_out, self.lane_num, round(self.pitch_shift_end, 6 ),
         round(self.timestretch_amt_end, 6), bool_to_int(self.reversed), int(self.crispness),
         int(self.fadein_vol), int(self.fadeout_vol), int(self.paif_automation_uid))
@@ -2057,8 +2106,9 @@ class pydaw_audio_input_tracks:
                 break
             else:
                 f_line_arr = f_line.split("|")
-                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(int_to_bool(f_line_arr[1]),
-                                       int(f_line_arr[2]), int(f_line_arr[3])))
+                f_result.add_track(int(f_line_arr[0]),
+                                   pydaw_audio_input_track(int_to_bool(f_line_arr[1]),
+                                   int(f_line_arr[2]), int(f_line_arr[3])))
         return f_result
 
 class pydaw_audio_input_track:
@@ -2084,7 +2134,8 @@ class pydaw_transport:
         return pydaw_transport(f_arr[0])
 
 class pydaw_cc_map_item:
-    def __init__(self, a_effects_only=False, a_rayv_port=0, a_wayv_port=0, a_euphoria_port=0, a_modulex_port=0):
+    def __init__(self, a_effects_only=False, a_rayv_port=0, a_wayv_port=0,
+                 a_euphoria_port=0, a_modulex_port=0):
         self.effects_only = bool_to_int(a_effects_only)
         self.rayv_port = int(a_rayv_port)
         self.wayv_port = int(a_wayv_port)
@@ -2093,7 +2144,8 @@ class pydaw_cc_map_item:
 
     def __str__(self):
         return "{}|{}|{}|{}|{}\n".format(
-        self.effects_only, self.rayv_port, self.wayv_port, self.euphoria_port, self.modulex_port)
+            self.effects_only, self.rayv_port, self.wayv_port,
+            self.euphoria_port, self.modulex_port)
 
 class pydaw_cc_map:
     def __init__(self):
@@ -2117,14 +2169,16 @@ class pydaw_cc_map:
             if f_line == pydaw_terminating_char:
                 break
             f_line_arr = f_line.split("|")
-            f_result.map[int(f_line_arr[0])] = pydaw_cc_map_item(int_to_bool(f_line_arr[1]), f_line_arr[2],
-                                                                 f_line_arr[3], f_line_arr[4], f_line_arr[5])
+            f_result.map[int(f_line_arr[0])] = pydaw_cc_map_item(
+                int_to_bool(f_line_arr[1]), f_line_arr[2], f_line_arr[3],
+                f_line_arr[4], f_line_arr[5])
         return f_result
 
 #From old sample_graph..py
 pydaw_audio_item_scene_height = 1200.0
 pydaw_audio_item_scene_width = 6000.0
-pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
+pydaw_audio_item_scene_rect = QtCore.QRectF(
+    0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
 
 pydaw_audio_item_scene_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
 pydaw_audio_item_scene_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(60, 60, 60, 120))
@@ -2197,7 +2251,8 @@ class pydaw_sample_graph:
                 break
             elif f_line_arr[0] == "meta":
                 if f_line_arr[1] == "filename":
-                    self._file = str(f_line_arr[2]).strip("\n")  #Why does this have a newline on the end???
+                    #Why does this have a newline on the end???
+                    self._file = str(f_line_arr[2]).strip("\n")
                     self.sample_dir_file = "{}{}".format(self.sample_dir, self._file)
                 elif f_line_arr[1] == "timestamp":
                     self.timestamp = int(f_line_arr[2])
@@ -2228,19 +2283,24 @@ class pydaw_sample_graph:
 
     def is_valid(self):
         if (self._file is None):
-            print("\n\npydaw_sample_graph.is_valid() self._file is None {}\n".format(self._file))
+            print("\n\npydaw_sample_graph.is_valid() self._file is None {}\n".format(
+                self._file))
             return False
         if self.timestamp is None:
-            print("\n\npydaw_sample_graph.is_valid() self.timestamp is None {}\n".format(self._file))
+            print("\n\npydaw_sample_graph.is_valid() self.timestamp is None {}\n".format(
+                self._file))
             return False
         if self.channels is None:
-            print("\n\npydaw_sample_graph.is_valid() self.channels is None {}\n".format(self._file))
+            print("\n\npydaw_sample_graph.is_valid() self.channels is None {}\n".format(
+                self._file))
             return False
         if self.frame_count is None:
-            print("\n\npydaw_sample_graph.is_valid() self.frame_count is None {}\n".format(self._file))
+            print("\n\npydaw_sample_graph.is_valid() self.frame_count is None {}\n".format(
+                self._file))
             return False
         if self.sample_rate is None:
-            print("\n\npydaw_sample_graph.is_valid() self.sample_rate is None {}\n".format(self._file))
+            print("\n\npydaw_sample_graph.is_valid() self.sample_rate is None {}\n".format(
+                self._file))
             return False
         return True
 
@@ -2263,11 +2323,13 @@ class pydaw_sample_graph:
                     f_result.moveTo(f_width_pos, f_section_div2)
                     for f_peak in self.high_peaks[f_i]:
                         f_peak_clipped = pydaw_clip_value(f_peak, 0.01, 0.99)
-                        f_result.lineTo(f_width_pos, f_section_div2 - (f_peak_clipped * f_section_div2))
+                        f_result.lineTo(f_width_pos, f_section_div2 -
+                            (f_peak_clipped * f_section_div2))
                         f_width_pos += f_width_inc
                     for f_peak in self.low_peaks[f_i]:
                         f_peak_clipped = pydaw_clip_value(f_peak, -0.99, -0.01)
-                        f_result.lineTo(f_width_pos, (f_peak_clipped * -1.0 * f_section_div2) + f_section_div2)
+                        f_result.lineTo(f_width_pos, (f_peak_clipped * -1.0 *
+                            f_section_div2) + f_section_div2)
                         f_width_pos -= f_width_inc
                     f_result.closeSubpath()
                     f_paths.append(f_result)
@@ -2326,7 +2388,8 @@ class pydaw_midi_file_to_items:
         in the format (track#, channel#, bar#)"""
     def __init__(self, a_file):
         f_midi_comp = "{}/midicomp".format(os.path.dirname(os.path.abspath(__file__)),)
-        f_midi_text_arr = subprocess.check_output([f_midi_comp, str(a_file)]).decode("utf-8").split("\n")
+        f_midi_text_arr = subprocess.check_output([f_midi_comp,
+                                                   str(a_file)]).decode("utf-8").split("\n")
         #First fix the lengths of events that have note-off events
         f_note_on_dict = {}
         f_item_list = []
@@ -2343,7 +2406,8 @@ class pydaw_midi_file_to_items:
                     f_tuple = (f_event.ch, f_event.pitch)
                     if f_tuple in f_note_on_dict:
                         f_note_on_dict[f_tuple].length = \
-                            float(f_event.tick - f_note_on_dict[f_tuple].tick) / float(f_resolution)
+                            float(f_event.tick - f_note_on_dict[f_tuple].tick) / \
+                            float(f_resolution)
                         f_note_on_dict.pop(f_tuple)
                 else:
                     f_note_on_dict[(f_event.ch, f_event.pitch)] = f_event
@@ -2354,10 +2418,12 @@ class pydaw_midi_file_to_items:
                 if f_tuple in f_note_on_dict:
                     f_note_on_dict[f_tuple].length = \
                         float(f_event.tick - f_note_on_dict[f_tuple].tick) / float(f_resolution)
-                    print("{} {}".format(f_note_on_dict[f_tuple].tick, f_note_on_dict[f_tuple].length))
+                    print("{} {}".format(f_note_on_dict[f_tuple].tick,
+                          f_note_on_dict[f_tuple].length))
                     f_note_on_dict.pop(f_tuple)
                 else:
-                    print("Error, note-off event does not correspond to a note-on event, ignoring event:\n{}".format(
+                    print("Error, note-off event does not correspond to a "
+                          "note-on event, ignoring event:\n{}".format(
                         f_event))
             else:
                 print("Ignoring event: {}".format(f_line))

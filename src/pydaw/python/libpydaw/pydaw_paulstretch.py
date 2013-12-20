@@ -112,12 +112,14 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
     displace_pos=windowsize*0.5
 
     #create Hann window
-    window = 0.5 - numpy.cos(numpy.arange(windowsize,dtype='double') * 2.0 * numpy.pi / (windowsize - 1)) * 0.5
+    window = 0.5 - numpy.cos(numpy.arange(windowsize,dtype='double') * \
+        2.0 * numpy.pi / (windowsize - 1)) * 0.5
 
     old_windowed_buf = numpy.zeros((2,windowsize))
     hinv_sqrt2 = (1 + numpy.sqrt(0.5)) * 0.5
-    hinv_buf = 2.0 * (hinv_sqrt2 - (1.0 - hinv_sqrt2) * numpy.cos(numpy.arange(half_windowsize, dtype='double') \
-    * 2.0 * numpy.pi / half_windowsize)) / hinv_sqrt2
+    hinv_buf = 2.0 * (hinv_sqrt2 - (1.0 - hinv_sqrt2) * \
+        numpy.cos(numpy.arange(half_windowsize, dtype='double') \
+        * 2.0 * numpy.pi / half_windowsize)) / hinv_sqrt2
 
     freqs = numpy.zeros((2, half_windowsize + 1))
     old_freqs = freqs
@@ -158,7 +160,8 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
                 freqs_scaled = numpy.zeros(num_bins_scaled_freq)
 
             #process onsets
-            m = 2.0 * numpy.mean(freqs_scaled - old_freqs_scaled) / (numpy.mean(numpy.abs(old_freqs_scaled)) + 1e-3)
+            m = 2.0 * numpy.mean(freqs_scaled - old_freqs_scaled) / \
+                (numpy.mean(numpy.abs(old_freqs_scaled)) + 1e-3)
             if m < 0.0:
                 m = 0.0
             if m > 1.0:
@@ -206,7 +209,8 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
         if extra_onset_time_credit <= 0.0:
             displace_tick += displace_tick_increase
         else:
-            credit_get = 0.5 * displace_tick_increase #this must be less than displace_tick_increase
+            #this must be less than displace_tick_increase
+            credit_get = 0.5 * displace_tick_increase
             extra_onset_time_credit -= credit_get
             if extra_onset_time_credit < 0:
                 extra_onset_time_credit = 0
@@ -229,10 +233,12 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level, outfilename
         print((f_src_path, "\n", f_dest_path))
         os.rename(f_dest_path, f_src_path)
         if a_end_pitch is not None:
-            f_cmd = ["{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefix, global_pydaw_version_string),
+            f_cmd = ["{}/lib/{}/sbsms/bin/sbsms".format(
+                        global_pydaw_install_prefix, global_pydaw_version_string),
                      f_src_path, f_dest_path, "1.0", "1.0", str(a_start_pitch), str(a_end_pitch)]
         else:
-            f_cmd = ["rubberband", "-p", str(a_start_pitch), "-R", "--pitch-hq", f_src_path, f_dest_path]
+            f_cmd = ["rubberband", "-p", str(a_start_pitch), "-R",
+                     "--pitch-hq", f_src_path, f_dest_path]
         print("Running {}".format(" ".join(f_cmd)))
         f_proc = subprocess.Popen(f_cmd)
         f_proc.wait()
@@ -252,7 +258,8 @@ parser.add_option("-w", "--window_size", dest="window_size", help="window size (
                   type="float", default=0.25)
 parser.add_option("-t", "--onset", dest="onset", help="onset sensitivity (0.0=max, 1.0=min)",
                   type="float", default=10.0)
-parser.add_option("-p", "--start-pitch", dest="start_pitch",help="start pitch (36.0=max, -36.0=min)",
+parser.add_option("-p", "--start-pitch", dest="start_pitch",
+                  help="start pitch (36.0=max, -36.0=min)",
                   type="float", default=None)
 parser.add_option("-e", "--end-pitch", dest="end_pitch", help="end pitch (36.0=max, -36.0=min)",
                   type="float", default=None)
@@ -268,5 +275,6 @@ print("stretch amount = {}".format(options.stretch))
 print("window size = {} seconds".format(options.window_size))
 print("onset sensitivity = {}".format(options.onset))
 
-paulstretch(args[0], numpy.double(options.stretch), numpy.double(options.window_size), numpy.double(options.onset),
+paulstretch(args[0], numpy.double(options.stretch), numpy.double(options.window_size),
+            numpy.double(options.onset),
             args[1], options.start_pitch, options.end_pitch, args[0], options.delete)

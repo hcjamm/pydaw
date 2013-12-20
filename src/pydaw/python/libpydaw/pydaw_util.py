@@ -29,11 +29,13 @@ global_pydaw_with_audio = True
 if "src/pydaw/python/" in __file__:
     global_pydaw_install_prefix = "/usr"
 else:
-    global_pydaw_install_prefix = "{}/../../../../..".format(os.path.abspath( os.path.dirname(__file__)))
+    global_pydaw_install_prefix = "{}/../../../../..".format(
+        os.path.abspath( os.path.dirname(__file__)))
 
 def pydaw_set_bin_path():
     global global_pydaw_bin_path
-    global_pydaw_bin_path = "{}/bin/{}-engine".format(global_pydaw_install_prefix, global_pydaw_version_string)
+    global_pydaw_bin_path = "{}/bin/{}-engine".format(
+        global_pydaw_install_prefix, global_pydaw_version_string)
 
 def pydaw_escape_stylesheet(a_stylesheet, a_path):
     f_dir = os.path.dirname(str(a_path))
@@ -53,12 +55,14 @@ def pydaw_which(a_file):
             return f_file_path
     return None
 
-#hack for the XFCE live USB/DVD and that panel thing that takes up 2 inches of vertical space at the bottom
+# hack for the XFCE live USB/DVD and that panel thing that takes
+# up 2 inches of vertical space at the bottom
 if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query") is not None:
     try:
-        os.system("xfconf-query -c xfce4-panel -p /panels/panel-2/autohide -s true --create -t bool")
+        os.system("xfconf-query -c xfce4-panel -p "
+                  "/panels/panel-2/autohide -s true --create -t bool")
     except Exception as ex:
-        print("Exception while trying to set autohide for XFCE-Panel:\n{}".format(ex,))
+        print("Exception while trying to set autohide for XFCE-Panel:\n{}".format(ex))
 
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
@@ -159,8 +163,10 @@ def pydaw_write_file_text(a_file, a_text):
     f_handle.close()
 
 def pydaw_gen_uid():
-    """Generated an integer uid.  Adding together multiple random numbers gives a far less uniform distribution of
-    numbers, more of a natural white noise kind of sample graph than a brick-wall digital white noise... """
+    """Generated an integer uid.  Adding together multiple random
+        numbers gives a far less uniform distribution of
+        numbers, more of a natural white noise kind of sample graph
+        than a brick-wall digital white noise... """
     f_result = 5
     for i in range(6):
         f_result += random.randint(6, 50000000)
@@ -269,11 +275,12 @@ def pydaw_set_live_mode_off():
 if pydaw_which("gksudo") is not None:
     global_pydaw_sudo_command = "gksudo"
 elif pydaw_which("sudo") is not None:
-    print("Warning, gksudo not found, falling back to sudo.  If the GUI hangs before opening, this could "
-    "be the reason why")
+    print("Warning, gksudo not found, falling back to sudo.  "
+    "If the GUI hangs before opening, this could be the reason why")
     global_pydaw_sudo_command = "sudo"
 else:
-    print("Warning, gksudo and sudo not found.  If the GUI hangs before opening, this could be the reason why")
+    print("Warning, gksudo and sudo not found.  If the GUI hangs "
+          "before opening, this could be the reason why")
     global_pydaw_sudo_command = None
 
 if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
@@ -283,18 +290,21 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
     else: #presumed to be Ubuntu or Ubuntu-like.
         global_home = "/media/pydaw_data"
     if not os.path.isdir(global_home):
-        print("Attempting to mount {}.  If this causes the GUI to hang, please try mounting the pydaw_data "
-        "partition before starting".format(global_home))
+        print("Attempting to mount {}.  If this causes the GUI to hang, "
+            "please try mounting the pydaw_data "
+            "partition before starting".format(global_home))
         try:
             os.system("{} mkdir {}".format(global_pydaw_sudo_command, global_home))
-            os.system("{} mount /dev/disk/by-label/pydaw_data {}".format(global_pydaw_sudo_command, global_home))
+            os.system("{} mount /dev/disk/by-label/pydaw_data {}".format(
+                global_pydaw_sudo_command, global_home))
         except:
-            print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive "
-            "or permissions")
+            print("Could not mount pydaw_data partition, this may indicate "
+            "a problem with the flash drive or permissions")
 
     global_is_live_mode = True
     global_pydaw_home = "{}/{}".format(global_home, global_pydaw_version_string)
-    global_default_project_folder = "{}/{}_projects".format(global_home, global_pydaw_version_string)
+    global_default_project_folder = "{}/{}_projects".format(
+        global_home, global_pydaw_version_string)
 
     try:
         if not os.path.isdir(global_pydaw_home):
@@ -303,8 +313,10 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
             os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command, global_pydaw_home))
         if not os.path.isdir(global_default_project_folder):
             print("{} did not exist, attempting to create.".format(global_default_project_folder))
-            os.system("{} mkdir '{}'".format(global_pydaw_sudo_command, global_default_project_folder))
-            os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command, global_default_project_folder))
+            os.system("{} mkdir '{}'".format(global_pydaw_sudo_command,
+                                             global_default_project_folder))
+            os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command,
+                                                    global_default_project_folder))
             pydaw_write_file_text("{}/README.txt".format(global_default_project_folder,),
             "Create subfolders in here and save your live projects to those subfolders.  "
             "Saving in the regular filesystem will not persist between live sessions.")
@@ -322,7 +334,8 @@ global_device_val_dict = {}
 global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
 
 def pydaw_read_device_config():
-    global global_pydaw_bin_path, global_device_val_dict, global_pydaw_is_sandboxed, global_pydaw_with_audio
+    global global_pydaw_bin_path, global_device_val_dict
+    global global_pydaw_is_sandboxed, global_pydaw_with_audio
 
     if os.path.isfile(global_pydaw_device_config):
         f_file_text = pydaw_read_file_text(global_pydaw_device_config)
@@ -341,7 +354,8 @@ def pydaw_read_device_config():
             if int(global_device_val_dict["audioEngine"]) == 0:
                 global_pydaw_bin_path += "-no-root"
             elif int(global_device_val_dict["audioEngine"]) == 2:
-                global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix, global_pydaw_version_string)
+                global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix,
+                                                           global_pydaw_version_string)
                 global_pydaw_is_sandboxed = True
             elif int(global_device_val_dict["audioEngine"]) == 3:
                 global_pydaw_bin_path += "-dbg"
