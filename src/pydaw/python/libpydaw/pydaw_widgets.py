@@ -822,7 +822,7 @@ class pydaw_file_browser_widget:
             if  not f_file.startswith("."):
                 if os.path.isdir(f_full_path):
                     self.folders_listWidget.addItem(f_file)
-                elif f_file.upper().endswith(".WAV") and os.path.isfile(f_full_path):
+                elif pydaw_util.is_audio_file(f_file) and os.path.isfile(f_full_path):
                     if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
                         self.files_listWidget.addItem(f_file)
                     else:

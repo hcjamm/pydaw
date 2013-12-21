@@ -101,7 +101,15 @@ def case_insensitive_path(a_path):
         print(f_path)
         return f_path
 
+AUDIO_FILE_EXTS = [".WAV", ".AIF", ".AIFF"]
 
+def is_audio_file(a_file):
+    """ Only checks the extension, not the MIME type """
+    f_file = str(a_file).upper()
+    for f_ext in AUDIO_FILE_EXTS:
+        if f_file.endswith(f_ext):
+            return True
+    return False
 
 beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2', '1/1']
 
@@ -515,8 +523,9 @@ class sfz_file:
                 except Exception as ex:
                     print("ERROR:  {}".format(f_line))
                     raise sfz_exception("Error parsing key/value pair\n{}\n{}".format(f_line, ex))
-                if f_key.lower() == "sample" and not f_value.lower().strip().endswith(".wav"):
-                    raise sfz_exception("{} not supported, only .wav supported.".format(f_value))
+                if f_key.lower() == "sample" and not is_audio_file(f_value.strip()):
+                    raise sfz_exception("{} not supported, only {} supported.".format(
+                        f_value, AUDIO_FILE_EXTS))
                 f_current_object.dict[f_key.lower()] = f_value
                 if f_current_mode == 1:
                     f_current_object.set_from_group([f_global_settings, f_current_group])
