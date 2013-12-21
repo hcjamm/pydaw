@@ -708,16 +708,26 @@ QTabBar::tab
 	padding-bottom: 2px;
 	margin-right: -1px;
 }
+
+
+QTabWidget::tab-bar 
+{
+	left: 5px;
+}
+
 QTabWidget::pane 
 {
-	border: 1px solid #444;
+	border-top: 2px solid #C2C7CB;
+	/*border: 1px solid #444;*/
 	top: 1px;
 }
+
 QTabBar::tab:last
 {
 	margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
 	border-top-right-radius: 3px;
 }
+
 QTabBar::tab:first:!selected
 {
 	margin-left: 0px; /* the last selected tab has nothing to overlap with on the right */
@@ -726,23 +736,25 @@ QTabBar::tab:first:!selected
 
 QTabBar::tab:!selected
 {
-	color: #b1b1b1;
+	color: #dddddd;
 	border-bottom-style: solid;
 	margin-top: 3px;
 	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:.4 #343434);
+	background-color: QLinearGradient(x1:0, y1:0, x2:1, y2:1, stop:1 #515151, stop:.4 #454545);
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
 }
-QTabBar::tab:selected
+
+QTabBar::tab:selected,QTabBar::tab:!selected:hover
 {
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
+	color: #151515;
+	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #969696, stop:.4 #636363);
+	background-color: QLinearGradient(x1:0, y1:0, x2:1, y2:1, stop:1 #dddddd, stop:.4 #aaaaaa);
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
 	margin-bottom: 0px;
 }
-QTabBar::tab:!selected:hover
-{
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
-	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:0.4 #343434, stop:0.2 #343434, stop:0.1 #ffaa00);
-}
+
 QRadioButton::indicator:checked, QRadioButton::indicator:unchecked
 {
 	color: #b1b1b1;
