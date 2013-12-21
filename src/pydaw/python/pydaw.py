@@ -1505,8 +1505,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_fade_in = self.audio_item.fade_in * 0.001
         f_fade_out = self.audio_item.fade_out * 0.001
         self.setRect(0.0, 0.0, f_length, global_audio_item_height)
-        self.fade_in_handle.setPos((f_length * f_fade_in), 0.0)
-        self.fade_out_handle.setPos((f_length * f_fade_out) - global_audio_item_handle_size, 0.0)
+        f_fade_in_handle_pos = (f_length * f_fade_in)
+        f_fade_in_handle_pos = pydaw_clip_value(f_fade_in_handle_pos, 0.0, (f_length - 6.0))
+        f_fade_out_handle_pos = (f_length * f_fade_out) - global_audio_item_handle_size
+        f_fade_out_handle_pos = pydaw_clip_value(f_fade_out_handle_pos,
+                                                 (f_fade_in_handle_pos + 6.0), f_length)
+        self.fade_in_handle.setPos(f_fade_in_handle_pos, 0.0)
+        self.fade_out_handle.setPos(f_fade_out_handle_pos, 0.0)
         self.update_fade_in_line()
         self.update_fade_out_line()
         self.setPos(f_start, f_track_num)
@@ -1747,9 +1752,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item.fade_in = 0.0
             f_item_old.fade_out = 999.0
             f_width_percent = a_event.pos().x() / self.rect().width()
-            f_item.fade_out = pydaw_clip_value(f_item.fade_out, 1.0, 999.0, True)
+            f_item.fade_out = pydaw_clip_value(f_item.fade_out, (f_item.fade_in + 90.0),
+                                               999.0, True)
             f_item_old.fade_in /= f_width_percent
-            f_item_old.fade_in = pydaw_clip_value(f_item_old.fade_in, 0.0, 998.0, True)
+            f_item_old.fade_in = pydaw_clip_value(f_item_old.fade_in, 0.0,
+                                                  (f_item_old.fade_out - 90.0), True)
 
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
