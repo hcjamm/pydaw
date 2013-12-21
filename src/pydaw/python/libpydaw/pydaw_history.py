@@ -106,7 +106,7 @@ are differences, that indicates a bug in PyDAW.
         for root, dirs, files in os.walk(self.project_dir):
             for f_file in files:
                 if f_file == "history.db" or f_file.endswith(".wav") or \
-                root.endswith("samplegraph"):
+                root.endswith("samplegraph") or f_file == "default.pywavs":
                     continue
                 f_current_file = "{}/{}".format(root, f_file)
                 f_current_text = pydaw_util.pydaw_read_file_text(f_current_file)

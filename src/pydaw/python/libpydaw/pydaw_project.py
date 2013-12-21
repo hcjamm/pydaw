@@ -200,7 +200,7 @@ class pydaw_project:
         self.samples_folder = "{}/{}".format(self.project_folder, pydaw_folder_samples)
         self.audiofx_folder = "{}/{}".format(self.project_folder, pydaw_folder_audiofx)
         self.audio_per_item_fx_folder = "{}/{}".format(self.project_folder,
-pydaw_folder_audio_per_item_fx)
+                                                       pydaw_folder_audio_per_item_fx)
         self.busfx_folder = "{}/{}".format(self.project_folder, pydaw_folder_busfx)
         self.samplegraph_folder = "{}/{}".format(self.project_folder, pydaw_folder_samplegraph)
         self.timestretch_folder = "{}/{}".format(self.project_folder, pydaw_folder_timestretch)
@@ -364,7 +364,8 @@ pydaw_folder_audio_per_item_fx)
         return pydaw_name_uid_dict.from_str(f_str)
 
     def save_wavs_dict(self, a_uid_dict):
-        self.save_file("", pydaw_file_pywavs, str(a_uid_dict))
+        pydaw_write_file_text (self.pywavs_file, str(a_uid_dict))
+        #self.save_file("", pydaw_file_pywavs, str(a_uid_dict))
 
     def get_items_dict(self):
         try:
@@ -714,7 +715,6 @@ pydaw_folder_audio_per_item_fx)
                 os.system('cp "{}" "{}"'.format(f_path, f_cp_path))
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
-            self.commit("Add {} to wav pool".format(f_path))
             return f_uid
 
     def get_wav_name_by_uid(self, a_uid, a_uid_dict=None):
@@ -741,7 +741,7 @@ pydaw_folder_audio_per_item_fx)
             f_path = f_sample_dir_path
         else:
             raise Exception("Cannot create sample graph, the "
-            "following do not exist:\n{}\n{}\n".format(a_path, f_sample_dir_path))
+                "following do not exist:\n{}\n{}\n".format(a_path, f_sample_dir_path))
         self.this_pydaw_osc.pydaw_generate_sample_graph(f_path, f_uid)
         f_pygraph_file = "{}/{}".format(self.samplegraph_folder, f_uid)
         for i in range(100):
