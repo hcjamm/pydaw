@@ -2680,6 +2680,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.sample_table = QtGui.QTableWidget(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT,
                                                len(f_sample_table_columns))
+        self.sample_table.setAlternatingRowColors(True)
         self.sample_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.sample_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
 

@@ -760,7 +760,10 @@ QTabBar::tab:selected,QTabBar::tab:!selected:hover
 
 QTableWidget
 {
-	alternate-background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #3a3a3a, stop: .5 #464646, stop: 1 #3a3a3a);
+	alternate-background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #3a3a3a, stop: .2 #464646, 
+		stop: .7 #4b4b4f, stop: 1 #2f2f2f);
+	alternate-background-color: QLinearGradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3a3a3a, stop: .5 #464646, 
+		stop: 1 #2f2f2f);
 	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #464646, stop: .5 #3a3a3a, stop: 1 #464646);
 }
 
