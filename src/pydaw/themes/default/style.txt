@@ -13,9 +13,26 @@ QWidget#mainwindow, QWidget#ccmaptabwidget, QWidget#itemtabwidget, QMessageBox
 	background-color:rgb(93, 93, 93);
 }
 
-QLabel, QCheckBox
+QLabel
 {
-	background-color: transparent;
+	background-color: #111111;
+	padding: 2px;
+	border-radius: 2px;
+	border: 1px solid #7a7a7a;
+}
+
+QWidget
+{
+	color: white;	
+	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, stop: 0.5 #323232, stop: 1 #2d2d2d);
+	background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #3d3d3d, stop: 0.5 #424649 stop: 1 #3d3d3d);
+}
+
+QCheckBox,QRadiobutton
+{
+	padding: 0px;
+	background-color: #797979;
+	margin: 3px;
 }
 
 QSplitter::handle:vertical
@@ -31,10 +48,6 @@ QSplitter::handle:horizontal
 }
 
 /*Solo checkbox*/
-QCheckBox#solo_checkbox
-{ 
-	padding: 0px; 
-} 
 
 QCheckBox#solo_checkbox::indicator::unchecked
 { 
@@ -48,11 +61,6 @@ QCheckBox#solo_checkbox::indicator::checked
 
 /*Mute checkbox*/
 
-QCheckBox#mute_checkbox
-{
-	padding: 0px;
-}
-
 QCheckBox#mute_checkbox::indicator::unchecked
 {
 	image: url($STYLE_FOLDER/mute-off.png);
@@ -64,11 +72,6 @@ QCheckBox#mute_checkbox::indicator::checked
 }
 
 /*Rec arm track radiobutton*/
-
-QRadioButton#rec_arm_radiobutton
-{
-	padding: 0px;
-}
 
 QRadioButton#rec_arm_radiobutton::indicator::unchecked
 {
@@ -119,7 +122,6 @@ QRadioButton#play_button::indicator::checked
 
 /*Stop button*/
 
-
 QRadioButton#stop_button::indicator
 {
 	width:48px;
@@ -164,7 +166,7 @@ QRadioButton#rec_button::indicator::checked
 
 QSpinBox, QDoubleSpinBox
 {
-	background-color: black;
+	background-color: #111111;
 	color: white;
 	border: 1px solid gray;
 	font-size: 18px;
@@ -308,12 +310,6 @@ QToolTip
 	border-radius: 9px;
 }
 
-QWidget
-{
-	color: white;
-	background-color: #323232;
-}
-
 QGroupBox
 {
 	color: white; 
@@ -325,16 +321,21 @@ QGroupBox
 
 QGroupBox#plugin_groupbox
 {
-	background-color  :  qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3a3a3a, stop: 0.2 #333333, stop: 0.5 #2a2a2a, stop: 0.7 #333333, stop: 1 #151515);
+	background-color  :  qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3a3a3a, stop: 0.2 #333333, 
+		stop: 0.5 #2a2a2a, stop: 0.7 #333333, stop: 1 #151515);
+	background-color  :  qlineargradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #3a3a3a, stop: 0.5 #50595f, 
+		stop: 1 #3a3a3a);
 	border: 2px solid white;
 	border-radius: 18px;
 	margin-top: 1ex;
 }
 
-QWidget#track_panel, QWidget#transport_panel
+QWidget#track_panel,QWidget#transport_panel
 {
-	background-color : qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3a3a3a, stop: 0.2 #333333, stop: 0.5 #2a2a2a, stop: 0.7 #333333, stop: 1 #151515);
-	border: 1px solid #909090;
+	background-color : qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #454545, stop: 0.2 #333333, 
+		stop: 0.5 #2a2a2a, stop: 0.7 #333333, stop: 1 #454545);
+	background-color : qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #5c5c5c, stop: 0.5 #73797d, stop: 1 #5c5c5c);
+	border: 2px solid #909090;
 }
 
 QGroupBox::title 
@@ -445,15 +446,15 @@ QPushButton:pressed
 
 QComboBox
 {
-	color: black;
+	color: #1a1a1a;
 	border: 1px solid white;
 	border-radius: 3px;
-	/*background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 0.1 #dddddd, stop: 0.5 #d6d6d6, stop: 0.9 #999999, stop: 1 #666666);*/
-	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 0.1 #dddddd, stop: 0.5 #ffffff, stop: 0.9 #dddddd, stop: 1 #666666);
+	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 0.1 #fafafa, 
+		stop: 0.5 #ffffff, stop: 0.9 #fafafa, stop: 1 #666666);
 }
 
-QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,QDoubleSpinBox:hover, QSlider::handle:horizontal:hover,
-QSlider::handle:vertical:hover
+QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,QDoubleSpinBox:hover, 
+	QSlider::handle:horizontal:hover, QSlider::handle:vertical:hover
 {
 	border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
 }
@@ -743,6 +744,7 @@ QTabBar::tab:!selected
 	background-color: QLinearGradient(x1:0, y1:0, x2:1, y2:1, stop:1 #515151, stop:.4 #454545);
 	border-top-left-radius: 12px;
 	border-top-right-radius: 12px;
+	border: 1px solid #878787;
 }
 
 QTabBar::tab:selected,QTabBar::tab:!selected:hover
@@ -753,6 +755,7 @@ QTabBar::tab:selected,QTabBar::tab:!selected:hover
 	border-top-left-radius: 12px;
 	border-top-right-radius: 12px;
 	margin-bottom: 0px;
+	border: 1px solid #ababab;
 }
 
 QRadioButton::indicator:checked, QRadioButton::indicator:unchecked

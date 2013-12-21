@@ -1901,7 +1901,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
                                                    kc_decimal, self.port_dict,
                                                    self.preset_manager)
         self.delay_time_knob.add_to_grid_layout(delay_gridlayout, 0)
-        m_feedback =  pydaw_knob_control(f_knob_size, "Feedbk", pydaw_ports.MODULEX_FEEDBACK,
+        m_feedback =  pydaw_knob_control(f_knob_size, "Fdbk", pydaw_ports.MODULEX_FEEDBACK,
                                          self.plugin_rel_callback, self.plugin_val_callback,
                                          -20, 0, -12, kc_integer,
                                          self.port_dict, self.preset_manager)
