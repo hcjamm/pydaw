@@ -758,13 +758,19 @@ QTabBar::tab:selected,QTabBar::tab:!selected:hover
 	border: 1px solid #ababab;
 }
 
+QTableWidget
+{
+	alternate-background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #3a3a3a, stop: .5 #464646, stop: 1 #3a3a3a);
+	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #464646, stop: .5 #3a3a3a, stop: 1 #464646);
+}
+
 QRadioButton::indicator:checked, QRadioButton::indicator:unchecked
 {
 	color: #b1b1b1;
-	background-color: #323232;
 	border: 1px solid #b1b1b1;
 	border-radius: 6px;
 }
+
 QRadioButton::indicator:checked
 {
 	background-color: qradialgradient(

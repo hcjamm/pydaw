@@ -932,6 +932,7 @@ class region_list_editor:
         self.main_vlayout = QtGui.QGridLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
+        self.table_widget.setAlternatingRowColors(True)
         self.table_widget.verticalHeader().setVisible(False)
         self.table_widget.horizontalHeader().sectionClicked.connect(self.column_clicked)
         self.table_widget.setMinimumHeight(150)
