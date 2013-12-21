@@ -5186,7 +5186,7 @@ class item_list_editor:
     def show_not_enabled_warning(self):
         QtGui.QMessageBox.warning(this_main_window, "",
                                   "You must open an item first by double-clicking on one in "
-                                  "the region editor on the 'Song' tab.")
+                                  "the region editor on the 'Song/Region' tab.")
 
     def set_zoom(self, a_value=None, a_is_refresh=False):
         if not self.enabled:
