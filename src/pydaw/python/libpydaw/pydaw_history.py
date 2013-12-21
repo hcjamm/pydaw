@@ -30,7 +30,8 @@ class pydaw_history:
         if not os.path.isfile(self.db_file):
             f_conn = sqlite3.connect(self.db_file)
             f_cursor = f_conn.cursor()
-            f_cursor.execute("CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text)")
+            f_cursor.execute("CREATE TABLE pydaw_commits "
+                             "(commit_timestamp integer, commit_message text)")
             f_cursor.execute("CREATE TABLE pydaw_diffs "
             "(commit_timestamp integer, commit_file text, commit_folder text, text_old text, "
             "text_new text, existed integer)")
@@ -39,10 +40,12 @@ class pydaw_history:
 
     def get_latest_version_of_file(self, a_folder, a_file):
         f_query = ("SELECT text_new, existed FROM pydaw_diffs WHERE commit_file = '{}' "
-        "AND commit_folder = '{}' ORDER BY commit_timestamp DESC LIMIT 1").format(a_file, a_folder)
+            "AND commit_folder = '{}' "
+            "ORDER BY commit_timestamp DESC LIMIT 1").format(a_file, a_folder)
         f_query_result = self.db_exec(f_query, True)
         if len(f_query_result) == 0:
-            print("get_latest_version_of_file:  len(f_query_result) == 0 for \n\n{}\n\n".format(f_query))
+            print("get_latest_version_of_file:  "
+                  "len(f_query_result) == 0 for \n\n{}\n\n".format(f_query))
             return None
         else:
             return f_query_result[0][0]
@@ -50,10 +53,12 @@ class pydaw_history:
     def commit(self, a_commit):
         f_conn = sqlite3.connect(self.db_file)
         f_cursor = f_conn.cursor()
-        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)", (a_commit.timestamp, a_commit.message))
+        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)",
+                         (a_commit.timestamp, a_commit.message))
         for f_file in a_commit.files:
-            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?, ?)", (a_commit.timestamp,
-                             f_file.file_name, f_file.folder, f_file.old_text, f_file.new_text, f_file.existed))
+            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?, ?)",
+                             (a_commit.timestamp, f_file.file_name, f_file.folder,
+                              f_file.old_text, f_file.new_text, f_file.existed))
         f_conn.commit()
         f_conn.close()
 
@@ -69,8 +74,9 @@ class pydaw_history:
         f_rows = self.db_exec(f_query, True)
         f_diff_arr = []
         for f_row in f_rows:
+            #deliberately crossing up the old and new text
             f_diff_arr.append(pydaw_history_file(f_row[2], f_row[1], f_row[3],
-                                                 f_row[4], f_row[5])) #deliberately crossing up the old and new text
+                                                 f_row[4], f_row[5]))
         f_commit = pydaw_history_commit(f_diff_arr, "Revert to commit {}".format(a_timestamp))
         f_commit.redo(self.project_dir)
         self.commit(f_commit)
@@ -99,15 +105,16 @@ are differences, that indicates a bug in PyDAW.
 """
         for root, dirs, files in os.walk(self.project_dir):
             for f_file in files:
-                if f_file == "history.db" or f_file.endswith(".wav") or root.endswith("samplegraph"):
+                if f_file == "history.db" or f_file.endswith(".wav") or \
+                root.endswith("samplegraph"):
                     continue
-                f_current_file = "%s/%s" % (root, f_file)
+                f_current_file = "{}/{}".format(root, f_file)
                 f_current_text = pydaw_util.pydaw_read_file_text(f_current_file)
                 if root == self.project_dir:
                     f_dir_name = ""
                 else:
                     f_dir_name = root.split("/")[-1]
-                print("Testing file %s/%s" % (f_dir_name, f_file))
+                print("Testing file {}/{}".format(f_dir_name, f_file))
                 f_history_text = self.get_latest_version_of_file(f_dir_name, f_file)
                 if f_current_text != f_history_text:
                     if f_history_text is None:
@@ -130,9 +137,10 @@ class pydaw_history_file:
 
     def __str__(self):
         """ Generate a human-readable summary of the changes """
-        f_file_name = self.folder + "/" + self.file_name
-        f_result = "\n\n" + f_file_name + ", existed: " + str(self.existed) + "\n"
-        for f_line in difflib.unified_diff(self.old_text.split("\n"), self.new_text.split("\n"),
+        f_file_name = "{}/{}".format(self.folder, self.file_name)
+        f_result = "\n\n{}, existed: {}\n".format(f_file_name, self.existed)
+        for f_line in difflib.unified_diff(self.old_text.split("\n"),
+                                           self.new_text.split("\n"),
                                            f_file_name, f_file_name):
             f_result += f_line + "\n"
         return f_result
@@ -145,7 +153,7 @@ class pydaw_history_commit:
 
     def undo(self, a_project_folder):
         for f_file in self.files:
-            f_full_path = a_project_folder + "/" + f_file.folder + "/" + f_file.file_name
+            f_full_path = "{}/{}/{}".format(a_project_folder, f_file.folder, f_file.file_name)
             if f_file.existed == 0:
                 os.remove(f_full_path)
             else:
@@ -153,7 +161,7 @@ class pydaw_history_commit:
 
     def redo(self, a_project_folder):
         for f_file in self.files:
-            f_full_path = a_project_folder + "/" + f_file.folder + "/" + f_file.file_name
+            f_full_path = "{}/{}/{}".format(a_project_folder, f_file.folder, f_file.file_name)
             self._write_file(f_full_path, f_file.new_text)
 
     def _write_file(self, a_file, a_text):
@@ -194,11 +202,12 @@ class pydaw_history_log_widget(QtGui.QWidget):
         #TODO:  Create a unified diff of all files...
         f_timestamp = int(self.table_widget.item(self.table_widget.currentRow(), 0).text())
         f_result = ""
-        f_rows = self.history_db.db_exec("SELECT * FROM pydaw_diffs WHERE commit_timestamp = {}".format(f_timestamp),
-                                         True)
+        f_rows = self.history_db.db_exec("SELECT * FROM pydaw_diffs "
+            "WHERE commit_timestamp = {}".format(f_timestamp), True)
         for f_row in f_rows:
-            f_file_name = str(f_row[2]) + "/" + str(f_row[1])
-            for f_line in difflib.unified_diff(str(f_row[3]).split("\n"), str(f_row[4]).split("\n"),
+            f_file_name = "{}/{}".format(f_row[2], f_row[1])
+            for f_line in difflib.unified_diff(str(f_row[3]).split("\n"),
+                                               str(f_row[4]).split("\n"),
                                                f_file_name, f_file_name):
                 f_result += f_line + "\n"
         f_dialog = QtGui.QDialog(self)
@@ -212,8 +221,11 @@ class pydaw_history_log_widget(QtGui.QWidget):
         f_dialog.exec_()
 
     def on_revert_to(self):
-        """ Event handler for when the user reverts the entire project back to a particular commit """
-        self.history_db.revert_to(str(self.table_widget.item(self.table_widget.currentRow(), 0).text()))
+        """ Event handler for when the user reverts the entire project
+            back to a particular commit
+        """
+        self.history_db.revert_to(
+            str(self.table_widget.item(self.table_widget.currentRow(), 0).text()))
         if self.ui_callback is not None:
             self.ui_callback(True)
         self.populate_table()
