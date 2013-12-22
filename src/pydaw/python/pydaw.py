@@ -6825,13 +6825,14 @@ class pydaw_main_window(QtGui.QMainWindow):
             str(QtGui.QFileDialog.getOpenFileName(
                 self, "Open a theme file", "{}/lib/{}/themes".format(
                     pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string),
-                    "PyDAW Style(style.txt)"))
+                    "PyDAW Style(*.pytheme)"))
             if not f_file is None and not f_file == "":
                 f_style = pydaw_read_file_text(f_file)
                 f_dir = os.path.dirname(f_file)
                 f_style = pydaw_escape_stylesheet(f_style, f_dir)
                 pydaw_write_file_text(self.user_style_file, f_file)
-                self.setStyleSheet(f_style)
+                QtGui.QMessageBox.warning(this_main_window, "Theme Applied...",
+                                          "Please restart PyDAW to update the UI")
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
@@ -7101,7 +7102,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setMinimumSize(1100, 600)
         self.setObjectName("mainwindow")
-        default_stylesheet_file = "{}/lib/{}/themes/default/style.txt".format(
+        default_stylesheet_file = "{}/lib/{}/themes/default/default.pytheme".format(
             pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string)
         self.user_style_file = "{}/default-style.txt".format(global_pydaw_home)
         if os.path.isfile(self.user_style_file):

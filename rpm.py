@@ -146,7 +146,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/themes/default/spinbox-up.png
 /usr/lib/pydaw4/themes/default/stop-off.png
 /usr/lib/pydaw4/themes/default/stop-on.png
-/usr/lib/pydaw4/themes/default/style.txt
+/usr/lib/pydaw4/themes/default/default.pytheme
 /usr/lib/pydaw4/themes/default/v-fader.png
 /usr/lib/pydaw4/themes/default/wav-slider-left.png
 /usr/lib/pydaw4/themes/default/wav-slider-right.png
