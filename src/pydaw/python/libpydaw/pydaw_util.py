@@ -29,8 +29,8 @@ global_pydaw_with_audio = True
 if "src/pydaw/python/" in __file__:
     global_pydaw_install_prefix = "/usr"
 else:
-    global_pydaw_install_prefix = "{}/../../../../..".format(
-        os.path.abspath( os.path.dirname(__file__)))
+    global_pydaw_install_prefix = os.path.abspath(
+        "{}/../../../../..".format(os.path.dirname(__file__)))
 
 def pydaw_set_bin_path():
     global global_pydaw_bin_path
