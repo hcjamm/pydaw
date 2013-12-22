@@ -37,6 +37,7 @@ class pydaw_device_dialog:
             f_window = QtGui.QDialog()
         else:
             f_window = QtGui.QWidget()
+            f_window.setObjectName("plugin_ui")
         f_window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         f_window.setStyleSheet(f_stylesheet)
         f_window.setWindowTitle("Hardware Settings...")

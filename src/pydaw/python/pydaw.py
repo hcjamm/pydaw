@@ -7134,6 +7134,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.copy_to_clipboard_checked = True
 
         self.central_widget = QtGui.QWidget()
+        self.central_widget.setObjectName("plugin_ui")
         self.setCentralWidget(self.central_widget)
 
         self.main_layout = QtGui.QVBoxLayout()
