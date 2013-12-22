@@ -402,6 +402,12 @@ QComboBox:off
 	color:white;
 }
 
+QComboBox:enabled
+{
+	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #969696, stop:.4 #636363);
+	background-color: QLinearGradient(x1:0, y1:0, x2:1, y2:1, stop:1 #dddddd, stop:.4 #aaaaaa);
+}
+
 QComboBox:on, QMenu::item
 {
 	color: white;
