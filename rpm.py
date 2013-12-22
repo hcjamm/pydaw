@@ -54,7 +54,7 @@ f_spec_template = \
 Name:           {}
 Version:        {}
 
-Release:        1%{?dist}
+Release:        1%{{?dist}}
 Summary:        A digital audio workstation with a full suite of instrument and effects plugins.
 
 License:        GPLv3
@@ -148,8 +148,6 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/themes/default/stop-on.png
 /usr/lib/pydaw4/themes/default/default.pytheme
 /usr/lib/pydaw4/themes/default/v-fader.png
-/usr/lib/pydaw4/themes/default/wav-slider-left.png
-/usr/lib/pydaw4/themes/default/wav-slider-right.png
 /usr/share/applications/pydaw4.desktop
 /usr/share/doc/pydaw4/copyright
 /usr/share/doc/pydaw4/readme.txt
