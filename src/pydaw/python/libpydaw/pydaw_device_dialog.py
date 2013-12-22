@@ -29,7 +29,7 @@ class pydaw_device_dialog:
 
 
     def show_device_dialog(self, a_msg=None, a_notify=False):
-        f_stylesheet_file = "{}/lib/{}/themes/default/style.txt".format(
+        f_stylesheet_file = "{}/lib/{}/themes/default/default.pytheme".format(
             pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string)
         f_stylesheet = pydaw_util.pydaw_read_file_text(f_stylesheet_file)
         f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet, f_stylesheet_file)
