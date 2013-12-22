@@ -22,7 +22,7 @@ QWidget
 	color: white;
 }
 
-QWidget#plugin_ui
+QWidget#plugin_ui,QDialog,QScrollArea
 {
 	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, stop: 0.5 #323232, stop: 1 #2d2d2d);
 	background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #3d3d3d, stop: 0.5 #424649 stop: 1 #3d3d3d);
@@ -100,14 +100,11 @@ QCheckBox#rec_arm_checkbox::indicator::checked
 	image: url($STYLE_FOLDER/record-on.png);
 }
 
-QRadioButton#play_button,QRadioButton#rec_button,QRadioButton#stop_button
-{
-	border: none;
-	outline: none;
-}
-
 QRadioButton#play_button::indicator,QRadioButton#rec_button::indicator,QRadioButton#stop_button::indicator
 {
+	outline: none;
+	border: none;
+	border-radius: 24px;
 	width:48px;
 	height:48px;
 }

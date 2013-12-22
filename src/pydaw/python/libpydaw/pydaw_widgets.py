@@ -1710,6 +1710,7 @@ class pydaw_per_audio_item_fx_widget:
     def __init__(self, a_rel_callback, a_val_callback):
         self.effects = []
         self.widget = QtGui.QWidget()
+        self.widget.setObjectName("plugin_ui")
         self.layout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.layout)
         f_port = 0
