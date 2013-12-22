@@ -779,7 +779,7 @@ class pydaw_file_browser_widget:
     def open_bookmarks(self):
         self.bookmarks_listWidget.clear()
         f_dict = pydaw_util.global_get_file_bookmarks()
-        for k, v in list(f_dict.items()):
+        for k in sorted(f_dict.keys()):
             self.bookmarks_listWidget.addItem(str(k))
 
     def bookmark_button_pressed(self):

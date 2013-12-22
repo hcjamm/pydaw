@@ -2862,7 +2862,7 @@ class audio_items_viewer_widget():
     def open_bookmarks(self):
         self.list_bookmarks.clear()
         f_dict = global_get_file_bookmarks()
-        for k, v in list(f_dict.items()):
+        for k in sorted(f_dict.keys()):
             self.list_bookmarks.addItem(str(k))
 
     def bookmark_button_pressed(self):
