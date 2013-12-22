@@ -2940,7 +2940,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
 
                             if(a_pydaw_data->pysong->per_audio_item_fx[(f_current_region)])
                             {
-                                if(a_pydaw_data->pysong->per_audio_item_fx[(f_current_region)]->items[f_i])
+                                if(a_pydaw_data->pysong->per_audio_item_fx[(f_current_region)]->loaded[f_i])
                                 {
                                     int f_i3 = 0;
                                     while(f_i3 < 8)
