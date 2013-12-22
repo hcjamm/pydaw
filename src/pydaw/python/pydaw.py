@@ -2872,9 +2872,15 @@ class audio_items_viewer_widget():
     def bookmark_clicked(self, a_item):
         f_dict = global_get_file_bookmarks()
         f_folder_name = str(a_item.text())
-        f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
-        self.set_folder(f_full_path, True)
-        self.folders_tab_widget.setCurrentIndex(0)
+        if f_folder_name in f_dict:
+            f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
+            self.set_folder(f_full_path, True)
+            self.folders_tab_widget.setCurrentIndex(0)
+        else:
+            QtGui.QMessageBox.warning(self.widget, "Error",
+                                      "This bookmark no longer exists.  You may have deleted "
+                                      "it in another windows.")
+            self.open_bookmarks()
 
     def delete_bookmark(self):
         f_items = self.list_bookmarks.selectedItems()

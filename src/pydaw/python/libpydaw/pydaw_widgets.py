@@ -789,8 +789,14 @@ class pydaw_file_browser_widget:
     def bookmark_clicked(self, a_item):
         f_dict = pydaw_util.global_get_file_bookmarks()
         f_folder_name = str(a_item.text())
-        f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
-        self.set_folder(f_full_path, True)
+        if f_folder_name in f_dict:
+            f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
+            self.set_folder(f_full_path, True)
+        else:
+            QtGui.QMessageBox.warning(self.files_listWidget, "Error",
+                                      "This bookmark no longer exists.  You may have deleted "
+                                      "it in another windows.")
+            self.open_bookmarks()
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.files_listWidget, a_event)
