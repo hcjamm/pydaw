@@ -100,14 +100,16 @@ QCheckBox#rec_arm_checkbox::indicator::checked
 	image: url($STYLE_FOLDER/record-on.png);
 }
 
-/*Play button*/
+QRadioButton#play_button,QRadioButton#rec_button,QRadioButton#stop_button
+{
+	border: none;
+	outline: none;
+}
 
-QRadioButton#play_button::indicator
+QRadioButton#play_button::indicator,QRadioButton#rec_button::indicator,QRadioButton#stop_button::indicator
 {
 	width:48px;
 	height:48px;
-	border-radius:10px;
-	border 2px solid white;
 }
 
 QRadioButton#play_button::indicator::unchecked
@@ -120,15 +122,6 @@ QRadioButton#play_button::indicator::checked
 	image: url($STYLE_FOLDER/play-on.png);
 }
 
-/*Stop button*/
-
-QRadioButton#stop_button::indicator
-{
-	width:48px;
-	height:48px;
-	border-radius:10px;
-	border 2px solid white;
-}
 
 QRadioButton#stop_button::indicator::unchecked
 {
@@ -138,18 +131,6 @@ QRadioButton#stop_button::indicator::unchecked
 QRadioButton#stop_button::indicator::checked
 {
 	image: url($STYLE_FOLDER/stop-off.png);
-}
-
-
-
-/*Rec button*/
-
-QRadioButton#rec_button::indicator
-{
-	width:48px;
-	height:48px;
-	border-radius: 10px;
-	border 2px solid white;
 }
 
 QRadioButton#rec_button::indicator::unchecked
