@@ -5359,6 +5359,7 @@ class item_list_editor:
         self.cc_auto_viewer_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
+        self.cc_auto_viewer_scrollarea_widget.setObjectName("plugin_ui")
         self.cc_auto_viewer_scrollarea_widget.setMinimumSize(880, 1270)
         self.cc_auto_viewer_scrollarea.setWidgetResizable(True)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
