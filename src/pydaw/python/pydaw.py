@@ -1342,6 +1342,9 @@ global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 25
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
 global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 
+global_audio_item_max_lane = 19
+global_audio_item_lane_count = 20
+
 global_last_audio_item_dir = global_home
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
@@ -1848,7 +1851,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def y_pos_to_lane_number(self, a_y_pos):
         f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
-        f_lane_num = pydaw_clip_value(f_lane_num, 0, 11)
+        f_lane_num = pydaw_clip_value(f_lane_num, 0, global_audio_item_max_lane)
         f_y_pos = (f_lane_num * global_audio_item_height) + global_audio_ruler_height
         return f_lane_num, f_y_pos
 
@@ -2528,7 +2531,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_beat_pen = QtGui.QPen(QtGui.QColor(210, 210, 210))
         f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
-        f_total_height = (12.0 * (global_audio_item_height)) + global_audio_ruler_height
+        f_total_height = (global_audio_item_lane_count * (global_audio_item_height)) + global_audio_ruler_height
         self.playback_cursor = self.scene.addLine(0.0, 0.0, 0.0, f_total_height,
                                                   QtGui.QPen(QtCore.Qt.red, 2.0))
         self.playback_cursor.setZValue(1000.0)
@@ -2550,7 +2553,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                                            f_total_height, f_16th_pen)
             i3 += global_audio_px_per_bar
         self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_reg_pen)
-        for i2 in range(12):
+        for i2 in range(global_audio_item_lane_count):
             f_y = ((global_audio_item_height) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos(a_cursor_pos)
