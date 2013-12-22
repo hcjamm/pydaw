@@ -1753,6 +1753,7 @@ class pydaw_abstract_plugin_ui:
         self.configure_callback = a_configure_callback
         self.track_type = int(a_track_type)
         self.widget = QtGui.QWidget()
+        self.widget.setObjectName("plugin_ui")
         self.widget.setGeometry(0, 0, 10, 10)
         self.widget.setStyleSheet(str(a_stylesheet))
         self.widget.closeEvent = self.widget_close_event

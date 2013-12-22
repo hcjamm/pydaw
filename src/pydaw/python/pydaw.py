@@ -2632,6 +2632,7 @@ class audio_items_viewer_widget():
         self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback,
                                                                     global_paif_val_callback)
         self.modulex_widget = QtGui.QWidget()
+        self.modulex_widget.setObjectName("plugin_ui")
         self.modulex_vlayout = QtGui.QVBoxLayout(self.modulex_widget)
         self.folders_tab_widget.addTab(self.modulex_widget, "Per-Item FX")
         self.modulex.widget.setDisabled(True)
