@@ -60,7 +60,8 @@ static void v_modulex_panic(PYFX_Handle instance)
     }
 }
 
-static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index, float * DataLocation)
+static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index,
+        float * DataLocation)
 {
     t_modulex *plugin = (t_modulex*)instance;
 
@@ -78,7 +79,8 @@ static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index, float * 
     }
 }
 
-static void v_modulex_connect_port(PYFX_Handle instance, int port, PYFX_Data * data)
+static void v_modulex_connect_port(PYFX_Handle instance, int port,
+        PYFX_Data * data)
 {
     t_modulex *plugin;
 
@@ -143,7 +145,8 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port, PYFX_Data * d
 }
 
 static PYFX_Handle g_modulex_instantiate(const PYFX_Descriptor * descriptor,
-				   int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
+        int s_rate,
+        fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     t_modulex *plugin_data = (t_modulex *) malloc(sizeof(t_modulex));
 
@@ -157,7 +160,7 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
 
     plugin_data->port_table = a_port_table;
 
-    plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));  //initialize all monophonic modules
+    plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));
 
     plugin_data->i_slow_index = MODULEX_SLOW_INDEX_ITERATIONS;
     plugin_data->is_on = 0;
@@ -169,7 +172,8 @@ static void v_modulex_check_if_on(t_modulex *plugin_data)
 
     while(f_i < 8)
     {
-        plugin_data->mono_modules->fx_func_ptr[f_i] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[f_i])));
+        plugin_data->mono_modules->fx_func_ptr[f_i] =
+            g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[f_i])));
 
         if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
         {
@@ -195,21 +199,30 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         {
             if(events[event_pos].plugin_index == -1)
             {
-                assert(events[event_pos].port < MODULEX_COUNT && events[event_pos].port >= MODULEX_FIRST_CONTROL_PORT);
+                assert(events[event_pos].port < MODULEX_COUNT &&
+                        events[event_pos].port >= MODULEX_FIRST_CONTROL_PORT);
 
-                plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
-                plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
-                plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[event_pos].port;
-                plugin_data->midi_event_values[plugin_data->midi_event_count] = events[event_pos].value;
+                plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                        PYDAW_EVENT_CONTROLLER;
+                plugin_data->midi_event_ticks[plugin_data->midi_event_count] =
+                        events[event_pos].tick;
+                plugin_data->midi_event_ports[plugin_data->midi_event_count] =
+                        events[event_pos].port;
+                plugin_data->midi_event_values[plugin_data->midi_event_count] =
+                        events[event_pos].value;
 
                 if(!plugin_data->is_on)
                 {
                     v_modulex_check_if_on(plugin_data);
 
-                    if(!plugin_data->is_on)  //Meaning that we now have set the port anyways because the main loop won't be running
+                    //Meaning that we now have set the port anyways because the
+                    //main loop won't be running
+                    if(!plugin_data->is_on)
                     {
-                        plugin_data->port_table[plugin_data->midi_event_ports[plugin_data->midi_event_count]] =
-                                plugin_data->midi_event_values[plugin_data->midi_event_count];
+                        plugin_data->port_table[plugin_data->midi_event_ports[
+                                plugin_data->midi_event_count]] =
+                                plugin_data->midi_event_values[
+                                plugin_data->midi_event_count];
                     }
                 }
 
@@ -241,19 +254,25 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
         while((plugin_data->i_mono_out) < sample_count)
         {
-            while(midi_event_pos < plugin_data->midi_event_count && plugin_data->midi_event_ticks[midi_event_pos] == plugin_data->i_mono_out)
+            while(midi_event_pos < plugin_data->midi_event_count &&
+                    plugin_data->midi_event_ticks[midi_event_pos] ==
+                    plugin_data->i_mono_out)
             {
-                if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_CONTROLLER)
+                if(plugin_data->midi_event_types[midi_event_pos] ==
+                        PYDAW_EVENT_CONTROLLER)
                 {
-                    plugin_data->port_table[plugin_data->midi_event_ports[midi_event_pos]] =
+                    plugin_data->port_table[
+                            plugin_data->midi_event_ports[midi_event_pos]] =
                             plugin_data->midi_event_values[midi_event_pos];
                 }
 
                 midi_event_pos++;
             }
 
-            plugin_data->mono_modules->current_sample0 = plugin_data->output0[(plugin_data->i_mono_out)];
-            plugin_data->mono_modules->current_sample1 = plugin_data->output1[(plugin_data->i_mono_out)];
+            plugin_data->mono_modules->current_sample0 =
+                    plugin_data->output0[(plugin_data->i_mono_out)];
+            plugin_data->mono_modules->current_sample1 =
+                    plugin_data->output1[(plugin_data->i_mono_out)];
 
             f_i = 0;
 
@@ -261,25 +280,35 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             {
                 if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
                 {
-                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][0], *plugin_data->fx_knob0[f_i]);
-                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][1], *plugin_data->fx_knob1[f_i]);
-                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][2], *plugin_data->fx_knob2[f_i]);
+                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][0],
+                            *plugin_data->fx_knob0[f_i]);
+                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][1],
+                            *plugin_data->fx_knob1[f_i]);
+                    v_sml_run(plugin_data->mono_modules->smoothers[f_i][2],
+                            *plugin_data->fx_knob2[f_i]);
 
                     v_mf3_set(plugin_data->mono_modules->multieffect[f_i],
                     plugin_data->mono_modules->smoothers[f_i][0]->last_value,
                     plugin_data->mono_modules->smoothers[f_i][1]->last_value,
                     plugin_data->mono_modules->smoothers[f_i][2]->last_value  );
 
-                    plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1));
+                    plugin_data->mono_modules->fx_func_ptr[f_i](
+                        plugin_data->mono_modules->multieffect[f_i],
+                        (plugin_data->mono_modules->current_sample0),
+                        (plugin_data->mono_modules->current_sample1));
 
-                    plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect[f_i]->output0;
-                    plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect[f_i]->output1;
+                    plugin_data->mono_modules->current_sample0 =
+                        plugin_data->mono_modules->multieffect[f_i]->output0;
+                    plugin_data->mono_modules->current_sample1 =
+                        plugin_data->mono_modules->multieffect[f_i]->output1;
                 }
                 f_i++;
             }
 
-            plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
-            plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+            plugin_data->output0[(plugin_data->i_mono_out)] =
+                    (plugin_data->mono_modules->current_sample0);
+            plugin_data->output1[(plugin_data->i_mono_out)] =
+                    (plugin_data->mono_modules->current_sample1);
 
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
@@ -291,27 +320,38 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
         while((plugin_data->i_mono_out) < sample_count)
         {
-            v_sml_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time)));
+            v_sml_run(plugin_data->mono_modules->time_smoother,
+                    (*(plugin_data->delay_time)));
 
-            v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->last_value * 0.01f), *(plugin_data->feedback),
-                    *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01), (*plugin_data->duck), (*plugin_data->cutoff));
+            v_ldl_set_delay(plugin_data->mono_modules->delay,
+                (plugin_data->mono_modules->time_smoother->last_value * 0.01f),
+                *(plugin_data->feedback),
+                *(plugin_data->wet), *(plugin_data->dry),
+                (*(plugin_data->stereo) * .01), (*plugin_data->duck),
+                (*plugin_data->cutoff));
 
             v_ldl_run_delay(plugin_data->mono_modules->delay,
-                    (plugin_data->output0[(plugin_data->i_mono_out)]), (plugin_data->output0[(plugin_data->i_mono_out)]));
+                    (plugin_data->output0[(plugin_data->i_mono_out)]),
+                    (plugin_data->output0[(plugin_data->i_mono_out)]));
 
-            plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output0);
-            plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output1);
+            plugin_data->output0[(plugin_data->i_mono_out)] =
+                    (plugin_data->mono_modules->delay->output0);
+            plugin_data->output1[(plugin_data->i_mono_out)] =
+                    (plugin_data->mono_modules->delay->output1);
 
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
     }
 
-    v_sml_run(plugin_data->mono_modules->reverb_smoother, (*plugin_data->reverb_wet));
+    v_sml_run(plugin_data->mono_modules->reverb_smoother,
+            (*plugin_data->reverb_wet));
 
     if((plugin_data->mono_modules->reverb_smoother->last_value) > 0.005f)
     {
-        v_rvb_reverb_set(plugin_data->mono_modules->reverb, (*plugin_data->reverb_time) * 0.01f,
-                f_db_to_linear_fast(((plugin_data->mono_modules->reverb_smoother->last_value) * 0.4f) - 40.0f,
+        v_rvb_reverb_set(plugin_data->mono_modules->reverb,
+                (*plugin_data->reverb_time) * 0.01f,
+                f_db_to_linear_fast(((plugin_data->mono_modules->
+                reverb_smoother->last_value) * 0.4f) - 40.0f,
                 plugin_data->mono_modules->amp_ptr),
                 (*plugin_data->reverb_color) * 0.01f);
 
@@ -322,27 +362,34 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 plugin_data->output0[f_i],
                 plugin_data->output1[f_i]);
 
-            plugin_data->output0[f_i] += plugin_data->mono_modules->reverb->output;
-            plugin_data->output1[f_i] += plugin_data->mono_modules->reverb->output;
+            plugin_data->output0[f_i] +=
+                    plugin_data->mono_modules->reverb->output;
+            plugin_data->output1[f_i] +=
+                    plugin_data->mono_modules->reverb->output;
 
             f_i++;
         }
     }
 
-    if((plugin_data->mono_modules->volume_smoother->last_value) != 0.0f || (*plugin_data->vol_slider != 0.0f))
+    if((plugin_data->mono_modules->volume_smoother->last_value) != 0.0f ||
+            (*plugin_data->vol_slider != 0.0f))
     {
         f_i = 0;
 
         while(f_i < sample_count)
         {
-            v_sml_run(plugin_data->mono_modules->volume_smoother, (*plugin_data->vol_slider));
+            v_sml_run(plugin_data->mono_modules->volume_smoother,
+                    (*plugin_data->vol_slider));
 
             plugin_data->mono_modules->vol_linear =
-                f_db_to_linear_fast((plugin_data->mono_modules->volume_smoother->last_value),
-                plugin_data->mono_modules->amp_ptr);
+                f_db_to_linear_fast(
+                    (plugin_data->mono_modules->volume_smoother->last_value),
+                    plugin_data->mono_modules->amp_ptr);
 
-            plugin_data->output0[f_i] *= (plugin_data->mono_modules->vol_linear);
-            plugin_data->output1[f_i] *= (plugin_data->mono_modules->vol_linear);
+            plugin_data->output0[f_i] *=
+                    (plugin_data->mono_modules->vol_linear);
+            plugin_data->output1[f_i] *=
+                    (plugin_data->mono_modules->vol_linear);
             f_i++;
         }
     }
@@ -397,7 +444,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX0_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX0_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX0_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX0_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
 	port_descriptors[MODULEX_FX1_KNOB0] = 1;
 	port_range_hints[MODULEX_FX1_KNOB0].DefaultValue = 64.0f;
@@ -417,7 +465,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX1_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX1_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX1_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX1_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
         port_descriptors[MODULEX_FX2_KNOB0] = 1;
 	port_range_hints[MODULEX_FX2_KNOB0].DefaultValue = 64.0f;
@@ -437,7 +486,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX2_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX2_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX2_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX2_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
 	port_descriptors[MODULEX_FX3_KNOB0] = 1;
 	port_range_hints[MODULEX_FX3_KNOB0].DefaultValue = 64.0f;
@@ -457,7 +507,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX3_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX3_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX3_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX3_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
 	port_descriptors[MODULEX_FX4_KNOB0] = 1;
 	port_range_hints[MODULEX_FX4_KNOB0].DefaultValue = 64.0f;
@@ -477,7 +528,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX4_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX4_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX4_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX4_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX4_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
 	port_descriptors[MODULEX_FX5_KNOB0] = 1;
 	port_range_hints[MODULEX_FX5_KNOB0].DefaultValue = 64.0f;
@@ -497,7 +549,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX5_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX5_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX5_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX5_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX5_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
         port_descriptors[MODULEX_FX6_KNOB0] = 1;
 	port_range_hints[MODULEX_FX6_KNOB0].DefaultValue = 64.0f;
@@ -517,7 +570,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX6_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX6_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX6_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX6_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX6_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
 	port_descriptors[MODULEX_FX7_KNOB0] = 1;
 	port_range_hints[MODULEX_FX7_KNOB0].DefaultValue = 64.0f;
@@ -537,7 +591,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_descriptors[MODULEX_FX7_COMBOBOX] = 1;
 	port_range_hints[MODULEX_FX7_COMBOBOX].DefaultValue = 0.0f;
 	port_range_hints[MODULEX_FX7_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =
+                MULTIFX3KNOB_MAX_INDEX;
 
 	port_descriptors[MODULEX_DELAY_TIME] = 1;
 	port_range_hints[MODULEX_DELAY_TIME].DefaultValue = 50.0f;

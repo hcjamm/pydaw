@@ -58,7 +58,8 @@ static void euphoriaPanic(PYFX_Handle instance)
     }
 }
 
-static void euphoriaConnectBuffer(PYFX_Handle instance, int a_index, float * DataLocation)
+static void euphoriaConnectBuffer(PYFX_Handle instance, int a_index,
+        float * DataLocation)
 {
     t_euphoria *plugin = (t_euphoria *) instance;
 
@@ -233,139 +234,171 @@ static void connectPortSampler(PYFX_Handle instance, int port,
                 break;
         }
     }
-    else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
         plugin->basePitch[(port - EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
         plugin->low_note[(port - EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
     {
         plugin->high_note[(port - EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         plugin->sample_vol[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_START_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX))
     {
         plugin->sampleStarts[(port - EUPHORIA_SAMPLE_START_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_END_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX))
     {
         plugin->sampleEnds[(port - EUPHORIA_SAMPLE_END_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
     {
         plugin->sample_vel_sens[(port - EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
     {
         plugin->sample_vel_low[(port - EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
         plugin->sample_vel_high[(port - EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)] = data;
     }
     //new
-    else if((port >= EUPHORIA_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PITCH_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_PITCH_PORT_RANGE_MAX))
     {
         plugin->sample_pitch[(port - EUPHORIA_PITCH_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_TUNE_PORT_RANGE_MIN) && (port < EUPHORIA_TUNE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_TUNE_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_TUNE_PORT_RANGE_MAX))
     {
         plugin->sample_tune[(port - EUPHORIA_TUNE_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
     {
         plugin->sample_interpolation_mode[(port - EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)] = data;
     }
 
-    else if((port >= EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX))
     {
         plugin->sampleLoopStarts[(port - EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX))
     {
         plugin->sampleLoopEnds[(port - EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN)] = data;
     }
-    else if((port >= EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
     {
         plugin->sampleLoopModes[(port - EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)] = data;
     }
 
     //MonoFX0
-    else if((port >= EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN)][0][0] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN)][0][1] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN)][0][2] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
         plugin->mfx_comboboxes[(port - EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN)][0] = data;
     }
     //MonoFX1
-    else if((port >= EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN)][1][0] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN)][1][1] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN)][1][2] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
         plugin->mfx_comboboxes[(port - EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN)][1] = data;
     }
     //MonoFX2
-    else if((port >= EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN)][2][0] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN)][2][1] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN)][2][2] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
         plugin->mfx_comboboxes[(port - EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN)][2] = data;
     }
     //MonoFX3
-    else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN)][3][0] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN)][3][1] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
         plugin->mfx_knobs[(port - EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN)][3][2] = data;
     }
-    else if((port >= EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
         plugin->mfx_comboboxes[(port - EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN)][3] = data;
     }
 
-    else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) &&
+            (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
         plugin->sample_mfx_groups[(port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN)] = data;
     }
@@ -377,18 +410,21 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     {
         plugin->noise_type[(port - EUPHORIA_NOISE_TYPE_MIN)] = data;
     }
-    else if(port >= EUPHORIA_SAMPLE_FADE_IN_MIN && port < EUPHORIA_SAMPLE_FADE_IN_MAX)
+    else if(port >= EUPHORIA_SAMPLE_FADE_IN_MIN &&
+            port < EUPHORIA_SAMPLE_FADE_IN_MAX)
     {
         plugin->sampleFadeInEnds[(port - EUPHORIA_SAMPLE_FADE_IN_MIN)] = data;
     }
-    else if(port >= EUPHORIA_SAMPLE_FADE_OUT_MIN && port < EUPHORIA_SAMPLE_FADE_OUT_MAX)
+    else if(port >= EUPHORIA_SAMPLE_FADE_OUT_MIN &&
+            port < EUPHORIA_SAMPLE_FADE_OUT_MAX)
     {
         plugin->sampleFadeOutStarts[(port - EUPHORIA_SAMPLE_FADE_OUT_MIN)] = data;
     }
 }
 
 static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
-					int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
+        int s_rate,
+        fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     wavpool_get_func = a_host_wavpool_func;
     t_euphoria *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
@@ -482,21 +518,24 @@ static void v_euphoria_activate(PYFX_Handle instance, float * a_port_table)
 
 //For the per-sample interpolation modes
 typedef int (*fp_calculate_ratio)(t_euphoria *__restrict plugin_data, int n);
-typedef void (*fp_run_sampler_interpolation)(t_euphoria *__restrict plugin_data, int n, int ch);
+typedef void (*fp_run_sampler_interpolation)(t_euphoria *__restrict plugin_data,
+        int n, int ch);
 
 static fp_calculate_ratio ratio_function_ptrs[EUPHORIA_MAX_SAMPLE_COUNT];
 static fp_run_sampler_interpolation interpolation_modes[EUPHORIA_MAX_SAMPLE_COUNT];
 
 static inline int check_sample_bounds(t_euphoria *__restrict plugin_data, int n)
 {
-    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)])
+    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=
+            plugin_data->sampleEndPos[(plugin_data->current_sample)])
     {
         if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->current_sample)]))) > 0)
         {
             //TODO:  write a special function that either maintains the fraction, or
             //else wraps the negative interpolation back to where it was before the loop happened, to avoid clicks and pops
             v_ifh_retrigger(plugin_data->sample_read_heads[n][(plugin_data->current_sample)],
-                    (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + (plugin_data->sampleLoopStartPos[(plugin_data->current_sample)])));// 0.0f;
+                    (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 +
+                    (plugin_data->sampleLoopStartPos[(plugin_data->current_sample)])));// 0.0f;
 
             return 0;
         }
@@ -521,7 +560,8 @@ static int calculate_ratio_sinc(t_euphoria *__restrict plugin_data, int n)
             *
             plugin_data->wavpool_items[(plugin_data->current_sample)]->ratio_orig;
 
-    v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], (plugin_data->ratio));
+    v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)],
+            (plugin_data->ratio));
 
     return check_sample_bounds(plugin_data, n);
 }
@@ -533,23 +573,26 @@ static int calculate_ratio_linear(t_euphoria *__restrict plugin_data, int n)
 
 static int calculate_ratio_none(t_euphoria *__restrict plugin_data, int n)
 {
-    plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number = (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) + 1;
+    plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number =
+            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) + 1;
 
     return check_sample_bounds(plugin_data, n);
 }
 
 static void run_sampler_interpolation_sinc(t_euphoria *__restrict plugin_data, int n, int ch)
 {
-    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator,
-            plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch],
-            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
-            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction));
+    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] =
+        f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator,
+        plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch],
+        (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
+        (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction));
 }
 
 
 static void run_sampler_interpolation_linear(t_euphoria *__restrict plugin_data, int n, int ch)
 {
-    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_cubic_interpolate_ptr_ifh(
+    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] =
+        f_cubic_interpolate_ptr_ifh(
             plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch],
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction),
@@ -560,7 +603,8 @@ static void run_sampler_interpolation_linear(t_euphoria *__restrict plugin_data,
 static void run_sampler_interpolation_none(t_euphoria *__restrict plugin_data, int n, int ch)
 {
     plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] =
-            plugin_data->wavpool_items[(plugin_data->current_sample)]->samples[ch][(plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number)];
+            plugin_data->wavpool_items[(plugin_data->current_sample)]->
+            samples[ch][(plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number)];
 }
 
 /* void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data,
@@ -598,7 +642,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
     v_lfs_run(f_voice->lfo1);
 
     f_voice->base_pitch = (f_voice->glide_env->output_multiplied)
-            +  (plugin_data->mono_modules->pitchbend_smoother->last_value * (*(plugin_data->master_pb_amt)))  //(plugin_data->sv_pitch_bend_value)
+            +  (plugin_data->mono_modules->pitchbend_smoother->last_value *
+            (*(plugin_data->master_pb_amt)))  //(plugin_data->sv_pitch_bend_value)
             + (f_voice->last_pitch) + ((f_voice->lfo1->output) * (*(plugin_data->lfo_pitch)));
 
     if(plugin_data->voices->voices[n].off == plugin_data->sampleNo)
@@ -635,9 +680,12 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
         if(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number <
            f_voice->sample_fade_in_end_sample[plugin_data->current_sample])
         {
-            float f_fade_in_inc = f_voice->sample_fade_in_inc[plugin_data->current_sample];
-            float f_start_pos = (plugin_data->sampleStartPos[plugin_data->current_sample]);
-            float f_read_head_pos = (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number);
+            float f_fade_in_inc =
+                f_voice->sample_fade_in_inc[plugin_data->current_sample];
+            float f_start_pos =
+                (plugin_data->sampleStartPos[plugin_data->current_sample]);
+            float f_read_head_pos =
+                (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number);
 
             f_fade_vol =  (f_read_head_pos - f_start_pos) * f_fade_in_inc;
             f_fade_vol = (f_fade_vol * 18.0f) - 18.0f;
@@ -646,8 +694,10 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
         else if(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number >
                 f_voice->sample_fade_out_start_sample[plugin_data->current_sample])
         {
-            float f_sample_end_pos = plugin_data->sampleEndPos[plugin_data->current_sample];
-            float f_read_head_pos = (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number);
+            float f_sample_end_pos =
+                plugin_data->sampleEndPos[plugin_data->current_sample];
+            float f_read_head_pos =
+                (float)(plugin_data->sample_read_heads[n][plugin_data->current_sample]->whole_number);
             float f_fade_out_dec = f_voice->sample_fade_out_dec[plugin_data->current_sample];
 
             f_fade_vol = (f_sample_end_pos - f_read_head_pos) * f_fade_out_dec;
@@ -656,18 +706,21 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
         }
 
         f_voice->noise_sample =
-                ((plugin_data->mono_modules->noise_func_ptr[(plugin_data->current_sample)](plugin_data->mono_modules->white_noise1[(f_voice->noise_index)]))
+                ((plugin_data->mono_modules->noise_func_ptr[(plugin_data->current_sample)](
+                plugin_data->mono_modules->white_noise1[(f_voice->noise_index)]))
                 * (plugin_data->mono_modules->noise_linamp[(plugin_data->current_sample)])); //add noise
 
         for (ch = 0; ch < (plugin_data->wavpool_items[(plugin_data->current_sample)]->channels); ++ch)
         {
             interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
-            plugin_data->sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] * f_fade_vol;
+            plugin_data->sample[ch] +=
+                plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] * f_fade_vol;
 
             plugin_data->sample[ch] += (f_voice->noise_sample);
 
-            plugin_data->sample[ch] = (plugin_data->sample[ch]) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (f_voice->lfo_amp_output);
+            plugin_data->sample[ch] = (plugin_data->sample[ch]) *
+                    (plugin_data->sample_amp[(plugin_data->current_sample)]);
 
             f_voice->modulex_current_sample[ch] += (plugin_data->sample[ch]);
 
@@ -683,7 +736,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
     }
 
     //Modular PolyFX, processed from the index created during note_on
-    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]);
+            plugin_data->i_dst = (plugin_data->i_dst) + 1)
     {
         v_mf3_set(f_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],
             *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][0]),
@@ -692,7 +746,9 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
 
         int f_mod_test;
 
-        for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]); f_mod_test++)
+        for(f_mod_test = 0;
+            f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]);
+            f_mod_test++)
         {
             v_mf3_mod_single(
                     f_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],
@@ -712,9 +768,11 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
     }
 
     plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0] +=
-            (f_voice->modulex_current_sample[0]) * (f_voice->adsr_amp->output) * (plugin_data->amp);
+            (f_voice->modulex_current_sample[0]) * (f_voice->adsr_amp->output) *
+            (plugin_data->amp);
     plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1] +=
-            (f_voice->modulex_current_sample[1]) * (f_voice->adsr_amp->output) * (plugin_data->amp);
+            (f_voice->modulex_current_sample[1]) * (f_voice->adsr_amp->output) *
+            (plugin_data->amp);
 }
 
 static inline void v_euphoria_slow_index(t_euphoria* plugin_data)
@@ -800,13 +858,16 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 {
                     if((f_note >= ((int)(*(plugin_data->low_note[(plugin_data->loaded_samples[i])])))) &&
                     (f_note <= ((int)(*(plugin_data->high_note[(plugin_data->loaded_samples[i])])))) &&
-                    (plugin_data->velocities[f_voice_num] <= ((int)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])))) &&
-                    (plugin_data->velocities[f_voice_num] >= ((int)(*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))))
+                    (plugin_data->velocities[f_voice_num] <=
+                        ((int)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])))) &&
+                    (plugin_data->velocities[f_voice_num] >=
+                            ((int)(*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))))
                     {
                         plugin_data->sample_indexes[f_voice_num][(plugin_data->sample_indexes_count[f_voice_num])] = (plugin_data->loaded_samples[i]);
                         plugin_data->sample_indexes_count[f_voice_num] = (plugin_data->sample_indexes_count[f_voice_num]) + 1;
 
-                        plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
+                        plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] =
+                                (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
 
                         plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 +
                                 ((plugin_data->wavpool_items[(plugin_data->loaded_samples[i])]->length) *
@@ -903,17 +964,21 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
                         //end fade stuff
 
-                        plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])]))
-                                - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
+                        plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] =
+                                (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])]))
+                                - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) -
+                                ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
 
                         v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])],
                                 (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]));// 0.0f;
 
                         plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])] =
                                 (1.0f -
-                                (((float)(events[event_pos].velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                                (((float)(events[event_pos].velocity) -
+                                (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                                 /
-                                ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
+                                ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) -
+                                (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
                                 * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f;
 
                         plugin_data->sample_amp[(plugin_data->loaded_samples[i])] = f_db_to_linear(
@@ -936,20 +1001,27 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                                 ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_none;
                                 break;
                             default:
-                                printf("Error, invalid interpolation mode %i\n", ((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])]))));
+                                printf("Error, invalid interpolation mode %i\n",
+                                        ((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])]))));
                         }
                     }
                 }
 
                 plugin_data->active_polyfx_count[f_voice_num] = 0;
                 //Determine which PolyFX have been enabled
-                for(plugin_data->i_dst = 0; (plugin_data->i_dst) < EUPHORIA_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                for(plugin_data->i_dst = 0;
+                    (plugin_data->i_dst) < EUPHORIA_MODULAR_POLYFX_COUNT;
+                        plugin_data->i_dst = (plugin_data->i_dst) + 1)
                 {
-                    int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
-                    plugin_data->data[f_voice_num]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index);
-                    plugin_data->data[f_voice_num]->fx_reset_ptr[(plugin_data->i_dst)] = g_mf3_get_reset_function_pointer(f_pfx_combobox_index);
+                    int f_pfx_combobox_index =
+                        (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
+                    plugin_data->data[f_voice_num]->fx_func_ptr[(plugin_data->i_dst)] =
+                            g_mf3_get_function_pointer(f_pfx_combobox_index);
+                    plugin_data->data[f_voice_num]->fx_reset_ptr[(plugin_data->i_dst)] =
+                            g_mf3_get_reset_function_pointer(f_pfx_combobox_index);
 
-                    plugin_data->data[f_voice_num]->fx_reset_ptr[(plugin_data->i_dst)](plugin_data->data[f_voice_num]->multieffect[(plugin_data->i_dst)]);
+                    plugin_data->data[f_voice_num]->fx_reset_ptr[(plugin_data->i_dst)](
+                        plugin_data->data[f_voice_num]->multieffect[(plugin_data->i_dst)]);
 
                     if(f_pfx_combobox_index != 0)
                     {
@@ -959,15 +1031,23 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 }
 
                 //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
-                for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < EUPHORIA_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
+                for(plugin_data->i_fx_grps = 0;
+                    (plugin_data->i_fx_grps) < EUPHORIA_EFFECTS_GROUPS_COUNT;
+                    plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
                 {
-                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_voice_num]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                    for(plugin_data->i_dst = 0;
+                        (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_voice_num]);
+                        plugin_data->i_dst = (plugin_data->i_dst) + 1)
                     {
                         plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])] = 0;
 
-                        for(plugin_data->i_src = 0; (plugin_data->i_src) < EUPHORIA_MODULATOR_COUNT; plugin_data->i_src = (plugin_data->i_src) + 1)
+                        for(plugin_data->i_src = 0;
+                            (plugin_data->i_src) < EUPHORIA_MODULATOR_COUNT;
+                            plugin_data->i_src = (plugin_data->i_src) + 1)
                         {
-                            for(plugin_data->i_ctrl = 0; (plugin_data->i_ctrl) < EUPHORIA_CONTROLS_PER_MOD_EFFECT; plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
+                            for(plugin_data->i_ctrl = 0;
+                                (plugin_data->i_ctrl) < EUPHORIA_CONTROLS_PER_MOD_EFFECT;
+                                plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
                             {
                                 if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
                                 {
@@ -983,15 +1063,20 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                     }
                 }
 
-                plugin_data->data[f_voice_num]->noise_index = (plugin_data->mono_modules->noise_current_index);
-                plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
+                plugin_data->data[f_voice_num]->noise_index =
+                        (plugin_data->mono_modules->noise_current_index);
+                plugin_data->mono_modules->noise_current_index =
+                        (plugin_data->mono_modules->noise_current_index) + 1;
 
-                if((plugin_data->mono_modules->noise_current_index) >= EUPHORIA_NOISE_COUNT)
+                if((plugin_data->mono_modules->noise_current_index) >=
+                        EUPHORIA_NOISE_COUNT)
                 {
                     plugin_data->mono_modules->noise_current_index = 0;
                 }
 
-                plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);
+                plugin_data->amp =
+                        f_db_to_linear_fast(*(plugin_data->master_vol),
+                        plugin_data->mono_modules->amp_ptr);
 
                 plugin_data->data[f_voice_num]->note_f = (float)f_note;
 
@@ -1007,15 +1092,25 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_filter);
                 v_lfs_sync(plugin_data->data[f_voice_num]->lfo1, 0.0f, *(plugin_data->lfo_type));
 
-                float f_attack_a = (*(plugin_data->attack) * .01);  f_attack_a *= f_attack_a;
-                float f_decay_a = (*(plugin_data->decay) * .01);  f_decay_a *= f_decay_a;
-                float f_release_a = (*(plugin_data->release) * .01); f_release_a *= f_release_a;
-                v_adsr_set_adsr_db(plugin_data->data[f_voice_num]->adsr_amp, f_attack_a, f_decay_a, (*(plugin_data->sustain)), f_release_a);
+                float f_attack_a = (*(plugin_data->attack) * .01);
+                f_attack_a *= f_attack_a;
+                float f_decay_a = (*(plugin_data->decay) * .01);
+                f_decay_a *= f_decay_a;
+                float f_release_a = (*(plugin_data->release) * .01);
+                f_release_a *= f_release_a;
+                v_adsr_set_adsr_db(plugin_data->data[f_voice_num]->adsr_amp,
+                        f_attack_a, f_decay_a, (*(plugin_data->sustain)),
+                        f_release_a);
 
-                float f_attack_f = (*(plugin_data->attack_f) * .01);  f_attack_f *= f_attack_f;
-                float f_decay_f = (*(plugin_data->decay_f) * .01);  f_decay_f *= f_decay_f;
-                float f_release_f = (*(plugin_data->release_f) * .01); f_release_f *= f_release_f;
-                v_adsr_set_adsr(plugin_data->data[f_voice_num]->adsr_filter, f_attack_f, f_decay_f, (*(plugin_data->sustain_f) * .01), f_release_f);
+                float f_attack_f = (*(plugin_data->attack_f) * .01);
+                f_attack_f *= f_attack_f;
+                float f_decay_f = (*(plugin_data->decay_f) * .01);
+                f_decay_f *= f_decay_f;
+                float f_release_f = (*(plugin_data->release_f) * .01);
+                f_release_f *= f_release_f;
+                v_adsr_set_adsr(plugin_data->data[f_voice_num]->adsr_filter,
+                        f_attack_f, f_decay_f,
+                        (*(plugin_data->sustain_f) * .01), f_release_f);
 
                 /*Retrigger the pitch envelope*/
                 v_rmp_retrigger((plugin_data->data[f_voice_num]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1.0f);
@@ -1033,19 +1128,22 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             }
             else
             {
-                v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
+                v_voc_note_off(plugin_data->voices, events[event_pos].note,
+                        plugin_data->sampleNo, events[event_pos].tick);
             }
         }
         else if (events[event_pos].type == PYDAW_EVENT_NOTEOFF )
         {
             f_note = events[event_pos].note;
-            v_voc_note_off(plugin_data->voices, events[event_pos].note, plugin_data->sampleNo, events[event_pos].tick);
+            v_voc_note_off(plugin_data->voices, events[event_pos].note,
+                    plugin_data->sampleNo, events[event_pos].tick);
         }
         else if (events[event_pos].type == PYDAW_EVENT_CONTROLLER)
         {
             if (events[event_pos].plugin_index != -1) //The host already filters out messages for other instruments
             {
-                assert(events[event_pos].port >= EUPHORIA_FIRST_CONTROL_PORT && events[event_pos].port < EUPHORIA_PORT_COUNT);
+                assert(events[event_pos].port >= EUPHORIA_FIRST_CONTROL_PORT &&
+                        events[event_pos].port < EUPHORIA_PORT_COUNT);
 
                 plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
                 plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[event_pos].tick;
@@ -1073,7 +1171,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 	plugin_data->output[0][i] = 0.0f;
         plugin_data->output[1][i] = 0.0f;
 
-        while(midi_event_pos < plugin_data->midi_event_count && plugin_data->midi_event_ticks[midi_event_pos] == i)
+        while(midi_event_pos < plugin_data->midi_event_count &&
+                plugin_data->midi_event_ticks[midi_event_pos] == i)
         {
             if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_PITCHBEND)
             {
@@ -1088,7 +1187,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
 
-        v_sml_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        v_sml_run(plugin_data->mono_modules->pitchbend_smoother,
+                (plugin_data->sv_pitch_bend_value));
 
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
         {
@@ -1098,7 +1198,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
         for (i2 = 0; i2 < EUPHORIA_POLYPHONY; ++i2)
         {
-            if(((plugin_data->data[i2]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i2]) > 0))
+            if(((plugin_data->data[i2]->adsr_amp->stage) < 4) &&
+                    ((plugin_data->sample_indexes_count[i2]) > 0))
             {
                 add_sample_lms_euphoria(plugin_data, i2);
             }
@@ -1111,8 +1212,13 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
             for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
             {
-                v_mf3_set(plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][0])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][1])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][2])));
-                plugin_data->mono_modules->fx_func_ptr[(plugin_data->monofx_channel_index[i2])][i3](plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], f_temp_sample0, f_temp_sample1);
+                v_mf3_set(plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3],
+                        (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][0])),
+                        (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][1])),
+                        (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][2])));
+                plugin_data->mono_modules->fx_func_ptr[(plugin_data->monofx_channel_index[i2])][i3](
+                    plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3],
+                    f_temp_sample0, f_temp_sample1);
 
                 f_temp_sample0 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output0);
                 f_temp_sample1 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output1);
@@ -1129,7 +1235,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
     //pthread_mutex_unlock(&plugin_data->mutex);
 }
 
-static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pthread_mutex_t * a_mutex)
+static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths,
+        pthread_mutex_t * a_mutex)
 {
     int f_index = 0;
     int f_samples_loaded_count = 0;
@@ -1221,7 +1328,8 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths, pth
     return NULL;
 }
 
-char *c_euphoria_configure(PYFX_Handle instance, const char *key, const char *value, pthread_mutex_t * a_mutex)
+char *c_euphoria_configure(PYFX_Handle instance, const char *key,
+        const char *value, pthread_mutex_t * a_mutex)
 {
     t_euphoria *plugin_data = (t_euphoria *)instance;
 
@@ -1266,7 +1374,8 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_descriptors[EUPHORIA_SELECTED_SAMPLE] = 1;
     port_range_hints[EUPHORIA_SELECTED_SAMPLE].DefaultValue = 0.0f;
     port_range_hints[EUPHORIA_SELECTED_SAMPLE].LowerBound = 0;
-    port_range_hints[EUPHORIA_SELECTED_SAMPLE].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
+    port_range_hints[EUPHORIA_SELECTED_SAMPLE].UpperBound =
+            (EUPHORIA_MAX_SAMPLE_COUNT - 1);
 
     port_descriptors[EUPHORIA_ATTACK] = 1;
     port_range_hints[EUPHORIA_ATTACK].DefaultValue = 0.0f;

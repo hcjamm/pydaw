@@ -67,9 +67,6 @@ GNU General Public License for more details.
 #include "main.h"
 #include "synth.c"
 
-//Define this to run with no audio or MIDI, but still able to fully interact with the UI
-//#define PYDAW_NO_HARDWARE
-
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
 #define PYDAW_CONFIGURE_KEY_SI "si"
@@ -188,7 +185,8 @@ void v_pydaw_restore_cpu_governor()
     while(f_i < f_cpu_count)
     {
         struct cpufreq_policy * f_policy = cpufreq_get_policy(f_i);
-        printf("Restoring CPU governor for CPU %i, was set to %s\n", f_i, f_policy->governor);
+        printf("Restoring CPU governor for CPU %i, was set to %s\n",
+                f_i, f_policy->governor);
         sprintf(f_policy->governor, "ondemand");
         cpufreq_set_policy(f_i, f_policy);
         f_i++;
@@ -226,7 +224,8 @@ void midiReceive(unsigned char status, unsigned char control, char value)
 
     if (midiEventReadIndex == midiEventWriteIndex + 1)
     {
-        printf("Warning: MIDI event buffer overflow! ignoring incoming event\n");
+        printf("Warning: MIDI event buffer overflow!  "
+                "ignoring incoming event\n");
         return;
     }
 
@@ -236,33 +235,45 @@ void midiReceive(unsigned char status, unsigned char control, char value)
         {
             //twoBytes = 0;
             int f_pb_val = ((value << 7) | control) - 8192;
-            v_pydaw_ev_set_pitchbend(&midiEventBuffer[midiEventWriteIndex], channel, f_pb_val);
+            v_pydaw_ev_set_pitchbend(&midiEventBuffer[midiEventWriteIndex],
+                    channel, f_pb_val);
             midiEventWriteIndex++;
-            //printf("MIDI PITCHBEND status %i ch %i, value %i\n", status, channel+1, f_pb_val);
+            //printf("MIDI PITCHBEND status %i ch %i, value %i\n",
+            //      status, channel+1, f_pb_val);
         }
             break;
         case MIDI_NOTE_OFF:
-            v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex],
+                    channel, control, value);
             midiEventWriteIndex++;
-            //printf("MIDI NOTE_OFF status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
+            /*printf("MIDI NOTE_OFF status %i (ch %i, opcode %i), ctrl %i, "
+                    "val %i\n", status, channel+1, (status & 255)>>4, control,
+                    value);*/
             break;
         case MIDI_NOTE_ON:
             if(value == 0)
             {
-                v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+                v_pydaw_ev_set_noteoff(&midiEventBuffer[midiEventWriteIndex],
+                        channel, control, value);
             }
             else
             {
-                v_pydaw_ev_set_noteon(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+                v_pydaw_ev_set_noteon(&midiEventBuffer[midiEventWriteIndex],
+                        channel, control, value);
             }
             midiEventWriteIndex++;
-            //printf("MIDI NOTE_ON status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
+            /*printf("MIDI NOTE_ON status %i (ch %i, opcode %i), ctrl %i, "
+                    "val %i\n", status, channel+1, (status & 255)>>4, control,
+                    value);*/
             break;
         //case MIDI_AFTERTOUCH:
         case MIDI_CC:
-            v_pydaw_ev_set_controller(&midiEventBuffer[midiEventWriteIndex], channel, control, value);
+            v_pydaw_ev_set_controller(&midiEventBuffer[midiEventWriteIndex],
+                    channel, control, value);
             midiEventWriteIndex++;
-            //printf("MIDI CC status %i (ch %i, opcode %i), ctrl %i, val %i\n", status, channel+1, (status & 255)>>4, control, value);
+            /*printf("MIDI CC status %i (ch %i, opcode %i), ctrl %i, "
+                    "val %i\n", status, channel+1, (status & 255)>>4, control,
+                    value);*/
             break;
         default:
             //twoBytes = 0;
@@ -302,7 +313,8 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
     }
     else if(f_poll_result > 0)
     {
-        int numEvents = Pm_Read(f_midi_stream, portMidiBuffer, EVENT_BUFFER_SIZE);
+        int numEvents = Pm_Read(f_midi_stream, portMidiBuffer,
+                EVENT_BUFFER_SIZE);
 
         if (numEvents < 0)
         {
@@ -327,8 +339,10 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
                         status = 0;
                     } else {
                         //unsigned char channel = status & 0x0F;
-                        unsigned char note = Pm_MessageData1(portMidiBuffer[i].message);
-                        unsigned char velocity = Pm_MessageData2(portMidiBuffer[i].message);
+                        unsigned char note = Pm_MessageData1(
+                                portMidiBuffer[i].message);
+                        unsigned char velocity = Pm_MessageData2(
+                                portMidiBuffer[i].message);
                         midiReceive(status, note, velocity);
                     }
                 }
@@ -348,15 +362,18 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
                     // Collect bytes from PmMessage
                     int data = 0;
                     int shift;
-                    for (shift = 0; shift < 32 && (data != MIDI_EOX); shift += 8)
+                    for (shift = 0; shift < 32 && (data != MIDI_EOX);
+                            shift += 8)
                     {
                         if ((data & 0xF8) == 0xF8)
                         {
-                            midiReceive(data, 0, 0);  // Handle real-time messages at any time
+                            // Handle real-time messages at any time
+                            midiReceive(data, 0, 0);
                         }
                         else
                         {
-                            //m_cReceiveMsg[m_cReceiveMsg_index++] = data = (portMidiBuffer[i].message >> shift) & 0xFF;
+                            //m_cReceiveMsg[m_cReceiveMsg_index++] = data =
+                            //    (portMidiBuffer[i].message >> shift) & 0xFF;
                         }
                     }
 
@@ -364,9 +381,12 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
                     if (data == MIDI_EOX)
                     {
                         f_bInSysex = 0;
-                        printf("Dropping MIDI message in if (data == MIDI_EOX)\n");
-                        //const char* buffer = reinterpret_cast<const char*>(m_cReceiveMsg);
-                        //receive(QByteArray::fromRawData(buffer, m_cReceiveMsg_index));
+                        printf("Dropping MIDI message in if "
+                                "(data == MIDI_EOX)\n");
+                        //const char* buffer =
+                                //reinterpret_cast<const char*>(m_cReceiveMsg);
+                        //receive(QByteArray::fromRawData(buffer,
+                        //        m_cReceiveMsg_index));
                         //f_cReceiveMsg_index = 0;
                     } //if (data == MIDI_EOX)
                 } //if(f_bInSysex)
@@ -376,11 +396,12 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 }
 #endif
 
-static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
-                           unsigned long framesPerBuffer,
-                           const PaStreamCallbackTimeInfo* timeInfo,
-                           PaStreamCallbackFlags statusFlags,
-                           void *userData )
+static int portaudioCallback( const void *inputBuffer,
+                              void *outputBuffer,
+                              unsigned long framesPerBuffer,
+                              const PaStreamCallbackTimeInfo* timeInfo,
+                              PaStreamCallbackFlags statusFlags,
+                              void *userData )
 {
     int i;
     int outCount;
@@ -447,7 +468,8 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 	framediff =
 	    diff.tv_sec * sample_rate +
 	    ((diff.tv_usec / 1000) * sample_rate) / 1000 +
-	    ((diff.tv_usec - 1000 * (diff.tv_usec / 1000)) * sample_rate) / 1000000;
+	    ((diff.tv_usec - 1000 * (diff.tv_usec / 1000)) * sample_rate)
+            / 1000000;
 
 	if (framediff >= framesPerBuffer) framediff = framesPerBuffer - 1;
 	else if (framediff < 0) framediff = 0;
@@ -506,7 +528,8 @@ static int portaudioCallback( const void *inputBuffer, void *outputBuffer,
 
     assert(instanceEventCounts < EVENT_BUFFER_SIZE);
 
-    v_pydaw_run(instanceHandles,  framesPerBuffer, instanceEventBuffers, instanceEventCounts);
+    v_pydaw_run(instanceHandles,  framesPerBuffer, instanceEventBuffers,
+            instanceEventCounts);
 
     for( i=0; i < framesPerBuffer; i++ )
     {
@@ -559,7 +582,8 @@ int main(int argc, char **argv)
 {
     if(argc < 4)
     {
-        printf("\nUsage: %s install_prefix project_path ui_pid [--sleep]\n\n", argv[0]);
+        printf("\nUsage: %s install_prefix project_path ui_pid [--sleep]\n\n",
+                argv[0]);
         exit(9996);
     }
 
@@ -583,9 +607,11 @@ int main(int argc, char **argv)
     pthread_attr_setdetachstate(&f_ui_threadAttr, PTHREAD_CREATE_DETACHED);
 
     pthread_t f_ui_monitor_thread;
-    ui_thread_args * f_ui_thread_args = (ui_thread_args*)malloc(sizeof(ui_thread_args));
+    ui_thread_args * f_ui_thread_args =
+            (ui_thread_args*)malloc(sizeof(ui_thread_args));
     f_ui_thread_args->pid = atoi(argv[3]);
-    pthread_create(&f_ui_monitor_thread, &f_ui_threadAttr, ui_process_monitor_thread, (void*)f_ui_thread_args);
+    pthread_create(&f_ui_monitor_thread, &f_ui_threadAttr,
+            ui_process_monitor_thread, (void*)f_ui_thread_args);
 
     j = 0;
 
@@ -631,9 +657,11 @@ int main(int argc, char **argv)
     }
     else
     {
-        printf("\n\nProcess scheduler set to %i, attempting to set real-time scheduler.", f_current_proc_sched);
+        printf("\n\nProcess scheduler set to %i, attempting to set "
+                "real-time scheduler.", f_current_proc_sched);
         //Attempt to set the process priority to real-time
-        const struct sched_param f_proc_param = {sched_get_priority_max(SCHED_FIFO)};
+        const struct sched_param f_proc_param =
+                {sched_get_priority_max(SCHED_FIFO)};
         printf("Attempting to set scheduler for process\n");
         sched_setscheduler(0, SCHED_FIFO, &f_proc_param);
         printf("Process scheduler is now %i\n\n", sched_getscheduler(0));
@@ -687,7 +715,8 @@ int main(int argc, char **argv)
 
     instanceEventCounts = 0;
 
-    instanceEventBuffers = (t_pydaw_seq_event *)malloc(EVENT_BUFFER_SIZE * sizeof(t_pydaw_seq_event));
+    instanceEventBuffers = (t_pydaw_seq_event *)malloc(
+            EVENT_BUFFER_SIZE * sizeof(t_pydaw_seq_event));
 
     int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
@@ -699,7 +728,8 @@ int main(int argc, char **argv)
     PaError err;
     err = Pa_Initialize();
     //if( err != paNoError ) goto error;
-    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+    /* default input device */
+    inputParameters.device = Pa_GetDefaultInputDevice();
 
     /*Initialize Portmidi*/
     f_midi_err = Pm_Initialize();
@@ -714,9 +744,11 @@ int main(int argc, char **argv)
 
     printf("using home folder: %s\n", f_home);
 
-    if(!strcmp(f_home, "/home/ubuntu") && i_pydaw_file_exists("/media/pydaw_data"))
+    if(!strcmp(f_home, "/home/ubuntu") &&
+            i_pydaw_file_exists("/media/pydaw_data"))
     {
-        sprintf(f_device_file_path, "/media/pydaw_data/%s/device.txt", PYDAW_VERSION);
+        sprintf(f_device_file_path,
+                "/media/pydaw_data/%s/device.txt", PYDAW_VERSION);
     }
     else
     {
@@ -725,7 +757,9 @@ int main(int argc, char **argv)
 
     char f_show_dialog_cmd[1024];
 
-    sprintf(f_show_dialog_cmd, "python3 \"%s/lib/%s/pydaw/python/libpydaw/pydaw_device_dialog.py\"", argv[1], PYDAW_VERSION);
+    sprintf(f_show_dialog_cmd,
+        "python3 \"%s/lib/%s/pydaw/python/libpydaw/pydaw_device_dialog.py\"",
+            argv[1], PYDAW_VERSION);
 
     char f_cmd_buffer[10000];
     f_cmd_buffer[0] = '\0';
@@ -739,7 +773,8 @@ int main(int argc, char **argv)
         if(i_pydaw_file_exists(f_device_file_path))
         {
             printf("device.txt exists\n");
-            t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_device_file_path, PYDAW_LARGE_STRING);
+            t_2d_char_array * f_current_string = g_get_2d_array_from_file(
+                    f_device_file_path, PYDAW_LARGE_STRING);
             f_device_name[0] = '\0';
 
             while(1)
@@ -754,7 +789,8 @@ int main(int argc, char **argv)
                     continue;
                 }
 
-                char * f_value_char = c_iterate_2d_char_array_to_next_line(f_current_string);
+                char * f_value_char = c_iterate_2d_char_array_to_next_line(
+                        f_current_string);
 
                 if(!strcmp(f_key_char, "name"))
                 {
@@ -803,7 +839,8 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    printf("Unknown key|value pair: %s|%s\n", f_key_char, f_value_char);
+                    printf("Unknown key|value pair: %s|%s\n", f_key_char,
+                            f_value_char);
                 }
             }
 
@@ -816,7 +853,8 @@ int main(int argc, char **argv)
                 while(f_i < Pm_CountDevices())
                 {
                     const PmDeviceInfo * f_device = Pm_GetDeviceInfo(f_i);
-                    if(f_device->input && !strcmp(f_device->name, f_midi_device_name))
+                    if(f_device->input && !strcmp(f_device->name,
+                            f_midi_device_name))
                     {
                         f_device_id = f_i;
                         break;
@@ -826,17 +864,21 @@ int main(int argc, char **argv)
 
                 if(f_device_id == pmNoDevice)
                 {
-                    sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd, "Error: did not find MIDI device:", f_midi_device_name);
+                    sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd,
+                            "Error: did not find MIDI device:",
+                            f_midi_device_name);
                     system(f_cmd_buffer);
                     continue;
                 }
 
                 printf("Opening MIDI device ID: %i\n", f_device_id);
-                f_midi_err = Pm_OpenInput(&f_midi_stream, f_device_id, NULL, EVENT_BUFFER_SIZE, NULL, NULL);
+                f_midi_err = Pm_OpenInput(&f_midi_stream, f_device_id, NULL,
+                        EVENT_BUFFER_SIZE, NULL, NULL);
 
                 if(f_midi_err != pmNoError)
                 {
-                    sprintf(f_cmd_buffer, "%s \"%s %s, %s\"", f_show_dialog_cmd, "Error opening MIDI device: ",
+                    sprintf(f_cmd_buffer, "%s \"%s %s, %s\"", f_show_dialog_cmd,
+                            "Error opening MIDI device: ",
                             f_midi_device_name, Pm_GetErrorText(f_midi_err));
                     system(f_cmd_buffer);
                     continue;
@@ -857,32 +899,39 @@ int main(int argc, char **argv)
             }
             else
             {
-                printf("It appears that the user closed the audio device dialog without choosing a device, exiting.");
+                printf("It appears that the user closed the audio device "
+                        "dialog without choosing a device, exiting.");
                 exit(9998);
             }
         }
 
         if (inputParameters.device == paNoDevice)
         {
-          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default input device.");
+          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
+                  "Error: No default input device.");
           system(f_cmd_buffer);
           continue;
         }
         inputParameters.channelCount = 0;
         inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-        inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
+        inputParameters.suggestedLatency =
+                Pa_GetDeviceInfo(inputParameters.device )->
+                defaultLowInputLatency;
         inputParameters.hostApiSpecificStreamInfo = NULL;
 
         if (outputParameters.device == paNoDevice)
         {
-          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: No default output device.");
+          sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
+                  "Error: No default output device.");
           system(f_cmd_buffer);
           continue;
         }
 
         outputParameters.channelCount = 2; /* stereo output */
         outputParameters.sampleFormat = PA_SAMPLE_TYPE;
-        outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
+        outputParameters.suggestedLatency =
+                Pa_GetDeviceInfo(outputParameters.device )->
+                defaultLowOutputLatency;
         outputParameters.hostApiSpecificStreamInfo = NULL;
 
         int f_i = 0;
@@ -901,7 +950,9 @@ int main(int argc, char **argv)
 
         if(!f_found_index)
         {
-            sprintf(f_cmd_buffer, "%s \"Did not find device '%s' on this system.\"", f_show_dialog_cmd, f_device_name);
+            sprintf(f_cmd_buffer,
+                    "%s \"Did not find device '%s' on this system.\"",
+                    f_show_dialog_cmd, f_device_name);
             system(f_cmd_buffer);
             continue;
         }
@@ -912,12 +963,15 @@ int main(int argc, char **argv)
                   &outputParameters,
                   44100.0f, //SAMPLE_RATE,
                   f_frame_count, //FRAMES_PER_BUFFER,
-                  0, /* paClipOff, */ /* we won't output out of range samples so don't bother clipping them */
+                  /* we won't output out of range samples so don't bother
+                   * clipping them */
+                  0, /* paClipOff, */
                   portaudioCallback,
                   NULL );
         if( err != paNoError )
         {
-            sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd, "Error while opening audio device: ", Pa_GetErrorText(err));
+            sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd,
+                    "Error while opening audio device: ", Pa_GetErrorText(err));
             system(f_cmd_buffer);
             continue;
         }
@@ -931,7 +985,8 @@ int main(int argc, char **argv)
     for (j = 0; j < this_instance->plugin->ins; ++j)
     {
         //Port naming code was here
-        if(posix_memalign((void**)(&pluginInputBuffers[in]), 16, (sizeof(float) * f_frame_count)) != 0)
+        if(posix_memalign((void**)(&pluginInputBuffers[in]), 16,
+                (sizeof(float) * f_frame_count)) != 0)
         {
             return 0;
         }
@@ -947,7 +1002,8 @@ int main(int argc, char **argv)
     for (j = 0; j < this_instance->plugin->outs; ++j)
     {
         //Port naming code was here
-        if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16, (sizeof(float) * f_frame_count)) != 0)
+        if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16,
+                (sizeof(float) * f_frame_count)) != 0)
         {
             return 0;
         }
@@ -966,7 +1022,8 @@ int main(int argc, char **argv)
     /* Instantiate plugins */
 
     plugin = this_instance->plugin;
-    instanceHandles = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin, sample_rate);
+    instanceHandles = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin,
+            sample_rate);
     if (!instanceHandles)
     {
         printf("\nError: Failed to instantiate PyDAW\n");
@@ -976,7 +1033,8 @@ int main(int argc, char **argv)
     /* Create OSC thread */
 
     serverThread = lo_server_thread_new("19271", osc_error);
-    lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler, NULL);
+    lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler,
+            NULL);
     lo_server_thread_start(serverThread);
 
     /* Connect and activate plugins */
@@ -990,7 +1048,8 @@ int main(int argc, char **argv)
         v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
     }
 
-    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity, argv[2]);
+    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity,
+            argv[2]);
 
     assert(in == insTotal);
     assert(out == outsTotal);
@@ -1008,7 +1067,9 @@ int main(int argc, char **argv)
     err = Pa_StartStream( stream );
     if( err != paNoError )
     {
-        sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd, "Error: Unknown error while starting device.  Please re-configure your device and try starting PyDAW again.");
+        sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
+                "Error: Unknown error while starting device.  Please "
+                "re-configure your device and try starting PyDAW again.");
         system(f_cmd_buffer);
     }
 #else
@@ -1019,7 +1080,8 @@ int main(int argc, char **argv)
     {
 #ifdef PYDAW_NO_HARDWARE
         float * f_portaudio_input_buffer = (float*)malloc(sizeof(float) * 8192);
-        float * f_portaudio_output_buffer = (float*)malloc(sizeof(float) * 8192);
+        float * f_portaudio_output_buffer = (float*)malloc(sizeof(float) *
+                8192);
 #else
         if(f_with_midi)
         {
@@ -1075,13 +1137,15 @@ int main(int argc, char **argv)
             v_pydaw_set_cpu_governor();
         }
 #else
-        printf("PyDAW not compiled with cpufreq support, cannot set CPU governor.\n");
+        printf("PyDAW not compiled with cpufreq support, "
+                "cannot set CPU governor.\n");
 #endif
 
         while(!exiting)
         {
 #ifdef PYDAW_NO_HARDWARE
-            portaudioCallback(f_portaudio_input_buffer, f_portaudio_output_buffer, 128, NULL, NULL, NULL);
+            portaudioCallback(f_portaudio_input_buffer,
+                    f_portaudio_output_buffer, 128, NULL, NULL, NULL);
 
             if(f_usleep)
             {
@@ -1179,12 +1243,15 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
 }
 
 
-void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
+void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
+        const char* a_key, const char* a_value)
 {
-    printf("v_pydaw_parse_configure_message:  key: \"%s\", value: \"%s\"\n", a_key, a_value);
-    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL)) //Set plugin control
+    printf("v_pydaw_parse_configure_message:  key: \"%s\", value: \"%s\"\n",
+            a_key, a_value);
+    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL))
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5,
+                PYDAW_TINY_STRING);
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);
@@ -1199,7 +1266,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             case 0:  //MIDI track
                 if(f_is_inst)
                 {
-                    f_instance = a_pydaw_data->track_pool[f_track_num]->instrument;
+                    f_instance =
+                            a_pydaw_data->track_pool[f_track_num]->instrument;
                 }
                 else
                 {
@@ -1210,7 +1278,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 f_instance = a_pydaw_data->bus_pool[f_track_num]->effect;
                 break;
             case 2:  //Audio track
-                f_instance = a_pydaw_data->audio_track_pool[f_track_num]->effect;
+                f_instance =
+                        a_pydaw_data->audio_track_pool[f_track_num]->effect;
                 break;
             default:
                 assert(0);
@@ -1221,9 +1290,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         g_free_1d_char_array(f_val_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN)) //Configure plugin
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONFIGURE_PLUGIN))
     {
-        t_1d_char_array * f_val_arr = c_split_str_remainder(a_value, '|', 5, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str_remainder(a_value, '|', 5,
+                PYDAW_TINY_STRING);
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);
@@ -1238,7 +1308,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             case 0:  //MIDI track
                 if(f_is_inst)
                 {
-                    f_instance = a_pydaw_data->track_pool[f_track_num]->instrument;
+                    f_instance =
+                            a_pydaw_data->track_pool[f_track_num]->instrument;
                 }
                 else
                 {
@@ -1249,11 +1320,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 f_instance = a_pydaw_data->bus_pool[f_track_num]->effect;
                 break;
             case 2:  //Audio track
-                f_instance = a_pydaw_data->audio_track_pool[f_track_num]->effect;
+                f_instance =
+                        a_pydaw_data->audio_track_pool[f_track_num]->effect;
                 break;
         }
 
-        v_pydaw_plugin_configure_handler(f_instance, f_key, f_message, &a_pydaw_data->main_mutex);
+        v_pydaw_plugin_configure_handler(f_instance, f_key, f_message,
+                &a_pydaw_data->main_mutex);
         //f_instance->pluginPortUpdated[f_control_in] = 1;
         //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
@@ -1261,7 +1334,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3,
+                PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
@@ -1270,17 +1344,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         switch(f_track_type)
         {
             case 0:  //MIDI track
-                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->track_pool[f_track_num], f_track_vol);
+                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->
+                        track_pool[f_track_num], f_track_vol);
                 break;
             case 1:  //Bus track
-                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_track_num], f_track_vol);
+                v_pydaw_set_track_volume(a_pydaw_data,
+                        a_pydaw_data->bus_pool[f_track_num], f_track_vol);
                 break;
             case 2:  //Audio track
-                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_num], f_track_vol);
+                v_pydaw_set_track_volume(a_pydaw_data,
+                        a_pydaw_data->audio_track_pool[f_track_num],
+                        f_track_vol);
                 break;
             case 3:  //Audio Input
                 a_pydaw_data->audio_inputs[f_track_num]->vol = f_track_vol;
-                a_pydaw_data->audio_inputs[f_track_num]->vol_linear = f_db_to_linear_fast(f_track_vol, a_pydaw_data->amp_ptr);
+                a_pydaw_data->audio_inputs[f_track_num]->vol_linear =
+                        f_db_to_linear_fast(f_track_vol, a_pydaw_data->amp_ptr);
                 break;
             default:
                 assert(0);
@@ -1292,17 +1371,20 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX))
     {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 4, PYDAW_SMALL_STRING);
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 4,
+                PYDAW_SMALL_STRING);
         int f_region_uid = atoi(f_arr->array[0]);
         int f_item_index = atoi(f_arr->array[1]);
         int f_port_num = atoi(f_arr->array[2]);
         float f_port_val = atof(f_arr->array[3]);
 
-        v_paif_set_control(a_pydaw_data, f_region_uid, f_item_index, f_port_num, f_port_val);
+        v_paif_set_control(a_pydaw_data, f_region_uid, f_item_index,
+                f_port_num, f_port_val);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, PYDAW_SMALL_STRING);
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2,
+                PYDAW_SMALL_STRING);
         int f_region = atoi(f_arr->array[0]);
         int f_bar = atoi(f_arr->array[1]);
         v_set_playback_mode(a_pydaw_data, 1, f_region, f_bar);
@@ -1310,21 +1392,23 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC)) //Begin recording
     {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, PYDAW_SMALL_STRING);
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2,
+                PYDAW_SMALL_STRING);
         int f_region = atoi(f_arr->array[0]);
         int f_bar = atoi(f_arr->array[1]);
         v_set_playback_mode(a_pydaw_data, 2, f_region, f_bar);
         g_free_1d_char_array(f_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP))
     {
         v_set_playback_mode(a_pydaw_data, 0, -1, -1);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR))
     {
         int f_uid = atoi(a_value);
         t_pyregion * f_result = g_pyregion_get(a_pydaw_data, f_uid);
-        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
+        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data,
+                f_uid);
 
         if(f_region_index >= 0 )
         {
@@ -1356,12 +1440,14 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         g_pysong_get(a_pydaw_data);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL)) //Reload the entire audio items list
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL))
     {
         int f_uid = atoi(a_value);
         //t_pydaw_audio_items * f_old;
-        t_pydaw_audio_items * f_result = v_audio_items_load_all(a_pydaw_data, f_uid);
-        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
+        t_pydaw_audio_items * f_result = v_audio_items_load_all(a_pydaw_data,
+                f_uid);
+        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data,
+                f_uid);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         a_pydaw_data->pysong->audio_items[f_region_index] = f_result;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
@@ -1370,22 +1456,28 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX_REGION))
     {
         int f_uid = atoi(a_value);
-        t_pydaw_per_audio_item_fx_region * f_result = g_paif_region_open(a_pydaw_data, f_uid);
-        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
-        t_pydaw_per_audio_item_fx_region * f_old = a_pydaw_data->pysong->per_audio_item_fx[f_region_index];
+        t_pydaw_per_audio_item_fx_region * f_result =
+                g_paif_region_open(a_pydaw_data, f_uid);
+        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data,
+                f_uid);
+        t_pydaw_per_audio_item_fx_region * f_old =
+                a_pydaw_data->pysong->per_audio_item_fx[f_region_index];
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         a_pydaw_data->pysong->per_audio_item_fx[f_region_index] = f_result;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         v_paif_region_free(f_old);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH))
     {
         t_key_value_pair * f_kvp = g_kvp_get(a_value);
         char f_file_name_tmp[256];
-        sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder, f_kvp->key);
+        sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder,
+                f_kvp->key);
         v_pydaw_generate_sample_graph(f_kvp->value, f_file_name_tmp);
-        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, \"%s\")\n", atoi(f_kvp->key), f_kvp->value);
-        v_wav_pool_add_item(a_pydaw_data->wav_pool, atoi(f_kvp->key), f_kvp->value);
+        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, \"%s\")\n",
+                atoi(f_kvp->key), f_kvp->value);
+        v_wav_pool_add_item(a_pydaw_data->wav_pool, atoi(f_kvp->key),
+                f_kvp->value);
         free(f_kvp);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOOP)) //Set loop mode
@@ -1402,11 +1494,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TEMPO)) //Change tempo
     {
         v_set_tempo(a_pydaw_data, atof(a_value));
-        //g_pysong_get(a_pydaw_data);  //To reload audio items when tempo has changed
+        //To reload audio items when tempo changed
+        //g_pysong_get(a_pydaw_data);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3,
+                PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
@@ -1416,11 +1510,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         {
             case 0:  //MIDI
                 a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
-                a_pydaw_data->track_pool[f_track_num]->current_period_event_index = 0;
+                a_pydaw_data->track_pool[f_track_num]->
+                        current_period_event_index = 0;
                 break;
             case 2:  //Audio
                 a_pydaw_data->audio_track_pool[f_track_num]->solo = f_mode;
-                a_pydaw_data->audio_track_pool[f_track_num]->current_period_event_index = 0;
+                a_pydaw_data->audio_track_pool[f_track_num]->
+                        current_period_event_index = 0;
                 break;
             default:
                 assert(0);
@@ -1433,7 +1529,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3,
+                PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
@@ -1443,11 +1540,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         {
             case 0:  //MIDI
                 a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
-                a_pydaw_data->track_pool[f_track_num]->current_period_event_index = 0;
+                a_pydaw_data->track_pool[f_track_num]->
+                        current_period_event_index = 0;
                 break;
             case 2:  //Audio
                 a_pydaw_data->audio_track_pool[f_track_num]->mute = f_mode;
-                a_pydaw_data->audio_track_pool[f_track_num]->current_period_event_index = 0;
+                a_pydaw_data->audio_track_pool[f_track_num]->
+                        current_period_event_index = 0;
                 break;
             default:
                 assert(0);
@@ -1456,9 +1555,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         g_free_1d_char_array(f_val_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK))
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3,
+                PYDAW_TINY_STRING);
         int f_type = atoi(f_val_arr->array[0]);
         int f_track_num = atoi(f_val_arr->array[1]);
         int f_mode = atoi(f_val_arr->array[2]);
@@ -1469,16 +1569,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             switch(f_type)
             {
                 case 0:  //MIDI/plugin
-                    a_pydaw_data->record_armed_track = a_pydaw_data->track_pool[f_track_num];
+                    a_pydaw_data->record_armed_track =
+                            a_pydaw_data->track_pool[f_track_num];
                     a_pydaw_data->record_armed_track_index_all = f_track_num;
                     break;
                 case 1: //Bus
-                    a_pydaw_data->record_armed_track = a_pydaw_data->bus_pool[f_track_num];
-                    a_pydaw_data->record_armed_track_index_all = f_track_num + PYDAW_MIDI_TRACK_COUNT;
+                    a_pydaw_data->record_armed_track =
+                            a_pydaw_data->bus_pool[f_track_num];
+                    a_pydaw_data->record_armed_track_index_all =
+                            f_track_num + PYDAW_MIDI_TRACK_COUNT;
                     break;
                 case 2: //audio track
-                    a_pydaw_data->record_armed_track = a_pydaw_data->audio_track_pool[f_track_num];
-                    a_pydaw_data->record_armed_track_index_all = f_track_num + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
+                    a_pydaw_data->record_armed_track =
+                            a_pydaw_data->audio_track_pool[f_track_num];
+                    a_pydaw_data->record_armed_track_index_all =
+                            f_track_num + PYDAW_MIDI_TRACK_COUNT +
+                            PYDAW_BUS_TRACK_COUNT;
                     break;
             }
         }
@@ -1490,37 +1596,42 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         g_free_1d_char_array(f_val_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS)) //Change the plugin
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS))
     {
         v_pydaw_update_audio_inputs(a_pydaw_data);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT))
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2,
+                PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_plugin_index = atoi(f_val_arr->array[1]);
-        v_set_plugin_index(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num], f_plugin_index, 1);
+        v_set_plugin_index(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num],
+                f_plugin_index, 1);
         g_free_1d_char_array(f_val_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE)) //Preview a sample
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE))
     {
         v_pydaw_set_preview_file(a_pydaw_data, a_value);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OFFLINE_RENDER)) //Render a project to .wav file
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OFFLINE_RENDER))
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7,
+                PYDAW_TINY_STRING);
         int f_start_region = atoi(f_val_arr->array[0]);
         int f_start_bar = atoi(f_val_arr->array[1]);
         int f_end_region = atoi(f_val_arr->array[2]);
         int f_end_bar = atoi(f_val_arr->array[3]);
         char * f_file_out = f_val_arr->array[4];
 
-        v_pydaw_offline_render(a_pydaw_data, f_start_region, f_start_bar, f_end_region, f_end_bar, f_file_out, 0);
+        v_pydaw_offline_render(a_pydaw_data, f_start_region, f_start_bar,
+                f_end_region, f_end_bar, f_file_out, 0);
         g_free_1d_char_array(f_val_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_TRACK_BUS)) //Set the bus number for specified track
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_TRACK_BUS))
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, PYDAW_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3,
+                PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_bus_num = atoi(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
@@ -1536,20 +1647,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 break;
             case 2:  //Audio track
                 pthread_mutex_lock(&a_pydaw_data->main_mutex);
-                a_pydaw_data->audio_track_pool[f_track_num]->bus_num = f_bus_num;
+                a_pydaw_data->audio_track_pool[f_track_num]->bus_num =
+                        f_bus_num;
                 v_pydaw_schedule_work(a_pydaw_data);
                 //v_pydaw_set_bus_counters(a_pydaw_data);
                 pthread_mutex_unlock(&a_pydaw_data->main_mutex);
                 break;
             default:
-                printf("PYDAW_CONFIGURE_KEY_SET_TRACK_BUS:  Invalid track type %i\n\n", f_track_type);
+                printf("PYDAW_CONFIGURE_KEY_SET_TRACK_BUS:  "
+                        "Invalid track type %i\n\n", f_track_type);
                 assert(0);
                 break;
         }
 
         g_free_1d_char_array(f_val_arr);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE)) //Set the bus number for specified track
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE))
     {
         int f_bool = atoi(a_value);
         assert(f_bool == 0 || f_bool == 1);
@@ -1672,14 +1785,18 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             f_i++;
         }
 
-        v_pydaw_offline_render(a_pydaw_data, f_region_index, f_start_bar, f_region_index, f_end_bar, f_path, 1);
+        v_pydaw_offline_render(a_pydaw_data, f_region_index, f_start_bar,
+                f_region_index, f_end_bar, f_path, 1);
 
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_WAVPOOL_ITEM_RELOAD))
     {
         int f_uid = atoi(a_value);
-        t_wav_pool_item * f_old = g_wav_pool_get_item_by_uid(a_pydaw_data->wav_pool, f_uid);
-        t_wav_pool_item * f_new = g_wav_pool_item_get(f_uid, f_old->path, a_pydaw_data->wav_pool->sample_rate);
+        t_wav_pool_item * f_old =
+                g_wav_pool_get_item_by_uid(a_pydaw_data->wav_pool, f_uid);
+        t_wav_pool_item * f_new =
+                g_wav_pool_item_get(f_uid, f_old->path,
+                a_pydaw_data->wav_pool->sample_rate);
 
         float * f_old_samples[2];
         f_old_samples[0] = f_old->samples[0];
