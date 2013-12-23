@@ -3543,6 +3543,9 @@ class audio_track:
         this_pydaw_project.commit("Set audio track {} bus to {}".format(self.track_number,
                                   self.track_name_lineedit.text()))
 
+    def wheel_event(self, a_event=None):
+        pass
+
     def __init__(self, a_track_num, a_track_text="track"):
         self.suppress_osc = True
         self.track_number = a_track_num
@@ -3582,6 +3585,7 @@ class audio_track:
         self.fx_button.setObjectName("fxbutton")
         self.fx_button.setFixedWidth(24)
         self.bus_combobox = QtGui.QComboBox()
+        self.bus_combobox.wheelEvent = self.wheel_event
         self.bus_combobox.addItems(['M', '1','2','3','4'])
         self.bus_combobox.setMinimumWidth(54)
         self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
@@ -5956,6 +5960,9 @@ class seq_track:
             this_pydaw_project.commit("Set bus for MIDI track {} to {}".format(self.track_number,
                                       self.bus_combobox.currentIndex()))
 
+    def wheel_event(self, a_event=None):
+        pass
+
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
         if a_instrument:
@@ -5997,6 +6004,7 @@ class seq_track:
         self.fx_button.setFixedWidth(24)
         if a_instrument:
             self.instrument_combobox = QtGui.QComboBox()
+            self.instrument_combobox.wheelEvent = self.wheel_event
             self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V", "Way-V"])
             self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
             self.instrument_combobox.setSizeAdjustPolicy(
@@ -6011,6 +6019,7 @@ class seq_track:
             self.ui_button.setMaximumWidth(24)
             self.hlayout3.addWidget(self.ui_button)
             self.bus_combobox = QtGui.QComboBox()
+            self.bus_combobox.wheelEvent = self.wheel_event
             self.bus_combobox.addItems(['M', '1','2','3','4'])
             self.bus_combobox.setMinimumWidth(54)
             self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
