@@ -71,8 +71,7 @@ def get_scaled_pixmap_knob(a_size):
     global global_pydaw_knob_pixmap, global_pydaw_knob_pixmap_cache
     if global_pydaw_knob_pixmap is None:
         global_pydaw_knob_pixmap = QtGui.QPixmap(
-            "{}/lib/{}/themes/default/pydaw-knob.png".format(
-                pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string))
+            "{}/pydaw-knob.png".format(pydaw_util.global_stylesheet_dir))
 
     if not a_size in global_pydaw_knob_pixmap_cache:
         global_pydaw_knob_pixmap_cache[a_size] = \

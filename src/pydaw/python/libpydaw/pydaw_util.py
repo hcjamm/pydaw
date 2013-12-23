@@ -540,3 +540,25 @@ class sfz_file:
         for f_sample in self.samples:
             f_result += "\n\n{}\n\n".format(f_sample)
         return f_result
+
+
+global_default_stylesheet_file = "{}/lib/{}/themes/default/default.pytheme".format(
+    global_pydaw_install_prefix, global_pydaw_version_string)
+
+global_user_style_file = "{}/default-style.txt".format(global_pydaw_home)
+
+if os.path.isfile(global_user_style_file):
+    global_stylesheet_file = pydaw_read_file_text(global_user_style_file)
+    if os.path.isfile(global_stylesheet_file):
+        global_stylesheet = pydaw_read_file_text(global_stylesheet_file)
+    else:
+        global_stylesheet = pydaw_read_file_text(global_default_stylesheet_file)
+        global_stylesheet_file = global_default_stylesheet_file
+else:
+    global_stylesheet = pydaw_read_file_text(global_default_stylesheet_file)
+    global_stylesheet_file = global_default_stylesheet_file
+
+global_stylesheet = pydaw_escape_stylesheet(global_stylesheet, global_stylesheet_file)
+
+global_stylesheet_dir = os.path.dirname(global_stylesheet_file)
+

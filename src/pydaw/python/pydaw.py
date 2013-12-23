@@ -6835,16 +6835,16 @@ class pydaw_main_window(QtGui.QMainWindow):
         if global_transport_is_playing:
             return
         try:
-            f_file = \
-            str(QtGui.QFileDialog.getOpenFileName(
-                self, "Open a theme file", "{}/lib/{}/themes".format(
-                    pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string),
-                    "PyDAW Style(*.pytheme)"))
-            if not f_file is None and not f_file == "":
+            f_file = QtGui.QFileDialog.getOpenFileName(self,
+                    "Open a theme file", "{}/lib/{}/themes".format(
+                        pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string),
+                    "PyDAW Style(*.pytheme)")
+            if f_file is not None and str(f_file) != "":
+                f_file = str(f_file)
                 f_style = pydaw_read_file_text(f_file)
                 f_dir = os.path.dirname(f_file)
                 f_style = pydaw_escape_stylesheet(f_style, f_dir)
-                pydaw_write_file_text(self.user_style_file, f_file)
+                pydaw_write_file_text(global_user_style_file, f_file)
                 QtGui.QMessageBox.warning(this_main_window, "Theme Applied...",
                                           "Please restart PyDAW to update the UI")
         except Exception as ex:
@@ -7116,23 +7116,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setMinimumSize(1100, 600)
         self.setObjectName("mainwindow")
-        default_stylesheet_file = "{}/lib/{}/themes/default/default.pytheme".format(
-            pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string)
-        self.user_style_file = "{}/default-style.txt".format(global_pydaw_home)
-        if os.path.isfile(self.user_style_file):
-            f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
-            if os.path.isfile(f_current_style_file_text):
-                f_style = pydaw_read_file_text(f_current_style_file_text)
-                f_style_file = f_current_style_file_text
-            else:
-                f_style = pydaw_read_file_text(default_stylesheet_file)
-                f_style_file = default_stylesheet_file
-        else:
-            f_style = pydaw_read_file_text(default_stylesheet_file)
-            f_style_file = default_stylesheet_file
 
-        f_style = pydaw_escape_stylesheet(f_style, f_style_file)
-        self.setStyleSheet(f_style)
+        self.setStyleSheet(global_stylesheet)
         self.first_offline_render = True
         self.last_offline_dir = global_home
         self.last_ac_dir = global_home
