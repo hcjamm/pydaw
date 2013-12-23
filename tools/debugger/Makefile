@@ -13,7 +13,7 @@ C_OBJS   = main.o
 all: debugger
 
 debug:
-	make CFLAGS+=" -O0 -gdwarf-3 "
+	make CFLAGS+=" -O0 -gdwarf-3 -Wstack-usage=4096 -fstack-usage "
 
 pydaw_benchmark:
 	make CFLAGS+=" -O3 "
