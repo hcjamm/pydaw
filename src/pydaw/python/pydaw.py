@@ -2369,9 +2369,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_beat_frac /= global_audio_px_per_bar
         f_beat_frac *= 4.0
 
-        f_y = pydaw_clip_value(f_y, global_audio_ruler_height, global_audio_ruler_height + \
-        (12.0 * global_audio_item_height))
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
+        f_lane_num = pydaw_clip_value(f_lane_num, 0, global_audio_item_max_lane)
 
         f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
 
