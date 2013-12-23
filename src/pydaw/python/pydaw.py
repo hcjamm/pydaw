@@ -2159,16 +2159,18 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scale_to_region_size()
 
     def scale_to_region_size(self):
-        if global_current_region is not None:
-            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+        f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+        if global_current_region is None:
+            f_region_length = 8
+        else:
             f_region_length = pydaw_get_current_region_length()
-            f_region_px = f_region_length * global_audio_px_per_bar
-            f_new_scale = f_width / f_region_px
-            if self.last_x_scale != f_new_scale:
-                self.scale(1.0 / self.last_x_scale, 1.0)
-                self.last_x_scale = f_new_scale
-                self.scale(self.last_x_scale, 1.0)
-            self.horizontalScrollBar().setSliderPosition(0)
+        f_region_px = f_region_length * global_audio_px_per_bar
+        f_new_scale = f_width / f_region_px
+        if self.last_x_scale != f_new_scale:
+            self.scale(1.0 / self.last_x_scale, 1.0)
+            self.last_x_scale = f_new_scale
+            self.scale(self.last_x_scale, 1.0)
+        self.horizontalScrollBar().setSliderPosition(0)
 
     def sceneContextMenuEvent(self, a_event):
         if self.check_running():
@@ -6092,6 +6094,7 @@ class transport_widget:
                 else:
                     this_region_settings.clear_items()
                     this_audio_items_viewer.clear_drawn_items(a_default_length=True)
+                    this_audio_items_viewer.scale_to_region_size()
                     for f_region_editor in global_region_editors:
                         f_region_editor.set_region_length()
 
