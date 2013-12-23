@@ -1342,8 +1342,8 @@ global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 25
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
 global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 
-global_audio_item_max_lane = 19
-global_audio_item_lane_count = 20
+global_audio_item_max_lane = 23
+global_audio_item_lane_count = 24
 
 global_last_audio_item_dir = global_home
 
