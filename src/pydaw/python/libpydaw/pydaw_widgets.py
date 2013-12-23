@@ -1342,7 +1342,7 @@ global_modulex_clipboard = None
 
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None):
+                 a_port_dict=None, a_preset_mgr=None, a_knob_size=51):
         self.group_box = QtGui.QGroupBox()
         self.group_box.contextMenuEvent = self.contextMenuEvent
         self.group_box.setObjectName("plugin_groupbox")
@@ -1352,7 +1352,7 @@ class pydaw_modulex_single:
         self.group_box.setLayout(self.layout)
         self.knobs = []
         for f_i in range(3):
-            f_knob = pydaw_knob_control(51, "", a_port_k1 + f_i,
+            f_knob = pydaw_knob_control(a_knob_size, "", a_port_k1 + f_i,
                                         a_rel_callback, a_val_callback, 0, 127, 64,
                                         a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
             f_knob.add_to_grid_layout(self.layout, f_i)
@@ -1866,7 +1866,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.delay_groupbox = QtGui.QGroupBox("Delay")
         self.delay_groupbox_layout = QtGui.QGridLayout(self.delay_groupbox)
-        f_knob_size = 51
+        f_knob_size = 48
 
         f_port = 4
         f_column = 0
@@ -1875,7 +1875,8 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             f_effect = pydaw_modulex_single("FX{}".format(f_i), f_port,
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager)
+                                            self.port_dict, self.preset_manager,
+                                            a_knob_size=f_knob_size)
             self.effects.append(f_effect)
             self.fx_layout.addWidget(f_effect.group_box, f_row, f_column)
             f_column += 1
@@ -2054,7 +2055,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                 120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
         f_logo_label.setPixmap(f_pixmap)
-        f_knob_size = 64
+        f_knob_size = 55
 
         self.hlayout0.addWidget(f_logo_label)
         self.hlayout1 = QtGui.QHBoxLayout()
@@ -2234,7 +2235,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.oscillator_layout.addLayout(self.hlayout0)
         self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        f_knob_size = 51
+        f_knob_size = 48
 
         self.hlayout1 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout1)
@@ -3245,26 +3246,31 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
 
+        f_knob_size = 46
+
         self.main_layout =  QtGui.QVBoxLayout(self.poly_fx_tab)
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout0)
         self.fx0 =  pydaw_modulex_single("FX0", pydaw_ports.EUPHORIA_FX0_KNOB0,
                                          self.plugin_rel_callback,
-                                         self.plugin_val_callback, self.port_dict)
+                                         self.plugin_val_callback, self.port_dict,
+                                         a_knob_size=f_knob_size)
         self.hlayout0.addWidget(self.fx0.group_box)
         self.fx1 =  pydaw_modulex_single("FX1", pydaw_ports.EUPHORIA_FX1_KNOB0,
                                          self.plugin_rel_callback, self.plugin_val_callback,
-                                         self.port_dict)
+                                         self.port_dict, a_knob_size=f_knob_size)
         self.hlayout0.addWidget(self.fx1.group_box)
         self.hlayout1 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout1)
         self.fx2 =  pydaw_modulex_single("FX2", pydaw_ports.EUPHORIA_FX2_KNOB0,
                                          self.plugin_rel_callback,
-                                         self.plugin_val_callback, self.port_dict)
+                                         self.plugin_val_callback, self.port_dict,
+                                         a_knob_size=f_knob_size)
         self.hlayout1.addWidget(self.fx2.group_box)
         self.fx3 =  pydaw_modulex_single("FX3", pydaw_ports.EUPHORIA_FX3_KNOB0,
                                          self.plugin_rel_callback,
-                                         self.plugin_val_callback, self.port_dict)
+                                         self.plugin_val_callback, self.port_dict,
+                                         a_knob_size=f_knob_size)
         self.hlayout1.addWidget(self.fx3.group_box)
 
         self.mod_matrix = QtGui.QTableWidget()
@@ -3312,8 +3318,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout2)
-
-        f_knob_size = 55
 
         self.adsr_amp =  pydaw_adsr_widget(f_knob_size, True,
                                            pydaw_ports.EUPHORIA_ATTACK,
