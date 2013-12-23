@@ -423,6 +423,79 @@ void v_pydaw_panic(t_pydaw_data * a_pydaw_data);
 
 t_pydaw_data * pydaw_data;
 
+
+inline float f_bpm_to_seconds_per_beat(float a_tempo)
+{
+    return (60.0f / a_tempo);
+}
+
+inline int i_pydaw_beat_count_to_samples(float a_beat_count, float a_tempo, float a_sr)
+{
+    float f_seconds = f_bpm_to_seconds_per_beat(a_tempo) * a_beat_count;
+    return (int)(f_seconds * a_sr);
+}
+
+inline float f_pydaw_samples_to_beat_count(int a_sample_count, float a_tempo,
+        float a_sr)
+{
+    float f_seconds_per_beat = f_bpm_to_seconds_per_beat(a_tempo);
+    float f_seconds = (float)(a_sample_count) / a_sr;
+    return f_seconds / f_seconds_per_beat;
+}
+
+void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data,
+        int a_region, int a_start_bar)
+{
+    if(a_start_bar == 0)
+    {
+        return;  //no need to run because the audio loop will reset it all
+    }
+
+    if(!a_pydaw_data->pysong->audio_items[a_region])
+    {
+        return;
+    }
+
+    t_pydaw_audio_items * f_audio_items = a_pydaw_data->
+            pysong->audio_items[a_region];
+
+    int f_i = 0;
+    float f_start_beats = (float)(a_start_bar * 4);
+
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        if(f_audio_items->items[f_i])
+        {
+            float f_start_beat =
+                (float)(f_audio_items->items[f_i]->start_bar * 4) +
+                f_audio_items->items[f_i]->start_beat;
+
+            float f_end_beat =
+                f_start_beat + f_pydaw_samples_to_beat_count(
+                    (f_audio_items->items[f_i]->sample_end_offset -
+                     f_audio_items->items[f_i]->sample_start_offset),
+                    a_pydaw_data->tempo,
+                    a_pydaw_data->sample_rate);
+
+            if((f_start_beats > f_start_beat) && (f_start_beats < f_end_beat))
+            {
+                float f_beats_offset = (f_start_beats - f_start_beat);
+                int f_sample_start = i_pydaw_beat_count_to_samples(
+                        f_beats_offset,
+                        a_pydaw_data->tempo,
+                        a_pydaw_data->sample_rate);
+
+                v_ifh_retrigger(
+                        f_audio_items->items[f_i]->sample_read_head,
+                        f_sample_start);
+
+                v_adsr_retrigger(f_audio_items->items[f_i]->adsr);
+            }
+        }
+        f_i++;
+    }
+}
+
 /* void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
  * The offline_mutex should be held while calling this.
  */
@@ -4476,6 +4549,8 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
     a_pydaw_data->playback_cursor = 0.0f;
+
+    v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
 
     int f_i = 0;
 
