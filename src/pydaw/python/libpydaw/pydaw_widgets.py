@@ -358,6 +358,7 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
         self.control = QtGui.QComboBox()
+        self.control.wheelEvent = self.wheel_event
         self.widget = self.control
         self.control.setMinimumWidth(a_size)
         self.control.addItems(a_items_list)
@@ -375,6 +376,9 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
             self.set_value(a_default_index)
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
+
+    def wheel_event(self, a_event=None):
+        pass
 
     def control_value_changed(self, a_val):
         if not self.suppress_changes:
@@ -532,6 +536,7 @@ class pydaw_note_selector_widget:
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
         self.note_combobox = QtGui.QComboBox()
+        self.note_combobox.wheelEvent = self.wheel_event
         self.note_combobox.setMinimumWidth(60)
         self.note_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#",
                                      "G", "G#", "A", "A#", "B"])
@@ -558,6 +563,9 @@ class pydaw_note_selector_widget:
             self.selected_note = 60
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
+
+    def wheel_event(self, a_event=None):
+        pass
 
     def control_value_changed(self, a_val=None):
         self.selected_note = (self.note_combobox.currentIndex()) + \
