@@ -1286,7 +1286,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
                 break;
         }
 
-        f_instance->pluginControlIns[f_port] = f_value;
+        if(f_instance)
+        {
+            f_instance->pluginControlIns[f_port] = f_value;
+        }
+        else
+        {
+            printf("Error, no valid plugin instance\n%s | %s\n",
+                    a_key, a_value);
+        }
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         g_free_1d_char_array(f_val_arr);
     }
@@ -1438,7 +1446,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
     {
-        g_pysong_get(a_pydaw_data);
+        g_pysong_get(a_pydaw_data, 1);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL))
     {
@@ -1493,7 +1501,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TEMPO)) //Change tempo
     {
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
         v_set_tempo(a_pydaw_data, atof(a_value));
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //To reload audio items when tempo changed
         //g_pysong_get(a_pydaw_data);
     }
@@ -1607,7 +1617,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_plugin_index = atoi(f_val_arr->array[1]);
         v_set_plugin_index(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num],
-                f_plugin_index, 1);
+                f_plugin_index, 1, 1);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE))
