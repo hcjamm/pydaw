@@ -23,6 +23,10 @@ global_version_fedora = global_pydaw_version_num.replace("-", ".")
 global_pydaw_package_name = "{}-{}".format(global_pydaw_version_string, global_version_fedora)
 
 global_home = os.path.expanduser("~")
+
+if not os.path.isdir("{}/rpmbuild".format(global_home)):
+    os.system("rpmdev-setuptree")
+
 global_specs_dir = "{}/rpmbuild/SPECS/".format(global_home)
 global_sources_dir = "{}/rpmbuild/SOURCES/".format(global_home)
 
