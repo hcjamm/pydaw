@@ -1798,13 +1798,12 @@ class pydaw_abstract_plugin_ui:
         f_size = self.scrollarea_widget.size()
         f_desktop_size = QtGui.QApplication.desktop().screen().rect()
 
-        f_x = f_size.width()
+        f_x = f_size.width() + 21
         f_y = f_size.height()
 
         if self.can_resize or \
         f_x > f_desktop_size.width() - 40 or \
         f_y > f_desktop_size.height() - 40:
-            f_x += 21
             f_y += 21
             f_x = pydaw_util.pydaw_clip_value(f_x, 400, f_desktop_size.width())
             f_y = pydaw_util.pydaw_clip_value(f_y, 400, f_desktop_size.height())
