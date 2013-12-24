@@ -3077,7 +3077,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_tab =  QtGui.QWidget()
         self.sample_tab.setObjectName("plugin_widget")
         self.sample_tab_layout = QtGui.QVBoxLayout(self.sample_tab)
-        self.sample_tab_horizontal_splitter =  QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.sample_tab_horizontal_splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.sample_tab_layout.addWidget(self.sample_tab_horizontal_splitter)
 
         self.file_browser =  pydaw_file_browser_widget()

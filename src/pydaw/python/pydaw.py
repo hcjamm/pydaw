@@ -928,9 +928,7 @@ class region_list_editor:
         elif a_track_type == 2:
             self.track_count = pydaw_audio_track_count
             self.track_offset = pydaw_midi_track_count + pydaw_bus_count
-        self.group_box = QtGui.QGroupBox()
-        self.main_vlayout = QtGui.QGridLayout()
-        self.group_box.setLayout(self.main_vlayout)
+
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setAlternatingRowColors(True)
         self.table_widget.verticalHeader().setVisible(False)
@@ -980,7 +978,6 @@ class region_list_editor:
             self.transpose_action.triggered.connect(self.transpose_dialog)
             self.table_widget.addAction(self.transpose_action)
 
-        self.main_vlayout.addWidget(self.table_widget, 2, 0)
         self.last_item_copied = None
         self.reset_tracks()
         self.last_cc_line_num = 1
@@ -7262,9 +7259,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_vlayout.addLayout(this_region_settings.hlayout0)
 
         self.song_region_splitter.addWidget(self.regions_tab_widget)
-        self.regions_tab_widget.addTab(this_region_editor.group_box, "Instruments")
-        self.regions_tab_widget.addTab(this_region_bus_editor.group_box, "Busses")
-        self.regions_tab_widget.addTab(this_region_audio_editor.group_box, "Audio Tracks")
+        self.regions_tab_widget.addTab(this_region_editor.table_widget, "Instruments")
+        self.regions_tab_widget.addTab(this_region_bus_editor.table_widget, "Busses")
+        self.regions_tab_widget.addTab(this_region_audio_editor.table_widget, "Audio Tracks")
         self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, "Audio Seq")
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
