@@ -21,15 +21,17 @@ extern "C" {
 inline float f_remove_denormal(float);
 
 /* inline float f_remove_denormal(float a_input)
- * 
- * Prevent recursive modules like filters and feedback delays from consuming too much CPU*/
+ *
+ * Prevent recursive modules like filters and feedback delays from
+ * consuming too much CPU
+ */
 inline float f_remove_denormal(float a_input)
 {
     if((a_input < .00001f) && (a_input > -.00001f))
         return 0.0f;
     else
         return a_input;
-    
+
 }
 
 

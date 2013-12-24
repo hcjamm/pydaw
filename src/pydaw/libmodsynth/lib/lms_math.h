@@ -28,8 +28,9 @@ inline float f_lms_floor(float,float);
 inline float f_lms_ceiling(float,float);
 inline float f_lms_sqrt(float, t_lin_interpolater*);
 /* inline float f_lms_abs(float a_input)
- * 
- * Return the absolute value of a float.  Use this instead of fabs from math.h, it's much faster
+ *
+ * Return the absolute value of a float.  Use this instead of fabs from
+ * math.h, it's much faster
  */
 inline float f_lms_abs(float a_input)
 {
@@ -44,7 +45,7 @@ inline float f_lms_abs(float a_input)
 }
 
 /* inline float f_lms_max(float a_1,float a_2)
- * 
+ *
  * Return the larger of 2 floats
  */
 inline float f_lms_max(float a_1,float a_2)
@@ -60,7 +61,7 @@ inline float f_lms_max(float a_1,float a_2)
 }
 
 /* inline float f_lms_max(float a_1,float a_2)
- * 
+ *
  * Return the lesser of 2 floats
  */
 inline float f_lms_min(float a_1, float a_2)
@@ -76,7 +77,7 @@ inline float f_lms_min(float a_1, float a_2)
 }
 
 /* inline float f_lms_floor(float a_input, float a_floor)
- * 
+ *
  * Clips a value if less than a_floor
  */
 inline float f_lms_floor(float a_input, float a_floor)
@@ -92,7 +93,7 @@ inline float f_lms_floor(float a_input, float a_floor)
 }
 
 /* inline float f_lms_ceiling(float a_input, float a_ceiling)
- * 
+ *
  * Clips a value if more than a_ceiling
  */
 inline float f_lms_ceiling(float a_input, float a_ceiling)
@@ -179,8 +180,9 @@ float arr_sqrt [arr_sqrt_count] = {
 1.989975,1.992486,1.994994,1.997498,2.000000};
 
 /* inline float f_lms_sqrt(float a_input)
- * 
- * Calculate a square root using a fast table-based lookup.  The range is zero to 4
+ *
+ * Calculate a square root using a fast table-based lookup.
+ * The range is zero to 4
  */
 inline float f_lms_sqrt(float a_input, t_lin_interpolater* a_lin)
 {

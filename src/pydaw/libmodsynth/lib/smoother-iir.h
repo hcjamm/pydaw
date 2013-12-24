@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #include "../lib/denormal.h"
-    
+
 typedef struct s_smoother_iir
 {
     float output;
@@ -29,25 +29,27 @@ inline void v_smr_iir_run(t_smoother_iir*, float);
 inline void v_smr_iir_run_fast(t_smoother_iir*, float);
 
 /* inline void v_smr_iir_run(
- * t_smoother_iir * 
+ * t_smoother_iir *
  * a_smoother, float a_in)  //The input to be smoothed
- * 
+ *
  * Use t_smoother_iir->output as your new control value after running this
  */
-inline void v_smr_iir_run(t_smoother_iir * a_smoother, float a_in) 
-{ 
-    a_smoother->output = f_remove_denormal((a_in * 0.01f) + ((a_smoother->output) * 0.99f));
+inline void v_smr_iir_run(t_smoother_iir * a_smoother, float a_in)
+{
+    a_smoother->output =
+            f_remove_denormal((a_in * 0.01f) + ((a_smoother->output) * 0.99f));
 }
 
 /* inline void v_smr_iir_run_fast(
- * t_smoother_iir * 
+ * t_smoother_iir *
  * a_smoother, float a_in)  //The input to be smoothed
- * 
+ *
  * Use t_smoother_iir->output as your new control value after running this
  */
-inline void v_smr_iir_run_fast(t_smoother_iir * a_smoother, float a_in) 
-{ 
-    a_smoother->output = f_remove_denormal((a_in * .2f) + ((a_smoother->output) * .8f));
+inline void v_smr_iir_run_fast(t_smoother_iir * a_smoother, float a_in)
+{
+    a_smoother->output =
+            f_remove_denormal((a_in * .2f) + ((a_smoother->output) * .8f));
 }
 
 t_smoother_iir * g_smr_iir_get_smoother();
@@ -55,12 +57,12 @@ t_smoother_iir * g_smr_iir_get_smoother();
 t_smoother_iir * g_smr_iir_get_smoother()
 {
     t_smoother_iir * f_result;
-    
+
     if(posix_memalign((void**)&f_result, 16, sizeof(t_smoother_iir)) != 0)
     {
         return 0;
     }
-    
+
     f_result->output = 0.0f;
     return f_result;
 }
