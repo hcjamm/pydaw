@@ -1760,13 +1760,22 @@ class pydaw_abstract_plugin_ui:
         self.val_callback = a_val_callback
         self.configure_callback = a_configure_callback
         self.track_type = int(a_track_type)
-        self.widget = QtGui.QWidget()
+        self.widget = QtGui.QScrollArea()
         self.widget.setObjectName("plugin_ui")
-        self.widget.setGeometry(0, 0, 10, 10)
+        self.widget.setMinimumSize(500, 500)
         self.widget.setStyleSheet(str(a_stylesheet))
         self.widget.closeEvent = self.widget_close_event
+
+        self.widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.scrollarea_widget = QtGui.QWidget()
+        self.scrollarea_widget.setObjectName("plugin_ui")
+        #self.scrollarea_widget.setMinimumSize(880, 1270)
+        self.widget.setWidgetResizable(True)
+        self.widget.setWidget(self.scrollarea_widget)
+
         self.layout = QtGui.QVBoxLayout()
-        self.widget.setLayout(self.layout)
+        self.scrollarea_widget.setLayout(self.layout)
         self.port_dict = {}
         self.effects = []
         self.close_callback = a_close_callback
@@ -1777,6 +1786,13 @@ class pydaw_abstract_plugin_ui:
 
     def delete_plugin_file(self):
         self.save_file_on_exit = False
+
+    def resize_widget(self):
+        f_size = self.scrollarea_widget.size()
+        f_desktop_size = QtGui.QApplication.desktop().screen().rect()
+        f_x = pydaw_util.pydaw_clip_value(f_size.width() + 21, 400, f_desktop_size.width())
+        f_y = pydaw_util.pydaw_clip_value(f_size.height() + 21, 400, f_desktop_size.height())
+        self.widget.resize(f_x, f_y)
 
     def open_plugin_file(self):
         f_file_path = "{}/{}/{}".format(self.pydaw_project.project_folder, self.folder, self.file)

@@ -125,6 +125,14 @@ def pydaw_add_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_bars):
             break
     return (f_region, f_bar, f_beat)
 
+def pydaw_center_widget_on_screen(a_widget):
+    f_desktop_center = QtGui.QApplication.desktop().screen().rect().center()
+    f_widget_center = a_widget.rect().center()
+    f_x = pydaw_clip_min(f_desktop_center.x() - f_widget_center.x(), 0)
+    f_y = pydaw_clip_min(f_desktop_center.y() - f_widget_center.y(), 0)
+    a_widget.move(f_x, f_y)
+
+
 def pydaw_print_generic_exception(a_ex):
     QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n{}"
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out "
@@ -6438,7 +6446,10 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
                                                           a_title, this_main_window.styleSheet(),
                                                           global_fx_closed_callback,
                                                           global_configure_plugin_callback)
+
+        pydaw_center_widget_on_screen(f_modulex.widget)
         f_modulex.widget.show()
+        f_modulex.resize_widget()
         global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
     else:
         if global_open_fx_ui_dicts[a_track_type][a_track_num].widget.isHidden():
@@ -6479,7 +6490,10 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
                                                           global_configure_plugin_callback)
         else:
             return
+
+        pydaw_center_widget_on_screen(f_plugin.widget)
         f_plugin.widget.show()
+        f_plugin.resize_widget()
         global_open_inst_ui_dict[f_track_num] = f_plugin
     else:
         if global_open_inst_ui_dict[f_track_num].widget.isHidden():
