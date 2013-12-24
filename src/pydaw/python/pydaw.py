@@ -128,8 +128,8 @@ def pydaw_add_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_bars):
 def pydaw_center_widget_on_screen(a_widget):
     f_desktop_center = QtGui.QApplication.desktop().screen().rect().center()
     f_widget_center = a_widget.rect().center()
-    f_x = pydaw_clip_min(f_desktop_center.x() - f_widget_center.x(), 0)
-    f_y = pydaw_clip_min(f_desktop_center.y() - f_widget_center.y(), 0)
+    f_x = pydaw_clip_value(f_desktop_center.x() - f_widget_center.x(), 0, 300)
+    f_y = pydaw_clip_value(f_desktop_center.y() - f_widget_center.y(), 0, 200)
     a_widget.move(f_x, f_y)
 
 
