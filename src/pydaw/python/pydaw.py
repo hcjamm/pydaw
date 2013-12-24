@@ -2538,6 +2538,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (global_audio_item_lane_count * (global_audio_item_height)) + global_audio_ruler_height
+        self.scene.setSceneRect(0.0, 0.0, f_size, f_total_height)
         self.playback_cursor = self.scene.addLine(0.0, 0.0, 0.0, f_total_height,
                                                   QtGui.QPen(QtCore.Qt.red, 2.0))
         self.playback_cursor.setZValue(1000.0)
