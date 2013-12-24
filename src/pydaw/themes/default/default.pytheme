@@ -49,6 +49,17 @@ QSplitter::handle:horizontal
 		stop: 0.6 #cccccc, stop: 1 #444444);
 }
 
+QCheckBox#solo_checkbox::indicator::unchecked, QCheckBox#mute_checkbox::indicator::unchecked, 
+QRadioButton#rec_arm_radiobutton::indicator::unchecked,
+QCheckBox#solo_checkbox::indicator::checked, QCheckBox#mute_checkbox::indicator::checked, 
+QRadioButton#rec_arm_radiobutton::indicator::checked
+{
+	margin: 0px;
+	padding: 0px;
+	width: 20px;
+	height: 20px;
+}
+
 /*Solo checkbox*/
 
 QCheckBox#solo_checkbox::indicator::unchecked
