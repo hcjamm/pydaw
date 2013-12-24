@@ -2503,19 +2503,23 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         #From Modulex
         self.fx0 =  pydaw_modulex_single("FX0", pydaw_ports.WAYV_FX0_KNOB0,
                                          self.plugin_rel_callback, self.plugin_val_callback,
-                                         self.port_dict, self.preset_manager)
+                                         self.port_dict, self.preset_manager,
+                                         a_knob_size=f_knob_size)
         self.hlayout5.addWidget(self.fx0.group_box)
         self.fx1 =  pydaw_modulex_single("FX1", pydaw_ports.WAYV_FX1_KNOB0,
                                          self.plugin_rel_callback, self.plugin_val_callback,
-                                         self.port_dict, self.preset_manager)
+                                         self.port_dict, self.preset_manager,
+                                         a_knob_size=f_knob_size)
         self.hlayout5.addWidget(self.fx1.group_box)
         self.fx2 =  pydaw_modulex_single("FX2", pydaw_ports.WAYV_FX2_KNOB0,
                                          self.plugin_rel_callback, self.plugin_val_callback,
-                                         self.port_dict, self.preset_manager)
+                                         self.port_dict, self.preset_manager,
+                                         a_knob_size=f_knob_size)
         self.hlayout6.addWidget(self.fx2.group_box)
         self.fx3 =  pydaw_modulex_single("FX3", pydaw_ports.WAYV_FX3_KNOB0,
                                          self.plugin_rel_callback, self.plugin_val_callback,
-                                         self.port_dict, self.preset_manager)
+                                         self.port_dict, self.preset_manager,
+                                         a_knob_size=f_knob_size)
         self.hlayout6.addWidget(self.fx3.group_box)
 
         self.mod_matrix = QtGui.QTableWidget()
