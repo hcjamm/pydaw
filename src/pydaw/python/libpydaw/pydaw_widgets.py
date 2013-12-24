@@ -680,7 +680,7 @@ class pydaw_file_browser_widget:
         else:
             self.home_path = os.path.expanduser("~")
         self.file_browser_vsplitter =  QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.file_browser_vsplitter.setMaximumWidth(510)
+        self.file_browser_vsplitter.setMinimumWidth(240)
         self.file_browser_vsplitter.setContentsMargins(0, 0, 0, 0)
         self.bookmark_widget = QtGui.QWidget()
         self.file_browser_vsplitter.addWidget(self.bookmark_widget)
@@ -1783,16 +1783,23 @@ class pydaw_abstract_plugin_ui:
         self.save_file_on_exit = True
         self.is_quitting = False
 
+    def set_default_size(self):
+        """ Override this for plugins that can't properly resize automatically """
+        pass
 
     def delete_plugin_file(self):
         self.save_file_on_exit = False
 
-    def resize_widget(self):
+    def show_widget(self):
+        self.layout.update()
+        self.layout.activate()
         f_size = self.scrollarea_widget.size()
         f_desktop_size = QtGui.QApplication.desktop().screen().rect()
         f_x = pydaw_util.pydaw_clip_value(f_size.width() + 21, 400, f_desktop_size.width())
         f_y = pydaw_util.pydaw_clip_value(f_size.height() + 21, 400, f_desktop_size.height())
         self.widget.resize(f_x, f_y)
+        self.set_default_size()
+        self.widget.show()
 
     def open_plugin_file(self):
         f_file_path = "{}/{}/{}".format(self.pydaw_project.project_folder, self.folder, self.file)
@@ -3082,12 +3089,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
         self.file_selector.file_path.setMinimumWidth(480)
 
-        self.widget.resize(1200, 680)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy)
         self.main_tab =  QtGui.QTabWidget()
 
         self.sample_tab =  QtGui.QWidget()
@@ -3103,6 +3104,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_tab_horizontal_splitter.addWidget(self.file_browser.file_browser_vsplitter)
 
         self.smp_tab_main_widget = QtGui.QWidget()
+        self.smp_tab_main_widget.setMinimumWidth(420)
         self.smp_tab_main_verticalLayout = QtGui.QVBoxLayout(self.smp_tab_main_widget)
         self.sample_tab_horizontal_splitter.addWidget(self.smp_tab_main_widget)
 
@@ -3439,6 +3441,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.master.vol_knob.control.setRange(-24, 24)
 
         self.open_plugin_file()
+
+    def set_default_size(self):
+        self.widget.resize(1100, 720)
 
     def monofx0_callback(self, a_port, a_val):
         self.monofx_all_callback(a_port, a_val, [self.monofx0knob0_ctrls, self.monofx0knob1_ctrls,

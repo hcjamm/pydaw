@@ -6448,8 +6448,7 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
                                                           global_configure_plugin_callback)
 
         pydaw_center_widget_on_screen(f_modulex.widget)
-        f_modulex.widget.show()
-        f_modulex.resize_widget()
+        f_modulex.show_widget()
         global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
     else:
         if global_open_fx_ui_dicts[a_track_type][a_track_num].widget.isHidden():
@@ -6492,8 +6491,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
             return
 
         pydaw_center_widget_on_screen(f_plugin.widget)
-        f_plugin.widget.show()
-        f_plugin.resize_widget()
+        f_plugin.show_widget()
         global_open_inst_ui_dict[f_track_num] = f_plugin
     else:
         if global_open_inst_ui_dict[f_track_num].widget.isHidden():
