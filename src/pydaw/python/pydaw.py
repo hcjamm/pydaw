@@ -3551,10 +3551,14 @@ class audio_track:
     def wheel_event(self, a_event=None):
         pass
 
+    def context_menu_event(self, a_event=None):
+        pass
+
     def __init__(self, a_track_num, a_track_text="track"):
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
+        self.group_box.contextMenuEvent = self.context_menu_event
         self.group_box.setObjectName("track_panel")
         self.group_box.setMinimumWidth(330)
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -5968,6 +5972,9 @@ class seq_track:
     def wheel_event(self, a_event=None):
         pass
 
+    def context_menu_event(self, a_event=None):
+        pass
+
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
         if a_instrument:
@@ -5977,6 +5984,7 @@ class seq_track:
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
+        self.group_box.contextMenuEvent = self.context_menu_event
         self.group_box.setObjectName("track_panel")
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
