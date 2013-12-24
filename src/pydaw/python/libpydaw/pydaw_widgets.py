@@ -1752,8 +1752,9 @@ class pydaw_per_audio_item_fx_widget:
 
 class pydaw_abstract_plugin_ui:
     def __init__(self, a_rel_callback, a_val_callback, a_track_num,
-                 a_project, a_track_type, a_stylesheet,
-                 a_close_callback, a_configure_callback):
+                 a_project, a_track_type, a_stylesheet, a_close_callback,
+                 a_configure_callback, a_can_resize=False):
+        self.can_resize = a_can_resize
         self.track_num = int(a_track_num)
         self.pydaw_project = a_project
         self.rel_callback = a_rel_callback
@@ -1770,7 +1771,6 @@ class pydaw_abstract_plugin_ui:
         self.widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollarea_widget = QtGui.QWidget()
         self.scrollarea_widget.setObjectName("plugin_ui")
-        #self.scrollarea_widget.setMinimumSize(880, 1270)
         self.widget.setWidgetResizable(True)
         self.widget.setWidget(self.scrollarea_widget)
 
@@ -1784,7 +1784,9 @@ class pydaw_abstract_plugin_ui:
         self.is_quitting = False
 
     def set_default_size(self):
-        """ Override this for plugins that can't properly resize automatically """
+        """ Override this for plugins that can't properly resize automatically and
+            can be resized
+        """
         pass
 
     def delete_plugin_file(self):
@@ -1795,10 +1797,23 @@ class pydaw_abstract_plugin_ui:
         self.layout.activate()
         f_size = self.scrollarea_widget.size()
         f_desktop_size = QtGui.QApplication.desktop().screen().rect()
-        f_x = pydaw_util.pydaw_clip_value(f_size.width() + 21, 400, f_desktop_size.width())
-        f_y = pydaw_util.pydaw_clip_value(f_size.height() + 21, 400, f_desktop_size.height())
-        self.widget.resize(f_x, f_y)
-        self.set_default_size()
+
+        f_x = f_size.width()
+        f_y = f_size.height()
+
+        if self.can_resize or \
+        f_x > f_desktop_size.width() - 40 or \
+        f_y > f_desktop_size.height() - 40:
+            f_x += 21
+            f_y += 21
+            f_x = pydaw_util.pydaw_clip_value(f_x, 400, f_desktop_size.width())
+            f_y = pydaw_util.pydaw_clip_value(f_y, 400, f_desktop_size.height())
+            self.widget.resize(f_x, f_y)
+            self.set_default_size()
+        else:
+            self.widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            self.widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            self.widget.setFixedSize(f_x, f_y)
         self.widget.show()
 
     def open_plugin_file(self):
@@ -2685,7 +2700,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback,
                                           a_track_num, a_project, a_track_type,
                                           a_stylesheet, a_close_callback,
-                                          a_configure_callback)
+                                          a_configure_callback, a_can_resize=True)
         self.folder = str(a_folder)
         self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
