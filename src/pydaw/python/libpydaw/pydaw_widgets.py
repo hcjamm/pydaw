@@ -608,8 +608,10 @@ class pydaw_file_select_widget:
         self.reload_button =  QtGui.QPushButton("Reload")
         self.reload_button.setMaximumWidth(60)
         self.file_path =  QtGui.QLineEdit()
+        self.file_path.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                     QtGui.QSizePolicy.Minimum)
         self.file_path.setReadOnly(True)
-        self.file_path.setMinimumWidth(360)
+        self.file_path.setMinimumWidth(210)
         self.last_directory = ("")
         self.layout.addWidget(self.file_path)
         self.layout.addWidget(self.clear_button)
@@ -3101,7 +3103,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_selector.open_button.pressed.connect(self.fileSelect)
         self.file_selector.clear_button.pressed.connect(self.clearFile)
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
-        self.file_selector.file_path.setMinimumWidth(480)
 
         self.main_tab =  QtGui.QTabWidget()
 
@@ -3138,10 +3139,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_logo_label =  QtGui.QLabel()
         f_pixmap = QtGui.QPixmap("{}/lib/{}/themes/default/euphoria.png".format(
         pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string)).scaled(
-        80, 80, transformMode=QtCore.Qt.SmoothTransformation)
+            80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.main_bottom_hlayout.addWidget(f_logo_label, -1, QtCore.Qt.AlignRight)
+        f_logo_label.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.main_bottom_hlayout.addWidget(f_logo_label, alignment=QtCore.Qt.AlignRight)
 
         actionSave_instrument_to_file =  QtGui.QAction("Save instrument to file", self.widget)
         actionOpen_instrument_from_file =  QtGui.QAction("Open instrument from file", self.widget)
@@ -3274,18 +3276,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         #The file select on the 'view' tab
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
-        self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(
-            40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_left_hspacer)
         self.view_file_selector =  pydaw_file_select_widget(self.load_files)
         self.view_file_selector.open_button.pressed.connect(self.fileSelect)
         self.view_file_selector.clear_button.pressed.connect(self.clearFile)
         self.view_file_selector.reload_button.pressed.connect(self.reloadSample)
-        self.view_file_selector.file_path.setMinimumWidth(400)
         self.sample_view_file_select_hlayout.addLayout(self.view_file_selector.layout)
-        self.sample_view_file_select_right_hspacer =  QtGui.QSpacerItem(
-            40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_right_hspacer)
         self.view_sample_tab_main_vlayout.addLayout(self.sample_view_file_select_hlayout)
 
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
