@@ -21,11 +21,12 @@ pydaw_g_hi = 100.0
 pydaw_g_hi2 = 255.0
 pydaw_g_lo = 36.0
 
-pydaw_rainbow_gradient = [((pydaw_g_lo, pydaw_g_hi, pydaw_g_lo), (pydaw_g_lo, pydaw_g_hi2, pydaw_g_lo)),
-                              ((pydaw_g_lo, pydaw_g_lo, pydaw_g_hi), (pydaw_g_lo, pydaw_g_lo, pydaw_g_hi2)),
-                              ((pydaw_g_hi, pydaw_g_lo, pydaw_g_hi), (pydaw_g_hi2, pydaw_g_lo, pydaw_g_hi2)),
-                              ((pydaw_g_hi, pydaw_g_lo, pydaw_g_lo), (pydaw_g_hi2, pydaw_g_lo, pydaw_g_lo)),
-                              ((pydaw_g_hi, pydaw_g_hi, pydaw_g_lo), (pydaw_g_hi2, pydaw_g_hi2, pydaw_g_lo))]
+pydaw_rainbow_gradient = \
+    [((pydaw_g_lo, pydaw_g_hi, pydaw_g_lo), (pydaw_g_lo, pydaw_g_hi2, pydaw_g_lo)),
+      ((pydaw_g_lo, pydaw_g_lo, pydaw_g_hi), (pydaw_g_lo, pydaw_g_lo, pydaw_g_hi2)),
+      ((pydaw_g_hi, pydaw_g_lo, pydaw_g_hi), (pydaw_g_hi2, pydaw_g_lo, pydaw_g_hi2)),
+      ((pydaw_g_hi, pydaw_g_lo, pydaw_g_lo), (pydaw_g_hi2, pydaw_g_lo, pydaw_g_lo)),
+      ((pydaw_g_hi, pydaw_g_hi, pydaw_g_lo), (pydaw_g_hi2, pydaw_g_hi2, pydaw_g_lo))]
 
 pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 50))
 
@@ -36,12 +37,12 @@ def pydaw_linear_interpolate_gradient(a_pos):
     f_int = int(a_pos - f_frac)
     if f_int >= len(pydaw_rainbow_gradient) - 1:
         f_int -= len(pydaw_rainbow_gradient)
-    f_red = ((pydaw_rainbow_gradient[f_int][0][0] - pydaw_rainbow_gradient[f_int][1][0]) * f_frac) + \
-    pydaw_rainbow_gradient[f_int][1][0]
-    f_green = ((pydaw_rainbow_gradient[f_int][0][1] - pydaw_rainbow_gradient[f_int][1][1]) * f_frac) + \
-    pydaw_rainbow_gradient[f_int][1][1]
-    f_blue = ((pydaw_rainbow_gradient[f_int][0][2] - pydaw_rainbow_gradient[f_int ][1][2]) * f_frac) + \
-    pydaw_rainbow_gradient[f_int][1][2]
+    f_red = ((pydaw_rainbow_gradient[f_int][0][0] - pydaw_rainbow_gradient[f_int][1][0]) *
+        f_frac) + pydaw_rainbow_gradient[f_int][1][0]
+    f_green = ((pydaw_rainbow_gradient[f_int][0][1] - pydaw_rainbow_gradient[f_int][1][1]) *
+    f_frac) + pydaw_rainbow_gradient[f_int][1][1]
+    f_blue = ((pydaw_rainbow_gradient[f_int][0][2] - pydaw_rainbow_gradient[f_int ][1][2]) *
+    f_frac) + pydaw_rainbow_gradient[f_int][1][2]
 
     return (f_red, f_green, f_blue)
 
@@ -49,7 +50,6 @@ def pydaw_set_track_gradients():
     pydaw_rainbow_inc = 0.25
     f_rainbox_pos = 0.0
     f_rainbox_intervals = [0.0, 0.15, 0.5, 1.0]
-
 
     for f_i_gradient in range(pydaw_midi_track_count):
         f_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
@@ -73,8 +73,6 @@ def pydaw_set_track_gradients():
 
 pydaw_set_track_gradients()
 
-
 pydaw_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
-#ffa02f, #d7801a)
 pydaw_selected_gradient.setColorAt(0, QtGui.QColor(255, 160, 47))
 pydaw_selected_gradient.setColorAt(1, QtGui.QColor(215, 128, 26))
