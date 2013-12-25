@@ -323,7 +323,7 @@ class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
 class pydaw_checkbox_control(pydaw_abstract_ui_control):
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback,
                  a_port_dict=None, a_preset_mgr=None):
-        pydaw_abstract_ui_control.__init__(self, "", a_port_num, a_rel_callback, a_val_callback,
+        pydaw_abstract_ui_control.__init__(self, None, a_port_num, a_rel_callback, a_val_callback,
                                            a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr,
                                            a_default_value=0)
         self.control = QtGui.QCheckBox(a_label)
