@@ -28,6 +28,13 @@ QWidget#plugin_ui,QDialog,QScrollArea,QMainWindow,QMenu
 	background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #3d3d3d, stop: 0.5 #424649 stop: 1 #3d3d3d);
 }
 
+QScrollArea
+{
+	outline: none;
+	border: none;
+	padding: 2px;
+}
+
 QCheckBox,QRadiobutton
 {
 	padding: 0px;

@@ -7143,7 +7143,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
-        self.setMinimumSize(1100, 600)
+        #self.setMinimumSize(1100, 600)
         self.setObjectName("mainwindow")
 
         self.setStyleSheet(global_stylesheet)
@@ -7152,12 +7152,19 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.last_ac_dir = global_home
         self.copy_to_clipboard_checked = True
 
-        self.central_widget = QtGui.QWidget()
+        self.central_widget = QtGui.QScrollArea()
         self.central_widget.setObjectName("plugin_ui")
+        self.central_widget.setMinimumSize(500, 500)
+        self.widget = QtGui.QWidget()
+        self.widget.setObjectName("plugin_ui")
         self.setCentralWidget(self.central_widget)
+        self.central_widget.setWidget(self.widget)
+        self.central_widget.setWidgetResizable(True)
+        self.central_widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.central_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         self.main_layout = QtGui.QVBoxLayout()
-        self.central_widget.setLayout(self.main_layout)
+        self.widget.setLayout(self.main_layout)
         self.transport_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.main_layout.addWidget(self.transport_splitter)
 
