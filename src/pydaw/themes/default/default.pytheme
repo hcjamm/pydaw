@@ -157,7 +157,8 @@ QRadioButton#rec_button::indicator::checked
 
 QSpinBox, QDoubleSpinBox
 {
-	background-color: #111111;
+        background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, stop: 0.5 #323232, stop: 1 #2d2d2d);
+        background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #3d3d3d, stop: 0.5 #424649 stop: 1 #3d3d3d);
 	color: white;
 	border: 1px solid gray;
 	font-size: 18px;
@@ -165,7 +166,7 @@ QSpinBox, QDoubleSpinBox
 
 QSpinBox#large_spinbox, QDoubleSpinBox#large_spinbox
 {
-	font-size: 24px;
+	font-size: 21px;
 }
 
 QSpinBox::up-button, QDoubleSpinBox::up-button
