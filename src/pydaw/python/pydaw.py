@@ -6410,9 +6410,11 @@ class transport_widget:
         self.overdub_checkbox = QtGui.QCheckBox("Overdub")
         self.overdub_checkbox.clicked.connect(self.on_overdub_changed)
         f_lower_ctrl_layout.addWidget(self.overdub_checkbox)
+        self.menu_button = QtGui.QPushButton("Menu")
+        f_lower_ctrl_layout.addWidget(self.menu_button)
         self.panic_button = QtGui.QPushButton("Panic")
         self.panic_button.pressed.connect(self.on_panic)
-        f_lower_ctrl_layout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding))
+        f_lower_ctrl_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         f_lower_ctrl_layout.addWidget(self.panic_button)
         self.tooltips_checkbox = QtGui.QCheckBox("Tooltips")
         self.tooltips_checkbox.stateChanged.connect(pydaw_set_tooltips_enabled)
@@ -7165,7 +7167,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.spacebar_action.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
 
         #The menus
-        self.menu_bar = self.menuBar()
+        self.menu_bar = QtGui.QMenu(self)
+        # Dirty hack, rather than moving the methods to the transport
+        this_transport.menu_button.setMenu(self.menu_bar)
         self.menu_file = self.menu_bar.addMenu("&File")
 
         self.new_action = QtGui.QAction("New", self)
