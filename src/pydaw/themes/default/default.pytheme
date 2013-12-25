@@ -22,7 +22,7 @@ QWidget
 	color: white;
 }
 
-QWidget#plugin_ui,QDialog,QScrollArea,QMainWindow,QMenuBar
+QWidget#plugin_ui,QDialog,QScrollArea,QMainWindow,QMenu
 {
 	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, stop: 0.5 #323232, stop: 1 #2d2d2d);
 	background-color: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #3d3d3d, stop: 0.5 #424649 stop: 1 #3d3d3d);
@@ -323,49 +323,6 @@ QWidget:item:selected
 	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #dddddd);
 }
 
-QMenuBar::item
-{
-	background: transparent;
-}
-
-QMenuBar::item:selected
-{
-	background: transparent;
-	border: 1px solid #ffffff;
-}
-
-QMenuBar::item:pressed
-{
-	background: #444;
-	border: 1px solid #000;
-	background-color: QLinearGradient(
-	x1:0, y1:0,
-	x2:0, y2:1,
-	stop:1 #212121,
-	stop:0.4 #343434/*,
-	stop:0.2 #343434,
-	stop:0.1 #ffffff*/
-	);
-	margin-bottom:-1px;
-	padding-bottom:1px;
-}
-
-QMenu
-{
-	color: white;
-	font-size: 15px;
-	border: 1px solid white;
-	padding: 4px;
-	margin: 4px;
-	border-radius: 3px;
-	background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10, 10, 10, 255), stop:0.1 rgba(45, 45, 45, 255), stop:0.5 rgba(39, 39, 39, 255),  stop:0.9 rgba(42, 42, 42, 255), stop:1 rgba(10, 10, 10, 255));
-}
-
-QMenu::item:selected
-{
-	color: #000000;
-}
-
 QPushButton:disabled, QComboBox:disabled
 {
 	color: white;
@@ -432,7 +389,7 @@ QComboBox:enabled
 	background-color: QLinearGradient(x1:0, y1:0, x2:1, y2:1, stop:1 #dddddd, stop:.4 #aaaaaa);
 }
 
-QComboBox:on, QMenu::item
+QComboBox:on
 {
 	color: white;
 	padding-top: 3px;
@@ -441,7 +398,7 @@ QComboBox:on, QMenu::item
 	selection-background-color: #ffffff;
 }
 
-QComboBox QAbstractItemView
+QAbstractItemView
 {
 	border: 2px solid darkgray;
 	selection-background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #dddddd);
