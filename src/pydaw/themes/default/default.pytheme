@@ -614,12 +614,10 @@ QToolBar::handle
 
 QMenu::separator
 {
-	height: 2px;
-	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #161616, stop: 0.5 #151515, stop: 0.6 #212121, stop:1 #343434);
-	color: white;
-	padding-left: 4px;
-	margin-left: 10px;
-	margin-right: 5px;
+	height: 6px;
+	background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:0 #161616, 
+		stop: 0.5 #cccccc, stop:1 #343434);
+	margin: 6px;
 }
 
 QProgressBar

@@ -7227,6 +7227,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.redo_action.triggered.connect(self.on_redo)
         self.redo_action.setShortcut(QtGui.QKeySequence.Redo)
 
+        self.menu_edit.addSeparator()
+
         self.undo_history_action = QtGui.QAction("Undo History...", self)
         self.menu_edit.addAction(self.undo_history_action)
         self.undo_history_action.triggered.connect(self.on_undo_history)
@@ -7246,6 +7248,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_appearance.addAction(self.restore_splitters_action)
         self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
         self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
+
+        self.menu_appearance.addSeparator()
 
         self.open_theme_action = QtGui.QAction("Open Theme...", self)
         self.menu_appearance.addAction(self.open_theme_action)
