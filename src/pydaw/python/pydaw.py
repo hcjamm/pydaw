@@ -4772,19 +4772,21 @@ class automation_viewer_widget:
         self.automation_viewer = a_viewer
         self.vlayout.addWidget(self.automation_viewer)
         self.hlayout = QtGui.QHBoxLayout()
-        self.vlayout.addLayout(self.hlayout)
 
         if a_is_cc:
+            self.hlayout2 = QtGui.QHBoxLayout()
+            self.vlayout.addLayout(self.hlayout2)
             self.plugin_combobox = QtGui.QComboBox()
             self.plugin_combobox.setMinimumWidth(120)
             self.plugin_combobox.addItems(global_plugin_names)
-            self.hlayout.addWidget(QtGui.QLabel("Plugin"))
-            self.hlayout.addWidget(self.plugin_combobox)
+            self.hlayout2.addWidget(QtGui.QLabel("Plugin"))
+            self.hlayout2.addWidget(self.plugin_combobox)
             self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
             self.control_combobox = QtGui.QComboBox()
             self.control_combobox.setMinimumWidth(240)
-            self.hlayout.addWidget(QtGui.QLabel("Control"))
-            self.hlayout.addWidget(self.control_combobox)
+            self.hlayout2.addWidget(QtGui.QLabel("Control"))
+            self.hlayout2.addWidget(self.control_combobox)
+            self.hlayout2.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
             self.control_combobox.currentIndexChanged.connect(self.control_changed)
             self.ccs_in_use_combobox = QtGui.QComboBox()
             self.ccs_in_use_combobox.setMinimumWidth(300)
@@ -4793,6 +4795,7 @@ class automation_viewer_widget:
             self.hlayout.addWidget(QtGui.QLabel("In Use:"))
             self.hlayout.addWidget(self.ccs_in_use_combobox)
 
+        self.vlayout.addLayout(self.hlayout)
         self.smooth_button = QtGui.QPushButton("Smooth")
         self.smooth_button.setToolTip("By default, the control points are steppy, "
             "this button draws extra points between the exisiting points.")
@@ -5378,7 +5381,7 @@ class item_list_editor:
         self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
         self.cc_auto_viewer_scrollarea_widget.setObjectName("plugin_ui")
-        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(880, 1270)
+        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(880, 1330)
         self.cc_auto_viewer_scrollarea.setWidgetResizable(True)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
         self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
