@@ -133,6 +133,7 @@ class pydaw_abstract_ui_control:
         else:
             self.name_label = QtGui.QLabel(str(a_label))
             self.name_label.setAlignment(QtCore.Qt.AlignCenter)
+            self.name_label.setMinimumWidth(15)
         self.port_num = int(a_port_num)
         self.val_callback = a_val_callback
         self.rel_callback = a_rel_callback
@@ -266,6 +267,7 @@ class pydaw_knob_control(pydaw_abstract_ui_control):
         self.control.sliderReleased.connect(self.control_released)
         self.value_label = QtGui.QLabel("")
         self.value_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.value_label.setMinimumWidth(15)
         self.set_value(a_default_val)
 
 
@@ -282,6 +284,7 @@ class pydaw_slider_control(pydaw_abstract_ui_control):
         self.control.sliderReleased.connect(self.control_released)
         self.value_label = QtGui.QLabel("")
         self.value_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.value_label.setMinimumWidth(15)
         self.set_value(a_default_val)
 
 
