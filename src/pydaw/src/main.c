@@ -1413,6 +1413,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR))
     {
+        //Ensure that a project isn't being loaded right now
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
         int f_uid = atoi(a_value);
         t_pyregion * f_result = g_pyregion_get(a_pydaw_data, f_uid);
         int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data,
@@ -1612,6 +1616,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT))
     {
+        //Ensure that a project isn't being loaded right now
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2,
                 PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
