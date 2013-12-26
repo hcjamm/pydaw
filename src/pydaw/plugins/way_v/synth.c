@@ -1807,7 +1807,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         port_descriptors[WAYV_PERC_ENV_TIME1] = 1;
 	port_range_hints[WAYV_PERC_ENV_TIME1].DefaultValue = 10.0f;
 	port_range_hints[WAYV_PERC_ENV_TIME1].LowerBound =  2.0f;
-        port_range_hints[WAYV_PERC_ENV_TIME1].UpperBound =  100.0f;
+        port_range_hints[WAYV_PERC_ENV_TIME1].UpperBound =  40.0f;
 
         port_descriptors[WAYV_PERC_ENV_PITCH1] = 1;
 	port_range_hints[WAYV_PERC_ENV_PITCH1].DefaultValue = 66.0f;
@@ -1822,7 +1822,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         port_descriptors[WAYV_PERC_ENV_PITCH2] = 1;
 	port_range_hints[WAYV_PERC_ENV_PITCH2].DefaultValue = 48.0f;
 	port_range_hints[WAYV_PERC_ENV_PITCH2].LowerBound =  33.0f;
-        port_range_hints[WAYV_PERC_ENV_PITCH2].UpperBound =  75.0f;
+        port_range_hints[WAYV_PERC_ENV_PITCH2].UpperBound =  63.0f;
 
         port_descriptors[WAYV_PERC_ENV_ON] = 1;
 	port_range_hints[WAYV_PERC_ENV_ON].DefaultValue = 0.0f;

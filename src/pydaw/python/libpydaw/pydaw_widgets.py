@@ -464,7 +464,7 @@ class pydaw_perc_env_widget:
 
         self.time1_knob = pydaw_knob_control(a_size, "Time1", a_time1_port,
                                               a_rel_callback, a_val_callback,
-                                              2, 100, 10, kc_none, a_port_dict,
+                                              2, 40, 10, kc_integer, a_port_dict,
                                               a_preset_mgr)
         self.time1_knob.add_to_grid_layout(self.layout, 0)
 
@@ -475,12 +475,12 @@ class pydaw_perc_env_widget:
 
         self.time2_knob = pydaw_knob_control(a_size, "Time2", a_time2_port,
                                               a_rel_callback, a_val_callback,
-                                              20, 400, 100, kc_none, a_port_dict,
+                                              20, 400, 100, kc_integer, a_port_dict,
                                               a_preset_mgr)
         self.time2_knob.add_to_grid_layout(self.layout, 2)
 
         self.pitch2_knob = pydaw_knob_control(a_size, "Pitch2", a_pitch2_port, a_rel_callback,
-                                           a_val_callback, 33, 75, 48, kc_pitch,
+                                           a_val_callback, 33, 63, 48, kc_pitch,
                                            a_port_dict, a_preset_mgr)
         self.pitch2_knob.add_to_grid_layout(self.layout, 3)
 
