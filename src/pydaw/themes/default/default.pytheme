@@ -20,6 +20,7 @@ QWidget
 {
 	selection-background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #dddddd);
 	color: white;
+	selection-color: #111111;
 }
 
 QWidget#plugin_ui,QDialog,QScrollArea,QMainWindow,QMenu
@@ -170,6 +171,7 @@ QSpinBox, QDoubleSpinBox
 	border: 1px solid gray;
 	font-size: 18px;
 }
+
 
 QSpinBox#large_spinbox, QDoubleSpinBox#large_spinbox
 {
