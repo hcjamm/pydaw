@@ -4343,7 +4343,7 @@ class piano_roll_editor_widget():
         self.vlayout.addLayout(self.controls_grid_layout)
         self.vlayout.addWidget(this_piano_roll_editor)
         self.snap_combobox = QtGui.QComboBox()
-        self.snap_combobox.setMinimumWidth(150)
+        self.snap_combobox.setMinimumWidth(90)
         self.snap_combobox.addItems(["None", "1/4", "1/8", "1/12", "1/16",
                                      "1/32", "1/64", "1/128"])
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
