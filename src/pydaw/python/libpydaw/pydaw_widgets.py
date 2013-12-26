@@ -115,6 +115,7 @@ class pydaw_pixmap_knob(QtGui.QDial):
         ry = -(self.pixmap_size * 0.5)
         p.drawPixmap(rx, ry, self.pixmap)
 
+
 kc_integer = 0
 kc_decimal = 1
 kc_pitch = 2
@@ -955,7 +956,7 @@ class pydaw_preset_manager_widget:
         self.load_presets()
 
     def reset_controls(self):
-        for k, v in list(self.controls.items()):
+        for v in self.controls.values():
             v.reset_default_value()
 
     def load_presets(self):
@@ -1015,11 +1016,17 @@ class pydaw_preset_manager_widget:
         else:
             f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
             print("setting preset {}".format(f_preset))
+            f_preset_dict = {}
             for f_i in range(1, len(f_preset)):
                 f_port, f_val = f_preset[f_i].split(":")
-                f_port = int(f_port)
-                self.controls[f_port].set_value(f_val)
-                self.controls[f_port].control_value_changed(f_val)
+                f_preset_dict[int(f_port)] = int(f_val)
+
+            for k, v in self.controls.items():
+                if int(k) in f_preset_dict:
+                    v.set_value(f_preset_dict[k])
+                    v.control_value_changed(f_preset_dict[k])
+                else:
+                    v.reset_default_value()
 
     def add_control(self, a_control):
         self.controls[a_control.port_num] = a_control
