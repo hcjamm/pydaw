@@ -596,8 +596,6 @@ class pydaw_file_select_widget:
     def __init__(self, a_load_callback):
         self.load_callback = a_load_callback
         self.layout =  QtGui.QHBoxLayout()
-        self.open_button =  QtGui.QPushButton("Open")
-        self.open_button.setMaximumWidth(60)
         self.clear_button =  QtGui.QPushButton("Clear")
         self.clear_button.setMaximumWidth(60)
         self.copy_to_clipboard =  QtGui.QPushButton("Copy")
@@ -618,30 +616,10 @@ class pydaw_file_select_widget:
         self.last_directory = ("")
         self.layout.addWidget(self.file_path)
         self.layout.addWidget(self.clear_button)
-        self.layout.addWidget(self.open_button)
         self.layout.addWidget(self.copy_to_clipboard)
         self.layout.addWidget(self.paste_from_clipboard)
         self.layout.addWidget(self.reload_button)
 
-    def open_button_pressed(self):
-        f_result = QtGui.QFileDialog.getOpenFileName(self.file_path,
-                                                     "Select an audio sample file",
-                                                     self.last_directory,
-                                                     "Audio files (*.wav *.aiff)")
-        if f_result is not None:
-            self.file_path.setText(f_result)
-            self.last_directory = os.path.pardir(str(f_result))
-        return self.file_path.text()
-
-    def open_button_pressed_multiple(self):
-        f_result = QtGui.QFileDialog.getOpenFileNames(self.file_path,
-                                                      "Select one or more audio sample files",
-                                                      self.last_directory,
-                                                      "Audio files (*.wav)All files (*)")
-        if len(f_result) > 0:
-            self.file_path.setText(str(f_result[-1]))
-            self.last_directory = os.path.pardir(str(f_result))
-        return f_result
 
     def clear_button_pressed(self):
         self.file_path.setText("")
@@ -3103,7 +3081,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.resizeRowsToContents()
 
         self.file_selector = pydaw_file_select_widget(self.load_files)
-        self.file_selector.open_button.pressed.connect(self.fileSelect)
         self.file_selector.clear_button.pressed.connect(self.clearFile)
         self.file_selector.reload_button.pressed.connect(self.reloadSample)
 
@@ -3280,7 +3257,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         #The file select on the 'view' tab
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
         self.view_file_selector =  pydaw_file_select_widget(self.load_files)
-        self.view_file_selector.open_button.pressed.connect(self.fileSelect)
         self.view_file_selector.clear_button.pressed.connect(self.clearFile)
         self.view_file_selector.reload_button.pressed.connect(self.reloadSample)
         self.sample_view_file_select_hlayout.addLayout(self.view_file_selector.layout)
@@ -3743,10 +3719,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.setCurrentIndex(a_index)
         self.suppress_selected_sample_changed = False
 
-    def fileSelect(self):
-        paths = self.file_selector.open_button_pressed_multiple()
-        self.view_file_selector.set_file(self.file_selector.get_file())
-        self.load_files(paths)
 
     def find_selected_radio_button(self):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
