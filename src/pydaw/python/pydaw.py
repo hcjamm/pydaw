@@ -7718,12 +7718,7 @@ class pydaw_cc_map_editor:
         self.cc_table.setRowCount(len(f_map.map))
         f_row_pos = 0
         for k, v in list(f_map.map.items()):
-            if k < 10:
-                f_num = "00{}".format(k)
-            elif k < 100:
-                f_num = "0{}".format(k)
-            else:
-                f_num = str(k)
+            f_num = str(k).zfill(3)
             self.cc_table.setItem(f_row_pos, 0, QtGui.QTableWidgetItem(f_num))
             self.cc_table.setItem(f_row_pos, 1,
                                   QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
@@ -7838,11 +7833,8 @@ class a_b_widget:
         if self.duration is not None:
             f_seconds = self.duration * a_value * 0.001
             f_minutes = int(f_seconds * self.sixty_recip)
-            f_seconds = int(f_seconds % 60.0)
-            if f_seconds < 10:
-                self.time_label.setText("{}:0{}".format(f_minutes, f_seconds))
-            else:
-                self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
+            f_seconds = str(int(f_seconds % 60.0)).zfill(2)
+            self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
 
     def transport_sync(self):
         if self.transport_checkbox.isChecked() and self.has_loaded_file:
