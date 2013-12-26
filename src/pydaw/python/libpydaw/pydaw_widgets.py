@@ -453,6 +453,43 @@ class pydaw_filter_widget:
             self.layout.addWidget(self.type_combobox.name_label, 2, 0)
             self.layout.addWidget(self.type_combobox.control, 2, 1)
 
+
+class pydaw_perc_env_widget:
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict,
+                 a_time1_port, a_pitch1_port, a_time2_port, a_pitch2_port, a_on_port,
+                 a_label="Perc Env", a_preset_mgr=None):
+        self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.groupbox.setObjectName("plugin_groupbox")
+        self.layout = QtGui.QGridLayout(self.groupbox)
+
+        self.time1_knob = pydaw_knob_control(a_size, "Time1", a_time1_port,
+                                              a_rel_callback, a_val_callback,
+                                              2, 100, 10, kc_none, a_port_dict,
+                                              a_preset_mgr)
+        self.time1_knob.add_to_grid_layout(self.layout, 0)
+
+        self.pitch1_knob = pydaw_knob_control(a_size, "Pitch1", a_pitch1_port, a_rel_callback,
+                                           a_val_callback, 42, 120, 66, kc_pitch,
+                                           a_port_dict, a_preset_mgr)
+        self.pitch1_knob.add_to_grid_layout(self.layout, 1)
+
+        self.time2_knob = pydaw_knob_control(a_size, "Time2", a_time2_port,
+                                              a_rel_callback, a_val_callback,
+                                              20, 400, 100, kc_none, a_port_dict,
+                                              a_preset_mgr)
+        self.time2_knob.add_to_grid_layout(self.layout, 2)
+
+        self.pitch2_knob = pydaw_knob_control(a_size, "Pitch2", a_pitch2_port, a_rel_callback,
+                                           a_val_callback, 33, 75, 48, kc_pitch,
+                                           a_port_dict, a_preset_mgr)
+        self.pitch2_knob.add_to_grid_layout(self.layout, 3)
+
+        self.on_switch = pydaw_checkbox_control("On", a_on_port,
+                                                a_rel_callback, a_val_callback,
+                                                a_preset_mgr, a_port_dict)
+        self.on_switch.add_to_grid_layout(self.layout, 4)
+
+
 class pydaw_ramp_env_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict,
                  a_time_port, a_amt_port,
