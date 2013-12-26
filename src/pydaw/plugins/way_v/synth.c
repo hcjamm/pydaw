@@ -343,6 +343,12 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_RELEASE3: plugin->release3 = data; break;
 
         case WAYV_ADSR3_CHECKBOX: plugin->adsr3_checked = data; break;
+
+        case WAYV_PERC_ENV_PITCH1: plugin->perc_env_pitch1 = data; break;
+        case WAYV_PERC_ENV_TIME1: plugin->perc_env_time1 = data; break;
+        case WAYV_PERC_ENV_PITCH2: plugin->perc_env_pitch2 = data; break;
+        case WAYV_PERC_ENV_TIME2: plugin->perc_env_time2 = data; break;
+        case WAYV_PERC_ENV_ON: plugin->perc_env_on = data; break;
     }
 }
 
@@ -687,6 +693,19 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->noise_amp =
                         f_db_to_linear(*(plugin_data->noise_amp),
                         plugin_data->mono_modules->amp_ptr);
+
+                plugin_data->data[f_voice]->perc_env_on =
+                        (int)(*plugin_data->perc_env_on);
+
+                if(plugin_data->data[f_voice]->perc_env_on)
+                {
+                    v_pnv_set(plugin_data->data[f_voice]->perc_env,
+                            (*plugin_data->perc_env_time1) * 0.001f,
+                            (*plugin_data->perc_env_pitch1),
+                            (*plugin_data->perc_env_time2) * 0.001f,
+                            (*plugin_data->perc_env_pitch2),
+                            plugin_data->data[f_voice]->note_f);
+                }
             }
             /*0 velocity, the same as note-off*/
             else
@@ -752,7 +771,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
 
-        v_sml_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        v_sml_run(plugin_data->mono_modules->pitchbend_smoother,
+                (plugin_data->sv_pitch_bend_value));
 
         plugin_data->i_run_poly_voice = 0;
         while ((plugin_data->i_run_poly_voice) < WAYV_POLYPHONY)
@@ -819,7 +839,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
     f_rmp_run_ramp(plugin_data->data[a_voice_num]->ramp_env);
 
     //Set and run the LFO
-    v_lfs_set(plugin_data->data[a_voice_num]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
+    v_lfs_set(plugin_data->data[a_voice_num]->lfo1,
+            (*(plugin_data->lfo_freq)) * .01);
     v_lfs_run(plugin_data->data[a_voice_num]->lfo1);
 
     a_voice->lfo_amount_output =
@@ -827,17 +848,27 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     a_voice->lfo_amp_output =
             f_db_to_linear_fast((((*plugin_data->lfo_amp) *
-            (a_voice->lfo_amount_output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)),
+            (a_voice->lfo_amount_output)) -
+            (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)),
             a_voice->amp_ptr);
 
-    a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);
+    a_voice->lfo_pitch_output =
+            (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);
 
-    a_voice->base_pitch =
+    if(a_voice->perc_env_on)
+    {
+        a_voice->base_pitch = f_pnv_run(a_voice->perc_env);
+    }
+    else
+    {
+        a_voice->base_pitch =
             (a_voice->glide_env->output_multiplied) +
-            ((a_voice->ramp_env->output_multiplied) * (*plugin_data->pitch_env_amt))
+            ((a_voice->ramp_env->output_multiplied) *
+            (*plugin_data->pitch_env_amt))
             + (plugin_data->mono_modules->pitchbend_smoother->last_value  *
-            (*(plugin_data->master_pb_amt))) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
-
+            (*(plugin_data->master_pb_amt))) + (a_voice->last_pitch) +
+            (a_voice->lfo_pitch_output);
+    }
     if(a_voice->osc1_on)
     {
         v_osc_wav_set_unison_pitch(
@@ -845,15 +876,19 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 ((a_voice->base_pitch) + (*plugin_data->osc1pitch) +
                 ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
 
-        v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm1, a_voice->fm1_last);
-        v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm2, a_voice->fm2_last);
-        v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm3, a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1,
+                a_voice->osc1fm1, a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1,
+                a_voice->osc1fm2, a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1,
+                a_voice->osc1fm3, a_voice->fm3_last);
 
         if(a_voice->adsr_amp1_on)
         {
             v_adsr_run_db(a_voice->adsr_amp1);
             a_voice->fm1_last =
-                f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output);
+                f_osc_wav_run_unison(a_voice->osc_wavtable1)
+                    * (a_voice->adsr_amp1->output);
             a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
         }
         else
@@ -1769,7 +1804,30 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC5CTRL2].LowerBound =  -100.0f;
         port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC5CTRL2].UpperBound =  100.0f;
 
+        port_descriptors[WAYV_PERC_ENV_TIME1] = 1;
+	port_range_hints[WAYV_PERC_ENV_TIME1].DefaultValue = 10.0f;
+	port_range_hints[WAYV_PERC_ENV_TIME1].LowerBound =  2.0f;
+        port_range_hints[WAYV_PERC_ENV_TIME1].UpperBound =  100.0f;
 
+        port_descriptors[WAYV_PERC_ENV_PITCH1] = 1;
+	port_range_hints[WAYV_PERC_ENV_PITCH1].DefaultValue = 66.0f;
+	port_range_hints[WAYV_PERC_ENV_PITCH1].LowerBound =  42.0f;
+        port_range_hints[WAYV_PERC_ENV_PITCH1].UpperBound =  120.0f;
+
+        port_descriptors[WAYV_PERC_ENV_TIME2] = 1;
+	port_range_hints[WAYV_PERC_ENV_TIME2].DefaultValue = 100.0f;
+	port_range_hints[WAYV_PERC_ENV_TIME2].LowerBound =  20.0f;
+        port_range_hints[WAYV_PERC_ENV_TIME2].UpperBound =  400.0f;
+
+        port_descriptors[WAYV_PERC_ENV_PITCH2] = 1;
+	port_range_hints[WAYV_PERC_ENV_PITCH2].DefaultValue = 48.0f;
+	port_range_hints[WAYV_PERC_ENV_PITCH2].LowerBound =  33.0f;
+        port_range_hints[WAYV_PERC_ENV_PITCH2].UpperBound =  75.0f;
+
+        port_descriptors[WAYV_PERC_ENV_ON] = 1;
+	port_range_hints[WAYV_PERC_ENV_ON].DefaultValue = 0.0f;
+	port_range_hints[WAYV_PERC_ENV_ON].LowerBound =  0.0f;
+        port_range_hints[WAYV_PERC_ENV_ON].UpperBound =  1.0f;
 
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;

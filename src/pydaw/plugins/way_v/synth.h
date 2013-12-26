@@ -199,7 +199,15 @@ extern "C" {
 #define WAVV_PFXMATRIX_GRP0DST3SRC5CTRL1  155
 #define WAVV_PFXMATRIX_GRP0DST3SRC5CTRL2  156
 
-#define WAYV_COUNT 157 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_PERC_ENV_TIME1 157
+#define WAYV_PERC_ENV_PITCH1 158
+#define WAYV_PERC_ENV_TIME2 159
+#define WAYV_PERC_ENV_PITCH2 160
+#define WAYV_PERC_ENV_ON 161
+
+/* must be 1 + highest value above
+ * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_COUNT 162
 
 #define WAYV_POLYPHONY   16
 
@@ -295,22 +303,43 @@ typedef struct
     PYFX_Data *lfo_pitch;
     PYFX_Data *lfo_amount;
 
-    //Corresponds to the actual knobs on the effects themselves, not the mod matrix
-    PYFX_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *perc_env_time1;
+    PYFX_Data *perc_env_pitch1;
+    PYFX_Data *perc_env_time2;
+    PYFX_Data *perc_env_pitch2;
+    PYFX_Data *perc_env_on;
 
-    PYFX_Data *fx_combobox[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT];
+    //Corresponds to the actual knobs on the effects themselves,
+    //not the mod matrix
+    PYFX_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT]
+            [WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
+
+    PYFX_Data *fx_combobox[WAYV_EFFECTS_GROUPS_COUNT]
+            [WAYV_MODULAR_POLYFX_COUNT];
 
     //PolyFX Mod Matrix
     //Corresponds to the mod matrix spinboxes
-    PYFX_Data *polyfx_mod_matrix[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_MODULATOR_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *polyfx_mod_matrix[WAYV_EFFECTS_GROUPS_COUNT]
+            [WAYV_MODULAR_POLYFX_COUNT][WAYV_MODULATOR_COUNT]
+            [WAYV_CONTROLS_PER_MOD_EFFECT];
 
     int active_polyfx[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];
     int active_polyfx_count[WAYV_POLYPHONY];
 
-    int polyfx_mod_ctrl_indexes[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
-    int polyfx_mod_counts[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
-    int polyfx_mod_src_index[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
-    float polyfx_mod_matrix_values[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
+    //The index of the control to mod, currently 0-2
+    int polyfx_mod_ctrl_indexes[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT]
+    [(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];
+
+    //How many polyfx_mod_ptrs to iterate through for the current note
+    int polyfx_mod_counts[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];
+
+    //The index of the modulation source(LFO, ADSR, etc...) to multiply by
+    int polyfx_mod_src_index[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT]
+    [(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];
+
+    //The value of the mod_matrix knob, multiplied by .01
+    float polyfx_mod_matrix_values[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT]
+    [(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];
 
     t_wayv_poly_voice * data[WAYV_POLYPHONY];
     t_voc_voices * voices;

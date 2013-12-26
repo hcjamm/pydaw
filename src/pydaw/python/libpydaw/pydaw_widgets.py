@@ -486,7 +486,7 @@ class pydaw_perc_env_widget:
 
         self.on_switch = pydaw_checkbox_control("On", a_on_port,
                                                 a_rel_callback, a_val_callback,
-                                                a_preset_mgr, a_port_dict)
+                                                a_port_dict, a_preset_mgr)
         self.on_switch.add_to_grid_layout(self.layout, 4)
 
 
@@ -2551,6 +2551,20 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                   a_preset_mgr=self.preset_manager)
         self.noise_type.control.setMaximumWidth(87)
         self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
+
+        self.perc_env = pydaw_perc_env_widget(f_knob_size,
+                                              self.plugin_rel_callback,
+                                              self.plugin_val_callback,
+                                              self.port_dict,
+                                              pydaw_ports.WAYV_PERC_ENV_TIME1,
+                                              pydaw_ports.WAYV_PERC_ENV_PITCH1,
+                                              pydaw_ports.WAYV_PERC_ENV_TIME2,
+                                              pydaw_ports.WAYV_PERC_ENV_PITCH2,
+                                              pydaw_ports.WAYV_PERC_ENV_ON,
+                                              a_preset_mgr=self.preset_manager
+                                              )
+
+        self.hlayout4.addWidget(self.perc_env.groupbox)
 
         self.main_layout =  QtGui.QVBoxLayout(self.poly_fx_tab)
         self.hlayout5 = QtGui.QHBoxLayout()
