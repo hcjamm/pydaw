@@ -553,7 +553,7 @@ class pydaw_osc_widget:
                                            a_val_conversion=kc_integer,
                                            a_port_dict=a_port_dict,
                                            a_preset_mgr=a_preset_mgr)
-        self.osc_type_combobox = pydaw_combobox_control(114, "Type", a_type_port,
+        self.osc_type_combobox = pydaw_combobox_control(139, "Type", a_type_port,
                                                         a_rel_callback, a_val_callback,
                                                         a_osc_types_list, a_port_dict,
                                                         a_preset_mgr=a_preset_mgr,
