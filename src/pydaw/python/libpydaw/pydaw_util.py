@@ -129,6 +129,12 @@ def beat_frac_text_to_float(f_index):
     else:
         return 0.25
 
+bar_fracs = ['1/4', '1/8', '1/12', '1/16', '1/32']
+
+bar_fracs_dict = {'1/4':0.25, '1/8':0.125, '1/12':0.083333333, '1/16':0.0625, '1/32':0.03125}
+def bar_frac_text_to_float(a_text):
+    return bar_fracs_dict[str(a_text)] * 4.0
+
 def pydaw_beats_to_index(a_beat, a_divisor=4.0):
     f_index = int(a_beat / a_divisor)
     f_start = a_beat - (float(f_index) * a_divisor)

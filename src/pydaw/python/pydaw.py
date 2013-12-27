@@ -5015,14 +5015,14 @@ class item_list_editor:
                     f_multiselect = True
 
         def quantize_ok_handler():
-            f_quantize_index = f_quantize_combobox.currentIndex()
+            f_quantize_text = f_quantize_combobox.currentText()
             self.events_follow_default = f_events_follow_notes.isChecked()
             for f_i in range(len(self.items)):
                 if f_multiselect:
-                    self.items[f_i].quantize(f_quantize_index,
+                    self.items[f_i].quantize(f_quantize_text,
                                              f_events_follow_notes.isChecked(), f_ms_rows)
                 else:
-                    self.items[f_i].quantize(f_quantize_index,
+                    self.items[f_i].quantize(f_quantize_text,
                                              f_events_follow_notes.isChecked(),
                                              a_selected_only=a_selected_only)
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
@@ -5038,10 +5038,9 @@ class item_list_editor:
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
-        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel("Quantize"), 0, 0)
         f_quantize_combobox = QtGui.QComboBox()
-        f_quantize_combobox.addItems(beat_fracs)
-        f_quantize_combobox.setCurrentIndex(5)
+        f_quantize_combobox.addItems(bar_fracs)
         f_layout.addWidget(f_quantize_combobox, 0, 1)
         f_events_follow_notes = QtGui.QCheckBox("CCs and pitchbend follow notes?")
         f_events_follow_notes.setChecked(self.events_follow_default)

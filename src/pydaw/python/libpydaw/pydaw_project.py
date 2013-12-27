@@ -1410,7 +1410,7 @@ class pydaw_item:
                         f_notes.append(f_note)
                         break
 
-        f_quantized_value = beat_frac_text_to_float(a_beat_frac)
+        f_quantized_value = bar_frac_text_to_float(a_beat_frac)
         f_quantize_multiple = 1.0/f_quantized_value
 
         for note in f_notes:
