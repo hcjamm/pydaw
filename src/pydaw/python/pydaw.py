@@ -4084,11 +4084,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.piano.mapToScene(0.0, self.header_height)
         f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
         f_label = QtGui.QGraphicsSimpleTextItem("C8", f_key)
+        f_label.setPen(QtCore.Qt.black)
         f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         f_label.setPos(4, 0)
         f_label.setFont(f_piano_label)
-        f_key.setBrush(QtGui.QColor(255,255,255))
+        f_key.setBrush(QtGui.QColor(255, 255, 255))
         f_note_index = 0
+        f_note_num = 0
+
         for i in range(self.end_octave - self.start_octave,
                        self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
@@ -4096,12 +4099,18 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 self.piano_keys[f_note_index] = f_key
                 f_note_index += 1
                 f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
+
+                f_key.setToolTip("{}hz".format(
+                        round(pydaw_pitch_to_hz(f_note_num))))
+                f_note_num += 1
+                print(str(f_note_num))
                 if j == 12:
                     f_label = QtGui.QGraphicsSimpleTextItem("C{}".format(
                         self.end_octave - i), f_key)
                     f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                     f_label.setPos(4, 0)
                     f_label.setFont(f_piano_label)
+                    f_label.setPen(QtCore.Qt.black)
                 if j in f_black_notes:
                     f_key.setBrush(QtGui.QColor(0,0,0))
                     f_key.is_black = True
