@@ -4401,6 +4401,11 @@ global_automation_gradient = QtGui.QLinearGradient(0, 0, global_automation_point
 global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
+global_automation_selected_gradient = QtGui.QLinearGradient(0, 0,
+                                                            global_automation_point_diameter,
+                                                            global_automation_point_diameter)
+global_automation_selected_gradient.setColorAt(0, QtGui.QColor(255, 255, 255))
+global_automation_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
 
 class automation_item(QtGui.QGraphicsEllipseItem):
     def __init__(self, a_time, a_value, a_cc, a_view, a_is_cc, a_item_index):
@@ -4422,6 +4427,12 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.parent_view = a_view
         self.is_cc = a_is_cc
         self.is_copying = False
+
+    def set_brush(self):
+        if self.isSelected():
+            self.setBrush(global_automation_selected_gradient)
+        else:
+            self.setBrush(global_automation_gradient)
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mousePressEvent(self, a_event)
@@ -4526,6 +4537,13 @@ class automation_viewer(QtGui.QGraphicsView):
         self.plugin_index = 0
         self.last_x_scale = 1.0
         global_automation_editors.append(self)
+        self.selection_enabled = True
+        self.scene.selectionChanged.connect(self.selection_changed)
+
+    def selection_changed(self, a_event=None):
+        if self.selection_enabled:
+            for f_item in self.automation_points:
+                f_item.set_brush()
 
     def set_tooltip(self, a_enabled=False):
         if a_enabled:
@@ -4542,6 +4560,7 @@ class automation_viewer(QtGui.QGraphicsView):
             self.setToolTip("")
 
     def prepare_to_quit(self):
+        self.selection_enabled = False
         self.scene.clearSelection()
         self.scene.clear()
 
@@ -4550,6 +4569,7 @@ class automation_viewer(QtGui.QGraphicsView):
         if not this_item_editor.enabled:
             return
         if a_event.key() == QtCore.Qt.Key_Delete:
+            self.selection_enabled = False
             for f_point in self.automation_points:
                 if f_point.isSelected():
                     if self.is_cc:
@@ -4557,9 +4577,11 @@ class automation_viewer(QtGui.QGraphicsView):
                     else:
                         this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
             global_save_and_reload_items()
+            self.selection_enabled = True
 
     def clear_current_item(self):
         """ If this is a CC editor, it only clears the selected CC.  """
+        self.selection_enabled = False
         if not self.automation_points:
             return
         for f_point in self.automation_points:
@@ -4568,6 +4590,7 @@ class automation_viewer(QtGui.QGraphicsView):
             else:
                 this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
         global_save_and_reload_items()
+        self.selection_enabled = True
 
     def sceneMouseDoubleClickEvent(self, a_event):
         if not this_item_editor.enabled:
@@ -4655,11 +4678,13 @@ class automation_viewer(QtGui.QGraphicsView):
                         f_line.setPen(f_line_pen)
 
     def clear_drawn_items(self):
+        self.selection_enabled = False
         self.scene.clear()
         self.automation_points = []
         self.lines = []
         self.draw_axis()
         self.draw_grid()
+        self.selection_enabled = True
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
@@ -4725,9 +4750,9 @@ class automation_viewer(QtGui.QGraphicsView):
         """ a_cc is an instance of the pydaw_cc class"""
         f_time = self.axis_size + (((float(a_item_index) * 4.0) + a_cc.start) * self.beat_width)
         if self.is_cc:
-            f_value = self.axis_size +  self.viewer_height/127.0 * (127.0 - a_cc.cc_val)
+            f_value = self.axis_size +  self.viewer_height / 127.0 * (127.0 - a_cc.cc_val)
         else:
-            f_value = self.axis_size +  self.viewer_height/2.0 * (1.0 - a_cc.pb_val)
+            f_value = self.axis_size +  self.viewer_height / 2.0 * (1.0 - a_cc.pb_val)
         f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc, a_item_index)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
