@@ -4558,6 +4558,17 @@ class automation_viewer(QtGui.QGraphicsView):
                         this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
             global_save_and_reload_items()
 
+    def clear_current_item(self):
+        """ If this is a CC editor, it only clears the selected CC.  """
+        if not self.automation_points:
+            return
+        for f_point in self.automation_points:
+            if self.is_cc:
+                this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
+            else:
+                this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
+        global_save_and_reload_items()
+
     def sceneMouseDoubleClickEvent(self, a_event):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
@@ -4820,12 +4831,18 @@ class automation_viewer_widget:
         self.edit_menu = QtGui.QMenu(self.widget)
         self.select_all_action = self.edit_menu.addAction("Select All")
         self.select_all_action.triggered.connect(self.select_all)
+        self.edit_menu.addSeparator()
+        self.clear_action = self.edit_menu.addAction("Clear")
+        self.clear_action.triggered.connect(self.clear)
         self.edit_button.setMenu(self.edit_menu)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
     def select_all(self):
         for f_item in self.automation_viewer.automation_points:
             f_item.setSelected(True)
+
+    def clear(self):
+        self.automation_viewer.clear_current_item()
 
 
 global_open_items_uids = []
