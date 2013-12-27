@@ -4741,6 +4741,8 @@ class automation_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_point)
         self.connect_points()
 
+global_last_ipb_value = 18  #For the 'add point' dialog to remember settings
+
 class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
@@ -4829,6 +4831,9 @@ class automation_viewer_widget:
         self.edit_button = QtGui.QPushButton("Edit")
         self.hlayout.addWidget(self.edit_button)
         self.edit_menu = QtGui.QMenu(self.widget)
+        if not self.is_cc:
+            self.add_point_action = self.edit_menu.addAction("Add Point")
+            self.add_point_action.triggered.connect(self.add_point)
         self.select_all_action = self.edit_menu.addAction("Select All")
         self.select_all_action.triggered.connect(self.select_all)
         self.edit_menu.addSeparator()
@@ -4844,6 +4849,79 @@ class automation_viewer_widget:
     def clear(self):
         self.automation_viewer.clear_current_item()
 
+    def add_point(self):
+        if not this_item_editor.enabled:  #TODO:  Make this global...
+            this_item_editor.show_not_enabled_warning()
+            return
+
+        def ok_handler():
+            f_bar = f_bar_spinbox.value() - 1
+            f_item = this_item_editor.items[f_bar]
+
+            f_value = pydaw_clip_value(f_epb_spinbox.value() / f_ipb_spinbox.value(),
+                                       -1.0, 1.0, a_round=True)
+            f_pb = pydaw_pitchbend(f_pos_spinbox.value(), f_value)
+            f_item.add_pb(f_pb)
+
+            global global_last_ipb_value
+            global_last_ipb_value = f_ipb_spinbox.value()
+
+            this_pydaw_project.save_item(this_item_editor.item_names[f_bar],
+                                         this_item_editor.items[f_bar])
+            global_open_items()
+            this_pydaw_project.commit("Add automation point")
+
+        def cancel_handler():
+            f_window.close()
+
+        def ipb_changed(a_self=None, a_event=None):
+            f_epb_spinbox.setRange(f_ipb_spinbox.value() * -1, f_ipb_spinbox.value())
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Add automation point")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_layout.addWidget(QtGui.QLabel("Position (bars)"), 2, 0)
+        f_bar_spinbox = QtGui.QSpinBox()
+        f_bar_spinbox.setRange(1, len(global_open_items_uids))
+        f_layout.addWidget(f_bar_spinbox, 2, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Position (beats)"), 5, 0)
+        f_pos_spinbox = QtGui.QDoubleSpinBox()
+        f_pos_spinbox.setRange(0.0, 3.99)
+        f_pos_spinbox.setDecimals(2)
+        f_pos_spinbox.setSingleStep(0.25)
+        f_layout.addWidget(f_pos_spinbox, 5, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Instrument Pitchbend"), 10, 0)
+        f_ipb_spinbox = QtGui.QSpinBox()
+        f_ipb_spinbox.setToolTip("Set this to the same setting that your instrument plugin uses")
+        f_ipb_spinbox.setRange(2, 36)
+        f_ipb_spinbox.setValue(global_last_ipb_value)
+        f_layout.addWidget(f_ipb_spinbox, 10, 1)
+        f_ipb_spinbox.valueChanged.connect(ipb_changed)
+
+        f_layout.addWidget(QtGui.QLabel("Effective Pitchbend"), 20, 0)
+        f_epb_spinbox = QtGui.QSpinBox()
+        f_epb_spinbox.setToolTip("")
+        f_epb_spinbox.setRange(-18, 18)
+        f_layout.addWidget(f_epb_spinbox, 20, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Pitchbend values are in semitones.\n\n"
+            "Use this dialog to add points with precision,\n"
+            "or double-click on the editor to add points."), 30, 1)
+
+        f_ok = QtGui.QPushButton("Add")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addWidget(f_ok)
+
+        f_layout.addLayout(f_ok_cancel_layout, 40, 1)
+        f_cancel = QtGui.QPushButton("Close")
+        f_cancel.pressed.connect(cancel_handler)
+        f_ok_cancel_layout.addWidget(f_cancel)
+        f_window.exec_()
 
 global_open_items_uids = []
 
