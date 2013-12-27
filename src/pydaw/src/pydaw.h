@@ -2997,6 +2997,11 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
         }
         else
         {
+            if(!a_pydaw_data->pysong->audio_items[f_current_region])
+            {
+                break;
+            }
+
             f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data,
                     a_pydaw_data->ml_current_region, 0, 0.0f,
                     a_pydaw_data->ml_next_region,
