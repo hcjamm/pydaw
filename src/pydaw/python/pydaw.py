@@ -4283,12 +4283,19 @@ class piano_roll_editor(QtGui.QGraphicsView):
 class piano_roll_editor_widget():
     def quantize_dialog(self):
         this_item_editor.quantize_dialog(False, this_piano_roll_editor.has_selected)
+
     def transpose_dialog(self):
         this_item_editor.transpose_dialog(False, this_piano_roll_editor.has_selected)
+
     def velocity_dialog(self):
         this_item_editor.velocity_dialog(False, this_piano_roll_editor.has_selected)
+
     def clear_notes(self):
         this_item_editor.clear_notes(False)
+
+    def select_all(self):
+        for f_note in this_piano_roll_editor.note_items:
+            f_note.setSelected(True)
 
     def __init__(self):
         self.widget = QtGui.QWidget()
@@ -4331,6 +4338,12 @@ class piano_roll_editor_widget():
         self.velocity_action = QtGui.QAction("Velocity", self.widget)
         self.edit_menu.addAction(self.velocity_action)
         self.velocity_action.triggered.connect(self.velocity_dialog)
+
+        self.select_all_action = QtGui.QAction("Select All", self.widget)
+        self.edit_menu.addAction(self.select_all_action)
+        self.select_all_action.triggered.connect(self.select_all)
+
+        self.edit_menu.addSeparator()
 
         self.clear_action = QtGui.QAction("Clear All", self.widget)
         self.edit_menu.addAction(self.clear_action)
