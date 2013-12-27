@@ -4814,7 +4814,19 @@ class automation_viewer_widget:
             "this button draws extra points between the exisiting points.")
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
+        self.hlayout.addItem(QtGui.QSpacerItem(10, 10))
+        self.edit_button = QtGui.QPushButton("Edit")
+        self.hlayout.addWidget(self.edit_button)
+        self.edit_menu = QtGui.QMenu(self.widget)
+        self.select_all_action = self.edit_menu.addAction("Select All")
+        self.select_all_action.triggered.connect(self.select_all)
+        self.edit_button.setMenu(self.edit_menu)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+
+    def select_all(self):
+        for f_item in self.automation_viewer.automation_points:
+            f_item.setSelected(True)
+
 
 global_open_items_uids = []
 
