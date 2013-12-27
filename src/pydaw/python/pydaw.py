@@ -4576,26 +4576,18 @@ class automation_viewer(QtGui.QGraphicsView):
         f_pos_x = a_event.scenePos().x() - global_automation_point_radius
         f_pos_y = a_event.scenePos().y() - global_automation_point_radius
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
-        if f_cc_start >= (4.0 * global_item_editing_count):
-            f_cc_start = (4.0  * global_item_editing_count) - 0.01
-        elif f_cc_start < 0.0:
-            f_cc_start = 0.0
+        f_cc_start = pydaw_clip_value(f_cc_start, 0.0,
+                                      (4.0  * global_item_editing_count) - 0.01, a_round=True)
         if self.is_cc:
             f_cc_val = int(127.0 - (((f_pos_y - global_automation_min_height) /
                 global_automation_height) * 127.0))
-            if f_cc_val > 127:
-                f_cc_val = 127
-            elif f_cc_val < 0:
-                f_cc_val = 0
+            f_cc_val = pydaw_clip_value(f_cc_val, 0, 127)
             this_item_editor.add_cc(pydaw_cc(round(f_cc_start, 4),
                                              self.plugin_index, self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) /
                 global_automation_height) * 2.0)
-            if f_cc_val > 1.0:
-                f_cc_val = 1.0
-            elif f_cc_val < -1.0:
-                f_cc_val = -1.0
+            f_cc_val = pydaw_clip_value(f_cc_val, -1.0, 1.0)
             this_item_editor.add_pb(pydaw_pitchbend(round(f_cc_start, 4), round(f_cc_val, 4)))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         global_save_and_reload_items()
