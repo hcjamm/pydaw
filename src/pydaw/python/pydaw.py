@@ -4103,7 +4103,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_key.setToolTip("{}hz".format(
                         round(pydaw_pitch_to_hz(f_note_num))))
                 f_note_num += 1
-                print(str(f_note_num))
                 if j == 12:
                     f_label = QtGui.QGraphicsSimpleTextItem("C{}".format(
                         self.end_octave - i), f_key)
