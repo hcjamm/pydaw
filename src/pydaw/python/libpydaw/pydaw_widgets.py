@@ -1070,6 +1070,7 @@ global_eq_point_diameter = 9.0
 global_eq_point_radius = global_eq_point_diameter * 0.5
 global_eq_width = 600
 global_eq_height = 300
+global_eq_octave_px = (global_eq_width / (100.0 / 12.0))
 
 global_eq_gradient = QtGui.QLinearGradient(0, 0, global_eq_point_diameter,
                                            global_eq_point_diameter)
@@ -1094,32 +1095,78 @@ global_eq_background.setColorAt(0.9, QtGui.QColor(30, 30, 30))
 global_eq_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
 class eq_item(QtGui.QGraphicsEllipseItem):
-    def __init__(self):
+    def __init__(self, a_eq):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_eq_point_diameter,
                                             global_eq_point_diameter)
+        self.eq = a_eq
         self.setBrush(global_eq_gradient)
         self.mapToScene(0.0, 0.0)
+        self.path_item = None
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
+        f_pos = self.pos()
+        f_pos_x = pydaw_util.pydaw_clip_value(f_pos.x(), -global_eq_point_radius, global_eq_width)
+        f_pos_y = pydaw_util.pydaw_clip_value(f_pos.y(), -global_eq_point_radius, global_eq_height)
+
+        if f_pos_x != f_pos.x() or f_pos_y != f_pos.y():
+            self.setPos(f_pos_x, f_pos_y)
+
+        f_freq, f_gain = self.get_value()
+        self.eq.freq_knob.set_value(f_freq)
+        self.eq.gain_knob.set_value(f_gain)
+        self.draw_path_item()
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
+        self.eq.freq_knob.control_value_changed(self.eq.freq_knob.get_value())
+        self.eq.gain_knob.control_value_changed(self.eq.gain_knob.get_value())
 
-    def set_pos(self, a_freq, a_gain):
-        f_x = (((a_freq - 20.0) * 0.01) * global_eq_width) - global_eq_point_radius
-        f_y = ((1.0 - ((a_gain + 24.0) / 48.0)) * global_eq_height) - global_eq_point_radius
+    def set_pos(self):
+        f_freq = self.eq.freq_knob.get_value()
+        f_gain = self.eq.gain_knob.get_value()
+        f_x = (((f_freq - 20.0) * 0.01) * global_eq_width) - global_eq_point_radius
+        f_y = ((1.0 - ((f_gain + 24.0) / 48.0)) * global_eq_height) - global_eq_point_radius
         self.setPos(f_x, f_y)
+        self.draw_path_item()
 
     def get_value(self):
         f_pos = self.pos()
-        f_freq = (((f_pos.x() - global_eq_point_radius) / global_eq_width) * 100.0) + 20.0
-        f_gain = ((1.0 - ((f_pos.y() - global_eq_point_radius) / global_eq_height)) * 48.0) - 24.0
-        print("pitch: {} | gain: {}".format(f_freq, f_gain))
+        f_freq = (((f_pos.x() + global_eq_point_radius) / global_eq_width) * 100.0) + 20.0
+        f_gain = ((1.0 - ((f_pos.y() + global_eq_point_radius) / global_eq_height)) * 48.0) - 24.0
         return f_freq, f_gain
 
     def __lt__(self, other):
         return self.pos().x() < other.pos().x()
+
+    def draw_path_item(self):
+        f_res = self.eq.res_knob.get_value()
+
+        if self.path_item is not None:
+            self.scene().removeItem(self.path_item)
+
+        f_line_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 210), 2.0)
+        f_path = QtGui.QPainterPath()
+
+        f_pos = self.pos()
+        f_bw = (f_res * 0.01)
+        f_point_x = f_pos.x() + global_eq_point_radius
+        f_point_y = f_pos.y() + global_eq_point_radius
+        f_start_x = f_point_x - ((f_bw * 0.5 * global_eq_octave_px))
+        f_end_x = f_point_x + ((f_bw * 0.5 * global_eq_octave_px))
+
+        f_path.moveTo(f_start_x, global_eq_height * 0.5)
+
+        f_path.lineTo(f_point_x, f_point_y)
+
+        f_path.lineTo(f_end_x, global_eq_height * 0.5)
+
+        self.path_item = QtGui.QGraphicsPathItem(f_path)
+        self.path_item.setPen(f_line_pen)
+        self.path_item.setBrush(global_eq_fill)
+        self.scene().addItem(self.path_item)
+
 
 class eq_viewer(QtGui.QGraphicsView):
     def __init__(self):
@@ -1137,9 +1184,8 @@ class eq_viewer(QtGui.QGraphicsView):
         self.setSceneRect(-global_eq_point_radius, -global_eq_point_radius,
                           global_eq_width + global_eq_point_radius,
                           global_eq_height + global_eq_point_diameter)
-        self.path_item = None
 
-    def draw_eq(self, a_eq_tuple_list=[]):
+    def draw_eq(self, a_eq_list=[]):
         f_hline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 90), 1.0)
         f_vline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 150), 2.0)
 
@@ -1190,37 +1236,11 @@ class eq_viewer(QtGui.QGraphicsView):
 
         self.eq_points = []
 
-        for f_eq_tuple in a_eq_tuple_list:
-            f_eq_point = eq_item()
+        for f_eq in a_eq_list:
+            f_eq_point = eq_item(f_eq)
             self.eq_points.append(f_eq_point)
             self.scene.addItem(f_eq_point)
-            f_eq_point.set_pos(f_eq_tuple[0], f_eq_tuple[2])
-
-        self.draw_path_item(a_eq_tuple_list)
-
-    def draw_path_item(self, a_eq_tuple_list, a_delete=False):
-        if a_delete and self.path_item is not None:
-            self.scene.removeItem(self.path_item)
-
-        f_line_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 180), 2.0)
-        f_path = QtGui.QPainterPath()
-        f_end_x = 0.0
-        f_end_y = global_eq_height * 0.5
-        f_path.moveTo(f_end_x, f_end_y)
-        self.eq_points.sort()
-
-        for f_eq_point, f_eq_tuple in zip(self.eq_points, a_eq_tuple_list):
-            f_pos = f_eq_point.pos()
-            f_end_x = f_pos.x() + global_eq_point_radius
-            f_end_y = f_pos.y() + global_eq_point_radius
-            f_path.lineTo(f_end_x, f_end_y)
-
-        f_path.lineTo(global_eq_width, global_eq_height * 0.5)
-
-        self.path_item = QtGui.QGraphicsPathItem(f_path)
-        self.path_item.setPen(f_line_pen)
-        self.path_item.setBrush(global_eq_fill)
-        self.scene.addItem(self.path_item)
+            f_eq_point.set_pos()
 
 
     def resizeEvent(self, a_resize_event):
@@ -1297,11 +1317,7 @@ class eq6_widget:
         self.update_viewer()
 
     def update_viewer(self):
-        f_list = []
-        for f_eq in self.eqs:
-            f_list.append((f_eq.freq_knob.get_value(), f_eq.res_knob.get_value(),
-                           f_eq.gain_knob.get_value()))
-        self.eq_viewer.draw_eq(f_list)
+        self.eq_viewer.draw_eq(self.eqs)
 
 
 pydaw_audio_item_scene_height = 1200.0
