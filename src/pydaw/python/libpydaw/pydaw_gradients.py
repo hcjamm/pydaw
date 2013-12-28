@@ -55,7 +55,7 @@ def pydaw_set_track_gradients():
         f_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
         for f_i2 in range(4):
             f_colors = pydaw_linear_interpolate_gradient(f_rainbox_pos)
-            f_gradient.setColorAt(f_rainbox_intervals[f_i2], QtGui.QColor(*f_colors))
+            f_gradient.setColorAt(f_rainbox_intervals[f_i2], QtGui.QColor(*f_colors, alpha=210))
             f_rainbox_pos += pydaw_rainbow_inc
             if f_rainbox_pos >= len(pydaw_rainbow_gradient):
                 f_rainbox_pos -= len(pydaw_rainbow_gradient)
@@ -65,8 +65,10 @@ def pydaw_set_track_gradients():
 
     for f_i2 in range(4):
         f_colors = pydaw_linear_interpolate_gradient(f_rainbox_pos)
-        pydaw_region_gradient.setColorAt(f_rainbox_intervals[f_i2], QtGui.QColor(*f_colors))
-        pydaw_note_gradient.setColorAt(f_rainbox_intervals[f_i2], QtGui.QColor(*f_colors))
+        pydaw_region_gradient.setColorAt(f_rainbox_intervals[f_i2],
+                                         QtGui.QColor(*f_colors, alpha=210))
+        pydaw_note_gradient.setColorAt(f_rainbox_intervals[f_i2],
+                                       QtGui.QColor(*f_colors, alpha=210))
         f_rainbox_pos += pydaw_rainbow_inc
         if f_rainbox_pos >= len(pydaw_rainbow_gradient):
             f_rainbox_pos -= len(pydaw_rainbow_gradient)
@@ -74,5 +76,5 @@ def pydaw_set_track_gradients():
 pydaw_set_track_gradients()
 
 pydaw_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
-pydaw_selected_gradient.setColorAt(0, QtGui.QColor(255, 160, 47))
-pydaw_selected_gradient.setColorAt(1, QtGui.QColor(215, 128, 26))
+pydaw_selected_gradient.setColorAt(0, QtGui.QColor(255, 255, 255, 210))
+pydaw_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240, 210))
