@@ -213,24 +213,26 @@ static inline void v_modulex_run_eq(t_modulex *plugin_data, int sample_count)
 
     while(f_i < MODULEX_EQ_COUNT)
     {
-        int f_i2 = 0;
-
-        v_pkq_calc_coeffs(plugin_data->mono_modules->eqs[f_i],
-                *plugin_data->eq_freq[f_i],
-                *plugin_data->eq_res[f_i] * 0.01f,
-                *plugin_data->eq_gain[f_i]);
-
-        while(f_i2 < sample_count)
+        if(*plugin_data->eq_gain[f_i] != 0.0f)
         {
-            v_pkq_run(plugin_data->mono_modules->eqs[f_i],
-                    plugin_data->output0[f_i2], plugin_data->output1[f_i2]);
-            plugin_data->output0[f_i2] =
-                    plugin_data->mono_modules->eqs[f_i]->output0;
-            plugin_data->output1[f_i2] =
-                    plugin_data->mono_modules->eqs[f_i]->output1;
-            f_i2++;
-        }
+            int f_i2 = 0;
 
+            v_pkq_calc_coeffs(plugin_data->mono_modules->eqs[f_i],
+                    *plugin_data->eq_freq[f_i],
+                    *plugin_data->eq_res[f_i] * 0.01f,
+                    *plugin_data->eq_gain[f_i]);
+
+            while(f_i2 < sample_count)
+            {
+                v_pkq_run(plugin_data->mono_modules->eqs[f_i],
+                        plugin_data->output0[f_i2], plugin_data->output1[f_i2]);
+                plugin_data->output0[f_i2] =
+                        plugin_data->mono_modules->eqs[f_i]->output0;
+                plugin_data->output1[f_i2] =
+                        plugin_data->mono_modules->eqs[f_i]->output1;
+                f_i2++;
+            }
+        }
         f_i++;
     }
 }
