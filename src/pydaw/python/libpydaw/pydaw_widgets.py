@@ -1065,7 +1065,204 @@ class pydaw_master_widget:
         self.pb_knob.add_to_grid_layout(self.layout, 4)
 
 
-pydaw_audio_item_scene_height = 1200.0  #TODO:  merge this with the one in pydaw_projects.py
+
+global_eq_point_diameter = 9.0
+global_eq_point_radius = global_eq_point_diameter * 0.5
+global_eq_ruler_width = 24
+global_eq_width = 600
+global_eq_height = 300
+
+global_eq_grid_max_start_time = \
+global_eq_width + global_eq_ruler_width - global_eq_point_radius
+
+global_eq_total_height = \
+global_eq_ruler_width +  global_eq_height - global_eq_point_radius
+
+global_eq_total_width = \
+global_eq_ruler_width + global_eq_width - global_eq_point_radius
+
+global_eq_min_height = global_eq_ruler_width - global_eq_point_radius
+
+global_eq_gradient = QtGui.QLinearGradient(0, 0,
+                                           global_eq_point_diameter, global_eq_point_diameter)
+global_eq_gradient.setColorAt(0, QtGui.QColor(255, 255, 255))
+global_eq_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
+
+class eq_item(QtGui.QGraphicsEllipseItem):
+    def __init__(self, a_time, a_value, a_cc, a_view, a_is_cc,
+                 a_item_index, a_viewer, a_widget):
+        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_eq_point_diameter,
+                                            global_eq_point_diameter)
+        self.setBrush(global_eq_gradient)
+        self.viewer = a_viewer,
+        self.widget = a_widget
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
+
+class eq_viewer(QtGui.QGraphicsView):
+    def __init__(self):
+        QtGui.QGraphicsView.__init__(self)
+        self.viewer_width = global_eq_width
+
+        self.viewer_height = global_eq_height
+        self.eq_points = []
+        self.axis_size = global_eq_ruler_width
+        self.beat_width = self.viewer_width / self.item_length
+        self.value_width = self.beat_width / self.grid_div
+        self.lines = []
+        self.scene = QtGui.QGraphicsScene(self)
+        self.scene.setBackgroundBrush(QtGui.QColor(10, 10, 10))
+        self.scene.mouseDoubleClickEvent = self.sceneMouseDoubleClickEvent
+        self.setAlignment(QtCore.Qt.AlignLeft)
+        self.setScene(self.scene)
+        self.draw_axis()
+        self.draw_grid()
+        #self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        self.cc_num = 1
+        self.last_scale = 1.0
+        self.plugin_index = 0
+        self.last_x_scale = 1.0
+        self.selection_enabled = True
+        self.scene.selectionChanged.connect(self.selection_changed)
+
+    def draw_axis(self):
+        self.x_axis = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.axis_size)
+        self.x_axis.setPos(self.axis_size, 0)
+        self.scene.addItem(self.x_axis)
+        self.y_axis = QtGui.QGraphicsRectItem(0, 0, self.axis_size, self.viewer_height)
+        self.y_axis.setPos(0, self.axis_size)
+        self.scene.addItem(self.y_axis)
+
+    def draw_grid(self):
+        f_beat_pen = QtGui.QPen()
+        f_beat_pen.setWidth(2)
+        f_bar_pen = QtGui.QPen()
+        f_bar_pen.setWidth(2)
+        f_bar_pen.setColor(QtGui.QColor(222, 222, 222))
+        f_line_pen = QtGui.QPen()
+        f_line_pen.setColor(QtGui.QColor(0,0,0,40))
+        f_labels = [0, '127', 0, '64', 0, '0']
+
+        for i in range(1,6):
+            f_line = QtGui.QGraphicsLineItem(0, 0, self.viewer_width, 0, self.y_axis)
+            f_line.setPos(self.axis_size,self.viewer_height*(i-1)/4)
+            if i % 2:
+                f_label = QtGui.QGraphicsSimpleTextItem(f_labels[i], self.y_axis)
+                f_label.setPos(1, self.viewer_height*(i-1)/4)
+                f_label.setBrush(QtCore.Qt.white)
+            if i == 3:
+                f_line.setPen(f_beat_pen)
+
+        for i in range(0, int(self.item_length)+1):
+            f_beat = QtGui.QGraphicsLineItem(0, 0, 0,
+                                             self.viewer_height +
+                                             self.axis_size - f_beat_pen.width(),
+                                             self.x_axis)
+            f_beat.setPos(self.beat_width * i, 0.5 * f_beat_pen.width())
+            f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+            f_beat_number = i % 4
+            if f_beat_number == 0 and not i == 0:
+                f_beat.setPen(f_bar_pen)
+                f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+            else:
+                f_beat.setPen(f_beat_pen)
+            if i < self.item_length:
+                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.x_axis)
+                f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+                f_number.setPos(self.beat_width * i + 5, 2)
+                f_number.setBrush(QtCore.Qt.white)
+                for j in range(0, self.grid_div):
+                    f_line = QtGui.QGraphicsLineItem(0, 0, 0, self.viewer_height, self.x_axis)
+                    if float(j) == self.grid_div / 2.0:
+                        f_line.setLine(0, 0, 0, self.viewer_height)
+                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.axis_size)
+                    else:
+                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.axis_size)
+                        f_line.setPen(f_line_pen)
+
+    def resizeEvent(self, a_event):
+        QtGui.QGraphicsView.resizeEvent(self, a_event)
+        self.scale_to_width()
+
+    def scale_to_width(self):
+        self.scale(1.0 / self.last_x_scale, 1.0)
+        self.last_x_scale = 1.0
+
+    def draw_point(self, a_cc, a_item_index):
+        """ a_cc is an instance of the pydaw_cc class"""
+        f_time = self.axis_size + (((float(a_item_index) * 4.0) + a_cc.start) * self.beat_width)
+        if self.is_cc:
+            f_value = self.axis_size +  self.viewer_height / 127.0 * (127.0 - a_cc.cc_val)
+        else:
+            f_value = self.axis_size +  self.viewer_height / 2.0 * (1.0 - a_cc.pb_val)
+        f_point = eq_item(f_time, f_value, a_cc, self, self.is_cc, a_item_index)
+        self.eq_points.append(f_point)
+        self.scene.addItem(f_point)
+        self.connect_points()
+
+class eq_widget:
+    def __init__(self, a_number, a_freq_port, a_res_port, a_gain_port, a_rel_callback,
+                 a_val_callback, a_default_value, a_port_dict=None, a_preset_mgr=None, a_size=48):
+        self.groupbox = QtGui.QGroupBox("EQ{}".format(a_number))
+        self.layout = QtGui.QGridLayout(self.groupbox)
+
+        self.freq_knob = pydaw_knob_control(a_size, "freq", a_freq_port, a_rel_callback,
+                                            a_val_callback, 20.0, 120.0, a_default_value,
+                                            kc_pitch, a_port_dict, a_preset_mgr)
+        self.freq_knob.add_to_grid_layout(self.layout, 0)
+
+        self.res_knob = pydaw_knob_control(a_size, "BW", a_res_port, a_rel_callback,
+                                            a_val_callback, 100.0, 600.0, 300.0, kc_decimal,
+                                            a_port_dict, a_preset_mgr)
+        self.res_knob.add_to_grid_layout(self.layout, 1)
+
+        self.gain_knob = pydaw_knob_control(a_size, "gain", a_gain_port, a_rel_callback,
+                                            a_val_callback, -24.0, 24.0, 0.0, kc_integer,
+                                            a_port_dict, a_preset_mgr)
+        self.gain_knob.add_to_grid_layout(self.layout, 2)
+
+
+class eq6_widget:
+    def __init__(self, a_first_port, a_rel_callback, a_val_callback,
+                 a_port_dict=None, a_preset_mgr=None, a_size=48):
+        self.widget = QtGui.QWidget()
+        self.widget.setObjectName("plugin_ui")
+        self.vlayout = QtGui.QVBoxLayout(self.widget)
+        self.combobox = pydaw_combobox_control(120, None, a_first_port, a_rel_callback,
+                                               a_val_callback, ["Off", "Pre-FX", "Post-FX"],
+                                               a_port_dict, 0, a_preset_mgr)
+        self.combobox_hlayout = QtGui.QHBoxLayout()
+        self.combobox_hlayout.addWidget(self.combobox.control)
+        self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.vlayout.addLayout(self.combobox_hlayout)
+        #TODO:  Delete this after getting the viewer in there...
+        self.vlayout.addItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
+        self.grid_layout = QtGui.QGridLayout()
+        self.vlayout.addLayout(self.grid_layout)
+        self.eqs = []
+        f_port = a_first_port + 1
+        f_default_value = 24
+        for f_i in range(1, 7):
+            f_eq = eq_widget(f_i, f_port, f_port + 1, f_port + 2, a_rel_callback, a_val_callback,
+                             f_default_value, a_port_dict, a_preset_mgr, a_size)
+            self.eqs.append(f_eq)
+            if f_i <= 3:
+                self.grid_layout.addWidget(f_eq.groupbox, 0, f_i)
+            else:
+                self.grid_layout.addWidget(f_eq.groupbox, 1, f_i - 3)
+            f_port += 3
+            f_default_value += 12
+
+
+
+pydaw_audio_item_scene_height = 1200.0
 pydaw_audio_item_scene_width = 6000.0
 pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width,
                                             pydaw_audio_item_scene_height)
@@ -2071,6 +2268,12 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
         self.delay_spacer_layout.addItem(
             QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
+
+        self.eq6 = eq6_widget(pydaw_ports.MODULEX_EQ_ON,
+                              self.plugin_rel_callback, self.plugin_val_callback,
+                              self.port_dict, a_preset_mgr=None, a_size=f_knob_size)
+
+        self.tab_widget.addTab(self.eq6.widget, "EQ6")
 
         self.open_plugin_file()
 

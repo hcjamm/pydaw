@@ -20,11 +20,11 @@ extern "C" {
 
 #include "../../include/pydaw_plugin.h"
 #include "libmodsynth.h"
-   
+
 #define MODULEX_SLOW_INDEX_ITERATIONS 30
-    
+
 #define MODULEX_INPUT0  0
-#define MODULEX_INPUT1  1    
+#define MODULEX_INPUT1  1
 #define MODULEX_OUTPUT0  2
 #define MODULEX_OUTPUT1  3
 
@@ -68,27 +68,51 @@ extern "C" {
 #define MODULEX_DUCK  40
 #define MODULEX_CUTOFF  41
 #define MODULEX_STEREO 42
-    
+
 #define MODULEX_VOL_SLIDER 43
-    
+
 #define MODULEX_REVERB_TIME 44
 #define MODULEX_REVERB_WET 45
 #define MODULEX_REVERB_COLOR 46
-        
-/*This is the last control port*/
-#define MODULEX_LAST_CONTROL_PORT 46
-#define MODULEX_COUNT 47 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
-typedef struct 
+#define MODULEX_EQ_ON 47
+#define MODULEX_EQ1_FREQ 48
+#define MODULEX_EQ1_RES 49
+#define MODULEX_EQ1_GAIN 50
+#define MODULEX_EQ1_FREQ 48
+#define MODULEX_EQ1_RES 49
+#define MODULEX_EQ1_GAIN 50
+#define MODULEX_EQ2_FREQ 51
+#define MODULEX_EQ2_RES 52
+#define MODULEX_EQ2_GAIN 53
+#define MODULEX_EQ3_FREQ 54
+#define MODULEX_EQ3_RES 55
+#define MODULEX_EQ3_GAIN 56
+#define MODULEX_EQ4_FREQ 57
+#define MODULEX_EQ4_RES 58
+#define MODULEX_EQ4_GAIN 59
+#define MODULEX_EQ5_FREQ 60
+#define MODULEX_EQ5_RES 61
+#define MODULEX_EQ5_GAIN 62
+#define MODULEX_EQ6_FREQ 63
+#define MODULEX_EQ6_RES 64
+#define MODULEX_EQ6_GAIN 65
+
+#define MODULEX_LAST_CONTROL_PORT 65
+/* must be 1 + highest value above
+ * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define MODULEX_COUNT 66
+
+typedef struct
 {
     PYFX_Data *output0;
     PYFX_Data *output1;
-    
+
     PYFX_Data *fx_knob0[8];
-    PYFX_Data *fx_knob1[8];    
+    PYFX_Data *fx_knob1[8];
     PYFX_Data *fx_knob2[8];
     PYFX_Data *fx_combobox[8];
-    
+
     PYFX_Data *delay_time;
     PYFX_Data *feedback;
     PYFX_Data *dry;
@@ -96,28 +120,34 @@ typedef struct
     PYFX_Data *duck;
     PYFX_Data *cutoff;
     PYFX_Data *stereo;
-    
+
     PYFX_Data *vol_slider;
-    
+
     PYFX_Data *reverb_time;
     PYFX_Data *reverb_wet;
     PYFX_Data *reverb_color;
-            
-    float fs;    
+
+    PYFX_Data *eq_on;
+
+    PYFX_Data *eq_freq[6];
+    PYFX_Data *eq_res[6];
+    PYFX_Data *eq_gain[6];
+
+    float fs;
     t_modulex_mono_modules * mono_modules;
-    
+
     int i_mono_out;
-    int i_buffer_clear;    
-    
+    int i_buffer_clear;
+
     int i_slow_index;
     int is_on;
-        
+
     int midi_event_types[200];
     int midi_event_ticks[200];
     float midi_event_values[200];
     int midi_event_ports[200];
     int midi_event_count;
-    
+
     float * port_table;
 } t_modulex;
 

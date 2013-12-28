@@ -141,6 +141,29 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
         case MODULEX_REVERB_TIME: plugin->reverb_time = data; break;
         case MODULEX_REVERB_WET: plugin->reverb_wet = data; break;
         case MODULEX_REVERB_COLOR: plugin->reverb_color = data; break;
+
+        case MODULEX_EQ_ON: plugin->eq_on = data; break;
+
+        case MODULEX_EQ1_FREQ: plugin->eq_freq[0] = data; break;
+        case MODULEX_EQ2_FREQ: plugin->eq_freq[1] = data; break;
+        case MODULEX_EQ3_FREQ: plugin->eq_freq[2] = data; break;
+        case MODULEX_EQ4_FREQ: plugin->eq_freq[3] = data; break;
+        case MODULEX_EQ5_FREQ: plugin->eq_freq[4] = data; break;
+        case MODULEX_EQ6_FREQ: plugin->eq_freq[5] = data; break;
+
+        case MODULEX_EQ1_RES: plugin->eq_res[0] = data; break;
+        case MODULEX_EQ2_RES: plugin->eq_res[1] = data; break;
+        case MODULEX_EQ3_RES: plugin->eq_res[2] = data; break;
+        case MODULEX_EQ4_RES: plugin->eq_res[3] = data; break;
+        case MODULEX_EQ5_RES: plugin->eq_res[4] = data; break;
+        case MODULEX_EQ6_RES: plugin->eq_res[5] = data; break;
+
+        case MODULEX_EQ1_GAIN: plugin->eq_gain[0] = data; break;
+        case MODULEX_EQ2_GAIN: plugin->eq_gain[1] = data; break;
+        case MODULEX_EQ3_GAIN: plugin->eq_gain[2] = data; break;
+        case MODULEX_EQ4_GAIN: plugin->eq_gain[3] = data; break;
+        case MODULEX_EQ5_GAIN: plugin->eq_gain[4] = data; break;
+        case MODULEX_EQ6_GAIN: plugin->eq_gain[5] = data; break;
     }
 }
 
@@ -178,6 +201,34 @@ static void v_modulex_check_if_on(t_modulex *plugin_data)
         if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
         {
             plugin_data->is_on = 1;
+        }
+
+        f_i++;
+    }
+}
+
+static inline void v_modulex_run_eq(t_modulex *plugin_data, int sample_count)
+{
+    int f_i = 0;
+
+    while(f_i < MODULEX_EQ_COUNT)
+    {
+        int f_i2 = 0;
+
+        v_pkq_calc_coeffs(plugin_data->mono_modules->eqs[f_i],
+                *plugin_data->eq_freq[f_i],
+                *plugin_data->eq_res[f_i] * 0.01f,
+                *plugin_data->eq_gain[f_i]);
+
+        while(f_i2 < sample_count)
+        {
+            v_pkq_run(plugin_data->mono_modules->eqs[f_i],
+                    plugin_data->output0[f_i2], plugin_data->output1[f_i2]);
+            plugin_data->output0[f_i2] =
+                    plugin_data->mono_modules->eqs[f_i]->output0;
+            plugin_data->output1[f_i2] =
+                    plugin_data->mono_modules->eqs[f_i]->output1;
+            f_i2++;
         }
 
         f_i++;
@@ -244,6 +295,13 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
     else
     {
         plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
+    }
+
+    int f_eq_state = (int)(*plugin_data->eq_on);
+
+    if(f_eq_state == 1)
+    {
+        v_modulex_run_eq(plugin_data, sample_count);
     }
 
     f_i = 0;
@@ -392,6 +450,11 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     (plugin_data->mono_modules->vol_linear);
             f_i++;
         }
+    }
+
+    if(f_eq_state == 2)
+    {
+        v_modulex_run_eq(plugin_data, sample_count);
     }
 
 }
@@ -649,6 +712,104 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_range_hints[MODULEX_REVERB_COLOR].DefaultValue = 50.0f;
 	port_range_hints[MODULEX_REVERB_COLOR].LowerBound =  0.0f;
 	port_range_hints[MODULEX_REVERB_COLOR].UpperBound =  100.0f;
+
+        port_descriptors[MODULEX_EQ_ON] = 1;
+	port_range_hints[MODULEX_EQ_ON].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ_ON].LowerBound =  0.0f;
+	port_range_hints[MODULEX_EQ_ON].UpperBound =  2.0f;
+
+        port_descriptors[MODULEX_EQ1_FREQ] = 1;
+	port_range_hints[MODULEX_EQ1_FREQ].DefaultValue = 24.0f;
+	port_range_hints[MODULEX_EQ1_FREQ].LowerBound =  20.0f;
+	port_range_hints[MODULEX_EQ1_FREQ].UpperBound =  120.0f;
+
+        port_descriptors[MODULEX_EQ2_FREQ] = 1;
+	port_range_hints[MODULEX_EQ2_FREQ].DefaultValue = 36.0f;
+	port_range_hints[MODULEX_EQ2_FREQ].LowerBound =  20.0f;
+	port_range_hints[MODULEX_EQ2_FREQ].UpperBound =  120.0f;
+
+        port_descriptors[MODULEX_EQ3_FREQ] = 1;
+	port_range_hints[MODULEX_EQ3_FREQ].DefaultValue = 48.0f;
+	port_range_hints[MODULEX_EQ3_FREQ].LowerBound =  20.0f;
+	port_range_hints[MODULEX_EQ3_FREQ].UpperBound =  120.0f;
+
+        port_descriptors[MODULEX_EQ4_FREQ] = 1;
+	port_range_hints[MODULEX_EQ4_FREQ].DefaultValue = 60.0f;
+	port_range_hints[MODULEX_EQ4_FREQ].LowerBound =  20.0f;
+	port_range_hints[MODULEX_EQ4_FREQ].UpperBound =  120.0f;
+
+        port_descriptors[MODULEX_EQ5_FREQ] = 1;
+	port_range_hints[MODULEX_EQ5_FREQ].DefaultValue = 72.0f;
+	port_range_hints[MODULEX_EQ5_FREQ].LowerBound =  20.0f;
+	port_range_hints[MODULEX_EQ5_FREQ].UpperBound =  120.0f;
+
+        port_descriptors[MODULEX_EQ6_FREQ] = 1;
+	port_range_hints[MODULEX_EQ6_FREQ].DefaultValue = 84.0f;
+	port_range_hints[MODULEX_EQ6_FREQ].LowerBound =  20.0f;
+	port_range_hints[MODULEX_EQ6_FREQ].UpperBound =  120.0f;
+
+
+        port_descriptors[MODULEX_EQ1_RES] = 1;
+	port_range_hints[MODULEX_EQ1_RES].DefaultValue = 300.0f;
+	port_range_hints[MODULEX_EQ1_RES].LowerBound = 100.0f;
+	port_range_hints[MODULEX_EQ1_RES].UpperBound = 600.0f;
+
+        port_descriptors[MODULEX_EQ2_RES] = 1;
+	port_range_hints[MODULEX_EQ2_RES].DefaultValue = 300.0f;
+	port_range_hints[MODULEX_EQ2_RES].LowerBound = 100.0f;
+	port_range_hints[MODULEX_EQ2_RES].UpperBound = 600.0f;
+
+        port_descriptors[MODULEX_EQ3_RES] = 1;
+	port_range_hints[MODULEX_EQ3_RES].DefaultValue = 300.0f;
+	port_range_hints[MODULEX_EQ3_RES].LowerBound = 100.0f;
+	port_range_hints[MODULEX_EQ3_RES].UpperBound = 600.0f;
+
+        port_descriptors[MODULEX_EQ4_RES] = 1;
+	port_range_hints[MODULEX_EQ4_RES].DefaultValue = 300.0f;
+	port_range_hints[MODULEX_EQ4_RES].LowerBound = 100.0f;
+	port_range_hints[MODULEX_EQ4_RES].UpperBound = 600.0f;
+
+        port_descriptors[MODULEX_EQ5_RES] = 1;
+	port_range_hints[MODULEX_EQ5_RES].DefaultValue = 300.0f;
+	port_range_hints[MODULEX_EQ5_RES].LowerBound = 100.0f;
+	port_range_hints[MODULEX_EQ5_RES].UpperBound = 600.0f;
+
+        port_descriptors[MODULEX_EQ6_RES] = 1;
+	port_range_hints[MODULEX_EQ6_RES].DefaultValue = 300.0f;
+	port_range_hints[MODULEX_EQ6_RES].LowerBound = 100.0f;
+	port_range_hints[MODULEX_EQ6_RES].UpperBound = 600.0f;
+
+
+        port_descriptors[MODULEX_EQ1_GAIN] = 1;
+	port_range_hints[MODULEX_EQ1_GAIN].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ1_GAIN].LowerBound = -24.0f;
+	port_range_hints[MODULEX_EQ1_GAIN].UpperBound = 24.0f;
+
+        port_descriptors[MODULEX_EQ2_GAIN] = 1;
+	port_range_hints[MODULEX_EQ2_GAIN].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ2_GAIN].LowerBound = -24.0f;
+	port_range_hints[MODULEX_EQ2_GAIN].UpperBound = 24.0f;
+
+        port_descriptors[MODULEX_EQ3_GAIN] = 1;
+	port_range_hints[MODULEX_EQ3_GAIN].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ3_GAIN].LowerBound = -24.0f;
+	port_range_hints[MODULEX_EQ3_GAIN].UpperBound = 24.0f;
+
+        port_descriptors[MODULEX_EQ4_GAIN] = 1;
+	port_range_hints[MODULEX_EQ4_GAIN].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ4_GAIN].LowerBound = -24.0f;
+	port_range_hints[MODULEX_EQ4_GAIN].UpperBound = 24.0f;
+
+        port_descriptors[MODULEX_EQ5_GAIN] = 1;
+	port_range_hints[MODULEX_EQ5_GAIN].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ5_GAIN].LowerBound = -24.0f;
+	port_range_hints[MODULEX_EQ5_GAIN].UpperBound = 24.0f;
+
+        port_descriptors[MODULEX_EQ6_GAIN] = 1;
+	port_range_hints[MODULEX_EQ6_GAIN].DefaultValue = 0.0f;
+	port_range_hints[MODULEX_EQ6_GAIN].LowerBound = -24.0f;
+	port_range_hints[MODULEX_EQ6_GAIN].UpperBound = 24.0f;
+
 
 	LMSLDescriptor->activate = v_modulex_activate;
 	LMSLDescriptor->cleanup = v_modulex_cleanup;
