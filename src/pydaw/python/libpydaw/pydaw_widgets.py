@@ -1078,13 +1078,13 @@ global_eq_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
 
 global_eq_fill = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_eq_height)
 
-global_eq_fill.setColorAt(0.0, QtGui.QColor(255, 0, 0, 120)) #red
-global_eq_fill.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 120)) #orange
-global_eq_fill.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 120)) #yellow
-global_eq_fill.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 120)) #green
-global_eq_fill.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 120)) #blue
-global_eq_fill.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 120)) #indigo
-global_eq_fill.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 120)) #violet
+global_eq_fill.setColorAt(0.0, QtGui.QColor(255, 0, 0, 90)) #red
+global_eq_fill.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 90)) #orange
+global_eq_fill.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 90)) #yellow
+global_eq_fill.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 90)) #green
+global_eq_fill.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 90)) #blue
+global_eq_fill.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 90)) #indigo
+global_eq_fill.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 90)) #violet
 
 global_eq_background = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_eq_height)
 
@@ -1136,26 +1136,55 @@ class eq_viewer(QtGui.QGraphicsView):
         self.eq_points = []
         self.setSceneRect(-global_eq_point_radius, -global_eq_point_radius,
                           global_eq_width + global_eq_point_radius,
-                          global_eq_height + global_eq_point_radius)
+                          global_eq_height + global_eq_point_diameter)
         self.path_item = None
 
     def draw_eq(self, a_eq_tuple_list=[]):
-        f_line_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 180), 2.0)
-        f_pitch = 20
+        f_hline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 90), 1.0)
+        f_vline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 150), 2.0)
+
         f_label_pos = 0.0
-        f_label_inc = global_eq_width / 6.0
+
         self.scene.clear()
-        f_line = self.scene.addLine(0.0, global_eq_height * 0.5,
-                                    global_eq_width, global_eq_height * 0.5, f_line_pen)
+
+        f_y_pos = 0.0
+        f_db = 24.0
+        f_inc = (global_eq_height * 0.5) * 0.25
+
+        for i in range(4):
+            self.scene.addLine(0.0, f_y_pos, global_eq_width, f_y_pos, f_hline_pen)
+            f_label = QtGui.QGraphicsSimpleTextItem("{}".format(f_db), scene=self.scene)
+            f_label.setPos(global_eq_width - 36.0, f_y_pos + 3.0)
+            f_label.setBrush(QtCore.Qt.white)
+            f_db -= 6.0
+            f_y_pos += f_inc
+
+        self.scene.addLine(0.0, global_eq_height * 0.5, global_eq_width,
+                           global_eq_height * 0.5, f_hline_pen)
+
+        f_y_pos = global_eq_height
+        f_db = -24.0
+
+        for i in range(4):
+            self.scene.addLine(0.0, f_y_pos, global_eq_width, f_y_pos, f_hline_pen)
+            f_label = QtGui.QGraphicsSimpleTextItem("{}".format(f_db), scene=self.scene)
+            f_label.setPos(global_eq_width - 36.0, f_y_pos - 24.0)
+            f_label.setBrush(QtCore.Qt.white)
+            f_db += 6.0
+            f_y_pos -= f_inc
+
+        f_label_pos = 0.0
+        f_pitch = 20
+        f_label_inc = global_eq_width / 6.0
+
         for i in range(6):
             f_hz = int(pydaw_util.pydaw_pitch_to_hz(f_pitch))
             if f_hz > 1000:
                 f_hz = "{}khz".format(round(f_hz / 1000, 1))
             f_label = QtGui.QGraphicsSimpleTextItem("{}".format(f_hz), scene=self.scene)
             f_label.setPos(f_label_pos + 4.0, global_eq_height - 30.0)
-            self.scene.addLine(f_label_pos, 0.0, f_label_pos, global_eq_height, f_line_pen)
+            self.scene.addLine(f_label_pos, 0.0, f_label_pos, global_eq_height, f_vline_pen)
             f_label.setBrush(QtCore.Qt.white)
-            f_line.setPen(f_line_pen)
             f_label_pos += f_label_inc
             f_pitch += 18
 
@@ -2286,7 +2315,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
                               self.plugin_rel_callback, self.plugin_val_callback,
                               self.port_dict, a_preset_mgr=None, a_size=f_knob_size)
 
-        self.tab_widget.addTab(self.eq6.widget, "EQ6")
+        self.tab_widget.addTab(self.eq6.widget, "EQ")
 
         self.open_plugin_file()
 
