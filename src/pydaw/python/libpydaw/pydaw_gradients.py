@@ -74,5 +74,5 @@ def pydaw_set_track_gradients():
 pydaw_set_track_gradients()
 
 pydaw_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
-pydaw_selected_gradient.setColorAt(0, QtGui.QColor(255, 160, 47))
-pydaw_selected_gradient.setColorAt(1, QtGui.QColor(215, 128, 26))
+pydaw_selected_gradient.setColorAt(0, QtGui.QColor(255, 255, 255))
+pydaw_selected_gradient.setColorAt(1, QtGui.QColor(237, 237, 243))
