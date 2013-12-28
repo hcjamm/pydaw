@@ -1071,10 +1071,21 @@ global_eq_point_radius = global_eq_point_diameter * 0.5
 global_eq_width = 600
 global_eq_height = 300
 
-global_eq_gradient = QtGui.QLinearGradient(0, 0,
-                                           global_eq_point_diameter, global_eq_point_diameter)
+global_eq_gradient = QtGui.QLinearGradient(0, 0, global_eq_point_diameter,
+                                           global_eq_point_diameter)
 global_eq_gradient.setColorAt(0, QtGui.QColor(255, 255, 255))
 global_eq_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
+
+global_eq_fill = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_eq_height)
+
+global_eq_fill.setColorAt(0.0, QtGui.QColor(255, 0, 0, 120)) #red
+global_eq_fill.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 120)) #orange
+global_eq_fill.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 120)) #yellow
+global_eq_fill.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 120)) #green
+global_eq_fill.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 120)) #blue
+global_eq_fill.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 120)) #indigo
+global_eq_fill.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 120)) #violet
+
 
 class eq_item(QtGui.QGraphicsEllipseItem):
     def __init__(self):
@@ -1101,6 +1112,9 @@ class eq_item(QtGui.QGraphicsEllipseItem):
         print("pitch: {} | gain: {}".format(f_freq, f_gain))
         return f_freq, f_gain
 
+    def __lt__(self, other):
+        return self.pos().x() < other.pos().x()
+
 class eq_viewer(QtGui.QGraphicsView):
     def __init__(self):
         QtGui.QGraphicsView.__init__(self)
@@ -1111,8 +1125,8 @@ class eq_viewer(QtGui.QGraphicsView):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
-        self.last_scale = 1.0
         self.last_x_scale = 1.0
+        self.last_y_scale = 1.0
 
     def draw_eq(self, a_eq_tuple_list=[]):
         f_line_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 180), 2.0)
@@ -1127,17 +1141,38 @@ class eq_viewer(QtGui.QGraphicsView):
             if f_hz > 1000:
                 f_hz = "{}khz".format(round(f_hz / 1000, 1))
             f_label = QtGui.QGraphicsSimpleTextItem("{}".format(f_hz), scene=self.scene)
-            f_label.setPos(f_label_pos + 2, global_eq_height - 15.0)
+            f_label.setPos(f_label_pos + 4.0, global_eq_height - 30.0)
             self.scene.addLine(f_label_pos, 0.0, f_label_pos, global_eq_height, f_line_pen)
             f_label.setBrush(QtCore.Qt.white)
             f_line.setPen(f_line_pen)
             f_label_pos += f_label_inc
             f_pitch += 18
 
+        f_eq_points = []
+
         for f_eq_tuple in a_eq_tuple_list:
             f_eq_point = eq_item()
+            f_eq_points.append(f_eq_point)
             self.scene.addItem(f_eq_point)
             f_eq_point.set_pos(f_eq_tuple[0], f_eq_tuple[2])
+
+        f_path = QtGui.QPainterPath()
+
+        f_path.moveTo(0.0, global_eq_height * 0.5)
+        f_eq_points.sort()
+
+        for f_eq_point in f_eq_points:
+            f_pos = f_eq_point.pos()
+            f_path.lineTo(f_pos.x() + global_eq_point_radius,
+                          f_pos.y() + global_eq_point_radius)
+
+        f_path.lineTo(global_eq_width, global_eq_height * 0.5)
+
+        f_path_item = QtGui.QGraphicsPathItem(f_path)
+        f_path_item.setPen(f_line_pen)
+        f_path_item.setBrush(global_eq_fill)
+        self.scene.addItem(f_path_item)
+
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
