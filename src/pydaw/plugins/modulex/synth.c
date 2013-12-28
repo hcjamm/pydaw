@@ -431,6 +431,11 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         }
     }
 
+    if(f_eq_state == 2)
+    {
+        v_modulex_run_eq(plugin_data, sample_count);
+    }
+
     if((plugin_data->mono_modules->volume_smoother->last_value) != 0.0f ||
             (*plugin_data->vol_slider != 0.0f))
     {
@@ -452,11 +457,6 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     (plugin_data->mono_modules->vol_linear);
             f_i++;
         }
-    }
-
-    if(f_eq_state == 2)
-    {
-        v_modulex_run_eq(plugin_data, sample_count);
     }
 
 }
