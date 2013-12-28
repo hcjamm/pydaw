@@ -724,27 +724,27 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 	port_range_hints[MODULEX_EQ1_FREQ].UpperBound =  120.0f;
 
         port_descriptors[MODULEX_EQ2_FREQ] = 1;
-	port_range_hints[MODULEX_EQ2_FREQ].DefaultValue = 36.0f;
+	port_range_hints[MODULEX_EQ2_FREQ].DefaultValue = 42.0f;
 	port_range_hints[MODULEX_EQ2_FREQ].LowerBound =  20.0f;
 	port_range_hints[MODULEX_EQ2_FREQ].UpperBound =  120.0f;
 
         port_descriptors[MODULEX_EQ3_FREQ] = 1;
-	port_range_hints[MODULEX_EQ3_FREQ].DefaultValue = 48.0f;
+	port_range_hints[MODULEX_EQ3_FREQ].DefaultValue = 60.0f;
 	port_range_hints[MODULEX_EQ3_FREQ].LowerBound =  20.0f;
 	port_range_hints[MODULEX_EQ3_FREQ].UpperBound =  120.0f;
 
         port_descriptors[MODULEX_EQ4_FREQ] = 1;
-	port_range_hints[MODULEX_EQ4_FREQ].DefaultValue = 60.0f;
+	port_range_hints[MODULEX_EQ4_FREQ].DefaultValue = 78.0f;
 	port_range_hints[MODULEX_EQ4_FREQ].LowerBound =  20.0f;
 	port_range_hints[MODULEX_EQ4_FREQ].UpperBound =  120.0f;
 
         port_descriptors[MODULEX_EQ5_FREQ] = 1;
-	port_range_hints[MODULEX_EQ5_FREQ].DefaultValue = 72.0f;
+	port_range_hints[MODULEX_EQ5_FREQ].DefaultValue = 96.0f;
 	port_range_hints[MODULEX_EQ5_FREQ].LowerBound =  20.0f;
 	port_range_hints[MODULEX_EQ5_FREQ].UpperBound =  120.0f;
 
         port_descriptors[MODULEX_EQ6_FREQ] = 1;
-	port_range_hints[MODULEX_EQ6_FREQ].DefaultValue = 84.0f;
+	port_range_hints[MODULEX_EQ6_FREQ].DefaultValue = 114.0f;
 	port_range_hints[MODULEX_EQ6_FREQ].LowerBound =  20.0f;
 	port_range_hints[MODULEX_EQ6_FREQ].UpperBound =  120.0f;
 

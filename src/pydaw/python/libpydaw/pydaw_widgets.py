@@ -1258,7 +1258,7 @@ class eq6_widget:
             else:
                 self.grid_layout.addWidget(f_eq.groupbox, 1, f_i - 3)
             f_port += 3
-            f_default_value += 12
+            f_default_value += 18
 
 
 
