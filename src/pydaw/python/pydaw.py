@@ -965,9 +965,16 @@ class region_list_editor:
         self.copy_action = QtGui.QAction("Copy (CTRL+C)", self.table_widget)
         self.copy_action.triggered.connect(self.copy_selected)
         self.table_widget.addAction(self.copy_action)
+
         self.paste_action = QtGui.QAction("Paste (CTRL+V)", self.table_widget)
         self.paste_action.triggered.connect(self.paste_clipboard)
         self.table_widget.addAction(self.paste_action)
+
+        self.paste_to_end_action = QtGui.QAction("Paste to Region End (ALT+V)",
+                                                 self.table_widget)
+        self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
+        self.table_widget.addAction(self.paste_to_end_action)
+
         self.rename_action = QtGui.QAction("Rename Selected Items", self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_items)
         self.table_widget.addAction(self.rename_action)
@@ -1053,6 +1060,8 @@ class region_list_editor:
             self.copy_selected()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
             self.paste_clipboard()
+        elif event.key() == QtCore.Qt.Key_V and event.modifiers() & QtCore.Qt.AltModifier:
+            self.paste_to_region_end()
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.copy_selected()
             self.delete_selected()
@@ -1205,6 +1214,26 @@ class region_list_editor:
                                        global_current_region)
         this_pydaw_project.commit("Auto-Unlink items")
 
+    def paste_to_region_end(self):
+        if not self.enabled:
+            self.warn_no_region_selected()
+            return
+        f_selected_cells = self.table_widget.selectedIndexes()
+        if len(f_selected_cells) == 0:
+            return
+        if len(global_region_clipboard) != 1:
+            QtGui.QMessageBox.warning(this_main_window, "Error", "Paste to region end only "
+                "works when you have exactly one item copied to the clipboard.\n"
+                "You have {} items copied.".format(len(global_region_clipboard)))
+            return
+        f_base_row = f_selected_cells[0].row()
+        f_base_column = f_selected_cells[0].column() - 1
+        f_region_length = pydaw_get_current_region_length()
+        f_item = global_region_clipboard[0]
+        for f_column in range(f_base_column, f_region_length + 1):
+            self.add_qtablewidgetitem(f_item[2], f_base_row, f_column)
+        global_tablewidget_to_region()
+
     def paste_clipboard(self):
         if not self.enabled:
             self.warn_no_region_selected()
@@ -1214,11 +1243,9 @@ class region_list_editor:
             return
         f_base_row = f_selected_cells[0].row()
         f_base_column = f_selected_cells[0].column() - 1
+        f_region_length = pydaw_get_current_region_length()
         for f_item in global_region_clipboard:
             f_column = f_item[1] + f_base_column
-            f_region_length = 8
-            if global_current_region.region_length_bars > 0:
-                f_region_length = global_current_region.region_length_bars
             if f_column >= f_region_length or f_column < 0:
                 continue
             f_row = f_item[0] + f_base_row
