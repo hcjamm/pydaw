@@ -1066,7 +1066,7 @@ class pydaw_master_widget:
 
 
 
-global_eq_point_diameter = 9.0
+global_eq_point_diameter = 12.0
 global_eq_point_radius = global_eq_point_diameter * 0.5
 global_eq_width = 600
 global_eq_height = 300
@@ -1095,10 +1095,12 @@ global_eq_background.setColorAt(0.9, QtGui.QColor(30, 30, 30))
 global_eq_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
 class eq_item(QtGui.QGraphicsEllipseItem):
-    def __init__(self, a_eq):
+    def __init__(self, a_eq, a_num):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_eq_point_diameter,
                                             global_eq_point_diameter)
         self.eq = a_eq
+        self.num = a_num
+        self.setToolTip("EQ{}".format(self.num))
         self.setBrush(global_eq_gradient)
         self.mapToScene(0.0, 0.0)
         self.path_item = None
@@ -1181,6 +1183,7 @@ class eq_viewer(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.eq_points = []
+        self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setSceneRect(-global_eq_point_radius, -global_eq_point_radius,
                           global_eq_width + global_eq_point_radius,
                           global_eq_height + global_eq_point_diameter)
@@ -1236,8 +1239,8 @@ class eq_viewer(QtGui.QGraphicsView):
 
         self.eq_points = []
 
-        for f_eq in a_eq_list:
-            f_eq_point = eq_item(f_eq)
+        for f_eq, f_num in zip(a_eq_list, range(1, len(a_eq_list) + 1)):
+            f_eq_point = eq_item(f_eq, f_num)
             self.eq_points.append(f_eq_point)
             self.scene.addItem(f_eq_point)
             f_eq_point.set_pos()
