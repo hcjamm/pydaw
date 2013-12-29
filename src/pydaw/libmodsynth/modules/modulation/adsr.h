@@ -148,9 +148,11 @@ void v_adsr_set_r_time(t_adsr*__restrict a_adsr_ptr, float a_time)
 
 /* void v_adsr_set_fast_release(t_adsr* a_adsr_ptr)
  *
- * This method is for killing voices by allowing a quick fade-out instead of directly stealing a voice, which should
+ * This method is for killing voices by allowing a quick fade-out
+ * instead of directly stealing a voice, which should
  * allow a quick transition without a click
- * TODO:  The total time of the fadeout is not consistent between different sample rates.
+ * TODO:  The total time of the fadeout is not consistent
+ * between different sample rates.
  */
 void v_adsr_set_fast_release(t_adsr*__restrict a_adsr_ptr)
 {
@@ -184,7 +186,8 @@ void v_adsr_set_s_value(t_adsr*__restrict a_adsr_ptr, float a_value)
  */
 void v_adsr_set_s_value_db(t_adsr*__restrict a_adsr_ptr, float a_value)
 {
-    v_adsr_set_s_value(a_adsr_ptr, f_db_to_linear_fast(a_value, a_adsr_ptr->amp_ptr));
+    v_adsr_set_s_value(a_adsr_ptr,
+            f_db_to_linear_fast(a_value, a_adsr_ptr->amp_ptr));
 }
 
 /* void v_adsr_set_adsr(
@@ -196,7 +199,8 @@ void v_adsr_set_s_value_db(t_adsr*__restrict a_adsr_ptr, float a_value)
  *
  * Set allADSR values, with a range of 0 to 1 for sustain
  */
-void v_adsr_set_adsr(t_adsr*__restrict a_adsr_ptr, float a_a, float a_d, float a_s, float a_r)
+void v_adsr_set_adsr(t_adsr*__restrict a_adsr_ptr, float a_a,
+        float a_d, float a_s, float a_r)
 {
     v_adsr_set_a_time(a_adsr_ptr, a_a);
     v_adsr_set_d_time(a_adsr_ptr, a_d);
@@ -214,7 +218,8 @@ void v_adsr_set_adsr(t_adsr*__restrict a_adsr_ptr, float a_a, float a_d, float a
  *
  * Set all ADSR values, with a range of -30 to 0 for sustain
  */
-void v_adsr_set_adsr_db(t_adsr*__restrict a_adsr_ptr, float a_a, float a_d, float a_s, float a_r)
+void v_adsr_set_adsr_db(t_adsr*__restrict a_adsr_ptr, float a_a,
+        float a_d, float a_s, float a_r)
 {
     v_adsr_set_a_time(a_adsr_ptr, a_a);
     v_adsr_set_d_time(a_adsr_ptr, a_d);
@@ -270,7 +275,8 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     f_result->output = 0.0f;
     f_result->stage = 4;
 
-    //Set these to nonsensical values so that comparisons aren't happening with invalid numbers
+    //Set these to nonsensical values so that comparisons aren't
+    //happening with invalid numbers
     f_result->a_inc = -100.5f;
     f_result->a_time = -100.5f;
     f_result->d_inc = -100.5f;
@@ -313,7 +319,8 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
                 }
                 break;
             case 1:
-                a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->d_inc);
+                a_adsr_ptr->output =
+                        (a_adsr_ptr->output) + (a_adsr_ptr->d_inc);
                 if((a_adsr_ptr->output) <= (a_adsr_ptr->s_value))
                 {
                     a_adsr_ptr->stage = 2;
@@ -324,9 +331,11 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
                 //Do nothing, we are sustaining
                 break;
             case 3:
-                /*Currently, this would actually take longer to release if the note off arrives
-                 before the decay stage finishes, I may fix it later*/
-                a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->r_inc);
+                /*Currently, this would actually take longer to
+                 * release if the note off arrives
+                 * before the decay stage finishes, I may fix it later*/
+                a_adsr_ptr->output =
+                        (a_adsr_ptr->output) + (a_adsr_ptr->r_inc);
                 if((a_adsr_ptr->output) <= 0.0f)
                 {
                     a_adsr_ptr->output = 0.0f;
@@ -351,8 +360,11 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
                 }
                 else
                 {
-                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->a_inc_db);
-                    a_adsr_ptr->output = f_db_to_linear_fast((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    a_adsr_ptr->output_db =
+                            (a_adsr_ptr->output_db) + (a_adsr_ptr->a_inc_db);
+                    a_adsr_ptr->output =
+                            f_db_to_linear_fast((a_adsr_ptr->output_db),
+                            a_adsr_ptr->amp_ptr);
 
                     if((a_adsr_ptr->output) >= 1.0f)
                     {
@@ -364,12 +376,16 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
             case 1:
                 if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR)
                 {
-                    a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->d_inc);
+                    a_adsr_ptr->output =
+                            (a_adsr_ptr->output) + (a_adsr_ptr->d_inc);
                 }
                 else
                 {
-                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->d_inc_db);
-                    a_adsr_ptr->output = f_db_to_linear_fast((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    a_adsr_ptr->output_db =
+                            (a_adsr_ptr->output_db) + (a_adsr_ptr->d_inc_db);
+                    a_adsr_ptr->output =
+                            f_db_to_linear_fast((a_adsr_ptr->output_db),
+                            a_adsr_ptr->amp_ptr);
                 }
 
                 if((a_adsr_ptr->output) <= (a_adsr_ptr->s_value))
@@ -383,13 +399,26 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
             case 3:
                 if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR_RELEASE)
                 {
-                    a_adsr_ptr->stage = 4;
-                    a_adsr_ptr->output = 0.0f;
+                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) - 0.05f;
+
+                    if(a_adsr_ptr->output_db < -96.0f)
+                    {
+                        a_adsr_ptr->stage = 4;
+                        a_adsr_ptr->output = 0.0f;
+                    }
+                    else
+                    {
+                        a_adsr_ptr->output = f_db_to_linear_fast(
+                                (a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    }
                 }
                 else
                 {
-                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->r_inc_db);
-                    a_adsr_ptr->output = f_db_to_linear_fast((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) +
+                            (a_adsr_ptr->r_inc_db);
+                    a_adsr_ptr->output =
+                            f_db_to_linear_fast((a_adsr_ptr->output_db),
+                            a_adsr_ptr->amp_ptr);
                 }
 
                 break;
