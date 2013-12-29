@@ -1095,9 +1095,10 @@ global_eq_background.setColorAt(0.9, QtGui.QColor(30, 30, 30))
 global_eq_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
 class eq_item(QtGui.QGraphicsEllipseItem):
-    def __init__(self, a_eq, a_num):
+    def __init__(self, a_eq, a_num, a_val_callback):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_eq_point_diameter,
                                             global_eq_point_diameter)
+        self.val_callback = a_val_callback
         self.eq = a_eq
         self.num = a_num
         self.setToolTip("EQ{}".format(self.num))
@@ -1116,6 +1117,8 @@ class eq_item(QtGui.QGraphicsEllipseItem):
             self.setPos(f_pos_x, f_pos_y)
 
         f_freq, f_gain = self.get_value()
+        self.val_callback(self.eq.freq_knob.port_num, f_freq)
+        self.val_callback(self.eq.gain_knob.port_num, f_gain)
         self.eq.freq_knob.set_value(f_freq)
         self.eq.gain_knob.set_value(f_gain)
         self.draw_path_item()
@@ -1171,8 +1174,9 @@ class eq_item(QtGui.QGraphicsEllipseItem):
 
 
 class eq_viewer(QtGui.QGraphicsView):
-    def __init__(self):
+    def __init__(self, a_val_callback):
         QtGui.QGraphicsView.__init__(self)
+        self.val_callback = a_val_callback
         self.eq_points = []
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setBackgroundBrush(global_eq_background)
@@ -1243,7 +1247,7 @@ class eq_viewer(QtGui.QGraphicsView):
         self.eq_points = []
 
         for f_eq, f_num in zip(a_eq_list, range(1, len(a_eq_list) + 1)):
-            f_eq_point = eq_item(f_eq, f_num)
+            f_eq_point = eq_item(f_eq, f_num, self.val_callback)
             self.eq_points.append(f_eq_point)
             self.scene.addItem(f_eq_point)
             f_eq_point.set_pos()
@@ -1300,7 +1304,7 @@ class eq6_widget:
         self.reset_button.pressed.connect(self.reset_controls)
         self.vlayout.addLayout(self.combobox_hlayout)
 
-        self.eq_viewer = eq_viewer()
+        self.eq_viewer = eq_viewer(a_val_callback)
         self.vlayout.addWidget(self.eq_viewer)
 
         self.grid_layout = QtGui.QGridLayout()
