@@ -1223,8 +1223,9 @@ class eq_viewer(QtGui.QGraphicsView):
             f_y_pos -= f_inc
 
         f_label_pos = 0.0
-        f_pitch = 20
-        f_label_inc = global_eq_width / 6.0
+        f_pitch = 20.0
+        f_pitch_inc = 17.0
+        f_label_inc = global_eq_width / (100.0 / f_pitch_inc)
 
         for i in range(6):
             f_hz = int(pydaw_util.pydaw_pitch_to_hz(f_pitch))
@@ -1235,7 +1236,7 @@ class eq_viewer(QtGui.QGraphicsView):
             self.scene.addLine(f_label_pos, 0.0, f_label_pos, global_eq_height, f_vline_pen)
             f_label.setBrush(QtCore.Qt.white)
             f_label_pos += f_label_inc
-            f_pitch += 18
+            f_pitch += f_pitch_inc
 
         self.eq_points = []
 
