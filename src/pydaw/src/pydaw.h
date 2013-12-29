@@ -4290,15 +4290,19 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
                         a_pydaw_data->track_pool[f_track_index],
                         f_plugin_index, 0, 0);
             }
+            else
+            {
+                //This is called by v_set_plugin_index, so it only needs
+                //to be called here
+                v_pydaw_open_track(a_pydaw_data,
+                    a_pydaw_data->track_pool[f_track_index]);
+            }
 
             a_pydaw_data->track_pool[f_track_index]->solo = f_solo;
             a_pydaw_data->track_pool[f_track_index]->mute = f_mute;
             v_pydaw_set_track_volume(a_pydaw_data,
                     a_pydaw_data->track_pool[f_track_index], f_vol);
             a_pydaw_data->track_pool[f_track_index]->bus_num = f_bus_num;
-
-            v_pydaw_open_track(a_pydaw_data,
-                    a_pydaw_data->track_pool[f_track_index]);
         }
 
         g_free_2d_char_array(f_2d_array);
