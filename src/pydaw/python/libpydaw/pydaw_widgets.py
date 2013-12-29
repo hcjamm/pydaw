@@ -1209,7 +1209,8 @@ class eq_viewer(QtGui.QGraphicsView):
             f_y_pos += f_inc
 
         self.scene.addLine(0.0, global_eq_height * 0.5, global_eq_width,
-                           global_eq_height * 0.5, f_hline_pen)
+                           global_eq_height * 0.5,
+                           QtGui.QPen(QtGui.QColor(255, 255, 255, 210), 2.0))
 
         f_y_pos = global_eq_height
         f_db = -24.0
@@ -1229,7 +1230,8 @@ class eq_viewer(QtGui.QGraphicsView):
 
         for i in range(6):
             f_hz = int(pydaw_util.pydaw_pitch_to_hz(f_pitch))
-            if f_hz > 1000:
+            if f_hz > 950:
+                f_hz = round(f_hz, -1)
                 f_hz = "{}khz".format(round(f_hz / 1000, 1))
             f_label = QtGui.QGraphicsSimpleTextItem("{}".format(f_hz), scene=self.scene)
             f_label.setPos(f_label_pos + 4.0, global_eq_height - 30.0)
@@ -1293,6 +1295,9 @@ class eq6_widget:
         self.combobox_hlayout = QtGui.QHBoxLayout()
         self.combobox_hlayout.addWidget(self.combobox.control)
         self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.reset_button = QtGui.QPushButton("Reset")
+        self.combobox_hlayout.addWidget(self.reset_button)
+        self.reset_button.pressed.connect(self.reset_controls)
         self.vlayout.addLayout(self.combobox_hlayout)
 
         self.eq_viewer = eq_viewer()
@@ -1322,6 +1327,12 @@ class eq6_widget:
 
     def update_viewer(self):
         self.eq_viewer.draw_eq(self.eqs)
+
+    def reset_controls(self):
+        for f_eq in self.eqs:
+            f_eq.freq_knob.reset_default_value()
+            f_eq.res_knob.reset_default_value()
+            f_eq.gain_knob.reset_default_value()
 
 
 pydaw_audio_item_scene_height = 1200.0
