@@ -124,6 +124,7 @@ kc_127_pitch = 4
 kc_127_zero_to_x = 5
 kc_log_time = 6
 kc_127_zero_to_x_int = 7
+kc_time_decimal = 8
 
 class pydaw_abstract_ui_control:
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback,
@@ -180,7 +181,8 @@ class pydaw_abstract_ui_control:
             f_dec_value = 0.0
             if self.val_conversion == kc_none:
                 pass
-            elif self.val_conversion == kc_decimal:
+            elif self.val_conversion == kc_decimal or \
+            self.val_conversion == kc_time_decimal:
                 self.value_label.setText(str(round(f_value * .01, 2)))
             elif self.val_conversion == kc_integer:
                 self.value_label.setText(str(int(f_value)))
@@ -234,6 +236,41 @@ class pydaw_abstract_ui_control:
         f_layout.addWidget(f_ok_button, 6, 1)
         f_dialog.exec_()
 
+    def tempo_sync_dialog(self):
+        def sync_button_pressed(a_self=None, a_val=None):
+            f_frac = 1.0
+            f_switch = (f_beat_frac_combobox.currentIndex())
+            f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75, 5 : 1.0}
+            f_frac = f_dict[f_switch]
+            f_seconds_per_beat = 60/(f_spinbox.value())
+            f_result = int(f_seconds_per_beat * f_frac * 100)
+            self.control.setValue(f_result)
+            f_dialog.close()
+        f_dialog = QtGui.QDialog(self.control)
+        f_dialog.setWindowTitle("Tempo Sync")
+        f_groupbox_layout =  QtGui.QGridLayout(f_dialog)
+        f_spinbox =  QtGui.QDoubleSpinBox()
+        f_spinbox.setDecimals(1)
+        f_spinbox.setRange(60, 200)
+        f_spinbox.setSingleStep(0.1)
+        f_spinbox.setValue(140.0)
+        f_beat_fracs = ["1/4", "1/3", "1/2", "2/3", "3/4", "1"]
+        f_beat_frac_combobox =  QtGui.QComboBox()
+        f_beat_frac_combobox.setMinimumWidth(75)
+        f_beat_frac_combobox.addItems(f_beat_fracs)
+        f_beat_frac_combobox.setCurrentIndex(2)
+        f_sync_button =  QtGui.QPushButton("Sync")
+        f_sync_button.pressed.connect(sync_button_pressed)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button.pressed.connect(f_dialog.close)
+        f_groupbox_layout.addWidget(QtGui.QLabel("BPM"), 0, 0)
+        f_groupbox_layout.addWidget(f_spinbox, 1, 0)
+        f_groupbox_layout.addWidget(QtGui.QLabel("Beats"), 0, 1)
+        f_groupbox_layout.addWidget(f_beat_frac_combobox, 1, 1)
+        f_groupbox_layout.addWidget(f_cancel_button, 2, 0)
+        f_groupbox_layout.addWidget(f_sync_button, 2, 1)
+        f_dialog.exec_()
+
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.control)
         f_reset_action = QtGui.QAction("Reset to Default Value", self.control)
@@ -242,6 +279,11 @@ class pydaw_abstract_ui_control:
         f_set_value_action = QtGui.QAction("Set Raw Controller Value", self.control)
         f_set_value_action.triggered.connect(self.set_value_dialog)
         f_menu.addAction(f_set_value_action)
+        if self.val_conversion == kc_time_decimal:
+            f_tempo_sync_action = QtGui.QAction("Tempo Sync", self.control)
+            f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
+            f_menu.addAction(f_tempo_sync_action)
+
         f_menu.exec_(QtGui.QCursor.pos())
 
 
@@ -560,7 +602,7 @@ class pydaw_lfo_widget:
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port,
                                             a_rel_callback, a_val_callback,
-                                            10, 1600, 200, kc_decimal, a_port_dict,
+                                            10, 1600, 200, kc_time_decimal, a_port_dict,
                                             a_preset_mgr)
         self.freq_knob.add_to_grid_layout(self.layout, 0)
         self.type_combobox = pydaw_combobox_control(120, "Type", a_type_port,
@@ -2287,7 +2329,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
                                                    self.plugin_rel_callback,
                                                    self.plugin_val_callback,
                                                    10, 100, 50,
-                                                   kc_decimal, self.port_dict,
+                                                   kc_time_decimal, self.port_dict,
                                                    self.preset_manager)
         self.delay_time_knob.add_to_grid_layout(delay_gridlayout, 0)
         m_feedback =  pydaw_knob_control(f_knob_size, "Fdbk", pydaw_ports.MODULEX_FEEDBACK,
@@ -2396,20 +2438,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
     def bpmSyncPressed(self):
         f_frac = 1.0
         f_switch = (self.beat_frac_combobox.currentIndex())
-        if f_switch ==  0: # 1/4
-            f_frac = 0.25
-        elif f_switch ==  1: # 1/3
-            f_frac = 0.3333
-        elif f_switch ==  2: # 1/2
-            f_frac = 0.5
-        elif f_switch ==  3: # 2/3
-            f_frac = 0.6666
-        elif f_switch ==  4: # 3/4
-            f_frac = 0.75
-        elif f_switch ==  5: # 1
-            f_frac = 1.0
+        f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75, 5 : 1.0}
+        f_frac = f_dict[f_switch]
         f_seconds_per_beat = 60/(self.bpm_spinbox.value())
-        f_result = (int)(f_seconds_per_beat * f_frac * 100)
+        f_result = int(f_seconds_per_beat * f_frac * 100)
         self.delay_time_knob.set_value(f_result)
 
     def set_window_title(self, a_track_name):
