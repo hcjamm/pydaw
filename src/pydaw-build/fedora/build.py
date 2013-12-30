@@ -23,7 +23,7 @@ if not os.getuid() == 0:
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--de", help="Select the desktop environment, choices are:\n"
-"--de=gnome|kde|lxde|xfce|mate",  default="xfce")
+"--de=gnome|kde|lxde|xfce|mate",  default="lxde")
 args = parser.parse_args()
 
 if args.de == "gnome":
