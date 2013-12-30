@@ -213,6 +213,39 @@ class pydaw_abstract_ui_control:
         if self.value_label is not None:
             a_layout.addWidget(self.value_label, 2, a_x, alignment=QtCore.Qt.AlignHCenter)
 
+    def set_value_dialog(self):
+        def ok_handler(a_self=None, a_val=None):
+            self.control.setValue(f_spinbox.value())
+            f_dialog.close()
+        f_dialog = QtGui.QDialog(self.control)
+        f_dialog.setWindowTitle("Set Value")
+        f_layout = QtGui.QGridLayout(f_dialog)
+        f_layout.addWidget(QtGui.QLabel("Value:"), 3, 0)
+        f_spinbox = QtGui.QSpinBox()
+        f_spinbox.setMinimum(self.control.minimum())
+        f_spinbox.setMaximum(self.control.maximum())
+        f_spinbox.setValue(self.control.value())
+        f_layout.addWidget(f_spinbox, 3, 1)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button.pressed.connect(f_dialog.close)
+        f_layout.addWidget(f_cancel_button, 6, 0)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button.pressed.connect(ok_handler)
+        f_layout.addWidget(f_ok_button, 6, 1)
+        f_dialog.exec_()
+
+    def contextMenuEvent(self, a_event):
+        f_menu = QtGui.QMenu(self.control)
+        f_reset_action = QtGui.QAction("Reset to Default Value", self.control)
+        f_reset_action.triggered.connect(self.reset_default_value)
+        f_menu.addAction(f_reset_action)
+        f_set_value_action = QtGui.QAction("Set Raw Controller Value", self.control)
+        f_set_value_action.triggered.connect(self.set_value_dialog)
+        f_menu.addAction(f_set_value_action)
+        f_menu.exec_(QtGui.QCursor.pos())
+
+
+
 class pydaw_null_control:
     """ For controls with no visual representation, ie: controls that share a UI widget
     depending on selected index, so that they can participate normally in the data
@@ -266,6 +299,7 @@ class pydaw_knob_control(pydaw_abstract_ui_control):
         self.control = pydaw_pixmap_knob(a_size, a_min_val, a_max_val)
         self.control.valueChanged.connect(self.control_value_changed)
         self.control.sliderReleased.connect(self.control_released)
+        self.control.contextMenuEvent = self.contextMenuEvent
         self.value_label = QtGui.QLabel("")
         self.value_label.setAlignment(QtCore.Qt.AlignCenter)
         self.value_label.setMinimumWidth(15)
@@ -280,6 +314,7 @@ class pydaw_slider_control(pydaw_abstract_ui_control):
                                            a_rel_callback, a_val_callback, a_val_conversion,
                                            a_port_dict, a_preset_mgr, a_default_val)
         self.control = QtGui.QSlider()
+        self.control.contextMenuEvent = self.contextMenuEvent
         self.control.setRange(a_min_val, a_max_val)
         self.control.valueChanged.connect(self.control_value_changed)
         self.control.sliderReleased.connect(self.control_released)
