@@ -63,6 +63,8 @@ def pydaw_get_region_length(a_region_index):
         return 8
 
 def pydaw_get_current_region_length():
+    if global_current_region is None:
+        return 8
     f_result = global_current_region.region_length_bars
     if f_result == 0:
         return 8
@@ -2149,6 +2151,8 @@ global_audio_items_header_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(65, 65, 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
         QtGui.QGraphicsView.__init__(self)
+        self.reset_line_lists()
+        self.h_zoom = 1.0
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.dropEvent = self.sceneDropEvent
         self.scene.dragEnterEvent = self.sceneDragEnterEvent
@@ -2178,6 +2182,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_inc_count = 0
         #Somewhat slow on my AMD 5450 using the FOSS driver
         #self.setRenderHint(QtGui.QPainter.Antialiasing)
+
+    def reset_line_lists(self):
+        self.text_list = []
+        self.beat_line_list = []
 
     def prepare_to_quit(self):
         self.scene.clearSelection()
@@ -2527,11 +2535,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 f_item.setSelected(True)
 
     def set_zoom(self, a_scale):
-        """ a_scale == number from 1.0 to 6.0 """
         self.scale(a_scale, 1.0)
 
+    def set_h_zoom_value(self, a_scale):
+        self.h_zoom = a_scale
+
     def set_v_zoom(self, a_scale):
-        """ a_scale == number from 1.0 to 6.0 """
         self.scale(1.0, a_scale)
 
     def set_grid_div(self, a_enabled, a_div, a_range):
@@ -2549,12 +2558,38 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_val = int(a_event.pos().x() / global_audio_px_per_bar)
             this_transport.set_bar_value(f_val)
 
+    def check_line_count(self):
+        """ Check that there are not too many vertical lines on the screen """
+        f_num_count = len(self.text_list)
+        if f_num_count == 0:
+            return
+        f_num_visible_count = int(f_num_count / pydaw_clip_min(self.h_zoom, 1))
+
+        if f_num_visible_count > 24:
+            for f_line in self.beat_line_list:
+                f_line.setVisible(False)
+            f_factor = f_num_visible_count // 24
+            if f_factor == 1:
+                for f_num in self.text_list:
+                    f_num.setVisible(True)
+            else:
+                f_factor = int(round(f_factor / 2.0) * 2)
+                for f_num in self.text_list:
+                    f_num.setVisible(False)
+                for f_num in self.text_list[::f_factor]:
+                    f_num.setVisible(True)
+        else:
+            for f_line in self.beat_line_list:
+                f_line.setVisible(True)
+            for f_num in self.text_list:
+                f_num.setVisible(True)
+
+
     def draw_headers(self, a_cursor_pos=None, a_default_length=False):
-        if a_default_length or global_current_region is None or \
-        global_current_region.region_length_bars == 0:
+        if a_default_length:
             f_region_length = 8
         else:
-            f_region_length = global_current_region.region_length_bars
+            f_region_length = pydaw_get_current_region_length()
 
         f_size = global_audio_px_per_bar * f_region_length
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
@@ -2565,7 +2600,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_beat_pen = QtGui.QPen(QtGui.QColor(210, 210, 210))
         f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
-        f_total_height = (global_audio_item_lane_count * (global_audio_item_height)) + global_audio_ruler_height
+        f_total_height = (global_audio_item_lane_count * (global_audio_item_height)) + \
+            global_audio_ruler_height
         self.scene.setSceneRect(0.0, 0.0, f_size, f_total_height)
         self.playback_cursor = self.scene.addLine(0.0, 0.0, 0.0, f_total_height,
                                                   QtGui.QPen(QtCore.Qt.red, 2.0))
@@ -2575,23 +2611,28 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_number = QtGui.QGraphicsSimpleTextItem("{}".format(i + 1,), f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
+            f_number.setZValue(1000.0)
+            self.text_list.append(f_number)
             self.scene.addLine(i3, 0.0, i3, f_total_height, f_v_pen)
             f_number.setPos(i3 + 3.0, 2)
             for f_beat_i in range(1, 4):
                 f_beat_x = i3 + (global_audio_px_per_beat * f_beat_i)
-                self.scene.addLine(f_beat_x, 0.0, f_beat_x, f_total_height, f_beat_pen)
+                f_line = self.scene.addLine(f_beat_x, 0.0, f_beat_x, f_total_height, f_beat_pen)
+                self.beat_line_list.append(f_line)
             if self.snap_draw_extra_lines:
                 for f_16th_i in range(1, self.snap_extra_lines_range):
                     if f_16th_i % self.snap_extra_lines_beat_skip != 0:
                         f_16th_x = i3 + (self.snap_extra_lines_div * f_16th_i)
-                        self.scene.addLine(f_16th_x, global_audio_ruler_height, f_16th_x,
-                                           f_total_height, f_16th_pen)
+                        f_line = self.scene.addLine(f_16th_x, global_audio_ruler_height,
+                                                    f_16th_x, f_total_height, f_16th_pen)
+                        self.beat_line_list.append(f_line)
             i3 += global_audio_px_per_bar
         self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_reg_pen)
         for i2 in range(global_audio_item_lane_count):
             f_y = ((global_audio_item_height) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos(a_cursor_pos)
+        self.check_line_count()
 
     def clear_drawn_items(self, a_default_length=False):
         if self.is_playing:
@@ -2599,6 +2640,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.is_playing = False
         else:
             f_was_playing = False
+        self.reset_line_lists()
         self.audio_items = []
         self.scene.clear()
         self.draw_headers(a_default_length=a_default_length)
@@ -2606,7 +2648,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.is_playing = True
 
     def draw_item(self, a_audio_item_index, a_audio_item, a_sample_length):
-        '''a_start in seconds, a_length in seconds'''
+        """a_start in seconds, a_length in seconds"""
         f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_sample_length)
         self.audio_items.append(f_audio_item)
         self.scene.addItem(f_audio_item)
@@ -3032,6 +3074,8 @@ class audio_items_viewer_widget():
             for i in range(self.last_scale_value, self.h_zoom_slider.value()):
                 this_audio_items_viewer.set_zoom(1.03)
         self.last_scale_value = self.h_zoom_slider.value()
+        this_audio_items_viewer.set_h_zoom_value(self.last_scale_value)
+        this_audio_items_viewer.check_line_count()
 
 class audio_item_editor_widget:
     def __init__(self):
