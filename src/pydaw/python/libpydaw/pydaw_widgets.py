@@ -958,6 +958,7 @@ class pydaw_file_browser_widget:
                         f_full_path, "\n".join(pydaw_util.pydaw_bad_chars)))
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
+global_plugin_settings_clipboard = {}
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name):
@@ -994,15 +995,18 @@ class pydaw_preset_manager_widget:
         self.more_button.pressed.connect(self.on_more)
 
         self.more_menu = QtGui.QMenu(self.more_button)
-        f_save_as_action = QtGui.QAction("Save bank as...", self.group_box)
+
+        f_save_as_action = self.more_menu.addAction("Save bank as...")
         f_save_as_action.triggered.connect(self.on_save_as)
-        self.more_menu.addAction(f_save_as_action)
-        f_open_action = QtGui.QAction("Open bank...", self.group_box)
+        f_open_action = self.more_menu.addAction("Open bank...")
         f_open_action.triggered.connect(self.on_open_bank)
-        self.more_menu.addAction(f_open_action)
-        f_restore_action = QtGui.QAction("Restore factory bank...", self.group_box)
+        f_restore_action = self.more_menu.addAction("Restore factory bank...")
         f_restore_action.triggered.connect(self.on_restore_bank)
-        self.more_menu.addAction(f_restore_action)
+        self.more_menu.addSeparator()
+        f_copy_action = self.more_menu.addAction("Copy plugin settings...")
+        f_copy_action.triggered.connect(self.on_copy)
+        f_paste_action = self.more_menu.addAction("Paste plugin settings...")
+        f_paste_action.triggered.connect(self.on_paste)
 
         self.more_button.setMenu(self.more_menu)
         self.layout.addWidget(self.more_button)
@@ -1012,6 +1016,22 @@ class pydaw_preset_manager_widget:
             self.program_combobox.addItem("empty")
         self.load_presets()
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
+
+    def on_copy(self):
+        f_result = {}
+        for k, v in self.controls.items():
+            f_result[k] = v.get_value()
+        global_plugin_settings_clipboard[self.plugin_name] = f_result
+
+    def on_paste(self):
+        if not self.plugin_name in global_plugin_settings_clipboard:
+            QtGui.QMessageBox.warning(self.group_box, "Error",
+                "Nothing copied to clipboard for {}".format(self.plugin_name))
+            return
+        f_dict = global_plugin_settings_clipboard[self.plugin_name]
+        for k, v in f_dict.items():
+            self.controls[k].set_value(v)
+            self.controls[k].control_value_changed(v)
 
     def on_more(self):
         self.more_button.showMenu()
