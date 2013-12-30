@@ -1349,6 +1349,7 @@ def pydaw_set_bpm(a_bpm):
     global_beats_per_minute = a_bpm
     global_beats_per_second = a_bpm / 60.0
     global_bars_per_second = global_beats_per_second * 0.25
+    pydaw_widgets.set_global_tempo(a_bpm)
 
 def pydaw_seconds_to_bars(a_seconds):
     '''converts seconds to regions'''
@@ -6402,11 +6403,13 @@ class transport_widget:
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
         this_song_editor.table_widget.selectColumn(self.get_region_value())
+
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
             self.stop_button.click()
         else:
             self.play_button.click()
+
     def on_play(self):
         if self.is_recording:
             self.rec_button.setChecked(True)

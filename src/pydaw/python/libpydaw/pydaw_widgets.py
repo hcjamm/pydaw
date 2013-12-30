@@ -81,6 +81,11 @@ def get_scaled_pixmap_knob(a_size):
     return global_pydaw_knob_pixmap_cache[a_size]
 
 global_cc_clipboard = None
+global_tempo = 140.0
+
+def set_global_tempo(a_tempo):
+    global global_tempo
+    global_tempo = a_tempo
 
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val):
@@ -254,7 +259,7 @@ class pydaw_abstract_ui_control:
         f_spinbox.setDecimals(1)
         f_spinbox.setRange(60, 200)
         f_spinbox.setSingleStep(0.1)
-        f_spinbox.setValue(140.0)
+        f_spinbox.setValue(global_tempo)
         f_beat_fracs = ["1/4", "1/3", "1/2", "2/3", "3/4", "1"]
         f_beat_frac_combobox =  QtGui.QComboBox()
         f_beat_frac_combobox.setMinimumWidth(75)
