@@ -17,12 +17,12 @@ GNU General Public License for more details.
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
+
 #include "../../lib/lms_math.h"
 #include "../../lib/amp.h"
 #include <math.h>
 #include <assert.h>
-    
+
 #define LMS_HOLD_TIME_DIVISOR 500.0f
 
 typedef struct st_lim_limiter
@@ -50,26 +50,27 @@ void v_lim_free(t_lim_limiter * a_lim)
     {
         v_amp_free(a_lim->amp_ptr);
         free(a_lim->buffer0);
-        free(a_lim->buffer1);        
+        free(a_lim->buffer1);
         free(a_lim);
     }
 }
 
-void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_release)
+void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling,
+        float a_release)
 {
     if(a_thresh != (a_lim->last_thresh))
     {
-        a_lim->thresh = f_db_to_linear_fast((a_thresh), a_lim->amp_ptr); 
+        a_lim->thresh = f_db_to_linear_fast((a_thresh), a_lim->amp_ptr);
         a_lim->autogain = (1.0f/(a_lim->thresh));
         a_lim->last_thresh = a_thresh;
     }
-    
+
     if(a_ceiling != (a_lim->last_ceiling))
     {
         a_lim->volume = f_db_to_linear_fast((a_ceiling), a_lim->amp_ptr);
         a_lim->last_ceiling = a_ceiling;
     }
-    
+
     if(a_release != (a_lim->last_release))
     {
         if(a_release <= 0)
@@ -80,9 +81,10 @@ void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_rel
         {
             a_lim->release = a_release * 0.003f;
         }
-        
-        
-        a_lim->r = ((a_lim->sr_recip) / (a_lim->release)) * LMS_HOLD_TIME_DIVISOR;        
+
+
+        a_lim->r =
+                ((a_lim->sr_recip) / (a_lim->release)) * LMS_HOLD_TIME_DIVISOR;
         a_lim->last_release = a_release;
     }
 }
@@ -91,42 +93,43 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
 {
     a_lim->maxSpls=f_lms_max(f_lms_abs(a_in0),f_lms_abs(a_in1));
 
-    //clip at 24dB.  If a memory error causes a huge value, the limiter would never return.
+    /*clip at 24dB.  If a memory error causes a huge value,
+     * the limiter would never return.*/
     if(a_lim->maxSpls > 16.0f)
     {
         a_lim->maxSpls = 16.0f;
     }
-    
+
     a_lim->r1Timer = (a_lim->r1Timer) + 1;
-    
+
     if((a_lim->r1Timer) >= (a_lim->holdtime))
     {
-        a_lim->r1Timer = 0; 
+        a_lim->r1Timer = 0;
         a_lim->max1Block = (a_lim->max1Block) - (a_lim->r);
-                
+
         if((a_lim->max1Block) < 0.0f)
         {
             a_lim->max1Block = 0.0f;
         }
     }
-     
+
     a_lim->max1Block = f_lms_max((a_lim->max1Block),(a_lim->maxSpls));
-        
+
     a_lim->r2Timer = (a_lim->r2Timer) + 1;
-    
+
     if((a_lim->r2Timer) >= (a_lim->holdtime))
     {
-        a_lim->r2Timer = 0; 
+        a_lim->r2Timer = 0;
         a_lim->max2Block = (a_lim->max2Block) - (a_lim->r);
-        
+
         if((a_lim->max2Block) < 0.0f)
         {
             a_lim->max2Block = 0.0f;
         }
     }
-    
+
     a_lim->max2Block = f_lms_max((a_lim->max2Block),(a_lim->maxSpls));
-    
+
     a_lim->env = f_lms_max((a_lim->max1Block),(a_lim->max2Block));
 
     if(a_lim->env > a_lim->thresh)
@@ -137,19 +140,21 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     {
         a_lim->gain= (a_lim->volume);
     }
-    
+
     a_lim->buffer0[(a_lim->buffer_index)] = a_in0;
     a_lim->buffer1[(a_lim->buffer_index)] = a_in1;
-    
+
     a_lim->buffer_index = (a_lim->buffer_index) + 1;
-    
+
     if((a_lim->buffer_index) >= (a_lim->buffer_size))
     {
         a_lim->buffer_index = 0;
     }
 
-    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
-    a_lim->output1 = (a_lim->buffer1[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
+    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) *
+            (a_lim->gain) * (a_lim->autogain);
+    a_lim->output1 = (a_lim->buffer1[(a_lim->buffer_index)]) *
+            (a_lim->gain) * (a_lim->autogain);
 }
 
 t_lim_limiter * g_lim_get(float srate)
@@ -159,35 +164,37 @@ t_lim_limiter * g_lim_get(float srate)
     {
         return 0;
     }
-    
+
     f_result->holdtime = ((int)(srate/LMS_HOLD_TIME_DIVISOR));
-    
+
     f_result->buffer_size = (f_result->holdtime); // (int)(srate*0.003f);
     f_result->buffer_index = 0;
-    
-    if(posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) * (f_result->buffer_size))) != 0)
+
+    if(posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) *
+            (f_result->buffer_size))) != 0)
     {
         return 0;
     }
-    
-    if(posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) * (f_result->buffer_size))) != 0)
+
+    if(posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) *
+            (f_result->buffer_size))) != 0)
     {
         return 0;
     }
-    
+
     f_result->amp_ptr = g_amp_get();
-    
+
     int f_i;
-    
+
     for(f_i = 0; f_i < (f_result->buffer_size); f_i++)
     {
         f_result->buffer0[f_i] = 0.0f;
         f_result->buffer1[f_i] = 0.0f;
     }
-    
+
     f_result->r1Timer = 0;
     f_result->r2Timer = (f_result->holdtime)/2;
-    
+
     f_result->ceiling = 0.0f;
     f_result->env = 0.0f;
     f_result->envT = 0.0f;
@@ -203,12 +210,12 @@ t_lim_limiter * g_lim_get(float srate)
     f_result->volume = 0.0f;
     f_result->sr = srate;
     f_result->sr_recip = 1.0f/srate;
-    
+
     //nonsensical values that it won't evaluate to on the first run
     f_result->last_ceiling = 1234.4522f;
     f_result->last_release = 1234.4522f;
     f_result->last_thresh = 1234.4532f;
-    
+
     return f_result;
 }
 

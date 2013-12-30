@@ -19,7 +19,7 @@ extern "C" {
 
 #include "../../lib/pitch_core.h"
 #include "../signal_routing/audio_xfade.h"
-    
+
 typedef struct
 {
     float output0, output1, hold0, hold1;
@@ -44,12 +44,13 @@ void v_sah_free(t_sah_sample_and_hold * a_sah)
 t_sah_sample_and_hold * g_sah_sample_and_hold_get(float a_sr)
 {
     t_sah_sample_and_hold * f_result;
-    
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_sah_sample_and_hold))) != 0)
+
+    if(posix_memalign((void**)&f_result, 16,
+            (sizeof(t_sah_sample_and_hold))) != 0)
     {
         return 0;
     }
-    
+
     f_result->hold_count = 1;
     f_result->hold_counter = 0;
     f_result->output0 = 0.0f;
@@ -61,18 +62,20 @@ t_sah_sample_and_hold * g_sah_sample_and_hold_get(float a_sr)
     f_result->pitch = g_pit_get();
     f_result->last_wet = -99.00088f;
     f_result->xfade = g_axf_get_audio_xfade(-3.0f);
-    
+
     return f_result;
 }
 
-void v_sah_sample_and_hold_set(t_sah_sample_and_hold* a_sah, float a_pitch, float a_wet)
+void v_sah_sample_and_hold_set(t_sah_sample_and_hold* a_sah, float a_pitch,
+        float a_wet)
 {
     if(a_sah->last_pitch != a_pitch)
     {
         a_sah->last_pitch = a_pitch;
-        a_sah->hold_count = (int)(a_sah->sr / f_pit_midi_note_to_hz_fast(a_pitch, a_sah->pitch));
+        a_sah->hold_count = (int)(a_sah->sr /
+                f_pit_midi_note_to_hz_fast(a_pitch, a_sah->pitch));
     }
-    
+
     if(a_sah->last_wet != a_wet)
     {
         a_sah->last_wet = a_wet;
@@ -80,13 +83,14 @@ void v_sah_sample_and_hold_set(t_sah_sample_and_hold* a_sah, float a_pitch, floa
     }
 }
 
-void v_sah_sample_and_hold_run(t_sah_sample_and_hold* a_sah, float a_in0, float a_in1)
-{    
+void v_sah_sample_and_hold_run(t_sah_sample_and_hold* a_sah,
+        float a_in0, float a_in1)
+{
     a_sah->output0 = f_axf_run_xfade(a_sah->xfade, a_in0, a_sah->hold0);
     a_sah->output1 = f_axf_run_xfade(a_sah->xfade, a_in1, a_sah->hold1);
-    
+
     a_sah->hold_counter++;
-    
+
     if(a_sah->hold_counter >= a_sah->hold_count)
     {
         a_sah->hold_counter = 0;

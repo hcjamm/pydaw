@@ -23,9 +23,9 @@ extern "C" {
 #include "../oscillator/lfo_simple.h"
 #include "../filter/svf_stereo.h"
 
-typedef struct 
+typedef struct
 {
-    float * buffer;    
+    float * buffer;
     float wet_lin, wet_db, freq_last, mod_amt;
     float output0, output1;
     float delay_offset_amt, delay_offset;
@@ -47,27 +47,28 @@ void v_crs_chorus_run(t_crs_chorus*, float, float);
 t_crs_chorus* g_crs_chorus_get(float a_sr)
 {
     t_crs_chorus * f_result;
-    
+
     if(posix_memalign((void**)&f_result, 16, (sizeof(t_crs_chorus))) != 0)
     {
         return 0;
     }
-    
+
     f_result->buffer_size = (int)(a_sr * 0.050f);
     f_result->buffer_size_float = ((float)(f_result->buffer_size));
-    
-    if(posix_memalign((void**)&f_result->buffer, 16, (sizeof(float) * f_result->buffer_size)) != 0)
+
+    if(posix_memalign((void**)&f_result->buffer, 16, (sizeof(float) *
+            f_result->buffer_size)) != 0)
     {
         return 0;
-    } 
-    
+    }
+
     int f_i = 0;
     while(f_i < f_result->buffer_size)
     {
         f_result->buffer[f_i] = 0.0f;
         f_i++;
     }
-    
+
     f_result->pos_left = 0.0f;
     f_result->pos_right = 0.0f;
     f_result->buffer_ptr = 0;
@@ -91,7 +92,7 @@ t_crs_chorus* g_crs_chorus_get(float a_sr)
     v_svf2_set_cutoff_base(f_result->lp, 90.0f);
     v_svf2_set_cutoff(f_result->lp);
     v_lfs_sync(f_result->lfo, 0.0f, 1);
-    
+
     return f_result;
 }
 
@@ -102,7 +103,7 @@ void v_crs_chorus_set(t_crs_chorus* a_crs, float a_freq, float a_wet)
         a_crs->wet_db = a_wet;
         a_crs->wet_lin = f_db_to_linear_fast(a_wet, a_crs->amp);
     }
-    
+
     if(a_freq != (a_crs->freq_last))
     {
         a_crs->freq_last = a_freq;
@@ -113,13 +114,15 @@ void v_crs_chorus_set(t_crs_chorus* a_crs, float a_freq, float a_wet)
 void v_crs_chorus_run(t_crs_chorus* a_crs, float a_input0, float a_input1)
 {
     a_crs->buffer[(a_crs->buffer_ptr)] = (a_input0 + a_input1) * 0.5f;
-    
-    a_crs->delay_offset = ((float)(a_crs->buffer_ptr)) - (a_crs->delay_offset_amt);
-            
+
+    a_crs->delay_offset = ((float)(a_crs->buffer_ptr)) -
+            (a_crs->delay_offset_amt);
+
     v_lfs_run(a_crs->lfo);
-    
-    a_crs->pos_left = ((a_crs->delay_offset) + ((a_crs->lfo->output) * (a_crs->mod_amt)));
-    
+
+    a_crs->pos_left = ((a_crs->delay_offset) + ((a_crs->lfo->output) *
+            (a_crs->mod_amt)));
+
     if((a_crs->pos_left) >= (a_crs->buffer_size_float))
     {
         a_crs->pos_left -= (a_crs->buffer_size_float);
@@ -128,9 +131,10 @@ void v_crs_chorus_run(t_crs_chorus* a_crs, float a_input0, float a_input1)
     {
         a_crs->pos_left += (a_crs->buffer_size_float);
     }
-    
-    a_crs->pos_right = ((a_crs->delay_offset) + ((a_crs->lfo->output) * (a_crs->mod_amt) * -1.0f));
-    
+
+    a_crs->pos_right = ((a_crs->delay_offset) + ((a_crs->lfo->output) *
+            (a_crs->mod_amt) * -1.0f));
+
     if((a_crs->pos_right) >= (a_crs->buffer_size_float))
     {
         a_crs->pos_right -= (a_crs->buffer_size_float);
@@ -139,18 +143,20 @@ void v_crs_chorus_run(t_crs_chorus* a_crs, float a_input0, float a_input1)
     {
         a_crs->pos_right += (a_crs->buffer_size_float);
     }
-    
-    a_crs->output0 = a_input0 + (f_cubic_interpolate_ptr_wrap(a_crs->buffer, (a_crs->buffer_size), 
+
+    a_crs->output0 = a_input0 + (f_cubic_interpolate_ptr_wrap(a_crs->buffer,
+            (a_crs->buffer_size),
             (a_crs->pos_left), a_crs->cubic) * (a_crs->wet_lin));
-    a_crs->output1 = a_input1 +  (f_cubic_interpolate_ptr_wrap(a_crs->buffer, (a_crs->buffer_size), 
+    a_crs->output1 = a_input1 +  (f_cubic_interpolate_ptr_wrap(a_crs->buffer,
+            (a_crs->buffer_size),
             (a_crs->pos_right), a_crs->cubic) * (a_crs->wet_lin));
-    
+
     v_svf2_run_2_pole_hp(a_crs->hp, a_crs->output0, a_crs->output1);
     v_svf2_run_2_pole_lp(a_crs->lp, a_crs->hp->output0, a_crs->hp->output1);
-    
+
     a_crs->output0 = a_crs->lp->output0;
     a_crs->output1 = a_crs->lp->output1;
-    
+
     a_crs->buffer_ptr++;
     if((a_crs->buffer_ptr) >= (a_crs->buffer_size))
     {

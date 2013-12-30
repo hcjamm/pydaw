@@ -31,7 +31,8 @@ typedef struct st_clipper
 #endif
 }t_clipper;
 
-/*Set the values of a clipper struct symmetrically, ie: value of .75 clips at .75 and -.75*/
+/*Set the values of a clipper struct symmetrically,
+ * ie: value of .75 clips at .75 and -.75*/
 void v_clp_set_clip_sym(t_clipper *, float);
 void v_clp_set_in_gain(t_clipper *, float);
 t_clipper * g_clp_get_clipper();
@@ -40,7 +41,8 @@ inline float f_clp_clip(t_clipper*, float);
 
 /*v_clp_set_clip_sym(
  * t_clipper*,
- * float a_db //Threshold to clip at, in decibel, ie:  -6db = clipping at .5 and -.5
+ * float a_db //Threshold to clip at, in decibel,
+ * ie:  -6db = clipping at .5 and -.5
  * )
  */
 void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
@@ -63,7 +65,8 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
 
 /*void v_clp_set_in_gain(
  * t_clipper*,
- * float a_db   //gain in dB to apply to the input signal before clipping it, usually a value between 0 and 36
+ * float a_db   //gain in dB to apply to the input signal before clipping it,
+ * usually a value between 0 and 36
  * )
  */
 void v_clp_set_in_gain(t_clipper * a_clp, float a_db)
@@ -89,7 +92,7 @@ t_clipper * g_clp_get_clipper()
     f_result->input_gain_linear = 1.0f;
     f_result->in_db = 0.0f;
     f_result->result = 0.0f;
-    f_result->clip_db = 7654567.0f;  //A nonsensical value for the sake of forcing a change on the first comparison
+    f_result->clip_db = 7654567.0f;
     f_result->amp_ptr = g_amp_get();
 
     return f_result;

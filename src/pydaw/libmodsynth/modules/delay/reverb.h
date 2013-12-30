@@ -53,11 +53,13 @@ void v_rvb_reverb_set(t_rvb_reverb *, float, float, float);
 inline void v_rvb_reverb_run(t_rvb_reverb *, float, float);
 
 /* void v_rvb_reverb_set(t_rvb_reverb * a_reverb,
- * float a_time,  //0 to 1, not attempting to use RT60 because the algo will be non-standard and may change...
+ * float a_time,  //0 to 1, not attempting to use RT60 because the algo
+ *                //will be non-standard and may change...
  * float a_wet, //0 to 1, I may change the meaning later...
  * float a_color) //0 to 1, I may change the meaning later...
  */
-void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float a_color)
+void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet,
+        float a_color)
 {
     if(a_time != (a_reverb->time))
     {
@@ -69,7 +71,8 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
 
         while(f_i2 < PYDAW_REVERB_TAP_COUNT)
         {
-            v_cmb_set_all(a_reverb->taps[f_i2], 0.0f, f_feedback, a_reverb->comb_tunings[f_i2]);
+            v_cmb_set_all(a_reverb->taps[f_i2], 0.0f, f_feedback,
+                    a_reverb->comb_tunings[f_i2]);
             f_i2++;
         }
     }
@@ -77,7 +80,7 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
     if(a_wet != (a_reverb->wet))
     {
         a_reverb->wet = a_wet;
-        a_reverb->wet_linear =  a_wet * (a_reverb->volume_factor); // f_db_to_linear_fast(a_wet, a_reverb->amp);
+        a_reverb->wet_linear =  a_wet * (a_reverb->volume_factor);
     }
 
     if(a_color != (a_reverb->color))
@@ -91,13 +94,15 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
     }
 }
 
-inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_input1)
+inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0,
+        float a_input1)
 {
     a_reverb->iter1 = 0;
 
     a_reverb->output = 0.0f;
 
-    float f_tmp_sample = v_svf_run_2_pole_lp(a_reverb->lp, (a_input0 + a_input1));
+    float f_tmp_sample = v_svf_run_2_pole_lp(a_reverb->lp,
+            (a_input0 + a_input1));
     f_tmp_sample = v_svf_run_2_pole_hp(a_reverb->hp, f_tmp_sample);
     f_tmp_sample *= (a_reverb->wet_linear);
 
@@ -114,7 +119,9 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
 
     while((a_reverb->iter1) < PYDAW_REVERB_DIFFUSER_COUNT)
     {
-        a_reverb->output = v_svf_run_2_pole_allpass(a_reverb->diffusers[(a_reverb->iter1)], a_reverb->output);
+        a_reverb->output =
+                v_svf_run_2_pole_allpass(a_reverb->diffusers[(a_reverb->iter1)],
+                        a_reverb->output);
 
         a_reverb->iter1 = (a_reverb->iter1) + 1;
     }
@@ -186,7 +193,8 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     while(f_i2 < PYDAW_REVERB_DIFFUSER_COUNT)
     {
         f_result->diffusers[f_i2] = g_svf_get(a_sr);
-        v_svf_set_cutoff_base(f_result->diffusers[f_i2], f_result->allpass_tunings[f_i2]);
+        v_svf_set_cutoff_base(f_result->diffusers[f_i2],
+                f_result->allpass_tunings[f_i2]);
         v_svf_set_res(f_result->diffusers[f_i2], -1.0f);
         v_svf_set_cutoff(f_result->diffusers[f_i2]);
         f_i2++;
@@ -195,7 +203,8 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->predelay_counter = 0;
     f_result->predelay_size = (int)(a_sr * 0.01f);
 
-    if(posix_memalign((void**)&f_result->predelay_buffer, 16, (sizeof(float) * f_result->predelay_size)) != 0)
+    if(posix_memalign((void**)&f_result->predelay_buffer, 16, (sizeof(float) *
+            f_result->predelay_size)) != 0)
     {
         return 0;
     }

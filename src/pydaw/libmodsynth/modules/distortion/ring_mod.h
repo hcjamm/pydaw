@@ -90,8 +90,10 @@ void v_rmd_ring_mod_run(t_rmd_ring_mod* a_rmd, float a_input0, float a_input1)
 {
     a_rmd->osc_output = f_osc_run_unison_osc(a_rmd->osc);
 
-    a_rmd->output0 = f_axf_run_xfade(a_rmd->xfade, a_input0, (a_input0 * (a_rmd->osc_output)));
-    a_rmd->output1 = f_axf_run_xfade(a_rmd->xfade, a_input1, (a_input1 * (a_rmd->osc_output)));
+    a_rmd->output0 = f_axf_run_xfade(a_rmd->xfade, a_input0,
+            (a_input0 * (a_rmd->osc_output)));
+    a_rmd->output1 = f_axf_run_xfade(a_rmd->xfade, a_input1,
+            (a_input1 * (a_rmd->osc_output)));
 }
 
 
