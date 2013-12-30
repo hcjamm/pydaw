@@ -80,6 +80,7 @@ def get_scaled_pixmap_knob(a_size):
 
     return global_pydaw_knob_pixmap_cache[a_size]
 
+global_cc_clipboard = None
 
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val):
@@ -271,6 +272,13 @@ class pydaw_abstract_ui_control:
         f_groupbox_layout.addWidget(f_sync_button, 2, 1)
         f_dialog.exec_()
 
+    def copy_automation(self):
+        global global_cc_clipboard
+        f_value = ((self.get_value() - self.control.minimum()) /
+                  (self.control.maximum() - self.control.minimum())) * 127.0
+        global_cc_clipboard = pydaw_util.pydaw_clip_value(f_value, 0.0, 127.0)
+        print(str(global_cc_clipboard))
+
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.control)
         f_reset_action = QtGui.QAction("Reset to Default Value", self.control)
@@ -279,6 +287,9 @@ class pydaw_abstract_ui_control:
         f_set_value_action = QtGui.QAction("Set Raw Controller Value", self.control)
         f_set_value_action.triggered.connect(self.set_value_dialog)
         f_menu.addAction(f_set_value_action)
+        f_copy_automation_action = QtGui.QAction("Copy Automation", self.control)
+        f_copy_automation_action.triggered.connect(self.copy_automation)
+        f_menu.addAction(f_copy_automation_action)
         if self.val_conversion == kc_time_decimal:
             f_tempo_sync_action = QtGui.QAction("Tempo Sync", self.control)
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)

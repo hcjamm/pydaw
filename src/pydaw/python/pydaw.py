@@ -4884,9 +4884,13 @@ class automation_viewer_widget:
         self.edit_button = QtGui.QPushButton("Edit")
         self.hlayout.addWidget(self.edit_button)
         self.edit_menu = QtGui.QMenu(self.widget)
-        if not self.is_cc:
-            self.add_point_action = self.edit_menu.addAction("Add Point")
-            self.add_point_action.triggered.connect(self.add_point)
+        self.add_point_action = self.edit_menu.addAction("Add Point")
+        if self.is_cc:
+            self.add_point_action.triggered.connect(self.add_cc_point)
+            self.paste_point_action = self.edit_menu.addAction("Paste Point")
+            self.paste_point_action.triggered.connect(self.paste_cc_point)
+        else:
+            self.add_point_action.triggered.connect(self.add_pb_point)
         self.select_all_action = self.edit_menu.addAction("Select All")
         self.select_all_action.triggered.connect(self.select_all)
         self.edit_menu.addSeparator()
@@ -4902,7 +4906,74 @@ class automation_viewer_widget:
     def clear(self):
         self.automation_viewer.clear_current_item()
 
-    def add_point(self):
+    def paste_cc_point(self):
+        if pydaw_widgets.global_cc_clipboard is None:
+            QtGui.QMessageBox.warning(self.widget, "Error", "Nothing copied to the clipboard.\n"
+                "Right-click->'Copy Automation' on any knob on any plugin.")
+            return
+        self.add_cc_point(pydaw_widgets.global_cc_clipboard)
+
+    def add_cc_point(self, a_value=None):
+        if not this_item_editor.enabled:  #TODO:  Make this global...
+            this_item_editor.show_not_enabled_warning()
+            return
+
+        def ok_handler():
+            f_bar = f_bar_spinbox.value() - 1
+            f_item = this_item_editor.items[f_bar]
+
+            f_cc = pydaw_cc(f_pos_spinbox.value() - 1.0,
+                            self.automation_viewer.plugin_index,
+                            self.automation_viewer.cc_num,
+                            f_value_spinbox.value())
+            f_item.add_cc(f_cc)
+
+            this_pydaw_project.save_item(this_item_editor.item_names[f_bar],
+                                         this_item_editor.items[f_bar])
+            global_open_items()
+            this_pydaw_project.commit("Add automation point")
+
+        def cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Add automation point")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_layout.addWidget(QtGui.QLabel("Position (bars)"), 2, 0)
+        f_bar_spinbox = QtGui.QSpinBox()
+        f_bar_spinbox.setRange(1, len(global_open_items_uids))
+        f_layout.addWidget(f_bar_spinbox, 2, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Position (beats)"), 5, 0)
+        f_pos_spinbox = QtGui.QDoubleSpinBox()
+        f_pos_spinbox.setRange(1.0, 4.99)
+        f_pos_spinbox.setDecimals(2)
+        f_pos_spinbox.setSingleStep(0.25)
+        f_layout.addWidget(f_pos_spinbox, 5, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Value"), 10, 0)
+        f_value_spinbox = QtGui.QDoubleSpinBox()
+        f_value_spinbox.setRange(0.0, 127.0)
+        f_value_spinbox.setDecimals(4)
+        if a_value is not None:
+            f_value_spinbox.setValue(a_value)
+        f_layout.addWidget(f_value_spinbox, 10, 1)
+
+        f_ok = QtGui.QPushButton("Add")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addWidget(f_ok)
+
+        f_layout.addLayout(f_ok_cancel_layout, 40, 1)
+        f_cancel = QtGui.QPushButton("Close")
+        f_cancel.pressed.connect(cancel_handler)
+        f_ok_cancel_layout.addWidget(f_cancel)
+        f_window.exec_()
+
+
+    def add_pb_point(self):
         if not this_item_editor.enabled:  #TODO:  Make this global...
             this_item_editor.show_not_enabled_warning()
             return
@@ -4922,7 +4993,7 @@ class automation_viewer_widget:
             this_pydaw_project.save_item(this_item_editor.item_names[f_bar],
                                          this_item_editor.items[f_bar])
             global_open_items()
-            this_pydaw_project.commit("Add automation point")
+            this_pydaw_project.commit("Add pitchbend automation point")
 
         def cancel_handler():
             f_window.close()
