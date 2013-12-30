@@ -2461,7 +2461,8 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.eq6 = eq6_widget(pydaw_ports.MODULEX_EQ_ON,
                               self.plugin_rel_callback, self.plugin_val_callback,
-                              self.port_dict, a_preset_mgr=None, a_size=f_knob_size)
+                              self.port_dict, a_preset_mgr=self.preset_manager,
+                              a_size=f_knob_size)
 
         self.tab_widget.addTab(self.eq6.widget, "EQ")
 
