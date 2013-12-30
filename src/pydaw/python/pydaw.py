@@ -4670,27 +4670,27 @@ class automation_viewer(QtGui.QGraphicsView):
         f_bar_pen.setWidth(2)
         f_bar_pen.setColor(QtGui.QColor(224, 60, 60))
         f_line_pen = QtGui.QPen()
-        f_line_pen.setColor(QtGui.QColor(0,0,0,40))
+        f_line_pen.setColor(QtGui.QColor(0, 0, 0, 40))
         if self.is_cc:
             f_labels = [0, '127', 0, '64', 0, '0']
         else:
             f_labels = [0, '1.0', 0, '0', 0, '-1.0']
         for i in range(1,6):
             f_line = QtGui.QGraphicsLineItem(0, 0, self.viewer_width, 0, self.y_axis)
-            f_line.setPos(self.axis_size,self.viewer_height*(i-1)/4)
+            f_line.setPos(self.axis_size, self.viewer_height * (i - 1) / 4)
             if i % 2:
                 f_label = QtGui.QGraphicsSimpleTextItem(f_labels[i], self.y_axis)
-                f_label.setPos(1, self.viewer_height*(i-1)/4)
+                f_label.setPos(1, self.viewer_height * (i - 1) / 4)
                 f_label.setBrush(QtCore.Qt.white)
             if i == 3:
                 f_line.setPen(f_beat_pen)
 
-        for i in range(0, int(self.item_length)+1):
+        for i in range(0, int(self.item_length) + 1):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0,
                                              self.viewer_height +
                                              self.axis_size-f_beat_pen.width(),
                                              self.x_axis)
-            f_beat.setPos(self.beat_width * i, 0.5*f_beat_pen.width())
+            f_beat.setPos(self.beat_width * i, 0.5 * f_beat_pen.width())
             f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_beat_number = i % 4
             if f_beat_number == 0 and not i == 0:
@@ -4699,7 +4699,7 @@ class automation_viewer(QtGui.QGraphicsView):
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
-                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.x_axis)
+                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number + 1), self.x_axis)
                 f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
@@ -4707,9 +4707,10 @@ class automation_viewer(QtGui.QGraphicsView):
                     f_line = QtGui.QGraphicsLineItem(0, 0, 0, self.viewer_height, self.x_axis)
                     if float(j) == self.grid_div / 2.0:
                         f_line.setLine(0, 0, 0, self.viewer_height)
-                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.axis_size)
+                        f_line.setPos((self.beat_width*i)+(self.value_width * j), self.axis_size)
                     else:
-                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.axis_size)
+                        f_line.setPos((self.beat_width * i) +
+                            (self.value_width * j), self.axis_size)
                         f_line.setPen(f_line_pen)
 
     def clear_drawn_items(self):
@@ -4912,7 +4913,7 @@ class automation_viewer_widget:
 
             f_value = pydaw_clip_value(f_epb_spinbox.value() / f_ipb_spinbox.value(),
                                        -1.0, 1.0, a_round=True)
-            f_pb = pydaw_pitchbend(f_pos_spinbox.value(), f_value)
+            f_pb = pydaw_pitchbend(f_pos_spinbox.value() - 1.0, f_value)
             f_item.add_pb(f_pb)
 
             global global_last_ipb_value
@@ -4941,7 +4942,7 @@ class automation_viewer_widget:
 
         f_layout.addWidget(QtGui.QLabel("Position (beats)"), 5, 0)
         f_pos_spinbox = QtGui.QDoubleSpinBox()
-        f_pos_spinbox.setRange(0.0, 3.99)
+        f_pos_spinbox.setRange(1.0, 4.99)
         f_pos_spinbox.setDecimals(2)
         f_pos_spinbox.setSingleStep(0.25)
         f_layout.addWidget(f_pos_spinbox, 5, 1)
