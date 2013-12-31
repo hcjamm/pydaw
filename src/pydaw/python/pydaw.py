@@ -1722,7 +1722,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_audio_items_viewer.scene.clearSelection()
             self.setSelected(True)
 
-    def show_context_menu(self, a_event):
+    def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(this_main_window)
         f_save_a_copy_action = QtGui.QAction("Save a copy", this_audio_items_viewer)
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
@@ -1735,7 +1735,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                                                 this_audio_items_viewer)
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
         f_menu.addAction(f_copy_file_path_action)
-        f_menu.exec_(a_event.screenPos())
+        f_menu.exec_(QtGui.QCursor.pos())
 
     def copy_file_path_to_clipboard(self):
         f_path = this_pydaw_project.get_wav_path_by_uid(self.audio_item.uid)
@@ -1772,10 +1772,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
-            return
-
-        if a_event.button() == QtCore.Qt.RightButton:
-            self.show_context_menu(a_event)
             return
 
         if a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
