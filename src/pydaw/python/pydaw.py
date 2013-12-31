@@ -3021,7 +3021,7 @@ class audio_items_viewer_widget():
         for f_i in range(self.list_file.count()):
             f_item = self.list_file.item(f_i)
             if str(f_item.text()) == str(a_file):
-                f_item.setSelected(True)
+                self.list_file.setCurrentRow(f_i)
                 break
 
     def set_v_zoom(self, a_val=None):
