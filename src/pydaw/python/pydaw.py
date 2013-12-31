@@ -3184,9 +3184,8 @@ class audio_item_editor_widget:
         self.vlayout2.addLayout(self.crispness_layout)
         self.crispness_layout.addWidget(QtGui.QLabel("Crispness"))
         self.crispness_combobox = QtGui.QComboBox()
-        self.crispness_combobox.addItems(["0 (smeared)", "1 (good for piano)",
-                                          "2", "3", "4", "5 (normal)",
-        "6 (sharp, good for drums)"])
+        self.crispness_combobox.addItems(["0 (smeared)", "1 (piano)", "2", "3",
+                                          "4", "5 (normal)", "6 (sharp, drums)"])
         self.crispness_combobox.setCurrentIndex(5)
         self.crispness_layout.addWidget(self.crispness_combobox)
 
