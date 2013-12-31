@@ -1371,11 +1371,23 @@ global_audio_item_height = 75.0
 
 global_audio_item_handle_height = 12.0
 global_audio_item_handle_size = 6.25
+
 global_audio_item_handle_brush = QtGui.QLinearGradient(0.0, 0.0, global_audio_item_handle_size,
                                                        global_audio_item_handle_height)
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
+
+global_audio_item_handle_selected_brush = \
+    QtGui.QLinearGradient(0.0, 0.0, global_audio_item_handle_size,
+                          global_audio_item_handle_height)
+global_audio_item_handle_selected_brush.setColorAt(0.0, QtGui.QColor.fromRgb(24, 24, 24, 120))
+global_audio_item_handle_selected_brush.setColorAt(0.0, QtGui.QColor.fromRgb(24, 24, 24, 90))
+
+
 global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
+global_audio_item_line_pen = QtGui.QPen(QtCore.Qt.white, 2.0)
+global_audio_item_handle_selected_pen = QtGui.QPen(QtGui.QColor.fromRgb(24, 24, 24))
+global_audio_item_line_selected_pen = QtGui.QPen(QtGui.QColor.fromRgb(24, 24, 24), 2.0)
 
 global_audio_item_max_lane = 23
 global_audio_item_lane_count = 24
@@ -1419,22 +1431,18 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle.setAcceptHoverEvents(True)
         self.start_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.start_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.start_handle.setBrush(global_audio_item_handle_brush)
-        self.start_handle.setPen(global_audio_item_handle_pen)
         self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
                                                 global_audio_item_handle_height))
         self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
         self.start_handle_line = QtGui.QGraphicsLineItem(0.0, global_audio_item_handle_height, 0.0,
         (global_audio_item_height * -1.0) + global_audio_item_handle_height, self.start_handle)
 
-        self.start_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.start_handle_line.setPen(global_audio_item_line_pen)
 
         self.length_handle = QtGui.QGraphicsRectItem(parent=self)
         self.length_handle.setAcceptHoverEvents(True)
         self.length_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.length_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.length_handle.setBrush(global_audio_item_handle_brush)
-        self.length_handle.setPen(global_audio_item_handle_pen)
         self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
                                                  global_audio_item_handle_height))
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
@@ -1444,38 +1452,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                                                   (global_audio_item_height * -1.0) +
                                                   global_audio_item_handle_height,
                                                   self.length_handle)
-        self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
 
         self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_in_handle.setAcceptHoverEvents(True)
         self.fade_in_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.fade_in_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.fade_in_handle.setBrush(global_audio_item_handle_brush)
-        self.fade_in_handle.setPen(global_audio_item_handle_pen)
         self.fade_in_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
                                                   global_audio_item_handle_height))
         self.fade_in_handle.mousePressEvent = self.fade_in_handle_mouseClickEvent
         self.fade_in_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
-        self.fade_in_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
 
         self.fade_out_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_out_handle.setAcceptHoverEvents(True)
         self.fade_out_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.fade_out_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.fade_out_handle.setBrush(global_audio_item_handle_brush)
-        self.fade_out_handle.setPen(global_audio_item_handle_pen)
         self.fade_out_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
                                                    global_audio_item_handle_height))
         self.fade_out_handle.mousePressEvent = self.fade_out_handle_mouseClickEvent
         self.fade_out_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
-        self.fade_out_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
 
         self.stretch_handle = QtGui.QGraphicsRectItem(parent=self)
         self.stretch_handle.setAcceptHoverEvents(True)
         self.stretch_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.stretch_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.stretch_handle.setBrush(global_audio_item_handle_brush)
-        self.stretch_handle.setPen(global_audio_item_handle_pen)
         self.stretch_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
                                                   global_audio_item_handle_height))
         self.stretch_handle.mousePressEvent = self.stretch_handle_mouseClickEvent
@@ -1484,14 +1483,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             global_audio_item_handle_size,
             (global_audio_item_height * 0.5) + (global_audio_item_handle_height * 0.5),
             self.stretch_handle)
-        self.stretch_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
         self.stretch_handle.hide()
 
         self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, global_audio_item_height, self)
         self.split_line.mapFromParent(0.0, 0.0)
         self.split_line.hide()
         self.split_line_is_shown = False
-        self.split_line.setPen(QtGui.QPen(QtCore.Qt.white, 1.0))
 
         self.setAcceptHoverEvents(True)
 
@@ -1643,10 +1640,46 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def set_brush(self, a_index=None):
         if self.isSelected():
             self.setBrush(pydaw_selected_gradient)
+            self.start_handle.setPen(global_audio_item_handle_selected_pen)
+            self.length_handle.setPen(global_audio_item_handle_selected_pen)
+            self.fade_in_handle.setPen(global_audio_item_handle_selected_pen)
+            self.fade_out_handle.setPen(global_audio_item_handle_selected_pen)
+            self.stretch_handle.setPen(global_audio_item_handle_selected_pen)
+            self.split_line.setPen(global_audio_item_handle_selected_pen)
+
+            self.start_handle_line.setPen(global_audio_item_line_selected_pen)
+            self.length_handle_line.setPen(global_audio_item_line_selected_pen)
+            self.fade_in_handle_line.setPen(global_audio_item_line_selected_pen)
+            self.fade_out_handle_line.setPen(global_audio_item_line_selected_pen)
+            self.stretch_handle_line.setPen(global_audio_item_line_selected_pen)
+
+            self.start_handle.setBrush(global_audio_item_handle_selected_brush)
+            self.length_handle.setBrush(global_audio_item_handle_selected_brush)
+            self.fade_in_handle.setBrush(global_audio_item_handle_selected_brush)
+            self.fade_out_handle.setBrush(global_audio_item_handle_selected_brush)
+            self.stretch_handle.setBrush(global_audio_item_handle_selected_brush)
         else:
+            self.start_handle.setPen(global_audio_item_handle_pen)
+            self.length_handle.setPen(global_audio_item_handle_pen)
+            self.fade_in_handle.setPen(global_audio_item_handle_pen)
+            self.fade_out_handle.setPen(global_audio_item_handle_pen)
+            self.stretch_handle.setPen(global_audio_item_handle_pen)
+            self.split_line.setPen(global_audio_item_handle_pen)
+
+            self.start_handle_line.setPen(global_audio_item_line_pen)
+            self.length_handle_line.setPen(global_audio_item_line_pen)
+            self.fade_in_handle_line.setPen(global_audio_item_line_pen)
+            self.fade_out_handle_line.setPen(global_audio_item_line_pen)
+            self.stretch_handle_line.setPen(global_audio_item_line_pen)
+
+            self.start_handle.setBrush(global_audio_item_handle_brush)
+            self.length_handle.setBrush(global_audio_item_handle_brush)
+            self.fade_in_handle.setBrush(global_audio_item_handle_brush)
+            self.fade_out_handle.setBrush(global_audio_item_handle_brush)
+            self.stretch_handle.setBrush(global_audio_item_handle_brush)
             if a_index is None:
-                self.setBrush(
-                pydaw_track_gradients[self.audio_item.lane_num % len(pydaw_track_gradients)])
+                self.setBrush(pydaw_track_gradients[
+                self.audio_item.lane_num % len(pydaw_track_gradients)])
             else:
                 self.setBrush(pydaw_track_gradients[a_index % len(pydaw_track_gradients)])
 
