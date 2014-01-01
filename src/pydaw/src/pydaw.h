@@ -4627,7 +4627,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
  * int a_bar) //The bar index (with a_region) to start playback on
  */
 void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
-        int a_region, int a_bar)
+        int a_region, int a_bar, int a_lock)
 {
     switch(a_mode)
     {
@@ -4639,7 +4639,12 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
             {
                 f_was_recording = 1;
             }
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+            if(a_lock)
+            {
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            }
+
             a_pydaw_data->suppress_new_audio_items = 1;
             //Fade out the playing audio tracks
             if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region])
@@ -4655,10 +4660,20 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                     f_i++;
                 }
             }
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+            if(a_lock)
+            {
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            }
+
             f_i = 0;
             usleep(60000);
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+            if(a_lock)
+            {
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            }
+
             a_pydaw_data->suppress_new_audio_items = 0;
             a_pydaw_data->playback_mode = a_mode;
             //Send zero pitchbend messages so the plugins pitch isn't off
@@ -4678,7 +4693,11 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                 }
                 f_i++;
             }
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+            if(a_lock)
+            {
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            }
 
             //Things must be saved in the order of:  items|regions|song,
             //otherwise it will SEGFAULT from not having a name yet...
@@ -4736,7 +4755,11 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
         }
             break;
         case 1:  //play
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        {
+            if(a_lock)
+            {
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            }
             a_pydaw_data->playback_mode = a_mode;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             if(a_pydaw_data->ab_wav_item)
@@ -4750,14 +4773,23 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                     v_adsr_retrigger(a_pydaw_data->ab_audio_item->adsr);
                 }
             }
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+            if(a_lock)
+            {
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            }
+
             break;
+        }
         case 2:  //record
             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
             {
                 return;
             }
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            if(a_lock)
+            {
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            }
             a_pydaw_data->is_ab_ing = 0;
             a_pydaw_data->recording_first_item = -1;
             a_pydaw_data->recorded_note_current_beat = 0;
@@ -4765,7 +4797,11 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
             a_pydaw_data->recording_in_current_bar = 0;
             a_pydaw_data->recording_current_item_pool_index = -1;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+
+            if(a_lock)
+            {
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            }
             break;
     }
 
@@ -4867,10 +4903,7 @@ void v_pydaw_set_is_soloed(t_pydaw_data * a_pydaw_data)
 
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
     a_pydaw_data->loop_mode = a_mode;
-
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
 }
 
 void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
@@ -5160,6 +5193,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
         int a_end_bar, char * a_file_out, int a_is_audio_glue)
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
     a_pydaw_data->is_offline_rendering = 1;
     a_pydaw_data->input_buffers_active = 0;
     int f_ab_old = a_pydaw_data->ab_mode;
@@ -5205,7 +5240,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
 
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY,
-            a_start_region, a_start_bar);
+            a_start_region, a_start_bar, 0);
 
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
@@ -5238,7 +5273,6 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
             f_i++;
         }
 
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
         f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;
 
         if(a_is_audio_glue)
@@ -5255,7 +5289,6 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
         }
 
         a_pydaw_data->current_sample = f_next_sample_block;
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
 
         f_i = 0;
         /*Interleave the samples...*/
@@ -5277,7 +5310,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
             f_size, f_sample_count_long, (f_sample_count_long - f_size));
 
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region,
-            a_start_bar);
+            a_start_bar, 0);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
 
     sf_close(f_sndfile);
@@ -5298,7 +5331,9 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
 
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;
+
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
+    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
 }
 
 

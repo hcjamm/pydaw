@@ -1395,7 +1395,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
                 PYDAW_SMALL_STRING);
         int f_region = atoi(f_arr->array[0]);
         int f_bar = atoi(f_arr->array[1]);
-        v_set_playback_mode(a_pydaw_data, 1, f_region, f_bar);
+        v_set_playback_mode(a_pydaw_data, 1, f_region, f_bar, 1);
         g_free_1d_char_array(f_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC)) //Begin recording
@@ -1404,12 +1404,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
                 PYDAW_SMALL_STRING);
         int f_region = atoi(f_arr->array[0]);
         int f_bar = atoi(f_arr->array[1]);
-        v_set_playback_mode(a_pydaw_data, 2, f_region, f_bar);
+        v_set_playback_mode(a_pydaw_data, 2, f_region, f_bar, 1);
         g_free_1d_char_array(f_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP))
     {
-        v_set_playback_mode(a_pydaw_data, 0, -1, -1);
+        v_set_playback_mode(a_pydaw_data, 0, -1, -1, 1);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR))
     {
@@ -1495,7 +1495,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOOP)) //Set loop mode
     {
         int f_value = atoi(a_value);
+
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
         v_set_loop_mode(a_pydaw_data, f_value);
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OS)) //Open Song
     {
