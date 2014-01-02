@@ -1415,6 +1415,7 @@ class eq_widget:
     def __init__(self, a_number, a_freq_port, a_res_port, a_gain_port, a_rel_callback,
                  a_val_callback, a_default_value, a_port_dict=None, a_preset_mgr=None, a_size=48):
         self.groupbox = QtGui.QGroupBox("EQ{}".format(a_number))
+        self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
 
         self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port, a_rel_callback,
