@@ -131,6 +131,9 @@ kc_127_zero_to_x = 5
 kc_log_time = 6
 kc_127_zero_to_x_int = 7
 kc_time_decimal = 8
+kc_hz_decimal = 9
+
+global_last_tempo_combobox_index = 2
 
 class pydaw_abstract_ui_control:
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback,
@@ -188,7 +191,8 @@ class pydaw_abstract_ui_control:
             if self.val_conversion == kc_none:
                 pass
             elif self.val_conversion == kc_decimal or \
-            self.val_conversion == kc_time_decimal:
+            self.val_conversion == kc_time_decimal or \
+            self.val_conversion == kc_hz_decimal:
                 self.value_label.setText(str(round(f_value * .01, 2)))
             elif self.val_conversion == kc_integer:
                 self.value_label.setText(str(int(f_value)))
@@ -243,14 +247,20 @@ class pydaw_abstract_ui_control:
         f_dialog.exec_()
 
     def tempo_sync_dialog(self):
-        def sync_button_pressed(a_self=None, a_val=None):
+        def sync_button_pressed(a_self=None):
+            global global_last_tempo_combobox_index
             f_frac = 1.0
             f_switch = (f_beat_frac_combobox.currentIndex())
-            f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75, 5 : 1.0}
+            f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75,
+                      5 : 1.0, 6 : 2.0, 7 : 4.0}
             f_frac = f_dict[f_switch]
-            f_seconds_per_beat = 60/(f_spinbox.value())
-            f_result = int(f_seconds_per_beat * f_frac * 100)
+            f_seconds_per_beat = 60 / (f_spinbox.value())
+            if self.val_conversion == kc_time_decimal:
+                f_result = int(f_seconds_per_beat * f_frac * 100)
+            elif self.val_conversion == kc_hz_decimal:
+                f_result = int((1.0 / (f_seconds_per_beat * f_frac)) * 100)
             self.control.setValue(f_result)
+            global_last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
         f_dialog.setWindowTitle("Tempo Sync")
@@ -260,18 +270,18 @@ class pydaw_abstract_ui_control:
         f_spinbox.setRange(60, 200)
         f_spinbox.setSingleStep(0.1)
         f_spinbox.setValue(global_tempo)
-        f_beat_fracs = ["1/4", "1/3", "1/2", "2/3", "3/4", "1"]
+        f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16", "1/4", "2/4", "4/4"]
         f_beat_frac_combobox =  QtGui.QComboBox()
         f_beat_frac_combobox.setMinimumWidth(75)
         f_beat_frac_combobox.addItems(f_beat_fracs)
-        f_beat_frac_combobox.setCurrentIndex(2)
+        f_beat_frac_combobox.setCurrentIndex(global_last_tempo_combobox_index)
         f_sync_button =  QtGui.QPushButton("Sync")
         f_sync_button.pressed.connect(sync_button_pressed)
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_cancel_button.pressed.connect(f_dialog.close)
         f_groupbox_layout.addWidget(QtGui.QLabel("BPM"), 0, 0)
         f_groupbox_layout.addWidget(f_spinbox, 1, 0)
-        f_groupbox_layout.addWidget(QtGui.QLabel("Beats"), 0, 1)
+        f_groupbox_layout.addWidget(QtGui.QLabel("Length"), 0, 1)
         f_groupbox_layout.addWidget(f_beat_frac_combobox, 1, 1)
         f_groupbox_layout.addWidget(f_cancel_button, 2, 0)
         f_groupbox_layout.addWidget(f_sync_button, 2, 1)
@@ -295,11 +305,10 @@ class pydaw_abstract_ui_control:
         f_copy_automation_action = QtGui.QAction("Copy Automation", self.control)
         f_copy_automation_action.triggered.connect(self.copy_automation)
         f_menu.addAction(f_copy_automation_action)
-        if self.val_conversion == kc_time_decimal:
+        if self.val_conversion == kc_time_decimal or self.val_conversion == kc_hz_decimal:
             f_tempo_sync_action = QtGui.QAction("Tempo Sync", self.control)
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
             f_menu.addAction(f_tempo_sync_action)
-
         f_menu.exec_(QtGui.QCursor.pos())
 
 
@@ -497,9 +506,9 @@ class pydaw_adsr_widget:
                  a_port_dict=None, a_preset_mgr=None, a_attack_default=10):
         self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback,
                                               a_val_callback, 0, 200, a_attack_default,
-                                              kc_decimal, a_port_dict, a_preset_mgr)
+                                              kc_time_decimal, a_port_dict, a_preset_mgr)
         self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback,
-                                             a_val_callback, 10, 200, 50, kc_decimal,
+                                             a_val_callback, 10, 200, 50, kc_time_decimal,
                                              a_port_dict, a_preset_mgr)
         if a_sustain_in_db:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port,
@@ -513,7 +522,7 @@ class pydaw_adsr_widget:
                                                    a_preset_mgr)
         self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port,
                                                a_rel_callback, a_val_callback, 10,
-                                               400, 50, kc_decimal, a_port_dict, a_preset_mgr)
+                                               400, 50, kc_time_decimal, a_port_dict, a_preset_mgr)
         self.groupbox = QtGui.QGroupBox(a_label)
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
@@ -599,7 +608,7 @@ class pydaw_ramp_env_widget:
             self.amt_knob.add_to_grid_layout(self.layout, 0)
         self.time_knob = pydaw_knob_control(a_size, "Time", a_time_port,
                                             a_rel_callback, a_val_callback,
-                                            1, 600, 100, kc_decimal, a_port_dict,
+                                            1, 600, 100, kc_time_decimal, a_port_dict,
                                             a_preset_mgr)
         self.time_knob.add_to_grid_layout(self.layout, 1)
         if a_curve_port is not None:
@@ -618,7 +627,7 @@ class pydaw_lfo_widget:
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port,
                                             a_rel_callback, a_val_callback,
-                                            10, 1600, 200, kc_time_decimal, a_port_dict,
+                                            10, 1600, 200, kc_hz_decimal, a_port_dict,
                                             a_preset_mgr)
         self.freq_knob.add_to_grid_layout(self.layout, 0)
         self.type_combobox = pydaw_combobox_control(120, "Type", a_type_port,
@@ -1170,7 +1179,7 @@ class pydaw_master_widget:
             self.uni_spread_knob.add_to_grid_layout(self.layout, 2)
         self.glide_knob = pydaw_knob_control(a_size, "Glide", a_master_glide_port,
                                              a_rel_callback, a_val_callback,
-                                             0, 200, 0, kc_decimal, a_port_dict, a_preset_mgr)
+                                             0, 200, 0, kc_time_decimal, a_port_dict, a_preset_mgr)
         self.glide_knob.add_to_grid_layout(self.layout, 3)
         self.pb_knob = pydaw_knob_control(a_size, "Pitchbend", a_master_pitchbend_port,
                                           a_rel_callback, a_val_callback, 1, 36, 18,
