@@ -204,10 +204,11 @@ extern "C" {
 #define WAYV_PERC_ENV_TIME2 159
 #define WAYV_PERC_ENV_PITCH2 160
 #define WAYV_PERC_ENV_ON 161
+#define WAYV_RAMP_CURVE 162
 
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 162
+#define WAYV_COUNT 163
 
 #define WAYV_POLYPHONY   16
 
@@ -291,6 +292,7 @@ typedef struct
 
     PYFX_Data *pitch_env_time;
     PYFX_Data *pitch_env_amt;
+    PYFX_Data *ramp_curve;
 
     PYFX_Data *lfo_freq;
     PYFX_Data *lfo_type;

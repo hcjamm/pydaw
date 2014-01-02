@@ -349,6 +349,8 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_PERC_ENV_PITCH2: plugin->perc_env_pitch2 = data; break;
         case WAYV_PERC_ENV_TIME2: plugin->perc_env_time2 = data; break;
         case WAYV_PERC_ENV_ON: plugin->perc_env_on = data; break;
+
+        case WAYV_RAMP_CURVE: plugin->ramp_curve = data; break;
     }
 }
 
@@ -371,7 +373,8 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
 
     plugin_data->voices = g_voc_get_voices(WAYV_POLYPHONY);
 
-    for (i=0; i<WAYV_POLYPHONY; i++) {
+    for (i = 0; i < WAYV_POLYPHONY; i++)
+    {
         plugin_data->data[i] = g_wayv_poly_init(plugin_data->fs);
         plugin_data->data[i]->note_f = i;
     }
@@ -408,7 +411,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice]->amp =
                         f_db_to_linear_fast(
-                        ((events[(plugin_data->event_pos)].velocity * 0.094488) - 12), //-12db to 0db
+                        ((events[(plugin_data->event_pos)].velocity
+                        * 0.094488) - 12), //-12db to 0db
                         plugin_data->mono_modules->amp_ptr);
 
                 plugin_data->data[f_voice]->master_vol_lin =
@@ -417,13 +421,17 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                             plugin_data->mono_modules->amp_ptr);
 
                 plugin_data->data[f_voice]->keyboard_track =
-                        ((float)(events[(plugin_data->event_pos)].note)) * 0.007874016f;
+                        ((float)(events[(plugin_data->event_pos)].note))
+                        * 0.007874016f;
 
                 plugin_data->data[f_voice]->velocity_track =
-                        ((float)(events[(plugin_data->event_pos)].velocity)) * 0.007874016f;
+                        ((float)(events[(plugin_data->event_pos)].velocity))
+                        * 0.007874016f;
 
-                plugin_data->data[f_voice]->note_f = (float)events[(plugin_data->event_pos)].note;
-                plugin_data->data[f_voice]->note = events[(plugin_data->event_pos)].note;
+                plugin_data->data[f_voice]->note_f =
+                        (float)events[(plugin_data->event_pos)].note;
+                plugin_data->data[f_voice]->note =
+                        events[(plugin_data->event_pos)].note;
 
                 plugin_data->data[f_voice]->target_pitch =
                         (plugin_data->data[f_voice]->note_f);
@@ -531,8 +539,10 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable1,
-                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->wavetable,
-                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->length);
+                            plugin_data->data[f_voice]->
+                            wavetables->tables[f_osc_type1]->wavetable,
+                            plugin_data->data[f_voice]->wavetables->
+                            tables[f_osc_type1]->length);
                     v_osc_wav_set_uni_voice_count(
                             plugin_data->data[f_voice]->osc_wavtable1,
                             *plugin_data->osc1_uni_voice);
@@ -553,8 +563,10 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable2,
-                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->wavetable,
-                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->length);
+                            plugin_data->data[f_voice]->wavetables->
+                            tables[f_osc_type2]->wavetable,
+                            plugin_data->data[f_voice]->wavetables->
+                            tables[f_osc_type2]->length);
 
                     v_osc_wav_set_uni_voice_count(
                             plugin_data->data[f_voice]->osc_wavtable2,
@@ -576,8 +588,10 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable3,
-                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type3]->wavetable,
-                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type3]->length);
+                            plugin_data->data[f_voice]->wavetables->
+                            tables[f_osc_type3]->wavetable,
+                            plugin_data->data[f_voice]->wavetables->
+                            tables[f_osc_type3]->length);
 
                     v_osc_wav_set_uni_voice_count(
                             plugin_data->data[f_voice]->osc_wavtable3,
@@ -591,7 +605,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 /*Set the last_note property, so the next note can glide from
                  * it if glide is turned on*/
-                plugin_data->sv_last_note = (plugin_data->data[f_voice]->note_f);
+                plugin_data->sv_last_note =
+                        (plugin_data->data[f_voice]->note_f);
 
 
                 plugin_data->active_polyfx_count[f_voice] = 0;
@@ -607,12 +622,17 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     if(f_pfx_combobox_index != 0)
                     {
-                        plugin_data->active_polyfx[f_voice][(plugin_data->active_polyfx_count[f_voice])] = (plugin_data->i_dst);
-                        plugin_data->active_polyfx_count[f_voice] = (plugin_data->active_polyfx_count[f_voice]) + 1;
+                        plugin_data->active_polyfx[f_voice]
+                                [(plugin_data->active_polyfx_count[f_voice])] =
+                                (plugin_data->i_dst);
+                        plugin_data->active_polyfx_count[f_voice] =
+                                (plugin_data->active_polyfx_count[f_voice]) + 1;
                     }
                 }
 
-                //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
+                /*Calculate an index of which mod_matrix controls to process.
+                 * This saves expensive iterations and if/then logic in
+                 * the main loop*/
                 for(plugin_data->i_fx_grps = 0;
                     (plugin_data->i_fx_grps) < WAYV_EFFECTS_GROUPS_COUNT;
                     plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
@@ -644,17 +664,26 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->noise_func_ptr =
                         fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
 
-                plugin_data->data[f_voice]->osc1_uni_spread = (*plugin_data->osc1_uni_spread) * 0.01f;
-                plugin_data->data[f_voice]->osc2_uni_spread = (*plugin_data->osc2_uni_spread) * 0.01f;
-                plugin_data->data[f_voice]->osc3_uni_spread = (*plugin_data->osc3_uni_spread) * 0.01f;
+                plugin_data->data[f_voice]->osc1_uni_spread =
+                        (*plugin_data->osc1_uni_spread) * 0.01f;
+                plugin_data->data[f_voice]->osc2_uni_spread =
+                        (*plugin_data->osc2_uni_spread) * 0.01f;
+                plugin_data->data[f_voice]->osc3_uni_spread =
+                        (*plugin_data->osc3_uni_spread) * 0.01f;
 
-                plugin_data->data[f_voice]->osc1fm1 = (*plugin_data->osc1fm1) * 0.005f;
-                plugin_data->data[f_voice]->osc1fm2 = (*plugin_data->osc1fm2) * 0.005f;
-                plugin_data->data[f_voice]->osc1fm3 = (*plugin_data->osc1fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc1fm1 =
+                        (*plugin_data->osc1fm1) * 0.005f;
+                plugin_data->data[f_voice]->osc1fm2 =
+                        (*plugin_data->osc1fm2) * 0.005f;
+                plugin_data->data[f_voice]->osc1fm3 =
+                        (*plugin_data->osc1fm3) * 0.005f;
 
-                plugin_data->data[f_voice]->osc2fm1 = (*plugin_data->osc2fm1) * 0.005f;
-                plugin_data->data[f_voice]->osc2fm2 = (*plugin_data->osc2fm2) * 0.005f;
-                plugin_data->data[f_voice]->osc2fm3 = (*plugin_data->osc2fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc2fm1 =
+                        (*plugin_data->osc2fm1) * 0.005f;
+                plugin_data->data[f_voice]->osc2fm2 =
+                        (*plugin_data->osc2fm2) * 0.005f;
+                plugin_data->data[f_voice]->osc2fm3 =
+                        (*plugin_data->osc2fm3) * 0.005f;
 
                 plugin_data->data[f_voice]->osc3fm1 = (*plugin_data->osc3fm1) * 0.005f;
                 plugin_data->data[f_voice]->osc3fm2 = (*plugin_data->osc3fm2) * 0.005f;
@@ -687,8 +716,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (*(plugin_data->sustain_f) * .01), f_release_f);
 
                 /*Retrigger the pitch envelope*/
-                v_rmp_retrigger((plugin_data->data[f_voice]->ramp_env),
-                        (*(plugin_data->pitch_env_time) * .01), 1.0f);
+                v_rmp_retrigger_curve((plugin_data->data[f_voice]->ramp_env),
+                        (*(plugin_data->pitch_env_time) * .01), 1.0f,
+                        (*plugin_data->ramp_curve) * 0.01f);
 
                 plugin_data->data[f_voice]->noise_amp =
                         f_db_to_linear(*(plugin_data->noise_amp),
@@ -727,20 +757,27 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             //The host already filters out messages for other instruments
             if (events[plugin_data->event_pos].plugin_index != -1)
             {
-                assert(events[plugin_data->event_pos].port >= WAYV_FIRST_CONTROL_PORT &&
+                assert(events[plugin_data->event_pos].port >=
+                        WAYV_FIRST_CONTROL_PORT &&
                         events[plugin_data->event_pos].port < WAYV_COUNT);
 
-                plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_CONTROLLER;
-                plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
-                plugin_data->midi_event_ports[plugin_data->midi_event_count] = events[plugin_data->event_pos].port;
-                plugin_data->midi_event_values[plugin_data->midi_event_count] = events[plugin_data->event_pos].value;
+                plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                        PYDAW_EVENT_CONTROLLER;
+                plugin_data->midi_event_ticks[plugin_data->midi_event_count] =
+                        events[plugin_data->event_pos].tick;
+                plugin_data->midi_event_ports[plugin_data->midi_event_count] =
+                        events[plugin_data->event_pos].port;
+                plugin_data->midi_event_values[plugin_data->midi_event_count] =
+                        events[plugin_data->event_pos].value;
                 plugin_data->midi_event_count++;
             }
         }
         else if (events[(plugin_data->event_pos)].type == PYDAW_EVENT_PITCHBEND)
         {
-            plugin_data->midi_event_types[plugin_data->midi_event_count] = PYDAW_EVENT_PITCHBEND;
-            plugin_data->midi_event_ticks[plugin_data->midi_event_count] = events[plugin_data->event_pos].tick;
+            plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                    PYDAW_EVENT_PITCHBEND;
+            plugin_data->midi_event_ticks[plugin_data->midi_event_count] =
+                    events[plugin_data->event_pos].tick;
             plugin_data->midi_event_values[plugin_data->midi_event_count] =
                     0.00012207 * events[plugin_data->event_pos].value;
             plugin_data->midi_event_count++;
@@ -760,7 +797,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
         {
             if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_PITCHBEND)
             {
-                plugin_data->sv_pitch_bend_value = plugin_data->midi_event_values[midi_event_pos];
+                plugin_data->sv_pitch_bend_value =
+                        plugin_data->midi_event_values[midi_event_pos];
             }
             else if(plugin_data->midi_event_types[midi_event_pos] == PYDAW_EVENT_CONTROLLER)
             {
@@ -836,7 +874,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     v_adsr_run(plugin_data->data[a_voice_num]->adsr_filter);
 
-    f_rmp_run_ramp(plugin_data->data[a_voice_num]->ramp_env);
+    f_rmp_run_ramp_curve(plugin_data->data[a_voice_num]->ramp_env);
 
     //Set and run the LFO
     v_lfs_set(plugin_data->data[a_voice_num]->lfo1,
@@ -889,12 +927,14 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
             a_voice->fm1_last =
                 f_osc_wav_run_unison(a_voice->osc_wavtable1)
                     * (a_voice->adsr_amp1->output);
-            a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
+            a_voice->current_sample +=
+                    (a_voice->fm1_last) * (a_voice->osc1_linamp);
         }
         else
         {
             a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1);
-            a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
+            a_voice->current_sample +=
+                    (a_voice->fm1_last) * (a_voice->osc1_linamp);
         }
     }
 
@@ -904,27 +944,35 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 ((a_voice->base_pitch) + (*plugin_data->osc2pitch) +
                 ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
 
-        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm1, a_voice->fm1_last);
-        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm2, a_voice->fm2_last);
-        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm3, a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm1,
+                a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm2,
+                a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm3,
+                a_voice->fm3_last);
 
         if(a_voice->adsr_amp2_on)
         {
             v_adsr_run_db(a_voice->adsr_amp2);
-            a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output);
-            a_voice->current_sample += (a_voice->fm2_last) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
+            a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2) *
+                    (a_voice->adsr_amp2->output);
+            a_voice->current_sample += (a_voice->fm2_last) *
+                    (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
         }
         else
         {
             a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2);
-            a_voice->current_sample += (a_voice->fm2_last) * (a_voice->osc2_linamp);
+            a_voice->current_sample += (a_voice->fm2_last) *
+                    (a_voice->osc2_linamp);
         }
     }
 
     if(a_voice->osc3_on)
     {
-        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3, (a_voice->osc3_uni_spread),
-                ((a_voice->base_pitch) + (*plugin_data->osc3pitch) + ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
+        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3,
+                (a_voice->osc3_uni_spread),
+                ((a_voice->base_pitch) + (*plugin_data->osc3pitch) +
+                ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
 
         v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm1, a_voice->fm1_last);
         v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm2, a_voice->fm2_last);
@@ -933,8 +981,10 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         if(a_voice->adsr_amp3_on)
         {
             v_adsr_run_db(a_voice->adsr_amp3);
-            a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->adsr_amp3->output);
-            a_voice->current_sample += (a_voice->fm3_last) * (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
+            a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3) *
+                    (a_voice->adsr_amp3->output);
+            a_voice->current_sample += (a_voice->fm3_last) *
+                    (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
         }
         else
         {
@@ -943,11 +993,13 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         }
     }
 
-    a_voice->current_sample += (a_voice->noise_func_ptr(a_voice->white_noise1) * (a_voice->noise_linamp)); // noise
+    a_voice->current_sample += (a_voice->noise_func_ptr(a_voice->white_noise1) *
+            (a_voice->noise_linamp)); // noise
 
     v_adsr_run_db(a_voice->adsr_main);
 
-    a_voice->current_sample = (a_voice->current_sample) * (a_voice->amp) * (a_voice->lfo_amp_output);
+    a_voice->current_sample = (a_voice->current_sample) * (a_voice->amp) *
+            (a_voice->lfo_amp_output);
 
     a_voice->modulex_current_sample[0] = (a_voice->current_sample);
     a_voice->modulex_current_sample[1] = (a_voice->current_sample);
@@ -1828,6 +1880,11 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_PERC_ENV_ON].DefaultValue = 0.0f;
 	port_range_hints[WAYV_PERC_ENV_ON].LowerBound =  0.0f;
         port_range_hints[WAYV_PERC_ENV_ON].UpperBound =  1.0f;
+
+        port_descriptors[WAYV_RAMP_CURVE] = 1;
+	port_range_hints[WAYV_RAMP_CURVE].DefaultValue = 50.0f;
+	port_range_hints[WAYV_RAMP_CURVE].LowerBound = 0.0f;
+	port_range_hints[WAYV_RAMP_CURVE].UpperBound = 100.0f;
 
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;

@@ -3064,7 +3064,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                 self.port_dict,
                                                 pydaw_ports.WAYV_RAMP_ENV_TIME,
                                                 pydaw_ports.WAYV_PITCH_ENV_AMT,
-                                                "Ramp Env", self.preset_manager)
+                                                "Ramp Env", self.preset_manager,
+                                                pydaw_ports.WAYV_RAMP_CURVE)
         self.pitch_env.amt_knob.name_label.setText("Pitch")
         self.pitch_env.amt_knob.control.setRange(-60, 60)
         self.hlayout7.addWidget(self.pitch_env.groupbox)
