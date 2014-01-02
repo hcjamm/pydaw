@@ -259,6 +259,8 @@ class pydaw_abstract_ui_control:
                 f_result = int(f_seconds_per_beat * f_frac * 100)
             elif self.val_conversion == kc_hz_decimal:
                 f_result = int((1.0 / (f_seconds_per_beat * f_frac)) * 100)
+            f_result = pydaw_util.pydaw_clip_value(f_result, self.control.minimum(),
+                                                   self.control.maximum())
             self.control.setValue(f_result)
             global_last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
@@ -287,6 +289,31 @@ class pydaw_abstract_ui_control:
         f_groupbox_layout.addWidget(f_sync_button, 2, 1)
         f_dialog.exec_()
 
+    def set_note_dialog(self):
+        def ok_button_pressed():
+            f_value = f_note_selector.get_value()
+            f_value = pydaw_util.pydaw_clip_value(f_value, self.control.minimum(),
+                                                  self.control.maximum())
+            self.set_value(f_value)
+            f_dialog.close()
+        f_dialog = QtGui.QDialog(self.control)
+        f_dialog.setMinimumWidth(210)
+        f_dialog.setWindowTitle("Set to Note")
+        f_vlayout =  QtGui.QVBoxLayout(f_dialog)
+        f_note_selector = pydaw_note_selector_widget(0, None, None)
+        f_note_selector.set_value(self.get_value())
+        f_vlayout.addWidget(f_note_selector.widget)
+        f_ok_button =  QtGui.QPushButton("OK")
+        f_ok_button.pressed.connect(ok_button_pressed)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_cancel_button.pressed.connect(f_dialog.close)
+        f_ok_cancel_layout.addWidget(f_cancel_button)
+        f_ok_cancel_layout.addWidget(f_ok_button)
+        f_vlayout.addLayout(f_ok_cancel_layout)
+        f_dialog.exec_()
+
+
     def copy_automation(self):
         global global_cc_clipboard
         f_value = ((self.get_value() - self.control.minimum()) /
@@ -296,19 +323,18 @@ class pydaw_abstract_ui_control:
 
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.control)
-        f_reset_action = QtGui.QAction("Reset to Default Value", self.control)
+        f_reset_action = f_menu.addAction("Reset to Default Value")
         f_reset_action.triggered.connect(self.reset_default_value)
-        f_menu.addAction(f_reset_action)
-        f_set_value_action = QtGui.QAction("Set Raw Controller Value", self.control)
+        f_set_value_action = f_menu.addAction("Set Raw Controller Value")
         f_set_value_action.triggered.connect(self.set_value_dialog)
-        f_menu.addAction(f_set_value_action)
-        f_copy_automation_action = QtGui.QAction("Copy Automation", self.control)
+        f_copy_automation_action = f_menu.addAction("Copy Automation")
         f_copy_automation_action.triggered.connect(self.copy_automation)
-        f_menu.addAction(f_copy_automation_action)
         if self.val_conversion == kc_time_decimal or self.val_conversion == kc_hz_decimal:
-            f_tempo_sync_action = QtGui.QAction("Tempo Sync", self.control)
+            f_tempo_sync_action = f_menu.addAction("Tempo Sync")
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
-            f_menu.addAction(f_tempo_sync_action)
+        if self.val_conversion == kc_pitch:
+            f_set_note_action = f_menu.addAction("Set to Note")
+            f_set_note_action.triggered.connect(self.set_note_dialog)
         f_menu.exec_(QtGui.QCursor.pos())
 
 
