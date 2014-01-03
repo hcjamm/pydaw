@@ -1310,7 +1310,7 @@ class region_list_editor:
     def table_drop_event(self, a_event):
         if a_event.pos().x() <= self.table_widget.columnWidth(0) or \
         a_event.pos().x() >= self.table_width:
-            print("Drop event out of bounds, ignoring...")
+            print(_("Drop event out of bounds, ignoring..."))
             a_event.ignore()
             return
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
@@ -1342,7 +1342,7 @@ def global_tablewidget_to_region():
         global_current_region.add_item_ref_by_name(f_tuple[0], f_tuple[1], f_tuple[2], f_uid_dict)
     this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()),
                                    global_current_region)
-    this_pydaw_project.commit("Edit region")
+    this_pydaw_project.commit(_("Edit region"))
 
 
 def global_update_audio_track_comboboxes(a_index=None, a_value=None):
@@ -1359,7 +1359,7 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
 
     global_suppress_audio_track_combobox_changes = False
 
-global_bus_track_names = ['Master', 'Bus1', 'Bus2', 'Bus3', 'Bus4']
+global_bus_track_names = [_('Master'), _('Bus1'), _('Bus2'), _('Bus3'), _('Bus4')]
 
 #TODO:  Clean these up...
 global_beats_per_minute = 140.0
@@ -1616,21 +1616,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip("Double click to open editor dialog\nClick and "
+            self.setToolTip(_("Double click to open editor dialog\nClick and "
                 "drag selected to move.\n"
                 "Shift+click to split items\nCtrl+drag to copy selected items\n"
                 "You can multi-select individual items by CTRL+Alt clicking on them.\n\n"
                 "You can glue together multiple items by selecting items and pressing CTRL+G\n"
                 ", the glued item will retain all of the fades, stretches and per-item fx of "
-                "the original items.\n")
-            self.start_handle.setToolTip("Use this handle to resize the item "
-                                         "by changing the start point.")
-            self.length_handle.setToolTip("Use this handle to resize the item "
-                                          "by changing the end point.")
-            self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
-            self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
-            self.stretch_handle.setToolTip("Use this handle to resize the item by "
-                                           "time-stretching it.")
+                "the original items.\n"))
+            self.start_handle.setToolTip(_("Use this handle to resize the item "
+                                         "by changing the start point."))
+            self.length_handle.setToolTip(_("Use this handle to resize the item "
+                                          "by changing the end point."))
+            self.fade_in_handle.setToolTip(_("Use this handle to change the fade in."))
+            self.fade_out_handle.setToolTip(_("Use this handle to change the fade out."))
+            self.stretch_handle.setToolTip(_("Use this handle to resize the item by "
+                                           "time-stretching it."))
         else:
             self.setToolTip("")
             self.start_handle.setToolTip("")
@@ -1777,14 +1777,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(this_main_window)
-        f_save_a_copy_action = QtGui.QAction("Save a copy", this_audio_items_viewer)
+        f_save_a_copy_action = QtGui.QAction(_("Save a copy"), this_audio_items_viewer)
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
         f_menu.addAction(f_save_a_copy_action)
-        f_open_folder_action = QtGui.QAction("Open parent folder in browser",
+        f_open_folder_action = QtGui.QAction(_("Open parent folder in browser"),
                                              this_audio_items_viewer)
         f_open_folder_action.triggered.connect(self.open_item_folder)
         f_menu.addAction(f_open_folder_action)
-        f_copy_file_path_action = QtGui.QAction("Copy file path to clipboard",
+        f_copy_file_path_action = QtGui.QAction(_("Copy file path to clipboard"),
                                                 this_audio_items_viewer)
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
         f_menu.addAction(f_copy_file_path_action)
@@ -1798,7 +1798,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def save_a_copy(self):
         global global_last_audio_item_dir
         f_file = QtGui.QFileDialog.getSaveFileName(parent=this_audio_items_viewer,
-                                                   caption='Save audio item as .wav',
+                                                   caption=_('Save audio item as .wav'),
                                                    directory=global_last_audio_item_dir)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
@@ -1817,11 +1817,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if os.path.isdir(f_dir):
             this_audio_items_viewer_widget.set_folder(f_dir, True)
             f_file = os.path.basename(f_path)
-            print("f_file {}".format(f_file,))
             this_audio_items_viewer_widget.select_file(f_file)
         else:
-            QtGui.QMessageBox.warning(this_main_window, "Error", \
-            "The folder did not exist:\n\n{}".format(f_dir))
+            QtGui.QMessageBox.warning(this_main_window, _("Error"), \
+            _("The folder did not exist:\n\n{}").format(f_dir))
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -1848,8 +1847,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
-                QtGui.QMessageBox.warning(self, "Error",
-                "No more available audio item slots, max per region is {}".format(
+                QtGui.QMessageBox.warning(self, _("Error"),
+                _("No more available audio item slots, max per region is {}").format(
                     pydaw_max_audio_item_count))
                 return
             else:
@@ -1879,7 +1878,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                                                                  f_per_item_fx_dict, False)
                 this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(
                     global_current_region.uid)
-            this_pydaw_project.commit("Split audio item")
+            this_pydaw_project.commit(_("Split audio item"))
             global_open_audio_items(True)
         else:
             if a_event.modifiers() == QtCore.Qt.ControlModifier:
@@ -2142,9 +2141,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item_old = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
-                            QtGui.QMessageBox.warning(self, "Error",
-                            "No more available audio item slots, max per region is"
-                            " {}".format(pydaw_max_audio_item_count))
+                            QtGui.QMessageBox.warning(self, _("Error"),
+                            _("No more available audio item slots, max per region is"
+                            " {}").format(pydaw_max_audio_item_count))
                             break
                         else:
                             f_audio_items.add_item(f_index, f_item_old)
@@ -2187,7 +2186,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0],
                                                            a_uid=f_stretch_item[1])
             this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_items)
-            this_pydaw_project.commit("Update audio items")
+            this_pydaw_project.commit(_("Update audio items"))
             global_open_audio_items(f_reset_selection)
 
 global_audio_items_header_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0,
@@ -2268,7 +2267,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsScene.contextMenuEvent(self.scene, a_event)
         self.context_menu_pos = a_event.scenePos()
         f_menu = QtGui.QMenu(this_main_window)
-        f_paste_action = QtGui.QAction("Paste file path from clipboard", self)
+        f_paste_action = QtGui.QAction(_("Paste file path from clipboard"), self)
         f_paste_action.triggered.connect(self.on_scene_paste_paths)
         f_menu.addAction(f_paste_action)
         f_menu.exec_(a_event.screenPos())
@@ -2277,14 +2276,15 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_clipboard = QtGui.QApplication.clipboard()
         f_path = f_clipboard.text()
         if f_path is None:
-            QtGui.QMessageBox.warning(self, "Error", "No text in the system clipboard")
+            QtGui.QMessageBox.warning(self, _("Error"), _("No text in the system clipboard"))
         else:
             f_path = str(f_path)
             if os.path.isfile(f_path):
                 self.add_items(self.context_menu_pos.x(), self.context_menu_pos.y(), [f_path])
             else:
                 f_path = f_path[100:]
-                QtGui.QMessageBox.warning(self, "Error", "{} is not a valid file".format(f_path))
+                QtGui.QMessageBox.warning(self, _("Error"),
+                                          _("{} is not a valid file").format(f_path))
 
     def scene_selection_changed(self):
         f_selected_items = []
@@ -2425,9 +2425,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
         this_transport.is_playing or this_transport.is_recording:
             return True
         if global_pydaw_subprocess is None:
-            QtGui.QMessageBox.warning(this_main_window, "Error",
-            "The audio engine is not running, audio items cannot be added.\n" +
-            "If the audio engine crashed, you will need to restart PyDAW.")
+            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+            _("The audio engine is not running, audio items cannot be added.\n"
+            "If the audio engine crashed, you will need to restart PyDAW."))
             return True
         return False
 
@@ -2471,9 +2471,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
             if not f_file_name_str is None and not f_file_name_str == "":
                 f_index = f_items.get_next_index()
                 if f_index == -1:
-                    QtGui.QMessageBox.warning(self, "Error",
-                    "No more available audio item slots, "
-                    "max per region is {}".format(pydaw_max_audio_item_count))
+                    QtGui.QMessageBox.warning(self, _("Error"),
+                    _("No more available audio item slots, "
+                    "max per region is {}").format(pydaw_max_audio_item_count))
                     break
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
@@ -2486,7 +2486,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
                                                                      f_graph.length_in_seconds)
                     f_audio_item.clip_at_region_end()
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
-        this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
+        this_pydaw_project.commit(
+            _("Added audio items to region {}").format(global_current_region.uid))
         global_open_audio_items()
         self.last_open_dir = os.path.dirname(f_file_name_str)
 
@@ -2499,7 +2500,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
             this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
-            this_pydaw_project.commit("Delete audio item(s)")
+            this_pydaw_project.commit(_("Delete audio item(s)"))
             global_open_audio_items(True)
         if a_event.key() == QtCore.Qt.Key_G and a_event.modifiers() == QtCore.Qt.ControlModifier:
             f_region_uid = global_current_region.uid
@@ -2522,7 +2523,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     if f_end_bar is None or f_end_bar < f_end:
                         f_end_bar = f_end
             if len(f_indexes) == 0:
-                print("No audio items selected, not glueing")
+                print(_("No audio items selected, not glueing"))
                 return
             f_path = this_pydaw_project.get_next_glued_file_name()
             this_pydaw_project.this_pydaw_osc.pydaw_glue_audio(f_path, global_current_song_index,
@@ -2541,7 +2542,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             this_pydaw_project.save_audio_region(f_region_uid, f_items)
             this_pydaw_project.save_audio_per_item_fx_region(f_region_uid, f_paif)
             this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(f_region_uid)
-            this_pydaw_project.commit("Glued audio items")
+            this_pydaw_project.commit(_("Glued audio items"))
             global_open_audio_items()
 
 
@@ -2731,7 +2732,7 @@ class audio_items_viewer_widget():
         self.folders_widget_layout = QtGui.QVBoxLayout()
         self.folders_widget.setLayout(self.folders_widget_layout)
         self.folders_tab_widget.setMaximumWidth(660)
-        self.folders_tab_widget.addTab(self.vsplitter, "Files")
+        self.folders_tab_widget.addTab(self.vsplitter, _("Files"))
         self.folder_path_lineedit = QtGui.QLineEdit()
         self.folder_path_lineedit.setReadOnly(True)
         self.folders_widget_layout.addWidget(self.folder_path_lineedit)
@@ -2740,10 +2741,10 @@ class audio_items_viewer_widget():
         self.folders_widget_layout.addWidget(self.list_folder)
         self.folder_buttons_hlayout = QtGui.QHBoxLayout()
         self.folders_widget_layout.addLayout(self.folder_buttons_hlayout)
-        self.up_button = QtGui.QPushButton("Up")
+        self.up_button = QtGui.QPushButton(_("Up"))
         self.up_button.pressed.connect(self.on_up_button)
         self.folder_buttons_hlayout.addWidget(self.up_button)
-        self.bookmark_button = QtGui.QPushButton("Bookmark")
+        self.bookmark_button = QtGui.QPushButton(_("Bookmark"))
         self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
         self.folder_buttons_hlayout.addWidget(self.bookmark_button)
 
@@ -2754,25 +2755,25 @@ class audio_items_viewer_widget():
         self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
         self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
-        self.folders_tab_widget.addTab(self.bookmarks_tab, "Bookmarks")
+        self.folders_tab_widget.addTab(self.bookmarks_tab, _("Bookmarks"))
 
-        self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, "Edit")
+        self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, _("Edit"))
 
         self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback,
                                                                     global_paif_val_callback)
         self.modulex_widget = QtGui.QWidget()
         self.modulex_widget.setObjectName("plugin_ui")
         self.modulex_vlayout = QtGui.QVBoxLayout(self.modulex_widget)
-        self.folders_tab_widget.addTab(self.modulex_widget, "Per-Item FX")
+        self.folders_tab_widget.addTab(self.modulex_widget, _("Per-Item FX"))
         self.modulex.widget.setDisabled(True)
 
-        self.modulex_copy_button = QtGui.QPushButton("Copy")
+        self.modulex_copy_button = QtGui.QPushButton(_("Copy"))
         self.modulex_copy_button.setFixedWidth(105)
         self.modulex_copy_button.pressed.connect(self.on_modulex_copy)
-        self.modulex_paste_button = QtGui.QPushButton("Paste")
+        self.modulex_paste_button = QtGui.QPushButton(_("Paste"))
         self.modulex_paste_button.setFixedWidth(105)
         self.modulex_paste_button.pressed.connect(self.on_modulex_paste)
-        self.modulex_clear_button = QtGui.QPushButton("Clear")
+        self.modulex_clear_button = QtGui.QPushButton(_("Clear"))
         self.modulex_clear_button.setFixedWidth(105)
         self.modulex_clear_button.pressed.connect(self.on_modulex_clear)
         self.modulex_hlayout = QtGui.QHBoxLayout()
@@ -2789,11 +2790,11 @@ class audio_items_viewer_widget():
         self.file_widget.setLayout(self.file_vlayout)
         self.vsplitter.addWidget(self.file_widget)
         self.filter_hlayout = QtGui.QHBoxLayout()
-        self.filter_hlayout.addWidget(QtGui.QLabel("Filter:"))
+        self.filter_hlayout.addWidget(QtGui.QLabel(_("Filter:")))
         self.filter_lineedit = QtGui.QLineEdit()
         self.filter_lineedit.textChanged.connect(self.on_filter)
         self.filter_hlayout.addWidget(self.filter_lineedit)
-        self.filter_clear_button = QtGui.QPushButton("Clear")
+        self.filter_clear_button = QtGui.QPushButton(_("Clear"))
         self.filter_clear_button.pressed.connect(self.on_filter_clear)
         self.filter_hlayout.addWidget(self.filter_clear_button)
         self.file_vlayout.addLayout(self.filter_hlayout)
@@ -2801,7 +2802,7 @@ class audio_items_viewer_widget():
         self.list_file.setDragEnabled(True)
         self.list_file.mousePressEvent = self.file_mouse_press_event
         self.file_vlayout.addWidget(self.list_file)
-        self.preview_button = QtGui.QPushButton("Preview")
+        self.preview_button = QtGui.QPushButton(_("Preview"))
         self.file_vlayout.addWidget(self.preview_button)
         self.preview_button.pressed.connect(self.on_preview)
         self.widget = QtGui.QWidget()
@@ -2815,29 +2816,29 @@ class audio_items_viewer_widget():
         self.vlayout.addWidget(this_audio_items_viewer)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setFixedWidth(105)
-        self.snap_combobox.addItems(["None", "Bar", "Beat", "1/8th", "1/12th", "1/16th"])
-        self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
+        self.snap_combobox.addItems([_("None"), _("Bar"), _("Beat"), "1/8th", "1/12th", "1/16th"])
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Snap:")), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
         self.snap_combobox.setCurrentIndex(2)
 
-        self.menu_button = QtGui.QPushButton("Menu")
+        self.menu_button = QtGui.QPushButton(_("Menu"))
         self.controls_grid_layout.addWidget(self.menu_button, 0, 10)
         self.action_menu = QtGui.QMenu(self.widget)
-        self.clone_action = QtGui.QAction("Clone from region...", self.widget)
+        self.clone_action = QtGui.QAction(_("Clone from region..."), self.widget)
         self.clone_action.triggered.connect(self.on_clone)
         self.action_menu.addAction(self.clone_action)
-        self.copy_action = QtGui.QAction("Copy selected", self.widget)
+        self.copy_action = QtGui.QAction(_("Copy selected"), self.widget)
         self.copy_action.triggered.connect(self.on_copy)
         self.action_menu.addAction(self.copy_action)
-        self.paste_action = QtGui.QAction("Paste", self.widget)
+        self.paste_action = QtGui.QAction(_("Paste"), self.widget)
         self.paste_action.triggered.connect(self.on_paste)
         self.action_menu.addAction(self.paste_action)
         self.menu_button.setMenu(self.action_menu)
 
-        self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
-        self.v_zoom_combobox.addItems(["Small", "Medium", "Large"])
+        self.v_zoom_combobox.addItems([_("Small"), _("Medium"), _("Large")])
         self.v_zoom_combobox.setFixedWidth(105)
         self.v_zoom_combobox.currentIndexChanged.connect(self.set_v_zoom)
         self.controls_grid_layout.addWidget(self.v_zoom_combobox, 0, 46)
@@ -2847,7 +2848,7 @@ class audio_items_viewer_widget():
         self.h_zoom_slider.setValue(0)
         self.last_scale_value = 0
         self.h_zoom_slider.valueChanged.connect(self.set_zoom)
-        self.controls_grid_layout.addWidget(QtGui.QLabel("H-Zoom:"), 0, 49)
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("H-Zoom:")), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
         self.last_open_dir = global_home
@@ -2925,13 +2926,14 @@ class audio_items_viewer_widget():
                                                    f_per_item_fx_dict.get_row(f_item.track_num,
                                                                               True)))
         if not f_count:
-            QtGui.QMessageBox.warning(self.widget, "Error", "Nothing selected.")
+            QtGui.QMessageBox.warning(self.widget, _("Error"), _("Nothing selected."))
 
     def on_paste(self):
         if global_current_region is None or global_transport_is_playing:
             return
         if len(self.audio_items_clipboard) == 0:
-            QtGui.QMessageBox.warning(self.widget, "Error", "Nothing copied to the clipboard.")
+            QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                      _("Nothing copied to the clipboard."))
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(
             global_current_region.uid)
         for f_str, f_list in self.audio_items_clipboard:
@@ -2948,7 +2950,7 @@ class audio_items_viewer_widget():
                                                          f_per_item_fx_dict, False)
         this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(
             global_current_region.uid)
-        this_pydaw_project.commit("Paste audio items")
+        this_pydaw_project.commit(_("Paste audio items"))
         global_open_audio_items(True)
 
     def on_clone(self):
@@ -2964,21 +2966,21 @@ class audio_items_viewer_widget():
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Clone audio from region...")
+        f_window.setWindowTitle(_("Clone audio from region..."))
         f_window.setMinimumWidth(270)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_layout.addWidget(QtGui.QLabel("Clone from:"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Clone from:")), 0, 0)
         f_region_combobox = QtGui.QComboBox()
         f_regions_dict = this_pydaw_project.get_regions_dict()
         f_regions_list = list(f_regions_dict.uid_lookup.keys())
         f_regions_list.sort()
         f_region_combobox.addItems(f_regions_list)
         f_layout.addWidget(f_region_combobox, 0, 1)
-        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button = QtGui.QPushButton(_("OK"))
         f_layout.addWidget(f_ok_button, 5,0)
         f_ok_button.clicked.connect(ok_handler)
-        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_layout.addWidget(f_cancel_button, 5,1)
         f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
@@ -3007,9 +3009,9 @@ class audio_items_viewer_widget():
             self.set_folder(f_full_path, True)
             self.folders_tab_widget.setCurrentIndex(0)
         else:
-            QtGui.QMessageBox.warning(self.widget, "Error",
-                                      "This bookmark no longer exists.  You may have deleted "
-                                      "it in another windows.")
+            QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                      _("This bookmark no longer exists.  You may have deleted "
+                                      "it in another window."))
             self.open_bookmarks()
 
     def delete_bookmark(self):
@@ -3021,7 +3023,7 @@ class audio_items_viewer_widget():
 
     def bookmark_context_menu_event(self, a_event):
         f_menu = QtGui.QMenu(self.widget)
-        f_del_action = f_menu.addAction("Delete")
+        f_del_action = f_menu.addAction(_("Delete"))
         f_del_action.triggered.connect(self.delete_bookmark)
         f_menu.exec_(QtGui.QCursor.pos())
 
@@ -3058,8 +3060,8 @@ class audio_items_viewer_widget():
                     if not pydaw_str_has_bad_chars(f_full_path):
                         self.list_file.addItem(f_file)
                     else:
-                        print("Not adding '{}' because it contains bad chars, "
-                        "you must rename this file path without:".format(f_full_path))
+                        print(_("Not adding '{}' because it contains bad chars, "
+                        "you must rename this file path without:").format(f_full_path))
                         print(("\n".join(pydaw_bad_chars)))
         self.on_filter()
 
@@ -3136,7 +3138,7 @@ class audio_item_editor_widget:
         self.main_vlayout.addLayout(self.layout)
 
         self.sample_vol_layout = QtGui.QVBoxLayout()
-        self.vol_checkbox = QtGui.QCheckBox("Vol")
+        self.vol_checkbox = QtGui.QCheckBox(_("Vol"))
         self.sample_vol_layout.addWidget(self.vol_checkbox)
         self.sample_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
         self.sample_vol_slider.setRange(-24, 24)
@@ -3152,27 +3154,27 @@ class audio_item_editor_widget:
         self.start_hlayout = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.start_hlayout)
 
-        self.timestretch_checkbox = QtGui.QCheckBox("Time Stretching:")
+        self.timestretch_checkbox = QtGui.QCheckBox(_("Time Stretching:"))
         self.vlayout2.addWidget(self.timestretch_checkbox)
         self.timestretch_hlayout = QtGui.QHBoxLayout()
         self.time_pitch_gridlayout = QtGui.QGridLayout()
         self.vlayout2.addLayout(self.timestretch_hlayout)
         self.vlayout2.addLayout(self.time_pitch_gridlayout)
-        self.timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
+        self.timestretch_hlayout.addWidget(QtGui.QLabel(_("Mode:")))
         self.timestretch_mode = QtGui.QComboBox()
 
         self.timestretch_mode.setMinimumWidth(240)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
         self.timestretch_mode.currentIndexChanged.connect(self.timestretch_mode_changed)
-        self.time_pitch_gridlayout.addWidget(QtGui.QLabel("Pitch:"), 0, 0)
+        self.time_pitch_gridlayout.addWidget(QtGui.QLabel(_("Pitch:")), 0, 0)
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
         self.pitch_shift.setValue(0.0)
         self.pitch_shift.setDecimals(6)
         self.time_pitch_gridlayout.addWidget(self.pitch_shift, 0, 1)
 
-        self.pitch_shift_end_checkbox = QtGui.QCheckBox("End:")
+        self.pitch_shift_end_checkbox = QtGui.QCheckBox(_("End:"))
         self.pitch_shift_end_checkbox.toggled.connect(self.pitch_end_mode_changed)
         self.time_pitch_gridlayout.addWidget(self.pitch_shift_end_checkbox, 0, 2)
         self.pitch_shift_end = QtGui.QDoubleSpinBox()
@@ -3181,7 +3183,7 @@ class audio_item_editor_widget:
         self.pitch_shift_end.setDecimals(6)
         self.time_pitch_gridlayout.addWidget(self.pitch_shift_end, 0, 3)
 
-        self.time_pitch_gridlayout.addWidget(QtGui.QLabel("Time:"), 1, 0)
+        self.time_pitch_gridlayout.addWidget(QtGui.QLabel(_("Time:")), 1, 0)
         self.timestretch_amt = QtGui.QDoubleSpinBox()
         self.timestretch_amt.setRange(0.2, 4.0)
         self.timestretch_amt.setDecimals(6)
@@ -3191,14 +3193,14 @@ class audio_item_editor_widget:
 
         self.crispness_layout = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.crispness_layout)
-        self.crispness_layout.addWidget(QtGui.QLabel("Crispness"))
+        self.crispness_layout.addWidget(QtGui.QLabel(_("Crispness")))
         self.crispness_combobox = QtGui.QComboBox()
-        self.crispness_combobox.addItems(["0 (smeared)", "1 (piano)", "2", "3",
-                                          "4", "5 (normal)", "6 (sharp, drums)"])
+        self.crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
+                                          "4", "5 (normal)", _("6 (sharp, drums)")])
         self.crispness_combobox.setCurrentIndex(5)
         self.crispness_layout.addWidget(self.crispness_combobox)
 
-        self.timestretch_amt_end_checkbox = QtGui.QCheckBox("End:")
+        self.timestretch_amt_end_checkbox = QtGui.QCheckBox(_("End:"))
         self.timestretch_amt_end_checkbox.toggled.connect(self.timestretch_end_mode_changed)
         self.time_pitch_gridlayout.addWidget(self.timestretch_amt_end_checkbox, 1, 2)
         self.timestretch_amt_end = QtGui.QDoubleSpinBox()
@@ -3219,7 +3221,7 @@ class audio_item_editor_widget:
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.output_hlayout = QtGui.QHBoxLayout()
-        self.output_checkbox = QtGui.QCheckBox("Output:")
+        self.output_checkbox = QtGui.QCheckBox(_("Output:"))
         self.output_hlayout.addWidget(self.output_checkbox)
         self.output_combobox = QtGui.QComboBox()
         global global_audio_track_comboboxes
@@ -3234,7 +3236,7 @@ class audio_item_editor_widget:
         self.reversed_layout = QtGui.QHBoxLayout()
         self.reversed_checkbox = QtGui.QCheckBox()
         self.reversed_layout.addWidget(self.reversed_checkbox)
-        self.is_reversed_checkbox = QtGui.QCheckBox("Reverse")
+        self.is_reversed_checkbox = QtGui.QCheckBox(_("Reverse"))
         self.is_reversed_checkbox.clicked.connect(self.reverse_changed)
         self.reversed_layout.addWidget(self.is_reversed_checkbox)
         self.reversed_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
@@ -3242,7 +3244,7 @@ class audio_item_editor_widget:
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.fadein_vol_layout = QtGui.QHBoxLayout()
-        self.fadein_vol_checkbox = QtGui.QCheckBox("Fade-in:")
+        self.fadein_vol_checkbox = QtGui.QCheckBox(_("Fade-in:"))
         self.fadein_vol_layout.addWidget(self.fadein_vol_checkbox)
         self.fadein_vol_spinbox = QtGui.QSpinBox()
         self.fadein_vol_spinbox.setRange(-50, -6)
@@ -3252,7 +3254,7 @@ class audio_item_editor_widget:
         self.fadein_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.fadein_vol_layout)
 
-        self.fadeout_vol_checkbox = QtGui.QCheckBox("Fade-out:")
+        self.fadeout_vol_checkbox = QtGui.QCheckBox(_("Fade-out:"))
         self.fadein_vol_layout.addWidget(self.fadeout_vol_checkbox)
         self.fadeout_vol_spinbox = QtGui.QSpinBox()
         self.fadeout_vol_spinbox.setRange(-50, -6)
@@ -3262,7 +3264,7 @@ class audio_item_editor_widget:
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
         self.ok_layout = QtGui.QHBoxLayout()
-        self.ok = QtGui.QPushButton("Save Changes")
+        self.ok = QtGui.QPushButton(_("Save Changes"))
         self.ok.pressed.connect(self.ok_handler)
         self.ok_layout.addWidget(self.ok)
         self.vlayout2.addLayout(self.ok_layout)
@@ -3271,22 +3273,23 @@ class audio_item_editor_widget:
 
     def set_tooltips(self, a_on):
         if a_on:
-            f_sbsms_tooltip = "This control is only valid for the SBSMS and {} modes,\n"
+            f_sbsms_tooltip = _("This control is only valid for the SBSMS and {} modes,\n"
             "the start/end values are for the full sample length, not the edited "
             "start/end points\n"
             "setting the start/end time to different values will cause the timestretch "
-            "handle to disappear on the audio item."
-            self.timestretch_amt_end.setToolTip(f_sbsms_tooltip.format("Time(affecting pitch)"))
-            self.pitch_shift_end.setToolTip(f_sbsms_tooltip.format("Pitch(affecting time)",))
-            self.ok.setToolTip("Changes are not saved until you push this button")
-            self.widget.setToolTip("To edit the properties of one or more audio item(s),\n"
+            "handle to disappear on the audio item.")
+            self.timestretch_amt_end.setToolTip(f_sbsms_tooltip.format(
+                _("Time(affecting pitch)")))
+            self.pitch_shift_end.setToolTip(f_sbsms_tooltip.format(_("Pitch(affecting time)")))
+            self.ok.setToolTip(_("Changes are not saved until you push this button"))
+            self.widget.setToolTip(_("To edit the properties of one or more audio item(s),\n"
             "click or marquee select items, then change their properties and click "
             "'Save Changes'\n"
             "Only the control section(s) whose checkbox is checked will be updated.\n\n"
-            "Click the 'tooltips' checkbox in the transport to disable these tooltips")
-            self.crispness_combobox.setToolTip("Affects the sharpness of transients, only "
-            "for modes using Rubberband")
-            self.timestretch_mode.setToolTip("Modes:\n\nNone:  No stretching or "
+            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
+            self.crispness_combobox.setToolTip(_("Affects the sharpness of transients, only "
+            "for modes using Rubberband"))
+            self.timestretch_mode.setToolTip(_("Modes:\n\nNone:  No stretching or "
             "pitch adjustment\n"
             "Pitch affecting time:  Repitch the item, it will become shorter at higher "
             "pitches, and longer at "
@@ -3299,22 +3302,22 @@ class audio_item_editor_widget:
             "SBSMS:  Adjust pitch and time independently, also with the ability to "
             "set start/end pitch/time differently\n"
             "Paulstretch:  Mostly for stretching items very long, creates a very smeared, "
-            "atmospheric sound")
-            self.output_combobox.setToolTip("Use this combobox to select the output "
+            "atmospheric sound"))
+            self.output_combobox.setToolTip(_("Use this combobox to select the output "
             "audio track on the 'Audio Tracks' tab\n"
             "where you can apply effects and automation.  Please note that if you use a "
             "lot of audio sequencing in your projects,\n"
             "you must assign audio items to multiple tracks to take advantage of "
             "multiple CPU cores, otherwise all items will be \n"
-            "processed on a single core")
-            self.sample_vol_slider.setToolTip("Use this to set the sample volume. "
+            "processed on a single core"))
+            self.sample_vol_slider.setToolTip(_("Use this to set the sample volume. "
             "If you need to automate volume changes, either\n"
             "use the fade-in/fade-out handles, or automate the volume on the audio "
-            "track specified in the Output: combobox.")
-            self.is_reversed_checkbox.setToolTip("Checking this causes the sample to "
-                                                 "play backwards")
-            self.fadein_vol_spinbox.setToolTip("Sets the initial volume in dB when fading in.")
-            self.fadeout_vol_spinbox.setToolTip("Sets the end volume in dB when fading out.")
+            "track specified in the Output: combobox."))
+            self.is_reversed_checkbox.setToolTip(_("Checking this causes the sample to "
+                                                 "play backwards"))
+            self.fadein_vol_spinbox.setToolTip(_("Sets the initial volume in dB when fading in."))
+            self.fadeout_vol_spinbox.setToolTip(_("Sets the end volume in dB when fading out."))
         else:
             self.timestretch_amt_end.setToolTip("")
             self.pitch_shift_end.setToolTip("")
@@ -3464,8 +3467,8 @@ class audio_item_editor_widget:
 
     def ok_handler(self):
         if global_transport_is_playing:
-            QtGui.QMessageBox.warning(self.widget, "Error",
-                                      "Cannot edit audio items during playback")
+            QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                      _("Cannot edit audio items during playback"))
             return
 
         self.end_mode = 0
@@ -3543,7 +3546,7 @@ class audio_item_editor_widget:
                 f_item.draw()
                 f_selected_count += 1
         if f_selected_count == 0:
-            QtGui.QMessageBox.warning(self.widget, "Error", "No items selected")
+            QtGui.QMessageBox.warning(self.widget, _("Error"), _("No items selected"))
         else:
             if f_was_stretching:
                 f_current_region_length = pydaw_get_current_region_length()
@@ -3558,7 +3561,7 @@ class audio_item_editor_widget:
                                                     f_graph.length_in_seconds)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             global_open_audio_items(True)
-            this_pydaw_project.commit("Update audio items")
+            this_pydaw_project.commit(_("Update audio items"))
 
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText("{}dB".format(self.sample_vol_slider.value(),))
@@ -3579,21 +3582,21 @@ def global_open_audio_items(a_update_viewer=True):
             try:
                 f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
                 if f_graph is None:
-                    print("Error drawing item for {}, could not get sample graph object".format(
-                          v.uid))
+                    print(_("Error drawing item for {}, could not get "
+                    "sample graph object").format(v.uid))
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
             except:
                 if global_transport_is_playing:
-                    print(("Exception while loading {}".format(v.uid,)))
+                    print(_("Exception while loading {}".format(v.uid)))
                 else:
                     f_path = this_pydaw_project.get_wav_path_by_uid(v.uid)
                     if os.path.isfile(f_path):
-                        f_error_msg = "Unknown error loading sample f_path {}, \n\n{}".format(
+                        f_error_msg = _("Unknown error loading sample f_path {}, \n\n{}").format(
                             f_path, locals())
                     else:
-                        f_error_msg = "Error loading '{}', file does not exist.".format(f_path)
-                    QtGui.QMessageBox.warning(this_main_window, "Error", f_error_msg)
+                        f_error_msg = _("Error loading '{}', file does not exist.").format(f_path)
+                    QtGui.QMessageBox.warning(this_main_window, _("Error"), f_error_msg)
         for f_item in this_audio_items_viewer.audio_items:
             if str(f_item.audio_item) in f_selected_list:
                 f_item.setSelected(True)
@@ -3615,7 +3618,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].vol = self.volume_slider.value()
         this_pydaw_project.save_audio_tracks(f_tracks)
-        this_pydaw_project.commit("Set audio track {} to {}".format(self.track_number,
+        this_pydaw_project.commit(_("Set audio track {} to {}").format(self.track_number,
                                   self.volume_slider.value()))
 
     def on_solo(self, value):
@@ -3625,7 +3628,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].solo = self.solo_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
-        this_pydaw_project.commit("Set audio track {} soloed to {}".format(self.track_number,
+        this_pydaw_project.commit(_("Set audio track {} soloed to {}").format(self.track_number,
                                   self.solo_checkbox.isChecked()))
 
     def on_mute(self, value):
@@ -3635,7 +3638,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].mute = self.mute_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
-        this_pydaw_project.commit("Set audio track {} muted to {}".format(self.track_number,
+        this_pydaw_project.commit(_("Set audio track {} muted to {}").format(self.track_number,
                                   self.mute_checkbox.isChecked()))
 
     def on_rec(self, value):
@@ -3651,14 +3654,14 @@ class audio_track:
         f_tracks.tracks[self.track_number].name = str(self.track_name_lineedit.text())
         this_pydaw_project.save_audio_tracks(f_tracks)
         global_update_audio_track_comboboxes(self.track_number, self.track_name_lineedit.text())
-        this_pydaw_project.commit("Set audio track {} name to {}".format(self.track_number,
+        this_pydaw_project.commit(_("Set audio track {} name to {}").format(self.track_number,
                                   self.track_name_lineedit.text()))
         global_fx_set_window_title(2, self.track_number,
-                                   "Audio Track: {}".format(self.track_name_lineedit.text()))
+                                   _("Audio Track: {}").format(self.track_name_lineedit.text()))
 
     def on_show_fx(self):
         global_open_fx_ui(self.track_number, pydaw_folder_audiofx, 2,
-        "Audio Track: {}".format(self.track_name_lineedit.text()))
+        _("Audio Track: {}").format(self.track_name_lineedit.text()))
 
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.this_pydaw_osc.pydaw_set_bus(self.track_number,
@@ -3666,7 +3669,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].bus_num = self.bus_combobox.currentIndex()
         this_pydaw_project.save_audio_tracks(f_tracks)
-        this_pydaw_project.commit("Set audio track {} bus to {}".format(self.track_number,
+        this_pydaw_project.commit(_("Set audio track {} bus to {}").format(self.track_number,
                                   self.track_name_lineedit.text()))
 
     def wheel_event(self, a_event=None):
@@ -3675,7 +3678,7 @@ class audio_track:
     def context_menu_event(self, a_event=None):
         pass
 
-    def __init__(self, a_track_num, a_track_text="track"):
+    def __init__(self, a_track_num, a_track_text=_("track")):
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
@@ -3719,7 +3722,7 @@ class audio_track:
         self.bus_combobox.addItems(['M', '1','2','3','4'])
         self.bus_combobox.setMinimumWidth(54)
         self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
-        self.hlayout3.addWidget(QtGui.QLabel("Bus:"))
+        self.hlayout3.addWidget(QtGui.QLabel(_("Bus:")))
         self.hlayout3.addWidget(self.bus_combobox)
         self.hlayout3.addWidget(self.fx_button)
         self.solo_checkbox = QtGui.QCheckBox()
@@ -4455,25 +4458,25 @@ class piano_roll_editor_widget():
         self.edit_menu_button.setMenu(self.edit_menu)
         self.controls_grid_layout.addWidget(self.edit_menu_button, 0, 10)
 
-        self.quantize_action = QtGui.QAction("Quantize", self.widget)
+        self.quantize_action = QtGui.QAction(_("Quantize"), self.widget)
         self.edit_menu.addAction(self.quantize_action)
         self.quantize_action.triggered.connect(self.quantize_dialog)
 
-        self.transpose_action = QtGui.QAction("Transpose", self.widget)
+        self.transpose_action = QtGui.QAction(_("Transpose"), self.widget)
         self.edit_menu.addAction(self.transpose_action)
         self.transpose_action.triggered.connect(self.transpose_dialog)
 
-        self.velocity_action = QtGui.QAction("Velocity", self.widget)
+        self.velocity_action = QtGui.QAction(_("Velocity"), self.widget)
         self.edit_menu.addAction(self.velocity_action)
         self.velocity_action.triggered.connect(self.velocity_dialog)
 
-        self.select_all_action = QtGui.QAction("Select All", self.widget)
+        self.select_all_action = QtGui.QAction(_("Select All"), self.widget)
         self.edit_menu.addAction(self.select_all_action)
         self.select_all_action.triggered.connect(self.select_all)
 
         self.edit_menu.addSeparator()
 
-        self.clear_action = QtGui.QAction("Clear All", self.widget)
+        self.clear_action = QtGui.QAction(_("Clear All"), self.widget)
         self.edit_menu.addAction(self.clear_action)
         self.clear_action.triggered.connect(self.clear_notes)
 
@@ -4485,9 +4488,9 @@ class piano_roll_editor_widget():
         self.vlayout.addWidget(this_piano_roll_editor)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setMinimumWidth(90)
-        self.snap_combobox.addItems(["None", "1/4", "1/8", "1/12", "1/16",
+        self.snap_combobox.addItems([_("None"), "1/4", "1/8", "1/12", "1/16",
                                      "1/32", "1/64", "1/128"])
-        self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Snap:")), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
 
@@ -4676,14 +4679,15 @@ class automation_viewer(QtGui.QGraphicsView):
     def set_tooltip(self, a_enabled=False):
         if a_enabled:
             if self.is_cc:
-                f_start = ("Select the plugin/control you wish to automate using the comboboxes"
+                f_start = _("Select the plugin/control you wish to automate using the comboboxes"
                           " below\n")
             else:
                 f_start = ""
-            self.setToolTip("{}Draw points by double-clicking, then click the 'smooth' button to "
-                            "draw extra points between them.\nClick+drag to select points\n"
-                            "Ctrl+click+drag selected points to copy\npress the 'delete' button"
-                            " to delete selected points.".format(f_start))
+            self.setToolTip(
+                _("{}Draw points by double-clicking, then click the 'smooth' button to "
+                "draw extra points between them.\nClick+drag to select points\n"
+                "Ctrl+click+drag selected points to copy\npress the 'delete' button"
+                " to delete selected points.").format(f_start))
         else:
             self.setToolTip("")
 
@@ -4951,12 +4955,12 @@ class automation_viewer_widget:
             self.plugin_combobox = QtGui.QComboBox()
             self.plugin_combobox.setMinimumWidth(120)
             self.plugin_combobox.addItems(global_plugin_names)
-            self.hlayout2.addWidget(QtGui.QLabel("Plugin"))
+            self.hlayout2.addWidget(QtGui.QLabel(_("Plugin")))
             self.hlayout2.addWidget(self.plugin_combobox)
             self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
             self.control_combobox = QtGui.QComboBox()
             self.control_combobox.setMinimumWidth(240)
-            self.hlayout2.addWidget(QtGui.QLabel("Control"))
+            self.hlayout2.addWidget(QtGui.QLabel(_("Control")))
             self.hlayout2.addWidget(self.control_combobox)
             self.hlayout2.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
             self.control_combobox.currentIndexChanged.connect(self.control_changed)
@@ -4964,30 +4968,30 @@ class automation_viewer_widget:
             self.ccs_in_use_combobox.setMinimumWidth(300)
             self.suppress_ccs_in_use = False
             self.ccs_in_use_combobox.currentIndexChanged.connect(self.ccs_in_use_combobox_changed)
-            self.hlayout.addWidget(QtGui.QLabel("In Use:"))
+            self.hlayout.addWidget(QtGui.QLabel(_("In Use:")))
             self.hlayout.addWidget(self.ccs_in_use_combobox)
 
         self.vlayout.addLayout(self.hlayout)
-        self.smooth_button = QtGui.QPushButton("Smooth")
-        self.smooth_button.setToolTip("By default, the control points are steppy, "
-            "this button draws extra points between the exisiting points.")
+        self.smooth_button = QtGui.QPushButton(_("Smooth"))
+        self.smooth_button.setToolTip(_("By default, the control points are steppy, "
+            "this button draws extra points between the exisiting points."))
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10))
-        self.edit_button = QtGui.QPushButton("Edit")
+        self.edit_button = QtGui.QPushButton(_("Edit"))
         self.hlayout.addWidget(self.edit_button)
         self.edit_menu = QtGui.QMenu(self.widget)
-        self.add_point_action = self.edit_menu.addAction("Add Point")
+        self.add_point_action = self.edit_menu.addAction(_("Add Point"))
         if self.is_cc:
             self.add_point_action.triggered.connect(self.add_cc_point)
-            self.paste_point_action = self.edit_menu.addAction("Paste Point")
+            self.paste_point_action = self.edit_menu.addAction(_("Paste Point"))
             self.paste_point_action.triggered.connect(self.paste_cc_point)
         else:
             self.add_point_action.triggered.connect(self.add_pb_point)
-        self.select_all_action = self.edit_menu.addAction("Select All")
+        self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
         self.edit_menu.addSeparator()
-        self.clear_action = self.edit_menu.addAction("Clear")
+        self.clear_action = self.edit_menu.addAction(_("Clear"))
         self.clear_action.triggered.connect(self.clear)
         self.edit_button.setMenu(self.edit_menu)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
@@ -5001,8 +5005,9 @@ class automation_viewer_widget:
 
     def paste_cc_point(self):
         if pydaw_widgets.global_cc_clipboard is None:
-            QtGui.QMessageBox.warning(self.widget, "Error", "Nothing copied to the clipboard.\n"
-                "Right-click->'Copy Automation' on any knob on any plugin.")
+            QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                      _("Nothing copied to the clipboard.\n"
+                                      "Right-click->'Copy Automation' on any knob on any plugin."))
             return
         self.add_cc_point(pydaw_widgets.global_cc_clipboard)
 
@@ -5024,29 +5029,29 @@ class automation_viewer_widget:
             this_pydaw_project.save_item(this_item_editor.item_names[f_bar],
                                          this_item_editor.items[f_bar])
             global_open_items()
-            this_pydaw_project.commit("Add automation point")
+            this_pydaw_project.commit(_("Add automation point"))
 
         def cancel_handler():
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Add automation point")
+        f_window.setWindowTitle(_("Add automation point"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
-        f_layout.addWidget(QtGui.QLabel("Position (bars)"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Position (bars)")), 2, 0)
         f_bar_spinbox = QtGui.QSpinBox()
         f_bar_spinbox.setRange(1, len(global_open_items_uids))
         f_layout.addWidget(f_bar_spinbox, 2, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Position (beats)"), 5, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Position (beats)")), 5, 0)
         f_pos_spinbox = QtGui.QDoubleSpinBox()
         f_pos_spinbox.setRange(1.0, 4.99)
         f_pos_spinbox.setDecimals(2)
         f_pos_spinbox.setSingleStep(0.25)
         f_layout.addWidget(f_pos_spinbox, 5, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Value"), 10, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Value")), 10, 0)
         f_value_spinbox = QtGui.QDoubleSpinBox()
         f_value_spinbox.setRange(0.0, 127.0)
         f_value_spinbox.setDecimals(4)
@@ -5054,13 +5059,13 @@ class automation_viewer_widget:
             f_value_spinbox.setValue(a_value)
         f_layout.addWidget(f_value_spinbox, 10, 1)
 
-        f_ok = QtGui.QPushButton("Add")
+        f_ok = QtGui.QPushButton(_("Add"))
         f_ok.pressed.connect(ok_handler)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
 
         f_layout.addLayout(f_ok_cancel_layout, 40, 1)
-        f_cancel = QtGui.QPushButton("Close")
+        f_cancel = QtGui.QPushButton(_("Close"))
         f_cancel.pressed.connect(cancel_handler)
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
@@ -5086,7 +5091,7 @@ class automation_viewer_widget:
             this_pydaw_project.save_item(this_item_editor.item_names[f_bar],
                                          this_item_editor.items[f_bar])
             global_open_items()
-            this_pydaw_project.commit("Add pitchbend automation point")
+            this_pydaw_project.commit(_("Add pitchbend automation point"))
 
         def cancel_handler():
             f_window.close()
@@ -5095,47 +5100,48 @@ class automation_viewer_widget:
             f_epb_spinbox.setRange(f_ipb_spinbox.value() * -1, f_ipb_spinbox.value())
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Add automation point")
+        f_window.setWindowTitle(_("Add automation point"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
-        f_layout.addWidget(QtGui.QLabel("Position (bars)"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Position (bars)")), 2, 0)
         f_bar_spinbox = QtGui.QSpinBox()
         f_bar_spinbox.setRange(1, len(global_open_items_uids))
         f_layout.addWidget(f_bar_spinbox, 2, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Position (beats)"), 5, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Position (beats)")), 5, 0)
         f_pos_spinbox = QtGui.QDoubleSpinBox()
         f_pos_spinbox.setRange(1.0, 4.99)
         f_pos_spinbox.setDecimals(2)
         f_pos_spinbox.setSingleStep(0.25)
         f_layout.addWidget(f_pos_spinbox, 5, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Instrument Pitchbend"), 10, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Instrument Pitchbend")), 10, 0)
         f_ipb_spinbox = QtGui.QSpinBox()
-        f_ipb_spinbox.setToolTip("Set this to the same setting that your instrument plugin uses")
+        f_ipb_spinbox.setToolTip(
+            _("Set this to the same setting that your instrument plugin uses"))
         f_ipb_spinbox.setRange(2, 36)
         f_ipb_spinbox.setValue(global_last_ipb_value)
         f_layout.addWidget(f_ipb_spinbox, 10, 1)
         f_ipb_spinbox.valueChanged.connect(ipb_changed)
 
-        f_layout.addWidget(QtGui.QLabel("Effective Pitchbend"), 20, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Effective Pitchbend")), 20, 0)
         f_epb_spinbox = QtGui.QSpinBox()
         f_epb_spinbox.setToolTip("")
         f_epb_spinbox.setRange(-18, 18)
         f_layout.addWidget(f_epb_spinbox, 20, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Pitchbend values are in semitones.\n\n"
+        f_layout.addWidget(QtGui.QLabel(_("Pitchbend values are in semitones.\n\n"
             "Use this dialog to add points with precision,\n"
-            "or double-click on the editor to add points."), 30, 1)
+            "or double-click on the editor to add points.")), 30, 1)
 
-        f_ok = QtGui.QPushButton("Add")
+        f_ok = QtGui.QPushButton(_("Add"))
         f_ok.pressed.connect(ok_handler)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
 
         f_layout.addLayout(f_ok_cancel_layout, 40, 1)
-        f_cancel = QtGui.QPushButton("Close")
+        f_cancel = QtGui.QPushButton(_("Close"))
         f_cancel.pressed.connect(cancel_handler)
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
@@ -5242,7 +5248,7 @@ def global_save_and_reload_items():
         this_pydaw_project.save_item(
             this_item_editor.item_names[f_i], this_item_editor.items[f_i])
     global_open_items()
-    this_pydaw_project.commit("Edit item(s)")
+    this_pydaw_project.commit(_("Edit item(s)"))
 
 global_item_zoom_index = 0
 
@@ -5256,7 +5262,7 @@ class item_list_editor:
                 for f_i in range(len(self.items)):
                     self.items[f_i].notes = []
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            this_pydaw_project.commit("Clear notes")
+            this_pydaw_project.commit(_("Clear notes"))
             global_open_items()
     def clear_ccs(self, a_is_list=True):
         if self.enabled:
@@ -5267,7 +5273,7 @@ class item_list_editor:
                 for f_i in range(len(self.items)):
                     self.items[f_i].ccs = []
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            this_pydaw_project.commit("Clear CCs")
+            this_pydaw_project.commit(_("Clear CCs"))
             global_open_items()
     def clear_pb(self, a_is_list=True):
         if self.enabled:
@@ -5278,7 +5284,7 @@ class item_list_editor:
                 for f_i in range(len(self.items)):
                     self.items[f_i].pitchbends = []
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            this_pydaw_project.commit("Clear pitchbends")
+            this_pydaw_project.commit(_("Clear pitchbends"))
             global_open_items()
 
     def clear_new(self):
@@ -5332,9 +5338,9 @@ class item_list_editor:
             if self.multiselect_radiobutton.isChecked():
                 f_ms_rows = self.get_notes_table_selected_rows()
                 if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error",
-                    "You have editing in multiselect mode, but you have not selected "
-                    "anything.  All items will be processed")
+                    QtGui.QMessageBox.warning(self.notes_table_widget, _("Error"),
+                    _("You have editing in multiselect mode, but you have not selected "
+                    "anything.  All items will be processed"))
                 else:
                     f_multiselect = True
 
@@ -5351,32 +5357,32 @@ class item_list_editor:
                                              a_selected_only=a_selected_only)
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
-            this_pydaw_project.commit("Quantize item(s)")
+            this_pydaw_project.commit(_("Quantize item(s)"))
             f_window.close()
 
         def quantize_cancel_handler():
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Quantize")
+        f_window.setWindowTitle(_("Quantize"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
-        f_layout.addWidget(QtGui.QLabel("Quantize"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Quantize")), 0, 0)
         f_quantize_combobox = QtGui.QComboBox()
         f_quantize_combobox.addItems(bar_fracs)
         f_layout.addWidget(f_quantize_combobox, 0, 1)
-        f_events_follow_notes = QtGui.QCheckBox("CCs and pitchbend follow notes?")
+        f_events_follow_notes = QtGui.QCheckBox(_("CCs and pitchbend follow notes?"))
         f_events_follow_notes.setChecked(self.events_follow_default)
         f_layout.addWidget(f_events_follow_notes, 1, 1)
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(quantize_ok_handler)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
         if a_selected_only:
-            f_layout.addWidget(QtGui.QLabel("Only the selected notes will be quantized."), 2, 1)
+            f_layout.addWidget(QtGui.QLabel(_("Only the selected notes will be quantized.")), 2, 1)
         f_layout.addLayout(f_ok_cancel_layout, 3, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(quantize_cancel_handler)
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
@@ -5390,9 +5396,9 @@ class item_list_editor:
             if self.multiselect_radiobutton.isChecked():
                 f_ms_rows = self.get_notes_table_selected_rows()
                 if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error",
-                    "You have editing in multiselect mode, but you have not selected anything.  "
-                    "All items will be processed")
+                    QtGui.QMessageBox.warning(self.notes_table_widget, _("Error"),
+                    _("You have editing in multiselect mode, but you have not selected anything.  "
+                    "All items will be processed"))
                 else:
                     f_multiselect = True
             f_start_beat_val = (4.0 * global_item_editing_count) - 0.01
@@ -5407,8 +5413,8 @@ class item_list_editor:
         def ok_handler():
             if f_draw_line.isChecked() and not f_add_values.isChecked() and \
             f_end_amount.value() < 1:
-                QtGui.QMessageBox.warning(f_window, "Error",
-                "Cannot have end value less than 1 if not using 'Add Values'")
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                _("Cannot have end value less than 1 if not using 'Add Values'"))
                 return
 
             if a_is_list:
@@ -5430,7 +5436,7 @@ class item_list_editor:
                 for f_i in range(global_item_editing_count):
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
-            this_pydaw_project.commit("Velocity mod item(s)")
+            this_pydaw_project.commit(_("Velocity mod item(s)"))
             f_window.close()
 
         def cancel_handler():
@@ -5440,26 +5446,26 @@ class item_list_editor:
             f_draw_line.setChecked(True)
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Velocity Mod")
+        f_window.setWindowTitle(_("Velocity Mod"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
-        f_layout.addWidget(QtGui.QLabel("Amount"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Amount")), 0, 0)
         f_amount = QtGui.QSpinBox()
         f_amount.setRange(-127, 127)
         f_amount.setValue(100)
         f_layout.addWidget(f_amount, 0, 1)
-        f_draw_line = QtGui.QCheckBox("Draw line?")
+        f_draw_line = QtGui.QCheckBox(_("Draw line?"))
         f_layout.addWidget(f_draw_line, 1, 1)
 
-        f_layout.addWidget(QtGui.QLabel("End Amount"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("End Amount")), 2, 0)
         f_end_amount = QtGui.QSpinBox()
         f_end_amount.setRange(-127, 127)
         f_end_amount.valueChanged.connect(end_value_changed)
         f_layout.addWidget(f_end_amount, 2, 1)
 
         if a_is_list:
-            f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
+            f_layout.addWidget(QtGui.QLabel(_("Start Beat")), 3, 0)
             f_start_beat = QtGui.QDoubleSpinBox()
             f_start_beat.setRange(0.0, 3.99)
             f_start_beat.setValue(f_start_beat_val)
@@ -5471,17 +5477,17 @@ class item_list_editor:
             f_end_beat.setValue(f_end_beat_val)
             f_layout.addWidget(f_end_beat, 4, 1)
 
-        f_add_values = QtGui.QCheckBox("Add Values?")
-        f_add_values.setToolTip("Check this to add Amount to the existing value, or leave\n"
-                                "unchecked to set the value to Amount.")
+        f_add_values = QtGui.QCheckBox(_("Add Values?"))
+        f_add_values.setToolTip(_("Check this to add Amount to the existing value, or leave\n"
+                                "unchecked to set the value to Amount."))
         f_layout.addWidget(f_add_values, 5, 1)
 
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_cancel_layout, 10, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(cancel_handler)
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
@@ -5495,10 +5501,10 @@ class item_list_editor:
             if self.multiselect_radiobutton.isChecked():
                 f_ms_rows = self.get_notes_table_selected_rows()
                 if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error",
-                                              "You are editing in multiselect mode, "
+                    QtGui.QMessageBox.warning(self.notes_table_widget, _("Error"),
+                                              _("You are editing in multiselect mode, "
                                               "but you have not selected "
-                                              "anything.  All items will be processed")
+                                              "anything.  All items will be processed"))
                 else:
                     f_multiselect = True
 
@@ -5516,41 +5522,41 @@ class item_list_editor:
                                               a_duplicate=f_duplicate_notes.isChecked())
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
-            this_pydaw_project.commit("Transpose item(s)")
+            this_pydaw_project.commit(_("Transpose item(s)"))
             f_window.close()
 
         def transpose_cancel_handler():
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Transpose")
+        f_window.setWindowTitle(_("Transpose"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_semitone = QtGui.QSpinBox()
         f_semitone.setRange(-12, 12)
-        f_layout.addWidget(QtGui.QLabel("Semitones"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Semitones")), 0, 0)
         f_layout.addWidget(f_semitone, 0, 1)
         f_octave = QtGui.QSpinBox()
         f_octave.setRange(-5, 5)
-        f_layout.addWidget(QtGui.QLabel("Octaves"), 1, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Octaves")), 1, 0)
         f_layout.addWidget(f_octave, 1, 1)
-        f_duplicate_notes = QtGui.QCheckBox("Duplicate notes?")
-        f_duplicate_notes.setToolTip("Checking this box causes the transposed notes "
-                                     "to be added rather than moving the existing notes.")
+        f_duplicate_notes = QtGui.QCheckBox(_("Duplicate notes?"))
+        f_duplicate_notes.setToolTip(_("Checking this box causes the transposed notes "
+                                     "to be added rather than moving the existing notes."))
         f_layout.addWidget(f_duplicate_notes, 2, 1)
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(transpose_ok_handler)
         f_layout.addWidget(f_ok, 6, 0)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(transpose_cancel_handler)
         f_layout.addWidget(f_cancel, 6, 1)
         f_window.exec_()
 
     def show_not_enabled_warning(self):
-        QtGui.QMessageBox.warning(this_main_window, "",
-                                  "You must open an item first by double-clicking on one in "
-                                  "the region editor on the 'Song/Region' tab.")
+        QtGui.QMessageBox.warning(this_main_window, _("Error"),
+                                  _("You must open an item first by double-clicking on one in "
+                                  "the region editor on the 'Song/Region' tab."))
 
     def set_zoom(self, a_value=None, a_is_refresh=False):
         if not self.enabled:
@@ -5586,19 +5592,19 @@ class item_list_editor:
         self.master_hlayout.addWidget(self.item_list_label,  QtCore.Qt.AlignLeft)
         self.zoom_combobox = QtGui.QComboBox()
         self.zoom_combobox.setMaximumWidth(120)
-        self.zoom_combobox.addItems(["Large", "Small"])
+        self.zoom_combobox.addItems([_("Large"), _("Small")])
         self.zoom_combobox.currentIndexChanged.connect(self.set_zoom)
         self.master_hlayout.addWidget(self.zoom_combobox, QtCore.Qt.AlignRight)
 
         self.tab_widget = QtGui.QTabWidget()
         self.tab_widget.currentChanged.connect(self.tab_changed)
         self.piano_roll_tab = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.piano_roll_tab, "Piano Roll")
+        self.tab_widget.addTab(self.piano_roll_tab, _("Piano Roll"))
         self.notes_tab = QtGui.QGroupBox()
         self.group_box = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.group_box, "CCs")
+        self.tab_widget.addTab(self.group_box, _("CCs"))
         self.pitchbend_tab = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.pitchbend_tab, "Pitchbend")
+        self.tab_widget.addTab(self.pitchbend_tab, _("Pitchbend"))
 
         self.main_vlayout = QtGui.QVBoxLayout()
         self.main_hlayout = QtGui.QHBoxLayout()
@@ -5607,11 +5613,11 @@ class item_list_editor:
         self.master_vlayout.addWidget(self.tab_widget)
         self.main_vlayout.addLayout(self.main_hlayout)
 
-        self.notes_groupbox = QtGui.QGroupBox("Notes")
+        self.notes_groupbox = QtGui.QGroupBox(_("Notes"))
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
 
 
-        self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
+        self.editing_hboxlayout.addWidget(QtGui.QLabel(_("Editing Item:")))
         self.item_name_combobox = QtGui.QComboBox()
         self.item_name_combobox.setMinimumWidth(150)
         self.item_name_combobox.setEditable(False)
@@ -5623,12 +5629,12 @@ class item_list_editor:
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
         self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
                                                           QtGui.QSizePolicy.Minimum))
-        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Mode"))
-        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel(_("Mode")))
+        self.add_radiobutton = QtGui.QRadioButton(_("Add/Edit"))
         self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
-        self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
+        self.multiselect_radiobutton = QtGui.QRadioButton(_("Multiselect"))
         self.edit_mode_hlayout0.addWidget(self.multiselect_radiobutton)
-        self.delete_radiobutton = QtGui.QRadioButton("Delete")
+        self.delete_radiobutton = QtGui.QRadioButton(_("Delete"))
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
         self.editing_hboxlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignLeft)
@@ -5638,16 +5644,16 @@ class item_list_editor:
         self.notes_gridlayout = QtGui.QGridLayout()
 
         f_button_width = 82
-        self.notes_quantize_button = QtGui.QPushButton("Quantize")
+        self.notes_quantize_button = QtGui.QPushButton(_("Quantize"))
         self.notes_quantize_button.setMinimumWidth(f_button_width)
         self.notes_quantize_button.pressed.connect(self.quantize_dialog)
         self.notes_gridlayout.addWidget(self.notes_quantize_button, 0, 0)
-        self.notes_transpose_button = QtGui.QPushButton("Transpose")
+        self.notes_transpose_button = QtGui.QPushButton(_("Transpose"))
         self.notes_transpose_button.setMinimumWidth(f_button_width)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
         self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
 
-        self.notes_velocity_button = QtGui.QPushButton("Velocity")
+        self.notes_velocity_button = QtGui.QPushButton(_("Velocity"))
         self.notes_velocity_button.setMinimumWidth(f_button_width)
         self.notes_velocity_button.pressed.connect(self.velocity_dialog)
         self.notes_gridlayout.addWidget(self.notes_velocity_button, 0, 2)
@@ -5655,7 +5661,7 @@ class item_list_editor:
         self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
                                                         QtGui.QSizePolicy.Minimum), 0, 3)
 
-        self.notes_clear_button = QtGui.QPushButton("Clear")
+        self.notes_clear_button = QtGui.QPushButton(_("Clear"))
         self.notes_clear_button.setMinimumWidth(f_button_width)
         self.notes_clear_button.pressed.connect(self.clear_notes)
         self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 4)
@@ -5686,12 +5692,12 @@ class item_list_editor:
         self.piano_roll_tab.setLayout(self.piano_roll_hlayout)
         self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
-        self.ccs_groupbox = QtGui.QGroupBox("CCs")
+        self.ccs_groupbox = QtGui.QGroupBox(_("CCs"))
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
                                                       QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
-        self.ccs_clear_button = QtGui.QPushButton("Clear")
+        self.ccs_clear_button = QtGui.QPushButton(_("Clear"))
         self.ccs_clear_button.setMinimumWidth(f_button_width)
         self.ccs_clear_button.pressed.connect(self.clear_ccs)
         self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 1)
@@ -5730,13 +5736,13 @@ class item_list_editor:
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
-        self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
+        self.pb_groupbox = QtGui.QGroupBox(_("Pitchbend"))
         self.pb_groupbox.setFixedWidth(240)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
         self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
                                                      QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
-        self.pb_clear_button = QtGui.QPushButton("Clear")
+        self.pb_clear_button = QtGui.QPushButton(_("Clear"))
         self.pb_clear_button.setMinimumWidth(f_button_width)
         self.pb_clear_button.pressed.connect(self.clear_pb)
         self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
@@ -5763,7 +5769,7 @@ class item_list_editor:
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum,
                                                        QtGui.QSizePolicy.Expanding))
 
-        self.tab_widget.addTab(self.notes_tab, "List Editors")
+        self.tab_widget.addTab(self.notes_tab, _("List Editors"))
 
         self.set_headers()
         self.default_note_start = 0.0
@@ -5789,10 +5795,11 @@ class item_list_editor:
             self.open_item_list()
 
     def set_headers(self): #Because clearing the table clears the headers
-        self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note',
-                                                           'Note#', 'Velocity'])
-        self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'Plugin', 'Control', 'Value'])
-        self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
+        self.notes_table_widget.setHorizontalHeaderLabels([_('Start'), _('Length'), _('Note'),
+                                                           _('Note#'), _('Velocity')])
+        self.ccs_table_widget.setHorizontalHeaderLabels([_('Start'), _('Plugin'), _('Control'),
+                                                         _('Value')])
+        self.pitchbend_table_widget.setHorizontalHeaderLabels([_('Start'), _('Value')])
 
     def set_row_counts(self):
         self.notes_table_widget.setRowCount(256)
@@ -5865,7 +5872,7 @@ class item_list_editor:
                     self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete notes from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Delete notes from item '{}'").format(self.item_name))
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5873,14 +5880,14 @@ class item_list_editor:
                 self.item.add_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Paste notes into item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Paste notes into item '{}'").format(self.item_name))
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
             for f_note in self.notes_clipboard:
                 self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Cut notes from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Cut notes from item '{}'").format(self.item_name))
         else:
             QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)
 
@@ -5892,7 +5899,7 @@ class item_list_editor:
                     self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete CCs from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Delete CCs from item '{}'").format(self.item_name))
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5900,14 +5907,14 @@ class item_list_editor:
                 self.item.add_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Paste CCs into item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Paste CCs into item '{}'").format(self.item_name))
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
             for f_cc in self.ccs_clipboard:
                 self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Cut CCs from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Cut CCs from item '{}'").format(self.item_name))
         else:
             QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)
 
@@ -5919,7 +5926,7 @@ class item_list_editor:
                     self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete pitchbends from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Delete pitchbends from item '{}'").format(self.item_name))
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5927,14 +5934,14 @@ class item_list_editor:
                 self.item.add_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Paste pitchbends into item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Paste pitchbends into item '{}'").format(self.item_name))
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
             for f_pb in self.pbs_clipboard:
                 self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Cut pitchbends from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Cut pitchbends from item '{}'").format(self.item_name))
         else:
             QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)
 
@@ -5954,7 +5961,7 @@ class item_list_editor:
                                              self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete note from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Delete note from item '{}'").format(self.item_name))
 
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
@@ -5969,7 +5976,7 @@ class item_list_editor:
                                                 self.pitchbend_table_widget.item(x, 1).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Delete pitchbend from item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Delete pitchbend from item '{}'").format(self.item_name))
 
     def notes_show_event_dialog(self, x, y, a_note=None, a_index=None):
         if a_note is not None:
@@ -6030,7 +6037,7 @@ class item_list_editor:
             self.default_quantize = int(f_quantize_combobox.currentIndex())
 
             global_open_items()
-            this_pydaw_project.commit("Update notes for item(s)")
+            this_pydaw_project.commit(_("Update notes for item(s)"))
 
             if self.is_existing_note:
                 f_window.close()
@@ -6056,18 +6063,18 @@ class item_list_editor:
 
         def add_another_clicked(a_checked):
             if a_checked:
-                f_cancel_button.setText("Close")
+                f_cancel_button.setText(_("Close"))
             else:
                 f_cancel_button.setText("Cancel")
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Notes")
+        f_window.setWindowTitle(_("Notes"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_quantize_combobox = QtGui.QComboBox()
         f_quantize_combobox.addItems(beat_fracs)
         f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
-        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Quantize(beats)")), 0, 0)
         f_layout.addWidget(f_quantize_combobox, 0, 1)
         f_note_layout = QtGui.QHBoxLayout()
         f_note = QtGui.QComboBox()
@@ -6075,18 +6082,18 @@ class item_list_editor:
         f_note.addItems(int_to_note_array)
         f_note.setCurrentIndex(self.default_note_note)
         f_note_layout.addWidget(f_note)
-        f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Note")), 1, 0)
         f_octave = QtGui.QSpinBox()
         f_octave.setRange(-2, 8)
         f_octave.setValue(self.default_note_octave)
         f_note_layout.addWidget(f_octave)
         f_layout.addLayout(f_note_layout, 1, 1)
-        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Start(beats)")), 2, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
         f_start.setValue(self.default_note_start)
         f_layout.addWidget(f_start, 2, 1)
-        f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Length(beats)")), 3, 0)
         f_length = QtGui.QDoubleSpinBox()
         f_length.setRange(0.01, 32.0)
         f_length.setValue(self.default_note_length)
@@ -6095,16 +6102,16 @@ class item_list_editor:
         f_velocity = QtGui.QSpinBox()
         f_velocity.setRange(1, 127)
         f_velocity.setValue(self.default_note_velocity)
-        f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Velocity")), 4, 0)
         f_layout.addWidget(f_velocity, 4, 1)
         if not self.is_existing_note:
-            f_add_another = QtGui.QCheckBox("Add another?")
+            f_add_another = QtGui.QCheckBox(_("Add another?"))
             f_add_another.toggled.connect(add_another_clicked)
             f_layout.addWidget(f_add_another, 5, 1)
-        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button = QtGui.QPushButton(_("OK"))
         f_layout.addWidget(f_ok_button, 6,0)
         f_ok_button.clicked.connect(note_ok_handler)
-        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_layout.addWidget(f_cancel_button, 6,1)
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
@@ -6127,7 +6134,7 @@ class item_list_editor:
                 if f_old_pb is not None:
                     self.item.remove_pb(f_old_pb)
                 if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
-                    QtGui.QMessageBox.warning(f_window, "Error", "Duplicate pitchbend event")
+                    QtGui.QMessageBox.warning(f_window, _("Error"), _("Duplicate pitchbend event"))
                     return
 
             self.default_pb_start = f_start_rounded
@@ -6135,7 +6142,7 @@ class item_list_editor:
 
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
-            this_pydaw_project.commit("Update pitchbends for item '{}'".format(self.item_name))
+            this_pydaw_project.commit(_("Update pitchbends for item '{}'").format(self.item_name))
             if not f_add_another.isChecked():
                 f_window.close()
 
@@ -6149,48 +6156,48 @@ class item_list_editor:
 
         def add_another_clicked(a_checked):
             if a_checked:
-                f_cancel_button.setText("Close")
+                f_cancel_button.setText(_("Close"))
             else:
                 f_cancel_button.setText("Cancel")
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Pitchbend")
+        f_window.setWindowTitle(_("Pitchbend"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_quantize_combobox = QtGui.QComboBox()
         f_quantize_combobox.addItems(beat_fracs)
         f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
-        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Quantize(beats)")), 0, 0)
         f_layout.addWidget(f_quantize_combobox, 0, 1)
         f_pb = QtGui.QDoubleSpinBox()
         f_pb.setSingleStep(0.01)
         f_pb.setRange(-1, 1)
         f_pb.setValue(self.default_pb_val)
-        f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Value")), 2, 0)
         f_layout.addWidget(f_pb, 2, 1)
-        f_layout.addWidget(QtGui.QLabel("Position(beats)"), 3, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Position(beats)")), 3, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
         f_start.setValue(self.default_pb_start)
         f_layout.addWidget(f_start, 3, 1)
-        f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
+        f_draw_line_checkbox = QtGui.QCheckBox(_("Draw line"))
         f_layout.addWidget(f_draw_line_checkbox, 4, 1)
-        f_layout.addWidget(QtGui.QLabel("End(beats)"), 5, 0)
+        f_layout.addWidget(QtGui.QLabel(_("End(beats)")), 5, 0)
         f_end = QtGui.QDoubleSpinBox()
         f_end.setRange(0, 3.99)
         f_layout.addWidget(f_end, 5, 1)
-        f_layout.addWidget(QtGui.QLabel("End Value"), 6, 0)
+        f_layout.addWidget(QtGui.QLabel(_("End Value")), 6, 0)
         f_end_value = QtGui.QDoubleSpinBox()
         f_end_value.setRange(-1, 1)
         f_end_value.setSingleStep(0.01)
         f_layout.addWidget(f_end_value, 6, 1)
-        f_add_another = QtGui.QCheckBox("Add another?")
+        f_add_another = QtGui.QCheckBox(_("Add another?"))
         f_add_another.toggled.connect(add_another_clicked)
         f_layout.addWidget(f_add_another, 7, 1)
-        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button = QtGui.QPushButton(_("OK"))
         f_layout.addWidget(f_ok_button, 8,0)
         f_ok_button.clicked.connect(pb_ok_handler)
-        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_layout.addWidget(f_cancel_button, 8,1)
         f_cancel_button.clicked.connect(pb_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_pb_quantize)
@@ -6215,7 +6222,7 @@ def global_set_record_armed_track():
 
 class seq_track:
     def on_vol_change(self, value):
-        self.volume_label.setText(str(value) + " dB")
+        self.volume_label.setText("{} dB".format(value))
         if not self.suppress_osc:
             if self.is_instrument:
                 this_pydaw_project.this_pydaw_osc.pydaw_set_vol(self.track_number,
@@ -6227,15 +6234,15 @@ class seq_track:
     def on_vol_released(self):
         if self.is_instrument:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-            this_pydaw_project.commit("Set volume for MIDI track "
-                                      "{} to {}".format(self.track_number,
+            this_pydaw_project.commit(_("Set volume for MIDI track "
+                                      "{} to {}").format(self.track_number,
                                       self.volume_slider.value()))
         else:
             f_tracks = this_pydaw_project.get_bus_tracks()
             f_tracks.busses[self.track_number].vol = self.volume_slider.value()
             this_pydaw_project.save_busses(f_tracks)
-            this_pydaw_project.commit("Set volume for bus track {} to {}".format(self.track_number,
-                                      self.volume_slider.value()))
+            this_pydaw_project.commit(_("Set volume for bus track {} to {}").format(
+                self.track_number, self.volume_slider.value()))
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_solo(self, value):
@@ -6243,15 +6250,15 @@ class seq_track:
             this_pydaw_project.this_pydaw_osc.pydaw_set_solo(self.track_number,
                                                              self.solo_checkbox.isChecked(), 0)
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-            this_pydaw_project.commit("Set solo for MIDI track {} to {}".format(self.track_number,
-                                      self.solo_checkbox.isChecked()))
+            this_pydaw_project.commit(_("Set solo for MIDI track {} to {}").format(
+                self.track_number, self.solo_checkbox.isChecked()))
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_mute(self.track_number,
                                                              self.mute_checkbox.isChecked(), 0)
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-            this_pydaw_project.commit("Set mute for MIDI track {} to {}".format(self.track_number,
-                                      self.mute_checkbox.isChecked()))
+            this_pydaw_project.commit(_("Set mute for MIDI track {} to {}").format(
+                self.track_number, self.mute_checkbox.isChecked()))
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_track_rec(
@@ -6267,12 +6274,12 @@ class seq_track:
             this_pydaw_project.this_pydaw_osc.pydaw_save_track_name(
                 self.track_number, self.track_name_lineedit.text(), 0)
             this_pydaw_project.commit(
-                "Set name for MIDI track {} to {}".format(self.track_number,
+                _("Set name for MIDI track {} to {}").format(self.track_number,
                 self.track_name_lineedit.text()))
             global_inst_set_window_title(self.track_number,
-                                         "MIDI Track: {}".format(self.track_name_lineedit.text()))
+                _("MIDI Track: {}").format(self.track_name_lineedit.text()))
             global_fx_set_window_title(0, self.track_number,
-                                       "MIDI Track: {}".format(self.track_name_lineedit.text()))
+                _("MIDI Track: {}").format(self.track_name_lineedit.text()))
 
     def on_instrument_change(self, selected_instrument):
         if not self.suppress_osc:
@@ -6282,7 +6289,7 @@ class seq_track:
                 self.track_number, selected_instrument)
             global_close_inst_ui(self.track_number, True)
             this_pydaw_project.commit(
-                "Set instrument for MIDI track {} to {}".format(self.track_number,
+                _("Set instrument for MIDI track {} to {}").format(self.track_number,
                 self.instrument_combobox.currentText()))
 
     def on_show_ui(self):
@@ -6290,24 +6297,25 @@ class seq_track:
         if f_index == 0:
             pass
         global_open_inst_ui(self.track_number, f_index,
-                            "MIDI Track: {}".format(self.track_name_lineedit.text()))
+                            _("MIDI Track: {}").format(self.track_name_lineedit.text()))
 
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
             if self.is_instrument:
                 if self.instrument_combobox.currentIndex() > 0:
                     global_open_fx_ui(self.track_number, pydaw_folder_instruments, 0,
-                    "MIDI Track: {}".format(self.track_name_lineedit.text()))
+                    _("MIDI Track: {}").format(self.track_name_lineedit.text()))
             else:
                 global_open_fx_ui(self.track_number, pydaw_folder_busfx, 1,
-                "Bus Track: {}".format(self.track_name_lineedit.text()))
+                _("Bus Track: {}").format(self.track_name_lineedit.text()))
     def on_bus_changed(self, a_value=0):
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.this_pydaw_osc.pydaw_set_bus(self.track_number,
                                                             self.bus_combobox.currentIndex(), 0)
-            this_pydaw_project.commit("Set bus for MIDI track {} to {}".format(self.track_number,
-                                      self.bus_combobox.currentIndex()))
+            this_pydaw_project.commit(
+                _("Set bus for MIDI track {} to {}").format(self.track_number,
+                self.bus_combobox.currentIndex()))
 
     def wheel_event(self, a_event=None):
         pass
@@ -6315,7 +6323,7 @@ class seq_track:
     def context_menu_event(self, a_event=None):
         pass
 
-    def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
+    def __init__(self, a_track_num, a_track_text=_("track"), a_instrument=True):
         self.is_instrument = a_instrument
         if a_instrument:
             self.track_type = 0
@@ -6376,7 +6384,7 @@ class seq_track:
             self.bus_combobox.addItems(['M', '1','2','3','4'])
             self.bus_combobox.setMinimumWidth(54)
             self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
-            self.hlayout2.addWidget(QtGui.QLabel("Bus:"))
+            self.hlayout2.addWidget(QtGui.QLabel(_("Bus:")))
             self.hlayout2.addWidget(self.bus_combobox)
             self.hlayout3.addWidget(self.fx_button)
             self.solo_checkbox = QtGui.QCheckBox()
@@ -6554,7 +6562,7 @@ class transport_widget:
             if global_current_region is not None and this_region_settings.enabled:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
-            this_pydaw_project.commit("Recording")
+            this_pydaw_project.commit(_("Recording"))
         self.init_playback_cursor(a_start=False)
         self.is_playing = False
         self.set_bar_value(self.last_bar)
@@ -6572,8 +6580,8 @@ class transport_widget:
         def ok_handler():
             f_file_name = str(f_file.text())
             if f_file_name is None or f_file_name == "":
-                QtGui.QMessageBox.warning(f_window, "Error",
-                                          "You must select a name for the item")
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                                          _("You must select a name for the item"))
                 return
             this_pydaw_project.check_for_recorded_items(f_file_name)
             f_window.close()
@@ -6586,13 +6594,13 @@ class transport_widget:
         f_window.setMinimumWidth(330)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_layout.addWidget(QtGui.QLabel("Save recorded MIDI items"), 0, 2)
-        f_layout.addWidget(QtGui.QLabel("Item Name:"), 3, 1)
+        f_layout.addWidget(QtGui.QLabel(_("Save recorded MIDI items")), 0, 2)
+        f_layout.addWidget(QtGui.QLabel(_("Item Name:")), 3, 1)
         f_file = QtGui.QLineEdit()
         f_file.setMaxLength(24)
         f_file.textEdited.connect(text_edit_handler)
         f_layout.addWidget(f_file, 3, 2)
-        f_ok_button = QtGui.QPushButton("Save")
+        f_ok_button = QtGui.QPushButton(_("Save"))
         f_ok_button.clicked.connect(ok_handler)
         f_layout.addWidget(f_ok_button, 8,2)
         f_window.exec_()
@@ -6602,8 +6610,8 @@ class transport_widget:
             self.play_button.setChecked(True)
             return
         if self.overdub_checkbox.isChecked() and self.loop_mode_combobox.currentIndex() > 0:
-            QtGui.QMessageBox.warning(self.group_box, "Error",
-                                      "Cannot use overdub mode with loop mode to record")
+            QtGui.QMessageBox.warning(self.group_box, _("Error"),
+                                      _("Cannot use overdub mode with loop mode to record"))
             self.stop_button.setChecked(True)
             return
         this_song_editor.table_widget.setEnabled(False)
@@ -6631,7 +6639,7 @@ class transport_widget:
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_tempo(a_tempo)
             this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.commit("Set project tempo to {}".format(a_tempo))
+            this_pydaw_project.commit(_("Set project tempo to {}").format(a_tempo))
 
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
@@ -6715,20 +6723,20 @@ class transport_widget:
         self.hlayout1.addWidget(self.rec_button)
         self.grid_layout1 = QtGui.QGridLayout()
         self.hlayout1.addLayout(self.grid_layout1)
-        self.grid_layout1.addWidget(QtGui.QLabel("BPM:"), 0, 0)
+        self.grid_layout1.addWidget(QtGui.QLabel(_("BPM:")), 0, 0)
         self.tempo_spinbox = QtGui.QSpinBox()
         self.tempo_spinbox.setKeyboardTracking(False)
         self.tempo_spinbox.setObjectName("large_spinbox")
         self.tempo_spinbox.setRange(50, 200)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
         self.grid_layout1.addWidget(self.tempo_spinbox, 1, 0)
-        self.grid_layout1.addWidget(QtGui.QLabel("Region:"), 0, 10)
+        self.grid_layout1.addWidget(QtGui.QLabel(_("Region:")), 0, 10)
         self.region_spinbox = QtGui.QSpinBox()
         self.region_spinbox.setObjectName("large_spinbox")
         self.region_spinbox.setRange(1, 300)
         self.region_spinbox.valueChanged.connect(self.on_region_changed)
         self.grid_layout1.addWidget(self.region_spinbox, 1, 10)
-        self.grid_layout1.addWidget(QtGui.QLabel("Bar:"), 0, 20)
+        self.grid_layout1.addWidget(QtGui.QLabel(_("Bar:")), 0, 20)
         self.bar_spinbox = QtGui.QSpinBox()
         self.bar_spinbox.setObjectName("large_spinbox")
         self.bar_spinbox.setRange(1, 8)
@@ -6738,26 +6746,26 @@ class transport_widget:
         f_upper_ctrl_layout = QtGui.QHBoxLayout()
         f_loop_midi_gridlayout.addLayout(f_upper_ctrl_layout)
         f_lower_ctrl_layout = QtGui.QHBoxLayout()
-        f_upper_ctrl_layout.addWidget(QtGui.QLabel("Loop Mode:"))
+        f_upper_ctrl_layout.addWidget(QtGui.QLabel(_("Loop Mode:")))
         self.loop_mode_combobox = QtGui.QComboBox()
-        self.loop_mode_combobox.addItems(["Off", "Region"])
+        self.loop_mode_combobox.addItems([_("Off"), _("Region")])
         self.loop_mode_combobox.setMinimumWidth(90)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
         f_upper_ctrl_layout.addWidget(self.loop_mode_combobox)
-        self.follow_checkbox = QtGui.QCheckBox("Follow")
+        self.follow_checkbox = QtGui.QCheckBox(_("Follow"))
         self.follow_checkbox.setChecked(True)
         self.follow_checkbox.clicked.connect(self.on_follow_cursor_check_changed)
         f_lower_ctrl_layout.addWidget(self.follow_checkbox)
-        self.overdub_checkbox = QtGui.QCheckBox("Overdub")
+        self.overdub_checkbox = QtGui.QCheckBox(_("Overdub"))
         self.overdub_checkbox.clicked.connect(self.on_overdub_changed)
         f_lower_ctrl_layout.addWidget(self.overdub_checkbox)
-        self.menu_button = QtGui.QPushButton("Menu")
+        self.menu_button = QtGui.QPushButton(_("Menu"))
         f_lower_ctrl_layout.addWidget(self.menu_button)
-        self.panic_button = QtGui.QPushButton("Panic")
+        self.panic_button = QtGui.QPushButton(_("Panic"))
         self.panic_button.pressed.connect(self.on_panic)
         f_lower_ctrl_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         f_lower_ctrl_layout.addWidget(self.panic_button)
-        self.tooltips_checkbox = QtGui.QCheckBox("Tooltips")
+        self.tooltips_checkbox = QtGui.QCheckBox(_("Tooltips"))
         self.tooltips_checkbox.stateChanged.connect(pydaw_set_tooltips_enabled)
         f_upper_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout)
@@ -6768,15 +6776,15 @@ class transport_widget:
     def set_tooltips(self, a_enabled):
         if a_enabled:
             self.tooltips_checkbox.setToolTip(
-                "Check this box to show really annoying (but useful) tooltips "
-                "for everything")
+                _("Check this box to show really annoying (but useful) tooltips "
+                "for everything"))
             self.panic_button.setToolTip(
-                "Panic button:   Sends a note-off signal on every note to every instrument")
+                _("Panic button:   Sends a note-off signal on every note to every instrument"))
             self.overdub_checkbox.setToolTip(
-                "Checking this box causes recording to unlink existing items and append "
-                "new events to the existing events")
+                _("Checking this box causes recording to unlink existing items and append "
+                "new events to the existing events"))
             self.follow_checkbox.setToolTip(
-                "Checking this box causes the region editor to follow playback")
+                _("Checking this box causes the region editor to follow playback"))
         else:
             self.tooltips_checkbox.setToolTip("")
             self.panic_button.setToolTip("")
@@ -6908,9 +6916,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         """
         f_parent_dir = os.path.dirname(a_file)
         if not os.listdir(f_parent_dir) == []:
-            QtGui.QMessageBox.warning(self, "Error",
-            "You must save the project file to an empty directory, use "
-            "the 'Create Folder' button to create a directory.")
+            QtGui.QMessageBox.warning(self, _("Error"),
+            _("You must save the project file to an empty directory, use "
+            "the 'Create Folder' button to create a directory."))
             return False
         else:
             return True
@@ -6921,7 +6929,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         try:
             while True:
                 f_file = QtGui.QFileDialog.getSaveFileName(
-                    parent=self, caption='New Project',
+                    parent=self, caption=_('New Project'),
                     directory="{}/default.{}".format(global_home, global_pydaw_version_string),
                     filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
@@ -6939,7 +6947,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         if global_transport_is_playing:
             return
         try:
-            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project',
+            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption=_('Open Project'),
                                                        directory=global_default_project_folder,
                                                        filter=global_pydaw_file_type_string)
             if f_file is None:
@@ -6956,7 +6964,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         try:
             while True:
-                f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...",
+                f_new_file = QtGui.QFileDialog.getSaveFileName(self, _("Save project as..."),
                                                                directory="{}/{}.{}".format(
                                                                global_default_project_folder,
                                                                this_pydaw_project.project_file,
@@ -6989,7 +6997,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             if os.path.isfile(f_file_name):
                 f_ok.setEnabled(True)
                 f_timer.stop()
-                f_time_label.setText("Finished in {}".format(f_time_label.text()))
+                f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
                 os.system('rm "{}"'.format(f_file_name))
             else:
                 f_elapsed_time = time.time() - f_start_time
@@ -6997,7 +7005,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         f_start_time = time.time()
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Rendering to .wav, please wait")
+        f_window.setWindowTitle(_("Rendering to .wav, please wait"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_time_label = QtGui.QLabel("")
@@ -7006,7 +7014,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_timer = QtCore.QTimer()
         f_timer.timeout.connect(timeout_handler)
 
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok.setEnabled(False)
         f_layout.addWidget(f_ok)
@@ -7023,13 +7031,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         def ok_handler():
             if str(f_name.text()) == "":
-                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
+                QtGui.QMessageBox.warning(f_window, _("Error"), _("Name cannot be empty"))
                 return
             if (f_end_region.value() < f_start_region.value()) or \
             ((f_end_region.value() == f_start_region.value()) and \
             (f_start_bar.value() >= f_end_bar.value())):
-                QtGui.QMessageBox.warning(f_window, "Error",
-                "End point is before start point.")
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                _("End point is before start point."))
                 return
 
             if f_copy_to_clipboard_checkbox.isChecked():
@@ -7060,7 +7068,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getSaveFileName(
-                    f_window,  "Select a file name to save to...", self.last_offline_dir))
+                    f_window,  _("Select a file name to save to..."), self.last_offline_dir))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(".wav"):
                         f_file_name += ".wav"
@@ -7090,64 +7098,64 @@ class pydaw_main_window(QtGui.QMainWindow):
                     break
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Offline Render")
+        f_window.setWindowTitle(_("Offline Render"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_name = QtGui.QLineEdit()
         f_name.setReadOnly(True)
         f_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("File Name:")), 0, 0)
         f_layout.addWidget(f_name, 0, 1)
-        f_select_file = QtGui.QPushButton("Select")
+        f_select_file = QtGui.QPushButton(_("Select"))
         f_select_file.pressed.connect(file_name_select)
         f_layout.addWidget(f_select_file, 0, 2)
 
-        f_layout.addWidget(QtGui.QLabel("Start:"), 1, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Start:")), 1, 0)
         f_start_hlayout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_start_hlayout, 1, 1)
-        f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
+        f_start_hlayout.addWidget(QtGui.QLabel(_("Region:")))
         f_start_region = QtGui.QSpinBox()
         f_start_region.setRange(1, 299)
         f_start_region.setValue(self.start_reg)
         f_start_hlayout.addWidget(f_start_region)
-        f_start_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        f_start_hlayout.addWidget(QtGui.QLabel(_("Bar:")))
         f_start_bar = QtGui.QSpinBox()
         f_start_bar.setRange(1, 8)
         f_start_bar.setValue(self.start_bar)
         f_start_hlayout.addWidget(f_start_bar)
 
-        f_layout.addWidget(QtGui.QLabel("End:"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("End:")), 2, 0)
         f_end_hlayout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_end_hlayout, 2, 1)
-        f_end_hlayout.addWidget(QtGui.QLabel("Region:"))
+        f_end_hlayout.addWidget(QtGui.QLabel(_("Region:")))
         f_end_region = QtGui.QSpinBox()
         f_end_region.setRange(1, 299)
         f_end_region.setValue(self.end_reg)
         f_end_hlayout.addWidget(f_end_region)
-        f_end_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        f_end_hlayout.addWidget(QtGui.QLabel(_("Bar:")))
         f_end_bar = QtGui.QSpinBox()
         f_end_bar.setRange(1, 8)
         f_end_bar.setValue(self.end_bar)
         f_end_hlayout.addWidget(f_end_bar)
         f_layout.addWidget(QtGui.QLabel(
-        "File is exported to 32 bit .wav at the sample rate your audio "
+        _("File is exported to 32 bit .wav at the sample rate your audio "
         "interface is running at.\nYou can convert "
-        "the format using other programs such as Audacity"), 3, 1)
+        "the format using other programs such as Audacity")), 3, 1)
         f_copy_to_clipboard_checkbox = QtGui.QCheckBox(
-        "Copy export path to clipboard? (useful for right-click pasting "
-        "back into the audio sequencer)")
+        _("Copy export path to clipboard? (useful for right-click pasting "
+        "back into the audio sequencer)"))
         f_copy_to_clipboard_checkbox.setChecked(self.copy_to_clipboard_checked)
         f_layout.addWidget(f_copy_to_clipboard_checkbox, 4, 1)
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_layout, 9, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
@@ -7171,7 +7179,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         this_pydaw_project.flush_history()
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Undo history")
+        f_window.setWindowTitle(_("Undo history"))
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
         f_widget = pydaw_history_log_widget(this_pydaw_project.history,
@@ -7186,7 +7194,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         f_str = this_pydaw_project.verify_history()
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Verify Project History Database")
+        f_window.setWindowTitle(_("Verify Project History Database"))
         f_window.setFixedSize(800, 600)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
@@ -7206,7 +7214,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(self,
-                    "Open a theme file", "{}/lib/{}/themes".format(
+                    _("Open a theme file"), "{}/lib/{}/themes".format(
                         pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string),
                     "PyDAW Style(*.pytheme)")
             if f_file is not None and str(f_file) != "":
@@ -7215,8 +7223,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_dir = os.path.dirname(f_file)
                 f_style = pydaw_escape_stylesheet(f_style, f_dir)
                 pydaw_write_file_text(global_user_style_file, f_file)
-                QtGui.QMessageBox.warning(this_main_window, "Theme Applied...",
-                                          "Please restart PyDAW to update the UI")
+                QtGui.QMessageBox.warning(this_main_window, _("Theme Applied..."),
+                                          _("Please restart PyDAW to update the UI"))
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
@@ -7224,7 +7232,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         def on_ok():
             f_window.close()
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Version Info")
+        f_window.setWindowTitle(_("Version Info"))
         f_window.setFixedSize(420, 90)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
@@ -7233,7 +7241,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             global_pydaw_version_string)))
         f_version.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         f_layout.addWidget(f_version)
-        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button = QtGui.QPushButton(_("OK"))
         f_layout.addWidget(f_ok_button)
         f_ok_button.pressed.connect(on_ok)
         f_window.exec_()
@@ -7256,20 +7264,20 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         def ok_handler():
             if self.midi_file is None:
-                QtGui.QMessageBox.warning(f_window, "Error",
-                                          "File name cannot be empty")
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                                          _("File name cannot be empty"))
                 return
             f_item_name_str = str(f_item_name.text())
             if f_item_name_str == "":
-                QtGui.QMessageBox.warning(f_window, "Error", "File name cannot be empty")
+                QtGui.QMessageBox.warning(f_window, _("Error"), _("File name cannot be empty"))
                 return
             if not self.midi_file.populate_region_from_track_map(
             this_pydaw_project, f_item_name_str):
-                QtGui.QMessageBox.warning(f_window, "Error",
-                "No available slots for inserting a region, delete an existing "
-                "region from the song editor first")
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                _("No available slots for inserting a region, delete an existing "
+                "region from the song editor first"))
             else:
-                this_pydaw_project.commit("Import MIDI file")
+                this_pydaw_project.commit(_("Import MIDI file"))
                 this_song_editor.open_song()
             f_window.close()
 
@@ -7281,7 +7289,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = QtGui.QFileDialog.getOpenFileName(
-                    parent=self, caption='Open MIDI File',
+                    parent=self, caption=_('Open MIDI File'),
                     directory=global_default_project_folder, filter='MIDI File (*.mid)')
                 if not f_file_name is None and not str(f_file_name) == "":
                     self.midi_file = pydaw_midi_file_to_items(f_file_name)
@@ -7297,22 +7305,22 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Import MIDI File...")
+        f_window.setWindowTitle(_("Import MIDI File..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_name = QtGui.QLineEdit()
         f_name.setReadOnly(True)
         f_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("File Name:")), 0, 0)
         f_layout.addWidget(f_name, 0, 1)
-        f_select_file = QtGui.QPushButton("Select")
+        f_select_file = QtGui.QPushButton(_("Select"))
         f_select_file.pressed.connect(file_name_select)
         f_layout.addWidget(f_select_file, 0, 2)
 
         f_item_name = QtGui.QLineEdit()
         f_item_name.setMaxLength(24)
-        f_layout.addWidget(QtGui.QLabel("Item Name:"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Item Name:")), 2, 0)
         f_item_name.editingFinished.connect(item_name_changed)
         f_layout.addWidget(f_item_name, 2, 1)
 
@@ -7323,11 +7331,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_layout, 9, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
@@ -7349,12 +7357,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_lame = "lame"
         for f_app in (f_avconv, f_lame):
             if pydaw_which(f_app) is None:
-                QtGui.QMessageBox.warning(self, "Error", \
-                "Please ensure that avconv and lame are installed, can't "
+                QtGui.QMessageBox.warning(self, _("Error"),
+                _("Please ensure that avconv and lame are installed, can't "
                 "open audio converter dialog.\n"
                 "Check your normal sources for packages or visit:\n\n"
                 "http://lame.sourceforge.net/\n"
-                "http://libav.org\n\nCan't find {}".format(f_app))
+                "http://libav.org\n\nCan't find {}").format(f_app))
                 return
 
         if global_transport_is_playing:
@@ -7364,7 +7372,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_input_file = str(f_name.text())
             f_output_file = str(f_output_name.text())
             if f_input_file == "" or f_output_file == "":
-                QtGui.QMessageBox.warning(f_window, "Error", "File names cannot be empty")
+                QtGui.QMessageBox.warning(f_window, _("Error"), _("File names cannot be empty"))
                 return
             if f_wav_radiobutton.isChecked():
                 f_cmd = [f_avconv, "-i", f_input_file, f_output_file]
@@ -7374,7 +7382,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_proc = subprocess.Popen(f_cmd)
             f_proc.communicate()
             f_window.close()
-            QtGui.QMessageBox.warning(self, "Success", "Created file")
+            QtGui.QMessageBox.warning(self, _("Success"), _("Created file"))
 
         def cancel_handler():
             f_window.close()
@@ -7384,7 +7392,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not os.path.isdir(self.last_ac_dir):
                     self.last_ac_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getOpenFileName(
-                    f_window, "Select a file name to save to...",
+                    f_window, _("Select a file name to save to..."),
                     self.last_ac_dir, filter="Audio Files(*.wav *.mp3)"))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name is None and not str(f_file_name) == "":
@@ -7403,7 +7411,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not os.path.isdir(self.last_ac_dir):
                     self.last_ac_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getSaveFileName(
-                    f_window, "Select a file name to save to...", self.last_ac_dir))
+                    f_window, _("Select a file name to save to..."), self.last_ac_dir))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(self.ac_ext):
                         f_file_name += self.ac_ext
@@ -7425,25 +7433,25 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.ac_ext = ".wav"
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Audio File Converter")
+        f_window.setWindowTitle(_("Audio File Converter"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_name = QtGui.QLineEdit()
         f_name.setReadOnly(True)
         f_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel("Input File:"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Input File:")), 0, 0)
         f_layout.addWidget(f_name, 0, 1)
-        f_select_file = QtGui.QPushButton("Select")
+        f_select_file = QtGui.QPushButton(_("Select"))
         f_select_file.pressed.connect(file_name_select)
         f_layout.addWidget(f_select_file, 0, 2)
 
         f_output_name = QtGui.QLineEdit()
         f_output_name.setReadOnly(True)
         f_output_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel("Output File:"), 1, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Output File:")), 1, 0)
         f_layout.addWidget(f_output_name, 1, 1)
-        f_select_file_output = QtGui.QPushButton("Select")
+        f_select_file_output = QtGui.QPushButton(_("Select"))
         f_select_file_output.pressed.connect(file_name_select_output)
         f_layout.addWidget(f_select_file_output, 1, 2)
 
@@ -7465,7 +7473,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_mp3_radiobutton.toggled.connect(format_changed)
         f_mp3_br_combobox = QtGui.QComboBox()
         f_mp3_br_combobox.addItems(["320", "160", "128"])
-        f_mp3_layout.addWidget(QtGui.QLabel("Bitrate"))
+        f_mp3_layout.addWidget(QtGui.QLabel(_("Bitrate")))
         f_mp3_layout.addWidget(f_mp3_br_combobox)
         f_layout.addLayout(f_mp3_layout, 3, 1)
 
@@ -7473,11 +7481,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_layout, 9, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
@@ -7518,97 +7526,99 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_bar = QtGui.QMenu(self)
         # Dirty hack, rather than moving the methods to the transport
         this_transport.menu_button.setMenu(self.menu_bar)
-        self.menu_file = self.menu_bar.addMenu("&File")
+        self.menu_file = self.menu_bar.addMenu(_("&File"))
 
-        self.new_action = QtGui.QAction("New", self)
+        self.new_action = QtGui.QAction(_("New"), self)
         self.menu_file.addAction(self.new_action)
         self.new_action.triggered.connect(self.on_new)
         self.new_action.setShortcut(QtGui.QKeySequence.New)
 
-        self.open_action = QtGui.QAction("Open", self)
+        self.open_action = QtGui.QAction(_("Open"), self)
         self.menu_file.addAction(self.open_action)
         self.open_action.triggered.connect(self.on_open)
         self.open_action.setShortcut(QtGui.QKeySequence.Open)
 
         self.save_as_action = QtGui.QAction(
-            "Save As...(projects are automatically saved, this creates a copy)", self)
+            _("Save As...(projects are automatically saved, this creates a copy)"), self)
         self.menu_file.addAction(self.save_as_action)
         self.save_as_action.triggered.connect(self.on_save_as)
         self.save_as_action.setShortcut(QtGui.QKeySequence.SaveAs)
         self.menu_file.addSeparator()
 
-        self.offline_render_action = QtGui.QAction("Offline Render...", self)
+        self.offline_render_action = QtGui.QAction(_("Offline Render..."), self)
         self.menu_file.addAction(self.offline_render_action)
         self.offline_render_action.triggered.connect(self.on_offline_render)
 
-        self.import_midi_action = QtGui.QAction("Import MIDI File...", self)
+        self.import_midi_action = QtGui.QAction(_("Import MIDI File..."), self)
         self.menu_file.addAction(self.import_midi_action)
         self.import_midi_action.triggered.connect(self.on_import_midi)
         self.menu_file.addSeparator()
 
-        self.audio_device_action = QtGui.QAction("Hardware Settings...", self)
+        self.audio_device_action = QtGui.QAction(_("Hardware Settings..."), self)
         self.menu_file.addAction(self.audio_device_action)
         self.audio_device_action.triggered.connect(self.on_change_audio_settings)
         self.menu_file.addSeparator()
 
-        self.quit_action = QtGui.QAction("Quit", self)
+        self.quit_action = QtGui.QAction(_("Quit"), self)
         self.menu_file.addAction(self.quit_action)
         self.quit_action.triggered.connect(self.close)
         self.quit_action.setShortcut(QtGui.QKeySequence.Quit)
 
-        self.menu_edit = self.menu_bar.addMenu("&Edit")
+        self.menu_edit = self.menu_bar.addMenu(_("&Edit"))
 
-        self.undo_action = QtGui.QAction("Undo", self)
+        self.undo_action = QtGui.QAction(_("Undo"), self)
         self.menu_edit.addAction(self.undo_action)
         self.undo_action.triggered.connect(self.on_undo)
         self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
 
-        self.redo_action = QtGui.QAction("Redo", self)
+        self.redo_action = QtGui.QAction(_("Redo"), self)
         self.menu_edit.addAction(self.redo_action)
         self.redo_action.triggered.connect(self.on_redo)
         self.redo_action.setShortcut(QtGui.QKeySequence.Redo)
 
         self.menu_edit.addSeparator()
 
-        self.undo_history_action = QtGui.QAction("Undo History...", self)
+        self.undo_history_action = QtGui.QAction(_("Undo History..."), self)
         self.menu_edit.addAction(self.undo_history_action)
         self.undo_history_action.triggered.connect(self.on_undo_history)
 
-        self.verify_history_action = QtGui.QAction("Verify History DB...", self)
+        self.verify_history_action = QtGui.QAction(_("Verify History DB..."), self)
         self.menu_edit.addAction(self.verify_history_action)
         self.verify_history_action.triggered.connect(self.on_verify_history)
 
-        self.menu_appearance = self.menu_bar.addMenu("&Appearance")
+        self.menu_appearance = self.menu_bar.addMenu(_("&Appearance"))
 
-        self.collapse_splitters_action = QtGui.QAction("Collapse transport and song editor", self)
+        self.collapse_splitters_action = QtGui.QAction(
+            _("Collapse transport and song editor"), self)
         self.menu_appearance.addAction(self.collapse_splitters_action)
         self.collapse_splitters_action.triggered.connect(self.on_collapse_splitters)
         self.collapse_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Up"))
 
-        self.restore_splitters_action = QtGui.QAction("Restore transport and song editor", self)
+        self.restore_splitters_action = QtGui.QAction(
+            _("Restore transport and song editor"), self)
         self.menu_appearance.addAction(self.restore_splitters_action)
         self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
         self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
 
         self.menu_appearance.addSeparator()
 
-        self.open_theme_action = QtGui.QAction("Open Theme...", self)
+        self.open_theme_action = QtGui.QAction(_("Open Theme..."), self)
         self.menu_appearance.addAction(self.open_theme_action)
         self.open_theme_action.triggered.connect(self.on_open_theme)
 
-        self.menu_tools = self.menu_bar.addMenu("&Tools")
+        self.menu_tools = self.menu_bar.addMenu(_("&Tools"))
 
-        self.ac_action = QtGui.QAction("Audio Converter...", self)
+        self.ac_action = QtGui.QAction(_("Audio Converter..."), self)
         self.menu_tools.addAction(self.ac_action)
         self.ac_action.triggered.connect(self.audio_converter_dialog)
 
-        self.menu_help = self.menu_bar.addMenu("&Help")
+        self.menu_help = self.menu_bar.addMenu(_("&Help"))
 
-        self.website_action = QtGui.QAction("PyDAW Website...", self)
+        self.website_action = QtGui.QAction(_("PyDAW Website..."), self)
         self.menu_help.addAction(self.website_action)
         self.website_action.triggered.connect(self.on_website)
 
-        self.version_action = QtGui.QAction("Version Info...", self)
+        self.version_action = QtGui.QAction(_("Version Info..."), self)
         self.menu_help.addAction(self.version_action)
         self.version_action.triggered.connect(self.on_version)
 
@@ -7630,18 +7640,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_tab.setLayout(self.song_region_vlayout)
         self.song_region_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.song_region_splitter.addWidget(self.song_region_tab)
-        self.main_tabwidget.addTab(self.song_region_splitter, "Song/Region")
+        self.main_tabwidget.addTab(self.song_region_splitter, _("Song/Region"))
 
         self.song_region_vlayout.addWidget(this_song_editor.table_widget)
         self.song_region_vlayout.addLayout(this_region_settings.hlayout0)
 
         self.song_region_splitter.addWidget(self.regions_tab_widget)
-        self.regions_tab_widget.addTab(this_region_editor.table_widget, "Instruments")
-        self.regions_tab_widget.addTab(this_region_bus_editor.table_widget, "Busses")
-        self.regions_tab_widget.addTab(this_region_audio_editor.table_widget, "Audio Tracks")
-        self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, "Audio Seq")
+        self.regions_tab_widget.addTab(this_region_editor.table_widget, _("Instruments"))
+        self.regions_tab_widget.addTab(this_region_bus_editor.table_widget, _("Busses"))
+        self.regions_tab_widget.addTab(this_region_audio_editor.table_widget, _("Audio Tracks"))
+        self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, _("Audio Seq"))
 
-        self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
+        self.main_tabwidget.addTab(this_item_editor.widget, _("MIDI Item"))
 
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
@@ -7653,13 +7663,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10,
                                                    QtGui.QSizePolicy.Expanding,
                                                    QtGui.QSizePolicy.Minimum))
-        self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
+        self.main_tabwidget.addTab(self.cc_map_tab, _("CC Maps"))
         self.main_tabwidget.addTab(this_ab_widget.widget, "A/B")
 
         self.notes_tab = QtGui.QTextEdit(self)
         self.notes_tab.setAcceptRichText(False)
         self.notes_tab.leaveEvent = self.on_edit_notes
-        self.main_tabwidget.addTab(self.notes_tab, "Project Notes")
+        self.main_tabwidget.addTab(self.notes_tab, _("Project Notes"))
 
         try:
             self.osc_server = liblo.Server(30321)
@@ -7688,9 +7698,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             exitCode = global_pydaw_subprocess.returncode
             if (exitCode != 0):
                 QtGui.QMessageBox.warning(
-                    self, "Error",
-                    "The audio engine died with error code {}, "
-                    "please try restarting PyDAW".format(exitCode))
+                    self, _("Error"),
+                    _("The audio engine died with error code {}, "
+                    "please try restarting PyDAW").format(exitCode))
 
     def osc_time_callback(self):
         self.osc_server.recv(1)
@@ -7739,7 +7749,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 return
             self.setEnabled(False)
             f_reply = QtGui.QMessageBox.question(
-                self, 'Message', "Are you sure you want to quit?",
+                self, _('Message'), _("Are you sure you want to quit?"),
                 QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
             if f_reply == QtGui.QMessageBox.Cancel:
                 self.setEnabled(True)
@@ -7833,24 +7843,24 @@ class pydaw_cc_map_editor:
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Save CC Map")
+        f_window.setWindowTitle(_("Save CC Map"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_name = QtGui.QLineEdit()
         f_name.setMinimumWidth(240)
-        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("File Name:")), 0, 0)
         f_layout.addWidget(f_name, 0, 1)
 
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_layout, 9, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
@@ -7871,24 +7881,24 @@ class pydaw_cc_map_editor:
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("New CC Map")
+        f_window.setWindowTitle(_("New CC Map"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_name = QtGui.QLineEdit()
         f_name.setMinimumWidth(240)
-        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(QtGui.QLabel(_("File Name:")), 0, 0)
         f_layout.addWidget(f_name, 0, 1)
 
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
-        f_ok = QtGui.QPushButton("OK")
+        f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_layout, 9, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
@@ -7936,21 +7946,21 @@ class pydaw_cc_map_editor:
 
         f_window = QtGui.QDialog(this_main_window)
         f_window.closeEvent = window_close_event
-        f_window.setWindowTitle("Map CC to Control(s)")
+        f_window.setWindowTitle(_("Map CC to Control(s)"))
         f_window.setMinimumWidth(240)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_layout.addWidget(QtGui.QLabel("Move your MIDI controller to set the CC number,\n"
+        f_layout.addWidget(QtGui.QLabel(_("Move your MIDI controller to set the CC number,\n"
         "you must select a MIDI controller and record arm a track first.\n\n"
         "Checking the 'Effects tracks only?' box will cause the controller to only\n"
-        "modify Modulex and all instrument controls will be ignored."), 0, 1)
+        "modify Modulex and all instrument controls will be ignored.")), 0, 1)
         self.cc_spinbox = QtGui.QSpinBox()
         self.cc_spinbox.setRange(1, 127)
         if x is not None:
             self.cc_spinbox.setValue(int(self.cc_table.item(x, 0).text()))
         f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
         f_layout.addWidget(self.cc_spinbox, 1, 1)
-        f_effects_cb = QtGui.QCheckBox("Effects tracks only?")
+        f_effects_cb = QtGui.QCheckBox(_("Effects tracks only?"))
         f_layout.addWidget(f_effects_cb, 2, 1)
         if x is not None and str(self.cc_table.item(x, 1).text()) == "True":
             f_effects_cb.setChecked(True)
@@ -7994,10 +8004,10 @@ class pydaw_cc_map_editor:
 
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_ok_cancel_layout, 7,1)
-        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button = QtGui.QPushButton(_("OK"))
         f_ok_cancel_layout.addWidget(f_ok_button)
         f_ok_button.clicked.connect(cc_ok_handler)
-        f_cancel_button = QtGui.QPushButton("Clear")
+        f_cancel_button = QtGui.QPushButton(_("Clear"))
         f_ok_cancel_layout.addWidget(f_cancel_button)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         this_pydaw_project.this_pydaw_osc.pydaw_midi_learn(True)
@@ -8014,7 +8024,7 @@ class pydaw_cc_map_editor:
         self.current_map_name = "default"
         self.cc_maps_list = os.listdir(global_cc_map_folder)
         self.cc_maps_list.sort()
-        self.groupbox = QtGui.QGroupBox("Controllers")
+        self.groupbox = QtGui.QGroupBox(_("Controllers"))
         self.groupbox.setFixedWidth(930)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
         f_button_layout = QtGui.QHBoxLayout()
@@ -8023,7 +8033,7 @@ class pydaw_cc_map_editor:
                                             QtGui.QSizePolicy.Expanding,
                                             QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
-        f_new_cc_button = QtGui.QPushButton("New CC")
+        f_new_cc_button = QtGui.QPushButton(_("New CC"))
         f_new_cc_button.pressed.connect(self.on_new_cc)
         f_button_layout.addWidget(f_new_cc_button)
         self.map_combobox = QtGui.QComboBox()
@@ -8031,10 +8041,10 @@ class pydaw_cc_map_editor:
         self.map_combobox.addItems(self.cc_maps_list)
         self.map_combobox.currentIndexChanged.connect(self.on_open)
         f_button_layout.addWidget(self.map_combobox)
-        f_new_button = QtGui.QPushButton("New Map")
+        f_new_button = QtGui.QPushButton(_("New Map"))
         f_new_button.pressed.connect(self.on_new)
         f_button_layout.addWidget(f_new_button)
-        f_save_as_button = QtGui.QPushButton("Save As")
+        f_save_as_button = QtGui.QPushButton(_("Save As"))
         f_save_as_button.pressed.connect(self.on_save_as)
         f_button_layout.addWidget(f_save_as_button)
         self.cc_table = QtGui.QTableWidget(0, 6)
@@ -8090,16 +8100,16 @@ class a_b_widget:
         self.file_lineedit.setReadOnly(True)
         self.file_hlayout.addWidget(self.file_lineedit)
         self.vlayout.addLayout(self.file_hlayout)
-        self.file_button = QtGui.QPushButton("Open")
+        self.file_button = QtGui.QPushButton(_("Open"))
         self.file_button.pressed.connect(self.on_file_open)
         self.file_hlayout.addWidget(self.file_button)
-        self.enabled_checkbox = QtGui.QCheckBox("Enabled?")
+        self.enabled_checkbox = QtGui.QCheckBox(_("Enabled?"))
         self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
         self.file_hlayout.addWidget(self.enabled_checkbox)
-        self.return_checkbox = QtGui.QCheckBox("Return to start pos on stop?")
+        self.return_checkbox = QtGui.QCheckBox(_("Return to start pos on stop?"))
         self.return_checkbox.setChecked(True)
         self.file_hlayout.addWidget(self.return_checkbox)
-        self.transport_checkbox = QtGui.QCheckBox("Follow transport time?")
+        self.transport_checkbox = QtGui.QCheckBox(_("Follow transport time?"))
         self.transport_checkbox.setChecked(True)
         self.file_hlayout.addWidget(self.transport_checkbox)
         self.gridlayout = QtGui.QGridLayout()
@@ -8143,7 +8153,7 @@ class a_b_widget:
         if not os.path.isdir(self.last_folder):
             self.last_folder = global_home
         f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget,
-                                                   caption='Open .wav file for A/B',
+                                                   caption=_('Open .wav file for A/B'),
                                                    directory=self.last_folder,
                                                    filter='Wav File(*.wav)')
         if f_file is None:
@@ -8324,8 +8334,8 @@ if not os.path.isdir(global_cc_map_folder):
 
 pydaw_load_controller_maps()
 
-global_timestretch_modes = ["None", "Pitch(affecting time)",
-                            "Time(affecting pitch)", "Rubberband",
+global_timestretch_modes = [_("None"), _("Pitch(affecting time)"),
+                            _("Time(affecting pitch)"), "Rubberband",
                             "Rubberband(formants)", "SBSMS", "Paulstretch"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4",
                             4:"track5", 5:"track6", 6:"track7", 7:"track8"}
@@ -8415,12 +8425,12 @@ def kill_pydaw_engine():
                 print("kill_pydaw_engine Exception adding PID {}\n\t{}".format(f_arr[1], ex,))
 
     if len(f_result) > 0:
-        f_answer = QtGui.QMessageBox.warning(this_audio_item_editor_widget.widget, "Warning",
-        "Detected that there are instances of the PyDAW audio engine already running.\n"
+        f_answer = QtGui.QMessageBox.warning(this_audio_item_editor_widget.widget, _("Warning"),
+        _("Detected that there are instances of the PyDAW audio engine already running.\n"
         "This could mean that you already have PyDAW running, if so you should click 'Cancel'\n"
         "and close the other instance.\n\n"
         "This could also mean that for some reason the engine didn't properly terminate from "
-        "another session.  If so, click 'OK' to kill the other process(es)",
+        "another session.  If so, click 'OK' to kill the other process(es)"),
         buttons=QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
         if f_answer == QtGui.QMessageBox.Cancel:
             exit(1)
@@ -8437,14 +8447,14 @@ def kill_pydaw_engine():
 
 def open_pydaw_engine(a_project_path):
     if not global_pydaw_with_audio:
-        print("Not starting audio because of the audio engine setting, "
-              "you can change this in File->HardwareSettings")
+        print(_("Not starting audio because of the audio engine setting, "
+              "you can change this in File->HardwareSettings"))
         return
 
     kill_pydaw_engine() #ensure no running instances of the engine
     f_project_dir = os.path.dirname(a_project_path)
     f_pid = os.getpid()
-    print("Starting audio engine with {}".format(a_project_path,))
+    print(_("Starting audio engine with {}").format(a_project_path))
     global global_pydaw_subprocess
     if pydaw_util.pydaw_which("pasuspender") is not None:
         f_pa_suspend = True
@@ -8523,10 +8533,10 @@ else:
 
 if global_show_create_folder_error:
     QtGui.QMessageBox.warning(
-        this_main_window, "Warning",
-        "Error creating folder in {} , this is probably a permission issue"
+        this_main_window, _("Warning"),
+        _("Error creating folder in {} , this is probably a permission issue"
         "if you didn't use FAT as the filesystem, settings will NOT persist between sessions "
-        "until you make {} writable.".format(global_home, global_home))
+        "until you make {} writable.").format(global_home, global_home))
 
 global_tooltips_enabled_file = "{}/tooltips.txt".format(global_pydaw_home)
 

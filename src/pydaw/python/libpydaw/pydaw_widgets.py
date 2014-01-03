@@ -21,6 +21,13 @@ from . import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
 
+import gettext
+
+gettext.install("pydaw4" "{}/share/locale".format(pydaw_util.global_pydaw_install_prefix))
+
+_ = gettext.lgettext
+
+
 global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
 global_knob_arc_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(60, 60, 255, 255))
 global_knob_arc_gradient.setColorAt(0.25, QtGui.QColor.fromRgb(255, 120, 0, 255))
@@ -230,18 +237,18 @@ class pydaw_abstract_ui_control:
             self.control.setValue(f_spinbox.value())
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
-        f_dialog.setWindowTitle("Set Value")
+        f_dialog.setWindowTitle(_("Set Value"))
         f_layout = QtGui.QGridLayout(f_dialog)
-        f_layout.addWidget(QtGui.QLabel("Value:"), 3, 0)
+        f_layout.addWidget(QtGui.QLabel(_("Value:")), 3, 0)
         f_spinbox = QtGui.QSpinBox()
         f_spinbox.setMinimum(self.control.minimum())
         f_spinbox.setMaximum(self.control.maximum())
         f_spinbox.setValue(self.control.value())
         f_layout.addWidget(f_spinbox, 3, 1)
-        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_cancel_button.pressed.connect(f_dialog.close)
         f_layout.addWidget(f_cancel_button, 6, 0)
-        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_button = QtGui.QPushButton(_("OK"))
         f_ok_button.pressed.connect(ok_handler)
         f_layout.addWidget(f_ok_button, 6, 1)
         f_dialog.exec_()
@@ -265,7 +272,7 @@ class pydaw_abstract_ui_control:
             global_last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
-        f_dialog.setWindowTitle("Tempo Sync")
+        f_dialog.setWindowTitle(_("Tempo Sync"))
         f_groupbox_layout =  QtGui.QGridLayout(f_dialog)
         f_spinbox =  QtGui.QDoubleSpinBox()
         f_spinbox.setDecimals(1)
@@ -277,11 +284,11 @@ class pydaw_abstract_ui_control:
         f_beat_frac_combobox.setMinimumWidth(75)
         f_beat_frac_combobox.addItems(f_beat_fracs)
         f_beat_frac_combobox.setCurrentIndex(global_last_tempo_combobox_index)
-        f_sync_button =  QtGui.QPushButton("Sync")
+        f_sync_button =  QtGui.QPushButton(_("Sync"))
         f_sync_button.pressed.connect(sync_button_pressed)
-        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_cancel_button.pressed.connect(f_dialog.close)
-        f_groupbox_layout.addWidget(QtGui.QLabel("BPM"), 0, 0)
+        f_groupbox_layout.addWidget(QtGui.QLabel(_("BPM")), 0, 0)
         f_groupbox_layout.addWidget(f_spinbox, 1, 0)
         f_groupbox_layout.addWidget(QtGui.QLabel("Length"), 0, 1)
         f_groupbox_layout.addWidget(f_beat_frac_combobox, 1, 1)
@@ -298,14 +305,14 @@ class pydaw_abstract_ui_control:
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
         f_dialog.setMinimumWidth(210)
-        f_dialog.setWindowTitle("Set to Note")
+        f_dialog.setWindowTitle(_("Set to Note"))
         f_vlayout =  QtGui.QVBoxLayout(f_dialog)
         f_note_selector = pydaw_note_selector_widget(0, None, None)
         f_note_selector.set_value(self.get_value())
         f_vlayout.addWidget(f_note_selector.widget)
-        f_ok_button =  QtGui.QPushButton("OK")
+        f_ok_button =  QtGui.QPushButton(_("OK"))
         f_ok_button.pressed.connect(ok_button_pressed)
-        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_cancel_button.pressed.connect(f_dialog.close)
         f_ok_cancel_layout.addWidget(f_cancel_button)
@@ -323,17 +330,17 @@ class pydaw_abstract_ui_control:
 
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.control)
-        f_reset_action = f_menu.addAction("Reset to Default Value")
+        f_reset_action = f_menu.addAction(_("Reset to Default Value"))
         f_reset_action.triggered.connect(self.reset_default_value)
-        f_set_value_action = f_menu.addAction("Set Raw Controller Value")
+        f_set_value_action = f_menu.addAction(_("Set Raw Controller Value"))
         f_set_value_action.triggered.connect(self.set_value_dialog)
-        f_copy_automation_action = f_menu.addAction("Copy Automation")
+        f_copy_automation_action = f_menu.addAction(_("Copy Automation"))
         f_copy_automation_action.triggered.connect(self.copy_automation)
         if self.val_conversion == kc_time_decimal or self.val_conversion == kc_hz_decimal:
-            f_tempo_sync_action = f_menu.addAction("Tempo Sync")
+            f_tempo_sync_action = f_menu.addAction(_("Tempo Sync"))
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
         if self.val_conversion == kc_pitch:
-            f_set_note_action = f_menu.addAction("Set to Note")
+            f_set_note_action = f_menu.addAction(_("Set to Note"))
             f_set_note_action.triggered.connect(self.set_note_dialog)
         f_menu.exec_(QtGui.QCursor.pos())
 
@@ -530,23 +537,23 @@ class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port,
                  a_sustain_port, a_release_port, a_label, a_rel_callback, a_val_callback,
                  a_port_dict=None, a_preset_mgr=None, a_attack_default=10):
-        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback,
+        self.attack_knob = pydaw_knob_control(a_size, _("Attack"), a_attack_port, a_rel_callback,
                                               a_val_callback, 0, 200, a_attack_default,
                                               kc_time_decimal, a_port_dict, a_preset_mgr)
-        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback,
+        self.decay_knob = pydaw_knob_control(a_size, _("Decay"), a_decay_port, a_rel_callback,
                                              a_val_callback, 10, 200, 50, kc_time_decimal,
                                              a_port_dict, a_preset_mgr)
         if a_sustain_in_db:
-            self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port,
+            self.sustain_knob = pydaw_knob_control(a_size, _("Sustain"), a_sustain_port,
                                                    a_rel_callback, a_val_callback,
                                                    -30, 0, 0, kc_integer, a_port_dict,
                                                    a_preset_mgr)
         else:
-            self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port,
+            self.sustain_knob = pydaw_knob_control(a_size, _("Sustain"), a_sustain_port,
                                                    a_rel_callback, a_val_callback,
                                                    0, 100, 100, kc_decimal, a_port_dict,
                                                    a_preset_mgr)
-        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port,
+        self.release_knob = pydaw_knob_control(a_size, _("Release"), a_release_port,
                                                a_rel_callback, a_val_callback, 10,
                                                400, 50, kc_time_decimal, a_port_dict, a_preset_mgr)
         self.groupbox = QtGui.QGroupBox(a_label)
@@ -559,25 +566,25 @@ class pydaw_adsr_widget:
 
 class pydaw_filter_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict,
-                 a_cutoff_port, a_res_port, a_type_port=None, a_label="Filter",
+                 a_cutoff_port, a_res_port, a_type_port=None, a_label=_("Filter"),
                  a_preset_mgr=None):
         self.groupbox = QtGui.QGroupBox(str(a_label))
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
-        self.cutoff_knob = pydaw_knob_control(a_size, "Cutoff", a_cutoff_port,
+        self.cutoff_knob = pydaw_knob_control(a_size, _("Cutoff"), a_cutoff_port,
                                               a_rel_callback, a_val_callback,
                                               20, 124, 124, kc_pitch, a_port_dict,
                                               a_preset_mgr)
         self.cutoff_knob.add_to_grid_layout(self.layout, 0)
-        self.res_knob = pydaw_knob_control(a_size, "Res", a_res_port, a_rel_callback,
+        self.res_knob = pydaw_knob_control(a_size, _("Res"), a_res_port, a_rel_callback,
                                            a_val_callback, -30, 0, -12, kc_integer,
                                            a_port_dict, a_preset_mgr)
         self.res_knob.add_to_grid_layout(self.layout, 1)
         if a_type_port is not None:
-            self.type_combobox = pydaw_combobox_control(150, "Type", a_type_port,
+            self.type_combobox = pydaw_combobox_control(150, _("Type"), a_type_port,
                                                         a_rel_callback, a_val_callback,
                                                         ["LP 2", "HP 2", "BP2", "LP 4",
-                                                        "HP 4", "BP4", "Off"],
+                                                        "HP 4", "BP4", _("Off")],
                                                         a_port_dict, a_preset_mgr=a_preset_mgr)
             self.layout.addWidget(self.type_combobox.name_label, 2, 0)
             self.layout.addWidget(self.type_combobox.control, 2, 1)
@@ -591,29 +598,29 @@ class pydaw_perc_env_widget:
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
 
-        self.time1_knob = pydaw_knob_control(a_size, "Time1", a_time1_port,
+        self.time1_knob = pydaw_knob_control(a_size, _("Time1"), a_time1_port,
                                               a_rel_callback, a_val_callback,
                                               2, 40, 10, kc_integer, a_port_dict,
                                               a_preset_mgr)
         self.time1_knob.add_to_grid_layout(self.layout, 0)
 
-        self.pitch1_knob = pydaw_knob_control(a_size, "Pitch1", a_pitch1_port, a_rel_callback,
+        self.pitch1_knob = pydaw_knob_control(a_size, _("Pitch1"), a_pitch1_port, a_rel_callback,
                                            a_val_callback, 42, 120, 66, kc_pitch,
                                            a_port_dict, a_preset_mgr)
         self.pitch1_knob.add_to_grid_layout(self.layout, 1)
 
-        self.time2_knob = pydaw_knob_control(a_size, "Time2", a_time2_port,
+        self.time2_knob = pydaw_knob_control(a_size, _("Time2"), a_time2_port,
                                               a_rel_callback, a_val_callback,
                                               20, 400, 100, kc_integer, a_port_dict,
                                               a_preset_mgr)
         self.time2_knob.add_to_grid_layout(self.layout, 2)
 
-        self.pitch2_knob = pydaw_knob_control(a_size, "Pitch2", a_pitch2_port, a_rel_callback,
+        self.pitch2_knob = pydaw_knob_control(a_size, _("Pitch2"), a_pitch2_port, a_rel_callback,
                                            a_val_callback, 33, 63, 48, kc_pitch,
                                            a_port_dict, a_preset_mgr)
         self.pitch2_knob.add_to_grid_layout(self.layout, 3)
 
-        self.on_switch = pydaw_checkbox_control("On", a_on_port,
+        self.on_switch = pydaw_checkbox_control(_("On"), a_on_port,
                                                 a_rel_callback, a_val_callback,
                                                 a_port_dict, a_preset_mgr)
         self.on_switch.add_to_grid_layout(self.layout, 4)
@@ -632,13 +639,13 @@ class pydaw_ramp_env_widget:
                                                -36, 36, 0, kc_integer, a_port_dict,
                                                a_preset_mgr)
             self.amt_knob.add_to_grid_layout(self.layout, 0)
-        self.time_knob = pydaw_knob_control(a_size, "Time", a_time_port,
+        self.time_knob = pydaw_knob_control(a_size, _("Time"), a_time_port,
                                             a_rel_callback, a_val_callback,
                                             1, 600, 100, kc_time_decimal, a_port_dict,
                                             a_preset_mgr)
         self.time_knob.add_to_grid_layout(self.layout, 1)
         if a_curve_port is not None:
-            self.curve_knob = pydaw_knob_control(a_size, "Curve", a_curve_port,
+            self.curve_knob = pydaw_knob_control(a_size, _("Curve"), a_curve_port,
                                                  a_rel_callback, a_val_callback,
                                                  0, 100, 50, kc_none, a_port_dict,
                                                  a_preset_mgr)
@@ -667,12 +674,12 @@ class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port,
                  a_osc_types_list, a_rel_callback, a_val_callback, a_label,
                  a_port_dict=None, a_preset_mgr=None, a_default_type=0):
-        self.pitch_knob = pydaw_knob_control(a_size, "Pitch", a_pitch_port,
+        self.pitch_knob = pydaw_knob_control(a_size, _("Pitch"), a_pitch_port,
                                              a_rel_callback, a_val_callback, -36, 36,
                                              0, a_val_conversion=kc_integer,
                                              a_port_dict=a_port_dict,
                                              a_preset_mgr=a_preset_mgr)
-        self.fine_knob = pydaw_knob_control(a_size, "Fine", a_fine_port, a_rel_callback,
+        self.fine_knob = pydaw_knob_control(a_size, _("Fine"), a_fine_port, a_rel_callback,
                                             a_val_callback, -100, 100,
                                             0, a_val_conversion=kc_decimal,
                                             a_port_dict=a_port_dict,
@@ -682,7 +689,7 @@ class pydaw_osc_widget:
                                            a_val_conversion=kc_integer,
                                            a_port_dict=a_port_dict,
                                            a_preset_mgr=a_preset_mgr)
-        self.osc_type_combobox = pydaw_combobox_control(139, "Type", a_type_port,
+        self.osc_type_combobox = pydaw_combobox_control(139, _("Type"), a_type_port,
                                                         a_rel_callback, a_val_callback,
                                                         a_osc_types_list, a_port_dict,
                                                         a_preset_mgr=a_preset_mgr,
@@ -762,17 +769,17 @@ class pydaw_file_select_widget:
     def __init__(self, a_load_callback):
         self.load_callback = a_load_callback
         self.layout =  QtGui.QHBoxLayout()
-        self.clear_button =  QtGui.QPushButton("Clear")
+        self.clear_button =  QtGui.QPushButton(_("Clear"))
         self.clear_button.setMaximumWidth(60)
-        self.copy_to_clipboard =  QtGui.QPushButton("Copy")
-        self.copy_to_clipboard.setToolTip("Copy file path to clipboard")
+        self.copy_to_clipboard =  QtGui.QPushButton(_("Copy"))
+        self.copy_to_clipboard.setToolTip(_("Copy file path to clipboard"))
         self.copy_to_clipboard.pressed.connect(self.copy_to_clipboard_pressed)
         self.copy_to_clipboard.setMaximumWidth(60)
-        self.paste_from_clipboard =  QtGui.QPushButton("Paste")
-        self.paste_from_clipboard.setToolTip("Paste file path from clipboard")
+        self.paste_from_clipboard =  QtGui.QPushButton(_("Paste"))
+        self.paste_from_clipboard.setToolTip(_("Paste file path from clipboard"))
         self.paste_from_clipboard.pressed.connect(self.paste_from_clipboard_pressed)
         self.paste_from_clipboard.setMaximumWidth(60)
-        self.reload_button =  QtGui.QPushButton("Reload")
+        self.reload_button =  QtGui.QPushButton(_("Reload"))
         self.reload_button.setMaximumWidth(60)
         self.file_path =  QtGui.QLineEdit()
         self.file_path.setSizePolicy(QtGui.QSizePolicy.Expanding,
@@ -806,8 +813,8 @@ class pydaw_file_select_widget:
         f_clipboard = QtGui.QApplication.clipboard()
         f_text = f_clipboard.text()
         if f_text is None:
-            QtGui.QMessageBox.warning(self.paste_from_clipboard, "Error",
-            "No file path in the system clipboard.")
+            QtGui.QMessageBox.warning(self.paste_from_clipboard, _("Error"),
+            _("No file path in the system clipboard."))
         else:
             f_text = str(f_text)
             if os.path.isfile(f_text):
@@ -817,8 +824,8 @@ class pydaw_file_select_widget:
                 #Don't show more than 100 chars just in case somebody had an
                 #entire book copied to the clipboard
                 f_str = f_text[100:]
-                QtGui.QMessageBox.warning(self.paste_from_clipboard, "Error",
-                                          "{} does not exist.".format(f_str,))
+                QtGui.QMessageBox.warning(self.paste_from_clipboard, _("Error"),
+                                          _("{} does not exist.").format(f_str))
 
 
 
@@ -834,7 +841,7 @@ class pydaw_file_browser_widget:
         self.bookmark_widget = QtGui.QWidget()
         self.file_browser_vsplitter.addWidget(self.bookmark_widget)
         self.bookmark_layout = QtGui.QVBoxLayout(self.bookmark_widget)
-        self.bookmarks_label =  QtGui.QLabel("Bookmarks")
+        self.bookmarks_label =  QtGui.QLabel(_("Bookmarks"))
         self.bookmarks_label.setAlignment(QtCore.Qt.AlignCenter)
         self.bookmark_layout.addWidget(self.bookmarks_label)
         self.folder_path_lineedit =  QtGui.QLineEdit()
@@ -845,19 +852,19 @@ class pydaw_file_browser_widget:
         self.bookmarks_listWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.bookmarks_listWidget.setAcceptDrops(True)
         self.bookmarks_listWidget.setDropIndicatorShown(True)
-        self.bookmarks_listWidget.setToolTip(("Press the 'bookmark' button to add folders here."))
+        self.bookmarks_listWidget.setToolTip(_("Press the 'bookmark' button to add folders here."))
         self.bookmarks_listWidget.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
         self.bookmark_layout.addWidget(self.bookmarks_listWidget)
         self.bookmarks_button_widget = QtGui.QWidget()
         self.bookmarks_hlayout0 =  QtGui.QHBoxLayout(self.bookmarks_button_widget)
-        self.bookmarks_delete_button =  QtGui.QPushButton("Delete")
+        self.bookmarks_delete_button =  QtGui.QPushButton(_("Delete"))
         self.bookmarks_hlayout0.addWidget(self.bookmarks_delete_button)
         self.bookmarks_delete_button.pressed.connect(self.bookmark_delete_button_pressed)
         self.bookmark_layout.addWidget(self.bookmarks_button_widget)
         self.folders_widget = QtGui.QWidget()
         self.file_browser_vsplitter.addWidget(self.folders_widget)
         self.folders_layout = QtGui.QVBoxLayout(self.folders_widget)
-        self.folders_label =  QtGui.QLabel("Folders")
+        self.folders_label =  QtGui.QLabel(_("Folders"))
         self.folders_label.setAlignment(QtCore.Qt.AlignCenter)
         self.folders_layout.addWidget(self.folders_label)
         self.folders_layout.addWidget(self.folder_path_lineedit)
@@ -869,31 +876,31 @@ class pydaw_file_browser_widget:
         self.folders_layout.addWidget(self.folders_listWidget)
         self.folder_buttons_widget = QtGui.QWidget()
         self.folders_hlayout0 =  QtGui.QHBoxLayout(self.folder_buttons_widget)
-        self.up_pushButton =  QtGui.QPushButton("Up")
+        self.up_pushButton =  QtGui.QPushButton(_("Up"))
         self.up_pushButton.pressed.connect(self.up_button_pressed)
         self.folders_hlayout0.addWidget(self.up_pushButton)
-        self.bookmark_button =  QtGui.QPushButton("Bookmark")
+        self.bookmark_button =  QtGui.QPushButton(_("Bookmark"))
         self.folders_hlayout0.addWidget(self.bookmark_button)
         self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
         self.folders_layout.addWidget(self.folder_buttons_widget)
         self.files_widget = QtGui.QWidget()
         self.file_browser_vsplitter.addWidget(self.files_widget)
         self.files_layout = QtGui.QVBoxLayout(self.files_widget)
-        self.files_label =  QtGui.QLabel("Files")
+        self.files_label =  QtGui.QLabel(_("Files"))
         self.files_label.setAlignment(QtCore.Qt.AlignCenter)
         self.files_layout.addWidget(self.files_label)
         self.files_listWidget =  QtGui.QListWidget()
         self.files_listWidget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.files_listWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
-        self.files_listWidget.setToolTip("Select the file(s) you wish to load and "
-        "click the 'load' button.\n"
-        "The samples will be loaded sequentially starting from the currently selected row.")
+        self.files_listWidget.setToolTip(
+            _("Select the file(s) you wish to load and click the 'load' button.\n"
+            "The samples will be loaded sequentially starting from the currently selected row."))
         self.files_layout.addWidget(self.files_listWidget)
         self.file_buttons_widget = QtGui.QWidget()
         self.files_hlayout0 =  QtGui.QHBoxLayout(self.file_buttons_widget)
-        self.load_pushButton =  QtGui.QPushButton("Load")
+        self.load_pushButton =  QtGui.QPushButton(_("Load"))
         self.files_hlayout0.addWidget(self.load_pushButton)
-        self.preview_pushButton =  QtGui.QPushButton("Preview")
+        self.preview_pushButton =  QtGui.QPushButton(_("Preview"))
         self.files_hlayout0.addWidget(self.preview_pushButton)
         self.files_layout.addWidget(self.file_buttons_widget)
         self.folder_path_lineedit.setText(self.home_path)
@@ -949,9 +956,9 @@ class pydaw_file_browser_widget:
             f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
             self.set_folder(f_full_path, True)
         else:
-            QtGui.QMessageBox.warning(self.files_listWidget, "Error",
-                                      "This bookmark no longer exists.  You may have deleted "
-                                      "it in another windows.")
+            QtGui.QMessageBox.warning(self.files_listWidget, _("Error"),
+                                      _("This bookmark no longer exists.  You may have deleted "
+                                      "it in another windows."))
             self.open_bookmarks()
 
     def file_mouse_press_event(self, a_event):
@@ -1017,30 +1024,30 @@ class pydaw_preset_manager_widget:
         self.program_combobox.setMinimumWidth(190)
         self.layout.addWidget(self.program_combobox)
         self.save_button = QtGui.QPushButton("Save")
-        self.save_button.setToolTip("Save the current settings to a preset.  "
+        self.save_button.setToolTip(_("Save the current settings to a preset.  "
         "Plugin settings are saved to the project automatically\n"
-        "when you close the plugin window, this button is only for presets.")
+        "when you close the plugin window, this button is only for presets."))
         self.save_button.pressed.connect(self.save_presets)
         self.layout.addWidget(self.save_button)
-        self.reset_button = QtGui.QPushButton("Reset")
-        self.reset_button.setToolTip("Resets all controls to their default value")
+        self.reset_button = QtGui.QPushButton(_("Reset"))
+        self.reset_button.setToolTip(_("Resets all controls to their default value"))
         self.reset_button.pressed.connect(self.reset_controls)
         self.layout.addWidget(self.reset_button)
-        self.more_button = QtGui.QPushButton("More")
+        self.more_button = QtGui.QPushButton(_("More"))
         self.more_button.pressed.connect(self.on_more)
 
         self.more_menu = QtGui.QMenu(self.more_button)
 
-        f_save_as_action = self.more_menu.addAction("Save bank as...")
+        f_save_as_action = self.more_menu.addAction(_("Save bank as..."))
         f_save_as_action.triggered.connect(self.on_save_as)
-        f_open_action = self.more_menu.addAction("Open bank...")
+        f_open_action = self.more_menu.addAction(_("Open bank..."))
         f_open_action.triggered.connect(self.on_open_bank)
-        f_restore_action = self.more_menu.addAction("Restore factory bank...")
+        f_restore_action = self.more_menu.addAction(_("Restore factory bank..."))
         f_restore_action.triggered.connect(self.on_restore_bank)
         self.more_menu.addSeparator()
-        f_copy_action = self.more_menu.addAction("Copy plugin settings...")
+        f_copy_action = self.more_menu.addAction(_("Copy plugin settings..."))
         f_copy_action.triggered.connect(self.on_copy)
-        f_paste_action = self.more_menu.addAction("Paste plugin settings...")
+        f_paste_action = self.more_menu.addAction(_("Paste plugin settings..."))
         f_paste_action.triggered.connect(self.on_paste)
 
         self.more_button.setMenu(self.more_menu)
@@ -1060,8 +1067,8 @@ class pydaw_preset_manager_widget:
 
     def on_paste(self):
         if not self.plugin_name in global_plugin_settings_clipboard:
-            QtGui.QMessageBox.warning(self.group_box, "Error",
-                "Nothing copied to clipboard for {}".format(self.plugin_name))
+            QtGui.QMessageBox.warning(self.group_box, _("Error"),
+                _("Nothing copied to clipboard for {}").format(self.plugin_name))
             return
         f_dict = global_plugin_settings_clipboard[self.plugin_name]
         for k, v in f_dict.items():
@@ -1073,7 +1080,7 @@ class pydaw_preset_manager_widget:
 
     def on_save_as(self):
         f_file = QtGui.QFileDialog.getSaveFileName(parent=self.group_box,
-                                                   caption='Save preset bank...',
+                                                   caption=_('Save preset bank...'),
                                                    directory=pydaw_util.global_home,
                                                    filter=global_preset_file_dialog_string)
         if not f_file is None and not str(f_file) == "":
@@ -1086,7 +1093,7 @@ class pydaw_preset_manager_widget:
 
     def on_open_bank(self):
         f_file = QtGui.QFileDialog.getOpenFileName(parent=self.group_box,
-                                                   caption='Open preset bank...',
+                                                   caption=_('Open preset bank...'),
                                                    directory=pydaw_util.global_home,
                                                    filter=global_preset_file_dialog_string)
         if not f_file is None and not str(f_file) == "":
@@ -1122,8 +1129,8 @@ class pydaw_preset_manager_widget:
 
         if len(f_line_arr) > 0:
             if f_line_arr[0].strip() != self.plugin_name:
-                QtGui.QMessageBox.warning(self.group_box, "Error",
-                "The selected preset bank is for {}, please select one for {}".format(
+                QtGui.QMessageBox.warning(self.group_box, _("Error"),
+                _("The selected preset bank is for {}, please select one for {}").format(
                 f_line_arr[0], self.plugin_name))
                 if os.path.isfile(self.bank_file):
                     os.system('rm "{}"'.format(self.bank_file,))
@@ -1143,10 +1150,12 @@ class pydaw_preset_manager_widget:
     def save_presets(self):
         print("saving preset")
         if str(self.program_combobox.currentText()) == "empty":
-            QtGui.QMessageBox.warning(self.group_box, "Error", "Preset name cannot be 'empty'")
+            QtGui.QMessageBox.warning(self.group_box, _("Error"),
+                                      _("Preset name cannot be 'empty'"))
             return
         if self.program_combobox.currentIndex() == 0:
-            QtGui.QMessageBox.warning(self.group_box, "Error", "The first preset must be empty")
+            QtGui.QMessageBox.warning(self.group_box, _("Error"),
+                                      _("The first preset must be empty"))
             return
         f_result_values = [str(self.program_combobox.currentText())]
         for k, f_control in list(self.controls.items()):
@@ -1182,7 +1191,7 @@ class pydaw_preset_manager_widget:
 class pydaw_master_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_master_vol_port,
                  a_master_glide_port, a_master_pitchbend_port, a_port_dict,
-                 a_title="Master", a_master_uni_voices_port=None,
+                 a_title=_("Master"), a_master_uni_voices_port=None,
                  a_master_uni_spread_port=None, a_preset_mgr=None):
         self.group_box = QtGui.QGroupBox()
         self.group_box.setObjectName("plugin_groupbox")
@@ -1193,21 +1202,21 @@ class pydaw_master_widget:
                                            12, -6, kc_integer, a_port_dict, a_preset_mgr)
         self.vol_knob.add_to_grid_layout(self.layout, 0)
         if a_master_uni_voices_port is not None and a_master_uni_spread_port is not None:
-            self.uni_voices_knob = pydaw_knob_control(a_size, "Unison", a_master_uni_voices_port,
+            self.uni_voices_knob = pydaw_knob_control(a_size, _("Unison"), a_master_uni_voices_port,
                                                       a_rel_callback, a_val_callback,
                                                       1, 7, 4, kc_integer, a_port_dict,
                                                       a_preset_mgr)
             self.uni_voices_knob.add_to_grid_layout(self.layout, 1)
-            self.uni_spread_knob = pydaw_knob_control(a_size, "Spread", a_master_uni_spread_port,
+            self.uni_spread_knob = pydaw_knob_control(a_size, _("Spread"), a_master_uni_spread_port,
                                                       a_rel_callback, a_val_callback,
                                                       10, 100, 50, kc_decimal, a_port_dict,
                                                       a_preset_mgr)
             self.uni_spread_knob.add_to_grid_layout(self.layout, 2)
-        self.glide_knob = pydaw_knob_control(a_size, "Glide", a_master_glide_port,
+        self.glide_knob = pydaw_knob_control(a_size, _("Glide"), a_master_glide_port,
                                              a_rel_callback, a_val_callback,
                                              0, 200, 0, kc_time_decimal, a_port_dict, a_preset_mgr)
         self.glide_knob.add_to_grid_layout(self.layout, 3)
-        self.pb_knob = pydaw_knob_control(a_size, "Pitchbend", a_master_pitchbend_port,
+        self.pb_knob = pydaw_knob_control(a_size, _("Pitchbend"), a_master_pitchbend_port,
                                           a_rel_callback, a_val_callback, 1, 36, 18,
                                           kc_integer, a_port_dict, a_preset_mgr)
         self.pb_knob.add_to_grid_layout(self.layout, 4)
@@ -1428,7 +1437,7 @@ class eq_widget:
                                             a_port_dict, a_preset_mgr)
         self.res_knob.add_to_grid_layout(self.layout, 1)
 
-        self.gain_knob = pydaw_knob_control(a_size, "Gain", a_gain_port, a_rel_callback,
+        self.gain_knob = pydaw_knob_control(a_size, _("Gain"), a_gain_port, a_rel_callback,
                                             a_val_callback, -24.0, 24.0, 0.0, kc_integer,
                                             a_port_dict, a_preset_mgr)
         self.gain_knob.add_to_grid_layout(self.layout, 2)
@@ -1448,7 +1457,7 @@ class eq6_widget:
         self.combobox_hlayout = QtGui.QHBoxLayout()
         self.combobox_hlayout.addWidget(self.combobox.control)
         self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.reset_button = QtGui.QPushButton("Reset")
+        self.reset_button = QtGui.QPushButton(_("Reset"))
         self.combobox_hlayout.addWidget(self.reset_button)
         self.reset_button.pressed.connect(self.reset_controls)
         self.vlayout.addLayout(self.combobox_hlayout)
@@ -2280,7 +2289,7 @@ class pydaw_abstract_plugin_ui:
     def save_plugin_file(self):
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
-        self.pydaw_project.commit("Update controls for {}".format(self.track_name,))
+        self.pydaw_project.commit(_("Update controls for {}").format(self.track_name,))
         self.pydaw_project.flush_history()
 
     def widget_close_event(self, a_event):
@@ -2346,19 +2355,19 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
         self.fx_tab = QtGui.QWidget()
-        self.tab_widget.addTab(self.fx_tab, "Effects")
+        self.tab_widget.addTab(self.fx_tab, _("Effects"))
         self.fx_layout = QtGui.QGridLayout()
         self.fx_hlayout = QtGui.QHBoxLayout(self.fx_tab)
         self.fx_hlayout.addLayout(self.fx_layout)
 
         self.delay_tab = QtGui.QWidget()
-        self.tab_widget.addTab(self.delay_tab, "Delay")
+        self.tab_widget.addTab(self.delay_tab, _("Delay"))
         self.delay_vlayout = QtGui.QVBoxLayout()
         self.delay_tab.setLayout(self.delay_vlayout)
         self.delay_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.delay_hlayout)
 
-        self.delay_groupbox = QtGui.QGroupBox("Delay")
+        self.delay_groupbox = QtGui.QGroupBox(_("Delay"))
         self.delay_groupbox_layout = QtGui.QGridLayout(self.delay_groupbox)
         f_knob_size = 48
 
@@ -2389,14 +2398,14 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
                                                   kc_integer, self.port_dict)
         self.volume_slider.add_to_grid_layout(self.volume_gridlayout, 0)
 
-        delay_groupbox =  QtGui.QGroupBox("Delay")
+        delay_groupbox =  QtGui.QGroupBox(_("Delay"))
         delay_groupbox.setObjectName("plugin_groupbox")
         delay_groupbox.setMaximumSize(387, 126)
         self.delay_hlayout.addWidget(delay_groupbox)
         delay_groupbox.setGeometry(0, 0, 10, 10)
         delay_gridlayout = QtGui.QGridLayout(delay_groupbox)
         self.delay_hlayout.addWidget(delay_groupbox)
-        self.delay_time_knob =  pydaw_knob_control(f_knob_size, "Time",
+        self.delay_time_knob =  pydaw_knob_control(f_knob_size, _("Time"),
                                                    pydaw_ports.MODULEX_DELAY_TIME,
                                                    self.plugin_rel_callback,
                                                    self.plugin_val_callback,
