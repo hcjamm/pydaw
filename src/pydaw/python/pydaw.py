@@ -1451,7 +1451,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
         self.label.setPos(10, 28)
-        self.label.setBrush(QtCore.Qt.white)
         self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
         self.start_handle = QtGui.QGraphicsRectItem(parent=self)
@@ -1680,6 +1679,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.fade_out_handle_line.setPen(global_audio_item_line_selected_pen)
             self.stretch_handle_line.setPen(global_audio_item_line_selected_pen)
 
+            self.label.setBrush(QtCore.Qt.darkGray)
             self.start_handle.setBrush(global_audio_item_handle_selected_brush)
             self.length_handle.setBrush(global_audio_item_handle_selected_brush)
             self.fade_in_handle.setBrush(global_audio_item_handle_selected_brush)
@@ -1699,6 +1699,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.fade_out_handle_line.setPen(global_audio_item_line_pen)
             self.stretch_handle_line.setPen(global_audio_item_line_pen)
 
+            self.label.setBrush(QtCore.Qt.white)
             self.start_handle.setBrush(global_audio_item_handle_brush)
             self.length_handle.setBrush(global_audio_item_handle_brush)
             self.fade_in_handle.setBrush(global_audio_item_handle_brush)
