@@ -27,13 +27,13 @@ import gettext
 
 try:
     global_locale, global_encoding = locale.getdefaultlocale()
-
     global_language = gettext.translation("pydaw4",
         "{}/share/locale".format(pydaw_util.global_pydaw_install_prefix),
         [global_locale])
     global_language.install()
 except Exception as ex:
     print("Exception while setting locale, falling back to English (hopefully)")
+    def _(a_string): return a_string
 
 global_transport_is_playing = False
 global_region_lengths_dict = {}
