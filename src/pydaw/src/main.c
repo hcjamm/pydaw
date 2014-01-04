@@ -1186,7 +1186,7 @@ int main(int argc, char **argv)
     pthread_sigmask(SIG_BLOCK, &_signals, 0);
     kill(0, SIGHUP);
 
-    printf("PyDAW main() returning\n");
+    printf("PyDAW main() returning\n\n\n");
     return 0;
 }
 
