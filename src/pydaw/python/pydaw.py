@@ -1783,19 +1783,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_audio_items_viewer.scene.clearSelection()
             self.setSelected(True)
 
-    def contextMenuEvent(self, a_event):
+    def show_context_menu(self):
         f_menu = QtGui.QMenu(this_main_window)
-        f_save_a_copy_action = QtGui.QAction(_("Save a copy"), this_audio_items_viewer)
+        f_save_a_copy_action = f_menu.addAction(_("Save a copy"))
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
-        f_menu.addAction(f_save_a_copy_action)
-        f_open_folder_action = QtGui.QAction(_("Open parent folder in browser"),
-                                             this_audio_items_viewer)
+        f_open_folder_action = f_menu.addAction(_("Open parent folder in browser"))
         f_open_folder_action.triggered.connect(self.open_item_folder)
-        f_menu.addAction(f_open_folder_action)
-        f_copy_file_path_action = QtGui.QAction(_("Copy file path to clipboard"),
-                                                this_audio_items_viewer)
+        f_copy_file_path_action = f_menu.addAction(_("Copy file path to clipboard"))
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
-        f_menu.addAction(f_copy_file_path_action)
         f_menu.exec_(QtGui.QCursor.pos())
 
     def copy_file_path_to_clipboard(self):
@@ -1836,6 +1831,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         if a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
             self.setSelected((not self.isSelected()))
+            return
+
+        if a_event.button() == QtCore.Qt.RightButton:
+            self.show_context_menu()
             return
 
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
