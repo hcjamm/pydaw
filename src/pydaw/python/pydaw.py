@@ -7402,22 +7402,26 @@ class pydaw_main_window(QtGui.QMainWindow):
         def cancel_handler():
             f_window.close()
 
+        def set_output_file_name():
+            if str(f_output_name.text()) == "":
+                f_file_name = str(f_name.text()).rsplit('.')[0] + self.ac_ext
+                f_output_name.setText(f_file_name)
+
         def file_name_select():
             try:
                 if not os.path.isdir(self.last_ac_dir):
                     self.last_ac_dir = global_home
-                f_file_name = str(QtGui.QFileDialog.getOpenFileName(
+                f_file_name = QtGui.QFileDialog.getOpenFileName(
                     f_window, _("Select a file name to save to..."),
-                    self.last_ac_dir, filter="Audio Files(*.wav *.mp3)"))
-                if not f_file_name is None and f_file_name != "":
-                    if not f_file_name is None and not str(f_file_name) == "":
-                        f_name.setText(f_file_name)
+                    self.last_ac_dir, filter="Audio Files(*.wav *.mp3)")
+                if not f_file_name is None and str(f_file_name) != "":
+                    f_name.setText(str(f_file_name))
                     self.last_ac_dir = os.path.dirname(f_file_name)
                 if f_file_name.lower().endswith(".mp3"):
                     f_wav_radiobutton.setChecked(True)
                 else:
                     f_mp3_radiobutton.setChecked(True)
-
+                set_output_file_name()
             except Exception as ex:
                 pydaw_print_generic_exception(ex)
 
@@ -7430,8 +7434,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(self.ac_ext):
                         f_file_name += self.ac_ext
-                    if not f_file_name is None and not str(f_file_name) == "":
-                        f_output_name.setText(f_file_name)
+                    f_output_name.setText(f_file_name)
                     self.last_ac_dir = os.path.dirname(f_file_name)
             except Exception as ex:
                 pydaw_print_generic_exception(ex)
