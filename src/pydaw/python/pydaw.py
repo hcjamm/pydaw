@@ -7413,7 +7413,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.last_ac_dir = global_home
                 f_file_name = QtGui.QFileDialog.getOpenFileName(
                     f_window, _("Select a file name to save to..."),
-                    self.last_ac_dir, filter="Audio Files(*.wav *.mp3)")
+                    self.last_ac_dir, filter=_("Audio Files {}").format('(*.wav *.mp3)'))
                 if not f_file_name is None and str(f_file_name) != "":
                     f_name.setText(str(f_file_name))
                     self.last_ac_dir = os.path.dirname(f_file_name)
