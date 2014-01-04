@@ -2503,10 +2503,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
             return
         if a_event.key() == QtCore.Qt.Key_Delete:
             f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
+            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
             for f_item in self.audio_items:
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
+                    f_paif.clear_row(f_item.track_num)
             this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
+            this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid,
+                                                             f_paif, False)
             this_pydaw_project.commit(_("Delete audio item(s)"))
             global_open_audio_items(True)
         if a_event.key() == QtCore.Qt.Key_G and a_event.modifiers() == QtCore.Qt.ControlModifier:
