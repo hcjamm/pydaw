@@ -165,21 +165,26 @@ inline void v_osc_wav_apply_fm(t_osc_wav_unison* a_osc_ptr,
 
     float f_amt = a_signal * a_amt;
 
-    while((a_osc_ptr->i_uni_pitch) < (a_osc_ptr->voice_count))
+    if(f_amt != 0.0f)
     {
-        a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output += f_amt;
-
-        while((a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output) < 0.0f)
+        while((a_osc_ptr->i_uni_pitch) < (a_osc_ptr->voice_count))
         {
-            a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output += 1.0f;
-        }
+            a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output += f_amt;
 
-        while((a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output) > 1.0f)
-        {
-            a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output -= 1.0f;
-        }
+            while((a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output)
+                    < 0.0f)
+            {
+                a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output += 1.0f;
+            }
 
-        a_osc_ptr->i_uni_pitch = (a_osc_ptr->i_uni_pitch) + 1;
+            while((a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output)
+                    > 1.0f)
+            {
+                a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output -= 1.0f;
+            }
+
+            a_osc_ptr->i_uni_pitch = (a_osc_ptr->i_uni_pitch) + 1;
+        }
     }
 }
 
@@ -203,17 +208,13 @@ float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr)
     {
         v_run_osc(a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)],
                 (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
+
         a_osc_ptr->current_sample = (a_osc_ptr->current_sample) +
                 f_cubic_interpolate_ptr_wrap(a_osc_ptr->selected_wavetable,
                 a_osc_ptr->selected_wavetable_sample_count,
                 ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) *
                 (a_osc_ptr->selected_wavetable_sample_count_float)),
                 a_osc_ptr->cubic_interpolator);
-        /*f_linear_interpolate_ptr_wrap(a_osc_ptr->selected_wavetable,
-         * a_osc_ptr->selected_wavetable_sample_count,
-         *  ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) *
-         * (a_osc_ptr->selected_wavetable_sample_count_float)),
-         * a_osc_ptr->linear_interpolator); */
 
         a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
     }
