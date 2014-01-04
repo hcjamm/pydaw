@@ -7365,12 +7365,15 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_pydaw_project.write_notes(self.notes_tab.toPlainText())
 
     def audio_converter_dialog(self):
-        f_avconv = "avconv"
+        if pydaw_which("avconv") is None and pydaw_which("ffmpeg") is not None:
+            f_avconv = "ffmpeg"
+        else:
+            f_avconv = "avconv"
         f_lame = "lame"
         for f_app in (f_avconv, f_lame):
             if pydaw_which(f_app) is None:
                 QtGui.QMessageBox.warning(self, _("Error"),
-                _("Please ensure that avconv and lame are installed, can't "
+                _("Please ensure that avconv(or ffmpeg) and lame are installed, can't "
                 "open audio converter dialog.\n"
                 "Check your normal sources for packages or visit:\n\n"
                 "http://lame.sourceforge.net/\n"
