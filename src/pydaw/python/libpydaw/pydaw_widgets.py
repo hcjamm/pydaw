@@ -1297,7 +1297,7 @@ class eq_item(QtGui.QGraphicsEllipseItem):
         f_pos = self.pos()
         f_freq = (((f_pos.x() + global_eq_point_radius) / global_eq_width) * 100.0) + 20.0
         f_gain = ((1.0 - ((f_pos.y() + global_eq_point_radius) / global_eq_height)) * 48.0) - 24.0
-        return f_freq, f_gain
+        return round(f_freq, 2), round(f_gain, 2)
 
     def __lt__(self, other):
         return self.pos().x() < other.pos().x()
