@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-03 21:36-0500\n"
+"POT-Creation-Date: 2014-01-03 22:52-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,8 +32,8 @@ msgstr ""
 #: python/pydaw.py:1080 python/pydaw.py:1160 python/pydaw.py:1222
 #: python/pydaw.py:2995 python/pydaw.py:5397 python/pydaw.py:5502
 #: python/pydaw.py:5563 python/pydaw.py:6126 python/pydaw.py:6212
-#: python/pydaw.py:7170 python/pydaw.py:7350 python/pydaw.py:7500
-#: python/pydaw.py:7875 python/pydaw.py:7913
+#: python/pydaw.py:7170 python/pydaw.py:7350 python/pydaw.py:7506
+#: python/pydaw.py:7881 python/pydaw.py:7919
 msgid "Cancel"
 msgstr ""
 
@@ -44,8 +44,8 @@ msgstr ""
 #: python/pydaw.py:1219 python/pydaw.py:2992 python/pydaw.py:5390
 #: python/pydaw.py:5497 python/pydaw.py:5560 python/pydaw.py:6123
 #: python/pydaw.py:6209 python/pydaw.py:7029 python/pydaw.py:7166
-#: python/pydaw.py:7256 python/pydaw.py:7346 python/pydaw.py:7496
-#: python/pydaw.py:7871 python/pydaw.py:7909 python/pydaw.py:8019
+#: python/pydaw.py:7256 python/pydaw.py:7346 python/pydaw.py:7502
+#: python/pydaw.py:7877 python/pydaw.py:7915 python/pydaw.py:8025
 msgid "OK"
 msgstr ""
 
@@ -211,7 +211,7 @@ msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:772 python/pydaw.py:2788
 #: python/pydaw.py:2809 python/pydaw.py:5006 python/pydaw.py:5676
-#: python/pydaw.py:5712 python/pydaw.py:5757 python/pydaw.py:8022
+#: python/pydaw.py:5712 python/pydaw.py:5757 python/pydaw.py:8028
 msgid "Clear"
 msgstr ""
 
@@ -254,8 +254,8 @@ msgstr ""
 #: python/pydaw.py:5516 python/pydaw.py:5569 python/pydaw.py:6149
 #: python/pydaw.py:6595 python/pydaw.py:6625 python/pydaw.py:6931
 #: python/pydaw.py:7046 python/pydaw.py:7051 python/pydaw.py:7279
-#: python/pydaw.py:7284 python/pydaw.py:7288 python/pydaw.py:7372
-#: python/pydaw.py:7387 python/pydaw.py:7713
+#: python/pydaw.py:7284 python/pydaw.py:7288 python/pydaw.py:7375
+#: python/pydaw.py:7390 python/pydaw.py:7719
 msgid "Error"
 msgstr ""
 
@@ -1068,7 +1068,7 @@ msgid "Select a directory to move the samples to..."
 msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:4368 python/pydaw.py:152
-#: python/pydaw.py:8440 python/pydaw.py:8548
+#: python/pydaw.py:8446 python/pydaw.py:8554
 msgid "Warning"
 msgstr ""
 
@@ -1090,8 +1090,8 @@ msgstr ""
 msgid "Loading {}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4455 python/pydaw.py:7548
-#: python/pydaw.py:8115
+#: python/libpydaw/pydaw_widgets.py:4455 python/pydaw.py:7554
+#: python/pydaw.py:8121
 msgid "Open"
 msgstr ""
 
@@ -1604,7 +1604,7 @@ msgstr ""
 msgid "Filter:"
 msgstr ""
 
-#: python/pydaw.py:2831 python/pydaw.py:4503 python/pydaw.py:8349
+#: python/pydaw.py:2831 python/pydaw.py:4503 python/pydaw.py:8355
 msgid "None"
 msgstr ""
 
@@ -1744,11 +1744,11 @@ msgid ""
 "handle to disappear on the audio item."
 msgstr ""
 
-#: python/pydaw.py:3294 python/pydaw.py:8350
+#: python/pydaw.py:3294 python/pydaw.py:8356
 msgid "Time(affecting pitch)"
 msgstr ""
 
-#: python/pydaw.py:3295 python/pydaw.py:8349
+#: python/pydaw.py:3295 python/pydaw.py:8355
 msgid "Pitch(affecting time)"
 msgstr ""
 
@@ -2349,7 +2349,7 @@ msgstr ""
 msgid "End point is before start point."
 msgstr ""
 
-#: python/pydaw.py:7083 python/pydaw.py:7407 python/pydaw.py:7426
+#: python/pydaw.py:7083 python/pydaw.py:7415 python/pydaw.py:7433
 msgid "Select a file name to save to..."
 msgstr ""
 
@@ -2357,13 +2357,13 @@ msgstr ""
 msgid "Offline Render"
 msgstr ""
 
-#: python/pydaw.py:7120 python/pydaw.py:7327 python/pydaw.py:7864
-#: python/pydaw.py:7902
+#: python/pydaw.py:7120 python/pydaw.py:7327 python/pydaw.py:7870
+#: python/pydaw.py:7908
 msgid "File Name:"
 msgstr ""
 
-#: python/pydaw.py:7122 python/pydaw.py:7329 python/pydaw.py:7457
-#: python/pydaw.py:7466
+#: python/pydaw.py:7122 python/pydaw.py:7329 python/pydaw.py:7463
+#: python/pydaw.py:7472
 msgid "Select"
 msgstr ""
 
@@ -2426,14 +2426,14 @@ msgstr ""
 msgid "Open MIDI File"
 msgstr ""
 
-#: python/pydaw.py:7320 python/pydaw.py:7564
+#: python/pydaw.py:7320 python/pydaw.py:7570
 msgid "Import MIDI File..."
 msgstr ""
 
-#: python/pydaw.py:7373
+#: python/pydaw.py:7376
 msgid ""
-"Please ensure that avconv and lame are installed, can't open audio converter "
-"dialog.\n"
+"Please ensure that avconv(or ffmpeg) and lame are installed, can't open "
+"audio converter dialog.\n"
 "Check your normal sources for packages or visit:\n"
 "\n"
 "http://lame.sourceforge.net/\n"
@@ -2442,171 +2442,175 @@ msgid ""
 "Can't find {}"
 msgstr ""
 
-#: python/pydaw.py:7387
+#: python/pydaw.py:7390
 msgid "File names cannot be empty"
 msgstr ""
 
-#: python/pydaw.py:7397
+#: python/pydaw.py:7400
 msgid "Success"
 msgstr ""
 
-#: python/pydaw.py:7397
+#: python/pydaw.py:7400
 msgid "Created file"
 msgstr ""
 
-#: python/pydaw.py:7448
+#: python/pydaw.py:7416
+msgid "Audio Files {}"
+msgstr ""
+
+#: python/pydaw.py:7454
 msgid "Audio File Converter"
 msgstr ""
 
-#: python/pydaw.py:7455
+#: python/pydaw.py:7461
 msgid "Input File:"
 msgstr ""
 
-#: python/pydaw.py:7464
+#: python/pydaw.py:7470
 msgid "Output File:"
 msgstr ""
 
-#: python/pydaw.py:7488
+#: python/pydaw.py:7494
 msgid "Bitrate"
 msgstr ""
 
-#: python/pydaw.py:7541
+#: python/pydaw.py:7547
 msgid "&File"
 msgstr ""
 
-#: python/pydaw.py:7543
+#: python/pydaw.py:7549
 msgid "New"
 msgstr ""
 
-#: python/pydaw.py:7554
+#: python/pydaw.py:7560
 msgid "Save As...(projects are automatically saved, this creates a copy)"
 msgstr ""
 
-#: python/pydaw.py:7560
+#: python/pydaw.py:7566
 msgid "Offline Render..."
 msgstr ""
 
-#: python/pydaw.py:7569
+#: python/pydaw.py:7575
 msgid "Hardware Settings..."
 msgstr ""
 
-#: python/pydaw.py:7574
+#: python/pydaw.py:7580
 msgid "Quit"
 msgstr ""
 
-#: python/pydaw.py:7579
+#: python/pydaw.py:7585
 msgid "&Edit"
 msgstr ""
 
-#: python/pydaw.py:7581
+#: python/pydaw.py:7587
 msgid "Undo"
 msgstr ""
 
-#: python/pydaw.py:7586
+#: python/pydaw.py:7592
 msgid "Redo"
 msgstr ""
 
-#: python/pydaw.py:7593
+#: python/pydaw.py:7599
 msgid "Undo History..."
 msgstr ""
 
-#: python/pydaw.py:7597
+#: python/pydaw.py:7603
 msgid "Verify History DB..."
 msgstr ""
 
-#: python/pydaw.py:7601
+#: python/pydaw.py:7607
 msgid "&Appearance"
 msgstr ""
 
-#: python/pydaw.py:7604
+#: python/pydaw.py:7610
 msgid "Collapse transport and song editor"
 msgstr ""
 
-#: python/pydaw.py:7610
+#: python/pydaw.py:7616
 msgid "Restore transport and song editor"
 msgstr ""
 
-#: python/pydaw.py:7617
+#: python/pydaw.py:7623
 msgid "Open Theme..."
 msgstr ""
 
-#: python/pydaw.py:7621
+#: python/pydaw.py:7627
 msgid "&Tools"
 msgstr ""
 
-#: python/pydaw.py:7623
+#: python/pydaw.py:7629
 msgid "Audio Converter..."
 msgstr ""
 
-#: python/pydaw.py:7627
+#: python/pydaw.py:7633
 msgid "&Help"
 msgstr ""
 
-#: python/pydaw.py:7629
+#: python/pydaw.py:7635
 msgid "PyDAW Website..."
 msgstr ""
 
-#: python/pydaw.py:7633
+#: python/pydaw.py:7639
 msgid "Version Info..."
 msgstr ""
 
-#: python/pydaw.py:7655
+#: python/pydaw.py:7661
 msgid "Song/Region"
 msgstr ""
 
-#: python/pydaw.py:7661
+#: python/pydaw.py:7667
 msgid "Instruments"
 msgstr ""
 
-#: python/pydaw.py:7662
+#: python/pydaw.py:7668
 msgid "Busses"
 msgstr ""
 
-#: python/pydaw.py:7663
+#: python/pydaw.py:7669
 msgid "Audio Tracks"
 msgstr ""
 
-#: python/pydaw.py:7664
+#: python/pydaw.py:7670
 msgid "Audio Seq"
 msgstr ""
 
-#: python/pydaw.py:7666
+#: python/pydaw.py:7672
 msgid "MIDI Item"
 msgstr ""
 
-#: python/pydaw.py:7678
+#: python/pydaw.py:7684
 msgid "CC Maps"
 msgstr ""
 
-#: python/pydaw.py:7684
+#: python/pydaw.py:7690
 msgid "Project Notes"
 msgstr ""
 
-#: python/pydaw.py:7714
+#: python/pydaw.py:7720
 msgid "The audio engine died with error code {}, please try restarting PyDAW"
 msgstr ""
 
-#: python/pydaw.py:7764
+#: python/pydaw.py:7770
 msgid "Message"
 msgstr ""
 
-#: python/pydaw.py:7764
+#: python/pydaw.py:7770
 msgid "Are you sure you want to quit?"
 msgstr ""
 
-#: python/pydaw.py:7858
+#: python/pydaw.py:7864
 msgid "Save CC Map"
 msgstr ""
 
-#: python/pydaw.py:7896
+#: python/pydaw.py:7902
 msgid "New CC Map"
 msgstr ""
 
-#: python/pydaw.py:7961
+#: python/pydaw.py:7967
 msgid "Map CC to Control(s)"
 msgstr ""
 
-#: python/pydaw.py:7965
+#: python/pydaw.py:7971
 msgid ""
 "Move your MIDI controller to set the CC number,\n"
 "you must select a MIDI controller and record arm a track first.\n"
@@ -2615,43 +2619,43 @@ msgid ""
 "modify Modulex and all instrument controls will be ignored."
 msgstr ""
 
-#: python/pydaw.py:7975
+#: python/pydaw.py:7981
 msgid "Effects tracks only?"
 msgstr ""
 
-#: python/pydaw.py:8039
+#: python/pydaw.py:8045
 msgid "Controllers"
 msgstr ""
 
-#: python/pydaw.py:8048
+#: python/pydaw.py:8054
 msgid "New CC"
 msgstr ""
 
-#: python/pydaw.py:8056
+#: python/pydaw.py:8062
 msgid "New Map"
 msgstr ""
 
-#: python/pydaw.py:8059
+#: python/pydaw.py:8065
 msgid "Save As"
 msgstr ""
 
-#: python/pydaw.py:8118
+#: python/pydaw.py:8124
 msgid "Enabled?"
 msgstr ""
 
-#: python/pydaw.py:8121
+#: python/pydaw.py:8127
 msgid "Return to start pos on stop?"
 msgstr ""
 
-#: python/pydaw.py:8124
+#: python/pydaw.py:8130
 msgid "Follow transport time?"
 msgstr ""
 
-#: python/pydaw.py:8168
+#: python/pydaw.py:8174
 msgid "Open .wav file for A/B"
 msgstr ""
 
-#: python/pydaw.py:8441
+#: python/pydaw.py:8447
 msgid ""
 "Detected that there are instances of the PyDAW audio engine already "
 "running.\n"
@@ -2664,17 +2668,17 @@ msgid ""
 "(es)"
 msgstr ""
 
-#: python/pydaw.py:8462
+#: python/pydaw.py:8468
 msgid ""
 "Not starting audio because of the audio engine setting, you can change this "
 "in File->HardwareSettings"
 msgstr ""
 
-#: python/pydaw.py:8469
+#: python/pydaw.py:8475
 msgid "Starting audio engine with {}"
 msgstr ""
 
-#: python/pydaw.py:8549
+#: python/pydaw.py:8555
 msgid ""
 "Error creating folder in {} , this is probably a permission issueif you "
 "didn't use FAT as the filesystem, settings will NOT persist between sessions "
