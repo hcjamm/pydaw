@@ -7378,7 +7378,12 @@ class pydaw_main_window(QtGui.QMainWindow):
                 "http://lame.sourceforge.net/\n"
                 "http://libav.org\n\nCan't find {}").format(f_app))
                 return
+        self.audio_converter_dialog("lame", "avconv", "mp3")
 
+    def ogg_converter_dialog(self):
+        self.audio_converter_dialog("oggenc", "oggdec", "ogg")
+
+    def audio_converter_dialog(self, a_enc, a_dec, a_label):
         if global_transport_is_playing:
             return
 
@@ -7389,9 +7394,16 @@ class pydaw_main_window(QtGui.QMainWindow):
                 QtGui.QMessageBox.warning(f_window, _("Error"), _("File names cannot be empty"))
                 return
             if f_wav_radiobutton.isChecked():
-                f_cmd = [f_avconv, "-i", f_input_file, f_output_file]
+                if a_dec == "avconv" or a_dec == "ffmpeg":
+                    f_cmd = [a_dec, "-i", f_input_file, f_output_file]
+                elif a_dec == "oggdec":
+                    f_cmd = [a_dec, "--output", f_output_file, f_input_file]
             else:
-                f_cmd = [f_lame, "-b", str(f_mp3_br_combobox.currentText()),
+                if a_enc == "oggenc":
+                    f_cmd = [a_enc, "-b", "{}k".format(f_mp3_br_combobox.currentText()),
+                         "-o", f_output_file, f_input_file]
+                elif a_enc == "lame":
+                    f_cmd = [a_enc, "-b", str(f_mp3_br_combobox.currentText()),
                          f_input_file, f_output_file]
             f_proc = subprocess.Popen(f_cmd)
             f_proc.communicate()
@@ -7412,11 +7424,12 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.last_ac_dir = global_home
                 f_file_name = QtGui.QFileDialog.getOpenFileName(
                     f_window, _("Select a file name to save to..."),
-                    self.last_ac_dir, filter=_("Audio Files {}").format('(*.wav *.mp3)'))
+                    self.last_ac_dir,
+                    filter=_("Audio Files {}").format('(*.wav *.{})'.format(a_label)))
                 if not f_file_name is None and str(f_file_name) != "":
                     f_name.setText(str(f_file_name))
                     self.last_ac_dir = os.path.dirname(f_file_name)
-                if f_file_name.lower().endswith(".mp3"):
+                if f_file_name.lower().endswith(".{}".format(a_label)):
                     f_wav_radiobutton.setChecked(True)
                 else:
                     f_mp3_radiobutton.setChecked(True)
@@ -7442,7 +7455,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             if f_wav_radiobutton.isChecked():
                 self.ac_ext = ".wav"
             else:
-                self.ac_ext = ".mp3"
+                self.ac_ext = ".{}".format(a_label)
             f_str = str(f_output_name.text()).strip()
             if f_str != "" and not f_str.endswith(self.ac_ext):
                 f_arr = f_str.rsplit(".")
@@ -7482,7 +7495,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addLayout(f_wav_layout, 2, 1)
         f_wav_radiobutton.toggled.connect(format_changed)
 
-        f_mp3_radiobutton = QtGui.QRadioButton("mp3")
+        f_mp3_radiobutton = QtGui.QRadioButton(a_label)
         f_mp3_radiobutton.setEnabled(False)
         f_rb_group.addButton(f_mp3_radiobutton)
         f_mp3_layout = QtGui.QHBoxLayout()
@@ -7614,8 +7627,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.ac_action = self.menu_tools.addAction(_("MP3 Converter..."))
         self.ac_action.triggered.connect(self.mp3_converter_dialog)
 
-        #self.ac_action = self.menu_tools.addAction(_("Ogg Converter..."))
-        #self.ac_action.triggered.connect(self.ogg_converter_dialog)
+        self.ac_action = self.menu_tools.addAction(_("Ogg Converter..."))
+        self.ac_action.triggered.connect(self.ogg_converter_dialog)
 
         self.menu_help = self.menu_bar.addMenu(_("&Help"))
 

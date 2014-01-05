@@ -3,7 +3,7 @@ sudo yum install python3-PyQt4 gcc alsa-lib-devel liblo-devel \
 libsndfile-devel gcc-c++ git python3-numpy python3-scipy \
 fftw-devel portmidi-devel libsamplerate-devel python3-devel \
 @development-tools fedora-packager livecd-tools spin-kickstarts \
-system-config-kickstart
+system-config-kickstart vorbis-tools
 
 # Now run:
 #

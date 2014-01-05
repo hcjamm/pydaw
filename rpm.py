@@ -67,7 +67,7 @@ Source0:        {}
 
 Requires:      python3-PyQt4 gcc alsa-lib-devel liblo-devel \
 libsndfile-devel gcc-c++ git python3-numpy python3-scipy \
-fftw-devel portmidi-devel libsamplerate-devel python3-devel
+fftw-devel portmidi-devel libsamplerate-devel python3-devel vorbis-tools
 
 %description
 PyDAW is a full featured audio and MIDI sequencer with a suite of high quality
