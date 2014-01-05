@@ -100,6 +100,7 @@ fftw-devel
 portmidi-devel
 libsamplerate-devel
 python3-devel
+vorbis-tools
 
 %end
 
