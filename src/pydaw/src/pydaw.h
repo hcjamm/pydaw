@@ -5242,12 +5242,16 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY,
             a_start_region, a_start_bar, 0);
 
+    printf("\nOpening SNDFILE\n");
+
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
     f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
     f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
 
     SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+
+    printf("\nSuccessfully opened SNDFILE\n\n");
 
     clock_t f_start = clock();
 
