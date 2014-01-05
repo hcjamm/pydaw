@@ -7363,7 +7363,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         QtGui.QTextEdit.leaveEvent(self.notes_tab, a_event)
         this_pydaw_project.write_notes(self.notes_tab.toPlainText())
 
-    def audio_converter_dialog(self):
+    def mp3_converter_dialog(self):
         if pydaw_which("avconv") is None and pydaw_which("ffmpeg") is not None:
             f_avconv = "ffmpeg"
         else:
@@ -7373,7 +7373,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             if pydaw_which(f_app) is None:
                 QtGui.QMessageBox.warning(self, _("Error"),
                 _("Please ensure that avconv(or ffmpeg) and lame are installed, can't "
-                "open audio converter dialog.\n"
+                "open mp3 converter dialog.\n"
                 "Check your normal sources for packages or visit:\n\n"
                 "http://lame.sourceforge.net/\n"
                 "http://libav.org\n\nCan't find {}").format(f_app))
@@ -7545,98 +7545,84 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_transport.menu_button.setMenu(self.menu_bar)
         self.menu_file = self.menu_bar.addMenu(_("&File"))
 
-        self.new_action = QtGui.QAction(_("New"), self)
-        self.menu_file.addAction(self.new_action)
+        self.new_action = self.menu_file.addAction(_("New"))
         self.new_action.triggered.connect(self.on_new)
         self.new_action.setShortcut(QtGui.QKeySequence.New)
 
-        self.open_action = QtGui.QAction(_("Open"), self)
-        self.menu_file.addAction(self.open_action)
+        self.open_action = self.menu_file.addAction(_("Open"))
         self.open_action.triggered.connect(self.on_open)
         self.open_action.setShortcut(QtGui.QKeySequence.Open)
 
-        self.save_as_action = QtGui.QAction(
-            _("Save As...(projects are automatically saved, this creates a copy)"), self)
-        self.menu_file.addAction(self.save_as_action)
+        self.save_as_action = self.menu_file.addAction(
+            _("Save As...(projects are automatically saved, this creates a copy)"))
         self.save_as_action.triggered.connect(self.on_save_as)
         self.save_as_action.setShortcut(QtGui.QKeySequence.SaveAs)
         self.menu_file.addSeparator()
 
-        self.offline_render_action = QtGui.QAction(_("Offline Render..."), self)
-        self.menu_file.addAction(self.offline_render_action)
+        self.offline_render_action = self.menu_file.addAction(_("Offline Render..."))
         self.offline_render_action.triggered.connect(self.on_offline_render)
 
-        self.import_midi_action = QtGui.QAction(_("Import MIDI File..."), self)
-        self.menu_file.addAction(self.import_midi_action)
+        self.import_midi_action = self.menu_file.addAction(_("Import MIDI File..."))
         self.import_midi_action.triggered.connect(self.on_import_midi)
         self.menu_file.addSeparator()
 
-        self.audio_device_action = QtGui.QAction(_("Hardware Settings..."), self)
-        self.menu_file.addAction(self.audio_device_action)
+        self.audio_device_action = self.menu_file.addAction(_("Hardware Settings..."))
         self.audio_device_action.triggered.connect(self.on_change_audio_settings)
         self.menu_file.addSeparator()
 
-        self.quit_action = QtGui.QAction(_("Quit"), self)
-        self.menu_file.addAction(self.quit_action)
+        self.quit_action = self.menu_file.addAction(_("Quit"))
         self.quit_action.triggered.connect(self.close)
         self.quit_action.setShortcut(QtGui.QKeySequence.Quit)
 
         self.menu_edit = self.menu_bar.addMenu(_("&Edit"))
 
-        self.undo_action = QtGui.QAction(_("Undo"), self)
-        self.menu_edit.addAction(self.undo_action)
+        self.undo_action = self.menu_edit.addAction(_("Undo"))
         self.undo_action.triggered.connect(self.on_undo)
         self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
 
-        self.redo_action = QtGui.QAction(_("Redo"), self)
-        self.menu_edit.addAction(self.redo_action)
+        self.redo_action = self.menu_edit.addAction(_("Redo"))
         self.redo_action.triggered.connect(self.on_redo)
         self.redo_action.setShortcut(QtGui.QKeySequence.Redo)
 
         self.menu_edit.addSeparator()
 
-        self.undo_history_action = QtGui.QAction(_("Undo History..."), self)
-        self.menu_edit.addAction(self.undo_history_action)
+        self.undo_history_action = self.menu_edit.addAction(_("Undo History..."))
         self.undo_history_action.triggered.connect(self.on_undo_history)
 
-        self.verify_history_action = QtGui.QAction(_("Verify History DB..."), self)
-        self.menu_edit.addAction(self.verify_history_action)
+        self.verify_history_action = self.menu_edit.addAction(_("Verify History DB..."))
         self.verify_history_action.triggered.connect(self.on_verify_history)
 
         self.menu_appearance = self.menu_bar.addMenu(_("&Appearance"))
 
-        self.collapse_splitters_action = QtGui.QAction(
-            _("Collapse transport and song editor"), self)
-        self.menu_appearance.addAction(self.collapse_splitters_action)
+        self.collapse_splitters_action = self.menu_appearance.addAction(
+            _("Collapse transport and song editor"))
         self.collapse_splitters_action.triggered.connect(self.on_collapse_splitters)
         self.collapse_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Up"))
 
-        self.restore_splitters_action = QtGui.QAction(
-            _("Restore transport and song editor"), self)
-        self.menu_appearance.addAction(self.restore_splitters_action)
+        self.restore_splitters_action = self.menu_appearance.addAction(
+            _("Restore transport and song editor"))
         self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
         self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
 
         self.menu_appearance.addSeparator()
 
-        self.open_theme_action = QtGui.QAction(_("Open Theme..."), self)
-        self.menu_appearance.addAction(self.open_theme_action)
+        self.open_theme_action = self.menu_appearance.addAction(_("Open Theme..."))
         self.open_theme_action.triggered.connect(self.on_open_theme)
 
         self.menu_tools = self.menu_bar.addMenu(_("&Tools"))
 
-        self.ac_action = QtGui.QAction(_("Audio Converter..."), self)
-        self.menu_tools.addAction(self.ac_action)
-        self.ac_action.triggered.connect(self.audio_converter_dialog)
+        self.ac_action = self.menu_tools.addAction(_("MP3 Converter..."))
+        self.ac_action.triggered.connect(self.mp3_converter_dialog)
+
+        #self.ac_action = self.menu_tools.addAction(_("Ogg Converter..."))
+        #self.ac_action.triggered.connect(self.ogg_converter_dialog)
 
         self.menu_help = self.menu_bar.addMenu(_("&Help"))
 
-        self.website_action = QtGui.QAction(_("PyDAW Website..."), self)
-        self.menu_help.addAction(self.website_action)
+        self.website_action = self.menu_help.addAction(_("PyDAW Website..."))
         self.website_action.triggered.connect(self.on_website)
 
-        self.version_action = QtGui.QAction(_("Version Info..."), self)
-        self.menu_help.addAction(self.version_action)
+        self.version_action = self.menu_help.addAction(_("Version Info..."))
         self.version_action.triggered.connect(self.on_version)
 
         self.transport_hlayout = QtGui.QHBoxLayout()
