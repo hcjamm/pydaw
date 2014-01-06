@@ -133,6 +133,7 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.is_drawing = False
+        self.edit_mode = 0
         self.setMinimumSize(global_additive_osc_width, global_additive_osc_height)
         self.parent_widget = a_parent
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -149,6 +150,9 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
             f_bar = pydaw_additive_osc_amp_bar(f_i)
             self.bars.append(f_bar)
             self.scene.addItem(f_bar)
+
+    def set_edit_mode(self, a_mode):
+        self.edit_mode = a_mode
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
@@ -193,12 +197,14 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
             f_pos_x = f_pos.x()
             f_pos_y = f_pos.y()
             f_db = (f_pos_y / global_additive_osc_height) * -30.0
-            f_harmonic = (f_pos_x / global_additive_osc_width) * \
-                global_additive_osc_harmonic_count
+            f_harmonic = int((f_pos_x / global_additive_osc_width) * \
+                global_additive_osc_harmonic_count)
             if f_harmonic < 0:
                 f_harmonic = 0
             elif f_harmonic >= global_additive_osc_harmonic_count:
                 f_harmonic = global_additive_osc_harmonic_count - 1
+            if self.edit_mode == 1 and (f_harmonic % 2) != 0:
+                return
             if f_db > 0:
                 f_db = 0
             elif f_db < -30:
@@ -211,11 +217,23 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
 class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
     def __init__(self):
         pydaw_abstract_custom_oscillator.__init__(self)
+        self.hlayout = QtGui.QHBoxLayout()
+        self.layout.addLayout(self.hlayout)
+        self.hlayout.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.edit_mode_combobox = QtGui.QComboBox()
+        self.edit_mode_combobox.setMinimumWidth(90)
+        self.hlayout.addWidget(self.edit_mode_combobox)
+        self.edit_mode_combobox.addItems(["All", "Odd"])
+        self.edit_mode_combobox.currentIndexChanged.connect(self.edit_mode_combobox_changed)
+
+        self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.wav_viewer = pydaw_additive_wav_viewer()
         self.viewer = pydaw_additive_osc_viewer(self, self.wav_viewer.draw_array)
         self.layout.addWidget(self.viewer)
         self.layout.addWidget(self.wav_viewer)
 
+    def edit_mode_combobox_changed(self, a_event):
+        self.viewer.set_edit_mode(self.edit_mode_combobox.currentIndex())
 
     def open_settings(self, a_settings):
         pass
