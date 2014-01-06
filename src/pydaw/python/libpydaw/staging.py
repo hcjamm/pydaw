@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 
 from PyQt4 import QtGui, QtCore
-
+import matplotlib.pyplot as plt
 
 
 import numpy
@@ -23,8 +23,6 @@ class pydaw_abstract_custom_oscillator:
     def __init__(self):
         self.widget = QtGui.QWidget()
         self.layout = QtGui.QVBoxLayout(self.widget)
-        self.wavetable_size = 2000
-        self.array = numpy.zeros((0, self.wavetable_size))
         self.is_closing = False
 
     def get_wavetable(self):
@@ -36,14 +34,16 @@ class pydaw_abstract_custom_oscillator:
     def get_settings(self):
         pass
 
-
+def pydaw_db_to_lin(a_value):
+    return pow(10.0, (0.05 * a_value))
 
 global_additive_osc_height = 310
 global_additive_osc_inc = 10
 global_additive_max_y_pos = global_additive_osc_height - global_additive_osc_inc
-global_additive_osc_harmonic_count = 36
-global_additive_osc_width = 720
+global_additive_osc_harmonic_count = 10
 global_additive_osc_bar_width = 20
+global_additive_osc_width = global_additive_osc_harmonic_count * global_additive_osc_bar_width
+global_additive_wavetable_size = pow(2, global_additive_osc_harmonic_count)
 #global_additive_osc_height_div2 = global_additive_osc_height * 0.5
 
 
@@ -66,10 +66,9 @@ global_add_osc_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
     def __init__(self, a_x_pos):
         QtGui.QGraphicsRectItem.__init__(self)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setBrush(global_add_osc_fill)
-        self.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.setPen(QtGui.QPen(QtCore.Qt.white))
         self.x_pos = a_x_pos
         self.setPos(a_x_pos, global_additive_osc_height - global_additive_osc_inc)
         self.setRect(0.0, 0.0, global_additive_osc_bar_width, global_additive_osc_inc)
@@ -78,9 +77,12 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
 
     def set_value(self, a_value):
         self.value = a_value
-        f_y_pos = (a_value * global_additive_osc_inc * -1.0) # + global_additive_osc_inc
+        f_y_pos = (a_value * global_additive_osc_inc * -1.0)
         self.setPos(self.x_pos, f_y_pos)
         self.extend_to_bottom()
+
+    def get_value(self):
+        return self.value
 
     def extend_to_bottom(self):
         f_pos_y = self.pos().y() #TODO: clip
@@ -91,7 +93,7 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
             f_pos_y = global_additive_max_y_pos
         self.setPos(self.x_pos, f_pos_y)
         self.setRect(0.0, 0.0, global_additive_osc_bar_width,
-                     global_additive_osc_height - f_pos_y - 2.0)
+                     global_additive_osc_height - f_pos_y - 1.0)
 
 
 class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
@@ -132,6 +134,23 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
     def scene_mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
         self.is_drawing = False
+        f_result = numpy.zeros(global_additive_wavetable_size)
+        f_size = int(global_additive_wavetable_size)
+        for f_i in range(1, global_additive_osc_harmonic_count + 1):
+            f_db = self.bars[f_i - 1].get_value()
+            if f_db <= -29:
+                continue
+            f_lin = numpy.linspace(0.0, 4.0 * numpy.pi, f_size)
+            f_sin = numpy.sin(f_lin) * pydaw_db_to_lin(f_db)
+            for f_i2 in range(int(global_additive_wavetable_size / f_size)):
+                f_start = (f_i2) * f_size
+                f_end = f_start + f_size
+                f_result[f_start:f_end] += f_sin
+            f_size /= 2
+        f_normalize = 0.99 / numpy.max(numpy.abs(f_result), axis=0)
+        f_result *= f_normalize
+        plt.plot(f_result)
+        plt.show()
 
     def scene_mouseMoveEvent(self, a_event):
         if self.is_drawing:
@@ -151,7 +170,6 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
             elif f_db < -30:
                 f_db = -30
             self.bars[int(f_harmonic)].set_value(f_db)
-            #print("{} {} {} {}".format(f_pos_x, f_pos_y, f_db, f_harmonic))
 
 
 class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
