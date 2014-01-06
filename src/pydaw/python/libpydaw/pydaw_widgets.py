@@ -1739,11 +1739,13 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
     def open_osc(self, a_arr):
         for f_val, f_point in zip(a_arr, self.bars):
             f_point.set_value(int(f_val))
+        self.get_wav()
 
 
 class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
     def __init__(self, a_configure_callback=None, a_osc_count=3):
         pydaw_abstract_custom_oscillator.__init__(self)
+        self.configure_callback = a_configure_callback
         self.hlayout = QtGui.QHBoxLayout()
         self.layout.addLayout(self.hlayout)
         self.hlayout.addWidget(QtGui.QLabel("Oscillator#:"))
@@ -1768,7 +1770,7 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.wav_viewer = pydaw_additive_wav_viewer()
         self.viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
-                                                a_configure_callback)
+                                                self.configure_wrapper)
         self.layout.addWidget(self.viewer)
         self.layout.addWidget(self.wav_viewer)
 
@@ -1779,6 +1781,12 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         f_sine_action = self.tools_menu.addAction("Set Sine")
         f_sine_action.triggered.connect(self.viewer.set_sine)
         self.osc_values = {0 : None, 1 : None, 2 : None}
+
+    def configure_wrapper(self, a_key, a_val):
+        if self.configure_callback is not None:
+            self.configure_callback(a_key, a_val)
+        if a_key.startswith("wayv_add_ui"):
+            self.osc_values[int(a_key[-1])] = a_val.split("|")
 
     def osc_index_changed(self, a_event):
         self.viewer.osc_num = self.osc_num_combobox.currentIndex()
