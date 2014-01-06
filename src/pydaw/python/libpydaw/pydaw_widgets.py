@@ -1562,12 +1562,8 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
         return self.value
 
     def extend_to_bottom(self):
-        f_pos_y = self.pos().y() #TODO: clip
-        f_pos_y = round(f_pos_y, -1)
-        if f_pos_y < 10:
-            f_pos_y = 10
-        elif f_pos_y > global_additive_max_y_pos:
-            f_pos_y = global_additive_max_y_pos
+        f_pos_y = pydaw_util.pydaw_clip_value(round(self.pos().y(), -1), 10,
+                                              global_additive_max_y_pos)
         self.setPos(self.x_pos, f_pos_y)
         self.setRect(0.0, 0.0, global_additive_osc_bar_width,
                      global_additive_osc_height - f_pos_y - 1.0)
@@ -1748,21 +1744,21 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.configure_callback = a_configure_callback
         self.hlayout = QtGui.QHBoxLayout()
         self.layout.addLayout(self.hlayout)
-        self.hlayout.addWidget(QtGui.QLabel("Oscillator#:"))
+        self.hlayout.addWidget(QtGui.QLabel(_("Oscillator#:")))
         self.osc_num_combobox = QtGui.QComboBox()
         self.osc_num_combobox.setMinimumWidth(66)
         self.hlayout.addWidget(self.osc_num_combobox)
         for f_i in range(1, a_osc_count + 1):
             self.osc_num_combobox.addItem(str(f_i))
         self.osc_num_combobox.currentIndexChanged.connect(self.osc_index_changed)
-        self.hlayout.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.hlayout.addWidget(QtGui.QLabel(_("Edit Mode:")))
         self.edit_mode_combobox = QtGui.QComboBox()
         self.edit_mode_combobox.setMinimumWidth(90)
         self.hlayout.addWidget(self.edit_mode_combobox)
-        self.edit_mode_combobox.addItems(["All", "Odd"])
+        self.edit_mode_combobox.addItems([_("All"), _("Odd")])
         self.edit_mode_combobox.currentIndexChanged.connect(
             self.edit_mode_combobox_changed)
-        self.tools_button = QtGui.QPushButton("Tools")
+        self.tools_button = QtGui.QPushButton(_("Tools"))
         self.hlayout.addWidget(self.tools_button)
         self.tools_menu = QtGui.QMenu(self.tools_button)
         self.tools_button.setMenu(self.tools_menu)
@@ -1774,11 +1770,11 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.layout.addWidget(self.viewer)
         self.layout.addWidget(self.wav_viewer)
 
-        f_saw_action = self.tools_menu.addAction("Set Saw")
+        f_saw_action = self.tools_menu.addAction(_("Set Saw"))
         f_saw_action.triggered.connect(self.viewer.set_saw)
-        f_square_action = self.tools_menu.addAction("Set Square")
+        f_square_action = self.tools_menu.addAction(_("Set Square"))
         f_square_action.triggered.connect(self.viewer.set_square)
-        f_sine_action = self.tools_menu.addAction("Set Sine")
+        f_sine_action = self.tools_menu.addAction(_("Set Sine"))
         f_sine_action.triggered.connect(self.viewer.set_sine)
         self.osc_values = {0 : None, 1 : None, 2 : None}
 
@@ -3031,7 +3027,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             #Glitchy and distorted waves
             _("Pink Glitch"), _("White Glitch"), _("Acid"), _("Screetch"),
             #Sine and triangle-like waves
-            _("Thick Bass"), _("Rattler"), _("Deep Saw"), _("Sine")
+            _("Thick Bass"), _("Rattler"), _("Deep Saw"), _("Sine"),
+            #The custom additive oscillator tab
+            _("(Additive)")
         ]
         f_lfo_types = [_("Off"), _("Sine"), _("Triangle")]
         self.tab_widget =  QtGui.QTabWidget()
