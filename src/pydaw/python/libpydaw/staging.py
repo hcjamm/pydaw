@@ -16,6 +16,10 @@ GNU General Public License for more details.
 from PyQt4 import QtGui, QtCore
 
 
+def pydaw_db_to_lin(a_value):
+    return pow(10.0, (0.05 * a_value))
+
+
 import numpy
 
 class pydaw_abstract_custom_oscillator:
@@ -23,14 +27,10 @@ class pydaw_abstract_custom_oscillator:
         self.widget = QtGui.QWidget()
         self.widget.setObjectName("plugin_ui")
         self.layout = QtGui.QVBoxLayout(self.widget)
-        self.is_closing = False
 
     def open_settings(self, a_settings):
         pass
 
-
-def pydaw_db_to_lin(a_value):
-    return pow(10.0, (0.05 * a_value))
 
 global_additive_osc_height = 310
 global_additive_osc_inc = 10
