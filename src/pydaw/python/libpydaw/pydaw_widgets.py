@@ -1604,10 +1604,12 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
         self.last_y_scale = f_rect.height() / global_additive_osc_height
         self.scale(self.last_x_scale, self.last_y_scale)
 
+
 class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
     def __init__(self, a_draw_callback, a_configure_callback=None):
         QtGui.QGraphicsView.__init__(self)
         self.configure_callback = a_configure_callback
+        self.osc_num = 0
         self.draw_callback = a_draw_callback
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
@@ -1674,14 +1676,13 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
             f_engine_list = []
             for f_float in f_result:
                 f_engine_list.append("{}".format(round(f_float, 6)))
-            f_engine_str = "{}|{}|{}".format(0, global_additive_wavetable_size,
+            f_engine_str = "{}|{}".format(global_additive_wavetable_size,
                 "|".join(f_engine_list))
             #print(f_engine_str)
-            self.configure_callback("wayv_add_eng", f_engine_str)
+            self.configure_callback("wayv_add_eng{}".format(self.osc_num), f_engine_str)
             f_recall_str = "|".join(f_recall_list)
             #print(f_recall_str)
-            self.configure_callback("wayv_add_ui", f_recall_str)
-
+            self.configure_callback("wayv_add_ui{}".format(self.osc_num), f_recall_str)
 
     def scene_mouseMoveEvent(self, a_event):
         if self.is_drawing:
@@ -1735,18 +1736,30 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
             f_point.set_value(-30)
         self.get_wav(True)
 
+    def open_osc(self, a_arr):
+        for f_val, f_point in zip(a_arr, self.bars):
+            f_point.set_value(int(f_val))
+
 
 class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
-    def __init__(self):
+    def __init__(self, a_configure_callback=None, a_osc_count=3):
         pydaw_abstract_custom_oscillator.__init__(self)
         self.hlayout = QtGui.QHBoxLayout()
         self.layout.addLayout(self.hlayout)
+        self.hlayout.addWidget(QtGui.QLabel("Oscillator#:"))
+        self.osc_num_combobox = QtGui.QComboBox()
+        self.osc_num_combobox.setMinimumWidth(66)
+        self.hlayout.addWidget(self.osc_num_combobox)
+        for f_i in range(1, a_osc_count + 1):
+            self.osc_num_combobox.addItem(str(f_i))
+        self.osc_num_combobox.currentIndexChanged.connect(self.osc_index_changed)
         self.hlayout.addWidget(QtGui.QLabel("Edit Mode:"))
         self.edit_mode_combobox = QtGui.QComboBox()
         self.edit_mode_combobox.setMinimumWidth(90)
         self.hlayout.addWidget(self.edit_mode_combobox)
         self.edit_mode_combobox.addItems(["All", "Odd"])
-        self.edit_mode_combobox.currentIndexChanged.connect(self.edit_mode_combobox_changed)
+        self.edit_mode_combobox.currentIndexChanged.connect(
+            self.edit_mode_combobox_changed)
         self.tools_button = QtGui.QPushButton("Tools")
         self.hlayout.addWidget(self.tools_button)
         self.tools_menu = QtGui.QMenu(self.tools_button)
@@ -1754,7 +1767,8 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
 
         self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.wav_viewer = pydaw_additive_wav_viewer()
-        self.viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array)
+        self.viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
+                                                a_configure_callback)
         self.layout.addWidget(self.viewer)
         self.layout.addWidget(self.wav_viewer)
 
@@ -1764,14 +1778,20 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         f_square_action.triggered.connect(self.viewer.set_square)
         f_sine_action = self.tools_menu.addAction("Set Sine")
         f_sine_action.triggered.connect(self.viewer.set_sine)
+        self.osc_values = {0 : None, 1 : None, 2 : None}
+
+    def osc_index_changed(self, a_event):
+        self.viewer.osc_num = self.osc_num_combobox.currentIndex()
+        if self.osc_values[self.viewer.osc_num] is not None:
+            self.viewer.open_osc(self.osc_values[self.viewer.osc_num])
 
     def edit_mode_combobox_changed(self, a_event):
         self.viewer.set_edit_mode(self.edit_mode_combobox.currentIndex())
 
-    def open_settings(self, a_settings):
-        pass
-
-
+    def set_values(self, a_num, a_val):
+        self.osc_values[int(a_num)] = a_val
+        if self.osc_num_combobox.currentIndex() == int(a_num):
+            self.osc_index_changed(None)
 
 
 
@@ -3426,8 +3446,25 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                              self.port_dict, self.preset_manager)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 4)
 
+        self.additive_osc = pydaw_custom_additive_oscillator(self.configure_plugin)
+        self.tab_widget.addTab(self.additive_osc.widget, "Additive")
+
         self.open_plugin_file()
 
+    def configure_plugin(self, a_key, a_message):
+        self.configure_dict[a_key] = a_message
+        self.configure_callback(True, 0, self.track_num, a_key, a_message)
+
+    def set_configure(self, a_key, a_message):
+        self.configure_dict[a_key] = a_message
+        if a_key.startswith("wayv_add_ui"):
+            self.configure_dict[a_key] = a_message
+            f_arr = a_message.split("|")
+            self.additive_osc.set_values(int(a_key[-1]), f_arr)
+        elif a_key.startswith("wayv_add_eng"):
+            pass
+        else:
+            print("Way-V: Unknown configure message '{}'".format(a_key))
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
@@ -4322,7 +4359,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_table_item = QtGui.QTableWidgetItem(f_path)
                 self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
-            print("Unknown configure message '{}'".format(a_key,))
+            print("Unknown configure message '{}'".format(a_key))
 
     def set_all_base_pitches(self):
         f_widget = pydaw_note_selector_widget(0, None, None)
