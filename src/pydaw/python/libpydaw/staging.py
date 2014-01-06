@@ -14,7 +14,6 @@ GNU General Public License for more details.
 
 
 from PyQt4 import QtGui, QtCore
-import matplotlib.pyplot as plt
 
 
 import numpy
@@ -25,14 +24,9 @@ class pydaw_abstract_custom_oscillator:
         self.layout = QtGui.QVBoxLayout(self.widget)
         self.is_closing = False
 
-    def get_wavetable(self):
-        pass
-
     def open_settings(self, a_settings):
         pass
 
-    def get_settings(self):
-        pass
 
 def pydaw_db_to_lin(a_value):
     return pow(10.0, (0.05 * a_value))
@@ -63,6 +57,7 @@ global_add_osc_background.setColorAt(0.2, QtGui.QColor(20, 20, 20))
 global_add_osc_background.setColorAt(0.7, QtGui.QColor(30, 30, 30))
 global_add_osc_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
+
 class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
     def __init__(self, a_x_pos):
         QtGui.QGraphicsRectItem.__init__(self)
@@ -76,10 +71,14 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
         self.extend_to_bottom()
 
     def set_value(self, a_value):
-        self.value = a_value
-        f_y_pos = (a_value * global_additive_osc_inc * -1.0)
-        self.setPos(self.x_pos, f_y_pos)
-        self.extend_to_bottom()
+        if self.value != a_value:
+            self.value = a_value
+            f_y_pos = (a_value * global_additive_osc_inc * -1.0)
+            self.setPos(self.x_pos, f_y_pos)
+            self.extend_to_bottom()
+            return True
+        else:
+            return False
 
     def get_value(self):
         return self.value
@@ -95,10 +94,42 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
         self.setRect(0.0, 0.0, global_additive_osc_bar_width,
                      global_additive_osc_height - f_pos_y - 1.0)
 
+class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
+    def __init__(self):
+        QtGui.QGraphicsView.__init__(self)
+        self.last_x_scale = 1.0
+        self.last_y_scale = 1.0
+        self.scene = QtGui.QGraphicsScene()
+        self.setScene(self.scene)
+        self.scene.setBackgroundBrush(global_add_osc_background)
+        self.setSceneRect(0.0, 0.0, global_additive_wavetable_size,
+                          global_additive_osc_height)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+    def draw_array(self, a_np_array):
+        f_path = QtGui.QPainterPath(QtCore.QPointF(0.0, global_additive_osc_height * 0.5))
+        f_x = 1.0
+        f_half = global_additive_osc_height * 0.5
+        for f_point in a_np_array:
+            f_path.lineTo(f_x, (f_point * f_half) + f_half)
+            f_x += 1.0
+        self.scene.clear()
+        f_path_item = self.scene.addPath(f_path, QtGui.QPen(QtCore.Qt.white, 1.0))
+        f_path_item.setBrush(global_add_osc_fill)
+
+    def resizeEvent(self, a_resize_event):
+        QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
+        self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
+        f_rect = self.rect()
+        self.last_x_scale = f_rect.width() / global_additive_wavetable_size
+        self.last_y_scale = f_rect.height() / global_additive_osc_height
+        self.scale(self.last_x_scale, self.last_y_scale)
 
 class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
-    def __init__(self, a_parent):
+    def __init__(self, a_parent, a_draw_callback):
         QtGui.QGraphicsView.__init__(self)
+        self.draw_callback = a_draw_callback
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.is_drawing = False
@@ -134,23 +165,26 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
     def scene_mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
         self.is_drawing = False
+        self.get_wav()
+
+    def get_wav(self):
         f_result = numpy.zeros(global_additive_wavetable_size)
         f_size = int(global_additive_wavetable_size)
         for f_i in range(1, global_additive_osc_harmonic_count + 1):
             f_db = self.bars[f_i - 1].get_value()
-            if f_db <= -29:
-                continue
-            f_lin = numpy.linspace(0.0, 4.0 * numpy.pi, f_size)
-            f_sin = numpy.sin(f_lin) * pydaw_db_to_lin(f_db)
-            for f_i2 in range(int(global_additive_wavetable_size / f_size)):
-                f_start = (f_i2) * f_size
-                f_end = f_start + f_size
-                f_result[f_start:f_end] += f_sin
+            if f_db > -29:
+                f_lin = numpy.linspace(0.0, 2.0 * numpy.pi, f_size)
+                f_sin = numpy.sin(f_lin) * pydaw_db_to_lin(f_db)
+                for f_i2 in range(int(global_additive_wavetable_size / f_size)):
+                    f_start = (f_i2) * f_size
+                    f_end = f_start + f_size
+                    f_result[f_start:f_end] += f_sin
             f_size /= 2
-        f_normalize = 0.99 / numpy.max(numpy.abs(f_result), axis=0)
-        f_result *= f_normalize
-        plt.plot(f_result)
-        plt.show()
+        f_max = numpy.max(numpy.abs(f_result), axis=0)
+        if f_max > 0.0:
+            f_normalize = 0.99 / f_max
+            f_result *= f_normalize
+        self.draw_callback(f_result)
 
     def scene_mouseMoveEvent(self, a_event):
         if self.is_drawing:
@@ -169,23 +203,23 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
                 f_db = 0
             elif f_db < -30:
                 f_db = -30
-            self.bars[int(f_harmonic)].set_value(f_db)
+            if self.bars[int(f_harmonic)].set_value(int(f_db)):
+                self.get_wav()
+
 
 
 class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
     def __init__(self):
         pydaw_abstract_custom_oscillator.__init__(self)
-        self.viewer = pydaw_additive_osc_viewer(self)
+        self.wav_viewer = pydaw_additive_wav_viewer()
+        self.viewer = pydaw_additive_osc_viewer(self, self.wav_viewer.draw_array)
         self.layout.addWidget(self.viewer)
+        self.layout.addWidget(self.wav_viewer)
 
-    def get_wavetable(self):
-        pass
 
     def open_settings(self, a_settings):
         pass
 
-    def get_settings(self):
-        pass
 
 if __name__ == "__main__":
     import sys
