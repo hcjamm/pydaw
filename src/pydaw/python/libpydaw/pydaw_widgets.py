@@ -65,9 +65,11 @@ class pydaw_plugin_file:
 
     def __str__(self):
         f_result = ""
-        for k, v in list(self.configure_dict.items()):
+        for k in sorted(self.configure_dict.keys()):
+            v = self.configure_dict[k]
             f_result += "c|{}|{}\n".format(k, v)
-        for k, v in list(self.port_dict.items()):
+        for k in sorted(self.port_dict.keys()):
+            v = self.port_dict[k]
             f_result += "{}|{}\n".format(int(k), int(v.get_value()))
         return f_result + "\\"
 
@@ -1512,7 +1514,7 @@ class pydaw_abstract_custom_oscillator:
 global_additive_osc_height = 310
 global_additive_osc_inc = 10
 global_additive_max_y_pos = global_additive_osc_height - global_additive_osc_inc
-global_additive_osc_harmonic_count = 24
+global_additive_osc_harmonic_count = 32
 global_additive_osc_bar_width = 20
 global_additive_osc_width = global_additive_osc_harmonic_count * global_additive_osc_bar_width
 global_additive_wavetable_size = 1024 #pow(2, global_additive_osc_harmonic_count)
@@ -1534,6 +1536,18 @@ global_add_osc_background.setColorAt(0.0, QtGui.QColor(40, 40, 40))
 global_add_osc_background.setColorAt(0.2, QtGui.QColor(20, 20, 20))
 global_add_osc_background.setColorAt(0.7, QtGui.QColor(30, 30, 30))
 global_add_osc_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
+
+global_add_osc_sine_cache = {}
+
+def global_get_sine(a_size):
+    if a_size in global_add_osc_sine_cache:
+        return numpy.copy(global_add_osc_sine_cache[a_size])
+    else:
+        f_lin = numpy.linspace(0.0, 2.0 * numpy.pi, a_size)
+        f_sin = numpy.sin(f_lin)
+        global_add_osc_sine_cache[a_size] = f_sin
+        return numpy.copy(f_sin)
+
 
 
 class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
@@ -1657,8 +1671,7 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
             if a_configure:
                 f_recall_list.append("{}".format(f_db))
             if f_db > -29:
-                f_lin = numpy.linspace(0.0, 2.0 * numpy.pi, f_size)
-                f_sin = numpy.sin(f_lin) * pydaw_util.pydaw_db_to_lin(f_db)
+                f_sin = global_get_sine(f_size) * pydaw_util.pydaw_db_to_lin(f_db)
                 for f_i2 in range(int(global_additive_wavetable_size / f_size)):
                     f_start = (f_i2) * f_size
                     f_end = f_start + f_size
