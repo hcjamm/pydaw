@@ -1674,10 +1674,8 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
                 f_engine_list.append("{}".format(round(f_float, 6)))
             f_engine_str = "{}|{}".format(global_additive_wavetable_size,
                 "|".join(f_engine_list))
-            #print(f_engine_str)
             self.configure_callback("wayv_add_eng{}".format(self.osc_num), f_engine_str)
             f_recall_str = "|".join(f_recall_list)
-            #print(f_recall_str)
             self.configure_callback("wayv_add_ui{}".format(self.osc_num), f_recall_str)
 
     def scene_mouseMoveEvent(self, a_event):
@@ -1705,6 +1703,10 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         if self.bars[int(f_harmonic)].set_value(int(f_db)):
             self.get_wav()
 
+    def clear_osc(self):
+        for f_point in self.bars:
+            f_point.set_value(-30)
+        self.get_wav()
 
     def set_saw(self):
         f_db = 0
@@ -1786,7 +1788,9 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
 
     def osc_index_changed(self, a_event):
         self.viewer.osc_num = self.osc_num_combobox.currentIndex()
-        if self.osc_values[self.viewer.osc_num] is not None:
+        if self.osc_values[self.viewer.osc_num] is None:
+            self.viewer.clear_osc()
+        else:
             self.viewer.open_osc(self.osc_values[self.viewer.osc_num])
 
     def edit_mode_combobox_changed(self, a_event):
@@ -3056,7 +3060,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                       self.plugin_rel_callback,
                                       self.plugin_val_callback, _("Oscillator 1"),
                                       self.port_dict, self.preset_manager, 1)
-        #self.osc1.osc_type_combobox.control.insertSeparator(18)
+
         self.osc1_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
                                                    pydaw_ports.WAYV_OSC1_UNISON_VOICES,
                                                    self.plugin_rel_callback,
@@ -3122,7 +3126,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                       self.plugin_rel_callback, self.plugin_val_callback,
                                       _("Oscillator 2"),
                                       self.port_dict, self.preset_manager)
-        #self.osc2.osc_type_combobox.control.insertSeparator(18)
+
         self.osc2_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
                                                    pydaw_ports.WAYV_OSC2_UNISON_VOICES,
                                                    self.plugin_rel_callback,
@@ -3182,7 +3186,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc2_fm3.add_to_grid_layout(self.groupbox_osc2_fm_layout, 2)
 
         self.hlayout2.addWidget(self.groupbox_osc2_fm)
-        #self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         #osc3
         self.hlayout3 = QtGui.QHBoxLayout()
@@ -3196,7 +3200,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                       self.plugin_rel_callback, self.plugin_val_callback,
                                       _("Oscillator 3"),
                                       self.port_dict, self.preset_manager)
-        #self.osc3.osc_type_combobox.control.insertSeparator(18)
+
         self.osc3_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
                                                    pydaw_ports.WAYV_OSC3_UNISON_VOICES,
                                                    self.plugin_rel_callback,
