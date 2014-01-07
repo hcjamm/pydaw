@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/lib/lms_math.h"
 #include "synth.h"
+#include "../../src/pydaw_files.h"
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event * events, int EventCount);
@@ -539,9 +540,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable1,
-                            plugin_data->data[f_voice]->
+                            plugin_data->mono_modules->
                             wavetables->tables[f_osc_type1]->wavetable,
-                            plugin_data->data[f_voice]->wavetables->
+                            plugin_data->mono_modules->wavetables->
                             tables[f_osc_type1]->length);
                     v_osc_wav_set_uni_voice_count(
                             plugin_data->data[f_voice]->osc_wavtable1,
@@ -563,9 +564,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable2,
-                            plugin_data->data[f_voice]->wavetables->
+                            plugin_data->mono_modules->wavetables->
                             tables[f_osc_type2]->wavetable,
-                            plugin_data->data[f_voice]->wavetables->
+                            plugin_data->mono_modules->wavetables->
                             tables[f_osc_type2]->length);
 
                     v_osc_wav_set_uni_voice_count(
@@ -588,9 +589,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable3,
-                            plugin_data->data[f_voice]->wavetables->
+                            plugin_data->mono_modules->wavetables->
                             tables[f_osc_type3]->wavetable,
-                            plugin_data->data[f_voice]->wavetables->
+                            plugin_data->mono_modules->wavetables->
                             tables[f_osc_type3]->length);
 
                     v_osc_wav_set_uni_voice_count(
@@ -685,13 +686,17 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->osc2fm3 =
                         (*plugin_data->osc2fm3) * 0.005f;
 
-                plugin_data->data[f_voice]->osc3fm1 = (*plugin_data->osc3fm1) * 0.005f;
-                plugin_data->data[f_voice]->osc3fm2 = (*plugin_data->osc3fm2) * 0.005f;
-                plugin_data->data[f_voice]->osc3fm3 = (*plugin_data->osc3fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc3fm1 =
+                        (*plugin_data->osc3fm1) * 0.005f;
+                plugin_data->data[f_voice]->osc3fm2 =
+                        (*plugin_data->osc3fm2) * 0.005f;
+                plugin_data->data[f_voice]->osc3fm3 =
+                        (*plugin_data->osc3fm3) * 0.005f;
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
-                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
+                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f,
+                        *(plugin_data->lfo_type));
 
                 float f_attack_a = (*(plugin_data->attack) * .01);
                 f_attack_a *= f_attack_a;
@@ -829,7 +834,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             }
             else
             {
-                plugin_data->voices->voices[(plugin_data->i_run_poly_voice)].n_state = note_state_off;
+                plugin_data->voices->voices[(plugin_data->i_run_poly_voice)].
+                        n_state = note_state_off;
             }
 
             plugin_data->i_run_poly_voice = (plugin_data->i_run_poly_voice) + 1;
@@ -912,7 +918,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         v_osc_wav_set_unison_pitch(
                 a_voice->osc_wavtable1, (a_voice->osc1_uni_spread),
                 ((a_voice->base_pitch) + (*plugin_data->osc1pitch) +
-                ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
+                ((*plugin_data->osc1tune) * 0.01f) ));
 
         v_osc_wav_apply_fm(a_voice->osc_wavtable1,
                 a_voice->osc1fm1, a_voice->fm1_last);
@@ -940,9 +946,10 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     if(a_voice->osc2_on)
     {
-        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (a_voice->osc2_uni_spread),
+        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2,
+                (a_voice->osc2_uni_spread),
                 ((a_voice->base_pitch) + (*plugin_data->osc2pitch) +
-                ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
+                ((*plugin_data->osc2tune) * 0.01f) ));
 
         v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm1,
                 a_voice->fm1_last);
@@ -972,11 +979,14 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3,
                 (a_voice->osc3_uni_spread),
                 ((a_voice->base_pitch) + (*plugin_data->osc3pitch) +
-                ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
+                ((*plugin_data->osc3tune) * 0.01f) ));
 
-        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm1, a_voice->fm1_last);
-        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm2, a_voice->fm2_last);
-        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm3, a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm1,
+                a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm2,
+                a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm3,
+                a_voice->fm3_last);
 
         if(a_voice->adsr_amp3_on)
         {
@@ -1033,17 +1043,81 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 (a_voice->modulex_current_sample[0]), (a_voice->modulex_current_sample[1]));
 
         a_voice->modulex_current_sample[0] =
-            a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]->output0;
+            a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num]
+                [(plugin_data->i_dst)])]->output0;
         a_voice->modulex_current_sample[1] =
-            a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num][(plugin_data->i_dst)])]->output1;
+            a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num]
+                [(plugin_data->i_dst)])]->output1;
 
     }
 
     /*Run the envelope and assign to the output buffers*/
-    out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) * (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
-    out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) * (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
+    out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) *
+            (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
+    out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) *
+            (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
 
 }
+
+
+float * f_char_to_wavetable(const char * a_char)
+{
+    float * f_result;
+
+    if(posix_memalign((void**)&f_result, 16, (sizeof(float) * 1024)) != 0)
+    {
+        return 0;
+    }
+
+    t_1d_char_array * f_arr = c_split_str(a_char, '|', 1025, 32);
+
+    int f_i = 1;
+
+    int f_count = atoi(f_arr->array[0]);
+    printf("%i\n", f_count);
+
+    while(f_i < 1025)
+    {
+        f_result[f_i - 1] = atof(f_arr->array[f_i]);
+        f_i++;
+    }
+
+    g_free_1d_char_array(f_arr);
+
+    return f_result;
+}
+
+char *c_wayv_configure(PYFX_Handle instance, const char *key,
+        const char *value, pthread_mutex_t * a_mutex)
+{
+    t_wayv *plugin_data = (t_wayv*)instance;
+
+    if (!strcmp(key, "wayv_add_eng0"))
+    {
+        float * f_table = f_char_to_wavetable(value);
+        v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 17, f_table,
+                1024, a_mutex);
+    }
+    else if (!strcmp(key, "wayv_add_eng1"))
+    {
+        float * f_table = f_char_to_wavetable(value);
+        v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 18, f_table,
+                1024, a_mutex);
+    }
+    else if (!strcmp(key, "wayv_add_eng2"))
+    {
+        float * f_table = f_char_to_wavetable(value);
+        v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 19, f_table,
+                1024, a_mutex);
+    }
+    else
+    {
+        printf("Way-V unhandled configure key %s\n", key);
+    }
+
+    return NULL;
+}
+
 
 const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 {
@@ -1908,7 +1982,7 @@ const PYINST_Descriptor *wayv_PYINST_descriptor(int index)
     {
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = wayv_PYFX_descriptor(0);
-	LMSDDescriptor->configure = NULL;
+	LMSDDescriptor->configure = c_wayv_configure;
 	LMSDDescriptor->run_synth = v_run_wayv;
     }
 

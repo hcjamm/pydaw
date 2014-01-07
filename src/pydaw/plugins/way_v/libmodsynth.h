@@ -41,6 +41,7 @@ extern "C" {
 
 typedef struct
 {
+    t_wt_wavetables * wavetables;
     t_smoother_linear * pitchbend_smoother;
     t_amp * amp_ptr;
 }t_wayv_mono_modules;
@@ -51,7 +52,6 @@ typedef struct
     t_osc_wav_unison * osc_wavtable1;
     t_osc_wav_unison * osc_wavtable2;
     t_osc_wav_unison * osc_wavtable3;
-    t_wt_wavetables * wavetables;
 
     float osc1_uni_spread, osc2_uni_spread, osc3_uni_spread;
 
@@ -116,8 +116,6 @@ typedef struct
 
     int perc_env_on;
     t_pnv_perc_env * perc_env;
-
-
 }t_wayv_poly_voice;
 
 t_wayv_poly_voice * g_wayv_poly_init(float a_sr);
@@ -133,7 +131,6 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(a_sr);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(a_sr);
     f_voice->osc_wavtable3 = g_osc_get_osc_wav_unison(a_sr);
-    f_voice->wavetables = g_wt_wavetables_get();
 
     f_voice->osc1_uni_spread = 0.0f;
     f_voice->osc2_uni_spread = 0.0f;
@@ -258,6 +255,7 @@ t_wayv_mono_modules * v_wayv_mono_init(float a_sr)
     t_wayv_mono_modules * a_mono = (t_wayv_mono_modules*)malloc(sizeof(t_wayv_mono_modules));
     a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
     a_mono->amp_ptr = g_amp_get();
+    a_mono->wavetables = g_wt_wavetables_get();
     return a_mono;
 }
 

@@ -14,11 +14,6 @@ GNU General Public License for more details.
 #ifndef OSC_WAVETABLE_H
 #define	OSC_WAVETABLE_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-
 #include "../../lib/osc_core.h"
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
@@ -28,6 +23,10 @@ extern "C" {
 
 
 #define OSC_UNISON_MAX_VOICES 7
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -74,6 +73,10 @@ t_osc_wav * g_osc_get_osc_wav();
 t_osc_wav_unison * g_osc_get_osc_wav_unison(float);
 inline void v_osc_wav_apply_fm(t_osc_wav_unison*, float, float);
 
+
+#ifdef	__cplusplus
+}
+#endif
 
 inline void v_osc_wav_set_waveform(t_osc_wav_unison* a_osc_wav,
         float * a_waveform, int a_sample_count)
@@ -316,10 +319,6 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     return f_result;
 }
 
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* OSC_WAVETABLE_H */
 
