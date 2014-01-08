@@ -1003,6 +1003,7 @@ class pydaw_file_browser_widget:
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
 global_plugin_settings_clipboard = {}
+global_plugin_configure_clipboard = None
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name, a_configure_dict=None, a_reconfigure_callback=None):
@@ -1068,6 +1069,11 @@ class pydaw_preset_manager_widget:
         for k, v in self.controls.items():
             f_result[k] = v.get_value()
         global_plugin_settings_clipboard[self.plugin_name] = f_result
+        global global_plugin_configure_clipboard
+        if self.configure_dict is None:
+            global_plugin_configure_clipboard = None
+        else:
+            global_plugin_configure_clipboard = self.configure_dict.copy()
 
     def on_paste(self):
         if not self.plugin_name in global_plugin_settings_clipboard:
@@ -1078,6 +1084,8 @@ class pydaw_preset_manager_widget:
         for k, v in f_dict.items():
             self.controls[k].set_value(v)
             self.controls[k].control_value_changed(v)
+        if global_plugin_configure_clipboard is not None:
+            self.reconfigure_callback(global_plugin_configure_clipboard)
 
     def on_more(self):
         self.more_button.showMenu()
