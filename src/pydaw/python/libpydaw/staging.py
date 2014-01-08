@@ -139,8 +139,13 @@ class pydaw_spectrum_analyzer(QtGui.QGraphicsView):
             self.scene.addItem(f_bar)
 
     def set_values(self, a_arr):
+        ps = numpy.abs(numpy.fft.fft(a_arr)) # **2
+        time_step = 1 / 44100
+        freqs = numpy.fft.fftfreq(a_arr.size, time_step)
+        idx = numpy.argsort(freqs)
+        #plt.plot(freqs[idx], ps[idx])
         for f_i in range(len(self.bars)):
-            self.bars[f_i].set_value(a_arr[f_i])
+            self.bars[f_i].set_value(ps[idx][f_i])
 
     def set_edit_mode(self, a_mode):
         self.edit_mode = a_mode
@@ -163,14 +168,11 @@ if __name__ == "__main__":
     def time_out():
         f_rand = numpy.random.rand(256)
         f_rand -= 0.5
+        f_rand *= 0.2
         #f_rand = numpy.linspace(0.0, 32.0 * numpy.pi, 256)
         #f_rand = numpy.sin(f_rand)
-        ps = numpy.abs(numpy.fft.fft(f_rand))**2
-        time_step = 1 / 44100
-        freqs = numpy.fft.fftfreq(f_rand.size, time_step)
-        idx = numpy.argsort(freqs)
-        #plt.plot(freqs[idx], ps[idx])
-        f_widget.set_values(ps[idx])
+        f_widget.set_values(f_rand)
+
     f_timer = QtCore.QTimer(f_widget)
     f_timer.timeout.connect(time_out)
     f_timer.start(50)
