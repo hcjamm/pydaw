@@ -1005,8 +1005,10 @@ global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
 global_plugin_settings_clipboard = {}
 
 class pydaw_preset_manager_widget:
-    def __init__(self, a_plugin_name):
+    def __init__(self, a_plugin_name, a_configure_dict=None, a_reconfigure_callback=None):
         self.plugin_name = str(a_plugin_name)
+        self.configure_dict = a_configure_dict
+        self.reconfigure_callback = a_reconfigure_callback
         self.factory_preset_path = "{}/lib/{}/presets/{}.pypresets".format(
             pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string,
             a_plugin_name)
@@ -1129,13 +1131,13 @@ class pydaw_preset_manager_widget:
         else:
             f_line_arr = []
 
-        if len(f_line_arr) > 0:
+        if f_line_arr:
             if f_line_arr[0].strip() != self.plugin_name:
                 QtGui.QMessageBox.warning(self.group_box, _("Error"),
                 _("The selected preset bank is for {}, please select one for {}").format(
                 f_line_arr[0], self.plugin_name))
                 if os.path.isfile(self.bank_file):
-                    os.system('rm "{}"'.format(self.bank_file,))
+                    os.system('rm "{}"'.format(self.bank_file))
                 return
 
         f_line_arr = f_line_arr[1:]
@@ -1160,8 +1162,13 @@ class pydaw_preset_manager_widget:
                                       _("The first preset must be empty"))
             return
         f_result_values = [str(self.program_combobox.currentText())]
-        for k, f_control in list(self.controls.items()):
-            f_result_values.append("{}:{}".format(f_control.port_num, f_control.get_value(),))
+        for k in sorted(self.controls.keys()):
+            f_control = self.controls[k]
+            f_result_values.append("{}:{}".format(f_control.port_num, f_control.get_value()))
+        if self.configure_dict is not None:
+            for k in self.configure_dict.keys():
+                v = self.configure_dict[k]
+                f_result_values.append("c:{}:{}".format(k, v.replace("|", ":")))
         self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
         f_result = "{}\n".format(self.plugin_name,)
         for f_list in self.presets_delimited:
@@ -1176,9 +1183,13 @@ class pydaw_preset_manager_widget:
             f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
             print("setting preset {}".format(f_preset))
             f_preset_dict = {}
+            f_configure_dict = {}
             for f_i in range(1, len(f_preset)):
-                f_port, f_val = f_preset[f_i].split(":")
-                f_preset_dict[int(f_port)] = int(f_val)
+                f_list = f_preset[f_i].split(":")
+                if f_list[0] == "c":
+                    f_configure_dict[f_list[1]] = "|".join(f_list[2:])
+                else:
+                    f_preset_dict[int(f_list[0])] = int(f_list[1])
 
             for k, v in self.controls.items():
                 if int(k) in f_preset_dict:
@@ -1186,6 +1197,8 @@ class pydaw_preset_manager_widget:
                     v.control_value_changed(f_preset_dict[k])
                 else:
                     v.reset_default_value()
+            if self.reconfigure_callback is not None:
+                self.reconfigure_callback(f_configure_dict)
 
     def add_control(self, a_control):
         self.controls[a_control.port_num] = a_control
@@ -1199,7 +1212,7 @@ class pydaw_master_widget:
         self.group_box.setObjectName("plugin_groupbox")
         self.group_box.setTitle(str(a_title))
         self.layout = QtGui.QGridLayout(self.group_box)
-        self.vol_knob = pydaw_knob_control(a_size, "Vol", a_master_vol_port,
+        self.vol_knob = pydaw_knob_control(a_size, _("Vol"), a_master_vol_port,
                                            a_rel_callback, a_val_callback, -30,
                                            12, -6, kc_integer, a_port_dict, a_preset_mgr)
         self.vol_knob.add_to_grid_layout(self.layout, 0)
@@ -2646,6 +2659,12 @@ class pydaw_abstract_plugin_ui:
         """ Override this function to configure the plugin from the state file """
         pass
 
+    def reconfigure_plugin(self, a_dict):
+        """ Override this to re-configure a plugin from scratch with the
+            values in a_dict
+        """
+        pass
+
     def set_window_title(self, a_track_name):
         pass  #Override this function
 
@@ -3057,7 +3076,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.poly_fx_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.poly_fx_tab, _("PolyFX"))
         self.oscillator_layout =  QtGui.QVBoxLayout(self.osc_tab)
-        self.preset_manager =  pydaw_preset_manager_widget("WAYV")
+        self.preset_manager =  pydaw_preset_manager_widget("WAYV", self.configure_dict,
+                                                           self.reconfigure_plugin)
         self.hlayout0 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout0)
         self.hlayout0.addWidget(self.preset_manager.group_box)
@@ -3199,7 +3219,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc2_fm3.add_to_grid_layout(self.groupbox_osc2_fm_layout, 2)
 
         self.hlayout2.addWidget(self.groupbox_osc2_fm)
-        self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         #osc3
         self.hlayout3 = QtGui.QHBoxLayout()
@@ -3491,6 +3510,26 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             pass
         else:
             print("Way-V: Unknown configure message '{}'".format(a_key))
+
+    def reconfigure_plugin(self, a_dict):
+        # Clear existing sample tables
+        f_ui_config_keys = ["wayv_add_ui0", "wayv_add_ui1", "wayv_add_ui2"]
+        f_eng_config_keys = ["wayv_add_eng0", "wayv_add_eng1", "wayv_add_eng2"]
+        f_empty_ui_val = "|".join(["-30"] * global_additive_osc_harmonic_count)
+        f_empty_eng_val = "{}|{}".format(global_additive_wavetable_size,
+            "|".join(["0.0"] * global_additive_wavetable_size))
+        for f_key in f_ui_config_keys:
+            if f_key in a_dict:
+                self.configure_plugin(f_key, a_dict[f_key])
+                self.set_configure(f_key, a_dict[f_key])
+            else:
+                self.configure_plugin(f_key, f_empty_ui_val)
+                self.set_configure(f_key, f_empty_ui_val)
+        for f_key in f_eng_config_keys:
+            if f_key in a_dict:
+                self.configure_plugin(f_key, a_dict[f_key])
+            else:
+                self.configure_plugin(f_key, f_empty_eng_val)
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
