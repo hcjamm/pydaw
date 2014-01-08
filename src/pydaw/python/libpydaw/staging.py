@@ -39,12 +39,9 @@ class pydaw_spectrum_analyzer_bar(QtGui.QGraphicsRectItem):
     def set_value(self, a_value):
         if self.value != a_value:
             self.value = a_value
-            f_y_pos = (a_value * global_spec_anlzr_height) - global_spec_anlzr_height
+            f_y_pos = ((1.0 - a_value) * global_spec_anlzr_height)
             self.setPos(self.x_pos, f_y_pos)
             self.extend_to_bottom()
-            return True
-        else:
-            return False
 
     def extend_to_bottom(self):
         f_pos_y = self.pos().y() #TODO: clip
@@ -139,9 +136,10 @@ class pydaw_spectrum_analyzer(QtGui.QGraphicsView):
             self.scene.addItem(f_bar)
 
     def set_values(self, a_arr):
-        ps = numpy.abs(numpy.fft.fft(a_arr)) # **2
+        ps = numpy.abs(numpy.fft.fft(a_arr)) ** 2
         time_step = 1 / 44100
-        freqs = numpy.fft.fftfreq(a_arr.size, time_step)
+        ps = ps[ps.shape[0] / 2:]
+        freqs = numpy.fft.fftfreq(ps.size, time_step)
         idx = numpy.argsort(freqs)
         #plt.plot(freqs[idx], ps[idx])
         for f_i in range(len(self.bars)):
@@ -166,11 +164,9 @@ if __name__ == "__main__":
     f_widget = pydaw_spectrum_analyzer()
     f_widget.show()
     def time_out():
-        f_rand = numpy.random.rand(256)
-        f_rand -= 0.5
-        f_rand *= 0.2
-        #f_rand = numpy.linspace(0.0, 32.0 * numpy.pi, 256)
-        #f_rand = numpy.sin(f_rand)
+        f_rand = (numpy.random.rand(512) - 0.5) * 0.125
+        #f_rand = numpy.linspace(0.0, 32.0 * numpy.pi, 512)
+        #f_rand = numpy.sin(f_rand) * 0.025
         f_widget.set_values(f_rand)
 
     f_timer = QtCore.QTimer(f_widget)
