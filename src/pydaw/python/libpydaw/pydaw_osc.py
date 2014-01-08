@@ -15,7 +15,22 @@ import sys
 try:
     import libpydaw.liblo as liblo
 except ImportError:
-    import liblo
+    try:
+        import liblo
+    except ImportError:
+        from PyQt4 import QtGui
+        app = QtGui.QApplication(sys.argv)
+        f_error_dialog = QtGui.QDialog()
+        f_error_layout = QtGui.QVBoxLayout(f_error_dialog)
+        f_error_label = QtGui.QLabel(
+            "Error, cannot import liblo.  This probably means that you installed the \nwrong "
+            "package.  You must use the version that corresponds to the same version of \n"
+            "Ubuntu (or if using Fedora or something else, it must be compiled against the \n"
+            "same version of Python3 that your OS uses).  If you are unsure, it is probably \n"
+            "best to compile PyDAW from the source code package yourself.")
+        f_error_layout.addWidget(f_error_label)
+        f_error_dialog.show()
+        sys.exit(app.exec_())
 
 from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
