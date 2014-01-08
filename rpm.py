@@ -122,6 +122,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.py
+/usr/lib/pydaw4/pydaw/python/libpydaw/staging.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.py
 /usr/lib/pydaw4/pydaw4-version.txt
 /usr/lib/pydaw4/rubberband/include/rubberband/RubberBandStretcher.h
