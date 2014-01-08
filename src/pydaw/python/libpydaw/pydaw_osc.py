@@ -12,6 +12,9 @@ GNU General Public License for more details.
 """
 
 import sys
+from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, \
+    pydaw_get_wait_file_path, global_pydaw_install_prefix
+
 try:
     import libpydaw.liblo as liblo
 except ImportError:
@@ -19,20 +22,31 @@ except ImportError:
         import liblo
     except ImportError:
         from PyQt4 import QtGui
+        import locale
+        import gettext
+
+        try:
+            global_locale, global_encoding = locale.getdefaultlocale()
+            global_language = gettext.translation("pydaw4",
+                "{}/share/locale".format(global_pydaw_install_prefix),
+                [global_locale])
+            global_language.install()
+        except Exception as ex:
+            print("Exception while setting locale, falling back to English (hopefully)")
+            def _(a_string): return a_string
+
         app = QtGui.QApplication(sys.argv)
         f_error_dialog = QtGui.QDialog()
         f_error_layout = QtGui.QVBoxLayout(f_error_dialog)
-        f_error_label = QtGui.QLabel(
+        f_error_label = QtGui.QLabel(_(
             "Error, cannot import liblo.  This probably means that you installed the \nwrong "
             "package.  You must use the version that corresponds to the same version of \n"
             "Ubuntu (or if using Fedora or something else, it must be compiled against the \n"
             "same version of Python3 that your OS uses).  If you are unsure, it is probably \n"
-            "best to compile PyDAW from the source code package yourself.")
+            "best to compile PyDAW from the source code package yourself.\n\nCan't open PyDAW."))
         f_error_layout.addWidget(f_error_label)
         f_error_dialog.show()
         sys.exit(app.exec_())
-
-from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 
 class pydaw_osc:
