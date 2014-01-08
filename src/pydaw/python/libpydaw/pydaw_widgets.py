@@ -1117,6 +1117,8 @@ class pydaw_preset_manager_widget:
     def reset_controls(self):
         for v in self.controls.values():
             v.reset_default_value()
+        if self.reconfigure_callback is not None:
+            self.reconfigure_callback({})
 
     def load_presets(self):
         if os.path.isfile(self.preset_path):
@@ -3148,7 +3150,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc1_fm3.add_to_grid_layout(self.groupbox_osc1_fm_layout, 2)
 
         self.hlayout1.addWidget(self.groupbox_osc1_fm)
-        #self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         #Osc2
         self.hlayout2 = QtGui.QHBoxLayout()
@@ -3292,7 +3293,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc3_fm3.add_to_grid_layout(self.groupbox_osc3_fm_layout, 2)
 
         self.hlayout3.addWidget(self.groupbox_osc3_fm)
-        #self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         self.hlayout4 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout4)
