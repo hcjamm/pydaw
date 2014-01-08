@@ -58,8 +58,8 @@ class pydaw_spectrum_analyzer_bar(QtGui.QGraphicsRectItem):
 global_spec_anlzr_height = 310
 global_spec_anlzr_inc = 10
 global_spec_anlzr_max_y_pos = global_spec_anlzr_height - global_spec_anlzr_inc
-global_spec_anlzr_harmonic_count = 256
-global_spec_anlzr_bar_width = 4
+global_spec_anlzr_harmonic_count = 64
+global_spec_anlzr_bar_width = 16
 global_spec_anlzr_width = global_spec_anlzr_harmonic_count * global_spec_anlzr_bar_width
 global_spec_anlzr_sample_size = 4096 #pow(2, global_spec_anlzr_harmonic_count)
 #global_spec_anlzr_height_div2 = global_spec_anlzr_height * 0.5
@@ -136,7 +136,7 @@ class pydaw_spectrum_analyzer(QtGui.QGraphicsView):
             self.scene.addItem(f_bar)
 
     def set_values(self, a_arr):
-        ps = numpy.abs(numpy.fft.fft(a_arr)) ** 2
+        ps = numpy.abs(numpy.fft.fft(a_arr))  * 0.1 # ** 2
         time_step = 1 / 44100
         ps = ps[ps.shape[0] / 2:]
         freqs = numpy.fft.fftfreq(ps.size, time_step)
@@ -164,14 +164,14 @@ if __name__ == "__main__":
     f_widget = pydaw_spectrum_analyzer()
     f_widget.show()
     def time_out():
-        f_rand = (numpy.random.rand(512) - 0.5) * 0.125
-        #f_rand = numpy.linspace(0.0, 32.0 * numpy.pi, 512)
+        f_rand = (numpy.random.rand(128) - 0.5)
+        #f_rand = numpy.linspace(0.0, 32.0 * numpy.pi, 128)
         #f_rand = numpy.sin(f_rand) * 0.025
         f_widget.set_values(f_rand)
 
     f_timer = QtCore.QTimer(f_widget)
     f_timer.timeout.connect(time_out)
-    f_timer.start(50)
+    f_timer.start(100)
     #with open("/usr/lib/pydaw4/themes/default/default.pytheme") as f_file:
     #    f_widget.widget.setStyleSheet(f_file.read().replace("$STYLE_FOLDER",
     #                                  "/usr/lib/pydaw4/themes/default"))
