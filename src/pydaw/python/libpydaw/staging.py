@@ -14,10 +14,23 @@ GNU General Public License for more details.
 
 
 from PyQt4 import QtGui, QtCore
+from math import log
 
+def pydaw_pitch_to_hz(a_pitch):
+    return (440.0 * pow(2.0,(a_pitch - 57.0) * 0.0833333))
+
+def pydaw_hz_to_pitch(a_hz):
+    return ((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0)
+
+def pydaw_pitch_to_ratio(a_pitch):
+    return (1.0/pydaw_pitch_to_hz(0.0)) * pydaw_pitch_to_hz(a_pitch)
 
 def pydaw_db_to_lin(a_value):
     return pow(10.0, (0.05 * a_value))
+
+def pydaw_lin_to_db(a_value):
+    return log(a_value, 10.0) * 20.0
+
 
 
 import numpy
@@ -58,12 +71,22 @@ class pydaw_spectrum_analyzer_bar(QtGui.QGraphicsRectItem):
 global_spec_anlzr_height = 310
 global_spec_anlzr_inc = 10
 global_spec_anlzr_max_y_pos = global_spec_anlzr_height - global_spec_anlzr_inc
-global_spec_anlzr_harmonic_count = 64
-global_spec_anlzr_bar_width = 16
+global_spec_anlzr_harmonic_count = 32
+global_spec_anlzr_bar_width = 20
 global_spec_anlzr_width = global_spec_anlzr_harmonic_count * global_spec_anlzr_bar_width
 global_spec_anlzr_sample_size = 4096 #pow(2, global_spec_anlzr_harmonic_count)
 #global_spec_anlzr_height_div2 = global_spec_anlzr_height * 0.5
 
+global_spec_anlzr_freqs = []
+
+def global_spec_anlzr_create_freq_table():
+    f_spec_anlzr_pitch_inc = \
+        (pydaw_hz_to_pitch(20000.0) - pydaw_hz_to_pitch(10.0)) / global_spec_anlzr_harmonic_count
+    print("f_spec_anlzr_pitch_inc {}".format(f_spec_anlzr_pitch_inc))
+    for f_i in range(global_spec_anlzr_harmonic_count):
+        global_spec_anlzr_freqs.append(pydaw_pitch_to_hz(f_i * f_spec_anlzr_pitch_inc))
+
+global_spec_anlzr_create_freq_table()
 
 global_spec_anlzr_fill = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_spec_anlzr_height)
 
@@ -116,7 +139,7 @@ class pydaw_oscilloscope(QtGui.QGraphicsView):
 
 
 class pydaw_spectrum_analyzer(QtGui.QGraphicsView):
-    def __init__(self):
+    def __init__(self, a_sample_rate=44100, a_buffer_size=128):
         QtGui.QGraphicsView.__init__(self)
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
@@ -130,20 +153,33 @@ class pydaw_spectrum_analyzer(QtGui.QGraphicsView):
         self.scene.setBackgroundBrush(global_spec_anlzr_background)
         self.setSceneRect(0.0, 0.0, global_spec_anlzr_width, global_spec_anlzr_height)
         self.bars = []
-        for f_i in range(0, global_spec_anlzr_width, int(global_spec_anlzr_bar_width)):
-            f_bar = pydaw_spectrum_analyzer_bar(f_i)
+        for f_i in range(global_spec_anlzr_harmonic_count):
+            f_bar = pydaw_spectrum_analyzer_bar(f_i * global_spec_anlzr_bar_width)
             self.bars.append(f_bar)
             self.scene.addItem(f_bar)
+        self.buffer_size = a_buffer_size
+        self.time_step = 1.0 / a_sample_rate
+        self.freqs = numpy.fft.fftfreq(a_buffer_size // 2, self.time_step)
+        self.freqs = self.freqs[a_buffer_size // 2::-1]
+        self.idx = numpy.argsort(self.freqs)
+#        self.ranges = []
+#        for f_i in range(1, global_spec_anlzr_harmonic_count):
+#            f_list = []
+#            for f_i2 in range(0, len(self.freqs)):
+#                if self.freqs[self.idx][f_i2] < global_spec_anlzr_freqs[f_i] and \
+#                self.freqs[self.idx][f_i2] >= global_spec_anlzr_freqs[f_i - 1]:
+#                    f_list.append(f_i2)
+#            f_list.sort()
+#            if f_list:
+#                self.ranges.append((f_list[0], f_list[-1]))
 
     def set_values(self, a_arr):
-        ps = numpy.abs(numpy.fft.fft(a_arr))  * 0.1 # ** 2
-        time_step = 1 / 44100
-        ps = ps[ps.shape[0] / 2:]
-        freqs = numpy.fft.fftfreq(ps.size, time_step)
-        idx = numpy.argsort(freqs)
-        #plt.plot(freqs[idx], ps[idx])
-        for f_i in range(len(self.bars)):
-            self.bars[f_i].set_value(ps[idx][f_i])
+        ps = numpy.abs(numpy.fft.fft(a_arr)) * 0.1 # ** 2
+        ps = ps[ps.shape[0] // 2::-1]
+        ps = ps[self.idx]
+        for f_i in range(global_spec_anlzr_harmonic_count):
+            self.bars[f_i].set_value(ps[f_i])
+            #self.bars[f_i].set_value(ps[self.idx][self.ranges[f_i][0]:self.ranges[1]])
 
     def set_edit_mode(self, a_mode):
         self.edit_mode = a_mode
@@ -164,9 +200,9 @@ if __name__ == "__main__":
     f_widget = pydaw_spectrum_analyzer()
     f_widget.show()
     def time_out():
-        f_rand = (numpy.random.rand(128) - 0.5)
-        #f_rand = numpy.linspace(0.0, 32.0 * numpy.pi, 128)
-        #f_rand = numpy.sin(f_rand) * 0.025
+        #f_rand = (numpy.random.rand(64) - 0.5) * 0.1
+        f_rand = numpy.linspace(0.0, 21.0 * numpy.pi, 64)
+        f_rand = numpy.sin(f_rand) # * 0.1
         f_widget.set_values(f_rand)
 
     f_timer = QtCore.QTimer(f_widget)
