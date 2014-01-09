@@ -524,7 +524,7 @@ class region_settings:
                 global_current_region.region_length_bars = 0
                 f_region_length = 8
                 f_commit_message = _("Set region '{}' length to default value").format(
-                    f_region_name,)
+                    f_region_name)
             this_pydaw_project.save_region(f_region_name, global_current_region)
             global_audio_items.set_region_length(f_region_length)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
@@ -2669,7 +2669,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_cursor.setZValue(1000.0)
         i3 = 0.0
         for i in range(f_region_length):
-            f_number = QtGui.QGraphicsSimpleTextItem("{}".format(i + 1,), f_ruler)
+            f_number = QtGui.QGraphicsSimpleTextItem("{}".format(i + 1), f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
             f_number.setZValue(1000.0)
@@ -3575,7 +3575,7 @@ class audio_item_editor_widget:
             this_pydaw_project.commit(_("Update audio items"))
 
     def sample_vol_changed(self, a_val=None):
-        self.sample_vol_label.setText("{}dB".format(self.sample_vol_slider.value(),))
+        self.sample_vol_label.setText("{}dB".format(self.sample_vol_slider.value()))
         self.vol_checkbox.setChecked(True)
 
 global_audio_items = None
@@ -8428,7 +8428,7 @@ def kill_pydaw_engine():
         print("kill_pydaw_engine raised Exception during process search, "
               "assuming no zombie processes {}\n".format(ex))
         return
-    f_engine_name = "{}-engine".format(global_pydaw_version_string,)
+    f_engine_name = "{}-engine".format(global_pydaw_version_string)
     f_val = f_val.decode()
     f_result = []
     for f_line in f_val.split("\n"):
@@ -8438,7 +8438,7 @@ def kill_pydaw_engine():
                 f_arr = f_line.split()
                 f_result.append(int(f_arr[1]))
             except Exception as ex:
-                print("kill_pydaw_engine Exception adding PID {}\n\t{}".format(f_arr[1], ex,))
+                print("kill_pydaw_engine Exception adding PID {}\n\t{}".format(f_arr[1], ex))
 
     if len(f_result) > 0:
         f_answer = QtGui.QMessageBox.warning(this_audio_item_editor_widget.widget, _("Warning"),
@@ -8458,7 +8458,7 @@ def kill_pydaw_engine():
                     f_result = subprocess.check_output(f_kill)
                     print(f_result)
                 except Exception as ex:
-                    print("kill_pydaw_engine : Exception: {}".format(ex,))
+                    print("kill_pydaw_engine : Exception: {}".format(ex))
             sleep(3.0)
 
 def open_pydaw_engine(a_project_path):

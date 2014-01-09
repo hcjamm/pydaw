@@ -159,7 +159,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         f_count = f_pyaudio.Pa_GetHostApiCount()
 
         f_count = f_pyaudio.Pa_GetDeviceCount()
-        print(("f_count == {}".format(f_count,)))
+        print("f_count == {}".format(f_count))
 
         f_result_dict = {}
         f_name_to_index = {}

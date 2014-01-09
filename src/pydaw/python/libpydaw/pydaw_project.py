@@ -175,7 +175,7 @@ class pydaw_project:
         f_new_project_folder = os.path.dirname(f_file_name)
         #The below is safe because we already checked that the folder
         #should be empty before calling this
-        f_cmd = 'rm -rf "{}"'.format(f_new_project_folder,)
+        f_cmd = 'rm -rf "{}"'.format(f_new_project_folder)
         print(f_cmd)
         os.system(f_cmd)
         f_cmd = 'cp -r "{}" "{}"'.format(self.project_folder, f_new_project_folder)
@@ -196,7 +196,7 @@ class pydaw_project:
                                                    pydaw_folder_regions_audio)
         self.items_folder = "{}/{}".format(self.project_folder, pydaw_folder_items)
         self.audio_folder = "{}/{}".format(self.project_folder, pydaw_folder_audio)
-        self.audio_tmp_folder = "{}/audio/tmp".format(self.project_folder,)
+        self.audio_tmp_folder = "{}/audio/tmp".format(self.project_folder)
         self.samples_folder = "{}/{}".format(self.project_folder, pydaw_folder_samples)
         self.audiofx_folder = "{}/{}".format(self.project_folder, pydaw_folder_audiofx)
         self.audio_per_item_fx_folder = "{}/{}".format(self.project_folder,
@@ -2387,7 +2387,7 @@ class pydaw_midi_file_to_items:
     """ Convert the MIDI file at a_file to a dict of pydaw_item's with keys
         in the format (track#, channel#, bar#)"""
     def __init__(self, a_file):
-        f_midi_comp = "{}/midicomp".format(os.path.dirname(os.path.abspath(__file__)),)
+        f_midi_comp = "{}/midicomp".format(os.path.dirname(os.path.abspath(__file__)))
         f_midi_text_arr = subprocess.check_output([f_midi_comp,
                                                    str(a_file)]).decode("utf-8").split("\n")
         #First fix the lengths of events that have note-off events

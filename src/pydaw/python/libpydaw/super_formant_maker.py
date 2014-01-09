@@ -72,5 +72,5 @@ for k in sorted(list(f_formant_dict.keys())):
     for f_val in v[2]:
         f_str += "{}, ".format(round((-140.0 / f_val) + 1.0, 3))
     f_str += "}},"
-    print(("\t{} //{}".format(f_str, k,)))
+    print(("\t{} //{}".format(f_str, k)))
 print("}")

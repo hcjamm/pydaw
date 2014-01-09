@@ -42,7 +42,7 @@ def pydaw_escape_stylesheet(a_stylesheet, a_path):
     f_result = a_stylesheet.replace("$STYLE_FOLDER", f_dir)
     return f_result
 
-print(("\n\n\ninstall prefix:  {}\n\n\n".format(global_pydaw_install_prefix,)))
+print(("\n\n\ninstall prefix:  {}\n\n\n".format(global_pydaw_install_prefix)))
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
@@ -50,7 +50,7 @@ def pydaw_which(a_file):
     """ Python equivalent of the UNIX "which" command """
     f_path_arr = os.getenv("PATH").split(":")
     for f_path in f_path_arr:
-        f_file_path = "{}/{}".format(f_path, a_file,)
+        f_file_path = "{}/{}".format(f_path, a_file )
         if os.path.exists(f_file_path) and not os.path.isdir(f_file_path):
             return f_file_path
     return None
@@ -270,7 +270,7 @@ def pydaw_wait_for_finished_file(a_file):
             sleep(0.1)
 
 def pydaw_get_wait_file_path(a_file):
-    f_wait_file = "{}.finished".format(a_file,)
+    f_wait_file = "{}.finished".format(a_file)
     if os.path.isfile(f_wait_file):
         os.remove(f_wait_file)
     return f_wait_file
@@ -331,7 +331,7 @@ if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
                                              global_default_project_folder))
             os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command,
                                                     global_default_project_folder))
-            pydaw_write_file_text("{}/README.txt".format(global_default_project_folder,),
+            pydaw_write_file_text("{}/README.txt".format(global_default_project_folder),
             "Create subfolders in here and save your live projects to those subfolders.  "
             "Saving in the regular filesystem will not persist between live sessions.")
     except Exception as ex:
@@ -473,7 +473,7 @@ class sfz_file:
                         f_value = f_line_arr[f_i].strip().rsplit(" ", 1)[0]
                     f_file_text_new += "\n{}={}\n".format(f_opcode, f_value)
             else:
-                f_file_text_new += "{}\n".format(f_line,)
+                f_file_text_new += "{}\n".format(f_line)
 
         f_file_text = f_file_text_new
         self.adjusted_file_text = f_file_text_new

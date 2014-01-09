@@ -917,7 +917,7 @@ class pydaw_file_browser_widget:
             return
         if(a_relative_path):
             if str(self.folder_path_lineedit.text()) == "/":
-                self.enumerate_folders_and_files("/{}".format(a_folder,))
+                self.enumerate_folders_and_files("/{}".format(a_folder))
             else:
                 self.enumerate_folders_and_files(
                     "{}/{}".format(self.folder_path_lineedit.text(), a_folder))
@@ -1116,10 +1116,10 @@ class pydaw_preset_manager_widget:
 
     def on_restore_bank(self):
         if os.path.isfile(self.bank_file):
-            os.system('rm "{}"'.format(self.bank_file,))
+            os.system('rm "{}"'.format(self.bank_file))
         self.preset_path = "{}/{}.pypresets".format(pydaw_util.global_pydaw_home,
                                                     self.plugin_name)
-        os.system('rm "{}"'.format(self.preset_path,))
+        os.system('rm "{}"'.format(self.preset_path))
         self.load_presets()
 
     def reset_controls(self):
@@ -1180,7 +1180,7 @@ class pydaw_preset_manager_widget:
                 v = self.configure_dict[k]
                 f_result_values.append("c:{}:{}".format(k, v.replace("|", ":")))
         self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
-        f_result = "{}\n".format(self.plugin_name,)
+        f_result = "{}\n".format(self.plugin_name)
         for f_list in self.presets_delimited:
             f_result += "{}\n".format("|".join(f_list))
         pydaw_util.pydaw_write_file_text(self.preset_path, f_result)
@@ -2631,7 +2631,7 @@ class pydaw_abstract_plugin_ui:
     def save_plugin_file(self):
         f_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
-        self.pydaw_project.commit(_("Update controls for {}").format(self.track_name,))
+        self.pydaw_project.commit(_("Update controls for {}").format(self.track_name))
         self.pydaw_project.flush_history()
 
     def widget_close_event(self, a_event):
@@ -2689,7 +2689,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
                                           a_stylesheet, a_close_callback,
                                           a_configure_callback)
         self.folder = str(a_folder)
-        self.file =  "{}.pyfx".format(self.track_num,)
+        self.file =  "{}.pyfx".format(self.track_num)
         self.set_window_title(a_track_name)
         self.is_instrument = False
 
@@ -2887,7 +2887,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                           a_track_num, a_project, a_track_type,
                                           a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = "{}.pyinst".format(self.track_num,)
+        self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
         self.is_instrument = True
         f_osc_types = [_("Saw"), _("Square"), _("Triangle"), _("Sine"), _("Off")]
@@ -3048,7 +3048,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Ray-V - {}".format(self.track_name,))
+        self.widget.setWindowTitle("PyDAW Ray-V - {}".format(self.track_name))
 
 
 
@@ -3060,7 +3060,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                           a_track_num, a_project, a_track_type,
                                           a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = str(a_folder)
-        self.file = "{}.pyinst".format(self.track_num,)
+        self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
         self.is_instrument = True
 
@@ -3569,7 +3569,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name,))
+        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name))
         self.is_instrument = True
 
         self.selected_row_index = 0
@@ -3955,7 +3955,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.monofx1knob1_ctrls, self.monofx1knob2_ctrls,
                                            self.monofx2knob0_ctrls, self.monofx2knob1_ctrls,
                                            self.monofx2knob2_ctrls, self.monofx3knob0_ctrls,
-                                           self.monofx3knob1_ctrls, self.monofx3knob2_ctrls,)
+                                           self.monofx3knob1_ctrls, self.monofx3knob2_ctrls)
 
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
         self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
@@ -4412,7 +4412,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name,))
+        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name))
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
@@ -4755,7 +4755,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 if len(os.listdir(f_dir)) > 0:
                     f_answer = QtGui.QMessageBox.warning(self.widget, _("Warning"),
                     _("{} is not an empty directory, are you "
-                    "sure you want to save here?").format(f_dir,),
+                    "sure you want to save here?").format(f_dir),
                     QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
                     if f_answer == QtGui.QMessageBox.No:
                         continue
@@ -4825,7 +4825,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_text = str(f_file_lineedit.text())
             if f_text != "":
                 for f_path in self.import_sfz(f_text):
-                    f_status_label.setText(_("Loading {}").format(f_path,))
+                    f_status_label.setText(_("Loading {}").format(f_path))
                     QtGui.qApp.processEvents()
                 f_window.close()
 
