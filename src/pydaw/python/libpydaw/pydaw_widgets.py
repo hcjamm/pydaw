@@ -1802,6 +1802,7 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.tools_button.setMenu(self.tools_menu)
 
         self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout.addWidget(QtGui.QLabel(_("Select (Additive [n]) as your osc type to use")))
         self.wav_viewer = pydaw_additive_wav_viewer()
         self.viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
                                                 self.configure_wrapper)
