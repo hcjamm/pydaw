@@ -23,7 +23,7 @@ if not os.getuid() == 0:
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--de", help="Select the desktop environment, choices are:\n"
-"--de=gnome|kde|lxde|xfce|mate",  default="lxde")
+"--de=gnome|kde|lxde|xfce|mate|qt",  default="lxde")
 args = parser.parse_args()
 
 if args.de == "gnome":
@@ -41,8 +41,11 @@ elif args.de == "kde":
 elif args.de == "mate":
     ks_file = "/usr/share/spin-kickstarts/fedora-live-mate-compiz.ks"
     de_label = "Mate"
+elif args.de == "qt":
+    ks_file = "{}/fedora-livecd-qtdesktop.ks".format(os.path.dirname(__file__))
+    de_label = "QtDesktop"
 else:
-    print("Invalid --de={}".format(args.de,))
+    print("Invalid --de={}".format(args.de))
     parser.print_help()
     exit(1)
 
@@ -50,7 +53,7 @@ os.system("setenforce 0")
 
 global_pydaw_version = "pydaw4"
 
-pydaw_version_file = open("../../{}-version.txt".format(global_pydaw_version,))
+pydaw_version_file = open("../../{}-version.txt".format(global_pydaw_version))
 pydaw_version = pydaw_version_file.read().strip()
 pydaw_version_file.close()
 
