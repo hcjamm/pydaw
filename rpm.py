@@ -190,6 +190,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.pyo
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.pyc
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.pyo
+/usr/lib/pydaw4/pydaw/python/libpydaw/staging.pyc
+/usr/lib/pydaw4/pydaw/python/libpydaw/staging.pyo
 /usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyc
 /usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyo
 /usr/lib/pydaw4/pydaw/python/pydaw.pyc
