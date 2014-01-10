@@ -814,6 +814,51 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             midi_event_pos++;
         }
 
+        if(plugin_data->mono_modules->reset_wavetables)
+        {
+            int f_voice = 0;
+
+            int f_osc_type1 = (int)(*plugin_data->osc1type) - 1;
+            int f_osc_type2 = (int)(*plugin_data->osc2type) - 1;
+            int f_osc_type3 = (int)(*plugin_data->osc3type) - 1;
+
+            while(f_voice < WAYV_POLYPHONY)
+            {
+                if(f_osc_type1 >= 0)
+                {
+                    v_osc_wav_set_waveform(
+                            plugin_data->data[f_voice]->osc_wavtable1,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type1]->wavetable,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type1]->length);
+                }
+
+                if(f_osc_type2 >= 0)
+                {
+                    v_osc_wav_set_waveform(
+                            plugin_data->data[f_voice]->osc_wavtable2,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type2]->wavetable,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type2]->length);
+                }
+
+                if(f_osc_type3 >= 0)
+                {
+                    v_osc_wav_set_waveform(
+                            plugin_data->data[f_voice]->osc_wavtable3,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type3]->wavetable,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type3]->length);
+                }
+                f_voice++;
+            }
+
+            plugin_data->mono_modules->reset_wavetables = 0;
+        }
+
         v_sml_run(plugin_data->mono_modules->pitchbend_smoother,
                 (plugin_data->sv_pitch_bend_value));
 
@@ -1096,19 +1141,19 @@ char *c_wayv_configure(PYFX_Handle instance, const char *key,
     {
         float * f_table = f_char_to_wavetable(value);
         v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 17, f_table,
-                1024, a_mutex);
+                1024, a_mutex, &plugin_data->mono_modules->reset_wavetables);
     }
     else if (!strcmp(key, "wayv_add_eng1"))
     {
         float * f_table = f_char_to_wavetable(value);
         v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 18, f_table,
-                1024, a_mutex);
+                1024, a_mutex, &plugin_data->mono_modules->reset_wavetables);
     }
     else if (!strcmp(key, "wayv_add_eng2"))
     {
         float * f_table = f_char_to_wavetable(value);
         v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 19, f_table,
-                1024, a_mutex);
+                1024, a_mutex, &plugin_data->mono_modules->reset_wavetables);
     }
     else
     {

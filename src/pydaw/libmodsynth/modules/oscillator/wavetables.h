@@ -1863,7 +1863,7 @@ typedef struct
 
 
 void v_wt_set_wavetable(t_wt_wavetables* a_wt, int a_index, float * a_arr,
-        int a_count, pthread_mutex_t * a_mutex)
+        int a_count, pthread_mutex_t * a_mutex, int * a_reset_var)
 {
     float * f_old = a_wt->tables[a_index]->wavetable;
 
@@ -1874,6 +1874,7 @@ void v_wt_set_wavetable(t_wt_wavetables* a_wt, int a_index, float * a_arr,
 
     a_wt->tables[a_index]->wavetable = a_arr;
     a_wt->tables[a_index]->length = a_count;
+    *a_reset_var = 1;
 
     if(a_mutex)
     {

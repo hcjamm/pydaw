@@ -18,7 +18,8 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-//Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
+/*Total number of LFOs, ADSRs, other envelopes, etc...
+ * Used for the PolyFX mod matrix*/
 #define WAYV_MODULATOR_COUNT 6
 //How many modular PolyFX
 #define WAYV_MODULAR_POLYFX_COUNT 4
@@ -44,9 +45,11 @@ typedef struct
     t_wt_wavetables * wavetables;
     t_smoother_linear * pitchbend_smoother;
     t_amp * amp_ptr;
+    int reset_wavetables;
 }t_wayv_mono_modules;
 
-/*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
+/*define static variables for libmodsynth modules.  Once instance of
+ * this type will be created for each polyphonic voice.*/
 typedef struct
 {
     t_osc_wav_unison * osc_wavtable1;
@@ -76,10 +79,14 @@ typedef struct
     t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
 
-    float last_pitch;  //For simplicity, this is used whether glide is turned on or not
-    float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations
+    //For simplicity, this is used whether glide is turned on or not
+    float last_pitch;
+    //base pitch for all oscillators, to avoid redundant calculations
+    float base_pitch;
     float target_pitch;
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    /*This corresponds to the current sample being processed on this voice.
+     * += this to the output buffer when finished.*/
+    float current_sample;
 
     t_amp * amp_ptr;
 
@@ -93,7 +100,7 @@ typedef struct
     float noise_linamp;
     int i_voice;  //for the runVoice function to iterate the current block
 
-    t_mf3_multi * multieffect[WAYV_MODULAR_POLYFX_COUNT]; //[WAYV_MAX_SAMPLE_COUNT];
+    t_mf3_multi * multieffect[WAYV_MODULAR_POLYFX_COUNT];
     fp_mf3_run fx_func_ptr[WAYV_MODULAR_POLYFX_COUNT];
     float modulex_current_sample[2];
     float * modulator_outputs[WAYV_MODULATOR_COUNT];
@@ -126,7 +133,8 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 {
     float f_sr_recip = 1.0f / a_sr;
 
-    t_wayv_poly_voice * f_voice = (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
+    t_wayv_poly_voice * f_voice =
+            (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
 
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(a_sr);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(a_sr);
@@ -252,10 +260,14 @@ t_wayv_mono_modules * v_wayv_mono_init(float);
 /*Initialize any modules that will be run monophonically*/
 t_wayv_mono_modules * v_wayv_mono_init(float a_sr)
 {
-    t_wayv_mono_modules * a_mono = (t_wayv_mono_modules*)malloc(sizeof(t_wayv_mono_modules));
-    a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
+    t_wayv_mono_modules * a_mono =
+            (t_wayv_mono_modules*)malloc(sizeof(t_wayv_mono_modules));
+    a_mono->pitchbend_smoother =
+            g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
     a_mono->amp_ptr = g_amp_get();
     a_mono->wavetables = g_wt_wavetables_get();
+    //indicates that wavetables must be re-pointered immediately
+    a_mono->reset_wavetables = 0;
     return a_mono;
 }
 
