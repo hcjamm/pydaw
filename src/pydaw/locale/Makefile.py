@@ -22,4 +22,7 @@ for f_file in os.listdir(f_src_dir):
 
 if len(sys.argv) > 1:
     f_install_dir = sys.argv[1]
-    os.system("cp -r '{}' '{}/share'".format(f_bin_dir, f_install_dir))
+    f_share_dir = "{}/share".format(f_install_dir)
+    if not os.path.isdir(f_share_dir):
+        os.system("mkdir -p '{}'".format(f_share_dir))
+    os.system("cp -r '{}' ''".format(f_bin_dir, f_install_dir))
