@@ -25,4 +25,4 @@ if len(sys.argv) > 1:
     f_share_dir = "{}/share".format(f_install_dir)
     if not os.path.isdir(f_share_dir):
         os.system("mkdir -p '{}'".format(f_share_dir))
-    os.system("cp -r '{}' ''".format(f_bin_dir, f_install_dir))
+    os.system("cp -r '{}' '{}'".format(f_bin_dir, f_install_dir))
