@@ -3881,6 +3881,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             QtGui.QApplication.restoreOverrideCursor()
             self.showing_resize_cursor = False
 
+    def get_selected_string(self):
+        return "{}|{}".format(self.item_index, self.note_item)
+
     def hoverEnterEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverEnterEvent(self, a_event)
         this_piano_roll_editor.click_enabled = False
@@ -4001,7 +4004,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                                                 f_new_note_num, f_item.note_item.velocity)
                         this_item_editor.items[f_item.item_index].add_note(f_new_note, False)
                         #pass a ref instead of a str in case fix_overlaps() modifies it.
-                        f_new_selection.append(f_new_note)
+                        f_new_selection.append(f_item)
                     else:
                         this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
                         f_item.item_index, f_new_note_start = \
@@ -4016,11 +4019,13 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         this_piano_roll_editor.selected_note_strings = []
         if self.is_copying:
             for f_new_item in f_new_selection:
-                this_piano_roll_editor.selected_note_strings.append(str(f_new_item))
+                this_piano_roll_editor.selected_note_strings.append(
+                    f_new_item.get_selected_string())
         else:
             for f_item in this_piano_roll_editor.note_items:
                 if f_item.isSelected():
-                    this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
+                    this_piano_roll_editor.selected_note_strings.append(
+                        f_item.get_selected_string())
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
@@ -4232,7 +4237,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
                 self.piano_keys[f_note_index] = f_key
                 f_note_index += 1
-                f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
+                f_key.setPos(0, (self.note_height * j) + (self.octave_height * (i - 1)))
 
                 f_key.setToolTip("{}hz".format(
                         round(pydaw_pitch_to_hz(f_note_num))))
@@ -4245,10 +4250,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     f_label.setFont(f_piano_label)
                     f_label.setPen(QtCore.Qt.black)
                 if j in f_black_notes:
-                    f_key.setBrush(QtGui.QColor(0,0,0))
+                    f_key.setBrush(QtGui.QColor(0, 0, 0))
                     f_key.is_black = True
                 else:
-                    f_key.setBrush(QtGui.QColor(255,255,255))
+                    f_key.setBrush(QtGui.QColor(255, 255, 255))
                     f_key.is_black = False
         self.piano.setZValue(1000.0)
 
@@ -4401,7 +4406,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_item = self.draw_note(f_note, f_beat_offset)
                 f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
                 f_note_item.resize_pos = f_note_item.scenePos()
-                if str(f_note) in self.selected_note_strings:
+                if f_note_item.get_selected_string() in self.selected_note_strings:
                     f_note_item.setSelected(True)
             f_beat_offset += 1
         self.scrollContentsBy(0, 0)
