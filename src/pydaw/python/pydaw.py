@@ -7296,21 +7296,22 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
 
         def file_name_select():
-            #try:
-                if not os.path.isdir(self.last_offline_dir):
-                    self.last_offline_dir = global_home
-                f_file_name = QtGui.QFileDialog.getOpenFileName(
-                    parent=self, caption=_('Open MIDI File'),
-                    directory=global_default_project_folder, filter='MIDI File (*.mid)')
-                if not f_file_name is None and not str(f_file_name) == "":
-                    self.midi_file = pydaw_midi_file_to_items(f_file_name)
-                    f_name.setText(f_file_name)
-                    if str(f_item_name.text()).strip() == "":
-                        f_item_name.setText(
-                            pydaw_remove_bad_chars(
-                                f_file_name.split("/")[-1].replace(".", "-")))
-            #except Exception as ex:
-            #    pydaw_print_generic_exception(ex)
+            if not os.path.isdir(self.last_offline_dir):
+                self.last_offline_dir = global_home
+            if self.last_midi_dir is None:
+                f_dir_name = global_default_project_folder
+            else:
+                f_dir_name = self.last_midi_dir
+            f_file_name = QtGui.QFileDialog.getOpenFileName(
+                parent=self, caption=_('Open MIDI File'),
+                directory=f_dir_name, filter='MIDI File (*.mid)')
+            if not f_file_name is None and not str(f_file_name) == "":
+                self.midi_file = pydaw_midi_file_to_items(f_file_name)
+                f_name.setText(f_file_name)
+                self.last_midi_dir = os.path.dirname(str(f_file_name))
+                if str(f_item_name.text()).strip() == "":
+                    f_item_name.setText(pydaw_remove_bad_chars(
+                        f_file_name.split("/")[-1].replace(".", "-")))
 
         def item_name_changed(a_val=None):
             f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
@@ -7530,6 +7531,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.last_offline_dir = global_home
         self.last_ac_dir = global_home
         self.copy_to_clipboard_checked = True
+        self.last_midi_dir = None
 
         self.central_widget = QtGui.QScrollArea()
         self.central_widget.setObjectName("plugin_ui")
