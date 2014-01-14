@@ -2536,7 +2536,8 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     }
 }
 
-inline void v_pydaw_set_time_params(t_pydaw_data * a_pydaw_data, int sample_count)
+inline void v_pydaw_set_time_params(t_pydaw_data * a_pydaw_data,
+        int sample_count)
 {
     a_pydaw_data->ml_sample_period_inc =
         ((a_pydaw_data->playback_inc) * ((float)(sample_count)));
@@ -5193,6 +5194,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
         int a_end_bar, char * a_file_out, int a_is_audio_glue)
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+    sleep(1);
     pthread_mutex_lock(&a_pydaw_data->main_mutex);
 
     a_pydaw_data->is_offline_rendering = 1;
@@ -5336,8 +5338,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;
 
-    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
     pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 
 
