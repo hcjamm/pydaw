@@ -885,7 +885,9 @@ class pydaw_abstract_file_browser_widget():
         self.list_file.mousePressEvent = self.file_mouse_press_event
         self.file_vlayout.addWidget(self.list_file)
         self.preview_button = QtGui.QPushButton(_("Preview"))
-        self.file_vlayout.addWidget(self.preview_button)
+        self.file_hlayout = QtGui.QHBoxLayout()
+        self.file_hlayout.addWidget(self.preview_button)
+        self.file_vlayout.addLayout(self.file_hlayout)
         self.preview_button.pressed.connect(self.on_preview)
 
         self.last_open_dir = pydaw_util.global_home
@@ -997,176 +999,13 @@ class pydaw_abstract_file_browser_widget():
                 break
 
 
-
-class pydaw_file_browser_widget:
+class pydaw_file_browser_widget(pydaw_abstract_file_browser_widget):
     def __init__(self):
-        if os.path.isdir("/media/pydaw_data") and os.path.isdir("/home/ubuntu"):
-            self.home_path = ("/media/pydaw_data")
-        else:
-            self.home_path = os.path.expanduser("~")
-        self.file_browser_vsplitter =  QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.file_browser_vsplitter.setMinimumWidth(240)
-        self.file_browser_vsplitter.setContentsMargins(0, 0, 0, 0)
-        self.bookmark_widget = QtGui.QWidget()
-        self.file_browser_vsplitter.addWidget(self.bookmark_widget)
-        self.bookmark_layout = QtGui.QVBoxLayout(self.bookmark_widget)
-        self.bookmarks_label =  QtGui.QLabel(_("Bookmarks"))
-        self.bookmarks_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.bookmark_layout.addWidget(self.bookmarks_label)
-        self.folder_path_lineedit =  QtGui.QLineEdit()
-        self.folder_path_lineedit.setReadOnly(True)
-        self.bookmarks_listWidget =  QtGui.QListWidget()
-        self.bookmarks_listWidget.itemClicked.connect(self.bookmark_clicked)
-        self.bookmarks_listWidget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.bookmarks_listWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        self.bookmarks_listWidget.setAcceptDrops(True)
-        self.bookmarks_listWidget.setDropIndicatorShown(True)
-        self.bookmarks_listWidget.setToolTip(_("Press the 'bookmark' button to add folders here."))
-        self.bookmarks_listWidget.setDragDropMode(QtGui.QAbstractItemView.DropOnly)
-        self.bookmark_layout.addWidget(self.bookmarks_listWidget)
-        self.bookmarks_button_widget = QtGui.QWidget()
-        self.bookmarks_hlayout0 =  QtGui.QHBoxLayout(self.bookmarks_button_widget)
-        self.bookmarks_delete_button =  QtGui.QPushButton(_("Delete"))
-        self.bookmarks_hlayout0.addWidget(self.bookmarks_delete_button)
-        self.bookmarks_delete_button.pressed.connect(self.bookmark_delete_button_pressed)
-        self.bookmark_layout.addWidget(self.bookmarks_button_widget)
-        self.folders_widget = QtGui.QWidget()
-        self.file_browser_vsplitter.addWidget(self.folders_widget)
-        self.folders_layout = QtGui.QVBoxLayout(self.folders_widget)
-        self.folders_label =  QtGui.QLabel(_("Folders"))
-        self.folders_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.folders_layout.addWidget(self.folders_label)
-        self.folders_layout.addWidget(self.folder_path_lineedit)
-        self.folders_listWidget =  QtGui.QListWidget()
-        self.folders_listWidget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.folders_listWidget.itemClicked.connect(self.folder_item_clicked)
-        self.folders_listWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        self.folders_listWidget.setDragDropMode(QtGui.QAbstractItemView.DragOnly)
-        self.folders_layout.addWidget(self.folders_listWidget)
-        self.folder_buttons_widget = QtGui.QWidget()
-        self.folders_hlayout0 =  QtGui.QHBoxLayout(self.folder_buttons_widget)
-        self.up_pushButton =  QtGui.QPushButton(_("Up"))
-        self.up_pushButton.pressed.connect(self.up_button_pressed)
-        self.folders_hlayout0.addWidget(self.up_pushButton)
-        self.bookmark_button =  QtGui.QPushButton(_("Bookmark"))
-        self.folders_hlayout0.addWidget(self.bookmark_button)
-        self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
-        self.folders_layout.addWidget(self.folder_buttons_widget)
-        self.files_widget = QtGui.QWidget()
-        self.file_browser_vsplitter.addWidget(self.files_widget)
-        self.files_layout = QtGui.QVBoxLayout(self.files_widget)
-        self.files_label =  QtGui.QLabel(_("Files"))
-        self.files_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.files_layout.addWidget(self.files_label)
-        self.files_listWidget =  QtGui.QListWidget()
-        self.files_listWidget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.files_listWidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
-        self.files_listWidget.setToolTip(
-            _("Select the file(s) you wish to load and click the 'load' button.\n"
-            "The samples will be loaded sequentially starting from the currently selected row."))
-        self.files_layout.addWidget(self.files_listWidget)
-        self.file_buttons_widget = QtGui.QWidget()
-        self.files_hlayout0 =  QtGui.QHBoxLayout(self.file_buttons_widget)
+        pydaw_abstract_file_browser_widget.__init__(self)
         self.load_pushButton =  QtGui.QPushButton(_("Load"))
-        self.files_hlayout0.addWidget(self.load_pushButton)
-        self.preview_pushButton =  QtGui.QPushButton(_("Preview"))
-        self.files_hlayout0.addWidget(self.preview_pushButton)
-        self.files_layout.addWidget(self.file_buttons_widget)
-        self.folder_path_lineedit.setText(self.home_path)
+        self.file_hlayout.addWidget(self.load_pushButton)
+        self.list_file.setSelectionMode(QtGui.QListWidget.MultiSelection)
 
-        self.files_listWidget.setSortingEnabled(True)
-        self.set_folder(pydaw_util.global_home, True)
-        self.open_bookmarks()
-
-
-    def folder_opened(self, a_folder, a_relative_path):
-        if a_folder is None or a_folder == "":
-            return
-        if(a_relative_path):
-            if str(self.folder_path_lineedit.text()) == "/":
-                self.enumerate_folders_and_files("/{}".format(a_folder))
-            else:
-                self.enumerate_folders_and_files(
-                    "{}/{}".format(self.folder_path_lineedit.text(), a_folder))
-        else:
-            self.enumerate_folders_and_files(a_folder)
-
-    def up_one_folder(self):
-        self.set_folder("..")
-
-    def bookmark_delete_button_pressed(self):
-        f_items = self.bookmarks_listWidget.selectedItems()
-        if len(f_items) > 0:
-            pydaw_util.global_delete_file_bookmark(str(f_items[0].text()))
-            self.bookmarks_listWidget.clear()
-            self.open_bookmarks()
-
-    def files_selected(self):
-        f_dir_path = "{}/".format(self.folder_path_lineedit.text())
-        f_result = []
-        for f_item in self.files_listWidget.selectedItems():
-            f_result.append("{}{}".format(f_dir_path, f_item.text()))
-        return f_result
-
-    def open_bookmarks(self):
-        self.bookmarks_listWidget.clear()
-        f_dict = pydaw_util.global_get_file_bookmarks()
-        for k in sorted(f_dict.keys()):
-            self.bookmarks_listWidget.addItem(str(k))
-
-    def bookmark_button_pressed(self):
-        pydaw_util.global_add_file_bookmark(self.last_open_dir)
-        self.open_bookmarks()
-
-    def bookmark_clicked(self, a_item):
-        f_dict = pydaw_util.global_get_file_bookmarks()
-        f_folder_name = str(a_item.text())
-        if f_folder_name in f_dict:
-            f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
-            self.set_folder(f_full_path, True)
-        else:
-            QtGui.QMessageBox.warning(self.files_listWidget, _("Error"),
-                                      _("This bookmark no longer exists.  You may have deleted "
-                                      "it in another windows."))
-            self.open_bookmarks()
-
-    def file_mouse_press_event(self, a_event):
-        QtGui.QListWidget.mousePressEvent(self.files_listWidget, a_event)
-        global global_audio_items_to_drop
-        global_audio_items_to_drop = []
-        for f_item in self.files_listWidget.selectedItems():
-            global_audio_items_to_drop.append(
-                "{}/{}".format(self.last_open_dir, f_item.text()))
-
-    def folder_item_clicked(self, a_item):
-        self.set_folder(a_item.text())
-
-    def up_button_pressed(self):
-        self.set_folder("..")
-
-    def set_folder(self, a_folder, a_full_path=False):
-        self.files_listWidget.clear()
-        self.folders_listWidget.clear()
-        if a_full_path:
-            self.last_open_dir = str(a_folder)
-        else:
-            self.last_open_dir = os.path.abspath("{}/{}".format(self.last_open_dir, a_folder))
-        self.last_open_dir = self.last_open_dir.replace("//", "/")
-        self.folder_path_lineedit.setText(self.last_open_dir)
-        f_list = os.listdir(self.last_open_dir)
-        f_list.sort(key=str.lower)
-        for f_file in f_list:
-            f_full_path = "{}/{}".format(self.last_open_dir, f_file)
-            if  not f_file.startswith("."):
-                if os.path.isdir(f_full_path):
-                    self.folders_listWidget.addItem(f_file)
-                elif pydaw_util.is_audio_file(f_file) and os.path.isfile(f_full_path):
-                    if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
-                        self.files_listWidget.addItem(f_file)
-                    else:
-                        print("Not adding '{}' because it contains bad chars, "
-                        "you must rename this file path without:\n{}".format(
-                        f_full_path, "\n".join(pydaw_util.pydaw_bad_chars)))
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
 global_plugin_settings_clipboard = {}
@@ -4139,19 +3978,17 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_tab =  QtGui.QWidget()
         self.sample_tab.setObjectName("plugin_widget")
         self.sample_tab_layout = QtGui.QVBoxLayout(self.sample_tab)
-        self.sample_tab_horizontal_splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.sample_tab_layout.addWidget(self.sample_tab_horizontal_splitter)
 
         self.file_browser =  pydaw_file_browser_widget()
+        self.sample_tab_layout.addWidget(self.file_browser.hsplitter)
+
         self.file_browser.load_pushButton.pressed.connect(self.file_browser_load_button_pressed)
-        self.file_browser.preview_pushButton.pressed.connect(
-            self.file_browser_preview_button_pressed)
-        self.sample_tab_horizontal_splitter.addWidget(self.file_browser.file_browser_vsplitter)
+        self.file_browser.preview_button.pressed.connect(self.file_browser_preview_button_pressed)
 
         self.smp_tab_main_widget = QtGui.QWidget()
         self.smp_tab_main_widget.setMinimumWidth(420)
         self.smp_tab_main_verticalLayout = QtGui.QVBoxLayout(self.smp_tab_main_widget)
-        self.sample_tab_horizontal_splitter.addWidget(self.smp_tab_main_widget)
+        self.file_browser.hsplitter.addWidget(self.smp_tab_main_widget)
 
         self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
 
