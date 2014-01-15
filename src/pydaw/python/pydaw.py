@@ -7544,7 +7544,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                                                    QtGui.QSizePolicy.Expanding,
                                                    QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, _("CC Maps"))
-        self.main_tabwidget.addTab(this_ab_widget.widget, "A/B")
+        self.main_tabwidget.addTab(this_wave_editor_widget.widget, "Wave Editor")
 
         self.notes_tab = QtGui.QTextEdit(self)
         self.notes_tab.setAcceptRichText(False)
@@ -7970,7 +7970,8 @@ class pydaw_cc_map_editor:
         self.cc_table.setSortingEnabled(True)
         self.cc_table.resizeColumnsToContents()
 
-class a_b_widget:
+
+class pydaw_wave_editor_widget:
     def __init__(self):
         self.widget = QtGui.QWidget()
         self.vlayout = QtGui.QVBoxLayout()
@@ -8110,6 +8111,7 @@ class a_b_widget:
                 f_pos = f_val * 0.001 * self.duration
                 this_transport.set_pos_in_seconds(f_pos)
 
+
 def set_default_project(a_project_path):
     f_def_file = "{}/last-project.txt".format(global_pydaw_home)
     f_handle = open(f_def_file, 'w')
@@ -8235,7 +8237,7 @@ this_cc_automation_viewers.append(this_cc_automation_viewer0)
 this_cc_automation_viewers.append(this_cc_automation_viewer1)
 this_cc_automation_viewers.append(this_cc_automation_viewer2)
 
-this_ab_widget = a_b_widget()
+this_wave_editor_widget = pydaw_wave_editor_widget()
 this_song_editor = song_editor()
 this_region_settings = region_settings()
 this_region_editor = region_list_editor(pydaw_track_type_enum.midi())
