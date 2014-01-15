@@ -881,6 +881,7 @@ class pydaw_abstract_file_browser_widget():
         self.filter_hlayout.addWidget(self.filter_clear_button)
         self.file_vlayout.addLayout(self.filter_hlayout)
         self.list_file = QtGui.QListWidget()
+        self.list_file.setSelectionMode(QtGui.QListWidget.SingleSelection)
         self.file_vlayout.addWidget(self.list_file)
         self.preview_button = QtGui.QPushButton(_("Preview"))
         self.file_hlayout = QtGui.QHBoxLayout()
@@ -996,7 +997,7 @@ class pydaw_file_browser_widget(pydaw_abstract_file_browser_widget):
         pydaw_abstract_file_browser_widget.__init__(self)
         self.load_pushButton =  QtGui.QPushButton(_("Load"))
         self.file_hlayout.addWidget(self.load_pushButton)
-        self.list_file.setSelectionMode(QtGui.QListWidget.MultiSelection)
+        self.list_file.setSelectionMode(QtGui.QListWidget.ExtendedSelection)
 
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
