@@ -2732,46 +2732,15 @@ def global_paif_rel_callback(a_port, a_val):
         f_paif.set_row(global_current_audio_item_index, f_index_list)
         this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
 
-class audio_items_viewer_widget():
+class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget):
     def __init__(self):
-        self.hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        self.vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        self.folders_tab_widget = QtGui.QTabWidget()
-        self.hsplitter.addWidget(self.folders_tab_widget)
-        self.folders_widget = QtGui.QWidget()
-        self.vsplitter.addWidget(self.folders_widget)
-        self.folders_widget_layout = QtGui.QVBoxLayout()
-        self.folders_widget.setLayout(self.folders_widget_layout)
-        self.folders_tab_widget.setMaximumWidth(660)
-        self.folders_tab_widget.addTab(self.vsplitter, _("Files"))
-        self.folder_path_lineedit = QtGui.QLineEdit()
-        self.folder_path_lineedit.setReadOnly(True)
-        self.folders_widget_layout.addWidget(self.folder_path_lineedit)
-        self.list_folder = QtGui.QListWidget()
-        self.list_folder.itemClicked.connect(self.folder_item_clicked)
-        self.folders_widget_layout.addWidget(self.list_folder)
-        self.folder_buttons_hlayout = QtGui.QHBoxLayout()
-        self.folders_widget_layout.addLayout(self.folder_buttons_hlayout)
-        self.up_button = QtGui.QPushButton(_("Up"))
-        self.up_button.pressed.connect(self.on_up_button)
-        self.folder_buttons_hlayout.addWidget(self.up_button)
-        self.bookmark_button = QtGui.QPushButton(_("Bookmark"))
-        self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
-        self.folder_buttons_hlayout.addWidget(self.bookmark_button)
-
-        self.bookmarks_tab = QtGui.QWidget()
-        self.list_bookmarks = QtGui.QListWidget()
-        self.list_bookmarks.itemClicked.connect(self.bookmark_clicked)
-        self.list_bookmarks.contextMenuEvent = self.bookmark_context_menu_event
-        self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
-        self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
-        self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
-        self.folders_tab_widget.addTab(self.bookmarks_tab, _("Bookmarks"))
+        pydaw_widgets.pydaw_abstract_file_browser_widget.__init__(self)
 
         self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, _("Edit"))
 
         self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback,
                                                                     global_paif_val_callback)
+
         self.modulex_widget = QtGui.QWidget()
         self.modulex_widget.setObjectName("plugin_ui")
         self.modulex_vlayout = QtGui.QVBoxLayout(self.modulex_widget)
@@ -2796,26 +2765,6 @@ class audio_items_viewer_widget():
         self.modulex_vlayout.addWidget(self.modulex.scroll_area)
         self.set_paif_buttons_enabled(0)
 
-        self.file_vlayout = QtGui.QVBoxLayout()
-        self.file_widget = QtGui.QWidget()
-        self.file_widget.setLayout(self.file_vlayout)
-        self.vsplitter.addWidget(self.file_widget)
-        self.filter_hlayout = QtGui.QHBoxLayout()
-        self.filter_hlayout.addWidget(QtGui.QLabel(_("Filter:")))
-        self.filter_lineedit = QtGui.QLineEdit()
-        self.filter_lineedit.textChanged.connect(self.on_filter)
-        self.filter_hlayout.addWidget(self.filter_lineedit)
-        self.filter_clear_button = QtGui.QPushButton(_("Clear"))
-        self.filter_clear_button.pressed.connect(self.on_filter_clear)
-        self.filter_hlayout.addWidget(self.filter_clear_button)
-        self.file_vlayout.addLayout(self.filter_hlayout)
-        self.list_file = QtGui.QListWidget()
-        self.list_file.setDragEnabled(True)
-        self.list_file.mousePressEvent = self.file_mouse_press_event
-        self.file_vlayout.addWidget(self.list_file)
-        self.preview_button = QtGui.QPushButton(_("Preview"))
-        self.file_vlayout.addWidget(self.preview_button)
-        self.preview_button.pressed.connect(self.on_preview)
         self.widget = QtGui.QWidget()
         self.hsplitter.addWidget(self.widget)
         self.vlayout = QtGui.QVBoxLayout()
@@ -2862,25 +2811,13 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("H-Zoom:")), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
-        self.last_open_dir = global_home
-        self.set_folder(".")
-        self.open_bookmarks()
-        self.modulex_clipboard = None
-        self.audio_items_clipboard = []
-        self.hsplitter.setSizes([100, 9999])
 
-    def on_filter(self):
-        f_text = str(self.filter_lineedit.text()).lower().strip()
-        for f_i in range(self.list_file.count()):
-            f_item = self.list_file.item(f_i)
-            f_item_text = str(f_item.text()).lower()
-            if f_text in f_item_text:
-                f_item.setHidden(False)
-            else:
-                f_item.setHidden(True)
 
-    def on_filter_clear(self):
-        self.filter_lineedit.setText("")
+    def on_preview(self):
+        f_list = self.list_file.selectedItems()
+        if len(f_list) > 0:
+            this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(
+                "{}/{}".format(self.last_open_dir, f_list[0].text()))
 
     def set_paif_buttons_enabled(self, a_count):
         if a_count == 0:
@@ -2996,96 +2933,6 @@ class audio_items_viewer_widget():
         f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
 
-    def on_preview(self):
-        f_list = self.list_file.selectedItems()
-        if len(f_list) > 0:
-            this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(
-                "{}/{}".format(self.last_open_dir, f_list[0].text()))
-
-    def open_bookmarks(self):
-        self.list_bookmarks.clear()
-        f_dict = global_get_file_bookmarks()
-        for k in sorted(f_dict.keys()):
-            self.list_bookmarks.addItem(str(k))
-
-    def bookmark_button_pressed(self):
-        global_add_file_bookmark(self.last_open_dir)
-        self.open_bookmarks()
-
-    def bookmark_clicked(self, a_item):
-        f_dict = global_get_file_bookmarks()
-        f_folder_name = str(a_item.text())
-        if f_folder_name in f_dict:
-            f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
-            self.set_folder(f_full_path, True)
-            self.folders_tab_widget.setCurrentIndex(0)
-        else:
-            QtGui.QMessageBox.warning(self.widget, _("Error"),
-                                      _("This bookmark no longer exists.  You may have deleted "
-                                      "it in another window."))
-            self.open_bookmarks()
-
-    def delete_bookmark(self):
-        f_items = self.list_bookmarks.selectedItems()
-        if len(f_items) > 0:
-            global_delete_file_bookmark(f_items[0].text())
-            self.list_bookmarks.clear()
-            self.open_bookmarks()
-
-    def bookmark_context_menu_event(self, a_event):
-        f_menu = QtGui.QMenu(self.widget)
-        f_del_action = f_menu.addAction(_("Delete"))
-        f_del_action.triggered.connect(self.delete_bookmark)
-        f_menu.exec_(QtGui.QCursor.pos())
-
-    def file_mouse_press_event(self, a_event):
-        QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
-        global global_audio_items_to_drop
-        global_audio_items_to_drop = []
-        for f_item in self.list_file.selectedItems():
-            global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
-
-    def folder_item_clicked(self, a_item):
-        self.set_folder(a_item.text())
-
-    def on_up_button(self):
-        self.set_folder("..")
-
-    def set_folder(self, a_folder, a_full_path=False):
-        self.list_file.clear()
-        self.list_folder.clear()
-        if a_full_path:
-            self.last_open_dir = str(a_folder)
-        else:
-            self.last_open_dir = os.path.abspath("{}/{}".format(self.last_open_dir, a_folder))
-        self.last_open_dir = self.last_open_dir.replace("//", "/")
-        self.folder_path_lineedit.setText(self.last_open_dir)
-        f_list = os.listdir(self.last_open_dir)
-        f_list.sort(key=str.lower)
-        for f_file in f_list:
-            f_full_path = "{}/{}".format(self.last_open_dir, f_file)
-            if  not f_file.startswith("."):
-                if os.path.isdir(f_full_path):
-                    self.list_folder.addItem(f_file)
-                elif pydaw_util.is_audio_file(f_file) and os.path.isfile(f_full_path):
-                    if not pydaw_str_has_bad_chars(f_full_path):
-                        self.list_file.addItem(f_file)
-                    else:
-                        print(_("Not adding '{}' because it contains bad chars, "
-                        "you must rename this file path without:").format(f_full_path))
-                        print(("\n".join(pydaw_bad_chars)))
-        self.on_filter()
-
-    def select_file(self, a_file):
-        """ Select the file if present in the list, a_file should be
-            a file name, not a full path
-        """
-        for f_i in range(self.list_file.count()):
-            f_item = self.list_file.item(f_i)
-            if str(f_item.text()) == str(a_file):
-                self.list_file.setCurrentRow(f_i)
-                break
-
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
         if self.v_zoom_combobox.currentIndex() == 0:
@@ -3138,6 +2985,7 @@ class audio_items_viewer_widget():
         self.last_scale_value = self.h_zoom_slider.value()
         this_audio_items_viewer.set_h_zoom_value(self.last_scale_value)
         this_audio_items_viewer.check_line_count()
+
 
 class audio_item_editor_widget:
     def __init__(self):
