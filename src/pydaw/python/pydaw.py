@@ -2736,6 +2736,9 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
     def __init__(self):
         pydaw_widgets.pydaw_abstract_file_browser_widget.__init__(self)
 
+        self.list_file.setDragEnabled(True)
+        self.list_file.mousePressEvent = self.file_mouse_press_event
+        self.preview_button.pressed.connect(self.on_preview)
         self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, _("Edit"))
 
         self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback,
@@ -2812,6 +2815,12 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
 
+    def file_mouse_press_event(self, a_event):
+        QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
+        global global_audio_items_to_drop
+        global_audio_items_to_drop = []
+        for f_item in self.list_file.selectedItems():
+            global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
 
     def on_preview(self):
         f_list = self.list_file.selectedItems()

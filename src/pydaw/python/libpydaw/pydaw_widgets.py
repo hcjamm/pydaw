@@ -881,14 +881,11 @@ class pydaw_abstract_file_browser_widget():
         self.filter_hlayout.addWidget(self.filter_clear_button)
         self.file_vlayout.addLayout(self.filter_hlayout)
         self.list_file = QtGui.QListWidget()
-        self.list_file.setDragEnabled(True)
-        self.list_file.mousePressEvent = self.file_mouse_press_event
         self.file_vlayout.addWidget(self.list_file)
         self.preview_button = QtGui.QPushButton(_("Preview"))
         self.file_hlayout = QtGui.QHBoxLayout()
         self.file_hlayout.addWidget(self.preview_button)
         self.file_vlayout.addLayout(self.file_hlayout)
-        self.preview_button.pressed.connect(self.on_preview)
 
         self.last_open_dir = pydaw_util.global_home
         self.set_folder(".")
@@ -909,10 +906,6 @@ class pydaw_abstract_file_browser_widget():
 
     def on_filter_clear(self):
         self.filter_lineedit.setText("")
-
-    def on_preview(self):
-        """ Override in inheriting class """
-        pass
 
     def open_bookmarks(self):
         self.list_bookmarks.clear()
@@ -945,17 +938,10 @@ class pydaw_abstract_file_browser_widget():
             self.open_bookmarks()
 
     def bookmark_context_menu_event(self, a_event):
-        f_menu = QtGui.QMenu(self.widget)
+        f_menu = QtGui.QMenu(self.list_bookmarks)
         f_del_action = f_menu.addAction(_("Delete"))
         f_del_action.triggered.connect(self.delete_bookmark)
         f_menu.exec_(QtGui.QCursor.pos())
-
-    def file_mouse_press_event(self, a_event):
-        QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
-        global global_audio_items_to_drop
-        global_audio_items_to_drop = []
-        for f_item in self.list_file.selectedItems():
-            global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
 
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
@@ -997,6 +983,12 @@ class pydaw_abstract_file_browser_widget():
             if str(f_item.text()) == str(a_file):
                 self.list_file.setCurrentRow(f_i)
                 break
+
+    def files_selected(self):
+        f_result = []
+        for f_file in self.list_file.selectedItems():
+            f_result.append("{}/{}".format(self.last_open_dir, f_file.text()))
+        return f_result
 
 
 class pydaw_file_browser_widget(pydaw_abstract_file_browser_widget):
@@ -4609,9 +4601,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                                   _("File '{}' cannot be read.").format(path))
                         continue
                     self.pydaw_project.get_wav_uid_by_name(path)
-                    f_path_sections = path.split(("/"))
                     self.set_selected_sample_combobox_item(f_sample_index_to_load,
-                                                           f_path_sections[-1])
+                                                           path.rsplit("/", 1)[1])
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(path)
                     f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
@@ -4683,12 +4674,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.load_files(f_result)
 
     def file_browser_preview_button_pressed(self):
-        f_list = self.file_browser.files_listWidget.selectedItems()
+        f_list = self.file_browser.files_selected()
         if len(f_list) > 0:
-            f_preview_file = "{}/{}".format(
-                str(self.file_browser.folder_path_lineedit.text()).strip(),
-                str(f_list[0].text()).strip())
-            self.pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_preview_file)
+            self.pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_list[0])
 
     def sample_selected_monofx_groupChanged(self, a_value):
         self.mono_fx0.knobs[0].set_value(self.monofx0knob0_ctrls[a_value].get_value())
