@@ -2052,6 +2052,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
     def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
                  a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
         QtGui.QGraphicsView.__init__(self)
+        self.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
         self.start_callback = a_start_callback
         self.end_callback = a_end_callback
         self.loop_start_callback = a_loop_start_callback
