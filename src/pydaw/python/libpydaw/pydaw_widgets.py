@@ -2074,7 +2074,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.waveform_brush.setColorAt(0.0, QtGui.QColor(140, 140, 240))
         self.waveform_brush.setColorAt(0.5, QtGui.QColor(240, 190, 140))
         self.waveform_brush.setColorAt(1.0, QtGui.QColor(140, 140, 240))
-        self.waveform_pen = QtGui.QPen(QtCore.Qt.white, 6.0)
+        self.waveform_pen = QtGui.QPen(QtCore.Qt.NoPen) # QtGui.QPen(QtCore.Qt.white, 6.0)
 
     def clear_drawn_items(self):
         self.scene.clear()
