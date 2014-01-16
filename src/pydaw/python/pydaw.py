@@ -7548,7 +7548,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                                                    QtGui.QSizePolicy.Expanding,
                                                    QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, _("CC Maps"))
-        self.main_tabwidget.addTab(this_wave_editor_widget.widget, "Wave Editor")
+        self.main_tabwidget.addTab(this_wave_editor_widget.widget, _("Wave Editor"))
 
         self.notes_tab = QtGui.QTextEdit(self)
         self.notes_tab.setAcceptRichText(False)
