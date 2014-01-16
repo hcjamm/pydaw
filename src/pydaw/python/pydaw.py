@@ -8020,6 +8020,7 @@ class pydaw_wave_editor_widget:
         self.sample_graph = pydaw_audio_item_viewer_widget(None, None, None,
                                                            None, None, None)
         self.vlayout.addWidget(self.sample_graph)
+        self.sample_graph.setViewportUpdateMode(QtGui.QGraphicsView.SmartViewportUpdate)
         self.last_folder = global_home
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.on_timeout)
