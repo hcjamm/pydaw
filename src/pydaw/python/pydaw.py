@@ -8017,9 +8017,9 @@ class pydaw_wave_editor_widget:
         self.vol_slider.setValue(0)
         self.vol_slider.valueChanged.connect(self.vol_changed)
         self.gridlayout.addWidget(self.vol_slider, 1, 1)
-        self.vlayout.addSpacerItem(QtGui.QSpacerItem(10, 10,
-                                                     QtGui.QSizePolicy.Expanding,
-                                                     QtGui.QSizePolicy.Expanding))
+        self.sample_graph = pydaw_audio_item_viewer_widget(None, None, None,
+                                                           None, None, None)
+        self.vlayout.addWidget(self.sample_graph)
         self.last_folder = global_home
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.on_timeout)
@@ -8050,11 +8050,12 @@ class pydaw_wave_editor_widget:
             return
         f_file_str = f_file[0]
         self.file_lineedit.setText(f_file_str)
+        self.set_sample_graph(f_file_str)
         self.last_folder = os.path.dirname(f_file_str)
         f_wav = wave.open(f_file_str, "r")
         f_frames = f_wav.getnframes()
         f_rate = f_wav.getframerate()
-        self.duration = f_frames/float(f_rate)
+        self.duration = f_frames / float(f_rate)
         f_wav.close()
         print("Duration:  {}".format(self.duration))
         #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
@@ -8114,6 +8115,15 @@ class pydaw_wave_editor_widget:
             if self.transport_checkbox.isChecked():
                 f_pos = f_val * 0.001 * self.duration
                 this_transport.set_pos_in_seconds(f_pos)
+
+    def set_sample_graph(self, a_file_name):
+        f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
+        self.sample_graph.draw_item(
+            f_graph.create_sample_graph(True),
+            0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0)
+
+    def clear_sample_graph(self):
+        self.sample_graph.clear_drawn_items()
 
 
 def set_default_project(a_project_path):
