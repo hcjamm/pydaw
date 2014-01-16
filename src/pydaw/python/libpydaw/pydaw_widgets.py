@@ -995,8 +995,8 @@ class pydaw_abstract_file_browser_widget():
 class pydaw_file_browser_widget(pydaw_abstract_file_browser_widget):
     def __init__(self):
         pydaw_abstract_file_browser_widget.__init__(self)
-        self.load_pushButton =  QtGui.QPushButton(_("Load"))
-        self.file_hlayout.addWidget(self.load_pushButton)
+        self.load_button =  QtGui.QPushButton(_("Load"))
+        self.file_hlayout.addWidget(self.load_button)
         self.list_file.setSelectionMode(QtGui.QListWidget.ExtendedSelection)
 
 
@@ -3975,7 +3975,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_browser =  pydaw_file_browser_widget()
         self.sample_tab_layout.addWidget(self.file_browser.hsplitter)
 
-        self.file_browser.load_pushButton.pressed.connect(self.file_browser_load_button_pressed)
+        self.file_browser.load_button.pressed.connect(self.file_browser_load_button_pressed)
         self.file_browser.preview_button.pressed.connect(self.file_browser_preview_button_pressed)
 
         self.smp_tab_main_widget = QtGui.QWidget()

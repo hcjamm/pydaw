@@ -13,7 +13,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys, os, operator, subprocess
+import sys
+import wave
+import os
+import operator
+import subprocess
 from time import sleep
 import time
 from PyQt4 import QtGui, QtCore
@@ -221,7 +225,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "MIDI controller to PyDAW's built-in plugins\n"
         "Each CC routes to a different control for each instrument, or if the CC is "
         "'Effects Only', it routes only to Modulex"))
-        this_ab_widget.widget.setToolTip(_("This tab allows you to A/B your track "
+        this_wave_editor_widget.widget.setToolTip(_("This tab allows you to A/B your track "
         "against a .wav file.\n"
         "Click the 'Open' button to open the .wav file, then click the 'Enabled?' checkbox "
         "to disable normal audio and enable the A/B track"))
@@ -240,7 +244,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_piano_roll_editor.setToolTip("")
         this_transport.group_box.setToolTip("")
         this_main_window.cc_map_tab.setToolTip("")
-        this_ab_widget.widget.setToolTip("")
+        this_wave_editor_widget.widget.setToolTip("")
         this_audio_items_viewer.set_tooltips(False)
         this_transport.set_tooltips(False)
 
@@ -2824,7 +2828,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
 
     def on_preview(self):
         f_list = self.list_file.selectedItems()
-        if len(f_list) > 0:
+        if f_list:
             this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(
                 "{}/{}".format(self.last_open_dir, f_list[0].text()))
 
@@ -6404,7 +6408,7 @@ class transport_widget:
         this_pydaw_project.this_pydaw_osc.pydaw_play(a_region_num=self.get_region_value(),
                                                      a_bar=self.get_bar_value())
         self.trigger_audio_playback()
-        this_ab_widget.on_play()
+        this_wave_editor_widget.on_play()
         this_audio_items_viewer.set_playback_clipboard()
 
     def trigger_audio_playback(self):
@@ -6447,7 +6451,7 @@ class transport_widget:
             this_region_settings.clear_items()
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.get_bar_value())
-        this_ab_widget.on_stop()
+        this_wave_editor_widget.on_stop()
 
     def show_save_items_dialog(self):
         def ok_handler():
@@ -7974,16 +7978,19 @@ class pydaw_cc_map_editor:
 class pydaw_wave_editor_widget:
     def __init__(self):
         self.widget = QtGui.QWidget()
-        self.vlayout = QtGui.QVBoxLayout()
-        self.widget.setLayout(self.vlayout)
+        self.layout = QtGui.QVBoxLayout(self.widget)
+        self.right_widget = QtGui.QWidget()
+        self.vlayout = QtGui.QVBoxLayout(self.right_widget)
+        self.file_browser = pydaw_file_browser_widget()
+        self.file_browser.load_button.pressed.connect(self.on_file_open)
+        self.file_browser.preview_button.pressed.connect(self.on_preview)
+        self.layout.addWidget(self.file_browser.hsplitter)
+        self.file_browser.hsplitter.addWidget(self.right_widget)
         self.file_hlayout = QtGui.QHBoxLayout()
         self.file_lineedit = QtGui.QLineEdit()
         self.file_lineedit.setReadOnly(True)
         self.file_hlayout.addWidget(self.file_lineedit)
         self.vlayout.addLayout(self.file_hlayout)
-        self.file_button = QtGui.QPushButton(_("Open"))
-        self.file_button.pressed.connect(self.on_file_open)
-        self.file_hlayout.addWidget(self.file_button)
         self.enabled_checkbox = QtGui.QCheckBox(_("Enabled?"))
         self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
         self.file_hlayout.addWidget(self.enabled_checkbox)
@@ -8030,21 +8037,20 @@ class pydaw_wave_editor_widget:
         this_pydaw_project.this_pydaw_osc.pydaw_ab_vol(f_result)
         self.vol_label.setText("{}dB".format(f_result))
 
+    def on_preview(self):
+        f_list = self.file_browser.files_selected()
+        if f_list:
+            this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_list[0])
+
     def on_file_open(self):
         if not os.path.isdir(self.last_folder):
             self.last_folder = global_home
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget,
-                                                   caption=_('Open .wav file for A/B'),
-                                                   directory=self.last_folder,
-                                                   filter='Wav File(*.wav)')
-        if f_file is None:
+        f_file = self.file_browser.files_selected()
+        if not f_file:
             return
-        f_file_str = str(f_file)
-        if f_file_str == "":
-            return
+        f_file_str = f_file[0]
         self.file_lineedit.setText(f_file_str)
         self.last_folder = os.path.dirname(f_file_str)
-        import wave
         f_wav = wave.open(f_file_str, "r")
         f_frames = f_wav.getnframes()
         f_rate = f_wav.getframerate()
@@ -8073,7 +8079,6 @@ class pydaw_wave_editor_widget:
             self.start_slider.setValue(int(f_pos))
 
     def on_play(self):
-        self.file_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             self.transport_sync()
             self.orig_pos = self.start_slider.value()
@@ -8083,7 +8088,6 @@ class pydaw_wave_editor_widget:
                 self.timer.start()
 
     def on_stop(self):
-        self.file_button.setEnabled(True)
         if self.suppress_start:
             self.start_slider.setEnabled(True)
             if self.has_loaded_file:
