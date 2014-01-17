@@ -2049,14 +2049,12 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
 
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
-    def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
-                 a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
+    def __init__(self, a_start_callback, a_end_callback,
+                 a_fade_in_callback, a_fade_out_callback):
         QtGui.QGraphicsView.__init__(self)
         self.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
         self.start_callback = a_start_callback
         self.end_callback = a_end_callback
-        self.loop_start_callback = a_loop_start_callback
-        self.loop_end_callback = a_loop_end_callback
         self.fade_in_callback = a_fade_in_callback
         self.fade_out_callback = a_fade_out_callback
         self.scene = QtGui.QGraphicsScene()
@@ -2074,13 +2072,12 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.waveform_brush.setColorAt(0.0, QtGui.QColor(140, 140, 240))
         self.waveform_brush.setColorAt(0.5, QtGui.QColor(240, 190, 140))
         self.waveform_brush.setColorAt(1.0, QtGui.QColor(140, 140, 240))
-        self.waveform_pen = QtGui.QPen(QtCore.Qt.NoPen) # QtGui.QPen(QtCore.Qt.white, 6.0)
+        self.waveform_pen = QtGui.QPen(QtCore.Qt.NoPen)
 
     def clear_drawn_items(self):
         self.scene.clear()
 
-    def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end,
-                  a_fade_in, a_fade_out):
+    def draw_item(self, a_path_list, a_start, a_end, a_fade_in, a_fade_out):
         self.clear_drawn_items()
         f_path_inc = pydaw_audio_item_scene_height / len(a_path_list)
         f_path_y_pos = 0.0
@@ -2104,15 +2101,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                                                     pydaw_start_end_gradient, "E", 1,
                                                     self.end_callback)
         self.scene.addItem(self.end_marker)
-        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen,
-                                                           pydaw_loop_gradient, "L",
-                                                           2, self.loop_start_callback)
-        self.scene.addItem(self.loop_start_marker)
-        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen,
-                                                         pydaw_loop_gradient, "L", 2,
-                                                         self.loop_end_callback)
-        self.scene.addItem(self.loop_end_marker)
-        #new:  fade stuff
+
         self.fade_in_marker = pydaw_audio_fade_marker_widget(0, a_fade_in, pydaw_start_end_pen,
                                                              pydaw_start_end_gradient,
                                                              "I", len(a_path_list), 0,
@@ -2132,12 +2121,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         #end fade stuff
         self.start_marker.set_other(self.end_marker, self.fade_in_marker)
         self.end_marker.set_other(self.start_marker, self.fade_out_marker)
-        self.loop_start_marker.set_other(self.loop_end_marker)
-        self.loop_end_marker.set_other(self.loop_start_marker)
         self.start_marker.set_pos()
         self.end_marker.set_pos()
-        self.loop_start_marker.set_pos()
-        self.loop_end_marker.set_pos()
         self.fade_in_marker.set_pos()
         self.fade_out_marker.set_pos()
         self.fade_in_marker.draw_lines()
@@ -2151,6 +2136,33 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / \
             pydaw_audio_item_scene_height
         self.scale(self.last_x_scale, self.last_y_scale)
+
+
+class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
+    def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
+                 a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
+        pydaw_audio_item_viewer_widget.__init__(self, a_start_callback, a_end_callback,
+                                                a_loop_start_callback, a_loop_end_callback)
+        self.loop_start_callback = a_loop_start_callback
+        self.loop_end_callback = a_loop_end_callback
+
+    def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end,
+                  a_fade_in, a_fade_out):
+        pydaw_audio_item_viewer_widget.draw_item(self, a_path_list, a_start, a_end,
+                                                 a_fade_in, a_fade_out)
+        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen,
+                                                           pydaw_loop_gradient, "L",
+                                                           2, self.loop_start_callback)
+        self.scene.addItem(self.loop_start_marker)
+        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen,
+                                                         pydaw_loop_gradient, "L", 2,
+                                                         self.loop_end_callback)
+        self.scene.addItem(self.loop_end_marker)
+
+        self.loop_start_marker.set_other(self.loop_end_marker)
+        self.loop_end_marker.set_other(self.loop_start_marker)
+        self.loop_start_marker.set_pos()
+        self.loop_end_marker.set_pos()
 
 
 global_modulex_clipboard = None
@@ -4069,12 +4081,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.view_sample_tab_main_vlayout.setContentsMargins(0, 0, 0, 0)
 
         #Sample Graph
-        self.sample_graph = pydaw_audio_item_viewer_widget(self.sample_start_callback,
-                                                           self.sample_end_callback,
-                                                           self.loop_start_callback,
-                                                           self.loop_end_callback,
-                                                           self.fade_in_callback,
-                                                           self.fade_out_callback)
+        self.sample_graph = pydaw_sample_viewer_widget(self.sample_start_callback,
+                                                       self.sample_end_callback,
+                                                       self.loop_start_callback,
+                                                       self.loop_end_callback,
+                                                       self.fade_in_callback,
+                                                       self.fade_out_callback)
         self.view_sample_tab_main_vlayout.addWidget(self.sample_graph)
         #The combobox for selecting the sample on the 'view' tab
         self.sample_view_select_sample_widget = QtGui.QWidget()

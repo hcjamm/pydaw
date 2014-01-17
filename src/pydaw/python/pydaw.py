@@ -8017,8 +8017,7 @@ class pydaw_wave_editor_widget:
         self.vol_slider.setValue(0)
         self.vol_slider.valueChanged.connect(self.vol_changed)
         self.gridlayout.addWidget(self.vol_slider, 1, 1)
-        self.sample_graph = pydaw_audio_item_viewer_widget(None, None, None,
-                                                           None, None, None)
+        self.sample_graph = pydaw_audio_item_viewer_widget(None, None, None, None)
         self.vlayout.addWidget(self.sample_graph)
         self.last_folder = global_home
         self.timer = QtCore.QTimer()
@@ -8058,7 +8057,6 @@ class pydaw_wave_editor_widget:
         self.duration = f_frames / float(f_rate)
         f_wav.close()
         print("Duration:  {}".format(self.duration))
-        #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True
         self.transport_sync()
@@ -8119,8 +8117,7 @@ class pydaw_wave_editor_widget:
     def set_sample_graph(self, a_file_name):
         f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
         self.sample_graph.draw_item(
-            f_graph.create_sample_graph(True),
-            0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0)
+            f_graph.create_sample_graph(True), 0.0, 1000.0, 0.0, 1000.0)
 
     def clear_sample_graph(self):
         self.sample_graph.clear_drawn_items()
