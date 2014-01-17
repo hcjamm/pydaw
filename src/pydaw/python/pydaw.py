@@ -14,7 +14,6 @@ GNU General Public License for more details.
 """
 
 import sys
-import wave
 import os
 import operator
 import subprocess
@@ -8017,7 +8016,10 @@ class pydaw_wave_editor_widget:
         self.vol_slider.setValue(0)
         self.vol_slider.valueChanged.connect(self.vol_changed)
         self.gridlayout.addWidget(self.vol_slider, 1, 1)
-        self.sample_graph = pydaw_audio_item_viewer_widget(None, None, None, None)
+        self.sample_graph = pydaw_audio_item_viewer_widget(self.marker_callback,
+                                                           self.marker_callback,
+                                                           self.marker_callback,
+                                                           self.marker_callback)
         self.vlayout.addWidget(self.sample_graph)
         self.last_folder = global_home
         self.timer = QtCore.QTimer()
@@ -8049,19 +8051,18 @@ class pydaw_wave_editor_widget:
             return
         f_file_str = f_file[0]
         self.file_lineedit.setText(f_file_str)
-        self.set_sample_graph(f_file_str)
+        f_graph = self.set_sample_graph(f_file_str)
         self.last_folder = os.path.dirname(f_file_str)
-        f_wav = wave.open(f_file_str, "r")
-        f_frames = f_wav.getnframes()
-        f_rate = f_wav.getframerate()
-        self.duration = f_frames / float(f_rate)
-        f_wav.close()
+        self.duration = f_graph.frame_count / f_graph.sample_rate
         print("Duration:  {}".format(self.duration))
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True
         self.transport_sync()
         this_pydaw_project.this_pydaw_osc.pydaw_ab_open(f_file_str)
         this_pydaw_project.this_pydaw_osc.pydaw_ab_pos(self.start_slider.value())
+
+    def marker_callback(self, a_val=None):
+        pass
 
     def set_time_label(self, a_value):
         if self.duration is not None:
@@ -8118,6 +8119,7 @@ class pydaw_wave_editor_widget:
         f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
         self.sample_graph.draw_item(
             f_graph.create_sample_graph(True), 0.0, 1000.0, 0.0, 1000.0)
+        return f_graph
 
     def clear_sample_graph(self):
         self.sample_graph.clear_drawn_items()
