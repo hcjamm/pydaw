@@ -7993,37 +7993,25 @@ class pydaw_wave_editor_widget:
         self.enabled_checkbox = QtGui.QCheckBox(_("Enabled?"))
         self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
         self.file_hlayout.addWidget(self.enabled_checkbox)
-        self.return_checkbox = QtGui.QCheckBox(_("Return to start pos on stop?"))
-        self.return_checkbox.setChecked(True)
-        self.file_hlayout.addWidget(self.return_checkbox)
-        self.transport_checkbox = QtGui.QCheckBox(_("Follow transport time?"))
-        self.transport_checkbox.setChecked(True)
-        self.file_hlayout.addWidget(self.transport_checkbox)
         self.gridlayout = QtGui.QGridLayout()
         self.vlayout.addLayout(self.gridlayout)
         self.time_label = QtGui.QLabel("0:00")
         self.time_label.setMinimumWidth(60)
         self.gridlayout.addWidget(self.time_label, 0, 0)
-        self.start_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.start_slider.setRange(0, 1000)
-        self.start_slider.valueChanged.connect(self.on_start_changed)
-        self.gridlayout.addWidget(self.start_slider, 0, 1)
         self.vol_label = QtGui.QLabel("0db")
         self.vol_label.setMinimumWidth(51)
-        self.gridlayout.addWidget(self.vol_label, 1, 0)
+        self.gridlayout.addWidget(self.vol_label, 0, 1)
         self.vol_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.vol_slider.setRange(-24, 12)
         self.vol_slider.setValue(0)
         self.vol_slider.valueChanged.connect(self.vol_changed)
-        self.gridlayout.addWidget(self.vol_slider, 1, 1)
+        self.gridlayout.addWidget(self.vol_slider, 0, 2)
         self.sample_graph = pydaw_audio_item_viewer_widget(self.marker_callback,
                                                            self.marker_callback,
                                                            self.marker_callback,
                                                            self.marker_callback)
         self.vlayout.addWidget(self.sample_graph)
         self.last_folder = global_home
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.on_timeout)
         self.suppress_start = False
         self.orig_pos = 0
         self.has_loaded_file = False
@@ -8035,7 +8023,7 @@ class pydaw_wave_editor_widget:
 
     def vol_changed(self, a_val=None):
         f_result = self.vol_slider.value()
-        this_pydaw_project.this_pydaw_osc.pydaw_ab_vol(f_result)
+        self.marker_callback()
         self.vol_label.setText("{}dB".format(f_result))
 
     def on_preview(self):
@@ -8055,11 +8043,9 @@ class pydaw_wave_editor_widget:
         self.last_folder = os.path.dirname(f_file_str)
         self.duration = f_graph.frame_count / f_graph.sample_rate
         print("Duration:  {}".format(self.duration))
-        self.timer.setInterval(self.duration)
         self.has_loaded_file = True
-        self.transport_sync()
         this_pydaw_project.this_pydaw_osc.pydaw_ab_open(f_file_str)
-        this_pydaw_project.this_pydaw_osc.pydaw_ab_pos(self.start_slider.value())
+        self.marker_callback()
 
     def marker_callback(self, a_val=None):
         f_start = self.sample_graph.start_marker.value
@@ -8079,49 +8065,14 @@ class pydaw_wave_editor_widget:
             f_seconds = str(int(f_seconds % 60.0)).zfill(2)
             self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
 
-    def transport_sync(self):
-        if self.transport_checkbox.isChecked() and self.has_loaded_file:
-            f_pos_seconds = this_transport.get_pos_in_seconds()
-            f_pos = (f_pos_seconds / self.duration) * 1000.0
-            f_pos = pydaw_clip_value(f_pos, 0.0, 999.0)
-            self.start_slider.setValue(int(f_pos))
-
     def on_play(self):
         if self.enabled_checkbox.isChecked():
-            self.transport_sync()
-            self.orig_pos = self.start_slider.value()
             self.suppress_start = True
-            self.start_slider.setEnabled(False)
-            if self.has_loaded_file:
-                self.timer.start()
 
     def on_stop(self):
         if self.suppress_start:
-            self.start_slider.setEnabled(True)
-            if self.has_loaded_file:
-                self.timer.stop()
-            if self.return_checkbox.isChecked():
-                self.start_slider.setValue(self.orig_pos)
-                self.set_time_label(self.orig_pos)
-                self.suppress_start = False
-            else:
-                self.suppress_start = False
-                self.on_start_changed()
-
-    def on_timeout(self):
-        f_val = self.start_slider.value() + 1
-        if f_val <= 1000:
-            self.start_slider.setValue(f_val)
-            self.set_time_label(f_val)
-
-    def on_start_changed(self, a_val=None):
-        if not self.suppress_start and self.has_loaded_file:
-            f_val = self.start_slider.value()
-            this_pydaw_project.this_pydaw_osc.pydaw_ab_pos(f_val)
-            self.set_time_label(f_val)
-            if self.transport_checkbox.isChecked():
-                f_pos = f_val * 0.001 * self.duration
-                this_transport.set_pos_in_seconds(f_pos)
+            self.set_time_label(self.orig_pos)
+            self.suppress_start = False
 
     def set_sample_graph(self, a_file_name):
         f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
