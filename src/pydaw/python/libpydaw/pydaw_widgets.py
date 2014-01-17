@@ -2085,9 +2085,14 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_path_inc = pydaw_audio_item_scene_height / len(a_path_list)
         f_path_y_pos = 0.0
         for f_path in a_path_list:
-            f_path_item = QtGui.QGraphicsPathItem(f_path)
-            f_path_item.setPen(self.waveform_pen)
-            f_path_item.setBrush(self.waveform_brush)
+            f_pixmap = QtGui.QPixmap(pydaw_audio_item_scene_width, f_path_inc)
+            f_painter = QtGui.QPainter(f_pixmap)
+            f_painter.setPen(self.waveform_pen)
+            f_painter.setBrush(self.waveform_brush)
+            f_painter.fillRect(0, 0, pydaw_audio_item_scene_width, f_path_inc, QtCore.Qt.darkGray)
+            f_painter.drawPath(f_path)
+            f_painter.end()
+            f_path_item = QtGui.QGraphicsPixmapItem(f_pixmap)
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
