@@ -8062,7 +8062,15 @@ class pydaw_wave_editor_widget:
         this_pydaw_project.this_pydaw_osc.pydaw_ab_pos(self.start_slider.value())
 
     def marker_callback(self, a_val=None):
-        pass
+        f_start = self.sample_graph.start_marker.value
+        f_end = self.sample_graph.end_marker.value
+        f_fade_in = self.sample_graph.fade_in_marker.value
+        f_fade_out = self.sample_graph.fade_out_marker.value
+        f_item = pydaw_audio_item(0, a_sample_start=f_start, a_sample_end=f_end,
+                                  a_vol=self.vol_slider.value(),
+                                  a_fade_in=f_fade_in, a_fade_out=f_fade_out,
+                                  a_fadein_vol=-36, a_fadeout_vol=-36)
+        print(str(f_item).strip())
 
     def set_time_label(self, a_value):
         if self.duration is not None:
