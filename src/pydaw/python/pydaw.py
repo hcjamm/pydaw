@@ -8021,6 +8021,7 @@ class pydaw_wave_editor_widget:
         self.duration = None
         self.sixty_recip = 1.0 / 60.0
         self.playback_cursor = None
+        self.time_label_enabled = False
 
     def enabled_changed(self, a_val=None):
         this_pydaw_project.this_pydaw_osc.pydaw_ab_set(self.enabled_checkbox.isChecked())
@@ -8064,6 +8065,7 @@ class pydaw_wave_editor_widget:
                                   a_fade_in=f_fade_in, a_fade_out=f_fade_out,
                                   a_fadein_vol=-36, a_fadeout_vol=-36)
         this_pydaw_project.this_pydaw_osc.pydaw_we_set("0|{}".format(f_item))
+        self.set_time_label(f_start * 0.001, True)
 
     def set_playback_cursor(self, a_pos):
         if self.playback_cursor is not None:
@@ -8071,26 +8073,34 @@ class pydaw_wave_editor_widget:
                 a_pos * pydaw_widgets.pydaw_audio_item_scene_width, 0.0)
         self.set_time_label(a_pos)
 
-    def set_time_label(self, a_value):
-        if self.duration is not None:
+    def set_time_label(self, a_value, a_override=False):
+        if a_override or self.time_label_enabled:
             f_seconds = self.duration * a_value
             f_minutes = int(f_seconds * self.sixty_recip)
             f_seconds = str(int(f_seconds % 60.0)).zfill(2)
             self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
 
     def on_play(self):
-        self.widget.setEnabled(False)
+        self.file_browser.load_button.setEnabled(False)
+        self.file_browser.preview_button.setEnabled(False)
+        self.sample_graph.setEnabled(False)
+        self.vol_slider.setEnabled(False)
         if self.enabled_checkbox.isChecked():
+            self.time_label_enabled = True
             self.playback_cursor = self.sample_graph.scene.addLine(
                                             self.sample_graph.start_marker.line.line(),
                                             self.sample_graph.start_marker.line.pen())
 
     def on_stop(self):
-        self.widget.setEnabled(True)
+        self.file_browser.load_button.setEnabled(True)
+        self.file_browser.preview_button.setEnabled(True)
+        self.sample_graph.setEnabled(True)
+        self.vol_slider.setEnabled(True)
         if self.playback_cursor is not None:
             self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
-        self.set_time_label(self.sample_graph.start_marker.value * 0.001)
+        self.time_label_enabled = False
+        self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
 
     def set_sample_graph(self, a_file_name):
         f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
