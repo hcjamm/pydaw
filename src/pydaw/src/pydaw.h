@@ -2713,20 +2713,24 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         f_i++;
     }
 
-    a_pydaw_data->wave_editor_cursor += sample_count;
-
-    if(a_pydaw_data->wave_editor_cursor >
-            a_pydaw_data->wave_editor_cursor_count)
+    if(a_pydaw_data->playback_mode > 0)
     {
-        a_pydaw_data->wave_editor_cursor = 0;
-        float f_frac =
-        (float)(a_pydaw_data->ab_audio_item->sample_read_head->whole_number) /
-        (float)(a_pydaw_data->ab_audio_item->wav_pool_item->length);
+        a_pydaw_data->wave_editor_cursor += sample_count;
 
-        sprintf(a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT],
-            "%f", f_frac);
-        v_queue_osc_message(a_pydaw_data, "wec",
-                a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT]);
+        if(a_pydaw_data->wave_editor_cursor >
+                a_pydaw_data->wave_editor_cursor_count)
+        {
+            a_pydaw_data->wave_editor_cursor = 0;
+            float f_frac =
+            (float)(a_pydaw_data->ab_audio_item->
+            sample_read_head->whole_number) /
+            (float)(a_pydaw_data->ab_audio_item->wav_pool_item->length);
+
+            sprintf(a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT],
+                "%f", f_frac);
+            v_queue_osc_message(a_pydaw_data, "wec",
+                    a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT]);
+        }
     }
 }
 
@@ -2869,11 +2873,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 {
     if(a_pydaw_data->is_ab_ing)
     {
-        if(a_pydaw_data->playback_mode > 0)
-        {
-            v_pydaw_run_wave_editor(a_pydaw_data, sample_count,
-                    output0, output1);
-        }
+        v_pydaw_run_wave_editor(a_pydaw_data, sample_count, output0, output1);
     }
     else
     {
