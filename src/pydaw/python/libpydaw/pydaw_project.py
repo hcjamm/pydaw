@@ -744,7 +744,7 @@ class pydaw_project:
                 "following do not exist:\n{}\n{}\n".format(a_path, f_sample_dir_path))
         self.this_pydaw_osc.pydaw_generate_sample_graph(f_path, f_uid)
         f_pygraph_file = "{}/{}".format(self.samplegraph_folder, f_uid)
-        for i in range(100):
+        for i in range(300):
             if os.path.isfile(f_pygraph_file):
                 sleep(0.1)
                 return

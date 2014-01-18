@@ -6394,7 +6394,6 @@ class transport_widget:
             self.set_region_value(self.start_region)
             self.set_bar_value(self.last_bar)
         this_song_editor.table_widget.setEnabled(False)
-        this_wave_editor_widget.widget.setEnabled(False)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
@@ -6423,7 +6422,6 @@ class transport_widget:
         global global_transport_is_playing
         global_transport_is_playing = False
         this_song_editor.table_widget.setEnabled(True)
-        this_wave_editor_widget.widget.setEnabled(True)
         this_region_settings.on_stop()
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
@@ -6493,7 +6491,7 @@ class transport_widget:
             self.stop_button.setChecked(True)
             return
         this_song_editor.table_widget.setEnabled(False)
-        this_wave_editor_widget.widget.setEnabled(False)
+        this_wave_editor_widget.on_play()
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
@@ -7615,6 +7613,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             elif a_key == "ml":
                 if self.cc_map_table.cc_spinbox is not None:
                     self.cc_map_table.cc_spinbox.setValue(int(a_val))
+            elif a_key == "wec":
+                this_wave_editor_widget.set_playback_cursor(float(a_val))
         #This prevents multiple events from moving the same control, only the last goes through
         for k, f_val in f_pc_dict.items():
             f_track_type, f_is_inst, f_track_num, f_port = k
@@ -8016,11 +8016,11 @@ class pydaw_wave_editor_widget:
                                                            self.marker_callback)
         self.vlayout.addWidget(self.sample_graph)
         self.last_folder = global_home
-        self.suppress_start = False
         self.orig_pos = 0
         self.has_loaded_file = False
         self.duration = None
         self.sixty_recip = 1.0 / 60.0
+        self.playback_cursor = None
 
     def enabled_changed(self, a_val=None):
         this_pydaw_project.this_pydaw_osc.pydaw_ab_set(self.enabled_checkbox.isChecked())
@@ -8065,21 +8065,32 @@ class pydaw_wave_editor_widget:
                                   a_fadein_vol=-36, a_fadeout_vol=-36)
         this_pydaw_project.this_pydaw_osc.pydaw_we_set("0|{}".format(f_item))
 
+    def set_playback_cursor(self, a_pos):
+        if self.playback_cursor is not None:
+            self.playback_cursor.setPos(
+                a_pos * pydaw_widgets.pydaw_audio_item_scene_width, 0.0)
+        self.set_time_label(a_pos)
+
     def set_time_label(self, a_value):
         if self.duration is not None:
-            f_seconds = self.duration * a_value * 0.001
+            f_seconds = self.duration * a_value
             f_minutes = int(f_seconds * self.sixty_recip)
             f_seconds = str(int(f_seconds % 60.0)).zfill(2)
             self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
 
     def on_play(self):
+        self.widget.setEnabled(False)
         if self.enabled_checkbox.isChecked():
-            self.suppress_start = True
+            self.playback_cursor = self.sample_graph.scene.addLine(
+                                            self.sample_graph.start_marker.line.line(),
+                                            self.sample_graph.start_marker.line.pen())
 
     def on_stop(self):
-        if self.suppress_start:
-            self.set_time_label(self.orig_pos)
-            self.suppress_start = False
+        self.widget.setEnabled(True)
+        if self.playback_cursor is not None:
+            self.sample_graph.scene.removeItem(self.playback_cursor)
+            self.playback_cursor = None
+        self.set_time_label(self.sample_graph.start_marker.value * 0.001)
 
     def set_sample_graph(self, a_file_name):
         f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)

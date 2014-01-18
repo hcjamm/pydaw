@@ -330,6 +330,8 @@ typedef struct
     int event_count;
     //Threads must hold this to write OSC messages
     pthread_spinlock_t ui_spinlock;
+    int wave_editor_cursor;
+    int wave_editor_cursor_count;
 }t_pydaw_data;
 
 typedef struct
@@ -851,7 +853,16 @@ void * v_pydaw_osc_send_thread(void* a_arg)
         {
             int f_i = 0;
 
+            while(f_i < a_pydaw_data->osc_queue_index)
+            {
+                strcpy(osc_queue_keys[f_i], a_pydaw_data->osc_queue_keys[f_i]);
+                strcpy(osc_queue_vals[f_i], a_pydaw_data->osc_queue_vals[f_i]);
+                f_i++;
+            }
+
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+            //Now grab any that may have been written since the previous copy
 
             while(f_i < a_pydaw_data->osc_queue_index)
             {
@@ -2701,6 +2712,22 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         }
         f_i++;
     }
+
+    a_pydaw_data->wave_editor_cursor += sample_count;
+
+    if(a_pydaw_data->wave_editor_cursor >
+            a_pydaw_data->wave_editor_cursor_count)
+    {
+        a_pydaw_data->wave_editor_cursor = 0;
+        float f_frac =
+        (float)(a_pydaw_data->ab_audio_item->sample_read_head->whole_number) /
+        (float)(a_pydaw_data->ab_audio_item->wav_pool_item->length);
+
+        sprintf(a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT],
+            "%f", f_frac);
+        v_queue_osc_message(a_pydaw_data, "wec",
+                a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT]);
+    }
 }
 
 
@@ -2842,7 +2869,11 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
 {
     if(a_pydaw_data->is_ab_ing)
     {
-        v_pydaw_run_wave_editor(a_pydaw_data, sample_count, output0, output1);
+        if(a_pydaw_data->playback_mode > 0)
+        {
+            v_pydaw_run_wave_editor(a_pydaw_data, sample_count,
+                    output0, output1);
+        }
     }
     else
     {
@@ -3929,6 +3960,9 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->current_region = 0;
     f_result->playback_cursor = 0.0f;
     f_result->playback_inc = 0.0f;
+
+    f_result->wave_editor_cursor = 0;
+    f_result->wave_editor_cursor_count = (int)(a_sample_rate * 0.1f);
 
     f_result->osc_queue_index = 0;
 
