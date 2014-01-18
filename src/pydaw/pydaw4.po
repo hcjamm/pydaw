@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-09 20:59-0500\n"
+"POT-Creation-Date: 2014-01-18 18:53-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,40 +40,41 @@ msgid "Value:"
 msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:250 python/libpydaw/pydaw_widgets.py:291
-#: python/libpydaw/pydaw_widgets.py:317 python/libpydaw/pydaw_widgets.py:4512
-#: python/libpydaw/pydaw_widgets.py:4861 python/pydaw.py:354
-#: python/pydaw.py:450 python/pydaw.py:617 python/pydaw.py:944
-#: python/pydaw.py:1080 python/pydaw.py:1160 python/pydaw.py:1222
-#: python/pydaw.py:2994 python/pydaw.py:5396 python/pydaw.py:5501
-#: python/pydaw.py:5562 python/pydaw.py:6125 python/pydaw.py:6211
-#: python/pydaw.py:7169 python/pydaw.py:7349 python/pydaw.py:7518
-#: python/pydaw.py:7879 python/pydaw.py:7917
+#: python/libpydaw/pydaw_widgets.py:317 python/libpydaw/pydaw_widgets.py:4535
+#: python/libpydaw/pydaw_widgets.py:4880 python/pydaw.py:357
+#: python/pydaw.py:453 python/pydaw.py:620 python/pydaw.py:947
+#: python/pydaw.py:1083 python/pydaw.py:1163 python/pydaw.py:1225
+#: python/pydaw.py:2943 python/pydaw.py:5261 python/pydaw.py:5366
+#: python/pydaw.py:5427 python/pydaw.py:5990 python/pydaw.py:6076
+#: python/pydaw.py:7036 python/pydaw.py:7211 python/pydaw.py:7377
+#: python/pydaw.py:7741 python/pydaw.py:7779 python/pydaw.py:8102
 msgid "Cancel"
 msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:253 python/libpydaw/pydaw_widgets.py:315
-#: python/libpydaw/pydaw_widgets.py:4509 python/libpydaw/pydaw_widgets.py:4858
-#: python/pydaw.py:351 python/pydaw.py:447 python/pydaw.py:614
-#: python/pydaw.py:941 python/pydaw.py:1077 python/pydaw.py:1157
-#: python/pydaw.py:1219 python/pydaw.py:2991 python/pydaw.py:5389
-#: python/pydaw.py:5496 python/pydaw.py:5559 python/pydaw.py:6122
-#: python/pydaw.py:6208 python/pydaw.py:7028 python/pydaw.py:7165
-#: python/pydaw.py:7255 python/pydaw.py:7345 python/pydaw.py:7514
-#: python/pydaw.py:7875 python/pydaw.py:7913 python/pydaw.py:8023
+#: python/libpydaw/pydaw_widgets.py:4532 python/libpydaw/pydaw_widgets.py:4877
+#: python/pydaw.py:354 python/pydaw.py:450 python/pydaw.py:617
+#: python/pydaw.py:944 python/pydaw.py:1080 python/pydaw.py:1160
+#: python/pydaw.py:1222 python/pydaw.py:2940 python/pydaw.py:5254
+#: python/pydaw.py:5361 python/pydaw.py:5424 python/pydaw.py:5987
+#: python/pydaw.py:6073 python/pydaw.py:6897 python/pydaw.py:7032
+#: python/pydaw.py:7118 python/pydaw.py:7207 python/pydaw.py:7373
+#: python/pydaw.py:7737 python/pydaw.py:7775 python/pydaw.py:7885
+#: python/pydaw.py:8098
 msgid "OK"
 msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:277 python/libpydaw/pydaw_widgets.py:342
-#: python/libpydaw/pydaw_widgets.py:2801
+#: python/libpydaw/pydaw_widgets.py:2826
 msgid "Tempo Sync"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:289 python/libpydaw/pydaw_widgets.py:2815
-#: python/libpydaw/pydaw_widgets.py:2962
+#: python/libpydaw/pydaw_widgets.py:289 python/libpydaw/pydaw_widgets.py:2840
+#: python/libpydaw/pydaw_widgets.py:2987
 msgid "Sync"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:293 python/libpydaw/pydaw_widgets.py:2818
+#: python/libpydaw/pydaw_widgets.py:293 python/libpydaw/pydaw_widgets.py:2843
 msgid "BPM"
 msgstr ""
 
@@ -105,47 +106,47 @@ msgstr ""
 msgid "Sustain"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:558 python/libpydaw/pydaw_widgets.py:2367
+#: python/libpydaw/pydaw_widgets.py:558 python/libpydaw/pydaw_widgets.py:2389
 msgid "Release"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:571 python/libpydaw/pydaw_widgets.py:3041
+#: python/libpydaw/pydaw_widgets.py:571 python/libpydaw/pydaw_widgets.py:3066
 msgid "Filter"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:576 python/libpydaw/pydaw_widgets.py:2253
-#: python/libpydaw/pydaw_widgets.py:2262 python/libpydaw/pydaw_widgets.py:2271
-#: python/libpydaw/pydaw_widgets.py:2280 python/libpydaw/pydaw_widgets.py:2289
-#: python/libpydaw/pydaw_widgets.py:2298 python/libpydaw/pydaw_widgets.py:2307
-#: python/libpydaw/pydaw_widgets.py:2316 python/libpydaw/pydaw_widgets.py:2325
-#: python/libpydaw/pydaw_widgets.py:2344 python/libpydaw/pydaw_widgets.py:2446
-#: python/libpydaw/pydaw_widgets.py:2455 python/libpydaw/pydaw_widgets.py:2475
-#: python/libpydaw/pydaw_widgets.py:2494 python/libpydaw/pydaw_widgets.py:2503
-#: python/libpydaw/pydaw_widgets.py:2786
+#: python/libpydaw/pydaw_widgets.py:576 python/libpydaw/pydaw_widgets.py:2275
+#: python/libpydaw/pydaw_widgets.py:2284 python/libpydaw/pydaw_widgets.py:2293
+#: python/libpydaw/pydaw_widgets.py:2302 python/libpydaw/pydaw_widgets.py:2311
+#: python/libpydaw/pydaw_widgets.py:2320 python/libpydaw/pydaw_widgets.py:2329
+#: python/libpydaw/pydaw_widgets.py:2338 python/libpydaw/pydaw_widgets.py:2347
+#: python/libpydaw/pydaw_widgets.py:2366 python/libpydaw/pydaw_widgets.py:2468
+#: python/libpydaw/pydaw_widgets.py:2477 python/libpydaw/pydaw_widgets.py:2497
+#: python/libpydaw/pydaw_widgets.py:2516 python/libpydaw/pydaw_widgets.py:2525
+#: python/libpydaw/pydaw_widgets.py:2811
 msgid "Cutoff"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:581 python/libpydaw/pydaw_widgets.py:2254
-#: python/libpydaw/pydaw_widgets.py:2263 python/libpydaw/pydaw_widgets.py:2272
-#: python/libpydaw/pydaw_widgets.py:2281 python/libpydaw/pydaw_widgets.py:2290
-#: python/libpydaw/pydaw_widgets.py:2299 python/libpydaw/pydaw_widgets.py:2308
-#: python/libpydaw/pydaw_widgets.py:2317 python/libpydaw/pydaw_widgets.py:2447
-#: python/libpydaw/pydaw_widgets.py:2456 python/libpydaw/pydaw_widgets.py:2476
-#: python/libpydaw/pydaw_widgets.py:2495
+#: python/libpydaw/pydaw_widgets.py:581 python/libpydaw/pydaw_widgets.py:2276
+#: python/libpydaw/pydaw_widgets.py:2285 python/libpydaw/pydaw_widgets.py:2294
+#: python/libpydaw/pydaw_widgets.py:2303 python/libpydaw/pydaw_widgets.py:2312
+#: python/libpydaw/pydaw_widgets.py:2321 python/libpydaw/pydaw_widgets.py:2330
+#: python/libpydaw/pydaw_widgets.py:2339 python/libpydaw/pydaw_widgets.py:2469
+#: python/libpydaw/pydaw_widgets.py:2478 python/libpydaw/pydaw_widgets.py:2498
+#: python/libpydaw/pydaw_widgets.py:2517
 msgid "Res"
 msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:586 python/libpydaw/pydaw_widgets.py:668
-#: python/libpydaw/pydaw_widgets.py:694 python/libpydaw/pydaw_widgets.py:2486
-#: python/libpydaw/pydaw_widgets.py:3340
+#: python/libpydaw/pydaw_widgets.py:694 python/libpydaw/pydaw_widgets.py:2508
+#: python/libpydaw/pydaw_widgets.py:3365
 msgid "Type"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:589 python/libpydaw/pydaw_widgets.py:2894
-#: python/libpydaw/pydaw_widgets.py:2895 python/libpydaw/pydaw_widgets.py:3068
-#: python/libpydaw/pydaw_widgets.py:3081 python/libpydaw/pydaw_widgets.py:3343
-#: python/libpydaw/pydaw_widgets.py:3597 python/libpydaw/pydaw_widgets.py:4109
-#: python/libpydaw/pydaw_widgets.py:4130 python/pydaw.py:6762
+#: python/libpydaw/pydaw_widgets.py:589 python/libpydaw/pydaw_widgets.py:2919
+#: python/libpydaw/pydaw_widgets.py:2920 python/libpydaw/pydaw_widgets.py:3093
+#: python/libpydaw/pydaw_widgets.py:3106 python/libpydaw/pydaw_widgets.py:3368
+#: python/libpydaw/pydaw_widgets.py:3622 python/libpydaw/pydaw_widgets.py:4132
+#: python/libpydaw/pydaw_widgets.py:4153 python/pydaw.py:6631
 msgid "Off"
 msgstr ""
 
@@ -169,25 +170,25 @@ msgstr ""
 msgid "Pitch2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:625 python/libpydaw/pydaw_widgets.py:3133
-#: python/libpydaw/pydaw_widgets.py:3201 python/libpydaw/pydaw_widgets.py:3275
-#: python/libpydaw/pydaw_widgets.py:4109
+#: python/libpydaw/pydaw_widgets.py:625 python/libpydaw/pydaw_widgets.py:3158
+#: python/libpydaw/pydaw_widgets.py:3226 python/libpydaw/pydaw_widgets.py:3300
+#: python/libpydaw/pydaw_widgets.py:4132
 msgid "On"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:634 python/libpydaw/pydaw_widgets.py:3399
-#: python/libpydaw/pydaw_widgets.py:3466 python/libpydaw/pydaw_widgets.py:4168
-#: python/libpydaw/pydaw_widgets.py:4229
+#: python/libpydaw/pydaw_widgets.py:634 python/libpydaw/pydaw_widgets.py:3424
+#: python/libpydaw/pydaw_widgets.py:3491 python/libpydaw/pydaw_widgets.py:4191
+#: python/libpydaw/pydaw_widgets.py:4252
 msgid "Ramp Env"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:639 python/libpydaw/pydaw_widgets.py:2345
-#: python/libpydaw/pydaw_widgets.py:2376 python/libpydaw/pydaw_widgets.py:2504
+#: python/libpydaw/pydaw_widgets.py:639 python/libpydaw/pydaw_widgets.py:2367
+#: python/libpydaw/pydaw_widgets.py:2398 python/libpydaw/pydaw_widgets.py:2526
 msgid "Amt"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:644 python/libpydaw/pydaw_widgets.py:2757
-#: python/libpydaw/pydaw_widgets.py:2835
+#: python/libpydaw/pydaw_widgets.py:644 python/libpydaw/pydaw_widgets.py:2782
+#: python/libpydaw/pydaw_widgets.py:2860
 msgid "Time"
 msgstr ""
 
@@ -195,9 +196,9 @@ msgstr ""
 msgid "Curve"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:659 python/libpydaw/pydaw_widgets.py:3027
-#: python/libpydaw/pydaw_widgets.py:3400 python/libpydaw/pydaw_widgets.py:3476
-#: python/libpydaw/pydaw_widgets.py:4169 python/libpydaw/pydaw_widgets.py:4236
+#: python/libpydaw/pydaw_widgets.py:659 python/libpydaw/pydaw_widgets.py:3052
+#: python/libpydaw/pydaw_widgets.py:3425 python/libpydaw/pydaw_widgets.py:3501
+#: python/libpydaw/pydaw_widgets.py:4192 python/libpydaw/pydaw_widgets.py:4259
 msgid "LFO"
 msgstr ""
 
@@ -205,12 +206,12 @@ msgstr ""
 msgid "Freq"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:679 python/libpydaw/pydaw_widgets.py:2406
-#: python/libpydaw/pydaw_widgets.py:2416 python/libpydaw/pydaw_widgets.py:2436
-#: python/libpydaw/pydaw_widgets.py:3036 python/libpydaw/pydaw_widgets.py:3400
-#: python/libpydaw/pydaw_widgets.py:3468 python/libpydaw/pydaw_widgets.py:3495
-#: python/libpydaw/pydaw_widgets.py:3590 python/libpydaw/pydaw_widgets.py:4169
-#: python/libpydaw/pydaw_widgets.py:4239 python/libpydaw/pydaw_widgets.py:4467
+#: python/libpydaw/pydaw_widgets.py:679 python/libpydaw/pydaw_widgets.py:2428
+#: python/libpydaw/pydaw_widgets.py:2438 python/libpydaw/pydaw_widgets.py:2458
+#: python/libpydaw/pydaw_widgets.py:3061 python/libpydaw/pydaw_widgets.py:3425
+#: python/libpydaw/pydaw_widgets.py:3493 python/libpydaw/pydaw_widgets.py:3520
+#: python/libpydaw/pydaw_widgets.py:3615 python/libpydaw/pydaw_widgets.py:4192
+#: python/libpydaw/pydaw_widgets.py:4262 python/libpydaw/pydaw_widgets.py:4490
 msgid "Pitch"
 msgstr ""
 
@@ -218,32 +219,32 @@ msgstr ""
 msgid "Fine"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:689 python/libpydaw/pydaw_widgets.py:1225
-#: python/libpydaw/pydaw_widgets.py:2948 python/libpydaw/pydaw_widgets.py:3332
-#: python/pydaw.py:3152
+#: python/libpydaw/pydaw_widgets.py:689 python/libpydaw/pydaw_widgets.py:1224
+#: python/libpydaw/pydaw_widgets.py:2973 python/libpydaw/pydaw_widgets.py:3357
+#: python/pydaw.py:3012
 msgid "Vol"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:774 python/pydaw.py:2787
-#: python/pydaw.py:2808 python/pydaw.py:5005 python/pydaw.py:5675
-#: python/pydaw.py:5711 python/pydaw.py:5756 python/pydaw.py:8026
+#: python/libpydaw/pydaw_widgets.py:774 python/libpydaw/pydaw_widgets.py:879
+#: python/pydaw.py:2762 python/pydaw.py:4870 python/pydaw.py:5540
+#: python/pydaw.py:5576 python/pydaw.py:5621 python/pydaw.py:7888
 msgid "Clear"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:776 python/pydaw.py:2781
+#: python/libpydaw/pydaw_widgets.py:776 python/pydaw.py:2756
 msgid "Copy"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:777 python/pydaw.py:1792
+#: python/libpydaw/pydaw_widgets.py:777 python/pydaw.py:1795
 msgid "Copy file path to clipboard"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:780 python/pydaw.py:2784
-#: python/pydaw.py:2845
+#: python/libpydaw/pydaw_widgets.py:780 python/pydaw.py:2759
+#: python/pydaw.py:2800
 msgid "Paste"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:781 python/pydaw.py:2277
+#: python/libpydaw/pydaw_widgets.py:781 python/pydaw.py:2280
 msgid "Paste file path from clipboard"
 msgstr ""
 
@@ -252,25 +253,25 @@ msgid "Reload"
 msgstr ""
 
 #: python/libpydaw/pydaw_widgets.py:818 python/libpydaw/pydaw_widgets.py:829
-#: python/libpydaw/pydaw_widgets.py:961 python/libpydaw/pydaw_widgets.py:1080
-#: python/libpydaw/pydaw_widgets.py:1146 python/libpydaw/pydaw_widgets.py:1167
-#: python/libpydaw/pydaw_widgets.py:1171 python/libpydaw/pydaw_widgets.py:4604
-#: python/libpydaw/pydaw_widgets.py:4821 python/libpydaw/pydaw_widgets.py:4875
-#: python/libpydaw/pydaw_widgets.py:4979 python/pydaw.py:249
-#: python/pydaw.py:424 python/pydaw.py:797 python/pydaw.py:835
-#: python/pydaw.py:863 python/pydaw.py:1043 python/pydaw.py:1110
-#: python/pydaw.py:1131 python/pydaw.py:1185 python/pydaw.py:1189
-#: python/pydaw.py:1254 python/pydaw.py:1825 python/pydaw.py:1857
-#: python/pydaw.py:2151 python/pydaw.py:2286 python/pydaw.py:2293
-#: python/pydaw.py:2435 python/pydaw.py:2481 python/pydaw.py:2940
-#: python/pydaw.py:2946 python/pydaw.py:3023 python/pydaw.py:3481
-#: python/pydaw.py:3560 python/pydaw.py:3610 python/pydaw.py:5019
-#: python/pydaw.py:5352 python/pydaw.py:5410 python/pydaw.py:5427
-#: python/pydaw.py:5515 python/pydaw.py:5568 python/pydaw.py:6148
-#: python/pydaw.py:6594 python/pydaw.py:6624 python/pydaw.py:6930
-#: python/pydaw.py:7045 python/pydaw.py:7050 python/pydaw.py:7278
-#: python/pydaw.py:7283 python/pydaw.py:7287 python/pydaw.py:7374
-#: python/pydaw.py:7394 python/pydaw.py:7717
+#: python/libpydaw/pydaw_widgets.py:929 python/libpydaw/pydaw_widgets.py:1079
+#: python/libpydaw/pydaw_widgets.py:1145 python/libpydaw/pydaw_widgets.py:1166
+#: python/libpydaw/pydaw_widgets.py:1170 python/libpydaw/pydaw_widgets.py:4627
+#: python/libpydaw/pydaw_widgets.py:4840 python/libpydaw/pydaw_widgets.py:4894
+#: python/libpydaw/pydaw_widgets.py:4998 python/pydaw.py:252
+#: python/pydaw.py:427 python/pydaw.py:800 python/pydaw.py:838
+#: python/pydaw.py:866 python/pydaw.py:1046 python/pydaw.py:1113
+#: python/pydaw.py:1134 python/pydaw.py:1188 python/pydaw.py:1192
+#: python/pydaw.py:1257 python/pydaw.py:1828 python/pydaw.py:1860
+#: python/pydaw.py:2154 python/pydaw.py:2289 python/pydaw.py:2296
+#: python/pydaw.py:2438 python/pydaw.py:2484 python/pydaw.py:2889
+#: python/pydaw.py:2895 python/pydaw.py:3341 python/pydaw.py:3420
+#: python/pydaw.py:3470 python/pydaw.py:4884 python/pydaw.py:5217
+#: python/pydaw.py:5275 python/pydaw.py:5292 python/pydaw.py:5380
+#: python/pydaw.py:5433 python/pydaw.py:6013 python/pydaw.py:6461
+#: python/pydaw.py:6491 python/pydaw.py:6799 python/pydaw.py:6912
+#: python/pydaw.py:6917 python/pydaw.py:7139 python/pydaw.py:7144
+#: python/pydaw.py:7148 python/pydaw.py:7236 python/pydaw.py:7253
+#: python/pydaw.py:7577 python/pydaw.py:8038
 msgid "Error"
 msgstr ""
 
@@ -282,900 +283,893 @@ msgstr ""
 msgid "{} does not exist."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:846 python/pydaw.py:2769
-msgid "Bookmarks"
-msgstr ""
-
-#: python/libpydaw/pydaw_widgets.py:857
-msgid "Press the 'bookmark' button to add folders here."
-msgstr ""
-
-#: python/libpydaw/pydaw_widgets.py:862 python/pydaw.py:3037
-#: python/pydaw.py:5648
-msgid "Delete"
-msgstr ""
-
-#: python/libpydaw/pydaw_widgets.py:869
-msgid "Folders"
-msgstr ""
-
-#: python/libpydaw/pydaw_widgets.py:881 python/pydaw.py:2755
-msgid "Up"
-msgstr ""
-
-#: python/libpydaw/pydaw_widgets.py:884 python/pydaw.py:2758
-msgid "Bookmark"
-msgstr ""
-
-#: python/libpydaw/pydaw_widgets.py:891 python/pydaw.py:2746
+#: python/libpydaw/pydaw_widgets.py:845
 msgid "Files"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:898
-msgid ""
-"Select the file(s) you wish to load and click the 'load' button.\n"
-"The samples will be loaded sequentially starting from the currently selected "
-"row."
+#: python/libpydaw/pydaw_widgets.py:854
+msgid "Up"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:903
-msgid "Load"
+#: python/libpydaw/pydaw_widgets.py:857
+msgid "Bookmark"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:905 python/pydaw.py:2816
+#: python/libpydaw/pydaw_widgets.py:868
+msgid "Bookmarks"
+msgstr ""
+
+#: python/libpydaw/pydaw_widgets.py:875
+msgid "Filter:"
+msgstr ""
+
+#: python/libpydaw/pydaw_widgets.py:886
 msgid "Preview"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:962
+#: python/libpydaw/pydaw_widgets.py:930
 msgid ""
-"This bookmark no longer exists.  You may have deleted it in another windows."
+"This bookmark no longer exists.  You may have deleted it in another window."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1032
+#: python/libpydaw/pydaw_widgets.py:943 python/pydaw.py:5513
+msgid "Delete"
+msgstr ""
+
+#: python/libpydaw/pydaw_widgets.py:973
+msgid ""
+"Not adding '{}' because it contains bad chars, you must rename this file "
+"path without:"
+msgstr ""
+
+#: python/libpydaw/pydaw_widgets.py:998
+msgid "Load"
+msgstr ""
+
+#: python/libpydaw/pydaw_widgets.py:1031
 msgid ""
 "Save the current settings to a preset.  Plugin settings are saved to the "
 "project automatically\n"
 "when you close the plugin window, this button is only for presets."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1037 python/libpydaw/pydaw_widgets.py:1485
+#: python/libpydaw/pydaw_widgets.py:1036 python/libpydaw/pydaw_widgets.py:1484
 msgid "Reset"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1038
+#: python/libpydaw/pydaw_widgets.py:1037
 msgid "Resets all controls to their default value"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1041
+#: python/libpydaw/pydaw_widgets.py:1040
 msgid "More"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1046
+#: python/libpydaw/pydaw_widgets.py:1045
 msgid "Save bank as..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1048
+#: python/libpydaw/pydaw_widgets.py:1047
 msgid "Open bank..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1050
+#: python/libpydaw/pydaw_widgets.py:1049
 msgid "Restore factory bank..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1053
+#: python/libpydaw/pydaw_widgets.py:1052
 msgid "Copy plugin settings..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1055
+#: python/libpydaw/pydaw_widgets.py:1054
 msgid "Paste plugin settings..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1081
+#: python/libpydaw/pydaw_widgets.py:1080
 msgid "Nothing copied to clipboard for {}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1095
+#: python/libpydaw/pydaw_widgets.py:1094
 msgid "Save preset bank..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1108
+#: python/libpydaw/pydaw_widgets.py:1107
 msgid "Open preset bank..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1147
+#: python/libpydaw/pydaw_widgets.py:1146
 msgid "The selected preset bank is for {}, please select one for {}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1168
+#: python/libpydaw/pydaw_widgets.py:1167
 msgid "Preset name cannot be 'empty'"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1172
+#: python/libpydaw/pydaw_widgets.py:1171
 msgid "The first preset must be empty"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1219 python/libpydaw/pydaw_widgets.py:3008
-#: python/libpydaw/pydaw_widgets.py:4293 python/pydaw.py:741
-#: python/pydaw.py:1369
+#: python/libpydaw/pydaw_widgets.py:1218 python/libpydaw/pydaw_widgets.py:3033
+#: python/libpydaw/pydaw_widgets.py:4316 python/pydaw.py:744
+#: python/pydaw.py:1372
 msgid "Master"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1230 python/libpydaw/pydaw_widgets.py:3108
-#: python/libpydaw/pydaw_widgets.py:3173 python/libpydaw/pydaw_widgets.py:3246
+#: python/libpydaw/pydaw_widgets.py:1229 python/libpydaw/pydaw_widgets.py:3133
+#: python/libpydaw/pydaw_widgets.py:3198 python/libpydaw/pydaw_widgets.py:3271
 msgid "Unison"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1235 python/libpydaw/pydaw_widgets.py:3115
-#: python/libpydaw/pydaw_widgets.py:3180 python/libpydaw/pydaw_widgets.py:3253
+#: python/libpydaw/pydaw_widgets.py:1234 python/libpydaw/pydaw_widgets.py:3140
+#: python/libpydaw/pydaw_widgets.py:3205 python/libpydaw/pydaw_widgets.py:3278
 msgid "Spread"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1240
+#: python/libpydaw/pydaw_widgets.py:1239
 msgid "Glide"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1244 python/pydaw.py:5618
-#: python/pydaw.py:5750 python/pydaw.py:6175
+#: python/libpydaw/pydaw_widgets.py:1243 python/pydaw.py:5483
+#: python/pydaw.py:5615 python/pydaw.py:6040
 msgid "Pitchbend"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1465 python/libpydaw/pydaw_widgets.py:2327
-#: python/libpydaw/pydaw_widgets.py:2334 python/libpydaw/pydaw_widgets.py:2934
+#: python/libpydaw/pydaw_widgets.py:1464 python/libpydaw/pydaw_widgets.py:2349
+#: python/libpydaw/pydaw_widgets.py:2356 python/libpydaw/pydaw_widgets.py:2959
 msgid "Gain"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1785
+#: python/libpydaw/pydaw_widgets.py:1784
 msgid "Oscillator#:"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1792
+#: python/libpydaw/pydaw_widgets.py:1791
 msgid "Edit Mode:"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1796
+#: python/libpydaw/pydaw_widgets.py:1795
 msgid "All"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1796
+#: python/libpydaw/pydaw_widgets.py:1795
 msgid "Odd"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1799
+#: python/libpydaw/pydaw_widgets.py:1798
 msgid "Tools"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1805
+#: python/libpydaw/pydaw_widgets.py:1804
 msgid "Select (Additive [n]) as your osc type to use"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1812
+#: python/libpydaw/pydaw_widgets.py:1811
 msgid "Set Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1814
+#: python/libpydaw/pydaw_widgets.py:1813
 msgid "Set Square"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:1816
+#: python/libpydaw/pydaw_widgets.py:1815
 msgid "Set Sine"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2255 python/libpydaw/pydaw_widgets.py:2264
-#: python/libpydaw/pydaw_widgets.py:2273 python/libpydaw/pydaw_widgets.py:2282
-#: python/libpydaw/pydaw_widgets.py:2291 python/libpydaw/pydaw_widgets.py:2300
-#: python/libpydaw/pydaw_widgets.py:2309 python/libpydaw/pydaw_widgets.py:2318
-#: python/libpydaw/pydaw_widgets.py:2346 python/libpydaw/pydaw_widgets.py:2356
-#: python/libpydaw/pydaw_widgets.py:2387 python/libpydaw/pydaw_widgets.py:2397
-#: python/libpydaw/pydaw_widgets.py:2418 python/libpydaw/pydaw_widgets.py:2427
-#: python/libpydaw/pydaw_widgets.py:2428 python/libpydaw/pydaw_widgets.py:2438
-#: python/libpydaw/pydaw_widgets.py:2466 python/libpydaw/pydaw_widgets.py:2496
+#: python/libpydaw/pydaw_widgets.py:2277 python/libpydaw/pydaw_widgets.py:2286
+#: python/libpydaw/pydaw_widgets.py:2295 python/libpydaw/pydaw_widgets.py:2304
+#: python/libpydaw/pydaw_widgets.py:2313 python/libpydaw/pydaw_widgets.py:2322
+#: python/libpydaw/pydaw_widgets.py:2331 python/libpydaw/pydaw_widgets.py:2340
+#: python/libpydaw/pydaw_widgets.py:2368 python/libpydaw/pydaw_widgets.py:2378
+#: python/libpydaw/pydaw_widgets.py:2409 python/libpydaw/pydaw_widgets.py:2419
+#: python/libpydaw/pydaw_widgets.py:2440 python/libpydaw/pydaw_widgets.py:2449
+#: python/libpydaw/pydaw_widgets.py:2450 python/libpydaw/pydaw_widgets.py:2460
+#: python/libpydaw/pydaw_widgets.py:2488 python/libpydaw/pydaw_widgets.py:2518
 msgid "unused"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2326
+#: python/libpydaw/pydaw_widgets.py:2348
 msgid "Q"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2335
+#: python/libpydaw/pydaw_widgets.py:2357
 msgid "Dry/Wet"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2336
+#: python/libpydaw/pydaw_widgets.py:2358
 msgid "Out Gain"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2354 python/libpydaw/pydaw_widgets.py:2464
+#: python/libpydaw/pydaw_widgets.py:2376 python/libpydaw/pydaw_widgets.py:2486
 msgid "Pan"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2355 python/libpydaw/pydaw_widgets.py:2465
-#: python/libpydaw/pydaw_widgets.py:3031 python/libpydaw/pydaw_widgets.py:3487
+#: python/libpydaw/pydaw_widgets.py:2377 python/libpydaw/pydaw_widgets.py:2487
+#: python/libpydaw/pydaw_widgets.py:3056 python/libpydaw/pydaw_widgets.py:3512
 msgid "Amp"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2365
+#: python/libpydaw/pydaw_widgets.py:2387
 msgid "Thresh"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2366
+#: python/libpydaw/pydaw_widgets.py:2388
 msgid "Ceiling"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2375
+#: python/libpydaw/pydaw_widgets.py:2397
 msgid "InGain"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2377
+#: python/libpydaw/pydaw_widgets.py:2399
 msgid "OutGain"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2385 python/libpydaw/pydaw_widgets.py:2484
+#: python/libpydaw/pydaw_widgets.py:2407 python/libpydaw/pydaw_widgets.py:2506
 msgid "Vowel"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2386 python/libpydaw/pydaw_widgets.py:2396
-#: python/libpydaw/pydaw_widgets.py:2408 python/libpydaw/pydaw_widgets.py:2417
-#: python/libpydaw/pydaw_widgets.py:2437 python/libpydaw/pydaw_widgets.py:2448
-#: python/libpydaw/pydaw_widgets.py:2457 python/libpydaw/pydaw_widgets.py:2485
-#: python/libpydaw/pydaw_widgets.py:2775 python/libpydaw/pydaw_widgets.py:2840
-#: python/libpydaw/pydaw_widgets.py:2939
+#: python/libpydaw/pydaw_widgets.py:2408 python/libpydaw/pydaw_widgets.py:2418
+#: python/libpydaw/pydaw_widgets.py:2430 python/libpydaw/pydaw_widgets.py:2439
+#: python/libpydaw/pydaw_widgets.py:2459 python/libpydaw/pydaw_widgets.py:2470
+#: python/libpydaw/pydaw_widgets.py:2479 python/libpydaw/pydaw_widgets.py:2507
+#: python/libpydaw/pydaw_widgets.py:2800 python/libpydaw/pydaw_widgets.py:2865
+#: python/libpydaw/pydaw_widgets.py:2964
 msgid "Wet"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2395
+#: python/libpydaw/pydaw_widgets.py:2417
 msgid "Rate"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2407
+#: python/libpydaw/pydaw_widgets.py:2429
 msgid "Glitch"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2426
+#: python/libpydaw/pydaw_widgets.py:2448
 msgid "Bits"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2505
+#: python/libpydaw/pydaw_widgets.py:2527
 msgid "Detune"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2527
+#: python/libpydaw/pydaw_widgets.py:2549
 msgid "FX{}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2635
+#: python/libpydaw/pydaw_widgets.py:2660
 msgid "Update controls for {}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2707
+#: python/libpydaw/pydaw_widgets.py:2732 python/pydaw.py:7996
 msgid "Effects"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2713 python/libpydaw/pydaw_widgets.py:2719
-#: python/libpydaw/pydaw_widgets.py:2750
+#: python/libpydaw/pydaw_widgets.py:2738 python/libpydaw/pydaw_widgets.py:2744
+#: python/libpydaw/pydaw_widgets.py:2775
 msgid "Delay"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2765
+#: python/libpydaw/pydaw_widgets.py:2790
 msgid "Fdbk"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2770
+#: python/libpydaw/pydaw_widgets.py:2795
 msgid "Dry"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2781
+#: python/libpydaw/pydaw_widgets.py:2806
 msgid "Duck"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2791
+#: python/libpydaw/pydaw_widgets.py:2816
 msgid "Stereo"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2820
+#: python/libpydaw/pydaw_widgets.py:2845
 msgid "Beats"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2827
+#: python/libpydaw/pydaw_widgets.py:2852
 msgid "Reverb"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2845
+#: python/libpydaw/pydaw_widgets.py:2870
 msgid "Color"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2861
+#: python/libpydaw/pydaw_widgets.py:2886
 msgid "EQ"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2894
+#: python/libpydaw/pydaw_widgets.py:2919
 msgid "Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2894
+#: python/libpydaw/pydaw_widgets.py:2919
 msgid "Square"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2894 python/libpydaw/pydaw_widgets.py:2895
-#: python/libpydaw/pydaw_widgets.py:3081 python/libpydaw/pydaw_widgets.py:4130
+#: python/libpydaw/pydaw_widgets.py:2919 python/libpydaw/pydaw_widgets.py:2920
+#: python/libpydaw/pydaw_widgets.py:3106 python/libpydaw/pydaw_widgets.py:4153
 msgid "Triangle"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2894 python/libpydaw/pydaw_widgets.py:2895
-#: python/libpydaw/pydaw_widgets.py:3077 python/libpydaw/pydaw_widgets.py:3081
-#: python/libpydaw/pydaw_widgets.py:4130
+#: python/libpydaw/pydaw_widgets.py:2919 python/libpydaw/pydaw_widgets.py:2920
+#: python/libpydaw/pydaw_widgets.py:3102 python/libpydaw/pydaw_widgets.py:3106
+#: python/libpydaw/pydaw_widgets.py:4153
 msgid "Sine"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2920 python/libpydaw/pydaw_widgets.py:3105
+#: python/libpydaw/pydaw_widgets.py:2945 python/libpydaw/pydaw_widgets.py:3130
 msgid "Oscillator 1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2926 python/libpydaw/pydaw_widgets.py:4209
+#: python/libpydaw/pydaw_widgets.py:2951 python/libpydaw/pydaw_widgets.py:4232
 msgid "ADSR Amp"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2930
+#: python/libpydaw/pydaw_widgets.py:2955
 msgid "Distortion"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2944 python/libpydaw/pydaw_widgets.py:3328
+#: python/libpydaw/pydaw_widgets.py:2969 python/libpydaw/pydaw_widgets.py:3353
 msgid "Noise"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2959 python/libpydaw/pydaw_widgets.py:3170
+#: python/libpydaw/pydaw_widgets.py:2984 python/libpydaw/pydaw_widgets.py:3195
 msgid "Oscillator 2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2971
+#: python/libpydaw/pydaw_widgets.py:2996
 msgid ""
 "Setting self hard sync's Osc1 to Osc2. Usually you would want to distort and "
 "pitchbend if this is enabled."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2977
+#: python/libpydaw/pydaw_widgets.py:3002
 msgid "ADSR Filter"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2987
+#: python/libpydaw/pydaw_widgets.py:3012
 msgid "Env Amt"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:2994
+#: python/libpydaw/pydaw_widgets.py:3019
 msgid "KeyTrk"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3019
+#: python/libpydaw/pydaw_widgets.py:3044
 msgid "Pitch Env"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3070
+#: python/libpydaw/pydaw_widgets.py:3095
 msgid "Plain Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3070
+#: python/libpydaw/pydaw_widgets.py:3095
 msgid "SuperbSaw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3070
+#: python/libpydaw/pydaw_widgets.py:3095
 msgid "Viral Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3070
+#: python/libpydaw/pydaw_widgets.py:3095
 msgid "Soft Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3071
+#: python/libpydaw/pydaw_widgets.py:3096
 msgid "Mid Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3071
+#: python/libpydaw/pydaw_widgets.py:3096
 msgid "Lush Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3073
+#: python/libpydaw/pydaw_widgets.py:3098
 msgid "Evil Square"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3073
+#: python/libpydaw/pydaw_widgets.py:3098
 msgid "Punchy Square"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3073
+#: python/libpydaw/pydaw_widgets.py:3098
 msgid "Soft Square"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3075
+#: python/libpydaw/pydaw_widgets.py:3100
 msgid "Pink Glitch"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3075
+#: python/libpydaw/pydaw_widgets.py:3100
 msgid "White Glitch"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3075
+#: python/libpydaw/pydaw_widgets.py:3100
 msgid "Acid"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3075
+#: python/libpydaw/pydaw_widgets.py:3100
 msgid "Screetch"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3077
+#: python/libpydaw/pydaw_widgets.py:3102
 msgid "Thick Bass"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3077
+#: python/libpydaw/pydaw_widgets.py:3102
 msgid "Rattler"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3077
+#: python/libpydaw/pydaw_widgets.py:3102
 msgid "Deep Saw"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3079
+#: python/libpydaw/pydaw_widgets.py:3104
 msgid "(Additive 1)"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3079
+#: python/libpydaw/pydaw_widgets.py:3104
 msgid "(Additive 2)"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3079
+#: python/libpydaw/pydaw_widgets.py:3104
 msgid "(Additive 3)"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3086
+#: python/libpydaw/pydaw_widgets.py:3111
 msgid "Oscillators"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3088
+#: python/libpydaw/pydaw_widgets.py:3113
 msgid "PolyFX"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3128
+#: python/libpydaw/pydaw_widgets.py:3153
 msgid "ADSR Osc1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3139
+#: python/libpydaw/pydaw_widgets.py:3164
 msgid "Osc1 FM"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3143 python/libpydaw/pydaw_widgets.py:3212
-#: python/libpydaw/pydaw_widgets.py:3286
+#: python/libpydaw/pydaw_widgets.py:3168 python/libpydaw/pydaw_widgets.py:3237
+#: python/libpydaw/pydaw_widgets.py:3311
 msgid "Osc1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3149 python/libpydaw/pydaw_widgets.py:3219
-#: python/libpydaw/pydaw_widgets.py:3292
+#: python/libpydaw/pydaw_widgets.py:3174 python/libpydaw/pydaw_widgets.py:3244
+#: python/libpydaw/pydaw_widgets.py:3317
 msgid "Osc2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3155 python/libpydaw/pydaw_widgets.py:3225
-#: python/libpydaw/pydaw_widgets.py:3298
+#: python/libpydaw/pydaw_widgets.py:3180 python/libpydaw/pydaw_widgets.py:3250
+#: python/libpydaw/pydaw_widgets.py:3323
 msgid "Osc3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3195
+#: python/libpydaw/pydaw_widgets.py:3220
 msgid "ADSR Osc2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3208
+#: python/libpydaw/pydaw_widgets.py:3233
 msgid "Osc2 FM"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3243
+#: python/libpydaw/pydaw_widgets.py:3268
 msgid "Oscillator 3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3268
+#: python/libpydaw/pydaw_widgets.py:3293
 msgid "ADSR Osc3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3282
+#: python/libpydaw/pydaw_widgets.py:3307
 msgid "Osc3 FM"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3322
+#: python/libpydaw/pydaw_widgets.py:3347
 msgid "ADSR Master"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3343 python/libpydaw/pydaw_widgets.py:3597
+#: python/libpydaw/pydaw_widgets.py:3368 python/libpydaw/pydaw_widgets.py:3622
 msgid "White"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3343 python/libpydaw/pydaw_widgets.py:3597
+#: python/libpydaw/pydaw_widgets.py:3368 python/libpydaw/pydaw_widgets.py:3622
 msgid "Pink"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3369 python/libpydaw/pydaw_widgets.py:4137
-#: python/libpydaw/pydaw_widgets.py:4271
+#: python/libpydaw/pydaw_widgets.py:3394 python/libpydaw/pydaw_widgets.py:4160
+#: python/libpydaw/pydaw_widgets.py:4294
 msgid "FX0"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3374 python/libpydaw/pydaw_widgets.py:4142
-#: python/libpydaw/pydaw_widgets.py:4273
+#: python/libpydaw/pydaw_widgets.py:3399 python/libpydaw/pydaw_widgets.py:4165
+#: python/libpydaw/pydaw_widgets.py:4296
 msgid "FX1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3379 python/libpydaw/pydaw_widgets.py:4148
-#: python/libpydaw/pydaw_widgets.py:4277
+#: python/libpydaw/pydaw_widgets.py:3404 python/libpydaw/pydaw_widgets.py:4171
+#: python/libpydaw/pydaw_widgets.py:4300
 msgid "FX2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3384 python/libpydaw/pydaw_widgets.py:4153
-#: python/libpydaw/pydaw_widgets.py:4279
+#: python/libpydaw/pydaw_widgets.py:3409 python/libpydaw/pydaw_widgets.py:4176
+#: python/libpydaw/pydaw_widgets.py:4302
 msgid "FX3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3396 python/libpydaw/pydaw_widgets.py:4165
+#: python/libpydaw/pydaw_widgets.py:3421 python/libpydaw/pydaw_widgets.py:4188
 msgid ""
 "FX0\n"
 "Ctrl1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3396 python/libpydaw/pydaw_widgets.py:4165
+#: python/libpydaw/pydaw_widgets.py:3421 python/libpydaw/pydaw_widgets.py:4188
 msgid ""
 "FX0\n"
 "Ctrl2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3397 python/libpydaw/pydaw_widgets.py:4166
+#: python/libpydaw/pydaw_widgets.py:3422 python/libpydaw/pydaw_widgets.py:4189
 msgid ""
 "FX0\n"
 "Ctrl3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3397 python/libpydaw/pydaw_widgets.py:4166
+#: python/libpydaw/pydaw_widgets.py:3422 python/libpydaw/pydaw_widgets.py:4189
 msgid ""
 "FX1\n"
 "Ctrl1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3397 python/libpydaw/pydaw_widgets.py:4166
+#: python/libpydaw/pydaw_widgets.py:3422 python/libpydaw/pydaw_widgets.py:4189
 msgid ""
 "FX1\n"
 "Ctrl2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3397 python/libpydaw/pydaw_widgets.py:4166
+#: python/libpydaw/pydaw_widgets.py:3422 python/libpydaw/pydaw_widgets.py:4189
 msgid ""
 "FX1\n"
 "Ctrl3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3397 python/libpydaw/pydaw_widgets.py:4166
+#: python/libpydaw/pydaw_widgets.py:3422 python/libpydaw/pydaw_widgets.py:4189
 msgid ""
 "FX2\n"
 "Ctrl1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3398 python/libpydaw/pydaw_widgets.py:4167
+#: python/libpydaw/pydaw_widgets.py:3423 python/libpydaw/pydaw_widgets.py:4190
 msgid ""
 "FX2\n"
 "Ctrl2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3398 python/libpydaw/pydaw_widgets.py:4167
+#: python/libpydaw/pydaw_widgets.py:3423 python/libpydaw/pydaw_widgets.py:4190
 msgid ""
 "FX2\n"
 "Ctrl3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3398 python/libpydaw/pydaw_widgets.py:4167
+#: python/libpydaw/pydaw_widgets.py:3423 python/libpydaw/pydaw_widgets.py:4190
 msgid ""
 "FX3\n"
 "Ctrl1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3398 python/libpydaw/pydaw_widgets.py:4167
+#: python/libpydaw/pydaw_widgets.py:3423 python/libpydaw/pydaw_widgets.py:4190
 msgid ""
 "FX3\n"
 "Ctrl2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3398 python/libpydaw/pydaw_widgets.py:4167
+#: python/libpydaw/pydaw_widgets.py:3423 python/libpydaw/pydaw_widgets.py:4190
 msgid ""
 "FX3\n"
 "Ctrl3"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3399 python/libpydaw/pydaw_widgets.py:3441
-#: python/libpydaw/pydaw_widgets.py:4168
+#: python/libpydaw/pydaw_widgets.py:3424 python/libpydaw/pydaw_widgets.py:3466
+#: python/libpydaw/pydaw_widgets.py:4191
 msgid "ADSR 1"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3399 python/libpydaw/pydaw_widgets.py:3453
-#: python/libpydaw/pydaw_widgets.py:4168 python/libpydaw/pydaw_widgets.py:4222
+#: python/libpydaw/pydaw_widgets.py:3424 python/libpydaw/pydaw_widgets.py:3478
+#: python/libpydaw/pydaw_widgets.py:4191 python/libpydaw/pydaw_widgets.py:4245
 msgid "ADSR 2"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3400 python/libpydaw/pydaw_widgets.py:4169
-#: python/pydaw.py:4480 python/pydaw.py:5667 python/pydaw.py:5810
-#: python/pydaw.py:6116
+#: python/libpydaw/pydaw_widgets.py:3425 python/libpydaw/pydaw_widgets.py:4192
+#: python/pydaw.py:4345 python/pydaw.py:5532 python/pydaw.py:5675
+#: python/pydaw.py:5981
 msgid "Velocity"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3479 python/pydaw.py:5464
+#: python/libpydaw/pydaw_widgets.py:3504 python/pydaw.py:5329
 msgid "Amount"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3579
+#: python/libpydaw/pydaw_widgets.py:3604
 msgid "Pitched"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3579
+#: python/libpydaw/pydaw_widgets.py:3604
 msgid "Percussion"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3579
+#: python/libpydaw/pydaw_widgets.py:3604
 msgid "No Pitch"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3582
+#: python/libpydaw/pydaw_widgets.py:3607
 msgid "Path"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3583
+#: python/libpydaw/pydaw_widgets.py:3608
 msgid "Sample Pitch"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3584
+#: python/libpydaw/pydaw_widgets.py:3609
 msgid "Low Note"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3585
+#: python/libpydaw/pydaw_widgets.py:3610
 msgid "High Note"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3586
+#: python/libpydaw/pydaw_widgets.py:3611
 msgid "Volume"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3587
+#: python/libpydaw/pydaw_widgets.py:3612
 msgid "Vel. Sens."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3588
+#: python/libpydaw/pydaw_widgets.py:3613
 msgid "Low Vel."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3589
+#: python/libpydaw/pydaw_widgets.py:3614
 msgid "High Vel."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3591 python/libpydaw/pydaw_widgets.py:4112
-#: python/libpydaw/pydaw_widgets.py:4471 python/libpydaw/pydaw_widgets.py:4485
+#: python/libpydaw/pydaw_widgets.py:3616 python/libpydaw/pydaw_widgets.py:4135
+#: python/libpydaw/pydaw_widgets.py:4494 python/libpydaw/pydaw_widgets.py:4508
 msgid "Tune"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3592 python/libpydaw/pydaw_widgets.py:4475
-#: python/pydaw.py:5643
+#: python/libpydaw/pydaw_widgets.py:3617 python/libpydaw/pydaw_widgets.py:4498
+#: python/pydaw.py:5508
 msgid "Mode"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3593 python/libpydaw/pydaw_widgets.py:4480
+#: python/libpydaw/pydaw_widgets.py:3618 python/libpydaw/pydaw_widgets.py:4503
 msgid "Noise Type"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3594
+#: python/libpydaw/pydaw_widgets.py:3619
 msgid "Noise Amp"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:3991 python/pydaw.py:2836
-#: python/pydaw.py:6773
+#: python/libpydaw/pydaw_widgets.py:4014 python/pydaw.py:2791
+#: python/pydaw.py:6642
 msgid "Menu"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4012
+#: python/libpydaw/pydaw_widgets.py:4035
 msgid "Save instrument to file"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4013
+#: python/libpydaw/pydaw_widgets.py:4036
 msgid "Open instrument from file"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4014
+#: python/libpydaw/pydaw_widgets.py:4037
 msgid "Map All Samples to 1 White Key"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4015
+#: python/libpydaw/pydaw_widgets.py:4038
 msgid "Map All Samples to Own MonoFX Group"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4016
+#: python/libpydaw/pydaw_widgets.py:4039
 msgid "Clear All Samples"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4017 python/libpydaw/pydaw_widgets.py:4837
+#: python/libpydaw/pydaw_widgets.py:4040 python/libpydaw/pydaw_widgets.py:4856
 msgid "Import SFZ"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4022
+#: python/libpydaw/pydaw_widgets.py:4045
 msgid "High Notes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4023
+#: python/libpydaw/pydaw_widgets.py:4046
 msgid "Low Notes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4024
+#: python/libpydaw/pydaw_widgets.py:4047
 msgid "Volumes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4025 python/libpydaw/pydaw_widgets.py:4455
+#: python/libpydaw/pydaw_widgets.py:4048 python/libpydaw/pydaw_widgets.py:4478
 msgid "Velocity Sensitivity"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4026
+#: python/libpydaw/pydaw_widgets.py:4049
 msgid "High Velocities"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4027
+#: python/libpydaw/pydaw_widgets.py:4050
 msgid "Low Velocities"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4028
+#: python/libpydaw/pydaw_widgets.py:4051
 msgid "Pitches"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4029
+#: python/libpydaw/pydaw_widgets.py:4052
 msgid "Tunes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4030
+#: python/libpydaw/pydaw_widgets.py:4053
 msgid "Interpolation Modes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4031
+#: python/libpydaw/pydaw_widgets.py:4054
 msgid "Noise Types"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4032
+#: python/libpydaw/pydaw_widgets.py:4055
 msgid "Noise Amps"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4053
+#: python/libpydaw/pydaw_widgets.py:4076
 msgid "Samples"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4055
+#: python/libpydaw/pydaw_widgets.py:4078
 msgid "Poly FX"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4057
+#: python/libpydaw/pydaw_widgets.py:4080
 msgid "Mono FX"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4063
+#: python/libpydaw/pydaw_widgets.py:4086
 msgid "View"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4098
+#: python/libpydaw/pydaw_widgets.py:4121
 msgid "Selected Sample"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4114
+#: python/libpydaw/pydaw_widgets.py:4137
 msgid "Loop Mode"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4117
+#: python/libpydaw/pydaw_widgets.py:4140
 msgid "Loop Tune"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4251
+#: python/libpydaw/pydaw_widgets.py:4274
 msgid "Selected Sample:"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4252
+#: python/libpydaw/pydaw_widgets.py:4275
 msgid "FX Group:"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4440
+#: python/libpydaw/pydaw_widgets.py:4463
 msgid "Set all base pitches"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4444
+#: python/libpydaw/pydaw_widgets.py:4467
 msgid "Set all low notes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4448
+#: python/libpydaw/pydaw_widgets.py:4471
 msgid "Set all high notes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4451 python/libpydaw/pydaw_widgets.py:4459
+#: python/libpydaw/pydaw_widgets.py:4474 python/libpydaw/pydaw_widgets.py:4482
 msgid "Low Velocity"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4452
+#: python/libpydaw/pydaw_widgets.py:4475
 msgid "Set all volumes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4456
+#: python/libpydaw/pydaw_widgets.py:4479
 msgid "Set all velocity sensitivity"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4460
+#: python/libpydaw/pydaw_widgets.py:4483
 msgid "Set all low velocities"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4463
+#: python/libpydaw/pydaw_widgets.py:4486
 msgid "High Velocity"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4464
+#: python/libpydaw/pydaw_widgets.py:4487
 msgid "Set all high velocities"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4468
+#: python/libpydaw/pydaw_widgets.py:4491
 msgid "Set all sample pitches"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4472
+#: python/libpydaw/pydaw_widgets.py:4495
 msgid "Set all sample tunes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4477 python/libpydaw/pydaw_widgets.py:4482
+#: python/libpydaw/pydaw_widgets.py:4500 python/libpydaw/pydaw_widgets.py:4505
 msgid "Set all sample interpolation modes"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4486
+#: python/libpydaw/pydaw_widgets.py:4509
 msgid "Set all noise amps"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4605
+#: python/libpydaw/pydaw_widgets.py:4628
 msgid "File '{}' cannot be read."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4747 python/libpydaw/pydaw_widgets.py:4773
+#: python/libpydaw/pydaw_widgets.py:4766 python/libpydaw/pydaw_widgets.py:4792
 msgid "Select a directory to move the samples to..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4757 python/pydaw.py:152
-#: python/pydaw.py:8444 python/pydaw.py:8552
+#: python/libpydaw/pydaw_widgets.py:4776 python/pydaw.py:155
+#: python/pydaw.py:8402 python/pydaw.py:8510
 msgid "Warning"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4758
+#: python/libpydaw/pydaw_widgets.py:4777
 msgid "{} is not an empty directory, are you sure you want to save here?"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4810
+#: python/libpydaw/pydaw_widgets.py:4829
 msgid "Import SFZ instrument..."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4822
+#: python/libpydaw/pydaw_widgets.py:4841
 msgid ""
 "Error importing {}\n"
 "{}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4829
+#: python/libpydaw/pydaw_widgets.py:4848
 msgid "Loading {}"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4844 python/pydaw.py:7565
-#: python/pydaw.py:8119
+#: python/libpydaw/pydaw_widgets.py:4863 python/pydaw.py:7425
 msgid "Open"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4848
+#: python/libpydaw/pydaw_widgets.py:4867
 msgid ""
 "Euphoria only supports basic SFZ parameters such as key and velocity "
 "mapping.\n"
 "Any effects such as filters, etc... should be set manually after import."
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4876
+#: python/libpydaw/pydaw_widgets.py:4895
 msgid "Sample count {} exceeds maximum of {}, not loading all samples"
 msgstr ""
 
-#: python/libpydaw/pydaw_widgets.py:4980
+#: python/libpydaw/pydaw_widgets.py:4999
 msgid ""
 "Error parsing {}\n"
 "{}"
 msgstr ""
 
-#: python/pydaw.py:152
+#: python/pydaw.py:155
 msgid ""
 "The following error happened:\n"
 "{}\n"
@@ -1184,7 +1178,7 @@ msgid ""
 "you should consider installing PyDAW-OS to your hard drive instead"
 msgstr ""
 
-#: python/pydaw.py:168
+#: python/pydaw.py:171
 msgid ""
 "This is the song editor.  A song is a timeline consisting of regions,\n"
 "click here to add a region, click and drag to move a region, or press the "
@@ -1195,7 +1189,7 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:174
+#: python/pydaw.py:177
 msgid ""
 "This is a region editor, it consists of items and tracks.\n"
 "A track is either a plugin instrument, audio track or bus track.\n"
@@ -1215,7 +1209,7 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:186
+#: python/pydaw.py:189
 msgid ""
 "Drag .wav files from the file browser onto here.  You can edit item "
 "properties with the\n"
@@ -1224,7 +1218,7 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:190
+#: python/pydaw.py:193
 msgid ""
 "Use this tab to browse your folders and files.\n"
 "Drag and drop one file at a time onto the sequencer.\n"
@@ -1235,14 +1229,14 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:195
+#: python/pydaw.py:198
 msgid ""
 "This tab allows you to set effects per-item.\n"
 "The tab is only enabled when you have exactly one item selected, the copy "
 "and paste buttons allow you to copy settings between multipe items."
 msgstr ""
 
-#: python/pydaw.py:198
+#: python/pydaw.py:201
 msgid ""
 "Click+drag to draw notes\n"
 "CTRL+click+drag to marquee select multiple items\n"
@@ -1259,7 +1253,7 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:209
+#: python/pydaw.py:212
 msgid ""
 "This is the transport, use this control to start/stop playback or "
 "recording.\n"
@@ -1277,7 +1271,7 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:220
+#: python/pydaw.py:223
 msgid ""
 "Use this tab to create CC maps for your MIDI controller to PyDAW's built-in "
 "plugins\n"
@@ -1285,283 +1279,283 @@ msgid ""
 "'Effects Only', it routes only to Modulex"
 msgstr ""
 
-#: python/pydaw.py:224
+#: python/pydaw.py:227
 msgid ""
 "This tab allows you to A/B your track against a .wav file.\n"
 "Click the 'Open' button to open the .wav file, then click the 'Enabled?' "
 "checkbox to disable normal audio and enable the A/B track"
 msgstr ""
 
-#: python/pydaw.py:250 python/pydaw.py:798
+#: python/pydaw.py:253 python/pydaw.py:801
 msgid ""
 "You must create or select a region first by clicking in the song editor "
 "above."
 msgstr ""
 
-#: python/pydaw.py:304
+#: python/pydaw.py:307
 msgid "Create empty region '{}' at {}"
 msgstr ""
 
-#: python/pydaw.py:308
+#: python/pydaw.py:311
 msgid "Create new region '{}' at {} copying from {}"
 msgstr ""
 
-#: python/pydaw.py:333
+#: python/pydaw.py:336
 msgid "Add region to song..."
 msgstr ""
 
-#: python/pydaw.py:339 python/pydaw.py:904
+#: python/pydaw.py:342 python/pydaw.py:907
 msgid "New:"
 msgstr ""
 
-#: python/pydaw.py:349 python/pydaw.py:920
+#: python/pydaw.py:352 python/pydaw.py:923
 msgid "Copy from:"
 msgstr ""
 
-#: python/pydaw.py:412
+#: python/pydaw.py:415
 msgid "Remove {} from song"
 msgstr ""
 
-#: python/pydaw.py:424 python/pydaw.py:1131
+#: python/pydaw.py:427 python/pydaw.py:1134
 msgid "Name cannot be blank"
 msgstr ""
 
-#: python/pydaw.py:427
+#: python/pydaw.py:430
 msgid "Rename region"
 msgstr ""
 
-#: python/pydaw.py:439
+#: python/pydaw.py:442
 msgid "Rename region..."
 msgstr ""
 
-#: python/pydaw.py:445 python/pydaw.py:605 python/pydaw.py:1155
-#: python/pydaw.py:1217
+#: python/pydaw.py:448 python/pydaw.py:608 python/pydaw.py:1158
+#: python/pydaw.py:1220
 msgid "New name:"
 msgstr ""
 
-#: python/pydaw.py:457
+#: python/pydaw.py:460
 msgid "Deleted region references at "
 msgstr ""
 
-#: python/pydaw.py:477
+#: python/pydaw.py:480
 msgid "Drag-n-drop song item(s)"
 msgstr ""
 
-#: python/pydaw.py:521
+#: python/pydaw.py:524
 msgid "Set region '{}' length to {}"
 msgstr ""
 
-#: python/pydaw.py:526
+#: python/pydaw.py:529
 msgid "Set region '{}' length to default value"
 msgstr ""
 
-#: python/pydaw.py:545 python/pydaw.py:6744 python/pydaw.py:7128
-#: python/pydaw.py:7142
+#: python/pydaw.py:548 python/pydaw.py:6613 python/pydaw.py:6995
+#: python/pydaw.py:7009
 msgid "Region:"
 msgstr ""
 
-#: python/pydaw.py:552
+#: python/pydaw.py:555
 msgid "Split"
 msgstr ""
 
-#: python/pydaw.py:555
+#: python/pydaw.py:558
 msgid "Region Length:"
 msgstr ""
 
-#: python/pydaw.py:556
+#: python/pydaw.py:559
 msgid "default"
 msgstr ""
 
-#: python/pydaw.py:587
+#: python/pydaw.py:590
 msgid "Split region {}  into {}"
 msgstr ""
 
-#: python/pydaw.py:598
+#: python/pydaw.py:601
 msgid "Split region..."
 msgstr ""
 
-#: python/pydaw.py:610
+#: python/pydaw.py:613
 msgid "Split at:"
 msgstr ""
 
-#: python/pydaw.py:738 python/pydaw.py:747
+#: python/pydaw.py:741 python/pydaw.py:750
 msgid "track{}"
 msgstr ""
 
-#: python/pydaw.py:744
+#: python/pydaw.py:747
 msgid "Bus{}"
 msgstr ""
 
-#: python/pydaw.py:756
+#: python/pydaw.py:759
 msgid "Tracks"
 msgstr ""
 
-#: python/pydaw.py:836 python/pydaw.py:864
+#: python/pydaw.py:839 python/pydaw.py:867
 msgid "An item named '{}' already exists."
 msgstr ""
 
-#: python/pydaw.py:845 python/pydaw.py:848
+#: python/pydaw.py:848 python/pydaw.py:851
 msgid "{}-{}"
 msgstr ""
 
-#: python/pydaw.py:871
+#: python/pydaw.py:874
 msgid "Add reference(s) to item (group) '{}' in region '{}'"
 msgstr ""
 
-#: python/pydaw.py:896
+#: python/pydaw.py:899
 msgid "Add item reference to region..."
 msgstr ""
 
-#: python/pydaw.py:921
+#: python/pydaw.py:924
 msgid "Existing:"
 msgstr ""
 
-#: python/pydaw.py:923
+#: python/pydaw.py:926
 msgid "Item Count:"
 msgstr ""
 
-#: python/pydaw.py:926
+#: python/pydaw.py:929
 msgid "Only used for 'New'"
 msgstr ""
 
-#: python/pydaw.py:930
+#: python/pydaw.py:933
 msgid "Paste Clipboard"
 msgstr ""
 
-#: python/pydaw.py:935
+#: python/pydaw.py:938
 msgid "Paste to End"
 msgstr ""
 
-#: python/pydaw.py:989
+#: python/pydaw.py:992
 msgid "Edit Selected Items as Group"
 msgstr ""
 
-#: python/pydaw.py:994
+#: python/pydaw.py:997
 msgid "Copy (CTRL+C)"
 msgstr ""
 
-#: python/pydaw.py:998
+#: python/pydaw.py:1001
 msgid "Paste (CTRL+V)"
 msgstr ""
 
-#: python/pydaw.py:1002
+#: python/pydaw.py:1005
 msgid "Paste to Region End (ALT+V)"
 msgstr ""
 
-#: python/pydaw.py:1007
+#: python/pydaw.py:1010
 msgid "Rename Selected Items"
 msgstr ""
 
-#: python/pydaw.py:1010
+#: python/pydaw.py:1013
 msgid "Unlink Single Item(CTRL+D)"
 msgstr ""
 
-#: python/pydaw.py:1013
+#: python/pydaw.py:1016
 msgid "Auto-Unlink Selected Items"
 msgstr ""
 
-#: python/pydaw.py:1017
+#: python/pydaw.py:1020
 msgid "Delete (Del)"
 msgstr ""
 
-#: python/pydaw.py:1021 python/pydaw.py:1061 python/pydaw.py:4476
-#: python/pydaw.py:5543 python/pydaw.py:5662
+#: python/pydaw.py:1024 python/pydaw.py:1064 python/pydaw.py:4341
+#: python/pydaw.py:5408 python/pydaw.py:5527
 msgid "Transpose"
 msgstr ""
 
-#: python/pydaw.py:1043 python/pydaw.py:3560
+#: python/pydaw.py:1046 python/pydaw.py:3420
 msgid "No items selected"
 msgstr ""
 
-#: python/pydaw.py:1052 python/pydaw.py:5536
+#: python/pydaw.py:1055 python/pydaw.py:5401
 msgid "Transpose item(s)"
 msgstr ""
 
-#: python/pydaw.py:1067 python/pydaw.py:5549
+#: python/pydaw.py:1070 python/pydaw.py:5414
 msgid "Semitones"
 msgstr ""
 
-#: python/pydaw.py:1071 python/pydaw.py:5553
+#: python/pydaw.py:1074 python/pydaw.py:5418
 msgid "Octaves"
 msgstr ""
 
-#: python/pydaw.py:1073 python/pydaw.py:5555
+#: python/pydaw.py:1076 python/pydaw.py:5420
 msgid "Duplicate notes?"
 msgstr ""
 
-#: python/pydaw.py:1074 python/pydaw.py:5556
+#: python/pydaw.py:1077 python/pydaw.py:5421
 msgid ""
 "Checking this box causes the transposed notes to be added rather than moving "
 "the existing notes."
 msgstr ""
 
-#: python/pydaw.py:1111
+#: python/pydaw.py:1114
 msgid ""
 "You cannot open multiple instances of the same item as a group.\n"
 "You should unlink all duplicate instances of {} into their own individual "
 "item names before editing as a group."
 msgstr ""
 
-#: python/pydaw.py:1137
+#: python/pydaw.py:1140
 msgid "Rename items"
 msgstr ""
 
-#: python/pydaw.py:1149
+#: python/pydaw.py:1152
 msgid "Rename selected items..."
 msgstr ""
 
-#: python/pydaw.py:1186
+#: python/pydaw.py:1189
 msgid "You must choose a different name than the original item"
 msgstr ""
 
-#: python/pydaw.py:1190
+#: python/pydaw.py:1193
 msgid "An item with this name already exists."
 msgstr ""
 
-#: python/pydaw.py:1200
+#: python/pydaw.py:1203
 msgid "Unlink item '{}' as '{}'"
 msgstr ""
 
-#: python/pydaw.py:1211
+#: python/pydaw.py:1214
 msgid "Copy and unlink item..."
 msgstr ""
 
-#: python/pydaw.py:1244
+#: python/pydaw.py:1247
 msgid "Auto-Unlink items"
 msgstr ""
 
-#: python/pydaw.py:1254
+#: python/pydaw.py:1257
 msgid ""
 "Paste to region end only works when you have exactly one item copied to the "
 "clipboard.\n"
 "You have {} items copied."
 msgstr ""
 
-#: python/pydaw.py:1320
+#: python/pydaw.py:1323
 msgid "Drop event out of bounds, ignoring..."
 msgstr ""
 
-#: python/pydaw.py:1352
+#: python/pydaw.py:1355
 msgid "Edit region"
 msgstr ""
 
-#: python/pydaw.py:1369
+#: python/pydaw.py:1372
 msgid "Bus1"
 msgstr ""
 
-#: python/pydaw.py:1369
+#: python/pydaw.py:1372
 msgid "Bus2"
 msgstr ""
 
-#: python/pydaw.py:1369
+#: python/pydaw.py:1372
 msgid "Bus3"
 msgstr ""
 
-#: python/pydaw.py:1369
+#: python/pydaw.py:1372
 msgid "Bus4"
 msgstr ""
 
-#: python/pydaw.py:1625
+#: python/pydaw.py:1628
 msgid ""
 "Double click to open editor dialog\n"
 "Click and drag selected to move.\n"
@@ -1574,231 +1568,216 @@ msgid ""
 "the original items.\n"
 msgstr ""
 
-#: python/pydaw.py:1632
+#: python/pydaw.py:1635
 msgid "Use this handle to resize the item by changing the start point."
 msgstr ""
 
-#: python/pydaw.py:1634
+#: python/pydaw.py:1637
 msgid "Use this handle to resize the item by changing the end point."
 msgstr ""
 
-#: python/pydaw.py:1636
+#: python/pydaw.py:1639
 msgid "Use this handle to change the fade in."
 msgstr ""
 
-#: python/pydaw.py:1637
+#: python/pydaw.py:1640
 msgid "Use this handle to change the fade out."
 msgstr ""
 
-#: python/pydaw.py:1638
+#: python/pydaw.py:1641
 msgid "Use this handle to resize the item by time-stretching it."
 msgstr ""
 
-#: python/pydaw.py:1788
+#: python/pydaw.py:1791
 msgid "Save a copy"
 msgstr ""
 
-#: python/pydaw.py:1790
+#: python/pydaw.py:1793
 msgid "Open parent folder in browser"
 msgstr ""
 
-#: python/pydaw.py:1804
+#: python/pydaw.py:1807
 msgid "Save audio item as .wav"
 msgstr ""
 
-#: python/pydaw.py:1826
+#: python/pydaw.py:1829
 msgid ""
 "The folder did not exist:\n"
 "\n"
 "{}"
 msgstr ""
 
-#: python/pydaw.py:1858 python/pydaw.py:2152 python/pydaw.py:2482
+#: python/pydaw.py:1861 python/pydaw.py:2155 python/pydaw.py:2485
 msgid "No more available audio item slots, max per region is {}"
 msgstr ""
 
-#: python/pydaw.py:1888
+#: python/pydaw.py:1891
 msgid "Split audio item"
 msgstr ""
 
-#: python/pydaw.py:2196 python/pydaw.py:3575
+#: python/pydaw.py:2199 python/pydaw.py:3435
 msgid "Update audio items"
 msgstr ""
 
-#: python/pydaw.py:2286
+#: python/pydaw.py:2289
 msgid "No text in the system clipboard"
 msgstr ""
 
-#: python/pydaw.py:2294
+#: python/pydaw.py:2297
 msgid "{} is not a valid file"
 msgstr ""
 
-#: python/pydaw.py:2436
+#: python/pydaw.py:2439
 msgid ""
 "The audio engine is not running, audio items cannot be added.\n"
 "If the audio engine crashed, you will need to restart PyDAW."
 msgstr ""
 
-#: python/pydaw.py:2497
+#: python/pydaw.py:2500
 msgid "Added audio items to region {}"
 msgstr ""
 
-#: python/pydaw.py:2514
+#: python/pydaw.py:2517
 msgid "Delete audio item(s)"
 msgstr ""
 
-#: python/pydaw.py:2537
+#: python/pydaw.py:2540
 msgid "No audio items selected, not glueing"
 msgstr ""
 
-#: python/pydaw.py:2556
+#: python/pydaw.py:2559
 msgid "Glued audio items"
 msgstr ""
 
-#: python/pydaw.py:2771 python/pydaw.py:4992
+#: python/pydaw.py:2745 python/pydaw.py:4857
 msgid "Edit"
 msgstr ""
 
-#: python/pydaw.py:2778
+#: python/pydaw.py:2753
 msgid "Per-Item FX"
 msgstr ""
 
-#: python/pydaw.py:2804
-msgid "Filter:"
-msgstr ""
-
-#: python/pydaw.py:2830 python/pydaw.py:4502 python/pydaw.py:8353
+#: python/pydaw.py:2785 python/pydaw.py:4367 python/pydaw.py:8311
 msgid "None"
 msgstr ""
 
-#: python/pydaw.py:2830
+#: python/pydaw.py:2785
 msgid "Bar"
 msgstr ""
 
-#: python/pydaw.py:2830
+#: python/pydaw.py:2785
 msgid "Beat"
 msgstr ""
 
-#: python/pydaw.py:2831 python/pydaw.py:4504
+#: python/pydaw.py:2786 python/pydaw.py:4369
 msgid "Snap:"
 msgstr ""
 
-#: python/pydaw.py:2839
+#: python/pydaw.py:2794
 msgid "Clone from region..."
 msgstr ""
 
-#: python/pydaw.py:2842
+#: python/pydaw.py:2797
 msgid "Copy selected"
 msgstr ""
 
-#: python/pydaw.py:2850
+#: python/pydaw.py:2805
 msgid "V-Zoom:"
 msgstr ""
 
-#: python/pydaw.py:2852 python/pydaw.py:5606
+#: python/pydaw.py:2807 python/pydaw.py:5471
 msgid "Small"
 msgstr ""
 
-#: python/pydaw.py:2852
+#: python/pydaw.py:2807
 msgid "Medium"
 msgstr ""
 
-#: python/pydaw.py:2852 python/pydaw.py:5606
+#: python/pydaw.py:2807 python/pydaw.py:5471
 msgid "Large"
 msgstr ""
 
-#: python/pydaw.py:2862
+#: python/pydaw.py:2817
 msgid "H-Zoom:"
 msgstr ""
 
-#: python/pydaw.py:2940
+#: python/pydaw.py:2889
 msgid "Nothing selected."
 msgstr ""
 
-#: python/pydaw.py:2947
+#: python/pydaw.py:2896
 msgid "Nothing copied to the clipboard."
 msgstr ""
 
-#: python/pydaw.py:2964
+#: python/pydaw.py:2913
 msgid "Paste audio items"
 msgstr ""
 
-#: python/pydaw.py:2980
+#: python/pydaw.py:2929
 msgid "Clone audio from region..."
 msgstr ""
 
-#: python/pydaw.py:2984
+#: python/pydaw.py:2933
 msgid "Clone from:"
 msgstr ""
 
-#: python/pydaw.py:3024
-msgid ""
-"This bookmark no longer exists.  You may have deleted it in another window."
-msgstr ""
-
-#: python/pydaw.py:3074
-msgid ""
-"Not adding '{}' because it contains bad chars, you must rename this file "
-"path without:"
-msgstr ""
-
-#: python/pydaw.py:3168
+#: python/pydaw.py:3028
 msgid "Time Stretching:"
 msgstr ""
 
-#: python/pydaw.py:3174
+#: python/pydaw.py:3034
 msgid "Mode:"
 msgstr ""
 
-#: python/pydaw.py:3181
+#: python/pydaw.py:3041
 msgid "Pitch:"
 msgstr ""
 
-#: python/pydaw.py:3188 python/pydaw.py:3214 python/pydaw.py:7139
+#: python/pydaw.py:3048 python/pydaw.py:3074 python/pydaw.py:7006
 msgid "End:"
 msgstr ""
 
-#: python/pydaw.py:3197
+#: python/pydaw.py:3057
 msgid "Time:"
 msgstr ""
 
-#: python/pydaw.py:3207
+#: python/pydaw.py:3067
 msgid "Crispness"
 msgstr ""
 
-#: python/pydaw.py:3209
+#: python/pydaw.py:3069
 msgid "0 (smeared)"
 msgstr ""
 
-#: python/pydaw.py:3209
+#: python/pydaw.py:3069
 msgid "1 (piano)"
 msgstr ""
 
-#: python/pydaw.py:3210
+#: python/pydaw.py:3070
 msgid "6 (sharp, drums)"
 msgstr ""
 
-#: python/pydaw.py:3235
+#: python/pydaw.py:3095
 msgid "Output:"
 msgstr ""
 
-#: python/pydaw.py:3250
+#: python/pydaw.py:3110
 msgid "Reverse"
 msgstr ""
 
-#: python/pydaw.py:3258
+#: python/pydaw.py:3118
 msgid "Fade-in:"
 msgstr ""
 
-#: python/pydaw.py:3268
+#: python/pydaw.py:3128
 msgid "Fade-out:"
 msgstr ""
 
-#: python/pydaw.py:3278
+#: python/pydaw.py:3138
 msgid "Save Changes"
 msgstr ""
 
-#: python/pydaw.py:3287
+#: python/pydaw.py:3147
 msgid ""
 "This control is only valid for the SBSMS and {} modes,\n"
 "the start/end values are for the full sample length, not the edited start/"
@@ -1807,19 +1786,19 @@ msgid ""
 "handle to disappear on the audio item."
 msgstr ""
 
-#: python/pydaw.py:3293 python/pydaw.py:8354
+#: python/pydaw.py:3153 python/pydaw.py:8312
 msgid "Time(affecting pitch)"
 msgstr ""
 
-#: python/pydaw.py:3294 python/pydaw.py:8353
+#: python/pydaw.py:3154 python/pydaw.py:8311
 msgid "Pitch(affecting time)"
 msgstr ""
 
-#: python/pydaw.py:3295
+#: python/pydaw.py:3155
 msgid "Changes are not saved until you push this button"
 msgstr ""
 
-#: python/pydaw.py:3296
+#: python/pydaw.py:3156
 msgid ""
 "To edit the properties of one or more audio item(s),\n"
 "click or marquee select items, then change their properties and click 'Save "
@@ -1829,11 +1808,11 @@ msgid ""
 "Click the 'tooltips' checkbox in the transport to disable these tooltips"
 msgstr ""
 
-#: python/pydaw.py:3301
+#: python/pydaw.py:3161
 msgid "Affects the sharpness of transients, only for modes using Rubberband"
 msgstr ""
 
-#: python/pydaw.py:3303
+#: python/pydaw.py:3163
 msgid ""
 "Modes:\n"
 "\n"
@@ -1850,7 +1829,7 @@ msgid ""
 "atmospheric sound"
 msgstr ""
 
-#: python/pydaw.py:3317
+#: python/pydaw.py:3177
 msgid ""
 "Use this combobox to select the output audio track on the 'Audio Tracks' "
 "tab\n"
@@ -1861,7 +1840,7 @@ msgid ""
 "processed on a single core"
 msgstr ""
 
-#: python/pydaw.py:3324
+#: python/pydaw.py:3184
 msgid ""
 "Use this to set the sample volume. If you need to automate volume changes, "
 "either\n"
@@ -1869,92 +1848,92 @@ msgid ""
 "specified in the Output: combobox."
 msgstr ""
 
-#: python/pydaw.py:3328
+#: python/pydaw.py:3188
 msgid "Checking this causes the sample to play backwards"
 msgstr ""
 
-#: python/pydaw.py:3330
+#: python/pydaw.py:3190
 msgid "Sets the initial volume in dB when fading in."
 msgstr ""
 
-#: python/pydaw.py:3331
+#: python/pydaw.py:3191
 msgid "Sets the end volume in dB when fading out."
 msgstr ""
 
-#: python/pydaw.py:3482
+#: python/pydaw.py:3342
 msgid "Cannot edit audio items during playback"
 msgstr ""
 
-#: python/pydaw.py:3596
+#: python/pydaw.py:3456
 msgid "Error drawing item for {}, could not get sample graph object"
 msgstr ""
 
-#: python/pydaw.py:3602
+#: python/pydaw.py:3462
 msgid "Exception while loading {}"
 msgstr ""
 
-#: python/pydaw.py:3606
+#: python/pydaw.py:3466
 msgid ""
 "Unknown error loading sample f_path {}, \n"
 "\n"
 "{}"
 msgstr ""
 
-#: python/pydaw.py:3609
+#: python/pydaw.py:3469
 msgid "Error loading '{}', file does not exist."
 msgstr ""
 
-#: python/pydaw.py:3632
+#: python/pydaw.py:3492
 msgid "Set audio track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:3642
+#: python/pydaw.py:3502
 msgid "Set audio track {} soloed to {}"
 msgstr ""
 
-#: python/pydaw.py:3652
+#: python/pydaw.py:3512
 msgid "Set audio track {} muted to {}"
 msgstr ""
 
-#: python/pydaw.py:3668
+#: python/pydaw.py:3528
 msgid "Set audio track {} name to {}"
 msgstr ""
 
-#: python/pydaw.py:3671 python/pydaw.py:3675
+#: python/pydaw.py:3531 python/pydaw.py:3535
 msgid "Audio Track: {}"
 msgstr ""
 
-#: python/pydaw.py:3683
+#: python/pydaw.py:3543
 msgid "Set audio track {} bus to {}"
 msgstr ""
 
-#: python/pydaw.py:3692 python/pydaw.py:6337
+#: python/pydaw.py:3552 python/pydaw.py:6202
 msgid "track"
 msgstr ""
 
-#: python/pydaw.py:3736 python/pydaw.py:6398
+#: python/pydaw.py:3596 python/pydaw.py:6263
 msgid "Bus:"
 msgstr ""
 
-#: python/pydaw.py:4472 python/pydaw.py:5378 python/pydaw.py:5382
-#: python/pydaw.py:5658
+#: python/pydaw.py:4337 python/pydaw.py:5243 python/pydaw.py:5247
+#: python/pydaw.py:5523
 msgid "Quantize"
 msgstr ""
 
-#: python/pydaw.py:4484 python/pydaw.py:5002
+#: python/pydaw.py:4349 python/pydaw.py:4867
 msgid "Select All"
 msgstr ""
 
-#: python/pydaw.py:4490
+#: python/pydaw.py:4355
 msgid "Clear All"
 msgstr ""
 
-#: python/pydaw.py:4693
+#: python/pydaw.py:4558
 msgid ""
 "Select the plugin/control you wish to automate using the comboboxes below\n"
 msgstr ""
 
-#: python/pydaw.py:4698
+#: python/pydaw.py:4563
 msgid ""
 "{}Draw points by double-clicking, then click the 'smooth' button to draw "
 "extra points between them.\n"
@@ -1963,85 +1942,85 @@ msgid ""
 "press the 'delete' button to delete selected points."
 msgstr ""
 
-#: python/pydaw.py:4969 python/pydaw.py:5811
+#: python/pydaw.py:4834 python/pydaw.py:5676
 msgid "Plugin"
 msgstr ""
 
-#: python/pydaw.py:4974 python/pydaw.py:5811
+#: python/pydaw.py:4839 python/pydaw.py:5676
 msgid "Control"
 msgstr ""
 
-#: python/pydaw.py:4982
+#: python/pydaw.py:4847
 msgid "In Use:"
 msgstr ""
 
-#: python/pydaw.py:4986
+#: python/pydaw.py:4851
 msgid "Smooth"
 msgstr ""
 
-#: python/pydaw.py:4987
+#: python/pydaw.py:4852
 msgid ""
 "By default, the control points are steppy, this button draws extra points "
 "between the exisiting points."
 msgstr ""
 
-#: python/pydaw.py:4995
+#: python/pydaw.py:4860
 msgid "Add Point"
 msgstr ""
 
-#: python/pydaw.py:4998
+#: python/pydaw.py:4863
 msgid "Paste Point"
 msgstr ""
 
-#: python/pydaw.py:5020
+#: python/pydaw.py:4885
 msgid ""
 "Nothing copied to the clipboard.\n"
 "Right-click->'Copy Automation' on any knob on any plugin."
 msgstr ""
 
-#: python/pydaw.py:5043 python/pydaw.py:5049 python/pydaw.py:5114
+#: python/pydaw.py:4908 python/pydaw.py:4914 python/pydaw.py:4979
 msgid "Add automation point"
 msgstr ""
 
-#: python/pydaw.py:5053 python/pydaw.py:5118
+#: python/pydaw.py:4918 python/pydaw.py:4983
 msgid "Position (bars)"
 msgstr ""
 
-#: python/pydaw.py:5058 python/pydaw.py:5123
+#: python/pydaw.py:4923 python/pydaw.py:4988
 msgid "Position (beats)"
 msgstr ""
 
-#: python/pydaw.py:5065 python/pydaw.py:5812 python/pydaw.py:5813
-#: python/pydaw.py:6187
+#: python/pydaw.py:4930 python/pydaw.py:5677 python/pydaw.py:5678
+#: python/pydaw.py:6052
 msgid "Value"
 msgstr ""
 
-#: python/pydaw.py:5073 python/pydaw.py:5149
+#: python/pydaw.py:4938 python/pydaw.py:5014
 msgid "Add"
 msgstr ""
 
-#: python/pydaw.py:5079 python/pydaw.py:5155 python/pydaw.py:6077
-#: python/pydaw.py:6170
+#: python/pydaw.py:4944 python/pydaw.py:5020 python/pydaw.py:5942
+#: python/pydaw.py:6035
 msgid "Close"
 msgstr ""
 
-#: python/pydaw.py:5105
+#: python/pydaw.py:4970
 msgid "Add pitchbend automation point"
 msgstr ""
 
-#: python/pydaw.py:5130
+#: python/pydaw.py:4995
 msgid "Instrument Pitchbend"
 msgstr ""
 
-#: python/pydaw.py:5133
+#: python/pydaw.py:4998
 msgid "Set this to the same setting that your instrument plugin uses"
 msgstr ""
 
-#: python/pydaw.py:5139
+#: python/pydaw.py:5004
 msgid "Effective Pitchbend"
 msgstr ""
 
-#: python/pydaw.py:5145
+#: python/pydaw.py:5010
 msgid ""
 "Pitchbend values are in semitones.\n"
 "\n"
@@ -2049,451 +2028,452 @@ msgid ""
 "or double-click on the editor to add points."
 msgstr ""
 
-#: python/pydaw.py:5262
+#: python/pydaw.py:5127
 msgid "Edit item(s)"
 msgstr ""
 
-#: python/pydaw.py:5276
+#: python/pydaw.py:5141
 msgid "Clear notes"
 msgstr ""
 
-#: python/pydaw.py:5287
+#: python/pydaw.py:5152
 msgid "Clear CCs"
 msgstr ""
 
-#: python/pydaw.py:5298
+#: python/pydaw.py:5163
 msgid "Clear pitchbends"
 msgstr ""
 
-#: python/pydaw.py:5353 python/pydaw.py:5411
+#: python/pydaw.py:5218 python/pydaw.py:5276
 msgid ""
 "You have editing in multiselect mode, but you have not selected anything.  "
 "All items will be processed"
 msgstr ""
 
-#: python/pydaw.py:5371
+#: python/pydaw.py:5236
 msgid "Quantize item(s)"
 msgstr ""
 
-#: python/pydaw.py:5386
+#: python/pydaw.py:5251
 msgid "CCs and pitchbend follow notes?"
 msgstr ""
 
-#: python/pydaw.py:5394
+#: python/pydaw.py:5259
 msgid "Only the selected notes will be quantized."
 msgstr ""
 
-#: python/pydaw.py:5428
+#: python/pydaw.py:5293
 msgid "Cannot have end value less than 1 if not using 'Add Values'"
 msgstr ""
 
-#: python/pydaw.py:5450
+#: python/pydaw.py:5315
 msgid "Velocity mod item(s)"
 msgstr ""
 
-#: python/pydaw.py:5460
+#: python/pydaw.py:5325
 msgid "Velocity Mod"
 msgstr ""
 
-#: python/pydaw.py:5469
+#: python/pydaw.py:5334
 msgid "Draw line?"
 msgstr ""
 
-#: python/pydaw.py:5472
+#: python/pydaw.py:5337
 msgid "End Amount"
 msgstr ""
 
-#: python/pydaw.py:5479
+#: python/pydaw.py:5344
 msgid "Start Beat"
 msgstr ""
 
-#: python/pydaw.py:5491
+#: python/pydaw.py:5356
 msgid "Add Values?"
 msgstr ""
 
-#: python/pydaw.py:5492
+#: python/pydaw.py:5357
 msgid ""
 "Check this to add Amount to the existing value, or leave\n"
 "unchecked to set the value to Amount."
 msgstr ""
 
-#: python/pydaw.py:5516
+#: python/pydaw.py:5381
 msgid ""
 "You are editing in multiselect mode, but you have not selected anything.  "
 "All items will be processed"
 msgstr ""
 
-#: python/pydaw.py:5569
+#: python/pydaw.py:5434
 msgid ""
 "You must open an item first by double-clicking on one in the region editor "
 "on the 'Song/Region' tab."
 msgstr ""
 
-#: python/pydaw.py:5613
+#: python/pydaw.py:5478
 msgid "Piano Roll"
 msgstr ""
 
-#: python/pydaw.py:5616 python/pydaw.py:5706
+#: python/pydaw.py:5481 python/pydaw.py:5571
 msgid "CCs"
 msgstr ""
 
-#: python/pydaw.py:5627 python/pydaw.py:6082
+#: python/pydaw.py:5492 python/pydaw.py:5947
 msgid "Notes"
 msgstr ""
 
-#: python/pydaw.py:5631
+#: python/pydaw.py:5496
 msgid "Editing Item:"
 msgstr ""
 
-#: python/pydaw.py:5644
+#: python/pydaw.py:5509
 msgid "Add/Edit"
 msgstr ""
 
-#: python/pydaw.py:5646
+#: python/pydaw.py:5511
 msgid "Multiselect"
 msgstr ""
 
-#: python/pydaw.py:5783
+#: python/pydaw.py:5648
 msgid "List Editors"
 msgstr ""
 
-#: python/pydaw.py:5809 python/pydaw.py:5811 python/pydaw.py:5813
+#: python/pydaw.py:5674 python/pydaw.py:5676 python/pydaw.py:5678
 msgid "Start"
 msgstr ""
 
-#: python/pydaw.py:5809
+#: python/pydaw.py:5674
 msgid "Length"
 msgstr ""
 
-#: python/pydaw.py:5809 python/pydaw.py:6096
+#: python/pydaw.py:5674 python/pydaw.py:5961
 msgid "Note"
 msgstr ""
 
-#: python/pydaw.py:5810
+#: python/pydaw.py:5675
 msgid "Note#"
 msgstr ""
 
-#: python/pydaw.py:5886
+#: python/pydaw.py:5751
 msgid "Delete notes from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5894
+#: python/pydaw.py:5759
 msgid "Paste notes into item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5901
+#: python/pydaw.py:5766
 msgid "Cut notes from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5913
+#: python/pydaw.py:5778
 msgid "Delete CCs from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5921
+#: python/pydaw.py:5786
 msgid "Paste CCs into item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5928
+#: python/pydaw.py:5793
 msgid "Cut CCs from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5940
+#: python/pydaw.py:5805
 msgid "Delete pitchbends from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5948
+#: python/pydaw.py:5813
 msgid "Paste pitchbends into item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5955
+#: python/pydaw.py:5820
 msgid "Cut pitchbends from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5975
+#: python/pydaw.py:5840
 msgid "Delete note from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:5990
+#: python/pydaw.py:5855
 msgid "Delete pitchbend from item '{}'"
 msgstr ""
 
-#: python/pydaw.py:6051
+#: python/pydaw.py:5916
 msgid "Update notes for item(s)"
 msgstr ""
 
-#: python/pydaw.py:6088 python/pydaw.py:6181
+#: python/pydaw.py:5953 python/pydaw.py:6046
 msgid "Quantize(beats)"
 msgstr ""
 
-#: python/pydaw.py:6102
+#: python/pydaw.py:5967
 msgid "Start(beats)"
 msgstr ""
 
-#: python/pydaw.py:6107
+#: python/pydaw.py:5972
 msgid "Length(beats)"
 msgstr ""
 
-#: python/pydaw.py:6119 python/pydaw.py:6205
+#: python/pydaw.py:5984 python/pydaw.py:6070
 msgid "Add another?"
 msgstr ""
 
-#: python/pydaw.py:6148
+#: python/pydaw.py:6013
 msgid "Duplicate pitchbend event"
 msgstr ""
 
-#: python/pydaw.py:6156
+#: python/pydaw.py:6021
 msgid "Update pitchbends for item '{}'"
 msgstr ""
 
-#: python/pydaw.py:6189
+#: python/pydaw.py:6054
 msgid "Position(beats)"
 msgstr ""
 
-#: python/pydaw.py:6194
+#: python/pydaw.py:6059
 msgid "Draw line"
 msgstr ""
 
-#: python/pydaw.py:6196
+#: python/pydaw.py:6061
 msgid "End(beats)"
 msgstr ""
 
-#: python/pydaw.py:6200
+#: python/pydaw.py:6065
 msgid "End Value"
 msgstr ""
 
-#: python/pydaw.py:6248
+#: python/pydaw.py:6113
 msgid "Set volume for MIDI track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6255
+#: python/pydaw.py:6120
 msgid "Set volume for bus track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6264
+#: python/pydaw.py:6129
 msgid "Set solo for MIDI track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6271
+#: python/pydaw.py:6136
 msgid "Set mute for MIDI track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6288
+#: python/pydaw.py:6153
 msgid "Set name for MIDI track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6291 python/pydaw.py:6293 python/pydaw.py:6311
-#: python/pydaw.py:6318
+#: python/pydaw.py:6156 python/pydaw.py:6158 python/pydaw.py:6176
+#: python/pydaw.py:6183
 msgid "MIDI Track: {}"
 msgstr ""
 
-#: python/pydaw.py:6303
+#: python/pydaw.py:6168
 msgid "Set instrument for MIDI track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6321
+#: python/pydaw.py:6186
 msgid "Bus Track: {}"
 msgstr ""
 
-#: python/pydaw.py:6328
+#: python/pydaw.py:6193
 msgid "Set bus for MIDI track {} to {}"
 msgstr ""
 
-#: python/pydaw.py:6576
+#: python/pydaw.py:6442
 msgid "Recording"
 msgstr ""
 
-#: python/pydaw.py:6595
+#: python/pydaw.py:6462
 msgid "You must select a name for the item"
 msgstr ""
 
-#: python/pydaw.py:6608
+#: python/pydaw.py:6475
 msgid "Save recorded MIDI items"
 msgstr ""
 
-#: python/pydaw.py:6609 python/pydaw.py:7334
+#: python/pydaw.py:6476 python/pydaw.py:7196
 msgid "Item Name:"
 msgstr ""
 
-#: python/pydaw.py:6614
+#: python/pydaw.py:6481
 msgid "Save"
 msgstr ""
 
-#: python/pydaw.py:6625
+#: python/pydaw.py:6492
 msgid "Cannot use overdub mode with loop mode to record"
 msgstr ""
 
-#: python/pydaw.py:6653
+#: python/pydaw.py:6522
 msgid "Set project tempo to {}"
 msgstr ""
 
-#: python/pydaw.py:6737
+#: python/pydaw.py:6606
 msgid "BPM:"
 msgstr ""
 
-#: python/pydaw.py:6750 python/pydaw.py:7133 python/pydaw.py:7147
+#: python/pydaw.py:6619 python/pydaw.py:7000 python/pydaw.py:7014
 msgid "Bar:"
 msgstr ""
 
-#: python/pydaw.py:6760
+#: python/pydaw.py:6629
 msgid "Loop Mode:"
 msgstr ""
 
-#: python/pydaw.py:6762
+#: python/pydaw.py:6631
 msgid "Region"
 msgstr ""
 
-#: python/pydaw.py:6766
+#: python/pydaw.py:6635
 msgid "Follow"
 msgstr ""
 
-#: python/pydaw.py:6770
+#: python/pydaw.py:6639
 msgid "Overdub"
 msgstr ""
 
-#: python/pydaw.py:6775
+#: python/pydaw.py:6644
 msgid "Panic"
 msgstr ""
 
-#: python/pydaw.py:6779
+#: python/pydaw.py:6648
 msgid "Tooltips"
 msgstr ""
 
-#: python/pydaw.py:6790
+#: python/pydaw.py:6659
 msgid ""
 "Check this box to show really annoying (but useful) tooltips for everything"
 msgstr ""
 
-#: python/pydaw.py:6793
+#: python/pydaw.py:6662
 msgid ""
 "Panic button:   Sends a note-off signal on every note to every instrument"
 msgstr ""
 
-#: python/pydaw.py:6795
+#: python/pydaw.py:6664
 msgid ""
 "Checking this box causes recording to unlink existing items and append new "
 "events to the existing events"
 msgstr ""
 
-#: python/pydaw.py:6798
+#: python/pydaw.py:6667
 msgid "Checking this box causes the region editor to follow playback"
 msgstr ""
 
-#: python/pydaw.py:6931
+#: python/pydaw.py:6800
 msgid ""
 "You must save the project file to an empty directory, use the 'Create "
 "Folder' button to create a directory."
 msgstr ""
 
-#: python/pydaw.py:6943
+#: python/pydaw.py:6812
 msgid "New Project"
 msgstr ""
 
-#: python/pydaw.py:6961
+#: python/pydaw.py:6830
 msgid "Open Project"
 msgstr ""
 
-#: python/pydaw.py:6978
+#: python/pydaw.py:6847
 msgid "Save project as..."
 msgstr ""
 
-#: python/pydaw.py:7011
+#: python/pydaw.py:6880
 msgid "Finished in {}"
 msgstr ""
 
-#: python/pydaw.py:7019
+#: python/pydaw.py:6888
 msgid "Rendering to .wav, please wait"
 msgstr ""
 
-#: python/pydaw.py:7045
+#: python/pydaw.py:6912 python/pydaw.py:8038
 msgid "Name cannot be empty"
 msgstr ""
 
-#: python/pydaw.py:7051
+#: python/pydaw.py:6918
 msgid "End point is before start point."
 msgstr ""
 
-#: python/pydaw.py:7082 python/pydaw.py:7426 python/pydaw.py:7445
+#: python/pydaw.py:6949 python/pydaw.py:7285 python/pydaw.py:7304
+#: python/pydaw.py:8061
 msgid "Select a file name to save to..."
 msgstr ""
 
-#: python/pydaw.py:7112
+#: python/pydaw.py:6979 python/pydaw.py:8072
 msgid "Offline Render"
 msgstr ""
 
-#: python/pydaw.py:7119 python/pydaw.py:7326 python/pydaw.py:7868
-#: python/pydaw.py:7906
+#: python/pydaw.py:6986 python/pydaw.py:7188 python/pydaw.py:7730
+#: python/pydaw.py:7768 python/pydaw.py:8079
 msgid "File Name:"
 msgstr ""
 
-#: python/pydaw.py:7121 python/pydaw.py:7328 python/pydaw.py:7475
-#: python/pydaw.py:7484
+#: python/pydaw.py:6988 python/pydaw.py:7190 python/pydaw.py:7334
+#: python/pydaw.py:7343 python/pydaw.py:8081
 msgid "Select"
 msgstr ""
 
-#: python/pydaw.py:7125
+#: python/pydaw.py:6992
 msgid "Start:"
 msgstr ""
 
-#: python/pydaw.py:7153
+#: python/pydaw.py:7020 python/pydaw.py:8086
 msgid ""
 "File is exported to 32 bit .wav at the sample rate your audio interface is "
 "running at.\n"
 "You can convert the format using other programs such as Audacity"
 msgstr ""
 
-#: python/pydaw.py:7157
+#: python/pydaw.py:7024 python/pydaw.py:8090
 msgid ""
 "Copy export path to clipboard? (useful for right-click pasting back into the "
 "audio sequencer)"
 msgstr ""
 
-#: python/pydaw.py:7193
+#: python/pydaw.py:7060
 msgid "Undo history"
 msgstr ""
 
-#: python/pydaw.py:7208
+#: python/pydaw.py:7075
 msgid "Verify Project History Database"
 msgstr ""
 
-#: python/pydaw.py:7228
+#: python/pydaw.py:7091
 msgid "Open a theme file"
 msgstr ""
 
-#: python/pydaw.py:7237
+#: python/pydaw.py:7100
 msgid "Theme Applied..."
 msgstr ""
 
-#: python/pydaw.py:7238
+#: python/pydaw.py:7101
 msgid "Please restart PyDAW to update the UI"
 msgstr ""
 
-#: python/pydaw.py:7246
+#: python/pydaw.py:7109
 msgid "Version Info"
 msgstr ""
 
-#: python/pydaw.py:7279 python/pydaw.py:7283
+#: python/pydaw.py:7140 python/pydaw.py:7144
 msgid "File name cannot be empty"
 msgstr ""
 
-#: python/pydaw.py:7288
+#: python/pydaw.py:7149
 msgid ""
 "No available slots for inserting a region, delete an existing region from "
 "the song editor first"
 msgstr ""
 
-#: python/pydaw.py:7291
+#: python/pydaw.py:7152
 msgid "Import MIDI file"
 msgstr ""
 
-#: python/pydaw.py:7303
+#: python/pydaw.py:7167
 msgid "Open MIDI File"
 msgstr ""
 
-#: python/pydaw.py:7319 python/pydaw.py:7578
+#: python/pydaw.py:7181 python/pydaw.py:7438
 msgid "Import MIDI File..."
 msgstr ""
 
-#: python/pydaw.py:7375
+#: python/pydaw.py:7237
 msgid ""
 "Please ensure that avconv(or ffmpeg) and lame are installed, can't open mp3 "
 "converter dialog.\n"
@@ -2505,179 +2485,183 @@ msgid ""
 "Can't find {}"
 msgstr ""
 
-#: python/pydaw.py:7394
+#: python/pydaw.py:7253
 msgid "File names cannot be empty"
 msgstr ""
 
-#: python/pydaw.py:7411
+#: python/pydaw.py:7270
 msgid "Success"
 msgstr ""
 
-#: python/pydaw.py:7411
+#: python/pydaw.py:7270
 msgid "Created file"
 msgstr ""
 
-#: python/pydaw.py:7428
+#: python/pydaw.py:7287
 msgid "Audio Files {}"
 msgstr ""
 
-#: python/pydaw.py:7466
+#: python/pydaw.py:7325
 msgid "Audio File Converter"
 msgstr ""
 
-#: python/pydaw.py:7473
+#: python/pydaw.py:7332
 msgid "Input File:"
 msgstr ""
 
-#: python/pydaw.py:7482
+#: python/pydaw.py:7341
 msgid "Output File:"
 msgstr ""
 
-#: python/pydaw.py:7506
+#: python/pydaw.py:7365
 msgid "Bitrate"
 msgstr ""
 
-#: python/pydaw.py:7559
+#: python/pydaw.py:7419
 msgid "&File"
 msgstr ""
 
-#: python/pydaw.py:7561
+#: python/pydaw.py:7421
 msgid "New"
 msgstr ""
 
-#: python/pydaw.py:7570
+#: python/pydaw.py:7430
 msgid "Save As...(projects are automatically saved, this creates a copy)"
 msgstr ""
 
-#: python/pydaw.py:7575
+#: python/pydaw.py:7435
 msgid "Offline Render..."
 msgstr ""
 
-#: python/pydaw.py:7582
+#: python/pydaw.py:7442
 msgid "Hardware Settings..."
 msgstr ""
 
-#: python/pydaw.py:7586
+#: python/pydaw.py:7446
 msgid "Quit"
 msgstr ""
 
-#: python/pydaw.py:7590
+#: python/pydaw.py:7450
 msgid "&Edit"
 msgstr ""
 
-#: python/pydaw.py:7592
+#: python/pydaw.py:7452
 msgid "Undo"
 msgstr ""
 
-#: python/pydaw.py:7596
+#: python/pydaw.py:7456
 msgid "Redo"
 msgstr ""
 
-#: python/pydaw.py:7602
+#: python/pydaw.py:7462
 msgid "Undo History..."
 msgstr ""
 
-#: python/pydaw.py:7605
+#: python/pydaw.py:7465
 msgid "Verify History DB..."
 msgstr ""
 
-#: python/pydaw.py:7608
+#: python/pydaw.py:7468
 msgid "&Appearance"
 msgstr ""
 
-#: python/pydaw.py:7611
+#: python/pydaw.py:7471
 msgid "Collapse transport and song editor"
 msgstr ""
 
-#: python/pydaw.py:7616
+#: python/pydaw.py:7476
 msgid "Restore transport and song editor"
 msgstr ""
 
-#: python/pydaw.py:7622
+#: python/pydaw.py:7482
 msgid "Open Theme..."
 msgstr ""
 
-#: python/pydaw.py:7625
+#: python/pydaw.py:7485
 msgid "&Tools"
 msgstr ""
 
-#: python/pydaw.py:7627
+#: python/pydaw.py:7487
 msgid "MP3 Converter..."
 msgstr ""
 
-#: python/pydaw.py:7630
+#: python/pydaw.py:7490
 msgid "Ogg Converter..."
 msgstr ""
 
-#: python/pydaw.py:7633
+#: python/pydaw.py:7493
 msgid "&Help"
 msgstr ""
 
-#: python/pydaw.py:7635
+#: python/pydaw.py:7495
 msgid "PyDAW Website..."
 msgstr ""
 
-#: python/pydaw.py:7638
+#: python/pydaw.py:7498
 msgid "Version Info..."
 msgstr ""
 
-#: python/pydaw.py:7659
+#: python/pydaw.py:7519
 msgid "Song/Region"
 msgstr ""
 
-#: python/pydaw.py:7665
+#: python/pydaw.py:7525
 msgid "Instruments"
 msgstr ""
 
-#: python/pydaw.py:7666
+#: python/pydaw.py:7526
 msgid "Busses"
 msgstr ""
 
-#: python/pydaw.py:7667
+#: python/pydaw.py:7527
 msgid "Audio Tracks"
 msgstr ""
 
-#: python/pydaw.py:7668
+#: python/pydaw.py:7528
 msgid "Audio Seq"
 msgstr ""
 
-#: python/pydaw.py:7670
+#: python/pydaw.py:7530
 msgid "MIDI Item"
 msgstr ""
 
-#: python/pydaw.py:7682
+#: python/pydaw.py:7542
 msgid "CC Maps"
 msgstr ""
 
-#: python/pydaw.py:7688
+#: python/pydaw.py:7543 python/pydaw.py:8112
+msgid "Wave Editor"
+msgstr ""
+
+#: python/pydaw.py:7548
 msgid "Project Notes"
 msgstr ""
 
-#: python/pydaw.py:7718
+#: python/pydaw.py:7578
 msgid "The audio engine died with error code {}, please try restarting PyDAW"
 msgstr ""
 
-#: python/pydaw.py:7768
+#: python/pydaw.py:7630
 msgid "Message"
 msgstr ""
 
-#: python/pydaw.py:7768
+#: python/pydaw.py:7630
 msgid "Are you sure you want to quit?"
 msgstr ""
 
-#: python/pydaw.py:7862
+#: python/pydaw.py:7724
 msgid "Save CC Map"
 msgstr ""
 
-#: python/pydaw.py:7900
+#: python/pydaw.py:7762
 msgid "New CC Map"
 msgstr ""
 
-#: python/pydaw.py:7965
+#: python/pydaw.py:7827
 msgid "Map CC to Control(s)"
 msgstr ""
 
-#: python/pydaw.py:7969
+#: python/pydaw.py:7831
 msgid ""
 "Move your MIDI controller to set the CC number,\n"
 "you must select a MIDI controller and record arm a track first.\n"
@@ -2686,43 +2670,31 @@ msgid ""
 "modify Modulex and all instrument controls will be ignored."
 msgstr ""
 
-#: python/pydaw.py:7979
+#: python/pydaw.py:7841
 msgid "Effects tracks only?"
 msgstr ""
 
-#: python/pydaw.py:8043
+#: python/pydaw.py:7905
 msgid "Controllers"
 msgstr ""
 
-#: python/pydaw.py:8052
+#: python/pydaw.py:7914
 msgid "New CC"
 msgstr ""
 
-#: python/pydaw.py:8060
+#: python/pydaw.py:7922
 msgid "New Map"
 msgstr ""
 
-#: python/pydaw.py:8063
+#: python/pydaw.py:7925
 msgid "Save As"
 msgstr ""
 
-#: python/pydaw.py:8122
+#: python/pydaw.py:7985
 msgid "Enabled?"
 msgstr ""
 
-#: python/pydaw.py:8125
-msgid "Return to start pos on stop?"
-msgstr ""
-
-#: python/pydaw.py:8128
-msgid "Follow transport time?"
-msgstr ""
-
-#: python/pydaw.py:8172
-msgid "Open .wav file for A/B"
-msgstr ""
-
-#: python/pydaw.py:8445
+#: python/pydaw.py:8403
 msgid ""
 "Detected that there are instances of the PyDAW audio engine already "
 "running.\n"
@@ -2735,17 +2707,17 @@ msgid ""
 "(es)"
 msgstr ""
 
-#: python/pydaw.py:8466
+#: python/pydaw.py:8424
 msgid ""
 "Not starting audio because of the audio engine setting, you can change this "
 "in File->HardwareSettings"
 msgstr ""
 
-#: python/pydaw.py:8473
+#: python/pydaw.py:8431
 msgid "Starting audio engine with {}"
 msgstr ""
 
-#: python/pydaw.py:8553
+#: python/pydaw.py:8511
 msgid ""
 "Error creating folder in {} , this is probably a permission issueif you "
 "didn't use FAT as the filesystem, settings will NOT persist between sessions "
