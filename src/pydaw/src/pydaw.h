@@ -2751,7 +2751,9 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
     }
 
 
-    if(a_pydaw_data->playback_mode > 0)
+    if(a_pydaw_data->playback_mode > 0 &&
+        (a_pydaw_data->ab_audio_item->sample_read_head->whole_number) <
+        (a_pydaw_data->ab_audio_item->sample_end_offset))
     {
         a_pydaw_data->wave_editor_cursor += sample_count;
 
@@ -5424,7 +5426,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     free(f_buffer1);
     free(f_output);
 
-    char f_tmp_finished[256];
+    char f_tmp_finished[1024];
 
     sprintf(f_tmp_finished, "%s.finished", a_file_out);
 
@@ -5441,6 +5443,92 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 
+void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
+{
+    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+    sleep(1);
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+
+    a_pydaw_data->is_offline_rendering = 1;
+    a_pydaw_data->input_buffers_active = 0;
+
+    long f_size = 0;
+    long f_block_size = (a_pydaw_data->sample_count);
+
+    float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2));
+
+    float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size);
+    float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size);
+
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY,
+            a_pydaw_data->current_region, a_pydaw_data->current_bar, 0);
+
+    printf("\nOpening SNDFILE\n");
+
+    SF_INFO f_sf_info;
+    f_sf_info.channels = 2;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
+
+    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+
+    printf("\nSuccessfully opened SNDFILE\n\n");
+
+    clock_t f_start = clock();
+
+    while((a_pydaw_data->ab_audio_item->sample_read_head->whole_number) <
+            (a_pydaw_data->ab_audio_item->sample_end_offset))
+    {
+        int f_i = 0;
+        f_size = 0;
+
+        while(f_i < f_block_size)
+        {
+            f_buffer0[f_i] = 0.0f;
+            f_buffer1[f_i] = 0.0f;
+            f_i++;
+        }
+
+        v_pydaw_run_wave_editor(a_pydaw_data, f_block_size,
+                f_buffer0, f_buffer1);
+
+        f_i = 0;
+        /*Interleave the samples...*/
+        while(f_i < f_block_size)
+        {
+            f_output[f_size] = f_buffer0[f_i];
+            f_size++;
+            f_output[f_size] = f_buffer1[f_i];
+            f_size++;
+            f_i++;
+        }
+
+        sf_writef_float(f_sndfile, f_output, f_block_size);
+    }
+
+    v_pydaw_print_benchmark("v_pydaw_offline_render ", f_start);
+    printf("f_size = %ld\n", f_size);
+
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF,
+            a_pydaw_data->current_region, a_pydaw_data->current_bar, 0);
+
+    sf_close(f_sndfile);
+
+    free(f_buffer0);
+    free(f_buffer1);
+    free(f_output);
+
+    char f_tmp_finished[1024];
+
+    sprintf(f_tmp_finished, "%s.finished", a_file_out);
+
+    v_pydaw_write_to_file(f_tmp_finished, "finished");
+
+    a_pydaw_data->is_offline_rendering = 0;
+
+    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
+}
 
 void v_pydaw_set_ab_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {

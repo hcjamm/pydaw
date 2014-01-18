@@ -149,6 +149,9 @@ class pydaw_osc:
         self.send_configure("or", "{}|{}|{}|{}|{}".format(a_start_region, a_start_bar,
                                                           a_end_region, a_end_bar, a_file_name))
 
+    def pydaw_we_export(self, a_file_name):
+        self.send_configure("wex", "{}".format(a_file_name))
+
     def pydaw_set_bus(self, a_track_num, a_bus_num, a_track_type):
         self.send_configure("bs", "{}|{}|{}".format(a_track_num, a_bus_num, a_track_type))
 

@@ -6408,6 +6408,7 @@ class transport_widget:
                                                      a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_wave_editor_widget.on_play()
+        self.menu_button.setEnabled(False)
         this_audio_items_viewer.set_playback_clipboard()
 
     def trigger_audio_playback(self):
@@ -6451,6 +6452,7 @@ class transport_widget:
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.get_bar_value())
         this_wave_editor_widget.on_stop()
+        self.menu_button.setEnabled(True)
 
     def show_save_items_dialog(self):
         def ok_handler():
@@ -6507,6 +6509,7 @@ class transport_widget:
                                                     a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_audio_items_viewer.set_playback_clipboard()
+        self.menu_button.setEnabled(False)
 
     def on_tempo_changed(self, a_tempo):
         self.transport.bpm = a_tempo
@@ -6904,8 +6907,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_offline_render(self):
-        if global_transport_is_playing:
-            return
         def ok_handler():
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, _("Error"), _("Name cannot be empty"))
@@ -7081,14 +7082,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_change_audio_settings(self):
-        if global_transport_is_playing:
-            return
         f_dialog = pydaw_device_dialog.pydaw_device_dialog(True)
         f_dialog.show_device_dialog(a_notify=True)
 
     def on_open_theme(self):
-        if global_transport_is_playing:
-            return
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(self,
                     _("Open a theme file"), "{}/lib/{}/themes".format(
@@ -7135,8 +7132,6 @@ class pydaw_main_window(QtGui.QMainWindow):
             this_item_editor.add_radiobutton.setChecked(True)
 
     def on_import_midi(self):
-        if global_transport_is_playing:
-            return
         self.midi_file = None
 
         def ok_handler():
@@ -7251,9 +7246,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.audio_converter_dialog("oggenc", "oggdec", "ogg")
 
     def audio_converter_dialog(self, a_enc, a_dec, a_label):
-        if global_transport_is_playing:
-            return
-
         def ok_handler():
             f_input_file = str(f_name.text())
             f_output_file = str(f_output_name.text())
@@ -7983,13 +7975,24 @@ class pydaw_wave_editor_widget:
         self.layout = QtGui.QVBoxLayout(self.widget)
         self.right_widget = QtGui.QWidget()
         self.vlayout = QtGui.QVBoxLayout(self.right_widget)
-        self.file_browser = pydaw_file_browser_widget()
+        self.file_browser = pydaw_widgets.pydaw_file_browser_widget()
         self.file_browser.load_button.pressed.connect(self.on_file_open)
         self.file_browser.preview_button.pressed.connect(self.on_preview)
         self.file_browser.list_file.setSelectionMode(QtGui.QListWidget.SingleSelection)
         self.layout.addWidget(self.file_browser.hsplitter)
         self.file_browser.hsplitter.addWidget(self.right_widget)
         self.file_hlayout = QtGui.QHBoxLayout()
+        self.enabled_checkbox = QtGui.QCheckBox(_("Enabled?"))
+        self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
+        self.file_hlayout.addWidget(self.enabled_checkbox)
+
+        self.menu = QtGui.QMenu(self.widget)
+        self.menu_button = QtGui.QPushButton("Menu")
+        self.menu_button.setMenu(self.menu)
+        self.file_hlayout.addWidget(self.menu_button)
+        self.export_action = self.menu.addAction("Export")
+        self.export_action.triggered.connect(self.on_export)
+
         self.fx_button = QtGui.QPushButton(_("Effects"))
         self.fx_button.pressed.connect(self.on_show_fx)
         self.file_hlayout.addWidget(self.fx_button)
@@ -7997,9 +8000,6 @@ class pydaw_wave_editor_widget:
         self.file_lineedit.setReadOnly(True)
         self.file_hlayout.addWidget(self.file_lineedit)
         self.vlayout.addLayout(self.file_hlayout)
-        self.enabled_checkbox = QtGui.QCheckBox(_("Enabled?"))
-        self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
-        self.file_hlayout.addWidget(self.enabled_checkbox)
         self.gridlayout = QtGui.QGridLayout()
         self.vlayout.addLayout(self.gridlayout)
         self.time_label = QtGui.QLabel("0:00")
@@ -8025,6 +8025,88 @@ class pydaw_wave_editor_widget:
         self.sixty_recip = 1.0 / 60.0
         self.playback_cursor = None
         self.time_label_enabled = False
+        self.file_browser.hsplitter.setSizes([420, 9999])
+        self.copy_to_clipboard_checked = True
+        self.last_offline_dir = global_home
+
+
+    def on_export(self):
+        if self.duration is None:
+            return
+        def ok_handler():
+            if str(f_name.text()) == "":
+                QtGui.QMessageBox.warning(f_window, _("Error"), _("Name cannot be empty"))
+                return
+
+            if f_copy_to_clipboard_checkbox.isChecked():
+                self.copy_to_clipboard_checked = True
+                f_clipboard = QtGui.QApplication.clipboard()
+                f_clipboard.setText(f_name.text())
+            else:
+                self.copy_to_clipboard_checked = False
+
+            this_pydaw_project.this_pydaw_osc.pydaw_we_export(f_name.text())
+            self.last_offline_dir = os.path.dirname(str(f_name.text()))
+            f_window.close()
+            this_main_window.show_offline_rendering_wait_window(f_name.text())
+
+        def cancel_handler():
+            f_window.close()
+
+        def file_name_select():
+            try:
+                if not os.path.isdir(self.last_offline_dir):
+                    self.last_offline_dir = global_home
+                f_file_name = str(QtGui.QFileDialog.getSaveFileName(
+                    f_window,  _("Select a file name to save to..."), self.last_offline_dir))
+                if not f_file_name is None and f_file_name != "":
+                    if not f_file_name.endswith(".wav"):
+                        f_file_name += ".wav"
+                    if not f_file_name is None and not str(f_file_name) == "":
+                        f_name.setText(f_file_name)
+                    self.last_offline_dir = os.path.dirname(f_file_name)
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle(_("Offline Render"))
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_name = QtGui.QLineEdit()
+        f_name.setReadOnly(True)
+        f_name.setMinimumWidth(360)
+        f_layout.addWidget(QtGui.QLabel(_("File Name:")), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+        f_select_file = QtGui.QPushButton(_("Select"))
+        f_select_file.pressed.connect(file_name_select)
+        f_layout.addWidget(f_select_file, 0, 2)
+
+        f_layout.addWidget(QtGui.QLabel(
+        _("File is exported to 32 bit .wav at the sample rate your audio "
+        "interface is running at.\nYou can convert "
+        "the format using other programs such as Audacity")), 3, 1)
+        f_copy_to_clipboard_checkbox = QtGui.QCheckBox(
+        _("Copy export path to clipboard? (useful for right-click pasting "
+        "back into the audio sequencer)"))
+        f_copy_to_clipboard_checkbox.setChecked(self.copy_to_clipboard_checked)
+        f_layout.addWidget(f_copy_to_clipboard_checkbox, 4, 1)
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
+                                              QtGui.QSizePolicy.Expanding,
+                                              QtGui.QSizePolicy.Minimum))
+        f_ok = QtGui.QPushButton(_("OK"))
+        f_ok.pressed.connect(ok_handler)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_cancel = QtGui.QPushButton(_("Cancel"))
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 2)
+        f_window.exec_()
+
+
+    def on_reload(self):
+        pass
 
     def on_show_fx(self):
         global_open_fx_ui(0, None, 4, _("Wave Editor"))
@@ -8091,6 +8173,7 @@ class pydaw_wave_editor_widget:
         self.file_browser.preview_button.setEnabled(False)
         self.sample_graph.setEnabled(False)
         self.vol_slider.setEnabled(False)
+        self.menu_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             self.time_label_enabled = True
             self.playback_cursor = self.sample_graph.scene.addLine(
@@ -8102,6 +8185,7 @@ class pydaw_wave_editor_widget:
         self.file_browser.preview_button.setEnabled(True)
         self.sample_graph.setEnabled(True)
         self.vol_slider.setEnabled(True)
+        self.menu_button.setEnabled(True)
         if self.playback_cursor is not None:
             self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None

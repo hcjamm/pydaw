@@ -98,6 +98,7 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_OPEN "abo"
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_SET "abs"
 #define PYDAW_CONFIGURE_KEY_WE_SET "we"
+#define PYDAW_CONFIGURE_KEY_WE_EXPORT "wex"
 #define PYDAW_CONFIGURE_KEY_PANIC "panic"
 #define PYDAW_CONFIGURE_KEY_CONV32F "conv32f"
 #define PYDAW_CONFIGURE_KEY_PITCH_ENV "penv"
@@ -1856,6 +1857,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_is_midi_learn = atoi(a_value);
         assert(f_is_midi_learn == 0 || f_is_midi_learn == 1);
         pydaw_data->midi_learn = f_is_midi_learn;
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_WE_EXPORT))
+    {
+        v_pydaw_we_export(a_pydaw_data, a_value);
     }
     else
     {
