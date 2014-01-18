@@ -23,7 +23,7 @@ os.system('find python -iname "*.py" | xargs xgettext '
 
 for f_file in os.listdir(f_path):
     if os.path.isdir(f_file):
-        f_locale_file = "{}/{}/LC_MESSAGES/pydaw4.po".format(f_path)
+        f_locale_file = "{}/{}/LC_MESSAGES/pydaw4.po".format(f_path, f_file)
         if os.path.isfile(f_locale_file):
             os.system('msgmerge --update "{}" "{}"'.format(f_locale_file, f_po_file))
 
