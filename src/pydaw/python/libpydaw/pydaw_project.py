@@ -689,12 +689,19 @@ class pydaw_project:
         if not f_result.is_valid(): # or not f_result.check_mtime():
             print("\n\nNot valid, or else mtime is newer than graph time, "
                   "deleting sample graph...\n")
-            os.system('rm "{}"'.format(f_pygraph_file))
             pydaw_remove_item_from_sg_cache(f_pygraph_file)
             self.create_sample_graph(self.get_wav_path_by_uid(a_uid), a_uid)
             return pydaw_sample_graph.create(f_pygraph_file, self.samples_folder)
         else:
             return f_result
+
+    def delete_sample_graph_by_name(self, a_path):
+        f_uid = self.get_wav_uid_by_name(a_path)
+        self.delete_sample_graph_by_uid(f_uid)
+
+    def delete_sample_graph_by_uid(self, a_uid):
+        f_pygraph_file = "{}/{}".format(self.samplegraph_folder, a_uid)
+        pydaw_remove_item_from_sg_cache(f_pygraph_file)
 
     def get_wav_uid_by_name(self, a_path, a_uid_dict=None, a_uid=None):
         """ Return the UID from the wav pool, or add to the pool if it does not exist """
@@ -2195,9 +2202,11 @@ def pydaw_clear_sample_graph_cache():
 
 def pydaw_remove_item_from_sg_cache(a_path):
     global global_sample_graph_cache
-    try:
+    if os.path.exists(a_path):
+        os.system("rm '{}'".format(a_path))
+    if a_path in global_sample_graph_cache:
         global_sample_graph_cache.pop(a_path)
-    except KeyError:
+    else:
         print("\n\npydaw_remove_item_from_sg_cache: {} not found.\n\n".format(a_path))
 
 global_sample_graph_cache = {}

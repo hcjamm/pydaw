@@ -8131,6 +8131,7 @@ class pydaw_wave_editor_widget:
         if not f_file:
             return
         f_file_str = f_file[0]
+        self.clear_sample_graph()
         self.file_lineedit.setText(f_file_str)
         f_graph = self.set_sample_graph(f_file_str)
         self.last_folder = os.path.dirname(f_file_str)
@@ -8193,6 +8194,7 @@ class pydaw_wave_editor_widget:
         self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
 
     def set_sample_graph(self, a_file_name):
+        this_pydaw_project.delete_sample_graph_by_name(a_file_name)
         f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
         self.sample_graph.draw_item(
             f_graph.create_sample_graph(True), 0.0, 1000.0, 0.0, 1000.0)
