@@ -1841,6 +1841,10 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
 
 pydaw_audio_item_scene_height = 1200.0
 pydaw_audio_item_scene_width = 6000.0
+pydaw_audio_item_max_marker_val = 1000.0
+pydaw_audio_item_val_to_px = pydaw_audio_item_scene_width / pydaw_audio_item_max_marker_val
+pydaw_audio_item_px_to_val = pydaw_audio_item_max_marker_val / pydaw_audio_item_scene_width
+
 pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width,
                                             pydaw_audio_item_scene_height)
 
@@ -1894,9 +1898,9 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
 
     def set_pos(self):
         if self.marker_type == 0:
-            f_new_val = self.value * 6.0
+            f_new_val = self.value * pydaw_audio_item_val_to_px
         elif self.marker_type == 1:
-            f_new_val = (self.value * 6.0) - self.audio_item_marker_height
+            f_new_val = (self.value * pydaw_audio_item_val_to_px) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
@@ -1910,12 +1914,12 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
-            f_new_val = self.pos_x * 0.1666666
+            f_new_val = self.pos_x * pydaw_audio_item_px_to_val
             if self.fade_marker is not None and self.fade_marker.pos().x() < self.pos_x:
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
         elif self.marker_type == 1:
-            f_new_val = (self.pos_x + self.audio_item_marker_height) * 0.1666666
+            f_new_val = (self.pos_x + self.audio_item_marker_height) * pydaw_audio_item_px_to_val
             if self.fade_marker is not None and self.fade_marker.pos().x() > self.pos_x:
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
@@ -2007,9 +2011,9 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
 
     def set_pos(self):
         if self.marker_type == 0:
-            f_new_val = self.value * 6.0
+            f_new_val = self.value * pydaw_audio_item_val_to_px
         elif self.marker_type == 1:
-            f_new_val = (self.value * 6.0) - self.audio_item_marker_height
+            f_new_val = (self.value * pydaw_audio_item_val_to_px) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
@@ -2027,12 +2031,12 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
             self.pos_x = pydaw_util.pydaw_clip_min(self.pos_x, self.other.scenePos().x())
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
-            f_new_val = self.pos_x * .1666666
+            f_new_val = self.pos_x * pydaw_audio_item_px_to_val
             if self.pos_x < self.start_end_marker.scenePos().x():
                 self.start_end_marker.value = f_new_val
                 self.start_end_marker.set_pos()
         elif self.marker_type == 1:
-            f_new_val = (self.pos_x + self.audio_item_marker_height) * .1666666
+            f_new_val = (self.pos_x + self.audio_item_marker_height) * pydaw_audio_item_px_to_val
             if self.pos_x > self.start_end_marker.scenePos().x():
                 self.start_end_marker.value = f_new_val
                 self.start_end_marker.set_pos()
