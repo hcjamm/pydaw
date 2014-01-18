@@ -580,10 +580,37 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr,
     f_result->paif_automation_uid = atoi(f_paif_uid_char);
     free(f_paif_uid_char);
 
-    assert(f_result->sample_start_offset >= PYDAW_AUDIO_ITEM_PADDING_DIV2);
-    assert(f_result->sample_end_offset >= PYDAW_AUDIO_ITEM_PADDING_DIV2);
-    assert(f_result->sample_start_offset <= f_result->wav_pool_item->length);
-    assert(f_result->sample_end_offset <= f_result->wav_pool_item->length);
+    if(f_result->sample_start_offset < PYDAW_AUDIO_ITEM_PADDING_DIV2)
+    {
+        printf("f_result->sample_start_offset <= PYDAW_AUDIO_ITEM_PADDING_DIV2"
+                " %i %i\n", f_result->sample_start_offset,
+                PYDAW_AUDIO_ITEM_PADDING_DIV2);
+        f_result->sample_start_offset = PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    }
+
+    if(f_result->sample_end_offset < PYDAW_AUDIO_ITEM_PADDING_DIV2)
+    {
+        printf("f_result->sample_end_offset <= PYDAW_AUDIO_ITEM_PADDING_DIV2"
+                " %i %i\n", f_result->sample_end_offset,
+                PYDAW_AUDIO_ITEM_PADDING_DIV2);
+        f_result->sample_end_offset = PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    }
+
+    if(f_result->sample_start_offset > f_result->wav_pool_item->length)
+    {
+        printf("f_result->sample_start_offset >= "
+                "f_result->wav_pool_item->length %i %i\n",
+                f_result->sample_start_offset, f_result->wav_pool_item->length);
+        f_result->sample_start_offset = f_result->wav_pool_item->length;
+    }
+
+    if(f_result->sample_end_offset > f_result->wav_pool_item->length)
+    {
+        printf("f_result->sample_end_offset >= f_result->wav_pool_item->length"
+                " %i %i\n", f_result->sample_end_offset,
+                f_result->wav_pool_item->length);
+        f_result->sample_end_offset = f_result->wav_pool_item->length;
+    }
 
     if(f_result->is_reversed)
     {

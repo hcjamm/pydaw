@@ -97,7 +97,6 @@ GNU General Public License for more details.
 
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_OPEN "abo"
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_SET "abs"
-#define PYDAW_CONFIGURE_KEY_LOAD_AB_POS "abp"
 #define PYDAW_CONFIGURE_KEY_WE_SET "we"
 #define PYDAW_CONFIGURE_KEY_PANIC "panic"
 #define PYDAW_CONFIGURE_KEY_CONV32F "conv32f"
@@ -1698,11 +1697,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOAD_AB_OPEN))
     {
         v_pydaw_set_ab_file(a_pydaw_data, a_value);
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOAD_AB_POS))
-    {
-        int f_pos = atoi(a_value);
-        v_pydaw_set_ab_start(a_pydaw_data, f_pos);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOAD_AB_SET))
     {

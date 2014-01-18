@@ -6394,6 +6394,7 @@ class transport_widget:
             self.set_region_value(self.start_region)
             self.set_bar_value(self.last_bar)
         this_song_editor.table_widget.setEnabled(False)
+        this_wave_editor_widget.widget.setEnabled(False)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
@@ -6422,6 +6423,7 @@ class transport_widget:
         global global_transport_is_playing
         global_transport_is_playing = False
         this_song_editor.table_widget.setEnabled(True)
+        this_wave_editor_widget.widget.setEnabled(True)
         this_region_settings.on_stop()
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
@@ -6491,6 +6493,7 @@ class transport_widget:
             self.stop_button.setChecked(True)
             return
         this_song_editor.table_widget.setEnabled(False)
+        this_wave_editor_widget.widget.setEnabled(False)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
