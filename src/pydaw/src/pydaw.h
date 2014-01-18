@@ -2653,6 +2653,8 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         else
         {
             v_adsr_run_db(a_pydaw_data->ab_audio_item->adsr);
+            v_pydaw_audio_item_set_fade_vol(a_pydaw_data->ab_audio_item);
+
             if(a_pydaw_data->ab_wav_item->channels == 1)
             {
                 float f_tmp_sample = f_cubic_interpolate_ptr_ifh(
@@ -2662,8 +2664,8 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
                 (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
                 (a_pydaw_data->cubic_interpolator)) *
                 (a_pydaw_data->ab_audio_item->adsr->output) *
-                (a_pydaw_data->ab_amp_lin); // *
-                //(a_pydaw_data->ab_audio_item->fade_vol);
+                (a_pydaw_data->ab_amp_lin) *
+                (a_pydaw_data->ab_audio_item->fade_vol);
 
                 output0[f_i] = f_tmp_sample;
                 output1[f_i] = f_tmp_sample;
@@ -2677,8 +2679,8 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
                 (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
                 (a_pydaw_data->cubic_interpolator)) *
                 (a_pydaw_data->ab_audio_item->adsr->output) *
-                (a_pydaw_data->ab_amp_lin); // *
-                //(a_pydaw_data->ab_audio_item->fade_vol);
+                (a_pydaw_data->ab_amp_lin) *
+                (a_pydaw_data->ab_audio_item->fade_vol);
 
                 output1[f_i] = f_cubic_interpolate_ptr_ifh(
                 (a_pydaw_data->ab_wav_item->samples[1]),
@@ -2687,8 +2689,8 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
                 (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
                 (a_pydaw_data->cubic_interpolator)) *
                 (a_pydaw_data->ab_audio_item->adsr->output) *
-                (a_pydaw_data->ab_amp_lin); // *
-                //(a_pydaw_data->ab_audio_item->fade_vol);
+                (a_pydaw_data->ab_amp_lin) *
+                (a_pydaw_data->ab_audio_item->fade_vol);
             }
 
             v_ifh_run(a_pydaw_data->ab_audio_item->sample_read_head,
