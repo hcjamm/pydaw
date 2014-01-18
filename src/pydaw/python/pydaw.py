@@ -6669,7 +6669,7 @@ class transport_widget:
             self.follow_checkbox.setToolTip("")
 
 
-global_open_fx_ui_dicts = [{}, {}, {}]
+global_open_fx_ui_dicts = [{}, {}, {}, {}, {}]
 global_open_inst_ui_dict = {}
 
 def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
@@ -6783,7 +6783,7 @@ def global_close_all_plugin_windows():
     for v in list(global_open_inst_ui_dict.values()):
         v.is_quitting = True
         v.widget.close()
-    global_open_fx_ui_dicts = [{}, {}, {}]
+    global_open_fx_ui_dicts = [{}, {}, {}, {}, {}]
     global_open_inst_ui_dict = {}
 
 class pydaw_main_window(QtGui.QMainWindow):
@@ -7990,6 +7990,9 @@ class pydaw_wave_editor_widget:
         self.layout.addWidget(self.file_browser.hsplitter)
         self.file_browser.hsplitter.addWidget(self.right_widget)
         self.file_hlayout = QtGui.QHBoxLayout()
+        self.fx_button = QtGui.QPushButton(_("Effects"))
+        self.fx_button.pressed.connect(self.on_show_fx)
+        self.file_hlayout.addWidget(self.fx_button)
         self.file_lineedit = QtGui.QLineEdit()
         self.file_lineedit.setReadOnly(True)
         self.file_hlayout.addWidget(self.file_lineedit)
@@ -8022,6 +8025,9 @@ class pydaw_wave_editor_widget:
         self.sixty_recip = 1.0 / 60.0
         self.playback_cursor = None
         self.time_label_enabled = False
+
+    def on_show_fx(self):
+        global_open_fx_ui(0, None, 4, _("Wave Editor"))
 
     def enabled_changed(self, a_val=None):
         this_pydaw_project.this_pydaw_osc.pydaw_ab_set(self.enabled_checkbox.isChecked())

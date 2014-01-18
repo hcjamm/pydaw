@@ -43,8 +43,9 @@ extern "C" {
 #define PYDAW_AUDIO_INPUT_TRACK_COUNT 5
 #define PYDAW_AUDIO_TRACK_COUNT 8
 #define PYDAW_MIDI_TRACK_COUNT 20
+#define PYDAW_WE_TRACK_COUNT 1
 #define PYDAW_TRACK_COUNT_ALL (PYDAW_BUS_TRACK_COUNT + PYDAW_AUDIO_TRACK_COUNT \
-                               + PYDAW_MIDI_TRACK_COUNT)
+                               + PYDAW_MIDI_TRACK_COUNT + PYDAW_WE_TRACK_COUNT)
 
 #define PYDAW_MAX_EVENT_BUFFER_SIZE 512  //This could probably be made smaller
 #define PYDAW_MAX_REGION_SIZE 256
@@ -332,6 +333,7 @@ typedef struct
     pthread_spinlock_t ui_spinlock;
     int wave_editor_cursor;
     int wave_editor_cursor_count;
+    t_pytrack * we_track_pool[PYDAW_WE_TRACK_COUNT];
 }t_pydaw_data;
 
 typedef struct
@@ -826,6 +828,15 @@ void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
     {
         v_set_plugin_index(a_pydaw_data,
                 a_pydaw_data->audio_track_pool[f_i], -1, 0, 0);
+        f_i++;
+    }
+
+    f_i = 0;
+
+    while(f_i < PYDAW_WE_TRACK_COUNT)
+    {
+        v_set_plugin_index(a_pydaw_data,
+                a_pydaw_data->we_track_pool[f_i], -1, 0, 0);
         f_i++;
     }
 }
@@ -2650,6 +2661,7 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         int sample_count, PYFX_Data *output0, PYFX_Data *output1)
 {
     int f_i = 0;
+
     while(f_i < sample_count)
     {
         if((a_pydaw_data->ab_audio_item->sample_read_head->whole_number) >=
@@ -2712,6 +2724,32 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         }
         f_i++;
     }
+
+    f_i = 0;
+    while(f_i < sample_count)
+    {
+        a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[0][f_i]
+                = output0[f_i];
+        a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[1][f_i]
+                = output1[f_i];
+        f_i++;
+    }
+
+    v_run_plugin(a_pydaw_data->we_track_pool[0]->effect,
+                 sample_count,
+                 a_pydaw_data->we_track_pool[0]->event_buffer,
+                 a_pydaw_data->we_track_pool[0]->current_period_event_index);
+
+    f_i = 0;
+    while(f_i < sample_count)
+    {
+        output0[f_i] =
+            a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[0][f_i];
+        output1[f_i] =
+            a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[1][f_i];
+        f_i++;
+    }
+
 
     if(a_pydaw_data->playback_mode > 0)
     {
@@ -4104,6 +4142,17 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_result->audio_track_pool[f_i] = g_pytrack_get(f_i, 2);
         f_result->track_pool_all[f_track_total] =
                 f_result->audio_track_pool[f_i];
+        f_i++;
+        f_track_total++;
+    }
+
+    f_i = 0;
+
+    while(f_i < PYDAW_WE_TRACK_COUNT)
+    {
+        f_result->we_track_pool[f_i] = g_pytrack_get(f_i, 4);
+        f_result->track_pool_all[f_track_total] =
+                f_result->we_track_pool[f_i];
         f_i++;
         f_track_total++;
     }

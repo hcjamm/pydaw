@@ -1280,6 +1280,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
                 f_instance =
                         a_pydaw_data->audio_track_pool[f_track_num]->effect;
                 break;
+            case 4:  //Wave editor track
+                f_instance =
+                        a_pydaw_data->we_track_pool[f_track_num]->effect;
+                break;
             default:
                 assert(0);
                 break;
@@ -1329,6 +1333,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
             case 2:  //Audio track
                 f_instance =
                         a_pydaw_data->audio_track_pool[f_track_num]->effect;
+                break;
+            case 4:  //Wave editor track
+                f_instance =
+                        a_pydaw_data->we_track_pool[f_track_num]->effect;
                 break;
         }
 
