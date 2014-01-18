@@ -641,7 +641,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr,
     int f_fade_diff = (f_result->sample_fade_in_end -
         f_result->sample_start_offset - (PYDAW_AUDIO_ITEM_PADDING_DIV2));
 
-    if(f_fade_diff != 0)
+    if(f_fade_diff > 0)
     {
         f_result->sample_fade_in_divisor = 1.0f / (float)f_fade_diff;
     }
@@ -653,7 +653,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr,
     f_fade_diff =
             (f_result->sample_end_offset - f_result->sample_fade_out_start);
 
-    if(f_fade_diff != 0)
+    if(f_fade_diff > 0)
     {
         f_result->sample_fade_out_divisor = 1.0f / (float)f_fade_diff;
     }

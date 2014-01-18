@@ -8053,8 +8053,11 @@ class pydaw_wave_editor_widget:
     def marker_callback(self, a_val=None):
         f_start = self.sample_graph.start_marker.value
         f_end = self.sample_graph.end_marker.value
-        f_fade_in = self.sample_graph.fade_in_marker.value
-        f_fade_out = self.sample_graph.fade_out_marker.value
+        f_diff = f_end - f_start
+        f_fade_in = ((self.sample_graph.fade_in_marker.value - f_start) / f_diff) * 1000.0
+        f_fade_out = 1000.0 - \
+            (((f_end - self.sample_graph.fade_out_marker.value) / f_diff) * 1000.0)
+
         f_item = pydaw_audio_item(0, a_sample_start=f_start, a_sample_end=f_end,
                                   a_vol=self.vol_slider.value(),
                                   a_fade_in=f_fade_in, a_fade_out=f_fade_out,
