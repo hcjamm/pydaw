@@ -51,8 +51,7 @@ OSC configure message keys/values:
 	"cm"	name	Load the CC map at (~/pydaw[version]/cc_maps/)name
 	"abo"	file_path	Open the file at file_path for use with the A/B player
 	"abs"	int	0 for playing regular audio, 1 for playing the loaded A/B file
-	"abp"   int	Set start position, range 0 to 1000
-	"abv"	float	Set A/B item volume
+	"we"	"str(audio_item)"  Set the audio item parameters for the wave editor item
 	"panic" ""	Send a note-off to all instruments on all notes.
 	"conv32f"	in-path \n out-path	convert the .wav file at in-path to a 32bit float .wav at out-path...
 	"penv" src\ndest\nstart|end apply pitch envelope with start/end pitches

@@ -8056,7 +8056,7 @@ class pydaw_wave_editor_widget:
                                   a_vol=self.vol_slider.value(),
                                   a_fade_in=f_fade_in, a_fade_out=f_fade_out,
                                   a_fadein_vol=-36, a_fadeout_vol=-36)
-        print(str(f_item).strip())
+        this_pydaw_project.this_pydaw_osc.pydaw_we_set("0|{}".format(f_item))
 
     def set_time_label(self, a_value):
         if self.duration is not None:

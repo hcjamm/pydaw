@@ -174,11 +174,8 @@ class pydaw_osc:
     def pydaw_ab_set(self, a_bool):
         self.send_configure("abs", bool_to_int(a_bool))
 
-    def pydaw_ab_pos(self, a_val):
-        self.send_configure("abp", str(a_val))
-
-    def pydaw_ab_vol(self, a_val):
-        self.send_configure("abv", str(a_val))
+    def pydaw_we_set(self, a_val):
+        self.send_configure("we", str(a_val))
 
     def pydaw_preview_audio(self, a_file):
         self.send_configure("preview", str(a_file))

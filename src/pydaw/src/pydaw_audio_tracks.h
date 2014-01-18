@@ -416,7 +416,8 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
  */
 t_pydaw_audio_item * g_audio_item_load_single(float a_sr,
         t_2d_char_array * f_current_string,
-        t_pydaw_audio_items * a_items, t_wav_pool * a_wav_pool)
+        t_pydaw_audio_items * a_items, t_wav_pool * a_wav_pool,
+        t_wav_pool_item * a_wav_item)
 {
     t_pydaw_audio_item * f_result;
 
@@ -446,18 +447,24 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr,
     f_result->uid = atoi(f_uid_char);
     free(f_uid_char);
 
-    f_result->wav_pool_item =
+    if(a_wav_item)
+    {
+        f_result->wav_pool_item = a_wav_item;
+    }
+    else
+    {
+        f_result->wav_pool_item =
             g_wav_pool_get_item_by_uid(a_wav_pool, f_result->uid);
 
-    if(!f_result->wav_pool_item)
-    {
-        printf("####################\n\n");
-        printf("ERROR:  g_audio_item_load_single failed for wav_pool uid %i, "
-                "not found\n\n", f_result->uid);
-        printf("####################\n\n");
-        return 0;
+        if(!f_result->wav_pool_item)
+        {
+            printf("####################\n\n");
+            printf("ERROR:  g_audio_item_load_single failed for uid %i, "
+                    "not found\n\n", f_result->uid);
+            printf("####################\n\n");
+            return 0;
+        }
     }
-
     char * f_sample_start_char = c_iterate_2d_char_array(f_current_string);
     float f_sample_start = atof(f_sample_start_char) * 0.001f;
 
