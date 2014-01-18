@@ -2142,7 +2142,7 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
     def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
                  a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
         pydaw_audio_item_viewer_widget.__init__(self, a_start_callback, a_end_callback,
-                                                a_loop_start_callback, a_loop_end_callback)
+                                                a_fade_in_callback, a_fade_out_callback)
         self.loop_start_callback = a_loop_start_callback
         self.loop_end_callback = a_loop_end_callback
 
