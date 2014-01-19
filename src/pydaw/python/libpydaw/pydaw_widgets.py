@@ -856,6 +856,7 @@ class pydaw_abstract_file_browser_widget():
         self.folder_buttons_hlayout.addWidget(self.up_button)
         self.back_button = QtGui.QPushButton(_("Back"))
         self.folder_buttons_hlayout.addWidget(self.back_button)
+        self.back_button.contextMenuEvent = self.back_contextMenuEvent
         self.back_button.pressed.connect(self.on_back)
         self.bookmark_button = QtGui.QPushButton(_("Bookmark"))
         self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
@@ -911,6 +912,16 @@ class pydaw_abstract_file_browser_widget():
         if len(self.history) > 1:
             self.history.pop(-1)
             self.set_folder(self.history[-1], a_full_path=True)
+
+    def open_path_from_action(self, a_action):
+        self.set_folder(str(a_action.text()), a_full_path=True)
+
+    def back_contextMenuEvent(self, a_event):
+        f_menu = QtGui.QMenu(self.back_button)
+        f_menu.triggered.connect(self.open_path_from_action)
+        for f_path in reversed(self.history):
+            f_menu.addAction(f_path)
+        f_menu.exec_(QtGui.QCursor.pos())
 
     def on_filter(self):
         f_text = str(self.filter_lineedit.text()).lower().strip()
