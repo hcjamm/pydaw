@@ -854,6 +854,9 @@ class pydaw_abstract_file_browser_widget():
         self.up_button = QtGui.QPushButton(_("Up"))
         self.up_button.pressed.connect(self.on_up_button)
         self.folder_buttons_hlayout.addWidget(self.up_button)
+        self.back_button = QtGui.QPushButton(_("Back"))
+        self.folder_buttons_hlayout.addWidget(self.back_button)
+        self.back_button.pressed.connect(self.on_back)
         self.bookmark_button = QtGui.QPushButton(_("Bookmark"))
         self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
         self.folder_buttons_hlayout.addWidget(self.bookmark_button)
@@ -889,11 +892,17 @@ class pydaw_abstract_file_browser_widget():
         self.file_vlayout.addLayout(self.file_hlayout)
 
         self.last_open_dir = pydaw_util.global_home
+        self.history = [pydaw_util.global_home]
         self.set_folder(".")
         self.open_bookmarks()
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
         self.hsplitter.setSizes([100, 9999])
+
+    def on_back(self):
+        if len(self.history) > 1:
+            self.history.pop(-1)
+            self.set_folder(self.history[-1], a_full_path=True)
 
     def on_filter(self):
         f_text = str(self.filter_lineedit.text()).lower().strip()
@@ -958,6 +967,8 @@ class pydaw_abstract_file_browser_widget():
         else:
             self.last_open_dir = os.path.abspath("{}/{}".format(self.last_open_dir, a_folder))
         self.last_open_dir = self.last_open_dir.replace("//", "/")
+        if self.last_open_dir != self.history[-1]:
+            self.history.append(self.last_open_dir)
         self.folder_path_lineedit.setText(self.last_open_dir)
         f_list = os.listdir(self.last_open_dir)
         f_list.sort(key=str.lower)
