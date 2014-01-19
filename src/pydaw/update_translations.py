@@ -21,6 +21,8 @@ f_path = "{}/locale".format(f_dir_name)
 os.system('find python -iname "*.py" | xargs xgettext '
     '--from-code=UTF-8 --default-domain=pydaw4')
 
+os.system("sed --in-place '{}' --expression=s/CHARSET/UTF-8/".format(f_po_file))
+
 for f_file in os.listdir(f_path):
     if os.path.isdir(f_file):
         f_locale_file = "{}/{}/LC_MESSAGES/pydaw4.po".format(f_path, f_file)
