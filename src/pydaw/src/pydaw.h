@@ -4254,7 +4254,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
                 a_track->track_num);
     }
 
-    if(i_pydaw_file_exists(f_file_name))
+    if(a_track->track_type != 4 && i_pydaw_file_exists(f_file_name))
     {
         printf("v_pydaw_open_track:  Track exists %s , loading\n", f_file_name);
 
