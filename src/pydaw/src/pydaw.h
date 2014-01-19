@@ -2760,7 +2760,8 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         if(a_pydaw_data->wave_editor_cursor >
                 a_pydaw_data->wave_editor_cursor_count)
         {
-            a_pydaw_data->wave_editor_cursor = 0;
+            a_pydaw_data->wave_editor_cursor -=
+                    a_pydaw_data->wave_editor_cursor_count;
             float f_frac =
             (float)(a_pydaw_data->ab_audio_item->
             sample_read_head->whole_number) /
@@ -4002,7 +4003,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->playback_inc = 0.0f;
 
     f_result->wave_editor_cursor = 0;
-    f_result->wave_editor_cursor_count = (int)(a_sample_rate * 0.1f);
+    f_result->wave_editor_cursor_count = (int)(a_sample_rate / 30.0f);
 
     f_result->osc_queue_index = 0;
 
