@@ -8191,8 +8191,7 @@ class pydaw_wave_editor_widget:
             self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
         self.time_label_enabled = False
-        if self.has_loaded_file:
-            self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
+        self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
 
     def set_sample_graph(self, a_file_name):
         this_pydaw_project.delete_sample_graph_by_name(a_file_name)
