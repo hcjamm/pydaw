@@ -1395,6 +1395,7 @@ global_audio_px_per_16th = 100.0 / 16.0
 
 global_audio_quantize = False
 global_audio_quantize_px = None
+global_audio_quantize_amt = 1.0
 
 global_audio_ruler_height = 20.0
 global_audio_item_height = 75.0
@@ -2462,14 +2463,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
         if f_pos_bars == f_max_start:
             f_beat_frac = 0.0
         else:
-            f_beat_frac = (f_x % global_audio_px_per_bar)
+            f_beat_frac = ((f_x % global_audio_px_per_bar) / global_audio_px_per_bar) * 4.0
             f_beat_frac = pydaw_clip_value(f_beat_frac, 0.0, 3.99, a_round=True)
-
+        print("{}".format(f_beat_frac))
         if global_audio_quantize:
-            f_beat_frac = int(f_beat_frac / global_audio_quantize_px) * global_audio_quantize_px
+            f_beat_frac = \
+                int(f_beat_frac * global_audio_quantize_amt) / global_audio_quantize_amt
 
-        f_beat_frac /= global_audio_px_per_bar
-        f_beat_frac *= 4.0
+        print("{} {}".format(f_pos_bars, f_beat_frac))
 
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
         f_lane_num = pydaw_clip_value(f_lane_num, 0, global_audio_item_max_lane)
@@ -2956,7 +2957,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         this_audio_items_viewer.set_v_zoom(self.v_zoom)
 
     def set_snap(self, a_val=None):
-        global global_audio_quantize, global_audio_quantize_px
+        global global_audio_quantize, global_audio_quantize_px, global_audio_quantize_amt
         global_audio_quantize = True
         f_lines_enabled = True
         f_snap_range = 8
@@ -2967,18 +2968,23 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         elif a_val == 1:
             global_audio_quantize_px = global_audio_px_per_bar
             f_lines_enabled = False
+            global_audio_quantize_amt = 0.25
         elif a_val == 2:
             global_audio_quantize_px = global_audio_px_per_beat
             f_lines_enabled = False
+            global_audio_quantize_amt = 1.0
         elif a_val == 3:
             global_audio_quantize_px = global_audio_px_per_8th
             f_snap_range = 8
+            global_audio_quantize_amt = 2.0
         elif a_val == 4:
             global_audio_quantize_px = global_audio_px_per_12th
             f_snap_range = 12
+            global_audio_quantize_amt = 3.0
         elif a_val == 5:
             global_audio_quantize_px = global_audio_px_per_16th
             f_snap_range = 16
+            global_audio_quantize_amt = 4.0
         this_audio_items_viewer.set_grid_div(f_lines_enabled,
                                              global_audio_quantize_px, f_snap_range)
 
