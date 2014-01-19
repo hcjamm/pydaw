@@ -342,8 +342,6 @@ else:
     pydaw_set_live_mode_off()
 
 
-global_bookmarks_file_path = "{}/file_browser_bookmarks.txt".format(global_pydaw_home)
-
 global_device_val_dict = {}
 global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
 
@@ -384,6 +382,27 @@ def pydaw_read_device_config():
 
 pydaw_read_device_config()
 
+#TODO:  Remediate at PyDAWv5
+
+global_bookmarks_file_path_old = "{}/file_browser_bookmarks.txt".format(global_pydaw_home)
+global_bookmarks_file_path = "{}/file_browser_bookmarks_v2.txt".format(global_pydaw_home)
+
+def _convert_bookmarks_to_new_format():
+    f_result = []
+    for f_line in pydaw_read_file_text(global_bookmarks_file_path_old).split("\n"):
+        if f_line.strip() == "":
+            continue
+        f_result.append("{0}|||{1}/{0}".format(*f_line.split("|||")))
+    pydaw_write_file_text(global_bookmarks_file_path, "\n".join(f_result))
+
+if os.path.isfile(global_bookmarks_file_path_old) and not \
+os.path.isfile(global_bookmarks_file_path):
+    try:
+        _convert_bookmarks_to_new_format()
+    except Exception as ex:
+        print("Error trying to convert bookmarks to new format \n{}".format(ex))
+
+
 def global_get_file_bookmarks():
     """ Get the bookmarks shared with Euphoria """
     f_result = {}
@@ -392,33 +411,35 @@ def global_get_file_bookmarks():
         f_arr = f_text.split("\n")
         for f_line in f_arr:
             f_line_arr = f_line.split("|||")
-            if len(f_line_arr) < 2:
+            if len(f_line_arr) != 2:
                 break
-            f_full_path = "{}/{}".format(f_line_arr[1], f_line_arr[0])
-            if os.path.isdir(f_full_path):
+            if os.path.isdir(f_line_arr[1]):
                 f_result[f_line_arr[0]] = f_line_arr[1]
             else:
                 print("Warning:  Not loading bookmark '{}' because the directory '{}'"
-                " does not exist.".format(f_line_arr[0], f_full_path))
+                " does not exist.".format(f_line_arr[0], f_line_arr[1]))
     return f_result
 
 def global_write_file_bookmarks(a_dict):
-    f_result = ""
+    f_result = []
     for k, v in list(a_dict.items()):
-        f_result += "{}|||{}\n".format(k, v)
-    pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
+        f_result.append("{}|||{}".format(k, v))
+    pydaw_write_file_text(global_bookmarks_file_path, "\n".join(f_result))
 
-def global_add_file_bookmark(a_folder):
+def global_add_file_bookmark(a_name, a_folder):
     f_dict = global_get_file_bookmarks()
-    f_folder = str(a_folder)
-    f_folder_arr = f_folder.split("/")
-    f_dict[f_folder_arr[-1]] = "/".join(f_folder_arr[:-1])
+    f_dict[str(a_name)] = str(a_folder)
     global_write_file_bookmarks(f_dict)
 
 def global_delete_file_bookmark(a_key):
     f_dict = global_get_file_bookmarks()
-    f_dict.pop(str(a_key))
-    global_write_file_bookmarks(f_dict)
+    f_key = str(a_key)
+    if f_key in f_dict:
+        f_dict.pop(f_key)
+        global_write_file_bookmarks(f_dict)
+    else:
+        print("{} was not in the bookmarks file, it may have been deleted in a different "
+            "file browser widget".format(f_key))
 
 class sfz_exception(Exception):
     pass

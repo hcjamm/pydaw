@@ -846,6 +846,17 @@ class pydaw_abstract_file_browser_widget():
         self.folder_path_lineedit = QtGui.QLineEdit()
         self.folder_path_lineedit.setReadOnly(True)
         self.folders_widget_layout.addWidget(self.folder_path_lineedit)
+
+        self.folder_filter_hlayout = QtGui.QHBoxLayout()
+        self.folder_filter_hlayout.addWidget(QtGui.QLabel(_("Filter:")))
+        self.folder_filter_lineedit = QtGui.QLineEdit()
+        self.folder_filter_lineedit.textChanged.connect(self.on_filter_folders)
+        self.folder_filter_hlayout.addWidget(self.folder_filter_lineedit)
+        self.folder_filter_clear_button = QtGui.QPushButton(_("Clear"))
+        self.folder_filter_clear_button.pressed.connect(self.on_folder_filter_clear)
+        self.folder_filter_hlayout.addWidget(self.folder_filter_clear_button)
+        self.folders_widget_layout.addLayout(self.folder_filter_hlayout)
+
         self.list_folder = QtGui.QListWidget()
         self.list_folder.itemClicked.connect(self.folder_item_clicked)
         self.folders_widget_layout.addWidget(self.list_folder)
@@ -878,7 +889,7 @@ class pydaw_abstract_file_browser_widget():
         self.filter_hlayout = QtGui.QHBoxLayout()
         self.filter_hlayout.addWidget(QtGui.QLabel(_("Filter:")))
         self.filter_lineedit = QtGui.QLineEdit()
-        self.filter_lineedit.textChanged.connect(self.on_filter)
+        self.filter_lineedit.textChanged.connect(self.on_filter_files)
         self.filter_hlayout.addWidget(self.filter_lineedit)
         self.filter_clear_button = QtGui.QPushButton(_("Clear"))
         self.filter_clear_button.pressed.connect(self.on_filter_clear)
@@ -903,7 +914,7 @@ class pydaw_abstract_file_browser_widget():
         self.open_bookmarks()
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
-        self.hsplitter.setSizes([100, 9999])
+        self.hsplitter.setSizes([300, 9999])
 
     def on_refresh(self):
         self.set_folder(".")
@@ -923,15 +934,24 @@ class pydaw_abstract_file_browser_widget():
             f_menu.addAction(f_path)
         f_menu.exec_(QtGui.QCursor.pos())
 
-    def on_filter(self):
-        f_text = str(self.filter_lineedit.text()).lower().strip()
-        for f_i in range(self.list_file.count()):
-            f_item = self.list_file.item(f_i)
+    def on_filter_folders(self):
+        self.on_filter(self.folder_filter_lineedit, self.list_folder)
+
+    def on_filter_files(self):
+        self.on_filter(self.filter_lineedit, self.list_file)
+
+    def on_filter(self, a_line_edit, a_list_widget):
+        f_text = str(a_line_edit.text()).lower().strip()
+        for f_i in range(a_list_widget.count()):
+            f_item = a_list_widget.item(f_i)
             f_item_text = str(f_item.text()).lower()
             if f_text in f_item_text:
                 f_item.setHidden(False)
             else:
                 f_item.setHidden(True)
+
+    def on_folder_filter_clear(self):
+        self.folder_filter_lineedit.setText("")
 
     def on_filter_clear(self):
         self.filter_lineedit.setText("")
@@ -943,15 +963,44 @@ class pydaw_abstract_file_browser_widget():
             self.list_bookmarks.addItem(str(k))
 
     def bookmark_button_pressed(self):
-        pydaw_util.global_add_file_bookmark(self.last_open_dir)
-        self.open_bookmarks()
+        def on_ok(a_val=None):
+            f_val = str(f_lineedit.text()).strip()
+            if f_val == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
+                return
+            pydaw_util.global_add_file_bookmark(f_val, self.last_open_dir)
+            self.open_bookmarks()
+            f_window.close()
+
+        def on_cancel(a_val=None):
+            f_window.close()
+
+        f_window = QtGui.QDialog(self.widget)
+        f_window.setMinimumWidth(300)
+        f_window.setWindowTitle("Add Bookmark")
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_lineedit = QtGui.QLineEdit()
+        f_tmp_arr = self.last_open_dir.rsplit("/")
+        if len(f_tmp_arr) >= 2:
+            f_lineedit.setText(f_tmp_arr[-1])
+        f_layout.addWidget(f_lineedit)
+        f_hlayout2 = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout2)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_ok_button.pressed.connect(on_ok)
+        f_hlayout2.addWidget(f_ok_button)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(on_cancel)
+        f_hlayout2.addWidget(f_cancel_button)
+        f_window.exec_()
+
 
     def bookmark_clicked(self, a_item):
         f_dict = pydaw_util.global_get_file_bookmarks()
         f_folder_name = str(a_item.text())
         if f_folder_name in f_dict:
-            f_full_path = "{}/{}".format(f_dict[f_folder_name], f_folder_name)
-            self.set_folder(f_full_path, True)
+            self.set_folder(f_dict[f_folder_name], True)
             self.folders_tab_widget.setCurrentIndex(0)
         else:
             QtGui.QMessageBox.warning(self.widget, _("Error"),
@@ -1003,7 +1052,8 @@ class pydaw_abstract_file_browser_widget():
                         print(_("Not adding '{}' because it contains bad chars, "
                         "you must rename this file path without:").format(f_full_path))
                         print(("\n".join(pydaw_util.pydaw_bad_chars)))
-        self.on_filter()
+        self.on_filter_files()
+        self.on_filter_folders()
 
     def select_file(self, a_file):
         """ Select the file if present in the list, a_file should be
