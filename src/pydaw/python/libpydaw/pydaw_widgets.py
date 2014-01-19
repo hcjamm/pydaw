@@ -891,6 +891,9 @@ class pydaw_abstract_file_browser_widget():
         self.file_hlayout.addWidget(self.preview_button)
         self.stop_preview_button = QtGui.QPushButton(_("Stop"))
         self.file_hlayout.addWidget(self.stop_preview_button)
+        self.refresh_button = QtGui.QPushButton(_("Refresh"))
+        self.file_hlayout.addWidget(self.refresh_button)
+        self.refresh_button.pressed.connect(self.on_refresh)
         self.file_vlayout.addLayout(self.file_hlayout)
 
         self.last_open_dir = pydaw_util.global_home
@@ -900,6 +903,9 @@ class pydaw_abstract_file_browser_widget():
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
         self.hsplitter.setSizes([100, 9999])
+
+    def on_refresh(self):
+        self.set_folder(".")
 
     def on_back(self):
         if len(self.history) > 1:
