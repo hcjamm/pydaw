@@ -1669,7 +1669,8 @@ class pydaw_note(pydaw_abstract_midi_event):
         return pydaw_note.from_arr(f_arr[1:])
 
     def __str__(self):
-        return "n|{}|{}|{}|{}\n".format(self.start, self.length, self.note_num, self.velocity)
+        return "n|{}\n".format("|".join(map(str,
+            (self.start, self.length, self.note_num, self.velocity))))
 
 class pydaw_cc(pydaw_abstract_midi_event):
     def __eq__(self, other):
@@ -1691,7 +1692,8 @@ class pydaw_cc(pydaw_abstract_midi_event):
         self.cc_val = f_val
 
     def __str__(self):
-        return "c|{}|{}|{}|{}\n".format(self.start, self.plugin_index, self.cc_num, self.cc_val)
+        return "c|{}\n".format("|".join(map(str,
+            (self.start, self.plugin_index, self.cc_num, self.cc_val))))
 
     @staticmethod
     def from_arr(a_arr):
@@ -1784,9 +1786,9 @@ class pydaw_track(pydaw_abstract_track):
         self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "{}|{}|{}|{}|{}|{}|{}\n".format(bool_to_int(self.solo),
-                                               bool_to_int(self.mute), self.vol,
-                                               self.name, self.inst, self.bus_num, self.track_pos)
+        return "{}\n".format("|".join(map(str,
+            (bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
+            self.name, self.inst, self.bus_num, self.track_pos))))
 
 class pydaw_busses:
     def add_bus(self, a_index, a_bus):
@@ -1859,9 +1861,9 @@ class pydaw_audio_track(pydaw_abstract_track):
         self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "{}|{}|{}|{}|{}|{}\n".format(bool_to_int(self.solo),
-                                            bool_to_int(self.mute), self.vol,
-                                            self.name, self.bus_num, self.track_pos)
+        return "{}\n".format("|".join(map(str,
+            (bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
+             self.name, self.bus_num, self.track_pos))))
 
 class pydaw_audio_region:
     def __init__(self):
@@ -1997,14 +1999,14 @@ class pydaw_audio_item:
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
 
     def __str__(self):
-        return "{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}\n".format(
-        self.uid, round(self.sample_start, 6), round(self.sample_end, 6),
+        return "{}\n".format("|".join(map(str,
+        (self.uid, round(self.sample_start, 6), round(self.sample_end, 6),
         self.start_bar, round(self.start_beat, 6),
         self.time_stretch_mode, self.pitch_shift, self.output_track, self.vol,
         round(self.timestretch_amt, 6),
         self.fade_in, self.fade_out, self.lane_num, round(self.pitch_shift_end, 6 ),
         round(self.timestretch_amt_end, 6), bool_to_int(self.reversed), int(self.crispness),
-        int(self.fadein_vol), int(self.fadeout_vol), int(self.paif_automation_uid))
+        int(self.fadein_vol), int(self.fadeout_vol), int(self.paif_automation_uid)))))
 
     @staticmethod
     def from_str(f_str):
@@ -2088,7 +2090,8 @@ class pydaw_audio_item_fx:
             return self.fx_num < other.fx_num
 
     def __str__(self):
-        return "|{}|{}|{}|{}".format(self.knobs[0], self.knobs[1], self.knobs[2], self.fx_type)
+        return "|{}".format("|".join(map(str,
+            (self.knobs[0], self.knobs[1], self.knobs[2], self.fx_type))))
 
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):
@@ -2150,9 +2153,9 @@ class pydaw_cc_map_item:
         self.modulex_port = int(a_modulex_port)
 
     def __str__(self):
-        return "{}|{}|{}|{}|{}\n".format(
-            self.effects_only, self.rayv_port, self.wayv_port,
-            self.euphoria_port, self.modulex_port)
+        return "{}\n".format("|".join(map(str,
+            (self.effects_only, self.rayv_port, self.wayv_port,
+            self.euphoria_port, self.modulex_port))))
 
 class pydaw_cc_map:
     def __init__(self):
