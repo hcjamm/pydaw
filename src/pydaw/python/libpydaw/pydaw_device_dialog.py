@@ -25,7 +25,7 @@ class pydaw_device_dialog:
     def __init__(self, a_is_running=False):
         self.is_running = a_is_running
         self.device_name = None
-        self.sample_rates = ["44100", "48000", "88200", "96000"]
+        self.sample_rates = ["44100", "48000", "88200", "96000", "192000"]
         self.buffer_sizes = ["32", "64", "128", "256", "512", "1024", "2048"]
 
 
@@ -223,7 +223,9 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
                 #This doesn't work if the device is open already,
                 #so skip the test, and if it fails the
                 #user will be prompted again next time PyDAW starts
-                if not self.is_running or "name" not in pydaw_util.global_device_val_dict or \
+                if f_audio_engine != 7 or \
+                not self.is_running or \
+                "name" not in pydaw_util.global_device_val_dict or \
                 pydaw_util.global_device_val_dict["name"] != self.device_name:
                     f_output = portaudio.PaStreamParameters(
                         f_name_to_index[self.device_name], 2, portaudio.paInt16,
