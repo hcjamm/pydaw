@@ -7998,6 +7998,11 @@ class pydaw_wave_editor_widget:
         self.file_hlayout.addWidget(self.menu_button)
         self.export_action = self.menu.addAction("Export")
         self.export_action.triggered.connect(self.on_export)
+        self.menu.addSeparator()
+        self.copy_action = self.menu.addAction("Copy File to Clipboard")
+        self.copy_action.triggered.connect(self.copy_file_to_clipboard)
+        self.paste_action = self.menu.addAction("Paste File from Clipboard")
+        self.paste_action.triggered.connect(self.open_file_from_clipboard)
 
         self.fx_button = QtGui.QPushButton(_("Effects"))
         self.fx_button.pressed.connect(self.on_show_fx)
@@ -8137,14 +8142,29 @@ class pydaw_wave_editor_widget:
         if not f_file:
             return
         f_file_str = f_file[0]
+        self.open_file(f_file_str)
+
+    def copy_file_to_clipboard(self):
+        f_clipboard = QtGui.QApplication.clipboard()
+        f_clipboard.setText(str(self.file_lineedit.text()))
+
+    def open_file_from_clipboard(self):
+        f_clipboard = QtGui.QApplication.clipboard()
+        f_text = str(f_clipboard.text())
+        if len(f_text) < 1000 and os.path.isfile(f_text):
+            self.open_file(f_text)
+        else:
+            QtGui.QMessageBox.warning(self.widget, "Error", "No file path in the clipboard")
+
+    def open_file(self, a_file):
         self.clear_sample_graph()
-        self.file_lineedit.setText(f_file_str)
-        f_graph = self.set_sample_graph(f_file_str)
-        self.last_folder = os.path.dirname(f_file_str)
+        self.file_lineedit.setText(a_file)
+        f_graph = self.set_sample_graph(a_file)
+        self.last_folder = os.path.dirname(a_file)
         self.duration = f_graph.frame_count / f_graph.sample_rate
         print("Duration:  {}".format(self.duration))
         self.has_loaded_file = True
-        this_pydaw_project.this_pydaw_osc.pydaw_ab_open(f_file_str)
+        this_pydaw_project.this_pydaw_osc.pydaw_ab_open(a_file)
         self.marker_callback()
 
     def marker_callback(self, a_val=None):
