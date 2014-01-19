@@ -2743,6 +2743,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.list_file.setDragEnabled(True)
         self.list_file.mousePressEvent = self.file_mouse_press_event
         self.preview_button.pressed.connect(self.on_preview)
+        self.stop_preview_button.pressed.connect(self.on_stop_preview)
         self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, _("Edit"))
 
         self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback,
@@ -2831,6 +2832,9 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         if f_list:
             this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(
                 "{}/{}".format(self.last_open_dir, f_list[0].text()))
+
+    def on_stop_preview(self):
+        this_pydaw_project.this_pydaw_osc.pydaw_stop_preview()
 
     def set_paif_buttons_enabled(self, a_count):
         if a_count == 0:
@@ -7984,6 +7988,7 @@ class pydaw_wave_editor_widget:
         self.file_browser = pydaw_widgets.pydaw_file_browser_widget()
         self.file_browser.load_button.pressed.connect(self.on_file_open)
         self.file_browser.preview_button.pressed.connect(self.on_preview)
+        self.file_browser.stop_preview_button.pressed.connect(self.on_stop_preview)
         self.file_browser.list_file.setSelectionMode(QtGui.QListWidget.SingleSelection)
         self.layout.addWidget(self.file_browser.hsplitter)
         self.file_browser.hsplitter.addWidget(self.right_widget)
@@ -8134,6 +8139,9 @@ class pydaw_wave_editor_widget:
         f_list = self.file_browser.files_selected()
         if f_list:
             this_pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_list[0])
+
+    def on_stop_preview(self):
+        this_pydaw_project.this_pydaw_osc.pydaw_stop_preview()
 
     def on_file_open(self):
         if not os.path.isdir(self.last_folder):

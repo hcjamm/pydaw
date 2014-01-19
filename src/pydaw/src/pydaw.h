@@ -4077,7 +4077,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->preview_start = 0.0f;
     f_result->preview_amp_lin = 1.0f;
     f_result->is_previewing = 0;
-    f_result->preview_max_sample_count = ((int)(a_sample_rate)) * 12;
+    f_result->preview_max_sample_count = ((int)(a_sample_rate)) * 30;
 
     int f_i = 0;
 

@@ -85,6 +85,8 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_SHOW_FX_UI "fx"
 
 #define PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE "preview"
+#define PYDAW_CONFIGURE_KEY_STOP_PREVIEW "spr"
+
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
 
 #define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
@@ -1865,6 +1867,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_WE_EXPORT))
     {
         v_pydaw_we_export(a_pydaw_data, a_value);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP_PREVIEW))
+    {
+        if(a_pydaw_data->is_previewing)
+        {
+            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            v_adsr_release(a_pydaw_data->preview_audio_item->adsr);
+            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        }
     }
     else
     {

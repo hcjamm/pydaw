@@ -886,9 +886,11 @@ class pydaw_abstract_file_browser_widget():
         self.list_file = QtGui.QListWidget()
         self.list_file.setSelectionMode(QtGui.QListWidget.SingleSelection)
         self.file_vlayout.addWidget(self.list_file)
-        self.preview_button = QtGui.QPushButton(_("Preview"))
         self.file_hlayout = QtGui.QHBoxLayout()
+        self.preview_button = QtGui.QPushButton(_("Preview"))
         self.file_hlayout.addWidget(self.preview_button)
+        self.stop_preview_button = QtGui.QPushButton(_("Stop"))
+        self.file_hlayout.addWidget(self.stop_preview_button)
         self.file_vlayout.addLayout(self.file_hlayout)
 
         self.last_open_dir = pydaw_util.global_home
@@ -4014,6 +4016,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.file_browser.load_button.pressed.connect(self.file_browser_load_button_pressed)
         self.file_browser.preview_button.pressed.connect(self.file_browser_preview_button_pressed)
+        self.file_browser.stop_preview_button.pressed.connect(self.file_browser_stop_preview)
 
         self.smp_tab_main_widget = QtGui.QWidget()
         self.smp_tab_main_widget.setMinimumWidth(420)
@@ -4715,6 +4718,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_list = self.file_browser.files_selected()
         if len(f_list) > 0:
             self.pydaw_project.this_pydaw_osc.pydaw_preview_audio(f_list[0])
+
+    def file_browser_stop_preview(self):
+        self.pydaw_project.this_pydaw_osc.pydaw_stop_preview()
 
     def sample_selected_monofx_groupChanged(self, a_value):
         self.mono_fx0.knobs[0].set_value(self.monofx0knob0_ctrls[a_value].get_value())
