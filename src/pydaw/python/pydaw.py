@@ -8163,7 +8163,7 @@ class pydaw_wave_editor_widget:
         self.set_time_label(a_pos)
 
     def set_time_label(self, a_value, a_override=False):
-        if a_override or self.time_label_enabled:
+        if self.has_loaded_file and (a_override or self.time_label_enabled):
             f_seconds = self.duration * a_value
             f_minutes = int(f_seconds * self.sixty_recip)
             f_seconds = str(int(f_seconds % 60.0)).zfill(2)
@@ -8191,7 +8191,8 @@ class pydaw_wave_editor_widget:
             self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
         self.time_label_enabled = False
-        self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
+        if self.has_loaded_file:
+            self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
 
     def set_sample_graph(self, a_file_name):
         this_pydaw_project.delete_sample_graph_by_name(a_file_name)
