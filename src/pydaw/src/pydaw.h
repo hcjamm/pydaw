@@ -5345,7 +5345,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY,
             a_start_region, a_start_bar, 0);
 
-    printf("\nOpening SNDFILE\n");
+    printf("\nOpening SNDFILE with sample rate %f\n",
+            a_pydaw_data->sample_rate);
 
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
@@ -5463,7 +5464,8 @@ void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY,
             a_pydaw_data->current_region, a_pydaw_data->current_bar, 0);
 
-    printf("\nOpening SNDFILE\n");
+    printf("\nOpening SNDFILE with sample rate %f\n",
+            a_pydaw_data->sample_rate);
 
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;

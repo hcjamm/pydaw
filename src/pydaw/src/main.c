@@ -735,6 +735,7 @@ int main(int argc, char **argv)
     f_midi_err = Pm_Initialize();
     int f_with_midi = 0;
     PmDeviceID f_device_id = pmNoDevice;
+#endif
 
     char f_midi_device_name[1024];
     sprintf(f_midi_device_name, "None");
@@ -846,6 +847,7 @@ int main(int argc, char **argv)
 
             g_free_2d_char_array(f_current_string);
 
+#ifndef PYDAW_NO_HARDWARE
             if(strcmp(f_midi_device_name, "None"))
             {
                 f_device_id = pmNoDevice;
@@ -886,10 +888,11 @@ int main(int argc, char **argv)
 
                 f_with_midi = 1;
             }
-
+#endif
         }
         else
         {
+#ifndef PYDAW_NO_HARDWARE
             printf("device.txt does not exist\n");
             f_device_name[0] = '\0';
             system(f_show_dialog_cmd);
@@ -903,8 +906,9 @@ int main(int argc, char **argv)
                         "dialog without choosing a device, exiting.");
                 exit(9998);
             }
+#endif
         }
-
+#ifndef PYDAW_NO_HARDWARE
         if (inputParameters.device == paNoDevice)
         {
           sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
@@ -961,7 +965,7 @@ int main(int argc, char **argv)
                   &stream,
                   0, //&inputParameters,
                   &outputParameters,
-                  44100.0f, //SAMPLE_RATE,
+                  sample_rate, //SAMPLE_RATE,
                   f_frame_count, //FRAMES_PER_BUFFER,
                   /* we won't output out of range samples so don't bother
                    * clipping them */
@@ -975,10 +979,10 @@ int main(int argc, char **argv)
             system(f_cmd_buffer);
             continue;
         }
-
+#endif
         break;
     }
-#endif
+
     in = 0;
     out = 0;
 
