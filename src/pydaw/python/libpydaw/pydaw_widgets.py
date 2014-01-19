@@ -874,11 +874,14 @@ class pydaw_abstract_file_browser_widget():
         self.folder_buttons_hlayout.addWidget(self.bookmark_button)
 
         self.bookmarks_tab = QtGui.QWidget()
+        self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
+        self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
+        self.bookmarks_reload_button = QtGui.QPushButton("Reload")
+        self.bookmarks_tab_vlayout.addWidget(self.bookmarks_reload_button)
+        self.bookmarks_reload_button.pressed.connect(self.open_bookmarks)
         self.list_bookmarks = QtGui.QListWidget()
         self.list_bookmarks.itemClicked.connect(self.bookmark_clicked)
         self.list_bookmarks.contextMenuEvent = self.bookmark_context_menu_event
-        self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
-        self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
         self.folders_tab_widget.addTab(self.bookmarks_tab, _("Bookmarks"))
 
