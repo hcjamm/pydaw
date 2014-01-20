@@ -19,6 +19,7 @@ import operator
 import subprocess
 from time import sleep
 import time
+import random
 from PyQt4 import QtGui, QtCore
 from libpydaw import *
 import libpydaw.liblo as liblo
@@ -3967,6 +3968,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.scene.selectionChanged.connect(self.highlight_selected)
         self.selected_note_strings = []
         self.piano_keys = None
+        self.vel_rand = 0
+        self.vel_emphasis = 0
 
     def prepare_to_quit(self):
         self.scene.clearSelection()
@@ -4045,16 +4048,21 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_pos_x < global_piano_roll_grid_max_start_time and \
             f_pos_y > global_piano_roll_header_height and \
             f_pos_y < global_piano_roll_total_height:
+                if self.vel_rand == 1:
+                    pass
+                elif self.vel_rand == 2:
+                    pass
                 f_note = int(self.total_notes - ((f_pos_y -
                              global_piano_roll_header_height) / self.note_height)) + 1
                 if global_piano_roll_snap:
                     f_beat = (int((f_pos_x - global_piano_keys_width) /
                              global_piano_roll_snap_value) * \
                              global_piano_roll_snap_value) * 0.001 * 4.0
-                    f_note_item = pydaw_note(f_beat, global_piano_roll_snap_beats, f_note, 100)
+                    f_note_item = pydaw_note(f_beat, global_piano_roll_snap_beats, f_note,
+                                             self.get_vel(f_beat))
                 else:
                     f_beat = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
-                    f_note_item = pydaw_note(f_beat, 0.25, f_note, 100)
+                    f_note_item = pydaw_note(f_beat, 0.25, f_note, self.get_vel(f_beat))
                 f_note_index = this_item_editor.add_note(f_note_item)
                 global global_selected_piano_note
                 global_selected_piano_note = f_note_item
@@ -4291,11 +4299,40 @@ class piano_roll_editor(QtGui.QGraphicsView):
                                            a_note.note_num, a_note, a_item_index)
         f_note_item.setPos(f_start, f_note)
         f_vel_opacity = QtGui.QGraphicsOpacityEffect()
-        f_vel_opacity.setOpacity((a_note.velocity * 0.007874016 * 0.6) + 0.4)
+        f_opacity = a_note.velocity * 0.007874016
+        f_opacity = ((f_opacity * f_opacity) * 0.6) + 0.4
+        f_vel_opacity.setOpacity(f_opacity)
         f_note_item.setGraphicsEffect(f_vel_opacity)
         self.scene.addItem(f_note_item)
         self.note_items.append(f_note_item)
         return f_note_item
+
+    def set_vel_rand(self, a_rand, a_emphasis):
+        self.vel_rand = int(a_rand)
+        self.vel_emphasis = int(a_emphasis)
+
+    def get_vel(self, a_beat):
+        if self.vel_rand == 0:
+            return 100
+        f_emph = self.get_beat_emphasis(a_beat)
+        if self.vel_rand == 1:
+            return random.randint(75 - f_emph, 100 - f_emph)
+        elif self.vel_rand == 2:
+            return random.randint(75 - f_emph, 100 - f_emph)
+        else:
+            assert(False)
+
+    def get_beat_emphasis(self, a_beat, a_amt=25.0):
+        if self.vel_emphasis == 0:
+            return 0
+        f_beat = a_beat
+        if self.vel_emphasis == 2:
+            f_beat += 0.5
+        f_beat = f_beat % 1.0
+        if f_beat > 0.5:
+            f_beat = 0.5 - (f_beat - 0.5)
+            f_beat = 0.5 - f_beat
+        return int(f_beat * 2.0 * a_amt)
 
 class piano_roll_editor_widget():
     def quantize_dialog(self):
@@ -4333,16 +4370,30 @@ class piano_roll_editor_widget():
                                       "Natural Minor", "Pentatonic Major", "Pentatonic Minor",
                                       "Dorian", "Phrygian", "Lydian", "Mixolydian", "Locrian"])
         self.scale_combobox.currentIndexChanged.connect(self.reload_handler)
-        self.controls_grid_layout.addWidget(QtGui.QLabel("Scale:"), 0, 5)
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Scale:")), 0, 5)
         self.controls_grid_layout.addWidget(self.scale_combobox, 0, 6)
 
-        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                                            QtGui.QSizePolicy.Expanding), 0, 30)
+        self.controls_grid_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
 
-        self.edit_menu_button = QtGui.QPushButton("Edit")
+        self.vel_rand_combobox = QtGui.QComboBox()
+        self.vel_rand_combobox.setMinimumWidth(90)
+        self.vel_rand_combobox.addItems([_("None"), _("Tight"), _("Loose")])
+        self.vel_rand_combobox.currentIndexChanged.connect(self.set_vel_rand)
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Vel. Rand.")), 0, 14)
+        self.controls_grid_layout.addWidget(self.vel_rand_combobox, 0, 15)
+        self.vel_emphasis_combobox = QtGui.QComboBox()
+        self.vel_emphasis_combobox.setMinimumWidth(100)
+        self.vel_emphasis_combobox.addItems([_("None"), _("On-beat"), _("Off-beat")])
+        self.vel_emphasis_combobox.currentIndexChanged.connect(self.set_vel_rand)
+        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Emphasis")), 0, 18)
+        self.controls_grid_layout.addWidget(self.vel_emphasis_combobox, 0, 19)
+
+        self.edit_menu_button = QtGui.QPushButton(_("Edit"))
+        self.edit_menu_button.setFixedWidth(60)
         self.edit_menu = QtGui.QMenu(self.widget)
         self.edit_menu_button.setMenu(self.edit_menu)
-        self.controls_grid_layout.addWidget(self.edit_menu_button, 0, 10)
+        self.controls_grid_layout.addWidget(self.edit_menu_button, 0, 30)
 
         self.quantize_action = QtGui.QAction(_("Quantize"), self.widget)
         self.edit_menu.addAction(self.quantize_action)
@@ -4366,9 +4417,8 @@ class piano_roll_editor_widget():
         self.edit_menu.addAction(self.clear_action)
         self.clear_action.triggered.connect(self.clear_notes)
 
-        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                                            QtGui.QSizePolicy.Expanding),
-                                                            0, 18)
+        self.controls_grid_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 31)
 
         self.vlayout.addLayout(self.controls_grid_layout)
         self.vlayout.addWidget(this_piano_roll_editor)
@@ -4379,6 +4429,10 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("Snap:")), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+
+    def set_vel_rand(self, a_val=None):
+        this_piano_roll_editor.set_vel_rand(self.vel_rand_combobox.currentIndex(),
+                                            self.vel_emphasis_combobox.currentIndex())
 
     def set_snap(self, a_val=None):
         f_index = self.snap_combobox.currentIndex()
