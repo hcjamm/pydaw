@@ -3710,9 +3710,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
-        self.setBrush(pydaw_note_gradient)
         self.note_height = a_note_height
         self.note_item = a_note_item
+        self.set_brush()
         self.setAcceptHoverEvents(True)
         self.resize_start_pos = self.note_item.start
         self.is_copying = False
@@ -3728,6 +3728,14 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setZValue(1002.0)
         self.note_text = QtGui.QGraphicsSimpleTextItem(self)
         self.update_note_text()
+
+    def set_brush(self):
+        f_val = (127 - self.note_item.velocity) * 1.5
+        f_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
+        f_gradient.setColorAt(0.0, QtGui.QColor(250 - f_val, 250, f_val))
+        f_gradient.setColorAt(0.2, QtGui.QColor(240 - f_val, 240, f_val))
+        f_gradient.setColorAt(1.0, QtGui.QColor(195 - f_val, 195, f_val))
+        self.setBrush(f_gradient)
 
     def update_note_text(self):
         f_octave = (self.note_item.note_num // 12) - 2
@@ -4011,7 +4019,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 self.has_selected = True
             else:
                 f_item.note_item.is_selected = False
-                f_item.setBrush(pydaw_note_gradient)
+                f_item.set_brush()
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
@@ -4298,11 +4306,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_note_item = piano_roll_note_item(f_length, self.note_height,
                                            a_note.note_num, a_note, a_item_index)
         f_note_item.setPos(f_start, f_note)
-        f_vel_opacity = QtGui.QGraphicsOpacityEffect()
-        f_opacity = a_note.velocity * 0.007874016
-        f_opacity = ((f_opacity * f_opacity) * 0.6) + 0.4
-        f_vel_opacity.setOpacity(f_opacity)
-        f_note_item.setGraphicsEffect(f_vel_opacity)
         self.scene.addItem(f_note_item)
         self.note_items.append(f_note_item)
         return f_note_item
