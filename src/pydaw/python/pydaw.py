@@ -3703,6 +3703,11 @@ global_piano_roll_min_note_length = global_piano_roll_grid_width / 128.0
 global_piano_roll_note_labels = ["C", "C#", "D", "D#", "E", "F", "F#",
                                  "G", "G#", "A", "A#", "B"]
 
+
+global_piano_note_gradient_tuple = \
+((255, 0, 0), (255, 255, 0), (255, 123, 0), (0, 255, 0),
+ (0, 123, 255), (255, 0, 255, 90), (0, 0, 255), (0, 0, 255))
+
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
@@ -3730,12 +3735,17 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.update_note_text()
 
     def set_brush(self):
-        f_val = (127 - self.note_item.velocity) * 1.5
-        f_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
-        f_gradient.setColorAt(0.0, QtGui.QColor(250 - f_val, 250, f_val))
-        f_gradient.setColorAt(0.2, QtGui.QColor(240 - f_val, 240, f_val))
-        f_gradient.setColorAt(1.0, QtGui.QColor(195 - f_val, 195, f_val))
-        self.setBrush(f_gradient)
+        f_val = (1.0 - (self.note_item.velocity / 127.0)) * 6.0
+        f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 6.0)
+        f_int = int(f_val)
+        f_frac = f_val - f_int
+        f_vals = []
+        for f_i in range(3):
+            f_val = (((global_piano_note_gradient_tuple[f_int + 1][f_i] -
+                global_piano_note_gradient_tuple[f_int][f_i]) * f_frac) +
+                global_piano_note_gradient_tuple[f_int][f_i])
+            f_vals.append(f_val)
+        self.setBrush(QtGui.QBrush(QtGui.QColor(*f_vals)))
 
     def update_note_text(self):
         f_octave = (self.note_item.note_num // 12) - 2
