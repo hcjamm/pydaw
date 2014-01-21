@@ -978,7 +978,7 @@ class pydaw_abstract_file_browser_widget():
         def on_cancel(a_val=None):
             f_window.close()
 
-        f_window = QtGui.QDialog(self.widget)
+        f_window = QtGui.QDialog(self.list_bookmarks)
         f_window.setMinimumWidth(300)
         f_window.setWindowTitle("Add Bookmark")
         f_layout = QtGui.QVBoxLayout()
