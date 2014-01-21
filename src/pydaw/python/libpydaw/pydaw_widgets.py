@@ -1040,6 +1040,8 @@ class pydaw_abstract_file_browser_widget():
             self.last_open_dir = os.path.abspath("{}/{}".format(self.last_open_dir, a_folder))
         self.last_open_dir = self.last_open_dir.replace("//", "/")
         if self.last_open_dir != self.history[-1]:
+            if self.last_open_dir in self.history:  #don't keep more than one copy in history
+                self.history.remove(self.last_open_dir)
             self.history.append(self.last_open_dir)
         self.folder_path_lineedit.setText(self.last_open_dir)
         f_list = os.listdir(self.last_open_dir)
