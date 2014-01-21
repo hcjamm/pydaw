@@ -8110,7 +8110,6 @@ class pydaw_wave_editor_widget:
                                                            self.marker_callback,
                                                            self.marker_callback)
         self.vlayout.addWidget(self.sample_graph)
-        self.last_folder = global_home
         self.orig_pos = 0
         self.has_loaded_file = False
         self.duration = None
@@ -8220,8 +8219,6 @@ class pydaw_wave_editor_widget:
         this_pydaw_project.this_pydaw_osc.pydaw_stop_preview()
 
     def on_file_open(self):
-        if not os.path.isdir(self.last_folder):
-            self.last_folder = global_home
         f_file = self.file_browser.files_selected()
         if not f_file:
             return
@@ -8238,13 +8235,12 @@ class pydaw_wave_editor_widget:
         if len(f_text) < 1000 and os.path.isfile(f_text):
             self.open_file(f_text)
         else:
-            QtGui.QMessageBox.warning(self.widget, "Error", "No file path in the clipboard")
+            QtGui.QMessageBox.warning(self.widget, _("Error"), _("No file path in the clipboard"))
 
     def open_file(self, a_file):
         self.clear_sample_graph()
         self.file_lineedit.setText(a_file)
         f_graph = self.set_sample_graph(a_file)
-        self.last_folder = os.path.dirname(a_file)
         self.duration = f_graph.frame_count / f_graph.sample_rate
         print("Duration:  {}".format(self.duration))
         self.has_loaded_file = True
@@ -8375,6 +8371,7 @@ def global_open_project(a_project_file, a_wait=True):
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.suppress_updates = True
     this_pydaw_project.open_project(a_project_file, False)
+    this_wave_editor_widget.last_offline_dir = this_pydaw_project.user_folder
     this_song_editor.open_song()
     pydaw_update_region_lengths_dict()
     for f_editor in global_region_editors:
@@ -8401,6 +8398,7 @@ def global_new_project(a_project_file, a_wait=True):
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.new_project(a_project_file)
     this_pydaw_project.save_transport(this_transport.transport)
+    this_wave_editor_widget.last_offline_dir = this_pydaw_project.user_folder
     this_song_editor.open_song()
     this_pydaw_project.save_song(this_song_editor.song)
     this_transport.open_transport()
