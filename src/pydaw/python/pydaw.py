@@ -8282,6 +8282,7 @@ class pydaw_wave_editor_widget:
     def on_play(self):
         self.file_browser.load_button.setEnabled(False)
         self.file_browser.preview_button.setEnabled(False)
+        self.file_browser.stop_preview_button.setEnabled(False)
         self.sample_graph.setEnabled(False)
         self.vol_slider.setEnabled(False)
         self.menu_button.setEnabled(False)
@@ -8294,6 +8295,7 @@ class pydaw_wave_editor_widget:
     def on_stop(self):
         self.file_browser.load_button.setEnabled(True)
         self.file_browser.preview_button.setEnabled(True)
+        self.file_browser.stop_preview_button.setEnabled(True)
         self.sample_graph.setEnabled(True)
         self.vol_slider.setEnabled(True)
         self.menu_button.setEnabled(True)
