@@ -8631,6 +8631,6 @@ if os.path.isfile(global_tooltips_enabled_file):
 else:
     this_transport.tooltips_checkbox.setChecked(True)
 
-QtCore.QTextCodec.setCodecForCStrings(QtCore.QTextCodec.codecForName("UTF-8"))
+QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("UTF-8"))
 
 sys.exit(app.exec_())
