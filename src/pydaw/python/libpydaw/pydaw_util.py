@@ -42,7 +42,7 @@ def pydaw_escape_stylesheet(a_stylesheet, a_path):
     f_result = a_stylesheet.replace("$STYLE_FOLDER", f_dir)
     return f_result
 
-print(("\n\n\ninstall prefix:  {}\n\n\n".format(global_pydaw_install_prefix)))
+print("\n\n\ninstall prefix:  {}\n\n\n".format(global_pydaw_install_prefix))
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
