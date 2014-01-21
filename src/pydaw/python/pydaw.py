@@ -3717,7 +3717,6 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.note_height = a_note_height
         self.note_item = a_note_item
-        self.set_brush()
         self.setAcceptHoverEvents(True)
         self.resize_start_pos = self.note_item.start
         self.is_copying = False
@@ -3733,6 +3732,16 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setZValue(1002.0)
         self.note_text = QtGui.QGraphicsSimpleTextItem(self)
         self.update_note_text()
+        self.vel_line = QtGui.QGraphicsLineItem(self)
+        self.set_vel_line()
+        self.set_brush()
+
+    def set_vel_line(self):
+        f_vel = self.note_item.velocity
+        f_rect = self.rect()
+        f_y = (1.0 - (f_vel * 0.007874016)) * f_rect.height()
+        f_width = f_rect.width()
+        self.vel_line.setLine(0.0, f_y, f_width, f_y)
 
     def set_brush(self):
         f_val = (1.0 - (self.note_item.velocity / 127.0)) * 9.0
