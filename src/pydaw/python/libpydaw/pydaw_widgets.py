@@ -1033,6 +1033,7 @@ class pydaw_abstract_file_browser_widget():
     def set_folder(self, a_folder, a_full_path=False):
         self.list_file.clear()
         self.list_folder.clear()
+        self.folder_filter_lineedit.clear()
         if a_full_path:
             self.last_open_dir = str(a_folder)
         else:
