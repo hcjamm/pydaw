@@ -2232,9 +2232,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.is_playing = False
         self.last_x_scale = 1.0
         self.reselect_on_stop = []
-        self.playback_timer = QtCore.QTimer()
-        self.playback_timer.setSingleShot(False)
-        self.playback_timer.timeout.connect(self.playback_timeout)
         self.playback_cursor = None
         self.playback_inc_count = 0
         #Somewhat slow on my AMD 5450 using the FOSS driver
@@ -2559,12 +2556,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
             global_open_audio_items()
 
 
-    def set_playback_pos(self, a_bar=None):
+    def set_playback_pos(self, a_bar=None, a_beat=0.0):
         if a_bar is None:
             f_bar = this_transport.get_bar_value()
         else:
-            f_bar = a_bar
-        self.playback_cursor.setPos(f_bar * global_audio_px_per_bar, 0.0)
+            f_bar = int(a_bar)
+        f_beat = float(a_beat)
+        f_pos = (f_bar * global_audio_px_per_bar) + (f_beat * global_audio_px_per_beat)
+        self.playback_cursor.setPos(f_pos, 0.0)
         self.playback_inc_count = 0
 
     def set_playback_clipboard(self):
@@ -2575,22 +2574,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def start_playback(self, a_bpm):
         self.is_playing = True
-        f_interval = ((1.0 / (a_bpm / 60.0)) / global_audio_px_per_bar) * 1000.0 * 4.0
-        self.playback_timer.start(f_interval)
-        self.playback_inc_count = 0
 
     def stop_playback(self, a_bar=None):
         if self.is_playing:
             self.is_playing = False
-            self.playback_timer.stop()
             self.reset_selection()
             self.set_playback_pos(a_bar)
-
-    def playback_timeout(self):
-        if self.is_playing and self.playback_inc_count < 300:
-            f_new_pos = self.playback_cursor.pos().x() + 1.0
-            self.playback_cursor.setPos(f_new_pos, 0.0)
-            self.playback_inc_count += 1
 
     def reset_selection(self):
         for f_item in self.audio_items:
@@ -6406,26 +6395,28 @@ class transport_widget:
     def set_pos_from_cursor(self, a_region, a_bar):
         if self.follow_checkbox.isChecked() and (self.is_playing or self.is_recording):
             f_region = int(a_region)
-            self.set_region_value(f_region)
             f_bar = int(a_bar)
-            self.set_bar_value(f_bar)
-            this_audio_items_viewer.set_playback_pos(f_bar)
-            f_bar += 1
-            this_region_audio_editor.table_widget.selectColumn(f_bar)
-            this_region_editor.table_widget.selectColumn(f_bar)
-            this_region_bus_editor.table_widget.selectColumn(f_bar)
-            if f_region != self.last_region_num:
-                self.last_region_num = f_region
-                f_item = this_song_editor.table_widget.item(0, f_region)
-                this_song_editor.table_widget.selectColumn(f_region)
-                if not f_item is None and f_item.text() != "":
-                    this_region_settings.open_region(f_item.text())
-                else:
-                    this_region_settings.clear_items()
-                    this_audio_items_viewer.clear_drawn_items(a_default_length=True)
-                    this_audio_items_viewer.scale_to_region_size()
-                    for f_region_editor in global_region_editors:
-                        f_region_editor.set_region_length()
+            if self.region_spinbox.value() != f_region or \
+            self.bar_spinbox.value() != f_bar:
+                self.set_region_value(f_region)
+                self.set_bar_value(f_bar)
+                this_audio_items_viewer.set_playback_pos(f_bar)
+                f_bar += 1
+                this_region_audio_editor.table_widget.selectColumn(f_bar)
+                this_region_editor.table_widget.selectColumn(f_bar)
+                this_region_bus_editor.table_widget.selectColumn(f_bar)
+                if f_region != self.last_region_num:
+                    self.last_region_num = f_region
+                    f_item = this_song_editor.table_widget.item(0, f_region)
+                    this_song_editor.table_widget.selectColumn(f_region)
+                    if not f_item is None and f_item.text() != "":
+                        this_region_settings.open_region(f_item.text())
+                    else:
+                        this_region_settings.clear_items()
+                        this_audio_items_viewer.clear_drawn_items(a_default_length=True)
+                        this_audio_items_viewer.scale_to_region_size()
+                        for f_region_editor in global_region_editors:
+                            f_region_editor.set_region_length()
 
     def get_pos_in_seconds(self):
         f_bars = pydaw_get_pos_in_bars(self.get_region_value(), self.get_bar_value(), 0.0)
@@ -7684,8 +7675,9 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_track_type, f_track_num = track_all_to_type_and_index(f_track_num)
                 f_pc_dict[(f_track_type, f_is_inst, f_track_num, f_port)] = f_val
             elif a_key == "cur":
-                f_region, f_bar = a_val.split("|")
+                f_region, f_bar, f_beat = a_val.split("|")
                 this_transport.set_pos_from_cursor(f_region, f_bar)
+                this_audio_items_viewer.set_playback_pos(f_bar, f_beat)
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
                 this_piano_roll_editor.highlight_keys(f_state, f_note)

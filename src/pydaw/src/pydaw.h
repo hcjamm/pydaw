@@ -319,7 +319,6 @@ typedef struct
     char * osc_cursor_message[PYDAW_TRACK_COUNT_ALL];
     void * main_thread_args;
     int audio_glue_indexes[PYDAW_MAX_AUDIO_ITEM_COUNT];
-    int ml_cur_loop_prevent;
     int midi_learn;  //0 to disable, 1 to enable sending CC events to the UI
     int osc_queue_index;
     char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
@@ -857,6 +856,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
     char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][1024];
     char f_tmp1[10000];
     char f_tmp2[1000];
+    char f_msg[128];
 
     while(!a_pydaw_data->audio_recording_quit_notifier)
     {
@@ -868,14 +868,19 @@ void * v_pydaw_osc_send_thread(void* a_arg)
                 (float)(a_pydaw_data->ab_audio_item->
                 sample_read_head->whole_number) /
                 (float)(a_pydaw_data->ab_audio_item->wav_pool_item->length);
-                char f_msg[128];
 
                 sprintf(f_msg, "%f", f_frac);
                 v_queue_osc_message(a_pydaw_data, "wec", f_msg);
             }
             else
             {
-
+                if(!a_pydaw_data->is_offline_rendering)
+                {
+                    sprintf(f_msg, "%i|%i|%f", a_pydaw_data->current_region,
+                            a_pydaw_data->current_bar,
+                            a_pydaw_data->ml_current_beat);
+                    v_queue_osc_message(a_pydaw_data, "cur", f_msg);
+                }
             }
         }
 
@@ -2885,18 +2890,6 @@ inline void v_pydaw_run_engine(t_pydaw_data * a_pydaw_data, int sample_count,
     a_pydaw_data->bus_pool[0]->bus_counter =
             (a_pydaw_data->bus_pool[0]->bus_count);
 
-    if(a_pydaw_data->playback_mode != PYDAW_PLAYBACK_MODE_OFF &&
-            a_pydaw_data->ml_starting_new_bar &&
-            !a_pydaw_data->is_offline_rendering &&
-            (a_pydaw_data->ml_cur_loop_prevent != a_pydaw_data->ml_next_bar))
-    {
-        a_pydaw_data->ml_cur_loop_prevent = a_pydaw_data->ml_next_bar;
-        sprintf(a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT],
-            "%i|%i", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
-        v_queue_osc_message(a_pydaw_data, "cur",
-                a_pydaw_data->osc_cursor_message[PYDAW_MIDI_TRACK_COUNT]);
-    }
-
     if((a_pydaw_data->playback_mode) > 0)
     {
         v_pydaw_finish_time_params(a_pydaw_data,
@@ -4041,7 +4034,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_next_bar = 0;
     f_result->ml_next_beat = 0.0;
     f_result->ml_starting_new_bar = 0;
-    f_result->ml_cur_loop_prevent = 0;
     f_result->ml_is_looping = 0;
 
     f_result->rec_region_current_uid = 10000000;
