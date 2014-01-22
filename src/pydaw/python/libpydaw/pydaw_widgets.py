@@ -879,7 +879,8 @@ class pydaw_abstract_file_browser_widget():
         self.bookmarks_reload_button = QtGui.QPushButton("Reload")
         self.bookmarks_tab_vlayout.addWidget(self.bookmarks_reload_button)
         self.bookmarks_reload_button.pressed.connect(self.open_bookmarks)
-        self.list_bookmarks = QtGui.QListWidget()
+        self.list_bookmarks = QtGui.QTreeWidget()
+        self.list_bookmarks.setHeaderHidden(True)
         self.list_bookmarks.itemClicked.connect(self.bookmark_clicked)
         self.list_bookmarks.contextMenuEvent = self.bookmark_context_menu_event
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
@@ -963,15 +964,26 @@ class pydaw_abstract_file_browser_widget():
         self.list_bookmarks.clear()
         f_dict = pydaw_util.global_get_file_bookmarks()
         for k in sorted(f_dict.keys()):
-            self.list_bookmarks.addItem(str(k))
+            f_parent = QtGui.QTreeWidgetItem()
+            f_parent.setText(0, k)
+            self.list_bookmarks.addTopLevelItem(f_parent)
+            for k2 in sorted(f_dict[k].keys()):
+                f_child = QtGui.QTreeWidgetItem()
+                f_child.setText(0, k2)
+                f_parent.addChild(f_child)
+            f_parent.setExpanded(True)
 
     def bookmark_button_pressed(self):
         def on_ok(a_val=None):
+            f_text = str(f_category.currentText()).strip()
+            if not f_text:
+                QtGui.QMessageBox.warning(f_window, "Error",
+                                          "Category cannot be empty")
             f_val = str(f_lineedit.text()).strip()
-            if f_val == "":
+            if not f_val:
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
-            pydaw_util.global_add_file_bookmark(f_val, self.last_open_dir)
+            pydaw_util.global_add_file_bookmark(f_val, self.last_open_dir, f_text)
             self.open_bookmarks()
             f_window.close()
 
@@ -983,8 +995,15 @@ class pydaw_abstract_file_browser_widget():
         f_window.setWindowTitle("Add Bookmark")
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
+        f_dict = pydaw_util.global_get_file_bookmarks()
+        if not f_dict:
+            f_dict = {'default':None}
+        f_category = QtGui.QComboBox()
+        f_category.setEditable(True)
+        f_category.addItems(sorted(f_dict.keys()))
+        f_layout.addWidget(f_category)
         f_lineedit = QtGui.QLineEdit()
-        f_tmp_arr = self.last_open_dir.rsplit("/")
+        f_tmp_arr = self.last_open_dir.rsplit("/", 1)
         if len(f_tmp_arr) >= 2:
             f_lineedit.setText(f_tmp_arr[-1])
         f_layout.addWidget(f_lineedit)
@@ -1000,23 +1019,31 @@ class pydaw_abstract_file_browser_widget():
 
 
     def bookmark_clicked(self, a_item):
-        f_dict = pydaw_util.global_get_file_bookmarks()
-        f_folder_name = str(a_item.text())
-        if f_folder_name in f_dict:
-            self.set_folder(f_dict[f_folder_name], True)
-            self.folders_tab_widget.setCurrentIndex(0)
-        else:
-            QtGui.QMessageBox.warning(self.widget, _("Error"),
-                                      _("This bookmark no longer exists.  You may have deleted "
-                                      "it in another window."))
-            self.open_bookmarks()
+        #test = QtGui.QTreeWidgetItem()
+        #test.parent()
+        f_parent = a_item.parent()
+        if f_parent is not None:
+            f_parent_str = str(f_parent.text(0))
+            f_dict = pydaw_util.global_get_file_bookmarks()
+            f_folder_name = str(a_item.text(0))
+            if f_parent_str in f_dict:
+                if f_folder_name in f_dict[f_parent_str]:
+                    self.set_folder(f_dict[f_parent_str][f_folder_name], True)
+                    self.folders_tab_widget.setCurrentIndex(0)
+                else:
+                    QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                              _("This bookmark no longer exists.  You may have "
+                                              "deleted it in another window."))
+                self.open_bookmarks()
 
     def delete_bookmark(self):
         f_items = self.list_bookmarks.selectedItems()
         if len(f_items) > 0:
-            pydaw_util.global_delete_file_bookmark(f_items[0].text())
-            self.list_bookmarks.clear()
-            self.open_bookmarks()
+            f_parent = f_items[0].parent()
+            if f_parent is not None:
+                pydaw_util.global_delete_file_bookmark(f_parent.text(0), f_items[0].text(0))
+                self.list_bookmarks.clear()
+                self.open_bookmarks()
 
     def bookmark_context_menu_event(self, a_event):
         f_menu = QtGui.QMenu(self.list_bookmarks)
@@ -1055,9 +1082,10 @@ class pydaw_abstract_file_browser_widget():
                     if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
                         self.list_file.addItem(f_file)
                     else:
-                        print(_("Not adding '{}' because it contains bad chars, "
-                        "you must rename this file path without:").format(f_full_path))
-                        print(("\n".join(pydaw_util.pydaw_bad_chars)))
+                        QtGui.QMessageBox.warning(_(
+                        "Not adding '{}' because it contains bad chars, "
+                        "you must rename this file path without:\n{}").format(
+                        f_full_path, "\n".join(pydaw_util.pydaw_bad_chars)))
         self.on_filter_files()
         self.on_filter_folders()
 
