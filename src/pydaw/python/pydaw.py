@@ -7329,6 +7329,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.audio_converter_dialog("lame", "avconv", "mp3")
 
     def ogg_converter_dialog(self):
+        if pydaw_which("oggenc") is None or pydaw_which("oggdec") is None:
+            QtGui.QMessageBox.warning(self, _("Error"),
+                _("Error, vorbis-tools are not installed"))
+            return
         self.audio_converter_dialog("oggenc", "oggdec", "ogg")
 
     def audio_converter_dialog(self, a_enc, a_dec, a_label):
