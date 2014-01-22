@@ -864,6 +864,7 @@ class pydaw_abstract_file_browser_widget():
         self.folders_widget_layout.addLayout(self.folder_buttons_hlayout)
         self.up_button = QtGui.QPushButton(_("Up"))
         self.up_button.pressed.connect(self.on_up_button)
+        self.up_button.contextMenuEvent = self.up_contextMenuEvent
         self.folder_buttons_hlayout.addWidget(self.up_button)
         self.back_button = QtGui.QPushButton(_("Back"))
         self.folder_buttons_hlayout.addWidget(self.back_button)
@@ -937,6 +938,16 @@ class pydaw_abstract_file_browser_widget():
         for f_path in reversed(self.history):
             f_menu.addAction(f_path)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def up_contextMenuEvent(self, a_event):
+        if self.last_open_dir != "/":
+            f_menu = QtGui.QMenu(self.up_button)
+            f_menu.triggered.connect(self.open_path_from_action)
+            f_arr = self.last_open_dir.split("/")[1:]
+            for f_i in range(len(f_arr)):
+                f_path = "/{}".format("/".join(f_arr[:f_i]))
+                f_menu.addAction(f_path)
+            f_menu.exec_(QtGui.QCursor.pos())
 
     def on_filter_folders(self):
         self.on_filter(self.folder_filter_lineedit, self.list_folder)
