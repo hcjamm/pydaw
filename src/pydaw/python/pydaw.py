@@ -45,12 +45,9 @@ global_audio_region_snap_px = {}
 global_bar_count = 300 * 8
 
 class pydaw_track_type_enum:
-    @staticmethod
-    def midi(): return 0
-    @staticmethod
-    def bus():  return 1
-    @staticmethod
-    def audio():  return 2
+    midi = 0
+    bus = 1
+    audio = 2
 
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
@@ -722,15 +719,15 @@ class region_list_editor:
 
     def open_tracks(self):
         self.reset_tracks()
-        if self.track_type == pydaw_track_type_enum.midi():
+        if self.track_type == pydaw_track_type_enum.midi:
             f_tracks = this_pydaw_project.get_tracks()
             for key, f_track in list(f_tracks.tracks.items()):
                 self.tracks[key].open_track(f_track)
-        elif self.track_type == pydaw_track_type_enum.bus():
+        elif self.track_type == pydaw_track_type_enum.bus:
             f_tracks = this_pydaw_project.get_bus_tracks()
             for key, f_track in list(f_tracks.busses.items()):
                 self.tracks[key].open_track(f_track)
-        elif self.track_type == pydaw_track_type_enum.audio():
+        elif self.track_type == pydaw_track_type_enum.audio:
             f_tracks = this_pydaw_project.get_audio_tracks()
             for key, f_track in list(f_tracks.tracks.items()):
                 self.tracks[key].open_track(f_track)
@@ -738,16 +735,16 @@ class region_list_editor:
     def reset_tracks(self):
         self.tracks = []
         for i in range(0, self.track_count):
-            if self.track_type == pydaw_track_type_enum.midi():
+            if self.track_type == pydaw_track_type_enum.midi:
                 track = seq_track(a_track_num=i, a_track_text=_("track{}").format(i + 1))
-            elif self.track_type == pydaw_track_type_enum.bus():
+            elif self.track_type == pydaw_track_type_enum.bus:
                 if i == 0:
                     track = seq_track(a_track_num=i, a_track_text=_("Master"),
                                       a_instrument=False)
                 else:
                     track = seq_track(a_track_num=i, a_track_text=_("Bus{}").format(i),
                                       a_instrument=False)
-            elif self.track_type == pydaw_track_type_enum.audio():
+            elif self.track_type == pydaw_track_type_enum.audio:
                 track = audio_track(a_track_num=i, a_track_text=_("track{}").format(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)
@@ -8447,9 +8444,9 @@ this_cc_automation_viewers.append(this_cc_automation_viewer2)
 this_wave_editor_widget = pydaw_wave_editor_widget()
 this_song_editor = song_editor()
 this_region_settings = region_settings()
-this_region_editor = region_list_editor(pydaw_track_type_enum.midi())
-this_region_bus_editor = region_list_editor(pydaw_track_type_enum.bus())
-this_region_audio_editor = region_list_editor(pydaw_track_type_enum.audio())
+this_region_editor = region_list_editor(pydaw_track_type_enum.midi)
+this_region_bus_editor = region_list_editor(pydaw_track_type_enum.bus)
+this_region_audio_editor = region_list_editor(pydaw_track_type_enum.audio)
 global_region_editors = (this_region_editor, this_region_bus_editor, this_region_audio_editor)
 
 this_audio_item_editor_widget = audio_item_editor_widget()
