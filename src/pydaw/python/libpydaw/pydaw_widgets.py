@@ -963,11 +963,11 @@ class pydaw_abstract_file_browser_widget():
     def open_bookmarks(self):
         self.list_bookmarks.clear()
         f_dict = pydaw_util.global_get_file_bookmarks()
-        for k in sorted(f_dict.keys()):
+        for k in sorted(f_dict.keys(), key=lambda s: s.lower()):
             f_parent = QtGui.QTreeWidgetItem()
             f_parent.setText(0, k)
             self.list_bookmarks.addTopLevelItem(f_parent)
-            for k2 in sorted(f_dict[k].keys()):
+            for k2 in sorted(f_dict[k].keys(), key=lambda s: s.lower()):
                 f_child = QtGui.QTreeWidgetItem()
                 f_child.setText(0, k2)
                 f_parent.addChild(f_child)
@@ -1000,7 +1000,7 @@ class pydaw_abstract_file_browser_widget():
             f_dict = {'default':None}
         f_category = QtGui.QComboBox()
         f_category.setEditable(True)
-        f_category.addItems(sorted(f_dict.keys()))
+        f_category.addItems(sorted(f_dict.keys(), key=lambda s: s.lower()))
         f_layout.addWidget(f_category)
         f_lineedit = QtGui.QLineEdit()
         f_tmp_arr = self.last_open_dir.rsplit("/", 1)
@@ -1040,10 +1040,15 @@ class pydaw_abstract_file_browser_widget():
         f_items = self.list_bookmarks.selectedItems()
         if len(f_items) > 0:
             f_parent = f_items[0].parent()
-            if f_parent is not None:
+            if f_parent is None:
+                f_parent = f_items[0]
+                for f_i in range(f_parent.childCount()):
+                    f_child = f_parent.child(f_i)
+                    pydaw_util.global_delete_file_bookmark(f_parent.text(0), f_child.text(0))
+            else:
                 pydaw_util.global_delete_file_bookmark(f_parent.text(0), f_items[0].text(0))
                 self.list_bookmarks.clear()
-                self.open_bookmarks()
+            self.open_bookmarks()
 
     def bookmark_context_menu_event(self, a_event):
         f_menu = QtGui.QMenu(self.list_bookmarks)
