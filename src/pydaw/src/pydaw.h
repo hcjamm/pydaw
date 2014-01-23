@@ -857,6 +857,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
     char f_tmp1[10000];
     char f_tmp2[1000];
     char f_msg[128];
+    f_msg[0] = '\0';
 
     while(!a_pydaw_data->audio_recording_quit_notifier)
     {
@@ -876,9 +877,9 @@ void * v_pydaw_osc_send_thread(void* a_arg)
             {
                 if(!a_pydaw_data->is_offline_rendering)
                 {
-                    sprintf(f_msg, "%i|%i|%f", a_pydaw_data->current_region,
-                            a_pydaw_data->current_bar,
-                            a_pydaw_data->ml_current_beat);
+                    sprintf(f_msg, "%i|%i|%f", a_pydaw_data->ml_current_region,
+                            a_pydaw_data->ml_next_bar,
+                            a_pydaw_data->ml_next_beat);
                     v_queue_osc_message(a_pydaw_data, "cur", f_msg);
                 }
             }

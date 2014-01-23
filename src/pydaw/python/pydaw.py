@@ -2233,7 +2233,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.reselect_on_stop = []
         self.playback_cursor = None
-        self.playback_inc_count = 0
         #Somewhat slow on my AMD 5450 using the FOSS driver
         #self.setRenderHint(QtGui.QPainter.Antialiasing)
 
@@ -2564,7 +2563,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_beat = float(a_beat)
         f_pos = (f_bar * global_audio_px_per_bar) + (f_beat * global_audio_px_per_beat)
         self.playback_cursor.setPos(f_pos, 0.0)
-        self.playback_inc_count = 0
 
     def set_playback_clipboard(self):
         self.reselect_on_stop = []
@@ -6523,10 +6521,9 @@ class transport_widget:
             this_region_settings.open_region(f_song_table_item_str)
         else:
             this_region_settings.clear_items()
-        this_audio_items_viewer.stop_playback()
-        this_audio_items_viewer.set_playback_pos(self.get_bar_value())
         this_wave_editor_widget.on_stop()
         self.menu_button.setEnabled(True)
+        this_audio_items_viewer.stop_playback(self.last_bar)
 
     def show_save_items_dialog(self):
         def ok_handler():
@@ -7675,9 +7672,10 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_track_type, f_track_num = track_all_to_type_and_index(f_track_num)
                 f_pc_dict[(f_track_type, f_is_inst, f_track_num, f_port)] = f_val
             elif a_key == "cur":
-                f_region, f_bar, f_beat = a_val.split("|")
-                this_transport.set_pos_from_cursor(f_region, f_bar)
-                this_audio_items_viewer.set_playback_pos(f_bar, f_beat)
+                if global_transport_is_playing:
+                    f_region, f_bar, f_beat = a_val.split("|")
+                    this_transport.set_pos_from_cursor(f_region, f_bar)
+                    this_audio_items_viewer.set_playback_pos(f_bar, f_beat)
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
                 this_piano_roll_editor.highlight_keys(f_state, f_note)
@@ -7685,7 +7683,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if self.cc_map_table.cc_spinbox is not None:
                     self.cc_map_table.cc_spinbox.setValue(int(a_val))
             elif a_key == "wec":
-                this_wave_editor_widget.set_playback_cursor(float(a_val))
+                if global_transport_is_playing:
+                    this_wave_editor_widget.set_playback_cursor(float(a_val))
         #This prevents multiple events from moving the same control, only the last goes through
         for k, f_val in f_pc_dict.items():
             f_track_type, f_is_inst, f_track_num, f_port = k
