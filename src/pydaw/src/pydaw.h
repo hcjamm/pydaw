@@ -927,7 +927,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
             lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "s", f_tmp1);
         }
 
-        usleep(30000);
+        usleep(20000);
     }
 
     printf("osc send thread exiting\n");
