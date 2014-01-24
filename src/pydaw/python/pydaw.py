@@ -3711,10 +3711,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.is_resizing = False
         self.showing_resize_cursor = False
         self.resize_rect = self.rect()
-        self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
         self.mouse_y_pos = QtGui.QCursor.pos().y()
         self.setZValue(1002.0)
         self.note_text = QtGui.QGraphicsSimpleTextItem(self)
+        self.note_text.setPen(QtGui.QPen(QtCore.Qt.black))
         self.update_note_text()
         self.vel_line = QtGui.QGraphicsLineItem(self)
         self.set_vel_line()
@@ -3737,8 +3737,15 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_val = (((global_piano_note_gradient_tuple[f_int + 1][f_i] -
                 global_piano_note_gradient_tuple[f_int][f_i]) * f_frac) +
                 global_piano_note_gradient_tuple[f_int][f_i])
-            f_vals.append(f_val)
-        self.setBrush(QtGui.QBrush(QtGui.QColor(*f_vals)))
+            f_vals.append(int(f_val))
+        f_vals_m1 = pydaw_rgb_minus(f_vals, 90)
+        f_vals_m2 = pydaw_rgb_minus(f_vals, 120)
+        f_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, self.note_height)
+        f_gradient.setColorAt(0.0, QtGui.QColor(*f_vals_m1))
+        f_gradient.setColorAt(0.4, QtGui.QColor(*f_vals))
+        f_gradient.setColorAt(0.6, QtGui.QColor(*f_vals))
+        f_gradient.setColorAt(1.0, QtGui.QColor(*f_vals_m2))
+        self.setBrush(f_gradient)
 
     def update_note_text(self):
         f_octave = (self.note_item.note_num // 12) - 2

@@ -606,3 +606,16 @@ global_stylesheet = pydaw_escape_stylesheet(global_stylesheet, global_stylesheet
 
 global_stylesheet_dir = os.path.dirname(global_stylesheet_file)
 
+
+def pydaw_rgb_minus(a_rgb, a_amt):
+    f_result = []
+    for f_color in a_rgb:
+        f_result.append(pydaw_clip_min(f_color - a_amt, 0))
+    return f_result
+
+def pydaw_rgb_plus(a_rgb, a_amt):
+    f_result = []
+    for f_color in a_rgb:
+        f_result.append(pydaw_clip_max(f_color + a_amt, 255))
+    return f_result
+
