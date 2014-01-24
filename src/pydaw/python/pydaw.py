@@ -8446,11 +8446,15 @@ this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_audio_items_viewer = audio_items_viewer()
 
-if not os.path.isfile(pydaw_util.global_pydaw_device_config):
-    f_dialog = pydaw_device_dialog.pydaw_device_dialog(a_is_running=True)
-    f_dialog.show_device_dialog()
-    sleep(1.0)
-    pydaw_util.pydaw_read_device_config()
+def global_check_device():
+    f_device_dialog = pydaw_device_dialog.pydaw_device_dialog(a_is_running=True)
+    f_device_dialog.check_device()
+
+    if not pydaw_util.global_device_val_dict:
+        print("It appears that the user did not select an audio device, quitting...")
+        sys.exit(999)
+
+global_check_device()
 
 global_pydaw_subprocess = None
 

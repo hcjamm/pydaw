@@ -349,6 +349,8 @@ def pydaw_read_device_config():
     global global_pydaw_bin_path, global_device_val_dict
     global global_pydaw_is_sandboxed, global_pydaw_with_audio
 
+    global_device_val_dict = {}
+
     if os.path.isfile(global_pydaw_device_config):
         f_file_text = pydaw_read_file_text(global_pydaw_device_config)
         for f_line in f_file_text.split("\n"):
@@ -378,6 +380,7 @@ def pydaw_read_device_config():
             elif int(global_device_val_dict["audioEngine"]) == 6:
                 global_pydaw_with_audio = False
                 global_pydaw_bin_path = None
+
     print("global_pydaw_bin_path == {}".format(global_pydaw_bin_path))
 
 pydaw_read_device_config()

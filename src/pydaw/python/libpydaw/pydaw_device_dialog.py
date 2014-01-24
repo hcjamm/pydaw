@@ -28,19 +28,90 @@ class pydaw_device_dialog:
         self.sample_rates = ["44100", "48000", "88200", "96000", "192000"]
         self.buffer_sizes = ["32", "64", "128", "256", "512", "1024", "2048"]
 
+    def open_devices(self):
+        f_portaudio_so_path = "{}/libportaudio.so".format(
+            os.path.dirname(os.path.abspath(__file__)))
+        ctypes.cdll.LoadLibrary(f_portaudio_so_path)
+        self.pyaudio = ctypes.CDLL(f_portaudio_so_path)
+        self.pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(portaudio.PaDeviceInfo)
+        self.pyaudio.Pa_GetDeviceInfo.argstype = [ctypes.c_int]
+        self.pyaudio.Pa_GetHostApiInfo.restype = ctypes.POINTER(portaudio.PaHostApiInfo)
+        self.pyaudio.Pa_GetHostApiInfo.argstype = [ctypes.c_int]
+        self.pyaudio.Pa_IsFormatSupported.argstype = [ctypes.POINTER(portaudio.PaStreamParameters),
+                                                   ctypes.POINTER(portaudio.PaStreamParameters),
+                                                   ctypes.c_double]
+        self.pyaudio.Pa_Initialize()
+
+        ctypes.cdll.LoadLibrary("libportmidi.so")
+        self.pypm = ctypes.CDLL("libportmidi.so")
+        self.pypm.Pm_GetDeviceInfo.restype = ctypes.POINTER(portmidi.PmDeviceInfo)
+        self.pypm.Pm_Initialize()
+
+    def close_devices(self):
+        self.pyaudio.Pa_Terminate()
+        self.pypm.Pm_Terminate()
+
+    def check_device(self):
+        if not pydaw_util.global_device_val_dict:
+            self.show_device_dialog("No device configuration found")
+            return
+        elif not "name" in pydaw_util.global_device_val_dict:
+            self.show_device_dialog("Invalid device configuration")
+            return
+
+        f_device_str = pydaw_util.global_device_val_dict["name"]
+
+        self.open_devices()
+
+        f_count = self.pyaudio.Pa_GetDeviceCount()
+        print("f_count == {}".format(f_count))
+
+        f_audio_device_names = []
+
+        for i in range(f_count):
+            f_dev = self.pyaudio.Pa_GetDeviceInfo(i)
+            f_dev_name = f_dev.contents.name.decode("utf-8")
+            f_audio_device_names.append(f_dev_name)
+
+        self.close_devices()
+
+        if not f_device_str in f_audio_device_names:
+            if "(hw:" in f_device_str:
+                f_device_arr = f_device_str.split("(hw:")
+                f_device_name = f_device_arr[0]
+                f_device_num = f_device_arr[1].split(",", 1)[1]
+                for f_device in f_audio_device_names:
+                    if f_device.startswith(f_device_name) and \
+                    f_device.endswith(f_device_num):
+                        print("It appears that the system switched up the ALSA hw:X number, "
+                            "fixing it all sneaky-like in the background.  (grumble, grumble...)")
+                        print(f_device)
+                        pydaw_util.global_device_val_dict["name"] = f_device
+                        f_file = open(pydaw_util.global_pydaw_device_config, "w")
+                        for k, v in pydaw_util.global_device_val_dict.items():
+                            f_file.write("{}|{}\n".format(k, v))
+                        f_file.write("\\")
+                        f_file.close()
+                        return
+                pydaw_util.global_device_val_dict = {}
+            else:
+                self.show_device_dialog("Device not found: {}".format(f_device_str))
+
 
     def show_device_dialog(self, a_msg=None, a_notify=False):
-        f_stylesheet_file = "{}/lib/{}/themes/default/default.pytheme".format(
-            pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string)
-        f_stylesheet = pydaw_util.pydaw_read_file_text(f_stylesheet_file)
-        f_stylesheet = pydaw_util.pydaw_escape_stylesheet(f_stylesheet, f_stylesheet_file)
+        self.open_devices()
         if self.is_running:
             f_window = QtGui.QDialog()
         else:
             f_window = QtGui.QWidget()
             f_window.setObjectName("plugin_ui")
+
+        def f_close_event(a_self=None, a_event=None):
+            self.close_devices()
+
+        f_window.closeEvent = f_close_event
         f_window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        f_window.setStyleSheet(f_stylesheet)
+        f_window.setStyleSheet(pydaw_util.global_stylesheet)
         f_window.setWindowTitle("Hardware Settings...")
         f_window_layout = QtGui.QGridLayout(f_window)
         f_window_layout.addWidget(QtGui.QLabel("Audio Device:"), 0, 0)
@@ -145,21 +216,9 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_ok_cancel_layout.addWidget(f_cancel_button)
 
-        f_portaudio_so_path = "{}/libportaudio.so".format(
-            os.path.dirname(os.path.abspath(__file__)))
-        ctypes.cdll.LoadLibrary(f_portaudio_so_path)
-        f_pyaudio = ctypes.CDLL(f_portaudio_so_path)
-        f_pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(portaudio.PaDeviceInfo)
-        f_pyaudio.Pa_GetDeviceInfo.argstype = [ctypes.c_int]
-        f_pyaudio.Pa_GetHostApiInfo.restype = ctypes.POINTER(portaudio.PaHostApiInfo)
-        f_pyaudio.Pa_GetHostApiInfo.argstype = [ctypes.c_int]
-        f_pyaudio.Pa_IsFormatSupported.argstype = [ctypes.POINTER(portaudio.PaStreamParameters),
-                                                   ctypes.POINTER(portaudio.PaStreamParameters),
-                                                   ctypes.c_double]
-        f_pyaudio.Pa_Initialize()
-        f_count = f_pyaudio.Pa_GetHostApiCount()
+        f_count = self.pyaudio.Pa_GetHostApiCount()
 
-        f_count = f_pyaudio.Pa_GetDeviceCount()
+        f_count = self.pyaudio.Pa_GetDeviceCount()
         print("f_count == {}".format(f_count))
 
         f_result_dict = {}
@@ -167,7 +226,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
         f_audio_device_names = []
 
         for i in range(f_count):
-            f_dev = f_pyaudio.Pa_GetDeviceInfo(i)
+            f_dev = self.pyaudio.Pa_GetDeviceInfo(i)
             print("\nDevice Index: {}".format(i))
             f_dev_name = f_dev.contents.name.decode("utf-8")
             print("Name : {}".format(f_dev_name))
@@ -175,14 +234,9 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
             f_result_dict[f_dev_name] = f_dev.contents
             f_audio_device_names.append(f_dev_name)
 
-        ctypes.cdll.LoadLibrary("libportmidi.so")
-        pypm = ctypes.CDLL("libportmidi.so")
-        pypm.Pm_GetDeviceInfo.restype = ctypes.POINTER(portmidi.PmDeviceInfo)
-        pypm.Pm_Initialize()
-
         print("\n")
-        for loop in range(pypm.Pm_CountDevices()):
-            f_midi_device = pypm.Pm_GetDeviceInfo(loop)
+        for loop in range(self.pypm.Pm_CountDevices()):
+            f_midi_device = self.pypm.Pm_GetDeviceInfo(loop)
             f_midi_device_name = f_midi_device.contents.name.decode("utf-8")
             print("DeviceID: {} Name: '{}' Input?: {} Output?: {} Opened: {} ".format(
                 loop, f_midi_device_name, f_midi_device.contents.input,
@@ -230,7 +284,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
                     f_output = portaudio.PaStreamParameters(
                         f_name_to_index[self.device_name], 2, portaudio.paInt16,
                         float(f_buffer_size)/float(f_samplerate), None)
-                    f_supported = f_pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output),
+                    f_supported = self.pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output),
                                                                  f_samplerate)
                     if not f_supported:
                         raise Exception()
@@ -246,14 +300,14 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
 
                 f_file.write("\\")
                 f_file.close()
-                f_pyaudio.Pa_Terminate()
-                pypm.Pm_Terminate()
+                self.close_devices()
 
                 if a_notify:
                     QtGui.QMessageBox.warning(f_window, "Settings changed",
                       "Hardware settings have been changed, and will be "
                       "applied next time you start PyDAW.")
                 time.sleep(1.0)
+                pydaw_util.pydaw_read_device_config()
                 f_window.close()
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, "Error", "Couldn't open audio device\n\n{}\n\n"
@@ -311,8 +365,8 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
 
         f_screen = QtGui.QDesktopWidget().screenGeometry()
         f_size = f_window.geometry()
-        f_hpos = ( f_screen.width() - f_size.width() ) / 2
-        f_vpos = ( f_screen.height() - f_size.height() ) / 2
+        f_hpos = (f_screen.width() - f_size.width()) / 2
+        f_vpos = (f_screen.height() - f_size.height()) / 2
         f_window.move(f_hpos, f_vpos)
         latency_changed()
         if self.is_running:
