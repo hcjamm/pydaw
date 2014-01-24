@@ -3886,6 +3886,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                                                 f_new_note_num, f_item.note_item.velocity)
                         this_item_editor.items[f_item.item_index].add_note(f_new_note, False)
                         #pass a ref instead of a str in case fix_overlaps() modifies it.
+                        f_item.note_item = f_new_note
                         f_new_selection.append(f_item)
                     else:
                         this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
@@ -3956,7 +3957,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         QtGui.QGraphicsView.__init__(self)
         self.scene = QtGui.QGraphicsScene(self)
-        self.scene.setBackgroundBrush(QtGui.QColor(100,100,100))
+        self.scene.setBackgroundBrush(QtGui.QColor(100, 100, 100))
         self.scene.mousePressEvent = self.sceneMousePressEvent
         self.scene.mouseReleaseEvent = self.sceneMouseReleaseEvent
         self.setAlignment(QtCore.Qt.AlignLeft)
