@@ -16,6 +16,7 @@ import os
 
 f_dir_name = os.path.abspath(os.path.dirname(__file__))
 f_po_file = "{}/pydaw4.po".format(f_dir_name)
+f_gtranz_file = "{}/locale/goo.tranz".format(f_dir_name)
 f_path = "{}/locale/src".format(f_dir_name)
 
 def check_escape_sequences(a_file):
@@ -35,10 +36,27 @@ def check_escape_sequences(a_file):
                 print("\nwarning {}, count {} != {}\n\nmsgid {}\n\n msgstr {}\n\n".format(
                     a_file, k_count, v_count, k, v))
 
+def gen_gtranz():
+    f_result = ""
+    f_list = []
+    with open(f_po_file) as f_file:
+        f_arr = f_file.read().split("msgid")
+        for f_kvp in f_arr[1:]:
+            f_key, f_val = f_kvp.split("msgstr")
+            f_list.append(f_key.strip())
+    f_dash_line = "\n" + "-" * 6 + "\n"
+    f_result = f_dash_line.join(f_list)
+    with open(f_gtranz_file, "w") as f_file:
+        f_file.write(f_result)
+
+
+
 os.system('find python -iname "*.py" | xargs xgettext '
     '--from-code=UTF-8 --default-domain=pydaw4')
 
 os.system("sed --in-place '{}' --expression=s/CHARSET/UTF-8/".format(f_po_file))
+
+gen_gtranz()
 
 for f_file in os.listdir(f_path):
     f_locale_file = "{}/{}/pydaw4.po".format(f_path, f_file)

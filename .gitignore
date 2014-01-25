@@ -1,3 +1,5 @@
+src/pydaw/locale/goo/
+src/pydaw/locale/goo.tranz
 src/pydaw/locale/bin/
 main.su
 src/pydaw-build/*.rpm
