@@ -843,10 +843,10 @@ class region_list_editor:
                 f_name_suffix = 1
                 f_cell_text = str(f_new_lineedit.text())
                 for i in range(f_item_count.value()):
-                    while this_pydaw_project.item_exists(_("{}-{}").format(f_cell_text,
-                                                                        f_name_suffix)):
+                    while this_pydaw_project.item_exists(
+                        "{}-{}".format(f_cell_text, f_name_suffix)):
                         f_name_suffix += 1
-                    f_item_name = _("{}-{}").format(f_cell_text, f_name_suffix)
+                    f_item_name = "{}-{}".format(f_cell_text, f_name_suffix)
                     f_uid = this_pydaw_project.create_empty_item(f_item_name)
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
                     global_current_region.add_item_ref_by_uid(
