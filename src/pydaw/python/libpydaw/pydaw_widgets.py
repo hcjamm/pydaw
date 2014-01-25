@@ -22,7 +22,6 @@ from libpydaw.pydaw_project import pydaw_audio_item_fx
 from libpydaw.translate import _
 from PyQt4 import QtGui, QtCore
 import numpy
-import gettext
 
 
 global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
