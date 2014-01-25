@@ -24,12 +24,13 @@ def check_escape_sequences(a_file):
         f_arr = f_file.read().split("msgid")
         for f_kvp in f_arr[1:]:
             f_key, f_val = f_kvp.split("msgstr")
+            #TODO:  If a '#' char is actually in the string this breaks
             f_val = f_val.split("#")[0]
             f_dict[f_key.strip()] = f_val.strip()
     for k, v in f_dict.items():
         if v != '""':
-            k_count = k.count("{}")
-            v_count = v.count("{}")
+            k_count = k.count("{")
+            v_count = v.count("{")
             if k_count != v_count:
                 print("\nwarning {}, count {} != {}\n\nmsgid {}\n\n msgstr {}\n\n".format(
                     a_file, k_count, v_count, k, v))
@@ -38,8 +39,6 @@ os.system('find python -iname "*.py" | xargs xgettext '
     '--from-code=UTF-8 --default-domain=pydaw4')
 
 os.system("sed --in-place '{}' --expression=s/CHARSET/UTF-8/".format(f_po_file))
-
-print(f_path)
 
 for f_file in os.listdir(f_path):
     f_locale_file = "{}/{}/pydaw4.po".format(f_path, f_file)
