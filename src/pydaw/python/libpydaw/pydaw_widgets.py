@@ -19,13 +19,10 @@ were mostly converted to Python/PyQt from C++/Qt by a script.
 import os
 from . import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
+from libpydaw.translate import _
 from PyQt4 import QtGui, QtCore
 import numpy
 import gettext
-
-gettext.install("pydaw4" "{}/share/locale".format(pydaw_util.global_pydaw_install_prefix))
-
-_ = gettext.lgettext
 
 
 global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
