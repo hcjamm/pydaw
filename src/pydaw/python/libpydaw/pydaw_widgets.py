@@ -877,14 +877,24 @@ class pydaw_abstract_file_browser_widget():
         self.bookmarks_tab = QtGui.QWidget()
         self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
         self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
-        self.bookmarks_reload_button = QtGui.QPushButton("Reload")
-        self.bookmarks_tab_vlayout.addWidget(self.bookmarks_reload_button)
-        self.bookmarks_reload_button.pressed.connect(self.open_bookmarks)
         self.list_bookmarks = QtGui.QTreeWidget()
         self.list_bookmarks.setHeaderHidden(True)
         self.list_bookmarks.itemClicked.connect(self.bookmark_clicked)
         self.list_bookmarks.contextMenuEvent = self.bookmark_context_menu_event
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
+        self.bookmark_button_hlayout = QtGui.QHBoxLayout()
+        self.bookmarks_reload_button = QtGui.QPushButton("Reload")
+        self.bookmarks_tab_vlayout.addLayout(self.bookmark_button_hlayout)
+        self.bookmark_button_hlayout.addWidget(self.bookmarks_reload_button)
+        self.bookmarks_reload_button.pressed.connect(self.open_bookmarks)
+        self.bookmarks_menu_button = QtGui.QPushButton("Menu")
+        self.bookmark_button_hlayout.addWidget(self.bookmarks_menu_button)
+        f_bookmark_menu = QtGui.QMenu(self.bookmarks_tab)
+        self.bookmarks_menu_button.setMenu(f_bookmark_menu)
+        f_bookmark_open_action = f_bookmark_menu.addAction("Open...")
+        f_bookmark_open_action.triggered.connect(self.on_bookmark_open)
+        f_bookmark_save_as_action = f_bookmark_menu.addAction("Save As...")
+        f_bookmark_save_as_action.triggered.connect(self.on_bookmark_save_as)
         self.folders_tab_widget.addTab(self.bookmarks_tab, _("Bookmarks"))
 
         self.file_vlayout = QtGui.QVBoxLayout()
@@ -920,6 +930,28 @@ class pydaw_abstract_file_browser_widget():
         self.modulex_clipboard = None
         self.audio_items_clipboard = []
         self.hsplitter.setSizes([300, 9999])
+
+
+    def on_bookmark_save_as(self):
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=self.bookmarks_tab,
+                                                   caption=_('Save bookmark file...'),
+                                                   directory=pydaw_util.global_home,
+                                                   filter=global_bm_file_dialog_string)
+        if not f_file is None and not str(f_file) == "":
+            f_file = str(f_file)
+            if not f_file.endswith(".pybm4"):
+                f_file += ".pybm4"
+            os.system('cp "{}" "{}"'.format(pydaw_util.global_bookmarks_file_path, f_file))
+
+    def on_bookmark_open(self):
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.bookmarks_tab,
+                                                   caption=_('Open bookmark file...'),
+                                                   directory=pydaw_util.global_home,
+                                                   filter=global_bm_file_dialog_string)
+        if not f_file is None and not str(f_file) == "":
+            f_file = str(f_file)
+            os.system('cp "{}" "{}"'.format(f_file, pydaw_util.global_bookmarks_file_path))
+            self.open_bookmarks()
 
     def on_refresh(self):
         self.set_folder(".")
@@ -1135,6 +1167,7 @@ class pydaw_file_browser_widget(pydaw_abstract_file_browser_widget):
 
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
+global_bm_file_dialog_string = 'PyDAW Bookmarks (*.pybm4)'
 global_plugin_settings_clipboard = {}
 global_plugin_configure_clipboard = None
 
