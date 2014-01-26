@@ -6,13 +6,13 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: PyDAW fr-FR 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-01-25 15:57-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2014-01-25 15:57-0500\n"
 "Last-Translator: PyDAW Team <pydawteam@users.sf.net>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +23,7 @@ msgstr " Pas de configuration du périphérique trouvé "
 
 #: python/libpydaw/pydaw_device_dialog.py:61
 msgid "Invalid device configuration"
-msgstr " Configuration de l'appareil non valide"
+msgstr "Configuration de l'appareil non valide"
 
 #: python/libpydaw/pydaw_device_dialog.py:88
 msgid ""
@@ -31,31 +31,31 @@ msgid ""
 "sneaky-like in the background.  (grumble, grumble...)"
 msgstr ""
 " Il semble que le système mis en place la ALSA hw : nombre de X , fixant tout "
-" sournois comme dans le fond. ( grognement , grognent ... ) "
+" sournois comme dans le fond."
 
 #: python/libpydaw/pydaw_device_dialog.py:100
 msgid "Device not found: {}"
-msgstr " Périphérique introuvable : {}"
+msgstr "Périphérique introuvable : {}"
 
 #: python/libpydaw/pydaw_device_dialog.py:117 python/pydaw.py:7514
 msgid "Hardware Settings..."
-msgstr " Hardware Settings ... "
+msgstr "Hardware Settings..."
 
 #: python/libpydaw/pydaw_device_dialog.py:119
 msgid "Audio Device:"
-msgstr " Audio Device "
+msgstr " Audio Device"
 
 #: python/libpydaw/pydaw_device_dialog.py:123
 msgid "Sample Rate:"
-msgstr " Sample Rate "
+msgstr "Sample Rate"
 
 #: python/libpydaw/pydaw_device_dialog.py:130
 msgid "Buffer Size:"
-msgstr " Buffer Size "
+msgstr "Buffer Size"
 
 #: python/libpydaw/pydaw_device_dialog.py:134
 msgid "Worker Threads:"
-msgstr " Threads de travail : "
+msgstr "Threads de travail:"
 
 #: python/libpydaw/pydaw_device_dialog.py:136
 msgid "Auto"
@@ -95,11 +95,11 @@ msgstr "Normal"
 
 #: python/libpydaw/pydaw_device_dialog.py:149
 msgid "Elevated"
-msgstr " Plongée "
+msgstr "Plongée"
 
 #: python/libpydaw/pydaw_device_dialog.py:149
 msgid "Elevated(sandbox)"
-msgstr " Plongée ( bac à sable ) "
+msgstr "Plongée (bac à sable)"
 
 #: python/libpydaw/pydaw_device_dialog.py:150
 msgid "Debug"
@@ -107,19 +107,19 @@ msgstr "Debug"
 
 #: python/libpydaw/pydaw_device_dialog.py:150
 msgid "GDB"
-msgstr " GDB "
+msgstr "GDB"
 
 #: python/libpydaw/pydaw_device_dialog.py:150
 msgid "Valgrind"
-msgstr " Valgrind "
+msgstr "Valgrind"
 
 #: python/libpydaw/pydaw_device_dialog.py:151
 msgid "GUI Only"
-msgstr "GUI Seulement "
+msgstr "GUI Seulement"
 
 #: python/libpydaw/pydaw_device_dialog.py:151
 msgid "No Audio"
-msgstr " Non Audio "
+msgstr "Non Audio"
 
 #: python/libpydaw/pydaw_device_dialog.py:153
 msgid ""
@@ -164,21 +164,21 @@ msgid ""
 msgstr ""
 "\n"
 "Normal : tourner le moteur audio sans privilèges élevés Ce général. "
-" oeuvres \n"
-" assez bien , mais peut nécessiter des réglages de latence élevés . \n"
-" ( Vous devriez probablement utiliser si vous UTILISEZ LE DIRECT DVD / USB OU AVOIR "
-" SELinux soient activés , \n"
-" LA DOMINANTE options peuvent ne pas travailler en raison de la configuration de sécurité ) \n"
+"oeuvres \n"
+"assez bien , mais peut nécessiter des réglages de latence élevés . \n"
+"(Vous devriez probablement utiliser si vous UTILISEZ LE DIRECT DVD / USB OU AVOIR "
+"SELinux soient activés , \n"
+"LA DOMINANTE options peuvent ne pas travailler en raison de la configuration de sécurité ) \n"
 "\n"
-" Elevated : Faire tourner le moteur audio avec des privilèges élevés , ce qui donne le meilleur "
-" latence possible , \n"
-" mais si votre bureau utilise GTK +, il peut refuser de l'exécuter. ( Utilisez cette option si "
-" POSSIBLE ) \n"
+"Elevated : Faire tourner le moteur audio avec des privilèges élevés , ce qui donne le meilleur "
+"latence possible , \n"
+"mais si votre bureau utilise GTK +, il peut refuser de l'exécuter. ( Utilisez cette option si "
+"POSSIBLE ) \n"
 "\n"
-" Plongée ( bac à sable ) : Identique à 'plongée', mais les travaux autour de la décision de GTK + "
-" pour empêcher l'exécution de code \n"
-" avec des droits élevés à l'aide d'un programme d'assistance pour lancer le moteur . ( USE"
-"Cette option SI POSSIBLE) \n"
+"Plongée ( bac à sable ) : Identique à 'plongée', mais les travaux autour de la décision de GTK+ "
+"pour empêcher l'exécution de code \n"
+"avec des droits élevés à l'aide d'un programme d'assistance pour lancer le moteur . (USE "
+"Cette option SI POSSIBLE)\n"
 "\n"
 " OPTIONS CI-DESSOUS SONT Options pour les développeurs que les utilisateurs normaux ne doivent jamais utiliser \n"
 "\n"
@@ -186,13 +186,13 @@ msgstr ""
 " utile pour \n"
 " diagnostiquer la cause d'un accident , mais consomme beaucoup plus de CPU et de RAM , et est "
 " pas \n"
-" recommandé pour une utilisation normale . \n"
+" recommandé pour une utilisation normale. \n"
 "\n"
-" GDB : Ouvrir dans le débogueur GDB sans audio MIDI externe ou pour permettre "
+" GDB : Ouvrir dans le débogueur GDB sans audio MIDI externe ou pour permettre"
 " paramètre \n"
 " Points d'arrêt et l'exécution pause. \n"
 "\n"
-" Valgrind : Open in Valgrind , sans audio ou MIDI externe très lent. "
+" Valgrind : Open in Valgrind , sans audio ou MIDI externe très lent."
 "à moins que travailleur \n"
 " Threads est fixé à 1 ! \n"
 "\n"
@@ -240,7 +240,7 @@ msgstr ""
 " Cela force le CPU à utiliser des fréquences plus agressifs quand PyDAW est "
 " la course, et revient à 'à la demande'\n"
 " quand PyDAW est fermé . Utiliser ce pour de meilleures performances si possible . \n"
-" Le réglage du moteur audio doit être réglé à 'élevé' ou 'élevé ( Sandbox )', "
+" Le réglage du moteur audio doit être réglé à 'élevé' ou 'élevé (Sandbox)', "
 " sinon ce paramètre n'a aucun effet . \n"
 " En outre , le soutien à cpufreq doit être compilé, ce qui nécessite différente "
 " dépendances dans chaque distribution , actuellement \n"
@@ -3037,11 +3037,11 @@ msgstr ""
 
 #: python/pydaw.py:7316
 msgid "Error, vorbis-tools are not installed"
-msgstr "Erreur , vorbis-tools ne sont pas installés "
+msgstr "Erreur , vorbis-tools ne sont pas installés"
 
 #: python/pydaw.py:7325
 msgid "File names cannot be empty"
-msgstr " Les noms de fichier ne peut être vide "
+msgstr "Les noms de fichier ne peut être vide"
 
 #: python/pydaw.py:7342
 msgid "Success"
@@ -3057,15 +3057,15 @@ msgstr "Fichiers audio {}"
 
 #: python/pydaw.py:7397
 msgid "Audio File Converter"
-msgstr " Convertisseur de fichier audio "
+msgstr "Convertisseur de fichier audio"
 
 #: python/pydaw.py:7404
 msgid "Input File:"
-msgstr "Fichier d'entrée: "
+msgstr "Fichier d'entrée:"
 
 #: python/pydaw.py:7413
 msgid "Output File:"
-msgstr " Fichier de sortie : "
+msgstr "Fichier de sortie:"
 
 #: python/pydaw.py:7437
 msgid "Bitrate"
@@ -3081,7 +3081,7 @@ msgstr "Nouveau"
 
 #: python/pydaw.py:7502
 msgid "Save As...(projects are automatically saved, this creates a copy)"
-msgstr " Enregistrer sous ... ( projets sont automatiquement enregistrés , ce qui crée une copie ) "
+msgstr "Enregistrer sous ... (projets sont automatiquement enregistrés , ce qui crée une copie)"
 
 #: python/pydaw.py:7507
 msgid "Offline Render..."
@@ -3093,7 +3093,7 @@ msgstr "Quitter"
 
 #: python/pydaw.py:7522
 msgid "&Edit"
-msgstr " & Edition"
+msgstr "&Edition"
 
 #: python/pydaw.py:7524
 msgid "Undo"
@@ -3113,7 +3113,7 @@ msgstr " Vérifiez Histoire DB ... "
 
 #: python/pydaw.py:7540
 msgid "&Appearance"
-msgstr " Et apparence "
+msgstr "&apparence "
 
 #: python/pydaw.py:7543
 msgid "Collapse transport and song editor"
@@ -3129,31 +3129,31 @@ msgstr " Open Theme ... "
 
 #: python/pydaw.py:7557
 msgid "&Tools"
-msgstr " & Outils"
+msgstr "&Outils"
 
 #: python/pydaw.py:7559
 msgid "MP3 Converter..."
-msgstr " MP3 Converter ... "
+msgstr "MP3 Converter..."
 
 #: python/pydaw.py:7562
 msgid "Ogg Converter..."
-msgstr " Ogg Converter ... "
+msgstr "Ogg Converter..."
 
 #: python/pydaw.py:7565
 msgid "&Help"
-msgstr " &Aide "
+msgstr " &Aide"
 
 #: python/pydaw.py:7567
 msgid "PyDAW Website..."
-msgstr " PyDAW site ... "
+msgstr "PyDAW site ..."
 
 #: python/pydaw.py:7570
 msgid "Version Info..."
-msgstr " Version Info ... "
+msgstr "Version Info..."
 
 #: python/pydaw.py:7591
 msgid "Song/Region"
-msgstr "Song / Région"
+msgstr "Song/Région"
 
 #: python/pydaw.py:7597
 msgid "Instruments"
@@ -3165,31 +3165,31 @@ msgstr " Bus "
 
 #: python/pydaw.py:7599
 msgid "Audio Tracks"
-msgstr " Piste audio"
+msgstr "Piste Audio"
 
 #: python/pydaw.py:7600
 msgid "Audio Seq"
-msgstr " Audio Seq "
+msgstr "Audio Seq"
 
 #: python/pydaw.py:7602
 msgid "MIDI Item"
-msgstr " Point de MIDI "
+msgstr "Point de MIDI"
 
 #: python/pydaw.py:7614
 msgid "CC Maps"
-msgstr " Cartes CC"
+msgstr "Cartes CC"
 
 #: python/pydaw.py:7615 python/pydaw.py:8192
 msgid "Wave Editor"
-msgstr " Wave Editor "
+msgstr "Wave Editor"
 
 #: python/pydaw.py:7620
 msgid "Project Notes"
-msgstr "Notes de projet"
+msgstr "Notes de Projet"
 
 #: python/pydaw.py:7650
 msgid "The audio engine died with error code {}, please try restarting PyDAW"
-msgstr " Le moteur audio est mort avec le code d'erreur {} , s'il vous plaît essayez de redémarrer PyDAW "
+msgstr "Le moteur audio est mort avec le code d'erreur {} , s'il vous plaît essayez de redémarrer PyDAW"
 
 #: python/pydaw.py:7705
 msgid "Message"
@@ -3197,7 +3197,7 @@ msgstr "Message"
 
 #: python/pydaw.py:7705
 msgid "Are you sure you want to quit?"
-msgstr " Etes-vous sûr de vouloir quitter? "
+msgstr "Etes-vous sûr de vouloir quitter?"
 
 #: python/pydaw.py:7799
 msgid "Save CC Map"
@@ -3209,7 +3209,7 @@ msgstr "New CC carte"
 
 #: python/pydaw.py:7902
 msgid "Map CC to Control(s)"
-msgstr "Carte CC pour contrôler (s ) "
+msgstr "Carte CC pour contrôler(s)"
 
 #: python/pydaw.py:7906
 msgid ""
@@ -3219,11 +3219,11 @@ msgid ""
 "Checking the 'Effects tracks only?' box will cause the controller to only\n"
 "modify Modulex and all instrument controls will be ignored."
 msgstr ""
-" Déplacez votre contrôleur MIDI pour définir le nombre de CC , \n"
-" vous devez sélectionner un contrôleur MIDI et le bras record une première piste . \n"
+"Déplacez votre contrôleur MIDI pour définir le nombre de CC , \n"
+"vous devez sélectionner un contrôleur MIDI et le bras record une première piste . \n"
 "\n"
 "Vérification des 'Effets uniquement pour les pistes?' boîte provoquera le contrôleur pour seulement \n "
-" modifier Modulex et tous les contrôles de l'appareil seront ignorés . "
+"modifier Modulex et tous les contrôles de l'appareil seront ignorés."
 
 #: python/pydaw.py:7916
 msgid "Effects tracks only?"
@@ -3255,7 +3255,7 @@ msgstr "Exporter"
 
 #: python/pydaw.py:8072
 msgid "Copy File to Clipboard"
-msgstr " File Copy to Clipboard "
+msgstr "File Copy to Clipboard "
 
 #: python/pydaw.py:8074
 msgid "Paste File from Clipboard"
@@ -3263,7 +3263,7 @@ msgstr "Fichier Coller du Presse-papiers "
 
 #: python/pydaw.py:8227
 msgid "No file path in the clipboard"
-msgstr " Pas de chemin du fichier dans le presse-papiers "
+msgstr "Pas de chemin du fichier dans le presse-papiers "
 
 #: python/pydaw.py:8507
 msgid ""
@@ -3277,27 +3277,26 @@ msgid ""
 "terminate from another session.  If so, click 'OK' to kill the other process"
 "(es)"
 msgstr ""
-" Détectés que dans certains cas du moteur audio PyDAW déjà "
-" courir . \n"
-" Cela pourrait signifier que vous avez déjà PyDAW course, si c'est le cas vous devez cliquer sur "
-" Annuler \n"
-" et fermer l'autre instance . \n"
+"Détectés que dans certains cas du moteur audio PyDAW déjà"
+"courir . \n"
+"Cela pourrait signifier que vous avez déjà PyDAW course, si c'est le cas vous devez cliquer sur"
+"Annuler \n"
+"et fermer l'autre instance . \n"
 "\n"
-" Cela pourrait également signifier que, pour une raison quelconque, le moteur n'a pas correctement "
-" fin d'une autre session . Si c'est le cas , cliquez sur 'OK' pour tuer l'autre processus "
-" (s ) "
+" Cela pourrait également signifier que, pour une raison quelconque, le moteur n'a pas correctement"
+" fin d'une autre session . Si c'est le cas , cliquez sur 'OK' pour tuer l'autre processus"
 
 #: python/pydaw.py:8528
 msgid ""
 "Not starting audio because of the audio engine setting, you can change this "
 "in File->HardwareSettings"
 msgstr ""
-" Ne pas commencer audio car le réglage du moteur audio , vous pouvez modifier cette "
-"Dans le fichier - > HardwareSettings "
+"Ne pas commencer audio car le réglage du moteur audio , vous pouvez modifier cette"
+"Dans le fichier->HardwareSettings"
 
 #: python/pydaw.py:8535
 msgid "Starting audio engine with {}"
-msgstr " Le démarrage du moteur audio avec {}"
+msgstr "Le démarrage du moteur audio avec {}"
 
 #: python/pydaw.py:8615
 msgid ""
