@@ -55,6 +55,14 @@ for f_file in os.listdir(f_goo_dir):
     f_result = ""
     for k, v in zip(f_orig.split('msgstr ""'), f_new.split(f_dash_line)):
         f_result += ("{}msgstr {}".format(k, v))
+    #Fix common issues with Google translate results
+    f_result = f_result.replace('msgstr " ', 'msgstr "')
+    f_result = f_result.replace(" \"\n", "\"\n")
+    f_result = f_result.replace("\n\" ", "\n\"")
+    f_result = f_result.replace(" .", ".")
+    f_result = f_result.replace(" ( ", "(")
+    f_result = f_result.replace(" ) ", ")")
+
     f_new_po = "{}/pydaw4.po".format(f_new_dir)
     with open(f_new_po, "w") as f_new_po_file:
         f_new_po_file.write(f_result)
