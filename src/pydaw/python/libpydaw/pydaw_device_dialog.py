@@ -78,6 +78,7 @@ class pydaw_device_dialog:
         self.close_devices()
 
         if not f_device_str in f_audio_device_names:
+            print("{} not in {}".format(f_device_str, f_audio_device_names))
             if "(hw:" in f_device_str:
                 f_device_arr = f_device_str.split("(hw:")
                 f_device_name = f_device_arr[0]
