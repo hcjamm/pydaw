@@ -895,7 +895,8 @@ int main(int argc, char **argv)
         else
         {
 #ifndef PYDAW_NO_HARDWARE
-            printf("device.txt does not exist\n");
+            printf("%s does not exist, running %s\n", f_device_file_path,
+                    f_show_dialog_cmd);
             f_device_name[0] = '\0';
             system(f_show_dialog_cmd);
             if(i_pydaw_file_exists(f_device_file_path))
