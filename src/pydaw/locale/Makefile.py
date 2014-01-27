@@ -11,6 +11,7 @@ if os.path.isdir(f_bin_dir):
     os.system("rm -rf '{}'".format(f_bin_dir))
 
 os.system("mkdir '{}'".format(f_bin_dir))
+os.system("chmod 777 '{}'".format(f_bin_dir))
 
 for f_file in os.listdir(f_src_dir):
     f_dest_dir = "{}/{}/LC_MESSAGES".format(f_bin_dir, f_file)
