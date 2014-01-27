@@ -1806,8 +1806,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                                                      global_audio_items)
                 this_pydaw_project.commit(_("Normalize audio items"))
                 global_open_audio_items(True)
-
             f_window.close()
+
+        def on_cancel():
+            f_window.close()
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Normalize"))
         f_window.setFixedSize(150, 90)
@@ -1820,8 +1823,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_hlayout.addWidget(f_db_spinbox)
         f_db_spinbox.setRange(-18, 0)
         f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout)
+        f_ok_cancel_layout.addWidget(f_ok_button)
         f_ok_button.pressed.connect(on_ok)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_ok_cancel_layout.addWidget(f_cancel_button)
+        f_cancel_button.pressed.connect(on_cancel)
         f_window.exec_()
 
     def copy_file_path_to_clipboard(self):
