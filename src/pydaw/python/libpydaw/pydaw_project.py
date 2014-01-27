@@ -2246,6 +2246,7 @@ class pydaw_sample_graph:
         self.length_in_seconds = None
         self.sample_rate = None
         self.frame_count = None
+        self.peak = 0.0
 
         if not os.path.isfile(f_file_name):
             return
@@ -2280,6 +2281,9 @@ class pydaw_sample_graph:
                     self.sample_rate = int(f_line_arr[2])
             elif f_line_arr[0] == "p":
                 f_p_val = float(f_line_arr[3])
+                f_abs_p_val = abs(f_p_val)
+                if f_abs_p_val > self.peak:
+                    self.peak = f_abs_p_val
                 if f_p_val > 1.0:
                     f_p_val = 1.0
                 elif f_p_val < -1.0:
@@ -2315,6 +2319,15 @@ class pydaw_sample_graph:
                 self._file))
             return False
         return True
+
+    def normalize(self, a_db=0.0):
+        if self.peak == 0.0:
+            return 0.0
+        f_norm_lin = pydaw_db_to_lin(a_db)
+        f_diff = f_norm_lin / self.peak
+        f_result = int(pydaw_lin_to_db(f_diff))
+        f_result = pydaw_clip_value(f_result, -24, 24)
+        return f_result
 
     def create_sample_graph(self, a_for_scene=False):
         if self.sample_graph_cache is None:

@@ -1413,14 +1413,15 @@ global_audio_item_lane_count = 24
 global_last_audio_item_dir = global_home
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
-    def __init__(self, a_track_num, a_audio_item, a_sample_length):
+    def __init__(self, a_track_num, a_audio_item, a_graph):
         QtGui.QGraphicsRectItem.__init__(self)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
 
-        self.sample_length = a_sample_length
+        self.sample_length = a_graph.length_in_seconds
+        self.graph_object = a_graph
         self.audio_item = a_audio_item
         self.orig_string = str(a_audio_item)
         self.track_num = a_track_num
@@ -1782,7 +1783,44 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_open_folder_action.triggered.connect(self.open_item_folder)
         f_copy_file_path_action = f_menu.addAction(_("Copy file path to clipboard"))
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
+        f_normalize_action = f_menu.addAction(_("Normalize selected items"))
+        f_normalize_action.triggered.connect(self.normalize_dialog)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def normalize(self, a_value):
+        f_val = self.graph_object.normalize(a_value)
+        self.audio_item.vol = f_val
+
+    def normalize_dialog(self):
+        def on_ok():
+            f_val = f_db_spinbox.value()
+            f_save = False
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_save = True
+                    f_item.normalize(f_val)
+            if f_save:
+                this_pydaw_project.save_audio_region(global_current_region.uid,
+                                                     global_audio_items)
+                this_pydaw_project.commit(_("Normalize audio items"))
+                global_open_audio_items(True)
+
+            f_window.close()
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle(_("Normalize"))
+        f_window.setFixedSize(150, 90)
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout)
+        f_hlayout.addWidget(QtGui.QLabel("dB"))
+        f_db_spinbox = QtGui.QSpinBox()
+        f_hlayout.addWidget(f_db_spinbox)
+        f_db_spinbox.setRange(-18, 0)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_layout.addWidget(f_ok_button)
+        f_ok_button.pressed.connect(on_ok)
+        f_window.exec_()
 
     def copy_file_path_to_clipboard(self):
         f_path = this_pydaw_project.get_wav_path_by_uid(self.audio_item.uid)
@@ -1800,7 +1838,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_file += ".wav"
             global_last_audio_item_dir = os.path.dirname(f_file)
             f_orig_path = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
-            f_cmd = 'cp "{}" "{}"'.format(f_orig_path, f_file)
+            f_cmd = "cp '{}' '{}'".format(f_orig_path, f_file)
             print(f_cmd)
             os.system(f_cmd)
 
@@ -1894,7 +1932,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.width_orig = f_item.rect().width()
                         f_item.per_item_fx = f_per_item_fx_dict.get_row(f_item.track_num)
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item,
-                                                          f_item.sample_length)
+                                                          f_item.graph_object)
                     if self.is_fading_out:
                         f_item.fade_orig_pos = f_item.fade_out_handle.pos().x()
                     elif self.is_fading_in:
@@ -2477,7 +2515,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_items.add_item(f_index, f_item)
                     f_graph = this_pydaw_project.get_sample_graph_by_uid(f_uid)
                     f_audio_item = this_audio_items_viewer.draw_item(f_index, f_item,
-                                                                     f_graph.length_in_seconds)
+                                                                     f_graph)
                     f_audio_item.clip_at_region_end()
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.commit(
@@ -2686,9 +2724,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
         if f_was_playing:
             self.is_playing = True
 
-    def draw_item(self, a_audio_item_index, a_audio_item, a_sample_length):
+    def draw_item(self, a_audio_item_index, a_audio_item, a_graph):
         """a_start in seconds, a_length in seconds"""
-        f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_sample_length)
+        f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_graph)
         self.audio_items.append(f_audio_item)
         self.scene.addItem(f_audio_item)
         return f_audio_item
@@ -3440,7 +3478,7 @@ def global_open_audio_items(a_update_viewer=True):
                     print(_("Error drawing item for {}, could not get "
                     "sample graph object").format(v.uid))
                     continue
-                this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
+                this_audio_items_viewer.draw_item(k, v, f_graph)
             except:
                 if global_transport_is_playing:
                     print(_("Exception while loading {}".format(v.uid)))
