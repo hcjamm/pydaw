@@ -124,6 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/staging.py
 /usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.py
+/usr/lib/pydaw4/pydaw/python/libpydaw/translate.py
 /usr/lib/pydaw4/pydaw4-version.txt
 /usr/lib/pydaw4/rubberband/include/rubberband/RubberBandStretcher.h
 /usr/lib/pydaw4/rubberband/include/rubberband/rubberband-c.h
@@ -158,6 +159,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/doc/pydaw4/readme.txt
 /usr/share/pixmaps/pydaw4.png
 /usr/share/locale/pt_PT/LC_MESSAGES/pydaw4.mo
+/usr/share/locale/de/LC_MESSAGES/pydaw4.mo
+/usr/share/locale/fr/LC_MESSAGES/pydaw4.mo
+
 
 #These seem like undesirable files to package, but it seems that rpmbuild
 #creates them even when I go to great lengths to ensure they're not in the
@@ -197,6 +201,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyo
 /usr/lib/pydaw4/pydaw/python/pydaw.pyc
 /usr/lib/pydaw4/pydaw/python/pydaw.pyo
+/usr/lib/pydaw4/pydaw/python/libpydaw/translate.pyc
+/usr/lib/pydaw4/pydaw/python/libpydaw/translate.pyo
 
 %doc
 
