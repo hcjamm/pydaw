@@ -1776,6 +1776,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.setSelected(True)
 
     def show_context_menu(self):
+        if not self.isSelected():
+            self.setSelected(True)
         f_menu = QtGui.QMenu(this_main_window)
         f_save_a_copy_action = f_menu.addAction(_("Save a copy"))
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
