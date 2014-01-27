@@ -4,4 +4,7 @@ if [ -e ./core ]; then
 	rm -f ./core
 fi
 
-sudo ./deb.py --default-version && sudo dpkg -i pydaw-build/pydaw*.deb
+( sudo ./deb.py --default-version || \
+(echo "You may need to run 'make deps' first"  && false )) \
+&& sudo dpkg -i pydaw-build/pydaw*.deb
+
