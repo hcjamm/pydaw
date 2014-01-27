@@ -1,5 +1,5 @@
 PYDAW_VERSION=pydaw4
-PYDAW_OVA_NAME=$PYDAW_VERSION-$(cat ../../pydaw4-version.txt).ova
+PYDAW_OVA_NAME=$PYDAW_VERSION-$(cat ../../pydaw4-version.txt)-virtualbox.ova
 
 if [ -f $PYDAW_OVA_NAME ]; then
 	rm -f $PYDAW_OVA_NAME
