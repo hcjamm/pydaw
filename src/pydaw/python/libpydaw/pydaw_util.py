@@ -345,41 +345,52 @@ else:
 global_device_val_dict = {}
 global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
 
+def pydaw_delete_device_config():
+    global global_device_val_dict
+    global_device_val_dict = {}
+    if os.path.exists(global_pydaw_device_config):
+        os.system("rm -f '{}'".format(global_pydaw_device_config))
+
 def pydaw_read_device_config():
     global global_pydaw_bin_path, global_device_val_dict
     global global_pydaw_is_sandboxed, global_pydaw_with_audio
 
     global_device_val_dict = {}
 
-    if os.path.isfile(global_pydaw_device_config):
-        f_file_text = pydaw_read_file_text(global_pydaw_device_config)
-        for f_line in f_file_text.split("\n"):
-            if f_line.strip() == "\\":
-                break
-            if f_line.strip() != "":
-                f_line_arr = f_line.split("|", 1)
-                global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+    try:
+        if os.path.isfile(global_pydaw_device_config):
+            f_file_text = pydaw_read_file_text(global_pydaw_device_config)
+            for f_line in f_file_text.split("\n"):
+                if f_line.strip() == "\\":
+                    break
+                if f_line.strip() != "":
+                    f_line_arr = f_line.split("|", 1)
+                    global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
 
-        pydaw_set_bin_path()
-        global_pydaw_is_sandboxed = False
-        global_pydaw_with_audio = True
+            pydaw_set_bin_path()
+            global_pydaw_is_sandboxed = False
+            global_pydaw_with_audio = True
 
-        if global_pydaw_bin_path is not None:
-            if int(global_device_val_dict["audioEngine"]) == 0:
-                global_pydaw_bin_path += "-no-root"
-            elif int(global_device_val_dict["audioEngine"]) == 2:
-                global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix,
-                                                           global_pydaw_version_string)
-                global_pydaw_is_sandboxed = True
-            elif int(global_device_val_dict["audioEngine"]) == 3:
-                global_pydaw_bin_path += "-dbg"
-            elif int(global_device_val_dict["audioEngine"]) == 4 or \
-                 int(global_device_val_dict["audioEngine"]) == 5 or \
-                 int(global_device_val_dict["audioEngine"]) == 7:
-                global_pydaw_bin_path += "-no-hw"
-            elif int(global_device_val_dict["audioEngine"]) == 6:
-                global_pydaw_with_audio = False
-                global_pydaw_bin_path = None
+            if global_pydaw_bin_path is not None:
+                if int(global_device_val_dict["audioEngine"]) == 0:
+                    global_pydaw_bin_path += "-no-root"
+                elif int(global_device_val_dict["audioEngine"]) == 2:
+                    global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix,
+                                                               global_pydaw_version_string)
+                    global_pydaw_is_sandboxed = True
+                elif int(global_device_val_dict["audioEngine"]) == 3:
+                    global_pydaw_bin_path += "-dbg"
+                elif int(global_device_val_dict["audioEngine"]) == 4 or \
+                     int(global_device_val_dict["audioEngine"]) == 5 or \
+                     int(global_device_val_dict["audioEngine"]) == 7:
+                    global_pydaw_bin_path += "-no-hw"
+                elif int(global_device_val_dict["audioEngine"]) == 6:
+                    global_pydaw_with_audio = False
+                    global_pydaw_bin_path = None
+    except Exception as ex:
+        print("Exception while reading device config,"
+            " deleting and starting over\n{}".format(ex))
+        global_device_val_dict = {}
 
     print("global_pydaw_bin_path == {}".format(global_pydaw_bin_path))
 
