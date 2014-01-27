@@ -3114,6 +3114,14 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
                 continue;
             }
 
+            if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_OFF &&
+                a_pydaw_data->pysong->audio_items[
+                            f_current_region]->items[f_i]->adsr->stage < 3)
+            {
+                v_adsr_release(a_pydaw_data->pysong->audio_items[
+                            f_current_region]->items[f_i]->adsr);
+            }
+
             if(a_is_audio_glue ||
                     ((a_pydaw_data->pysong->audio_items[f_current_region]->
                         items[f_i]->audio_track_output) == a_audio_track_num))
