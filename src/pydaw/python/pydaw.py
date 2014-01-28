@@ -6994,7 +6994,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_ok.setEnabled(True)
                 f_timer.stop()
                 f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
-                os.system('rm "{}"'.format(f_file_name))
+                os.system("rm -f '{}'".format(f_file_name))
             else:
                 f_elapsed_time = time.time() - f_start_time
                 f_time_label.setText(str(round(f_elapsed_time, 1)))

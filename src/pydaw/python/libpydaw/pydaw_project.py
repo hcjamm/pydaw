@@ -175,7 +175,7 @@ class pydaw_project:
         f_new_project_folder = os.path.dirname(f_file_name)
         #The below is safe because we already checked that the folder
         #should be empty before calling this
-        f_cmd = 'rm -rf "{}"'.format(f_new_project_folder)
+        f_cmd = "rm -rf '{}'".format(f_new_project_folder)
         print(f_cmd)
         os.system(f_cmd)
         f_cmd = 'cp -r "{}" "{}"'.format(self.project_folder, f_new_project_folder)
