@@ -1582,10 +1582,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle_scene_max = self.start_handle_scene_min + self.length_seconds_orig_px
 
         if not self.waveforms_scaled:
-            f_i_inc = 1.0 / len(self.painter_paths)
-            f_i = f_i_inc * 1.0
+            f_channels = len(self.painter_paths)
+            f_i_inc = 1.0 / f_channels
+            f_i = f_i_inc
             f_y_inc = 0.0
-            f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
+            if f_channels == 1:  # Kludge to fix the problem, there must be a better way...
+                f_y_offset = (1.0 - self.vol_linear) * (global_audio_item_height * 0.5)
+            else:
+                f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
                 if self.audio_item.reversed:
                     f_path_item.setPos(self.sample_start_offset_px + self.length_seconds_orig_px,
