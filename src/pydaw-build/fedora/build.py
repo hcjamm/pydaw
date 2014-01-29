@@ -27,7 +27,7 @@ parser.add_argument("--de", help="Select the desktop environment, choices are:\n
 args = parser.parse_args()
 
 if args.de == "gnome":
-    ks_file = "/usr/share/spin-kickstarts/fedora-live-desktop.ks"
+    ks_file = "/usr/share/spin-kickstarts/fedora-livecd-desktop.ks"
     de_label = "Gnome"
 elif args.de == "lxde":
     ks_file = "/usr/share/spin-kickstarts/fedora-livecd-lxde.ks"
@@ -36,10 +36,10 @@ elif args.de == "xfce":
     ks_file = "/usr/share/spin-kickstarts/fedora-livecd-xfce.ks"
     de_label = "XFCE"
 elif args.de == "kde":
-    ks_file = "/usr/share/spin-kickstarts/fedora-live-kde.ks"
+    ks_file = "/usr/share/spin-kickstarts/fedora-livecd-kde.ks"
     de_label = "KDE"
 elif args.de == "mate":
-    ks_file = "/usr/share/spin-kickstarts/fedora-live-mate-compiz.ks"
+    ks_file = "/usr/share/spin-kickstarts/fedora-livecd-mate-compiz.ks"
     de_label = "Mate"
 elif args.de == "qt":
     ks_file = "{}/fedora-livecd-qtdesktop.ks".format(os.path.dirname(__file__))
@@ -104,6 +104,14 @@ portmidi-devel
 libsamplerate-devel
 python3-devel
 vorbis-tools
+
+%end
+
+%post
+
+# I know, I should configure SELinux to only look the other
+# way for PyDAW instead of disabling it, grumble, grumble...
+sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
 
 %end
 
