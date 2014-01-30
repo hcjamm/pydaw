@@ -20,6 +20,7 @@ import subprocess
 from time import sleep
 import time
 import random
+import gc
 from PyQt4 import QtGui, QtCore
 from libpydaw import *
 import libpydaw.liblo as liblo
@@ -7783,6 +7784,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_quit_timer.start(1000)
         else:
             event.accept()
+            gc.disable()  # Prevent Qt SEGFAULT on exit
 
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
