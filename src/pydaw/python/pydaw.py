@@ -8162,6 +8162,7 @@ class pydaw_wave_editor_widget:
         self.file_browser.hsplitter.setSizes([420, 9999])
         self.copy_to_clipboard_checked = True
         self.last_offline_dir = global_home
+        self.open_exported = False
 
 
     def on_export(self):
@@ -8179,10 +8180,15 @@ class pydaw_wave_editor_widget:
             else:
                 self.copy_to_clipboard_checked = False
 
-            this_pydaw_project.this_pydaw_osc.pydaw_we_export(f_name.text())
-            self.last_offline_dir = os.path.dirname(str(f_name.text()))
+            f_file_name = str(f_name.text())
+            this_pydaw_project.this_pydaw_osc.pydaw_we_export(f_file_name)
+            self.last_offline_dir = os.path.dirname(f_file_name)
+            self.open_exported = f_open_exported.isChecked()
             f_window.close()
-            this_main_window.show_offline_rendering_wait_window(f_name.text())
+            this_main_window.show_offline_rendering_wait_window(f_file_name)
+            if self.open_exported:
+                self.open_file(f_file_name)
+
 
         def cancel_handler():
             f_window.close()
@@ -8225,6 +8231,9 @@ class pydaw_wave_editor_widget:
         "back into the audio sequencer)"))
         f_copy_to_clipboard_checkbox.setChecked(self.copy_to_clipboard_checked)
         f_layout.addWidget(f_copy_to_clipboard_checkbox, 4, 1)
+        f_open_exported = QtGui.QCheckBox("Open exported item?")
+        f_open_exported.setChecked(self.open_exported)
+        f_layout.addWidget(f_open_exported, 6, 1)
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
