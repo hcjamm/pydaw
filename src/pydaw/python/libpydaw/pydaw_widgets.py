@@ -879,17 +879,17 @@ class pydaw_abstract_file_browser_widget():
         self.list_bookmarks.contextMenuEvent = self.bookmark_context_menu_event
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
         self.bookmark_button_hlayout = QtGui.QHBoxLayout()
-        self.bookmarks_reload_button = QtGui.QPushButton("Reload")
+        self.bookmarks_reload_button = QtGui.QPushButton(_("Reload"))
         self.bookmarks_tab_vlayout.addLayout(self.bookmark_button_hlayout)
         self.bookmark_button_hlayout.addWidget(self.bookmarks_reload_button)
         self.bookmarks_reload_button.pressed.connect(self.open_bookmarks)
-        self.bookmarks_menu_button = QtGui.QPushButton("Menu")
+        self.bookmarks_menu_button = QtGui.QPushButton(_("Menu"))
         self.bookmark_button_hlayout.addWidget(self.bookmarks_menu_button)
         f_bookmark_menu = QtGui.QMenu(self.bookmarks_tab)
         self.bookmarks_menu_button.setMenu(f_bookmark_menu)
-        f_bookmark_open_action = f_bookmark_menu.addAction("Open...")
+        f_bookmark_open_action = f_bookmark_menu.addAction(_("Open..."))
         f_bookmark_open_action.triggered.connect(self.on_bookmark_open)
-        f_bookmark_save_as_action = f_bookmark_menu.addAction("Save As...")
+        f_bookmark_save_as_action = f_bookmark_menu.addAction(_("Save As..."))
         f_bookmark_save_as_action.triggered.connect(self.on_bookmark_save_as)
         self.folders_tab_widget.addTab(self.bookmarks_tab, _("Bookmarks"))
 
@@ -1016,11 +1016,11 @@ class pydaw_abstract_file_browser_widget():
         def on_ok(a_val=None):
             f_text = str(f_category.currentText()).strip()
             if not f_text:
-                QtGui.QMessageBox.warning(f_window, "Error",
-                                          "Category cannot be empty")
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                                          _("Category cannot be empty"))
             f_val = str(f_lineedit.text()).strip()
             if not f_val:
-                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
+                QtGui.QMessageBox.warning(f_window, _("Error"), _("Name cannot be empty"))
                 return
             pydaw_util.global_add_file_bookmark(f_val, self.last_open_dir, f_text)
             self.open_bookmarks()
@@ -1031,7 +1031,7 @@ class pydaw_abstract_file_browser_widget():
 
         f_window = QtGui.QDialog(self.list_bookmarks)
         f_window.setMinimumWidth(300)
-        f_window.setWindowTitle("Add Bookmark")
+        f_window.setWindowTitle(_("Add Bookmark"))
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
         f_grid_layout = QtGui.QGridLayout()
@@ -1039,7 +1039,7 @@ class pydaw_abstract_file_browser_widget():
         f_dict = pydaw_util.global_get_file_bookmarks()
         if not f_dict:
             f_dict = {'default':None}
-        f_grid_layout.addWidget(QtGui.QLabel("Category:"), 0, 0)
+        f_grid_layout.addWidget(QtGui.QLabel(_("Category:")), 0, 0)
         f_category = QtGui.QComboBox()
         f_category.setEditable(True)
         f_category.addItems(sorted(f_dict.keys(), key=lambda s: s.lower()))
@@ -1048,7 +1048,7 @@ class pydaw_abstract_file_browser_widget():
         f_tmp_arr = self.last_open_dir.rsplit("/", 1)
         if len(f_tmp_arr) >= 2:
             f_lineedit.setText(f_tmp_arr[-1])
-        f_grid_layout.addWidget(QtGui.QLabel("Name:"), 1, 0)
+        f_grid_layout.addWidget(QtGui.QLabel(_("Name:")), 1, 0)
         f_grid_layout.addWidget(f_lineedit, 1, 1)
         f_hlayout2 = QtGui.QHBoxLayout()
         f_layout.addLayout(f_hlayout2)
