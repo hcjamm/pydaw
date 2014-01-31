@@ -1632,40 +1632,54 @@ class eq_widget:
 
 class eq6_widget:
     def __init__(self, a_first_port, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None, a_size=48):
+                 a_port_dict=None, a_preset_mgr=None, a_size=48, a_vlayout=True):
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
         self.widget = QtGui.QWidget()
         self.widget.setObjectName("plugin_ui")
-        self.vlayout = QtGui.QVBoxLayout(self.widget)
         self.combobox = pydaw_combobox_control(120, None, a_first_port, a_rel_callback,
                                                a_val_callback, ["Off", "Pre-FX", "Post-FX"],
                                                a_port_dict, 0, a_preset_mgr)
+        self.reset_button = QtGui.QPushButton(_("Reset"))
+        self.reset_button.pressed.connect(self.reset_controls)
+        self.eq_viewer = eq_viewer(a_val_callback)
+
+        self.vlayout = QtGui.QVBoxLayout()
         self.combobox_hlayout = QtGui.QHBoxLayout()
+        self.grid_layout = QtGui.QGridLayout()
         self.combobox_hlayout.addWidget(self.combobox.control)
         self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.reset_button = QtGui.QPushButton(_("Reset"))
         self.combobox_hlayout.addWidget(self.reset_button)
-        self.reset_button.pressed.connect(self.reset_controls)
         self.vlayout.addLayout(self.combobox_hlayout)
-
-        self.eq_viewer = eq_viewer(a_val_callback)
         self.vlayout.addWidget(self.eq_viewer)
+        if a_vlayout:
+            f_col_width = 3
+            self.widget.setLayout(self.vlayout)
+            self.vlayout.addLayout(self.grid_layout)
+        else:
+            f_col_width = 2
+            self.hlayout = QtGui.QHBoxLayout(self.widget)
+            self.hlayout.addLayout(self.vlayout)
+            self.hlayout.addLayout(self.grid_layout)
 
-        self.grid_layout = QtGui.QGridLayout()
-        self.vlayout.addLayout(self.grid_layout)
         self.eqs = []
         f_port = a_first_port + 1
         f_default_value = 24
+
+        f_x = 0
+        f_y = 0
+
         for f_i in range(1, 7):
             f_eq = eq_widget(f_i, f_port, f_port + 1, f_port + 2,
                              a_rel_callback, self.knob_callback,
                              f_default_value, a_port_dict, a_preset_mgr, a_size)
             self.eqs.append(f_eq)
-            if f_i <= 3:
-                self.grid_layout.addWidget(f_eq.groupbox, 0, f_i)
-            else:
-                self.grid_layout.addWidget(f_eq.groupbox, 1, f_i - 3)
+            self.grid_layout.addWidget(f_eq.groupbox, f_y, f_x)
+
+            f_x += 1
+            if f_x >= f_col_width:
+                f_x = 0
+                f_y += 1
             f_port += 3
             f_default_value += 18
         self.update_viewer()
