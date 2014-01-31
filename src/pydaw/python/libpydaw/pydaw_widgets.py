@@ -2004,7 +2004,10 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
 
 pydaw_audio_item_scene_height = 1200.0
 pydaw_audio_item_scene_width = 6000.0
+pydaw_audio_item_scene_width_recip = 1.0 / pydaw_audio_item_scene_width
 pydaw_audio_item_max_marker_val = 1000.0
+pydaw_audio_item_end_marker_min_val = 6.0
+pydaw_audio_item_start_marker_max_val = 994.0
 pydaw_audio_item_val_to_px = pydaw_audio_item_scene_width / pydaw_audio_item_max_marker_val
 pydaw_audio_item_px_to_val = pydaw_audio_item_max_marker_val / pydaw_audio_item_scene_width
 
@@ -2072,6 +2075,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.fade_marker = a_fade_marker
 
     def mouseMoveEvent(self, a_event):
+        a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         self.pos_x = a_event.scenePos().x()
         self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
@@ -2105,6 +2109,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.fade_marker.draw_lines()
 
     def mouseReleaseEvent(self, a_event):
+        a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         if self.callback is not None:
             self.callback(self.value)
@@ -2179,12 +2184,14 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
             f_new_val = (self.value * pydaw_audio_item_val_to_px) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
+        self.draw_lines()
 
     def set_other(self, a_other, a_start_end_marker):
         self.other = a_other
         self.start_end_marker = a_start_end_marker
 
     def mouseMoveEvent(self, a_event):
+        a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         self.pos_x = a_event.scenePos().x()
         self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
@@ -2208,6 +2215,7 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         self.draw_lines()
 
     def mouseReleaseEvent(self, a_event):
+        a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         if self.callback is not None:
             self.callback(self.value)
@@ -2228,6 +2236,9 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.setScene(self.scene)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
+        self.scene.mousePressEvent = self.scene_mousePressEvent
+        self.scene.mouseMoveEvent = self.scene_mouseMoveEvent
+        self.scene.mouseReleaseEvent = self.scene_mouseReleaseEvent
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -2240,9 +2251,51 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.waveform_brush.setColorAt(0.5, QtGui.QColor(240, 190, 140))
         self.waveform_brush.setColorAt(1.0, QtGui.QColor(140, 140, 240))
         self.waveform_pen = QtGui.QPen(QtCore.Qt.NoPen)
+        self.is_drag_selecting = False
+        self.drag_start_pos = 0.0
+        self.drag_start_markers = []
+        self.drag_end_markers = []
 
     def clear_drawn_items(self):
         self.scene.clear()
+
+    def pos_to_marker_val(self, a_pos_x):
+        f_result = pydaw_audio_item_scene_width_recip * a_pos_x * 1000.0
+        f_result = pydaw_util.pydaw_clip_value(f_result, 0.0, pydaw_audio_item_max_marker_val)
+        return f_result
+
+    def scene_mousePressEvent(self, a_event):
+        QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+        if not a_event.isAccepted():
+            self.is_drag_selecting = True
+            f_pos_x = a_event.scenePos().x()
+            f_val = self.pos_to_marker_val(f_pos_x)
+            self.drag_start_pos = f_val
+
+    def scene_mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
+        if not a_event.isAccepted():
+            self.is_drag_selecting = False
+            for f_marker in self.drag_start_markers + self.drag_end_markers:
+                f_marker.callback(f_marker.value)
+
+    def scene_mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsScene.mouseMoveEvent(self.scene, a_event)
+        if not a_event.isAccepted() and self.is_drag_selecting:
+            f_val = self.pos_to_marker_val(a_event.scenePos().x())
+
+            for f_marker in self.drag_start_markers:
+                if f_val < self.drag_start_pos:
+                    f_marker.value = f_val
+                else:
+                    f_marker.value = self.drag_start_pos
+                f_marker.set_pos()
+            for f_marker in self.drag_end_markers:
+                if f_val < self.drag_start_pos:
+                    f_marker.value = self.drag_start_pos
+                else:
+                    f_marker.value = f_val
+                f_marker.set_pos()
 
     def draw_item(self, a_path_list, a_start, a_end, a_fade_in, a_fade_out):
         self.clear_drawn_items()
@@ -2294,6 +2347,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.fade_out_marker.set_pos()
         self.fade_in_marker.draw_lines()
         self.fade_out_marker.draw_lines()
+        self.drag_start_markers = [self.start_marker, self.fade_in_marker]
+        self.drag_end_markers = [self.end_marker, self.fade_out_marker]
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
@@ -2330,6 +2385,9 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
         self.loop_end_marker.set_other(self.loop_start_marker)
         self.loop_start_marker.set_pos()
         self.loop_end_marker.set_pos()
+
+        self.drag_start_markers.append(self.loop_start_marker)
+        self.drag_end_markers.append(self.loop_end_marker)
 
 
 global_modulex_clipboard = None
