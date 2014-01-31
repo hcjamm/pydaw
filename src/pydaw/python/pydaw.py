@@ -8128,6 +8128,10 @@ class pydaw_wave_editor_widget:
         self.paste_action = self.menu.addAction(_("Paste File from Clipboard"))
         self.paste_action.triggered.connect(self.open_file_from_clipboard)
 
+        self.history_button = QtGui.QPushButton(_("History"))
+        self.file_hlayout.addWidget(self.history_button)
+        self.history_button.pressed.connect(self.history_contextMenuEvent)
+
         self.fx_button = QtGui.QPushButton(_("Effects"))
         self.fx_button.pressed.connect(self.on_show_fx)
         self.file_hlayout.addWidget(self.fx_button)
@@ -8154,7 +8158,6 @@ class pydaw_wave_editor_widget:
                                                            self.marker_callback)
         self.vlayout.addWidget(self.sample_graph)
         self.orig_pos = 0
-        self.has_loaded_file = False
         self.duration = None
         self.sixty_recip = 1.0 / 60.0
         self.playback_cursor = None
@@ -8163,10 +8166,21 @@ class pydaw_wave_editor_widget:
         self.copy_to_clipboard_checked = True
         self.last_offline_dir = global_home
         self.open_exported = False
+        self.history = []
 
+    def history_contextMenuEvent(self):
+        if self.history:
+            f_menu = QtGui.QMenu(self.history_button)
+            f_menu.triggered.connect(self.open_file_from_action)
+            for f_path in reversed(self.history):
+                f_menu.addAction(f_path)
+            f_menu.exec_(QtGui.QCursor.pos())
+
+    def open_file_from_action(self, a_action):
+        self.open_file(str(a_action.text()))
 
     def on_export(self):
-        if not self.has_loaded_file:
+        if not self.history:
             return
 
         def ok_handler():
@@ -8292,11 +8306,14 @@ class pydaw_wave_editor_widget:
 
     def open_file(self, a_file):
         self.clear_sample_graph()
-        self.file_lineedit.setText(a_file)
-        f_graph = self.set_sample_graph(a_file)
+        f_file = str(a_file)
+        self.file_lineedit.setText(f_file)
+        f_graph = self.set_sample_graph(f_file)
         self.duration = f_graph.frame_count / f_graph.sample_rate
         print("Duration:  {}".format(self.duration))
-        self.has_loaded_file = True
+        if f_file in self.history:
+            self.history.remove(f_file)
+        self.history.append(f_file)
         this_pydaw_project.this_pydaw_osc.pydaw_ab_open(a_file)
         self.marker_callback()
 
@@ -8322,7 +8339,7 @@ class pydaw_wave_editor_widget:
         self.set_time_label(a_pos)
 
     def set_time_label(self, a_value, a_override=False):
-        if self.has_loaded_file and (a_override or self.time_label_enabled):
+        if self.history and (a_override or self.time_label_enabled):
             f_seconds = self.duration * a_value
             f_minutes = int(f_seconds * self.sixty_recip)
             f_seconds = str(int(f_seconds % 60.0)).zfill(2)
@@ -8352,7 +8369,7 @@ class pydaw_wave_editor_widget:
             self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
         self.time_label_enabled = False
-        if self.has_loaded_file:
+        if self.history:
             self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
 
     def set_sample_graph(self, a_file_name):
