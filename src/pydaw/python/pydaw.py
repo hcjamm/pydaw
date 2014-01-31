@@ -8223,6 +8223,9 @@ class pydaw_wave_editor_widget:
             except Exception as ex:
                 pydaw_print_generic_exception(ex)
 
+        def on_overwrite(a_val=None):
+            f_name.setText(self.file_lineedit.text())
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Offline Render"))
         f_layout = QtGui.QGridLayout()
@@ -8236,6 +8239,10 @@ class pydaw_wave_editor_widget:
         f_select_file = QtGui.QPushButton(_("Select"))
         f_select_file.pressed.connect(file_name_select)
         f_layout.addWidget(f_select_file, 0, 2)
+
+        f_overwrite_button = QtGui.QPushButton("Overwrite\nFile")
+        f_layout.addWidget(f_overwrite_button, 3, 0)
+        f_overwrite_button.pressed.connect(on_overwrite)
 
         f_layout.addWidget(QtGui.QLabel(
         _("File is exported to 32 bit .wav at the sample rate your audio "
