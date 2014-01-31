@@ -8166,8 +8166,9 @@ class pydaw_wave_editor_widget:
 
 
     def on_export(self):
-        if self.duration is None:
+        if not self.has_loaded_file:
             return
+
         def ok_handler():
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, _("Error"), _("Name cannot be empty"))

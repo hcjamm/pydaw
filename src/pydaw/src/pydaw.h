@@ -5456,6 +5456,9 @@ void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
     float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size);
     float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size);
 
+    int f_old_ab_mode = a_pydaw_data->ab_mode;
+    a_pydaw_data->ab_mode = 1;
+
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY,
             a_pydaw_data->current_region, a_pydaw_data->current_bar, 0);
 
@@ -5522,6 +5525,8 @@ void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
     v_pydaw_write_to_file(f_tmp_finished, "finished");
 
     a_pydaw_data->is_offline_rendering = 0;
+
+    a_pydaw_data->ab_mode = f_old_ab_mode;
 
     pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
