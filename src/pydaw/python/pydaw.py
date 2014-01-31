@@ -8389,6 +8389,10 @@ class pydaw_wave_editor_widget:
     def clear_sample_graph(self):
         self.sample_graph.clear_drawn_items()
 
+    def clear(self):
+        self.clear_sample_graph()
+        self.file_lineedit.setText("")
+
 
 def set_default_project(a_project_path):
     f_def_file = "{}/last-project.txt".format(global_pydaw_home)
@@ -8408,6 +8412,7 @@ def global_close_all():
         f_viewer.clear_drawn_items()
     for f_widget in this_item_editor.cc_auto_viewers:
         f_widget.update_ccs_in_use([])
+    this_wave_editor_widget.clear()
 
 def global_ui_refresh_callback(a_restore_all=False):
     """ Use this to re-open all existing items/regions/song in
