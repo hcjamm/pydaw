@@ -4600,7 +4600,15 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_cntrl.control_value_changed(a_val)
 
     def eq6_rel_callback(self, a_port, a_val):
-        pass
+        print("eq6_rel_callback called (unexpected?)")
+
+    def update_eq6(self, a_value):
+        for f_i in range(6):
+            self.eq6.eqs[f_i].freq_knob.set_value(self.eq_ports[a_value][f_i][0].get_value())
+            self.eq6.eqs[f_i].res_knob.set_value(self.eq_ports[a_value][f_i][1].get_value())
+            self.eq6.eqs[f_i].gain_knob.set_value(self.eq_ports[a_value][f_i][2].get_value())
+
+        self.eq6.update_viewer()
 
     def set_default_size(self):
         self.widget.resize(1100, 720)
@@ -4716,6 +4724,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.clear()
         self.mono_fx_tab_selected_sample.addItems(f_combobox_items)
         self.selected_radiobuttons[0].click()
+        self.update_eq6(0)
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
@@ -5008,6 +5017,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx3.knobs[1].set_value(self.monofx3knob1_ctrls[a_value].get_value())
         self.mono_fx3.knobs[2].set_value(self.monofx3knob2_ctrls[a_value].get_value())
         self.mono_fx3.combobox.set_value(self.monofx3comboboxes[a_value].get_value())
+
+        self.update_eq6(a_value)
 
         if not self.suppress_selected_sample_changed:
             self.monofx_groups[self.selected_row_index].set_value(a_value)
