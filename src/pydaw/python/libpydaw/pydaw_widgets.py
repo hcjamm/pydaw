@@ -1637,9 +1637,6 @@ class eq6_widget:
         self.val_callback = a_val_callback
         self.widget = QtGui.QWidget()
         self.widget.setObjectName("plugin_ui")
-        self.combobox = pydaw_combobox_control(120, None, a_first_port, a_rel_callback,
-                                               a_val_callback, ["Off", "Pre-FX", "Post-FX"],
-                                               a_port_dict, 0, a_preset_mgr)
         self.reset_button = QtGui.QPushButton(_("Reset"))
         self.reset_button.pressed.connect(self.reset_controls)
         self.eq_viewer = eq_viewer(a_val_callback)
@@ -1647,12 +1644,15 @@ class eq6_widget:
         self.vlayout = QtGui.QVBoxLayout()
         self.combobox_hlayout = QtGui.QHBoxLayout()
         self.grid_layout = QtGui.QGridLayout()
-        self.combobox_hlayout.addWidget(self.combobox.control)
-        self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.combobox_hlayout.addWidget(self.reset_button)
+
         self.vlayout.addLayout(self.combobox_hlayout)
         self.vlayout.addWidget(self.eq_viewer)
         if a_vlayout:
+            self.combobox = pydaw_combobox_control(120, None, a_first_port, a_rel_callback,
+                                                   a_val_callback,
+                                                   [_("Off"), _("Pre-FX"), _("Post-FX")],
+                                                   a_port_dict, 0, a_preset_mgr)
+            self.combobox_hlayout.addWidget(self.combobox.control)
             f_col_width = 3
             self.widget.setLayout(self.vlayout)
             self.vlayout.addLayout(self.grid_layout)
@@ -1662,8 +1662,14 @@ class eq6_widget:
             self.hlayout.addLayout(self.vlayout)
             self.hlayout.addLayout(self.grid_layout)
 
+        self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.combobox_hlayout.addWidget(self.reset_button)
+
         self.eqs = []
-        f_port = a_first_port + 1
+
+        f_port = a_first_port
+        if a_vlayout:
+            f_port += 1
         f_default_value = 24
 
         f_x = 0
@@ -4218,6 +4224,28 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.monofx2knob2_ctrls, self.monofx3knob0_ctrls,
                                            self.monofx3knob1_ctrls, self.monofx3knob2_ctrls)
 
+        self.eq_ports = []
+        f_port_start = pydaw_ports.EUPHORIA_FIRST_EQ_PORT
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_group_list = []
+            self.eq_ports.append(f_group_list)
+            for f_i2 in range(6):
+                f_eq_list = []
+                f_group_list.append(f_eq_list)
+                f_eq_port = f_port_start + (f_i * 18) + (f_i2 * 3)
+                f_freq = pydaw_null_control(f_eq_port, self.plugin_rel_callback,
+                                            self.plugin_val_callback, (f_i2 * 18) + 24,
+                                            self.port_dict)
+                f_eq_port += 1
+                f_bw = pydaw_null_control(f_eq_port, self.plugin_rel_callback,
+                                          self.plugin_val_callback, 300, self.port_dict)
+                f_eq_port += 1
+                f_gain = pydaw_null_control(f_eq_port, self.plugin_rel_callback,
+                                            self.plugin_val_callback, 0, self.port_dict)
+                f_eq_list.append(f_freq)
+                f_eq_list.append(f_bw)
+                f_eq_list.append(f_gain)
+
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
         self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
@@ -4564,13 +4592,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.open_plugin_file()
 
     def eq6_val_callback(self, a_port, a_val):
-        if a_port == 0:  #comobox
-            pass
-        else:
-            f_port = a_port - 1
-            f_eq_num = f_port // 3
-            f_knob_num = f_port % 3
-
+        f_eq_num = a_port // 3
+        f_knob_num = a_port % 3
+        f_index = self.mono_fx_tab_selected_group.currentIndex()
+        f_cntrl = self.eq_ports[f_index][f_eq_num][f_knob_num]
+        f_cntrl.set_value(a_val)
+        f_cntrl.control_value_changed(a_val)
 
     def eq6_rel_callback(self, a_port, a_val):
         pass

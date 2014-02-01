@@ -420,6 +420,14 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     {
         plugin->sampleFadeOutStarts[(port - EUPHORIA_SAMPLE_FADE_OUT_MIN)] = data;
     }
+    else if(port >= EUPHORIA_FIRST_EQ_PORT &&
+            port < EUPHORIA_LAST_EQ_PORT)
+    {
+        int f_port = port - EUPHORIA_FIRST_EQ_PORT;
+        int f_instance = f_port / 18;
+        int f_diff = f_port % 18;
+        v_eq6_connect_port(plugin->mono_modules->eqs[f_instance], f_diff, data);
+    }
 }
 
 static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
@@ -1205,23 +1213,35 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             }
         }
 
+        int f_monofx_index = 0;
+
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
         {
-            f_temp_sample0 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0]);
-            f_temp_sample1 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1]);
+            f_monofx_index = (plugin_data->monofx_channel_index[i2]);
+
+            f_temp_sample0 = (plugin_data->mono_fx_buffers[f_monofx_index][0]);
+            f_temp_sample1 = (plugin_data->mono_fx_buffers[f_monofx_index][1]);
+
+            v_eq6_run(plugin_data->mono_modules->eqs[f_monofx_index],
+                    f_temp_sample0, f_temp_sample1);
+
+            f_temp_sample0 =
+                    plugin_data->mono_modules->eqs[f_monofx_index]->output0;
+            f_temp_sample1 =
+                    plugin_data->mono_modules->eqs[f_monofx_index]->output1;
 
             for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
             {
-                v_mf3_set(plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3],
-                        (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][0])),
-                        (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][1])),
-                        (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][2])));
-                plugin_data->mono_modules->fx_func_ptr[(plugin_data->monofx_channel_index[i2])][i3](
-                    plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3],
+                v_mf3_set(plugin_data->mono_modules->multieffect[f_monofx_index][i3],
+                        (*(plugin_data->mfx_knobs[f_monofx_index][i3][0])),
+                        (*(plugin_data->mfx_knobs[f_monofx_index][i3][1])),
+                        (*(plugin_data->mfx_knobs[f_monofx_index][i3][2])));
+                plugin_data->mono_modules->fx_func_ptr[f_monofx_index][i3](
+                    plugin_data->mono_modules->multieffect[f_monofx_index][i3],
                     f_temp_sample0, f_temp_sample1);
 
-                f_temp_sample0 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output0);
-                f_temp_sample1 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output1);
+                f_temp_sample0 = (plugin_data->mono_modules->multieffect[f_monofx_index][i3]->output0);
+                f_temp_sample1 = (plugin_data->mono_modules->multieffect[f_monofx_index][i3]->output1);
             }
 
             plugin_data->output[0][i] += f_temp_sample0;
@@ -2224,6 +2244,39 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
         port_range_hints[f_i].LowerBound = 0.0f;
         port_range_hints[f_i].UpperBound = 1000.0f;
         f_i++;
+    }
+
+    f_i = EUPHORIA_FIRST_EQ_PORT;
+
+    int f_i2 = 0;
+
+    while(f_i2 < EUPHORIA_MAX_SAMPLE_COUNT)
+    {
+        int f_i3 = 0;
+        while(f_i3 < 6)
+        {
+            port_descriptors[f_i] = 1;
+            port_range_hints[f_i].DefaultValue = (f_i3 * 18.0f) + 24.0f;
+            port_range_hints[f_i].LowerBound = 20.0f;
+            port_range_hints[f_i].UpperBound = 120.0f;
+            f_i++;
+
+            port_descriptors[f_i] = 1;
+            port_range_hints[f_i].DefaultValue = 300.0f;
+            port_range_hints[f_i].LowerBound = 100.0f;
+            port_range_hints[f_i].UpperBound = 600.0f;
+            f_i++;
+
+            port_descriptors[f_i] = 1;
+            port_range_hints[f_i].DefaultValue = 0.0f;
+            port_range_hints[f_i].LowerBound = -24.0f;
+            port_range_hints[f_i].UpperBound = 24.0f;
+            f_i++;
+
+            f_i3++;
+        }
+
+        f_i2++;
     }
 
 

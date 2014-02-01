@@ -50,7 +50,7 @@ typedef struct
     t_amp * amp_ptr;
     t_sinc_interpolator * sinc_interpolator;
     t_dco_dc_offset_filter * dc_offset_filters[EUPHORIA_CHANNEL_COUNT];
- 
+
     t_mf3_multi * multieffect[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
     fp_mf3_run fx_func_ptr[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
 
@@ -60,6 +60,7 @@ typedef struct
     fp_noise_func_ptr noise_func_ptr[EUPHORIA_MAX_SAMPLE_COUNT];
     int noise_index[EUPHORIA_MAX_SAMPLE_COUNT];
     float noise_linamp[EUPHORIA_MAX_SAMPLE_COUNT];
+    t_eq6 * eqs[EUPHORIA_MAX_SAMPLE_COUNT];
 }t_euphoria_mono_modules __attribute__((aligned(16)));
 
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
@@ -238,6 +239,7 @@ t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr)
     {
         a_mono->noise_func_ptr[f_i] = f_run_noise_off;
         a_mono->noise_linamp[f_i] = 1.0f;
+        a_mono->eqs[f_i] = g_eq6_get(a_sr);
     }
 
     return a_mono;
