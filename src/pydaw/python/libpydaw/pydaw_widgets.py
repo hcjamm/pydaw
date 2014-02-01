@@ -4418,7 +4418,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         f_knob_size = 46
 
-        self.main_layout =  QtGui.QVBoxLayout(self.poly_fx_tab)
+        self.polyfx_tab_layout = QtGui.QVBoxLayout(self.poly_fx_tab)
+        self.polyfx_tab_layout.setMargin(0)
+        self.polyfx_tab_widget = QtGui.QWidget()
+        self.polyfx_tab_layout.addWidget(self.polyfx_tab_widget,
+                                         alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.main_layout =  QtGui.QVBoxLayout(self.polyfx_tab_widget)
+
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout0)
         self.fx0 =  pydaw_modulex_single(_("FX0"), pydaw_ports.EUPHORIA_FX0_KNOB0,
@@ -4553,7 +4559,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.monofx_sub_tab_fx = QtGui.QWidget()
         self.monofx_sub_tab.addTab(self.monofx_sub_tab_fx, _("Effects"))
-        self.monofx_sub_tab_fx_layout = QtGui.QVBoxLayout(self.monofx_sub_tab_fx)
+        self.monofx_sub_tab_fx_main_layout = QtGui.QVBoxLayout(self.monofx_sub_tab_fx)
+        self.monofx_sub_tab_fx_widget = QtGui.QWidget()
+        self.monofx_sub_tab_fx_layout = QtGui.QVBoxLayout(self.monofx_sub_tab_fx_widget)
+        self.monofx_sub_tab_fx_main_layout.addWidget(
+            self.monofx_sub_tab_fx_widget, alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
         self.hlayout11 = QtGui.QHBoxLayout()
         self.monofx_sub_tab_fx_layout.addLayout(self.hlayout11)
@@ -4586,8 +4596,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.eq6 = eq6_widget(0, self.eq6_rel_callback, self.eq6_val_callback, a_vlayout=False)
         self.eq6_tab = QtGui.QWidget()
         self.monofx_sub_tab.addTab(self.eq6_tab, _("EQ"))
-        self.eq6_gridlayout = QtGui.QGridLayout(self.eq6_tab)
-        self.eq6_gridlayout.addWidget(self.eq6.widget, 1, 0)
+        self.eq6_layout = QtGui.QVBoxLayout(self.eq6_tab)
+        self.eq6_layout.addWidget(self.eq6.widget,
+                                  alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
         self.open_plugin_file()
 
