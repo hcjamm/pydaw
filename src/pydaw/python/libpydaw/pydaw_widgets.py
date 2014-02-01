@@ -4564,7 +4564,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.open_plugin_file()
 
     def eq6_val_callback(self, a_port, a_val):
-        pass
+        if a_port == 0:  #comobox
+            pass
+        else:
+            f_port = a_port - 1
+            f_eq_num = f_port // 3
+            f_knob_num = f_port % 3
+
 
     def eq6_rel_callback(self, a_port, a_val):
         pass
