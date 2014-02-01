@@ -5684,8 +5684,8 @@ class item_list_editor:
         self.list_tab_vlayout.addLayout(self.notes_hlayout)
         self.notes_hlayout.addWidget(self.notes_groupbox)
 
-        self.piano_roll_hlayout = QtGui.QHBoxLayout()
-        self.piano_roll_tab.setLayout(self.piano_roll_hlayout)
+        self.piano_roll_hlayout = QtGui.QHBoxLayout(self.piano_roll_tab)
+        self.piano_roll_hlayout.setMargin(2)
         self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox(_("CCs"))
@@ -7528,6 +7528,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.central_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         self.main_layout = QtGui.QVBoxLayout()
+        self.main_layout.setMargin(2)
         self.widget.setLayout(self.main_layout)
         self.transport_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.main_layout.addWidget(self.transport_splitter)
@@ -7623,9 +7624,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.version_action = self.menu_help.addAction(_("Version Info..."))
         self.version_action.triggered.connect(self.on_version)
 
-        self.transport_hlayout = QtGui.QHBoxLayout()
         self.transport_widget = QtGui.QWidget()
-        self.transport_widget.setLayout(self.transport_hlayout)
+        self.transport_hlayout = QtGui.QHBoxLayout(self.transport_widget)
+        self.transport_hlayout.setMargin(2)
         self.transport_splitter.addWidget(self.transport_widget)
         self.transport_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
 
@@ -7638,6 +7639,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.regions_tab_widget = QtGui.QTabWidget()
         self.song_region_tab = QtGui.QWidget()
         self.song_region_vlayout = QtGui.QVBoxLayout()
+        self.song_region_vlayout.setMargin(3)
         self.song_region_tab.setLayout(self.song_region_vlayout)
         self.song_region_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.song_region_splitter.addWidget(self.song_region_tab)
