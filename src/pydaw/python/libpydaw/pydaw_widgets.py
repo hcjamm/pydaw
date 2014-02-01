@@ -4503,12 +4503,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         #MonoFX Tab
         self.mono_fx_tab_main_layout =  QtGui.QVBoxLayout(self.mono_fx_tab)
-        self.selected_container =  QtGui.QWidget()
-        self.mono_fx_tab_selected_hlayout =  QtGui.QHBoxLayout(self.selected_container)
+        self.mono_fx_tab_selected_hlayout =  QtGui.QHBoxLayout()
         self.mono_fx_tab_selected_sample =  QtGui.QComboBox(self.mono_fx_tab)
         self.mono_fx_tab_selected_group =  QtGui.QComboBox(self.mono_fx_tab)
-        self.mono_fx_tab_selected_sample_label = QtGui.QLabel(_("Selected Sample:"))
-        self.mono_fx_tab_selected_group_label =  QtGui.QLabel(_("FX Group:"))
         for f_i in range(1, pydaw_ports.EUPHORIA_MONO_FX_GROUPS_COUNT):
             self.mono_fx_tab_selected_group.addItem(str(f_i))
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
@@ -4517,22 +4514,27 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_selected_monofx_groupChanged)
         self.mono_fx_tab_selected_sample.currentIndexChanged.connect(
             self.monoFXSampleSelectedIndexChanged)
-        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample_label)
+        self.mono_fx_tab_selected_hlayout.addWidget(QtGui.QLabel(_("Selected Sample:")))
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample)
-        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group_label)
+        self.mono_fx_tab_selected_hlayout.addWidget(QtGui.QLabel(_("FX Group:")))
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group)
-        self.hlayout10 = QtGui.QHBoxLayout()
-        self.hlayout10.addWidget(self.selected_container)
-        self.mono_fx_tab_main_layout.addLayout(self.hlayout10)
+        self.mono_fx_tab_main_layout.addLayout(self.mono_fx_tab_selected_hlayout)
+
+        self.monofx_sub_tab = QtGui.QTabWidget()
+        self.mono_fx_tab_main_layout.addWidget(self.monofx_sub_tab)
+
+        self.monofx_sub_tab_fx = QtGui.QWidget()
+        self.monofx_sub_tab.addTab(self.monofx_sub_tab_fx, _("Effects"))
+        self.monofx_sub_tab_fx_layout = QtGui.QVBoxLayout(self.monofx_sub_tab_fx)
 
         self.hlayout11 = QtGui.QHBoxLayout()
-        self.mono_fx_tab_main_layout.addLayout(self.hlayout11)
+        self.monofx_sub_tab_fx_layout.addLayout(self.hlayout11)
         self.mono_fx0 =  pydaw_modulex_single(_("FX0"), 0, None, self.monofx0_callback)
         self.hlayout11.addWidget(self.mono_fx0.group_box)
         self.mono_fx1 =  pydaw_modulex_single(_("FX1"), 0, None, self.monofx1_callback)
         self.hlayout11.addWidget(self.mono_fx1.group_box)
         self.hlayout12 = QtGui.QHBoxLayout()
-        self.mono_fx_tab_main_layout.addLayout(self.hlayout12)
+        self.monofx_sub_tab_fx_layout.addLayout(self.hlayout12)
         self.mono_fx2 =  pydaw_modulex_single(_("FX2"), 0, None, self.monofx2_callback)
         self.hlayout12.addWidget(self.mono_fx2.group_box)
         self.mono_fx3 =  pydaw_modulex_single(_("FX3"), 0, None, self.monofx3_callback)
@@ -4550,10 +4552,22 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                            pydaw_ports.EUPHORIA_MASTER_GLIDE,
                                            pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT,
                                            self.port_dict, _("Master"))
-        self.mono_fx_tab_main_layout.addWidget(self.master.group_box)
+        self.monofx_sub_tab_fx_layout.addWidget(self.master.group_box)
         self.master.vol_knob.control.setRange(-24, 24)
 
+        self.eq6 = eq6_widget(0, self.eq6_rel_callback, self.eq6_val_callback, a_vlayout=False)
+        self.eq6_tab = QtGui.QWidget()
+        self.monofx_sub_tab.addTab(self.eq6_tab, _("EQ"))
+        self.eq6_gridlayout = QtGui.QGridLayout(self.eq6_tab)
+        self.eq6_gridlayout.addWidget(self.eq6.widget, 1, 0)
+
         self.open_plugin_file()
+
+    def eq6_val_callback(self, a_port, a_val):
+        pass
+
+    def eq6_rel_callback(self, a_port, a_val):
+        pass
 
     def set_default_size(self):
         self.widget.resize(1100, 720)
