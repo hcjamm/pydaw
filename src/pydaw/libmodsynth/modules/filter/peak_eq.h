@@ -232,6 +232,23 @@ void v_eq6_connect_port(t_eq6 * a_eq6, int a_port, float * a_ptr)
     a_eq6->knobs[f_eq_num][f_knob_num] = a_ptr;
 }
 
+inline void v_eq6_set(t_eq6 *a_eq6)
+{
+    int f_i = 0;
+
+    while(f_i < 6)
+    {
+        if(*a_eq6->knobs[f_i][2] != 0.0f)
+        {
+            v_pkq_calc_coeffs(a_eq6->eqs[f_i],
+                    *a_eq6->knobs[f_i][0],
+                    *a_eq6->knobs[f_i][1] * 0.01f,
+                    *a_eq6->knobs[f_i][2]);
+        }
+        f_i++;
+    }
+}
+
 inline void v_eq6_run(t_eq6 *a_eq6, float a_input0, float a_input1)
 {
     int f_i = 0;
@@ -243,11 +260,6 @@ inline void v_eq6_run(t_eq6 *a_eq6, float a_input0, float a_input1)
     {
         if(*a_eq6->knobs[f_i][2] != 0.0f)
         {
-            v_pkq_calc_coeffs(a_eq6->eqs[f_i],
-                    *a_eq6->knobs[f_i][0],
-                    *a_eq6->knobs[f_i][1] * 0.01f,
-                    *a_eq6->knobs[f_i][2]);
-
             v_pkq_run(a_eq6->eqs[f_i], a_eq6->output0, a_eq6->output1);
 
             a_eq6->output0 = a_eq6->eqs[f_i]->output0;

@@ -1174,6 +1174,14 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
     float f_temp_sample0, f_temp_sample1;
 
+    int f_monofx_index = 0;
+
+    for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
+    {
+        f_monofx_index = (plugin_data->monofx_channel_index[i2]);
+        v_eq6_set(plugin_data->mono_modules->eqs[f_monofx_index]);
+    }
+
     for(i = 0; i < sample_count; i++)
     {
 	plugin_data->output[0][i] = 0.0f;
@@ -1213,7 +1221,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             }
         }
 
-        int f_monofx_index = 0;
+
 
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
         {
@@ -1221,14 +1229,6 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
             f_temp_sample0 = (plugin_data->mono_fx_buffers[f_monofx_index][0]);
             f_temp_sample1 = (plugin_data->mono_fx_buffers[f_monofx_index][1]);
-
-            v_eq6_run(plugin_data->mono_modules->eqs[f_monofx_index],
-                    f_temp_sample0, f_temp_sample1);
-
-            f_temp_sample0 =
-                    plugin_data->mono_modules->eqs[f_monofx_index]->output0;
-            f_temp_sample1 =
-                    plugin_data->mono_modules->eqs[f_monofx_index]->output1;
 
             for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
             {
@@ -1244,8 +1244,13 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 f_temp_sample1 = (plugin_data->mono_modules->multieffect[f_monofx_index][i3]->output1);
             }
 
-            plugin_data->output[0][i] += f_temp_sample0;
-            plugin_data->output[1][i] += f_temp_sample1;
+            v_eq6_run(plugin_data->mono_modules->eqs[f_monofx_index],
+                    f_temp_sample0, f_temp_sample1);
+
+            plugin_data->output[0][i] +=
+                    plugin_data->mono_modules->eqs[f_monofx_index]->output0;
+            plugin_data->output[1][i] +=
+                    plugin_data->mono_modules->eqs[f_monofx_index]->output1;
         }
 
         plugin_data->sampleNo++;
