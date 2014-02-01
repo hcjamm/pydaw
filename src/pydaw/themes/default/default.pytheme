@@ -287,6 +287,10 @@ QGroupBox#plugin_groupbox
 	border: 2px solid white;
 	border-radius: 18px;
 	margin-top: 1ex;
+	padding-left: 9px;
+	padding-right: 9px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 
 QWidget#plugin_widget

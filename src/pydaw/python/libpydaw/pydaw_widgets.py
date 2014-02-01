@@ -2421,6 +2421,8 @@ class pydaw_modulex_single:
         if a_title is not None:
             self.group_box.setTitle(str(a_title))
         self.layout = QtGui.QGridLayout()
+        self.layout.setMargin(3)
+        #self.layout.setAlignment(QtCore.Qt.AlignCenter)
         self.group_box.setLayout(self.layout)
         self.knobs = []
         for f_i in range(3):
@@ -2444,16 +2446,16 @@ class pydaw_modulex_single:
 
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.group_box)
-        f_copy_action = QtGui.QAction("Copy", self.group_box)
+        f_copy_action = QtGui.QAction(_("Copy"), self.group_box)
         f_copy_action.triggered.connect(self.copy_settings)
         f_menu.addAction(f_copy_action)
-        f_paste_action = QtGui.QAction("Paste", self.group_box)
+        f_paste_action = QtGui.QAction(_("Paste"), self.group_box)
         f_paste_action.triggered.connect(self.paste_settings)
         f_menu.addAction(f_paste_action)
-        f_paste_and_copy_action = QtGui.QAction("Paste and Copy", self.group_box)
+        f_paste_and_copy_action = QtGui.QAction(_("Paste and Copy"), self.group_box)
         f_paste_and_copy_action.triggered.connect(self.paste_and_copy)
         f_menu.addAction(f_paste_and_copy_action)
-        f_reset_action = QtGui.QAction("Reset", self.group_box)
+        f_reset_action = QtGui.QAction(_("Reset"), self.group_box)
         f_reset_action.triggered.connect(self.reset_settings)
         f_menu.addAction(f_reset_action)
         f_menu.exec_(QtGui.QCursor.pos())
@@ -2469,8 +2471,8 @@ class pydaw_modulex_single:
     def paste_settings(self, a_copy=False):
         global global_modulex_clipboard
         if global_modulex_clipboard is None:
-            QtGui.QMessageBox.warning(self.group_box, "Error",
-            "Nothing copied to clipboard")
+            QtGui.QMessageBox.warning(self.group_box, _("Error"),
+            _("Nothing copied to clipboard"))
         else:
             f_class = self.get_class()
             self.set_from_class(global_modulex_clipboard)
@@ -2840,6 +2842,7 @@ class pydaw_abstract_plugin_ui:
         self.widget.setWidget(self.scrollarea_widget)
 
         self.layout = QtGui.QVBoxLayout()
+        self.layout.setMargin(2)
         self.scrollarea_widget.setLayout(self.layout)
         self.port_dict = {}
         self.effects = []
@@ -4548,10 +4551,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_selected_monofx_groupChanged)
         self.mono_fx_tab_selected_sample.currentIndexChanged.connect(
             self.monoFXSampleSelectedIndexChanged)
+        self.mono_fx_tab_selected_group.setMinimumWidth(75)
         self.mono_fx_tab_selected_hlayout.addWidget(QtGui.QLabel(_("Selected Sample:")))
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample)
         self.mono_fx_tab_selected_hlayout.addWidget(QtGui.QLabel(_("FX Group:")))
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group)
+        self.mono_fx_tab_selected_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.mono_fx_tab_main_layout.addLayout(self.mono_fx_tab_selected_hlayout)
 
         self.monofx_sub_tab = QtGui.QTabWidget()
@@ -4622,7 +4628,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.eq6.update_viewer()
 
     def set_default_size(self):
-        self.widget.resize(1100, 720)
+        self.widget.resize(1100, 690)
 
     def monofx0_callback(self, a_port, a_val):
         self.monofx_all_callback(a_port, a_val, [self.monofx0knob0_ctrls, self.monofx0knob1_ctrls,
