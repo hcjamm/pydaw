@@ -37,6 +37,7 @@ typedef struct st_pkq_peak_eq
     float coeff1_x_out_m1_0, coeff2_x_out_m2_0, iir_output0,
             coeff1_x_out_m1_1, coeff2_x_out_m2_1, iir_output1;
 
+    float last_pitch;
     t_amp * amp_ptr;
     t_pit_pitch_core * pitch_core;
 }t_pkq_peak_eq;
@@ -78,15 +79,20 @@ inline void v_pkq_calc_coeffs(t_pkq_peak_eq *__restrict a_pkq,
         a_pkq->d_times_B = (a_pkq->d) * (a_pkq->B);
     }
 
-    a_pkq->warp_input = f_pit_midi_note_to_hz_fast(
-            a_pitch, a_pkq->pitch_core) * (a_pkq->pi_div_sr);
-    a_pkq->warp_input_squared = (a_pkq->warp_input)*(a_pkq->warp_input);
-    a_pkq->warp_input_tripled = (a_pkq->warp_input_squared)*(a_pkq->warp_input);
-    a_pkq->warp_outstream0 = (a_pkq->warp_input_squared) *
-            (a_pkq->warp_input_tripled) * 0.133333f;
-    a_pkq->warp_outstream1 = (a_pkq->warp_input_tripled) * 0.333333f;
-    a_pkq->w = (a_pkq->warp_outstream0) + (a_pkq->warp_outstream1) +
-            (a_pkq->warp_input);
+    if(a_pitch != a_pkq->last_pitch)
+    {
+        a_pkq->last_pitch = a_pitch;
+        a_pkq->warp_input = f_pit_midi_note_to_hz_fast(
+                a_pitch, a_pkq->pitch_core) * (a_pkq->pi_div_sr);
+        a_pkq->warp_input_squared = (a_pkq->warp_input) * (a_pkq->warp_input);
+        a_pkq->warp_input_tripled =
+                (a_pkq->warp_input_squared) * (a_pkq->warp_input);
+        a_pkq->warp_outstream0 = (a_pkq->warp_input_squared) *
+                (a_pkq->warp_input_tripled) * 0.133333f;
+        a_pkq->warp_outstream1 = (a_pkq->warp_input_tripled) * 0.333333f;
+        a_pkq->w = (a_pkq->warp_outstream0) + (a_pkq->warp_outstream1) +
+                (a_pkq->warp_input);
+    }
 
 
     a_pkq->w2 = (a_pkq->w) * (a_pkq->w);
@@ -186,6 +192,7 @@ t_pkq_peak_eq * g_pkq_get(float a_sample_rate)
     f_result->wQ = 0.0f;
     f_result->y2_0 = 0.0f;
     f_result->y2_1 = 0.0f;
+    f_result->last_pitch = -452.66447f;
 
     return f_result;
 }
