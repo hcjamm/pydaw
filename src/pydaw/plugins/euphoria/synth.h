@@ -25,9 +25,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 
 #define EUPHORIA_POLYPHONY 20
-#define EUPHORIA_FRAMES_MAX 16777216
-//Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
-#define EUPHORIA_Sample_Padding 100
 
 //How many buffers in between slow indexing operations.  Buffer == users soundcard latency settings, ie: 512 samples
 #define EUPHORIA_SLOW_INDEX_COUNT 64
