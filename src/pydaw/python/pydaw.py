@@ -1374,14 +1374,14 @@ global_last_audio_item_dir = global_home
 
 def normalize_dialog():
     def on_ok():
+        f_window.f_result = f_db_spinbox.value()
         f_window.close()
 
     def on_cancel():
-        f_db_spinbox.setMinimum(-100)
-        f_db_spinbox.setValue(-100)
         f_window.close()
 
     f_window = QtGui.QDialog(this_main_window)
+    f_window.f_result = None
     f_window.setWindowTitle(_("Normalize"))
     f_window.setFixedSize(150, 90)
     f_layout = QtGui.QVBoxLayout()
@@ -1401,11 +1401,7 @@ def normalize_dialog():
     f_ok_cancel_layout.addWidget(f_cancel_button)
     f_cancel_button.pressed.connect(on_cancel)
     f_window.exec_()
-    f_result = f_db_spinbox.value()
-    if f_result == -100:
-        return None
-    else:
-        return f_result
+    return f_window.f_result
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_track_num, a_audio_item, a_graph):
