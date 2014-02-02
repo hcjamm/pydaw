@@ -600,6 +600,9 @@ int main(int argc, char **argv)
     int j;
     int in, out, controlIn, controlOut;
 
+    //Stop trying to load the soundcard after 3 failed attempts
+    int f_failure_count = 0;
+
     pthread_attr_t f_ui_threadAttr;
     struct sched_param param;
     param.__sched_priority = 1; //90;
@@ -977,6 +980,14 @@ int main(int argc, char **argv)
                   NULL );
         if( err != paNoError )
         {
+            f_failure_count++;
+
+            if(f_failure_count > 3)
+            {
+                printf("Failed to load device 3 times, quitting...\n");
+                exit(9996);
+            }
+
             sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd,
                     "Error while opening audio device: ", Pa_GetErrorText(err));
             system(f_cmd_buffer);
