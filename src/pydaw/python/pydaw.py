@@ -6506,6 +6506,14 @@ class transport_widget:
         if self.is_playing:
             self.set_region_value(self.start_region)
             self.set_bar_value(self.last_bar)
+        else:
+            f_we_enabled = this_wave_editor_widget.enabled_checkbox.isChecked()
+            f_tab_index = this_main_window.main_tabwidget.currentIndex()
+            if this_wave_editor_widget.history:
+                if f_tab_index == 3 and not f_we_enabled:
+                    this_wave_editor_widget.enabled_checkbox.setChecked(True)
+                elif f_tab_index != 3 and f_we_enabled:
+                    this_wave_editor_widget.enabled_checkbox.setChecked(False)
         this_song_editor.table_widget.setEnabled(False)
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
@@ -8380,6 +8388,7 @@ class pydaw_wave_editor_widget:
         self.sample_graph.setEnabled(False)
         self.vol_slider.setEnabled(False)
         self.menu_button.setEnabled(False)
+        self.enabled_checkbox.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             self.time_label_enabled = True
             self.playback_cursor = self.sample_graph.scene.addLine(
@@ -8393,6 +8402,7 @@ class pydaw_wave_editor_widget:
         self.sample_graph.setEnabled(True)
         self.vol_slider.setEnabled(True)
         self.menu_button.setEnabled(True)
+        self.enabled_checkbox.setEnabled(True)
         if self.playback_cursor is not None:
             self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
