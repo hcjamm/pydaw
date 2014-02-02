@@ -478,8 +478,9 @@ class pydaw_project:
             (a_audio_item.time_stretch_mode == 2 and \
             a_audio_item.timestretch_amt == a_audio_item.timestretch_amt_end):
                 return None  #Don't process if the file is not being stretched/shifted yet
-        f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, \
-        a_audio_item.timestretch_amt_end, a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
+        f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt,
+                 a_audio_item.pitch_shift, a_audio_item.timestretch_amt_end,
+                 a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
         if f_key in self.timestretch_cache:
             a_audio_item.uid = self.timestretch_cache[f_key]
             return None
