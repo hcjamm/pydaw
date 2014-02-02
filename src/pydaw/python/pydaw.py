@@ -1371,6 +1371,42 @@ global_audio_item_lane_count = 24
 
 global_last_audio_item_dir = global_home
 
+
+def normalize_dialog():
+    def on_ok():
+        f_window.close()
+
+    def on_cancel():
+        f_db_spinbox.setMinimum(-100)
+        f_db_spinbox.setValue(-100)
+        f_window.close()
+
+    f_window = QtGui.QDialog(this_main_window)
+    f_window.setWindowTitle(_("Normalize"))
+    f_window.setFixedSize(150, 90)
+    f_layout = QtGui.QVBoxLayout()
+    f_window.setLayout(f_layout)
+    f_hlayout = QtGui.QHBoxLayout()
+    f_layout.addLayout(f_hlayout)
+    f_hlayout.addWidget(QtGui.QLabel("dB"))
+    f_db_spinbox = QtGui.QSpinBox()
+    f_hlayout.addWidget(f_db_spinbox)
+    f_db_spinbox.setRange(-18, 0)
+    f_ok_button = QtGui.QPushButton(_("OK"))
+    f_ok_cancel_layout = QtGui.QHBoxLayout()
+    f_layout.addLayout(f_ok_cancel_layout)
+    f_ok_cancel_layout.addWidget(f_ok_button)
+    f_ok_button.pressed.connect(on_ok)
+    f_cancel_button = QtGui.QPushButton(_("Cancel"))
+    f_ok_cancel_layout.addWidget(f_cancel_button)
+    f_cancel_button.pressed.connect(on_cancel)
+    f_window.exec_()
+    f_result = f_db_spinbox.value()
+    if f_result == -100:
+        return None
+    else:
+        return f_result
+
 class audio_viewer_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_track_num, a_audio_item, a_graph):
         QtGui.QGraphicsRectItem.__init__(self)
@@ -1780,43 +1816,19 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.audio_item.vol = f_val
 
     def normalize_dialog(self):
-        def on_ok():
-            f_val = f_db_spinbox.value()
-            f_save = False
-            for f_item in this_audio_items_viewer.audio_items:
-                if f_item.isSelected():
-                    f_save = True
-                    f_item.normalize(f_val)
-            if f_save:
-                this_pydaw_project.save_audio_region(global_current_region.uid,
-                                                     global_audio_items)
-                this_pydaw_project.commit(_("Normalize audio items"))
-                global_open_audio_items(True)
-            f_window.close()
-
-        def on_cancel():
-            f_window.close()
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle(_("Normalize"))
-        f_window.setFixedSize(150, 90)
-        f_layout = QtGui.QVBoxLayout()
-        f_window.setLayout(f_layout)
-        f_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_hlayout)
-        f_hlayout.addWidget(QtGui.QLabel("dB"))
-        f_db_spinbox = QtGui.QSpinBox()
-        f_hlayout.addWidget(f_db_spinbox)
-        f_db_spinbox.setRange(-18, 0)
-        f_ok_button = QtGui.QPushButton(_("OK"))
-        f_ok_cancel_layout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_ok_cancel_layout)
-        f_ok_cancel_layout.addWidget(f_ok_button)
-        f_ok_button.pressed.connect(on_ok)
-        f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_ok_cancel_layout.addWidget(f_cancel_button)
-        f_cancel_button.pressed.connect(on_cancel)
-        f_window.exec_()
+        f_val = normalize_dialog()
+        if f_val is None:
+            return
+        f_save = False
+        for f_item in this_audio_items_viewer.audio_items:
+            if f_item.isSelected():
+                f_save = True
+                f_item.normalize(f_val)
+        if f_save:
+            this_pydaw_project.save_audio_region(global_current_region.uid,
+                                                 global_audio_items)
+            this_pydaw_project.commit(_("Normalize audio items"))
+            global_open_audio_items(True)
 
     def get_file_path(self):
         return this_pydaw_project.get_wav_path_by_uid(self.audio_item.uid)
@@ -8179,6 +8191,8 @@ class pydaw_wave_editor_widget:
         self.menu.addSeparator()
         self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
+        self.normalize_action = self.menu.addAction(_("Normalize"))
+        self.normalize_action.triggered.connect(self.normalize_dialog)
 
         self.history_button = QtGui.QPushButton(_("History"))
         self.file_hlayout.addWidget(self.history_button)
@@ -8219,6 +8233,18 @@ class pydaw_wave_editor_widget:
         self.last_offline_dir = global_home
         self.open_exported = False
         self.history = []
+        self.graph_object = None
+
+    def normalize_dialog(self):
+        if self.graph_object is None:
+            return
+        f_val = normalize_dialog()
+        if f_val is not None:
+            self.normalize(f_val)
+
+    def normalize(self, a_value):
+        f_val = self.graph_object.normalize(a_value)
+        self.vol_slider.setValue(f_val)
 
     def reset_markers(self):
         self.sample_graph.reset_markers()
@@ -8376,8 +8402,8 @@ class pydaw_wave_editor_widget:
         self.clear_sample_graph()
         f_file = str(a_file)
         self.file_lineedit.setText(f_file)
-        f_graph = self.set_sample_graph(f_file)
-        self.duration = f_graph.frame_count / f_graph.sample_rate
+        self.set_sample_graph(f_file)
+        self.duration = self.graph_object.frame_count / self.graph_object.sample_rate
         print("Duration:  {}".format(self.duration))
         if f_file in self.history:
             self.history.remove(f_file)
@@ -8446,10 +8472,9 @@ class pydaw_wave_editor_widget:
 
     def set_sample_graph(self, a_file_name):
         this_pydaw_project.delete_sample_graph_by_name(a_file_name)
-        f_graph = this_pydaw_project.get_sample_graph_by_name(a_file_name)
+        self.graph_object = this_pydaw_project.get_sample_graph_by_name(a_file_name)
         self.sample_graph.draw_item(
-            f_graph.create_sample_graph(True), 0.0, 1000.0, 0.0, 1000.0)
-        return f_graph
+            self.graph_object.create_sample_graph(True), 0.0, 1000.0, 0.0, 1000.0)
 
     def clear_sample_graph(self):
         self.sample_graph.clear_drawn_items()
