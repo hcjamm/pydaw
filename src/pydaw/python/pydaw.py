@@ -1750,7 +1750,30 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
         f_normalize_action = f_menu.addAction(_("Normalize selected items"))
         f_normalize_action.triggered.connect(self.normalize_dialog)
+        f_menu.addSeparator()
+        f_edit_properties_action = f_menu.addAction(_("Edit properties (double-click)"))
+        f_edit_properties_action.triggered.connect(self.edit_properties)
+        f_edit_paif_action = f_menu.addAction(_("Edit per-item effects"))
+        f_edit_paif_action.triggered.connect(self.edit_paif)
+        f_menu.addSeparator()
+        f_wave_editor_action = f_menu.addAction(_("Open in wave editor"))
+        f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def open_in_wave_editor(self):
+        f_path = self.get_file_path()
+        this_wave_editor_widget.open_file(f_path)
+        this_main_window.main_tabwidget.setCurrentIndex(3)
+
+    def edit_properties(self):
+        this_audio_items_viewer.scene.clearSelection()
+        self.setSelected(True)
+        this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
+
+    def edit_paif(self):
+        this_audio_items_viewer.scene.clearSelection()
+        self.setSelected(True)
+        this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(3)
 
     def normalize(self, a_value):
         f_val = self.graph_object.normalize(a_value)
@@ -1795,8 +1818,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_cancel_button.pressed.connect(on_cancel)
         f_window.exec_()
 
+    def get_file_path(self):
+        return this_pydaw_project.get_wav_path_by_uid(self.audio_item.uid)
+
     def copy_file_path_to_clipboard(self):
-        f_path = this_pydaw_project.get_wav_path_by_uid(self.audio_item.uid)
+        f_path = self.get_file_path()
         f_clipboard = QtGui.QApplication.clipboard()
         f_clipboard.setText(f_path)
 
