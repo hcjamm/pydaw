@@ -178,7 +178,7 @@ class pydaw_project:
         f_cmd = "rm -rf '{}'".format(f_new_project_folder)
         print(f_cmd)
         os.system(f_cmd)
-        f_cmd = 'cp -r "{}" "{}"'.format(self.project_folder, f_new_project_folder)
+        f_cmd = "cp -rf '{}' '{}'".format(self.project_folder, f_new_project_folder)
         print(f_cmd)
         os.system(f_cmd)
         print("{}/{} | {}".format(f_new_project_folder, self.project_file, a_file_name))
