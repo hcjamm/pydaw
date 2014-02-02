@@ -151,89 +151,19 @@ def pydaw_set_tooltips_enabled(a_enabled):
     """ Set extensive tooltips as an alternative to maintaining a separate user manual """
     global global_tooltips_enabled
     global_tooltips_enabled = a_enabled
-    for f_automation_editor in global_automation_editors:
-            f_automation_editor.set_tooltip(a_enabled)
+
+    f_list = [this_song_editor, this_audio_items_viewer_widget, this_piano_roll_editor,
+              this_main_window, this_wave_editor_widget, this_audio_item_editor_widget,
+              this_audio_items_viewer, this_transport] + \
+              list(global_region_editors) + list(global_automation_editors)
+    for f_widget in f_list:
+        f_widget.set_tooltips(a_enabled)
+
     if a_enabled:
         pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "True")
-        this_song_editor.table_widget.setToolTip(
-        _("This is the song editor.  A song is a timeline "
-        "consisting of regions,\nclick here to add a region, click and drag to move a region, or "
-        "press the 'delete' button to delete\nthe selected regions.  Click on a region to edit it "
-        "in the region editor below.\n\nClick the 'tooltips' checkbox in the transport to disable "
-        "these tooltips"))
-        for f_region_editor in global_region_editors:
-            f_region_editor.table_widget.setToolTip(_("This is a region editor, it consists of "
-            "items and tracks.\nA track is either a plugin instrument, audio track or bus track.\n"
-            "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add "
-            "a new item\nDouble click an item to open it in the piano-roll-editor or select "
-            "multiple and right-click->'edit multiple items as group'\n\n"
-            "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted "
-            "with CTRL+V, and deleted by pressing 'Delete'\n\n"
-            "Additional functions can be found by right-clicking on the items, the term "
-            "'unlink' means to create a new copy of the item that\n"
-            "does not change it's parent item when edited (by default all items are "
-            "'ghost items' that update all items with the same name)\n\n"
-            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
-        this_audio_items_viewer.setToolTip(_("Drag .wav files from the file browser onto here.  "
-        "You can edit item properties with the\n"
-        "'Edit' tab to the left, or by clicking and dragging the item handles."
-        "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
-        this_audio_items_viewer_widget.folders_widget.setToolTip(_("Use this tab to browse your "
-        "folders and files.\nDrag and drop one file at a time onto the sequencer.\n.wav files "
-        "are the only supported audio file format.\nClick the 'Bookmark' button to save the "
-        "current folder to your bookmarks located on the 'Bookmarks' tab."
-        "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
-        this_audio_items_viewer_widget.modulex.widget.setToolTip(_("This tab allows you to set "
-        "effects per-item.\nThe tab is only enabled when you have exactly one item selected, "
-        "the copy and paste buttons allow you to copy settings between multipe items."))
-        this_piano_roll_editor.setToolTip(_("Click+drag to draw notes\nCTRL+click+drag to "
-        "marquee select multiple items\n"
-        "Press the Del button to delete selected notes\nTo edit velocity, use the velocity "
-        "button\n"
-        "Double-click to edit note properties\nClick and drag the note end to change length\n"
-        "Shift+click to delete a note\n"
-        "To edit multiple items as one logical item, select multiple items in the region "
-        "editor and right-click + 'Edit Selected Items as Group'\n"
-        "The Quantize, Transpose and Velocity buttons open dialogs to manipulate the selected "
-        "notes (or all notes if none are selected)"
-        "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
-        this_transport.group_box.setToolTip(_("This is the transport, use this control to "
-        "start/stop playback or recording.\n"
-        "You can start or stop playback by pressing spacebar\n"
-        "The MIDI controller used for recording is selected in the File->HardwareSettings menu\n"
-        "The 'Loop Mode' combobox can be used to loop a region.\n"
-        "The 'Follow' checkbox causes the UI to follow the project's playback position\n"
-        "The 'Overdub' checkbox causes recorded MIDI notes to be appended to existing "
-        "items, rather than placed in new items that replace the existing items.\n"
-        "The panic button sends a note-off event on every note to every plugin.  "
-        "Use this when you get a stuck note."
-        "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
-        this_main_window.cc_map_tab.setToolTip(_("Use this tab to create CC maps for your "
-        "MIDI controller to PyDAW's built-in plugins\n"
-        "Each CC routes to a different control for each instrument, or if the CC is "
-        "'Effects Only', it routes only to Modulex"))
-        this_wave_editor_widget.widget.setToolTip(_("This tab allows you to A/B your track "
-        "against a .wav file.\n"
-        "Click the 'Open' button to open the .wav file, then click the 'Enabled?' checkbox "
-        "to disable normal audio and enable the A/B track"))
-        this_audio_item_editor_widget.set_tooltips(True)
-        this_audio_items_viewer.set_tooltips(True)
-        this_transport.set_tooltips(True)
     else:
         pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "False")
-        this_song_editor.table_widget.setToolTip("")
-        for f_region_editor in global_region_editors:
-            f_region_editor.table_widget.setToolTip("")
-        this_audio_item_editor_widget.set_tooltips(False)
-        this_audio_items_viewer.setToolTip("")
-        this_audio_items_viewer_widget.folders_widget.setToolTip("")
-        this_audio_items_viewer_widget.modulex.widget.setToolTip("")
-        this_piano_roll_editor.setToolTip("")
-        this_transport.group_box.setToolTip("")
-        this_main_window.cc_map_tab.setToolTip("")
-        this_wave_editor_widget.widget.setToolTip("")
-        this_audio_items_viewer.set_tooltips(False)
-        this_transport.set_tooltips(False)
+
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
@@ -381,12 +311,23 @@ class song_editor:
         self.main_vlayout.addWidget(self.table_widget)
 
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.rename_action = QtGui.QAction("Rename region", self.table_widget)
+        self.rename_action = QtGui.QAction(_("Rename region"), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_region)
         self.table_widget.addAction(self.rename_action)
-        self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
+        self.delete_action = QtGui.QAction(_("Delete (Del)"), self.table_widget)
         self.delete_action.triggered.connect(self.on_delete)
         self.table_widget.addAction(self.delete_action)
+
+    def set_tooltips(self, a_on):
+        if a_on:
+            self.table_widget.setToolTip(
+            _("This is the song editor.  A song is a timeline "
+            "consisting of regions,\nclick here to add a region, click and drag to move a "
+            "region, or press the 'delete' button to delete\nthe selected regions.  "
+            "Click on a region to edit it in the region editor below.\n\n"
+            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
+        else:
+            self.table_widget.setToolTip("")
 
     def on_delete(self):
         f_item = self.table_widget.currentItem()
@@ -1016,6 +957,23 @@ class region_list_editor:
         self.last_item_copied = None
         self.reset_tracks()
         self.last_cc_line_num = 1
+
+    def set_tooltips(self, a_on):
+        if a_on:
+            self.table_widget.setToolTip(_("This is a region editor, it consists of "
+            "items and tracks.\nA track is either a plugin instrument, audio track or bus track.\n"
+            "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add "
+            "a new item\nDouble click an item to open it in the piano-roll-editor or select "
+            "multiple and right-click->'edit multiple items as group'\n\n"
+            "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted "
+            "with CTRL+V, and deleted by pressing 'Delete'\n\n"
+            "Additional functions can be found by right-clicking on the items, the term "
+            "'unlink' means to create a new copy of the item that\n"
+            "does not change it's parent item when edited (by default all items are "
+            "'ghost items' that update all items with the same name)\n\n"
+            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
+        else:
+            self.table_widget.setToolTip("")
 
     def get_selected_items(self):
         f_result = []
@@ -2287,6 +2245,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.clear()
 
     def set_tooltips(self, a_on):
+        if a_on:
+            self.setToolTip(_("Drag .wav files from the file browser onto here.  "
+            "You can edit item properties with the\n"
+            "'Edit' tab to the left, or by clicking and dragging the item handles."
+            "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+        else:
+            self.setToolTip("")
         for f_item in self.audio_items:
             f_item.set_tooltips(a_on)
 
@@ -2846,6 +2811,16 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("H-Zoom:")), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
+
+    def set_tooltips(self, a_on):
+        self.folders_widget.setToolTip(_("Use this tab to browse your "
+        "folders and files.\nDrag and drop one file at a time onto the sequencer.\n.wav files "
+        "are the only supported audio file format.\nClick the 'Bookmark' button to save the "
+        "current folder to your bookmarks located on the 'Bookmarks' tab."
+        "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+        self.modulex.widget.setToolTip(_("This tab allows you to set "
+        "effects per-item.\nThe tab is only enabled when you have exactly one item selected, "
+        "the copy and paste buttons allow you to copy settings between multipe items."))
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
@@ -4032,6 +4007,22 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.vel_rand = 0
         self.vel_emphasis = 0
 
+    def set_tooltips(self, a_on):
+        if a_on:
+            self.setToolTip(_("Click+drag to draw notes\nCTRL+click+drag to "
+            "marquee select multiple items\n"
+            "Press the Del button to delete selected notes\nTo edit velocity, use the velocity "
+            "button\n"
+            "Double-click to edit note properties\nClick and drag the note end to change length\n"
+            "Shift+click to delete a note\n"
+            "To edit multiple items as one logical item, select multiple items in the region "
+            "editor and right-click + 'Edit Selected Items as Group'\n"
+            "The Quantize, Transpose and Velocity buttons open dialogs to manipulate the selected "
+            "notes (or all notes if none are selected)"
+            "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+        else:
+            self.setToolTip("")
+
     def prepare_to_quit(self):
         self.scene.clearSelection()
         self.scene.clear()
@@ -4672,7 +4663,7 @@ class automation_viewer(QtGui.QGraphicsView):
             for f_item in self.automation_points:
                 f_item.set_brush()
 
-    def set_tooltip(self, a_enabled=False):
+    def set_tooltips(self, a_enabled=False):
         if a_enabled:
             if self.is_cc:
                 f_start = _("Select the plugin/control you wish to automate using the comboboxes"
@@ -6786,11 +6777,24 @@ class transport_widget:
                 "new events to the existing events"))
             self.follow_checkbox.setToolTip(
                 _("Checking this box causes the region editor to follow playback"))
+            self.group_box.setToolTip(_("This is the transport, use this control to "
+                "start/stop playback or recording.\n"
+                "You can start or stop playback by pressing spacebar\n"
+                "The MIDI controller used for recording is selected in the "
+                "File->HardwareSettings menu\n"
+                "The 'Loop Mode' combobox can be used to loop a region.\n"
+                "The 'Follow' checkbox causes the UI to follow the project's playback position\n"
+                "The 'Overdub' checkbox causes recorded MIDI notes to be appended to existing "
+                "items, rather than placed in new items that replace the existing items.\n"
+                "The panic button sends a note-off event on every note to every plugin.  "
+                "Use this when you get a stuck note."
+                "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
         else:
             self.tooltips_checkbox.setToolTip("")
             self.panic_button.setToolTip("")
             self.overdub_checkbox.setToolTip("")
             self.follow_checkbox.setToolTip("")
+            self.group_box.setToolTip("")
 
 
 global_open_fx_ui_dicts = [{}, {}, {}, {}, {}]
@@ -7504,6 +7508,15 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()
 
+    def set_tooltips(self, a_on):
+        if a_on:
+            self.cc_map_tab.setToolTip(_("Use this tab to create CC maps for your "
+            "MIDI controller to PyDAW's built-in plugins\n"
+            "Each CC routes to a different control for each instrument, or if the CC is "
+            "'Effects Only', it routes only to Modulex"))
+        else:
+            self.cc_map_tab.setToolTip("")
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         #self.setMinimumSize(1100, 600)
@@ -8169,6 +8182,12 @@ class pydaw_wave_editor_widget:
         self.last_offline_dir = global_home
         self.open_exported = False
         self.history = []
+
+    def set_tooltips(self, a_on):
+        if a_on:
+            pass
+        else:
+            pass
 
     def history_contextMenuEvent(self):
         if self.history:
