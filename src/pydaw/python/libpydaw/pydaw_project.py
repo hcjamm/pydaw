@@ -719,7 +719,7 @@ class pydaw_project:
             if not os.path.isdir(f_cp_dir):
                 os.makedirs(f_cp_dir)
             if not os.path.isfile(f_cp_path):
-                os.system('cp "{}" "{}"'.format(f_path, f_cp_path))
+                os.system("cp -f '{}' '{}'".format(f_path, f_cp_path))
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
             return f_uid
