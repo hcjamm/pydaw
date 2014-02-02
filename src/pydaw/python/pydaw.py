@@ -145,6 +145,22 @@ def pydaw_print_generic_exception(a_ex):
     "due to the slow nature of flash drives.  If the problem persists, you should consider "
     "installing PyDAW-OS to your hard drive instead").format(a_ex))
 
+def global_get_audio_file_from_clipboard():
+    f_clipboard = QtGui.QApplication.clipboard()
+    f_path = f_clipboard.text()
+    if f_path is None:
+        QtGui.QMessageBox.warning(this_main_window, _("Error"),
+                                  _("No text in the system clipboard"))
+    else:
+        f_path = str(f_path)
+        if os.path.isfile(f_path):
+            return f_path
+        else:
+            f_path = f_path[100:]
+            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+                                      _("{} is not a valid file").format(f_path))
+    return None
+
 global_tooltips_enabled = False
 
 def pydaw_set_tooltips_enabled(a_enabled):
@@ -1779,10 +1795,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_open_folder_action = f_menu.addAction(_("Open parent folder in browser"))
         f_open_folder_action.triggered.connect(self.open_item_folder)
         f_copy_file_path_action = f_menu.addAction(_("Copy file path to clipboard"))
+        f_menu.addSeparator()
+        f_replace_action = f_menu.addAction(_("Replace with path in clipboard"))
+        f_replace_action.triggered.connect(self.replace_with_path_in_clipboard)
+        f_menu.addSeparator()
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
         f_normalize_action = f_menu.addAction(_("Normalize selected items"))
         f_normalize_action.triggered.connect(self.normalize_dialog)
-        f_menu.addSeparator()
         f_edit_properties_action = f_menu.addAction(_("Edit properties (double-click)"))
         f_edit_properties_action.triggered.connect(self.edit_properties)
         f_edit_paif_action = f_menu.addAction(_("Edit per-item effects"))
@@ -1791,6 +1810,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_wave_editor_action = f_menu.addAction(_("Open in wave editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def replace_with_path_in_clipboard(self):
+        f_path = global_get_audio_file_from_clipboard()
+        if f_path is not None:
+            self.audio_item.uid = this_pydaw_project.get_wav_uid_by_name(f_path)
+            this_pydaw_project.save_audio_region(global_current_region.uid,
+                                                 global_audio_items)
+            this_pydaw_project.commit(_("Replace audio item"))
+            global_open_audio_items(True)
 
     def open_in_wave_editor(self):
         f_path = self.get_file_path()
@@ -2319,18 +2347,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_menu.exec_(a_event.screenPos())
 
     def on_scene_paste_paths(self):
-        f_clipboard = QtGui.QApplication.clipboard()
-        f_path = f_clipboard.text()
-        if f_path is None:
-            QtGui.QMessageBox.warning(self, _("Error"), _("No text in the system clipboard"))
-        else:
-            f_path = str(f_path)
-            if os.path.isfile(f_path):
-                self.add_items(self.context_menu_pos.x(), self.context_menu_pos.y(), [f_path])
-            else:
-                f_path = f_path[100:]
-                QtGui.QMessageBox.warning(self, _("Error"),
-                                          _("{} is not a valid file").format(f_path))
+        f_path = global_get_audio_file_from_clipboard()
+        if f_path is not None:
+            self.add_items(self.context_menu_pos.x(), self.context_menu_pos.y(), [f_path])
 
     def scene_selection_changed(self):
         f_selected_items = []
