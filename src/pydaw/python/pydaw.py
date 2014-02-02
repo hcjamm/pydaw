@@ -8176,6 +8176,9 @@ class pydaw_wave_editor_widget:
         self.copy_action.triggered.connect(self.copy_file_to_clipboard)
         self.paste_action = self.menu.addAction(_("Paste File from Clipboard"))
         self.paste_action.triggered.connect(self.open_file_from_clipboard)
+        self.menu.addSeparator()
+        self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
+        self.reset_markers_action.triggered.connect(self.reset_markers)
 
         self.history_button = QtGui.QPushButton(_("History"))
         self.file_hlayout.addWidget(self.history_button)
@@ -8216,6 +8219,9 @@ class pydaw_wave_editor_widget:
         self.last_offline_dir = global_home
         self.open_exported = False
         self.history = []
+
+    def reset_markers(self):
+        self.sample_graph.reset_markers()
 
     def set_tooltips(self, a_on):
         if a_on:
