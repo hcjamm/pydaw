@@ -2091,6 +2091,14 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
+    def reset_default(self):
+        if self.marker_type == 0:
+            self.value = 0.0
+        else:
+            self.value = 1000.0
+        self.set_pos()
+        self.callback(self.value)
+
     def set_pos(self):
         if self.marker_type == 0:
             f_new_val = self.value * pydaw_audio_item_val_to_px
@@ -2186,6 +2194,14 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
             f_line = QtGui.QGraphicsLineItem()
             self.amp_lines.append(f_line)
             f_line.setPen(pydaw_fade_pen)
+
+    def reset_default(self):
+        if self.marker_type == 0:
+            self.value = 0.0
+        else:
+            self.value = 1000.0
+        self.set_pos()
+        self.callback(self.value)
 
     def draw_lines(self):
         f_inc = pydaw_audio_item_scene_height / float(len(self.amp_lines))
@@ -2285,8 +2301,20 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.drag_start_markers = []
         self.drag_end_markers = []
 
+    def scene_contextMenuEvent(self):
+        f_menu = QtGui.QMenu(self)
+        f_reset_markers_action = f_menu.addAction("Reset markers")
+        f_reset_markers_action.triggered.connect(self.reset_markers)
+        f_menu.exec_(QtGui.QCursor.pos())
+
+    def reset_markers(self):
+        for f_marker in self.drag_start_markers + self.drag_end_markers:
+            f_marker.reset_default()
+
     def clear_drawn_items(self):
         self.scene.clear()
+        self.drag_start_markers = []
+        self.drag_end_markers = []
 
     def pos_to_marker_val(self, a_pos_x):
         f_result = pydaw_audio_item_scene_width_recip * a_pos_x * 1000.0
@@ -2294,6 +2322,9 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         return f_result
 
     def scene_mousePressEvent(self, a_event):
+        if a_event.button() == QtCore.Qt.RightButton:
+            self.scene_contextMenuEvent()
+            return
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
         if not a_event.isAccepted():
             self.is_drag_selecting = True
