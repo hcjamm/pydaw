@@ -8206,7 +8206,7 @@ class pydaw_wave_editor_widget:
         self.menu.addSeparator()
         self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
-        self.normalize_action = self.menu.addAction(_("Normalize"))
+        self.normalize_action = self.menu.addAction(_("Normalize (non-destructive)"))
         self.normalize_action.triggered.connect(self.normalize_dialog)
 
         self.history_button = QtGui.QPushButton(_("History"))
