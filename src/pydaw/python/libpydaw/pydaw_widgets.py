@@ -5123,7 +5123,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def saveToFile(self):
         while True:
             f_selected_path = QtGui.QFileDialog.getSaveFileName(self.widget,
-            _("Select a directory to move the samples to..."), pydaw_util.global_home,
+            _("Select a directory to copy the samples to..."), pydaw_util.global_home,
             filter=pydaw_util.global_euphoria_file_type_string)
             if f_selected_path is not None:
                 f_selected_path = str(f_selected_path)
