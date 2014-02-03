@@ -5116,7 +5116,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 print("Source and destination are the same, "
                     "not copying:\n{}\n{}".format(f_current_file_path, f_new_file_path))
             else:
-                os.system('cp "{}" "{}"'.format(f_current_file_path, f_new_file_path))
+                os.system("cp -f '{}' '{}'".format(f_current_file_path, f_new_file_path))
                 f_result += "sample|{}|{}\n".format(i, f_file_name)
         return f_result
 
