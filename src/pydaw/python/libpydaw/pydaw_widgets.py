@@ -5131,11 +5131,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_bottom = -(f_step * f_below_spinbox.value())
                 f_top = (f_step * f_above_spinbox.value())
 
+            f_step_m1 = f_step - 1
+
             f_proc_list = []
             f_file_list = []
 
             f_dir = self.pydaw_project.audio_tmp_folder
             f_selected_index = self.selected_row_index
+            f_uid = pydaw_util.pydaw_gen_uid()
 
             for f_i in range(f_bottom, f_top, f_step):
                 f_new_note = f_i + f_base_note
@@ -5147,8 +5150,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     self.sample_base_pitches[f_selected_index].set_value(f_new_note)
                     self.sample_low_notes[f_selected_index].set_value(f_new_note)
                     self.sample_high_notes[f_selected_index].set_value(f_new_note)
+                    self.sample_base_pitches[f_selected_index].control_value_changed(f_new_note)
+                    self.sample_low_notes[f_selected_index].control_value_changed(f_new_note)
+                    self.sample_high_notes[f_selected_index].control_value_changed(
+                        f_new_note + f_step_m1)
                     f_selected_index += 1
-                f_file = "{}/{}-{}.wav".format(f_dir, f_base_file_name, f_note_str)
+                f_file = "{}/{}-{}-{}.wav".format(f_dir, f_uid, f_base_file_name, f_note_str)
                 f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i,
                                                      f_crispness, f_preserve_formants)
                 f_file_list.append(f_file)
@@ -5190,6 +5197,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_crispness_combobox.setCurrentIndex(5)
         f_time_gridlayout.addWidget(f_crispness_combobox, 1, 1)
         f_preserve_formants_checkbox = QtGui.QCheckBox("Preserve formants?")
+        f_preserve_formants_checkbox.setChecked(True)
         f_time_gridlayout.addWidget(f_preserve_formants_checkbox, 3, 1)
 
         f_time_gridlayout.addWidget(QtGui.QLabel(_("Base Pitch")), 2, 0)
@@ -5223,10 +5231,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_multi_gridlayout.addWidget(QtGui.QLabel(_("Below (count)")), 1, 0)
         f_below_spinbox = QtGui.QSpinBox()
         f_below_spinbox.setRange(0, 20)
+        f_below_spinbox.setValue(12)
         f_multi_gridlayout.addWidget(f_below_spinbox, 1, 1)
         f_multi_gridlayout.addWidget(QtGui.QLabel(_("Above (count)")), 2, 0)
         f_above_spinbox = QtGui.QSpinBox()
         f_above_spinbox.setRange(0, 20)
+        f_above_spinbox.setValue(12)
         f_multi_gridlayout.addWidget(f_above_spinbox, 2, 1)
 
         f_hlayout2 = QtGui.QHBoxLayout()
