@@ -17,6 +17,7 @@ were mostly converted to Python/PyQt from C++/Qt by a script.
 """
 
 import os
+import time
 from . import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
 from libpydaw.translate import _
@@ -4351,6 +4352,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         actionMapToMonoFX =  menuFile.addAction(_("Map All Samples to Own MonoFX Group"))
         actionClearAllSamples =  menuFile.addAction(_("Clear All Samples"))
         actionImportSfz = menuFile.addAction(_("Import SFZ"))
+        actionTsPs = menuFile.addAction(_("Time-Stretch/Pitch-Shift"))
 
         menubar.setMenu(menuFile)
         menuSetAll = menuFile.addMenu("Set all...")
@@ -4373,6 +4375,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
         actionClearAllSamples.triggered.connect(self.clearAllSamples)
         actionImportSfz.triggered.connect(self.sfz_dialog)
+        actionTsPs.triggered.connect(self.stretch_shift_dialog)
 
         actionSetAllHighPitches.triggered.connect(self.set_all_high_notes)
         actionSetAllLowPitches.triggered.connect(self.set_all_low_notes)
@@ -5025,7 +5028,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def reloadSample(self):
         path = str(self.file_selector.file_path.text()).strip()
-        if path.strip() != "":
+        if path != "":
             f_uid = self.pydaw_project.get_wav_uid_by_name(path)
             self.pydaw_project.this_pydaw_osc.pydaw_reload_wavpool_item(f_uid)
 
@@ -5101,6 +5104,135 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def setSelectedMonoFX(self):
         self.mono_fx_tab_selected_group.setCurrentIndex(
             self.monofx_groups[self.selected_row_index].get_value())
+
+    def stretch_shift_dialog(self):
+        f_path = str(self.file_selector.file_path.text()).strip()
+        if f_path == "":
+            QtGui.QMessageBox.warning(self.widget, _("Error"), _("No sample selected"))
+            return
+
+        f_base_file_name = f_path.rsplit("/", 1)[1]
+        f_base_file_name = f_base_file_name.rsplit(".", 1)[0]
+        print(f_base_file_name)
+
+        def on_ok(a_val=None):
+            f_stretch = f_timestretch_amt.value()
+            f_crispness = f_crispness_combobox.currentIndex()
+            f_base_note = f_base_note_selector.get_value()
+            f_is_single = f_single_rb.isChecked()
+
+            if f_is_single:
+                f_step = 1
+                f_bottom = 0
+                f_top = 0
+            else:
+                f_step = f_step_spinbox.value()
+                f_bottom = -(f_step * f_below_spinbox.value())
+                f_top = (f_step * f_above_spinbox.value())
+
+            f_proc_list = []
+            f_file_list = []
+
+            f_dir = self.pydaw_project.audio_tmp_folder
+            f_selected_index = self.selected_row_index
+
+            for f_i in range(f_bottom, f_top, f_step):
+                f_new_note = f_i + f_base_note
+                if f_new_note < 0 or f_new_note > 90:
+                    continue
+                if not f_is_single:
+                    self.sample_base_pitches[f_selected_index].set_value(f_new_note)
+                    self.sample_low_notes[f_selected_index].set_value(f_new_note)
+                    self.sample_high_notes[f_selected_index].set_value(f_new_note)
+                    f_selected_index += 1
+                f_file = "{}/{}-{}.wav".format(f_dir, f_base_file_name,
+                                               pydaw_util.note_num_to_string(f_new_note))
+                f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i, f_crispness)
+                f_file_list.append(f_file)
+                f_proc_list.append(f_proc)
+                time.sleep(0.1)
+
+            for f_item in f_proc_list:
+                f_item.wait()
+
+            self.load_files(f_file_list)
+
+            os.system("rm -rf '{}'/*".format(f_dir))
+
+            f_window.close()
+
+        def on_cancel(a_val=None):
+            f_window.close()
+
+        f_window = QtGui.QDialog(self.widget)
+        f_window.setMinimumWidth(360)
+        f_window.setWindowTitle(_("Time-Stretch/Pitch-Shift Current Sample"))
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+
+        f_time_gridlayout = QtGui.QGridLayout()
+        f_layout.addLayout(f_time_gridlayout)
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Time:")), 0, 0)
+        f_timestretch_amt = QtGui.QDoubleSpinBox()
+        f_timestretch_amt.setRange(0.2, 4.0)
+        f_timestretch_amt.setDecimals(6)
+        f_timestretch_amt.setSingleStep(0.1)
+        f_timestretch_amt.setValue(1.0)
+        f_time_gridlayout.addWidget(f_timestretch_amt, 0, 1)
+
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Crispness")), 1, 0)
+        f_crispness_combobox = QtGui.QComboBox()
+        f_crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
+                                          "4", "5 (normal)", _("6 (sharp, drums)")])
+        f_crispness_combobox.setCurrentIndex(5)
+        f_time_gridlayout.addWidget(f_crispness_combobox, 1, 1)
+
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Base Pitch")), 2, 0)
+        f_base_note_selector = pydaw_note_selector_widget(0, None, None)
+        f_time_gridlayout.addWidget(f_base_note_selector.widget, 2, 1)
+        self.find_selected_radio_button()
+        f_base_note_selector.set_value(
+            self.sample_base_pitches[self.selected_row_index].get_value())
+
+        f_single_rb = QtGui.QRadioButton(_("Single"))
+        f_single_rb.setChecked(True)
+        f_layout.addWidget(f_single_rb, alignment=QtCore.Qt.AlignLeft)
+
+        f_pitch_gridlayout = QtGui.QGridLayout()
+        f_layout.addLayout(f_pitch_gridlayout)
+        f_pitch_gridlayout.addWidget(QtGui.QLabel(_("Pitch:")), 0, 0)
+        f_pitch_shift = QtGui.QDoubleSpinBox()
+        f_pitch_shift.setRange(-36, 36)
+        f_pitch_shift.setValue(0.0)
+        f_pitch_shift.setDecimals(6)
+        f_pitch_gridlayout.addWidget(f_pitch_shift, 0, 1)
+
+        f_multi_rb = QtGui.QRadioButton(_("Multi"))
+        f_layout.addWidget(f_multi_rb, alignment=QtCore.Qt.AlignLeft)
+        f_multi_gridlayout = QtGui.QGridLayout()
+        f_layout.addLayout(f_multi_gridlayout)
+        f_multi_gridlayout.addWidget(QtGui.QLabel(_("Step Size(semitones)")), 0, 0)
+        f_step_spinbox = QtGui.QSpinBox()
+        f_step_spinbox.setRange(1, 3)
+        f_multi_gridlayout.addWidget(f_step_spinbox, 0, 1)
+        f_multi_gridlayout.addWidget(QtGui.QLabel(_("Below (count)")), 1, 0)
+        f_below_spinbox = QtGui.QSpinBox()
+        f_below_spinbox.setRange(0, 20)
+        f_multi_gridlayout.addWidget(f_below_spinbox, 1, 1)
+        f_multi_gridlayout.addWidget(QtGui.QLabel(_("Above (count)")), 2, 0)
+        f_above_spinbox = QtGui.QSpinBox()
+        f_above_spinbox.setRange(0, 20)
+        f_multi_gridlayout.addWidget(f_above_spinbox, 2, 1)
+
+        f_hlayout2 = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout2)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_ok_button.pressed.connect(on_ok)
+        f_hlayout2.addWidget(f_ok_button)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(on_cancel)
+        f_hlayout2.addWidget(f_cancel_button)
+        f_window.exec_()
 
     def copySamplesToSingleDirectory(self, a_dir):
         f_dir = str(a_dir)

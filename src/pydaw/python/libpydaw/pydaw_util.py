@@ -12,7 +12,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import random, os, re
+import random
+import os
+import re
+import subprocess
 from time import sleep
 from math import log, pow
 from multiprocessing import cpu_count
@@ -144,6 +147,22 @@ def pydaw_beats_to_index(a_beat, a_divisor=4.0):
     return f_index, f_start
 
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+
+pydaw_rubberband_util = "{}/lib/{}/rubberband/bin/rubberband".format(global_pydaw_install_prefix,
+                                                                     global_pydaw_version_string)
+pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefix,
+                                                      global_pydaw_version_string)
+pydaw_paulstretch_util = "{}/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
+    global_pydaw_install_prefix, global_pydaw_version_string)
+
+def pydaw_rubberband(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift, a_crispness):
+    f_cmd = [pydaw_rubberband_util, "-c", str(a_crispness), "-t",
+         str(a_timestretch_amt), "-p", str(a_pitch_shift),
+         "-R", "--pitch-hq", a_src_path, a_dest_path]
+    print("Running {}".format(" ".join(f_cmd)))
+    f_proc = subprocess.Popen(f_cmd)
+    return f_proc
 
 def pydaw_clip_value(a_val, a_min, a_max, a_round=False):
     if a_val < a_min:

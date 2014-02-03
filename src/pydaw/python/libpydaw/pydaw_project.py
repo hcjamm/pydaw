@@ -72,25 +72,6 @@ pydaw_min_note_length = 4.0/128.0  #Anything smaller gets deleted when doing a t
 
 pydaw_terminating_char = "\\"
 
-# if not os.path.exists usually indicates that PyDAW is being run in debug mode, so just use the
-# default installed version
-pydaw_rubberband_util = "{}/lib/{}/rubberband/bin/rubberband".format(global_pydaw_install_prefix,
-                                                                 global_pydaw_version_string)
-if not os.path.exists(pydaw_rubberband_util):
-    pydaw_rubberband_util = "/usr/lib/{}/rubberband/bin/rubberband".format(
-        global_pydaw_version_string)
-
-pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefix,
-                                                      global_pydaw_version_string)
-if not os.path.exists(pydaw_sbsms_util):
-    pydaw_sbsms_util = "/usr/lib/{}/sbsms/bin/sbsms".format(global_pydaw_version_string)
-
-pydaw_paulstretch_util = "{}/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
-    global_pydaw_install_prefix, global_pydaw_version_string)
-if not os.path.exists(pydaw_paulstretch_util):
-    pydaw_paulstretch_util = "/usr/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
-    global_pydaw_version_string)
-
 
 class pydaw_project:
     def create_file(self, a_folder, a_file, a_text):
