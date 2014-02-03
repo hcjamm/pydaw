@@ -5120,11 +5120,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_crispness = f_crispness_combobox.currentIndex()
             f_base_note = f_base_note_selector.get_value()
             f_is_single = f_single_rb.isChecked()
+            f_preserve_formants = f_preserve_formants_checkbox.isChecked()
 
             if f_is_single:
                 f_step = 1
-                f_bottom = 0
-                f_top = 0
+                f_bottom = f_pitch_shift.value()
+                f_top = f_bottom
             else:
                 f_step = f_step_spinbox.value()
                 f_bottom = -(f_step * f_below_spinbox.value())
@@ -5138,16 +5139,18 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
             for f_i in range(f_bottom, f_top, f_step):
                 f_new_note = f_i + f_base_note
+                f_note_str = pydaw_util.note_num_to_string(f_new_note)
                 if f_new_note < 0 or f_new_note > 90:
+                    print("Skipping note {}, out of permissible range".format(f_note_str))
                     continue
                 if not f_is_single:
                     self.sample_base_pitches[f_selected_index].set_value(f_new_note)
                     self.sample_low_notes[f_selected_index].set_value(f_new_note)
                     self.sample_high_notes[f_selected_index].set_value(f_new_note)
                     f_selected_index += 1
-                f_file = "{}/{}-{}.wav".format(f_dir, f_base_file_name,
-                                               pydaw_util.note_num_to_string(f_new_note))
-                f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i, f_crispness)
+                f_file = "{}/{}-{}.wav".format(f_dir, f_base_file_name, f_note_str)
+                f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i,
+                                                     f_crispness, f_preserve_formants)
                 f_file_list.append(f_file)
                 f_proc_list.append(f_proc)
                 time.sleep(0.1)
@@ -5186,10 +5189,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                           "4", "5 (normal)", _("6 (sharp, drums)")])
         f_crispness_combobox.setCurrentIndex(5)
         f_time_gridlayout.addWidget(f_crispness_combobox, 1, 1)
+        f_preserve_formants_checkbox = QtGui.QCheckBox("Preserve formants?")
+        f_time_gridlayout.addWidget(f_preserve_formants_checkbox, 3, 1)
 
         f_time_gridlayout.addWidget(QtGui.QLabel(_("Base Pitch")), 2, 0)
         f_base_note_selector = pydaw_note_selector_widget(0, None, None)
-        f_time_gridlayout.addWidget(f_base_note_selector.widget, 2, 1)
+        f_time_gridlayout.addWidget(f_base_note_selector.widget, 6, 1)
         self.find_selected_radio_button()
         f_base_note_selector.set_value(
             self.sample_base_pitches[self.selected_row_index].get_value())

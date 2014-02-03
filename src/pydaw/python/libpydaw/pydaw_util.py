@@ -156,7 +156,29 @@ pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefi
 pydaw_paulstretch_util = "{}/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
     global_pydaw_install_prefix, global_pydaw_version_string)
 
-def pydaw_rubberband(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift, a_crispness):
+def pydaw_rubberband(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift,
+                     a_crispness, a_preserve_formants=False):
+    if a_preserve_formants:
+        f_cmd = [pydaw_rubberband_util, "-F", "-c", str(a_crispness), "-t",
+             str(a_timestretch_amt), "-p", str(a_pitch_shift),
+             "-R", "--pitch-hq", a_src_path, a_dest_path]
+    else:
+        f_cmd = [pydaw_rubberband_util, "-c", str(a_crispness), "-t",
+             str(a_timestretch_amt), "-p", str(a_pitch_shift),
+             "-R", "--pitch-hq", a_src_path, a_dest_path]
+    print("Running {}".format(" ".join(f_cmd)))
+    f_proc = subprocess.Popen(f_cmd)
+    return f_proc
+
+def pydaw_sbsms(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift, a_crispness):
+    f_cmd = [pydaw_sbsms_util, a_src_path, a_dest_path,
+             str(1.0 / a_timestretch_amt), str(1.0 / a_timestretch_amt),
+             str(a_pitch_shift), str(a_pitch_shift) ]
+    print("Running {}".format(" ".join(f_cmd)))
+    f_proc = subprocess.Popen(f_cmd)
+    return f_proc
+
+def pydaw_paulstretch(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift, a_crispness):
     f_cmd = [pydaw_rubberband_util, "-c", str(a_crispness), "-t",
          str(a_timestretch_amt), "-p", str(a_pitch_shift),
          "-R", "--pitch-hq", a_src_path, a_dest_path]
