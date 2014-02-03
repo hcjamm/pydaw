@@ -5254,9 +5254,19 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_result = ""
         self.find_selected_radio_button()
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX).text()
-            if (f_current_file_path is None) or (f_current_file_path == ""):
+            f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX)
+            if f_current_file_path is None:
                 continue
+            f_current_file_path = str(f_current_file_path.text()).strip()
+            if f_current_file_path == "":
+                continue
+            if not os.path.exists(f_current_file_path):
+                f_current_file_path = "{}/{}".format(self.pydaw_project.samples_folder,
+                                                     f_current_file_path)
+                if not os.path.exists(f_current_file_path):
+                    print("File no longer exists on disk or"
+                    " in cache, skipping {}".format(f_current_file_path))
+                    continue
             f_file_name = os.path.basename(str(f_current_file_path))
             f_new_file_path = "{}/{}".format(f_dir, f_file_name)
             if f_current_file_path == f_new_file_path:
