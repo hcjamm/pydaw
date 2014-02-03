@@ -15,6 +15,7 @@ GNU General Public License for more details.
 import random, os, re
 from time import sleep
 from math import log, pow
+from multiprocessing import cpu_count
 
 global_pydaw_version_string = "pydaw4"
 global_pydaw_file_type_string = 'PyDAW4 Project (*.pydaw4)'
@@ -25,6 +26,8 @@ global_pydaw_bin_path = None
 global_pydaw_is_sandboxed = False
 
 global_pydaw_with_audio = True
+
+global_cpu_count = cpu_count()
 
 if "src/pydaw/python/" in __file__:
     global_pydaw_install_prefix = "/usr"
