@@ -268,6 +268,7 @@ class song_editor:
 
             f_window = QtGui.QDialog(this_main_window)
             f_window.setWindowTitle(_("Add region to song..."))
+            f_window.setMinimumWidth(240)
             f_layout = QtGui.QGridLayout()
             f_window.setLayout(f_layout)
             f_new_radiobutton = QtGui.QRadioButton()
@@ -285,11 +286,13 @@ class song_editor:
             f_copy_combobox.currentIndexChanged.connect(on_current_index_changed)
             f_layout.addWidget(QtGui.QLabel(_("Copy from:")), 1, 1)
             f_layout.addWidget(f_copy_combobox, 1, 2)
+            f_ok_cancel_layout = QtGui.QHBoxLayout()
+            f_layout.addLayout(f_ok_cancel_layout, 5, 2)
             f_ok_button = QtGui.QPushButton(_("OK"))
-            f_layout.addWidget(f_ok_button, 5,0)
+            f_ok_cancel_layout.addWidget(f_ok_button)
             f_ok_button.clicked.connect(song_ok_handler)
             f_cancel_button = QtGui.QPushButton(_("Cancel"))
-            f_layout.addWidget(f_cancel_button, 5,1)
+            f_ok_cancel_layout.addWidget(f_cancel_button)
             f_cancel_button.clicked.connect(song_cancel_handler)
             f_window.exec_()
         else:
