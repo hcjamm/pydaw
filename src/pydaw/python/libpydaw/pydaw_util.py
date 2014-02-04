@@ -16,7 +16,7 @@ import random
 import os
 import re
 import subprocess
-from time import sleep
+import time
 from math import log, pow
 from multiprocessing import cpu_count
 
@@ -311,13 +311,24 @@ def pydaw_wait_for_finished_file(a_file):
             except:
                 print("pydaw_wait_for_finished_file:  Exception when deleting {}".format(a_file))
         else:
-            sleep(0.1)
+            time.sleep(0.1)
 
 def pydaw_get_wait_file_path(a_file):
     f_wait_file = "{}.finished".format(a_file)
     if os.path.isfile(f_wait_file):
         os.remove(f_wait_file)
     return f_wait_file
+
+def pydaw_seconds_to_time_str(a_seconds, a_sections):
+    f_seconds = float(a_seconds)
+    f_inc = f_seconds / a_sections
+    if f_seconds > 3600.0:
+        return [time.strftime("%H:%M", time.gmtime(x * f_inc)) for x in range(a_sections)]
+    elif f_seconds > 60.0:
+        return [time.strftime("%M:%S", time.gmtime(x * f_inc)) for x in range(a_sections)]
+    else:
+        return [str(round(x * f_inc, 2)) for x in range(a_sections)]
+
 
 global_show_create_folder_error = False
 

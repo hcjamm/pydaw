@@ -2301,6 +2301,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.drag_start_pos = 0.0
         self.drag_start_markers = []
         self.drag_end_markers = []
+        self.graph_object = None
 
     def scene_contextMenuEvent(self):
         f_menu = QtGui.QMenu(self)
@@ -2358,11 +2359,13 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                     f_marker.value = f_val
                 f_marker.set_pos()
 
-    def draw_item(self, a_path_list, a_start, a_end, a_fade_in, a_fade_out):
+    def draw_item(self, a_graph_object, a_start, a_end, a_fade_in, a_fade_out):
         self.clear_drawn_items()
-        f_path_inc = pydaw_audio_item_scene_height / len(a_path_list)
+        self.graph_object = a_graph_object
+        f_path_list = a_graph_object.create_sample_graph(True)
+        f_path_inc = pydaw_audio_item_scene_height / len(f_path_list)
         f_path_y_pos = 0.0
-        for f_path in a_path_list:
+        for f_path in f_path_list:
             f_pixmap = QtGui.QPixmap(pydaw_audio_item_scene_width, f_path_inc)
             f_painter = QtGui.QPainter(f_pixmap)
             f_painter.setPen(self.waveform_pen)
@@ -2385,14 +2388,14 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
         self.fade_in_marker = pydaw_audio_fade_marker_widget(0, a_fade_in, pydaw_start_end_pen,
                                                              pydaw_start_end_gradient,
-                                                             "I", len(a_path_list), 0,
+                                                             "I", len(f_path_list), 0,
                                                              self.fade_in_callback)
         self.scene.addItem(self.fade_in_marker)
         for f_line in self.fade_in_marker.amp_lines:
             self.scene.addItem(f_line)
         self.fade_out_marker = pydaw_audio_fade_marker_widget(1, a_fade_out, pydaw_start_end_pen,
                                                               pydaw_start_end_gradient, "O",
-                                                              len(a_path_list), 0,
+                                                              len(f_path_list), 0,
                                                               self.fade_out_callback)
         self.scene.addItem(self.fade_out_marker)
         for f_line in self.fade_out_marker.amp_lines:
@@ -4762,7 +4765,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             if f_file_name != "":
                 f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
                 self.sample_graph.draw_item(
-                    f_graph.create_sample_graph(True),
+                    f_graph,
                     self.sample_starts[self.selected_row_index].get_value(),
                     self.sample_ends[self.selected_row_index].get_value(),
                     self.loop_starts[self.selected_row_index].get_value(),

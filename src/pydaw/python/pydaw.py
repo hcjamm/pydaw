@@ -724,8 +724,8 @@ class region_list_editor:
                 self.table_widget.setItem(i, i2, f_empty_item)
         for i in range(self.table_widget.rowCount()):
             f_item = QtGui.QTableWidgetItem()
-            f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable & \
-            ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled)
+            f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable &
+                ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled)
             self.table_widget.setItem(i, 0, f_item)
         self.enabled = False
 
@@ -8491,8 +8491,7 @@ class pydaw_wave_editor_widget:
     def set_sample_graph(self, a_file_name):
         this_pydaw_project.delete_sample_graph_by_name(a_file_name)
         self.graph_object = this_pydaw_project.get_sample_graph_by_name(a_file_name)
-        self.sample_graph.draw_item(
-            self.graph_object.create_sample_graph(True), 0.0, 1000.0, 0.0, 1000.0)
+        self.sample_graph.draw_item(self.graph_object, 0.0, 1000.0, 0.0, 1000.0)
 
     def clear_sample_graph(self):
         self.sample_graph.clear_drawn_items()
