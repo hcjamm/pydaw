@@ -8211,6 +8211,8 @@ class pydaw_wave_editor_widget:
         self.reset_markers_action.triggered.connect(self.reset_markers)
         self.normalize_action = self.menu.addAction(_("Normalize (non-destructive)"))
         self.normalize_action.triggered.connect(self.normalize_dialog)
+        self.stretch_shift_action = self.menu.addAction(_("Time-Stretch/Pitch-Shift"))
+        self.stretch_shift_action.triggered.connect(self.stretch_shift_dialog)
 
         self.history_button = QtGui.QPushButton(_("History"))
         self.file_hlayout.addWidget(self.history_button)
@@ -8252,6 +8254,7 @@ class pydaw_wave_editor_widget:
         self.open_exported = False
         self.history = []
         self.graph_object = None
+        self.current_file = None
 
     def normalize_dialog(self):
         if self.graph_object is None:
@@ -8272,6 +8275,100 @@ class pydaw_wave_editor_widget:
             pass
         else:
             pass
+
+    def stretch_shift_dialog(self):
+        f_path = self.current_file
+        if f_path is None:
+            return
+
+        f_base_file_name = f_path.rsplit("/", 1)[1]
+        f_base_file_name = f_base_file_name.rsplit(".", 1)[0]
+        print(f_base_file_name)
+
+        def on_ok(a_val=None):
+            f_stretch = f_timestretch_amt.value()
+            f_crispness = f_crispness_combobox.currentIndex()
+            f_preserve_formants = f_preserve_formants_checkbox.isChecked()
+            f_algo = f_algo_combobox.currentIndex()
+            f_pitch = f_pitch_shift.value()
+
+            f_file = QtGui.QFileDialog.getSaveFileName(self.widget, "Save file as...",
+                                                       self.last_offline_dir,
+                                                       filter="Wav File (*.wav)")
+            if f_file is None:
+                return
+            f_file = str(f_file)
+            if f_file == "":
+                return
+            if not f_file.endswith(".wav"):
+                f_file += ".wav"
+            self.last_offline_dir = os.path.dirname(f_file)
+
+            if f_algo == 0:
+                f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_pitch,
+                                                     f_crispness, f_preserve_formants)
+            elif f_algo == 1:
+                f_proc = pydaw_util.pydaw_sbsms(f_path, f_file, f_stretch, f_pitch)
+
+            f_proc.wait()
+            self.open_file(f_file)
+            f_window.close()
+
+        def on_cancel(a_val=None):
+            f_window.close()
+
+        f_window = QtGui.QDialog(self.widget)
+        f_window.setMinimumWidth(390)
+        f_window.setWindowTitle(_("Time-Stretch/Pitch-Shift Sample"))
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+
+        f_time_gridlayout = QtGui.QGridLayout()
+        f_layout.addLayout(f_time_gridlayout)
+
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Stretch:")), 3, 0)
+        f_timestretch_amt = QtGui.QDoubleSpinBox()
+        f_timestretch_amt.setRange(0.2, 4.0)
+        f_timestretch_amt.setDecimals(6)
+        f_timestretch_amt.setSingleStep(0.1)
+        f_timestretch_amt.setValue(1.0)
+        f_time_gridlayout.addWidget(f_timestretch_amt, 3, 1)
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Algorithm:")), 6, 0)
+        f_algo_combobox = QtGui.QComboBox()
+        f_algo_combobox.addItems(["Rubberband", "SBSMS"])
+        f_time_gridlayout.addWidget(f_algo_combobox, 6, 1)
+
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Crispness")), 12, 0)
+        f_crispness_combobox = QtGui.QComboBox()
+        f_crispness_combobox.setToolTip(_("Only valid for Rubberband mode."))
+        f_crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
+                                          "4", "5 (normal)", _("6 (sharp, drums)")])
+        f_crispness_combobox.setCurrentIndex(5)
+        f_time_gridlayout.addWidget(f_crispness_combobox, 12, 1)
+        f_preserve_formants_checkbox = QtGui.QCheckBox("Preserve formants?")
+        f_preserve_formants_checkbox.setToolTip(_("Only valid for Rubberband mode."))
+        f_preserve_formants_checkbox.setChecked(True)
+        f_time_gridlayout.addWidget(f_preserve_formants_checkbox, 18, 1)
+
+        f_pitch_gridlayout = QtGui.QGridLayout()
+        f_layout.addLayout(f_pitch_gridlayout)
+        f_pitch_gridlayout.addWidget(QtGui.QLabel(_("Pitch:")), 0, 0)
+        f_pitch_shift = QtGui.QDoubleSpinBox()
+        f_pitch_shift.setRange(-36, 36)
+        f_pitch_shift.setValue(0.0)
+        f_pitch_shift.setDecimals(6)
+        f_pitch_gridlayout.addWidget(f_pitch_shift, 0, 1)
+
+        f_hlayout2 = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout2)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_ok_button.pressed.connect(on_ok)
+        f_hlayout2.addWidget(f_ok_button)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(on_cancel)
+        f_hlayout2.addWidget(f_cancel_button)
+
+        f_window.exec_()
 
     def history_contextMenuEvent(self):
         if self.history:
@@ -8419,6 +8516,7 @@ class pydaw_wave_editor_widget:
     def open_file(self, a_file):
         self.clear_sample_graph()
         f_file = str(a_file)
+        self.current_file = f_file
         self.file_lineedit.setText(f_file)
         self.set_sample_graph(f_file)
         self.duration = self.graph_object.frame_count / self.graph_object.sample_rate
