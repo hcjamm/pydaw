@@ -8256,6 +8256,7 @@ class pydaw_wave_editor_widget:
         self.graph_object = None
         self.current_file = None
 
+
     def normalize_dialog(self):
         if self.graph_object is None:
             return
@@ -8272,9 +8273,19 @@ class pydaw_wave_editor_widget:
 
     def set_tooltips(self, a_on):
         if a_on:
-            pass
+            self.sample_graph.setToolTip(_("Load samples here by using the browser on the left "
+                "and clicking the  'Load' button"))
+            self.fx_button.setToolTip(_("This button shows the Modulex effects window.  "
+                "Export the audio (using the menu button) to permanently apply effects."))
+            self.menu_button.setToolTip(_("This menu can export the audio or perform "
+                "various operations."))
+            self.history_button.setToolTip(_("Use this button to view or open files that "
+                "were previously opened during this session."))
         else:
-            pass
+            self.sample_graph.setToolTip("")
+            self.fx_button.setToolTip("")
+            self.menu_button.setToolTip("")
+            self.history_button.setToolTip("")
 
     def stretch_shift_dialog(self):
         f_path = self.current_file
