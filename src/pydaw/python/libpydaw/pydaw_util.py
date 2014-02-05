@@ -170,18 +170,10 @@ def pydaw_rubberband(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift,
     f_proc = subprocess.Popen(f_cmd)
     return f_proc
 
-def pydaw_sbsms(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift, a_crispness):
+def pydaw_sbsms(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift):
     f_cmd = [pydaw_sbsms_util, a_src_path, a_dest_path,
              str(1.0 / a_timestretch_amt), str(1.0 / a_timestretch_amt),
              str(a_pitch_shift), str(a_pitch_shift) ]
-    print("Running {}".format(" ".join(f_cmd)))
-    f_proc = subprocess.Popen(f_cmd)
-    return f_proc
-
-def pydaw_paulstretch(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift, a_crispness):
-    f_cmd = [pydaw_rubberband_util, "-c", str(a_crispness), "-t",
-         str(a_timestretch_amt), "-p", str(a_pitch_shift),
-         "-R", "--pitch-hq", a_src_path, a_dest_path]
     print("Running {}".format(" ".join(f_cmd)))
     f_proc = subprocess.Popen(f_cmd)
     return f_proc

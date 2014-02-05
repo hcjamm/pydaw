@@ -5124,6 +5124,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_base_note = f_base_note_selector.get_value()
             f_is_single = f_single_rb.isChecked()
             f_preserve_formants = f_preserve_formants_checkbox.isChecked()
+            f_algo = f_algo_combobox.currentIndex()
 
             if f_is_single:
                 f_step = 1
@@ -5152,20 +5153,28 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 if not f_is_single:
                     self.sample_base_pitches[f_selected_index].set_value(f_new_note)
                     self.sample_low_notes[f_selected_index].set_value(f_new_note)
-                    self.sample_high_notes[f_selected_index].set_value(f_new_note)
+                    self.sample_high_notes[f_selected_index].set_value(f_new_note + f_step_m1)
+
                     self.sample_base_pitches[f_selected_index].control_value_changed(f_new_note)
                     self.sample_low_notes[f_selected_index].control_value_changed(f_new_note)
                     self.sample_high_notes[f_selected_index].control_value_changed(
                         f_new_note + f_step_m1)
                     f_selected_index += 1
                 f_file = "{}/{}-{}-{}.wav".format(f_dir, f_uid, f_base_file_name, f_note_str)
-                f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i,
-                                                     f_crispness, f_preserve_formants)
+                if f_algo == 0:
+                    f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i,
+                                                         f_crispness, f_preserve_formants)
+                elif f_algo == 1:
+                    f_proc = pydaw_util.pydaw_sbsms(f_path, f_file, f_stretch, f_i)
                 f_file_list.append(f_file)
                 f_proc_list.append(f_proc)
+                f_status_lineedit.setText("Starting {}".format(f_file))
+                QtGui.qApp.processEvents()
                 time.sleep(0.1)
 
-            for f_item in f_proc_list:
+            for f_item, f_file in zip(f_proc_list, f_file_list):
+                f_status_lineedit.setText("Finished {}".format(f_file))
+                QtGui.qApp.processEvents()
                 f_item.wait()
 
             self.load_files(f_file_list)
@@ -5178,37 +5187,44 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_window.close()
 
         f_window = QtGui.QDialog(self.widget)
-        f_window.setMinimumWidth(360)
+        f_window.setMinimumWidth(390)
         f_window.setWindowTitle(_("Time-Stretch/Pitch-Shift Current Sample"))
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
 
         f_time_gridlayout = QtGui.QGridLayout()
         f_layout.addLayout(f_time_gridlayout)
-        f_time_gridlayout.addWidget(QtGui.QLabel(_("Time:")), 0, 0)
+
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Base Pitch")), 1, 0)
+        f_base_note_selector = pydaw_note_selector_widget(0, None, None)
+        f_time_gridlayout.addWidget(f_base_note_selector.widget, 1, 1)
+        self.find_selected_radio_button()
+        f_base_note_selector.set_value(
+            self.sample_base_pitches[self.selected_row_index].get_value())
+
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Stretch:")), 3, 0)
         f_timestretch_amt = QtGui.QDoubleSpinBox()
         f_timestretch_amt.setRange(0.2, 4.0)
         f_timestretch_amt.setDecimals(6)
         f_timestretch_amt.setSingleStep(0.1)
         f_timestretch_amt.setValue(1.0)
-        f_time_gridlayout.addWidget(f_timestretch_amt, 0, 1)
+        f_time_gridlayout.addWidget(f_timestretch_amt, 3, 1)
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Algorithm:")), 6, 0)
+        f_algo_combobox = QtGui.QComboBox()
+        f_algo_combobox.addItems(["Rubberband", "SBSMS"])
+        f_time_gridlayout.addWidget(f_algo_combobox, 6, 1)
 
-        f_time_gridlayout.addWidget(QtGui.QLabel(_("Crispness")), 1, 0)
+        f_time_gridlayout.addWidget(QtGui.QLabel(_("Crispness")), 12, 0)
         f_crispness_combobox = QtGui.QComboBox()
+        f_crispness_combobox.setToolTip(_("Only valid for Rubberband mode."))
         f_crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
                                           "4", "5 (normal)", _("6 (sharp, drums)")])
         f_crispness_combobox.setCurrentIndex(5)
-        f_time_gridlayout.addWidget(f_crispness_combobox, 1, 1)
+        f_time_gridlayout.addWidget(f_crispness_combobox, 12, 1)
         f_preserve_formants_checkbox = QtGui.QCheckBox("Preserve formants?")
+        f_preserve_formants_checkbox.setToolTip(_("Only valid for Rubberband mode."))
         f_preserve_formants_checkbox.setChecked(True)
-        f_time_gridlayout.addWidget(f_preserve_formants_checkbox, 3, 1)
-
-        f_time_gridlayout.addWidget(QtGui.QLabel(_("Base Pitch")), 2, 0)
-        f_base_note_selector = pydaw_note_selector_widget(0, None, None)
-        f_time_gridlayout.addWidget(f_base_note_selector.widget, 6, 1)
-        self.find_selected_radio_button()
-        f_base_note_selector.set_value(
-            self.sample_base_pitches[self.selected_row_index].get_value())
+        f_time_gridlayout.addWidget(f_preserve_formants_checkbox, 18, 1)
 
         f_single_rb = QtGui.QRadioButton(_("Single"))
         f_single_rb.setChecked(True)
@@ -5250,6 +5266,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_cancel_button.pressed.connect(on_cancel)
         f_hlayout2.addWidget(f_cancel_button)
+
+        f_status_lineedit = QtGui.QLineEdit()
+        f_status_lineedit.setReadOnly(True)
+        f_layout.addWidget(f_status_lineedit)
+
         f_window.exec_()
 
     def copySamplesToSingleDirectory(self, a_dir):
