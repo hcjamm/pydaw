@@ -8580,11 +8580,15 @@ class pydaw_wave_editor_widget:
         self.history_button.setEnabled(True)
         self.enabled_checkbox.setEnabled(True)
         if self.playback_cursor is not None:
-            self.sample_graph.scene.removeItem(self.playback_cursor)
+            #self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
         self.time_label_enabled = False
         if self.history:
             self.set_time_label(self.sample_graph.start_marker.value * 0.001, True)
+        self.sample_graph.redraw_item(self.sample_graph.start_marker.value,
+                                      self.sample_graph.end_marker.value,
+                                      self.sample_graph.fade_in_marker.value,
+                                      self.sample_graph.fade_out_marker.value)
 
     def set_sample_graph(self, a_file_name):
         this_pydaw_project.delete_sample_graph_by_name(a_file_name)

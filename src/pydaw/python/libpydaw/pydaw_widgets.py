@@ -2360,12 +2360,16 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                 f_marker.set_pos()
 
     def draw_item(self, a_graph_object, a_start, a_end, a_fade_in, a_fade_out):
-        self.clear_drawn_items()
         self.graph_object = a_graph_object
-        f_path_list = a_graph_object.create_sample_graph(True)
-        f_path_inc = pydaw_audio_item_scene_height / len(f_path_list)
+        self.path_list = a_graph_object.create_sample_graph(True)
+        self.path_count = len(self.path_list)
+        self.redraw_item(a_start, a_end, a_fade_in, a_fade_out)
+
+    def redraw_item(self, a_start, a_end, a_fade_in, a_fade_out):
+        self.clear_drawn_items()
+        f_path_inc = pydaw_audio_item_scene_height / self.path_count
         f_path_y_pos = 0.0
-        for f_path in f_path_list:
+        for f_path in self.path_list:
             f_pixmap = QtGui.QPixmap(pydaw_audio_item_scene_width, f_path_inc)
             f_painter = QtGui.QPainter(f_pixmap)
             f_painter.setPen(self.waveform_pen)
@@ -2388,14 +2392,14 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
         self.fade_in_marker = pydaw_audio_fade_marker_widget(0, a_fade_in, pydaw_start_end_pen,
                                                              pydaw_start_end_gradient,
-                                                             "I", len(f_path_list), 0,
+                                                             "I", self.path_count, 0,
                                                              self.fade_in_callback)
         self.scene.addItem(self.fade_in_marker)
         for f_line in self.fade_in_marker.amp_lines:
             self.scene.addItem(f_line)
         self.fade_out_marker = pydaw_audio_fade_marker_widget(1, a_fade_out, pydaw_start_end_pen,
                                                               pydaw_start_end_gradient, "O",
-                                                              len(f_path_list), 0,
+                                                              self.path_count, 0,
                                                               self.fade_out_callback)
         self.scene.addItem(self.fade_out_marker)
         for f_line in self.fade_out_marker.amp_lines:
