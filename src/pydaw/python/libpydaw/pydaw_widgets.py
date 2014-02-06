@@ -4672,6 +4672,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_main_layout =  QtGui.QVBoxLayout(self.mono_fx_tab)
         self.mono_fx_tab_selected_hlayout =  QtGui.QHBoxLayout()
         self.mono_fx_tab_selected_sample =  QtGui.QComboBox(self.mono_fx_tab)
+        self.mono_fx_tab_selected_sample.setMinimumWidth(330)
         self.mono_fx_tab_selected_group =  QtGui.QComboBox(self.mono_fx_tab)
         for f_i in range(1, pydaw_ports.EUPHORIA_MONO_FX_GROUPS_COUNT):
             self.mono_fx_tab_selected_group.addItem(str(f_i))
