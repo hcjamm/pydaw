@@ -2061,22 +2061,28 @@ pydaw_loop_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
 pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30), 12.0)
 
 class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
-    def __init__(self, a_type, a_val, a_pen, a_brush, a_label, a_offset=0, a_callback=None):
+    mode_start_end = 0
+    mode_loop = 1
+    def __init__(self, a_type, a_val, a_pen, a_brush, a_label, a_graph_object,
+                 a_marker_mode, a_offset=0, a_callback=None):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         self.audio_item_marker_height = 66.0
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, self.audio_item_marker_height,
                                          self.audio_item_marker_height)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.callback = a_callback
+        self.graph_object = a_graph_object
         self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
         self.line.setParentItem(self)
         self.line.setPen(a_pen)
         self.marker_type = a_type
+        self.marker_mode = a_marker_mode
         self.pos_x = 0.0
         self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
         self.other = None
         self.fade_marker = None
+        self.offset = a_offset
         if a_type == 0:
             self.min_x = 0.0
             self.y_pos = 0.0 + (a_offset * self.audio_item_marker_height)
@@ -2084,13 +2090,27 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         elif a_type == 1:
             self.min_x = 66.0
             self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - \
-            (a_offset * self.audio_item_marker_height)
+                (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
         self.setPen(a_pen)
         self.setBrush(a_brush)
         self.text_item = QtGui.QGraphicsTextItem(a_label)
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+
+    def __str__(self):
+        f_val = self.value * 0.001 * self.graph_object.length_in_seconds
+        f_val = pydaw_util.pydaw_seconds_to_time_str(f_val)
+        if self.marker_type == 0 and self.marker_mode == 0:
+            return "S {}".format(f_val)
+        elif self.marker_type == 1 and self.marker_mode == 0:
+            return "E {}".format(f_val)
+        elif self.marker_type == 0 and self.marker_mode == 1:
+            return "LS {}".format(f_val)
+        elif self.marker_type == 1 and self.marker_mode == 1:
+            return "LE {}".format(f_val)
+        else:
+            assert(False)
 
     def reset_default(self):
         if self.marker_type == 0:
@@ -2158,7 +2178,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
 
 
 class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
-    def __init__(self, a_type, a_val, a_pen, a_brush, a_label, a_channel_count,
+    def __init__(self, a_type, a_val, a_pen, a_brush, a_label, a_graph_object,
                  a_offset=0, a_callback=None):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         self.audio_item_marker_height = 66.0
@@ -2190,11 +2210,21 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.amp_lines = []
-        self.channel_count = a_channel_count
-        for f_i in range(a_channel_count * 2):
+        self.graph_object = a_graph_object
+        for f_i in range(self.graph_object.channels * 2):
             f_line = QtGui.QGraphicsLineItem()
             self.amp_lines.append(f_line)
             f_line.setPen(pydaw_fade_pen)
+
+    def __str__(self):
+        f_val = self.value * 0.001 * self.graph_object.length_in_seconds
+        f_val = pydaw_util.pydaw_seconds_to_time_str(f_val)
+        if self.marker_type == 0:
+            return "FI {}".format(f_val)
+        elif self.marker_type == 1:
+            return "FO {}".format(f_val)
+        else:
+            assert(False)
 
     def reset_default(self):
         if self.marker_type == 0:
@@ -2274,10 +2304,10 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                  a_fade_in_callback, a_fade_out_callback):
         QtGui.QGraphicsView.__init__(self)
         self.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
-        self.start_callback = a_start_callback
-        self.end_callback = a_end_callback
-        self.fade_in_callback = a_fade_in_callback
-        self.fade_out_callback = a_fade_out_callback
+        self.start_callback_x = a_start_callback
+        self.end_callback_x = a_end_callback
+        self.fade_in_callback_x = a_fade_in_callback
+        self.fade_out_callback_x = a_fade_out_callback
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -2302,6 +2332,29 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.drag_start_markers = []
         self.drag_end_markers = []
         self.graph_object = None
+        self.label = QtGui.QLabel("")
+        self.label.setMinimumWidth(420)
+
+    def start_callback(self, a_val):
+        self.start_callback_x(a_val)
+        self.update_label()
+
+    def end_callback(self, a_val):
+        self.end_callback_x(a_val)
+        self.update_label()
+
+    def fade_in_callback(self, a_val):
+        self.fade_in_callback_x(a_val)
+        self.update_label()
+
+    def fade_out_callback(self, a_val):
+        self.fade_out_callback_x(a_val)
+        self.update_label()
+
+    def update_label(self):
+        f_val = " ".join(map(str, (self.length_str + self.drag_start_markers +
+            self.drag_end_markers)))
+        self.label.setText(f_val)
 
     def scene_contextMenuEvent(self):
         f_menu = QtGui.QMenu(self)
@@ -2361,6 +2414,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def draw_item(self, a_graph_object, a_start, a_end, a_fade_in, a_fade_out):
         self.graph_object = a_graph_object
+        self.length_str = ["Length: {}".format(pydaw_util.pydaw_seconds_to_time_str(
+            self.graph_object.length_in_seconds))]
         self.path_list = a_graph_object.create_sample_graph(True)
         self.path_count = len(self.path_list)
         self.redraw_item(a_start, a_end, a_fade_in, a_fade_out)
@@ -2383,23 +2438,27 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             f_path_y_pos += f_path_inc
         self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen,
                                                       pydaw_start_end_gradient,
-                                                      "S", 1, self.start_callback)
+                                                      "S", self.graph_object,
+                                                      pydaw_audio_marker_widget.mode_start_end,
+                                                      1, self.start_callback)
         self.scene.addItem(self.start_marker)
         self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen,
-                                                    pydaw_start_end_gradient, "E", 1,
-                                                    self.end_callback)
+                                                    pydaw_start_end_gradient, "E",
+                                                    self.graph_object,
+                                                    pydaw_audio_marker_widget.mode_start_end,
+                                                    1, self.end_callback)
         self.scene.addItem(self.end_marker)
 
         self.fade_in_marker = pydaw_audio_fade_marker_widget(0, a_fade_in, pydaw_start_end_pen,
                                                              pydaw_start_end_gradient,
-                                                             "I", self.path_count, 0,
+                                                             "I", self.graph_object, 0,
                                                              self.fade_in_callback)
         self.scene.addItem(self.fade_in_marker)
         for f_line in self.fade_in_marker.amp_lines:
             self.scene.addItem(f_line)
         self.fade_out_marker = pydaw_audio_fade_marker_widget(1, a_fade_out, pydaw_start_end_pen,
                                                               pydaw_start_end_gradient, "O",
-                                                              self.path_count, 0,
+                                                              self.graph_object, 0,
                                                               self.fade_out_callback)
         self.scene.addItem(self.fade_out_marker)
         for f_line in self.fade_out_marker.amp_lines:
@@ -2417,6 +2476,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.fade_out_marker.draw_lines()
         self.drag_start_markers = [self.start_marker, self.fade_in_marker]
         self.drag_end_markers = [self.end_marker, self.fade_out_marker]
+        self.update_label()
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
@@ -2433,8 +2493,16 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
                  a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
         pydaw_audio_item_viewer_widget.__init__(self, a_start_callback, a_end_callback,
                                                 a_fade_in_callback, a_fade_out_callback)
-        self.loop_start_callback = a_loop_start_callback
-        self.loop_end_callback = a_loop_end_callback
+        self.loop_start_callback_x = a_loop_start_callback
+        self.loop_end_callback_x = a_loop_end_callback
+
+    def loop_start_callback(self, a_val):
+        self.loop_start_callback_x(a_val)
+        self.update_label()
+
+    def loop_end_callback(self, a_val):
+        self.loop_end_callback_x(a_val)
+        self.update_label()
 
     def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end,
                   a_fade_in, a_fade_out):
@@ -2442,11 +2510,15 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
                                                  a_fade_in, a_fade_out)
         self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen,
                                                            pydaw_loop_gradient, "L",
+                                                           self.graph_object,
+                                                           pydaw_audio_marker_widget.mode_loop,
                                                            2, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
         self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen,
-                                                         pydaw_loop_gradient, "L", 2,
-                                                         self.loop_end_callback)
+                                                         pydaw_loop_gradient, "L",
+                                                         self.graph_object,
+                                                         pydaw_audio_marker_widget.mode_loop,
+                                                         2, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
 
         self.loop_start_marker.set_other(self.loop_end_marker)
@@ -2456,6 +2528,7 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
 
         self.drag_start_markers.append(self.loop_start_marker)
         self.drag_end_markers.append(self.loop_end_marker)
+        self.update_label()
 
 
 global_modulex_clipboard = None
@@ -4424,8 +4497,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_select_sample_hlayout =  QtGui.QHBoxLayout(
             self.sample_view_select_sample_widget)
 
-        self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(
-            40, 20, QtGui.QSizePolicy.Expanding))
+        #self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(
+        #    40, 20, QtGui.QSizePolicy.Expanding))
+        self.sample_view_select_sample_hlayout.addWidget(self.sample_graph.label)
         self.sample_view_extra_controls_gridview =  QtGui.QGridLayout()
         self.selected_sample_index_combobox =  QtGui.QComboBox()
         sizePolicy1 = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)

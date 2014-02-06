@@ -8242,6 +8242,7 @@ class pydaw_wave_editor_widget:
                                                            self.marker_callback,
                                                            self.marker_callback,
                                                            self.marker_callback)
+        self.gridlayout.addWidget(self.sample_graph.label, 0, 5)
         self.vlayout.addWidget(self.sample_graph)
         self.orig_pos = 0
         self.duration = None
@@ -8530,7 +8531,6 @@ class pydaw_wave_editor_widget:
         self.file_lineedit.setText(f_file)
         self.set_sample_graph(f_file)
         self.duration = self.graph_object.frame_count / self.graph_object.sample_rate
-        print("Duration:  {}".format(self.duration))
         if f_file in self.history:
             self.history.remove(f_file)
         self.history.append(f_file)

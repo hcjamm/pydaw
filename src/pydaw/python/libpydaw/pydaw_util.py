@@ -311,15 +311,24 @@ def pydaw_get_wait_file_path(a_file):
         os.remove(f_wait_file)
     return f_wait_file
 
-def pydaw_seconds_to_time_str(a_seconds, a_sections):
+def pydaw_seconds_to_time_str(a_seconds, a_sections=1):
     f_seconds = float(a_seconds)
     f_inc = f_seconds / a_sections
-    if f_seconds > 3600.0:
-        return [time.strftime("%H:%M", time.gmtime(x * f_inc)) for x in range(a_sections)]
+    if f_seconds > 3600.0:  # 60 * 60
+        if a_sections == 1:
+            return time.strftime("%H:%M", time.gmtime(f_seconds))
+        else:
+            return [time.strftime("%H:%M", time.gmtime(x * f_inc)) for x in range(a_sections)]
     elif f_seconds > 60.0:
-        return [time.strftime("%M:%S", time.gmtime(x * f_inc)) for x in range(a_sections)]
+        if a_sections == 1:
+            return time.strftime("%M:%S", time.gmtime(f_seconds))
+        else:
+            return [time.strftime("%M:%S", time.gmtime(x * f_inc)) for x in range(a_sections)]
     else:
-        return [str(round(x * f_inc, 2)) for x in range(a_sections)]
+        if a_sections == 1:
+            return str(round(f_seconds, 2))
+        else:
+            return [str(round(x * f_inc, 2)) for x in range(a_sections)]
 
 
 global_show_create_folder_error = False
