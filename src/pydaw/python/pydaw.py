@@ -7773,14 +7773,17 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.ignore_close_event = True
 
     def subprocess_monitor(self):
-        if global_pydaw_subprocess.poll() != None:
-            self.subprocess_timer.stop()
-            exitCode = global_pydaw_subprocess.returncode
-            if (exitCode != 0):
-                QtGui.QMessageBox.warning(
-                    self, _("Error"),
-                    _("The audio engine died with error code {}, "
-                    "please try restarting PyDAW").format(exitCode))
+        try:
+            if global_pydaw_subprocess.poll() != None:
+                self.subprocess_timer.stop()
+                exitCode = global_pydaw_subprocess.returncode
+                if (exitCode != 0):
+                    QtGui.QMessageBox.warning(
+                        self, _("Error"),
+                        _("The audio engine died with error code {}, "
+                        "please try restarting PyDAW").format(exitCode))
+        except Exception as ex:
+            print("subprocess_monitor: {}".format(ex))
 
     def osc_time_callback(self):
         self.osc_server.recv(1)
