@@ -1965,6 +1965,8 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         f_saw_action.triggered.connect(self.set_saw)
         f_square_action = self.tools_menu.addAction(_("Set Square"))
         f_square_action.triggered.connect(self.set_square)
+        f_tri_action = self.tools_menu.addAction(_("Set Triangle"))
+        f_tri_action.triggered.connect(self.set_triangle)
         f_sine_action = self.tools_menu.addAction(_("Set Sine"))
         f_sine_action.triggered.connect(self.set_sine)
         self.osc_values = {0 : None, 1 : None, 2 : None}
@@ -2059,6 +2061,22 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
                 f_odd = True
                 f_point.set_value(-30)
             self.phase_viewer.bars[f_i].set_value(-30)
+        self.get_wav(True)
+
+    def set_triangle(self):
+        f_odd = True
+        for f_i in range(len(self.viewer.bars)):
+            f_point = self.viewer.bars[f_i]
+            if f_odd:
+                f_num = f_i + 1
+                f_db = int(pydaw_util.pydaw_lin_to_db(1.0 / (f_num * f_num)))
+                f_odd = False
+                f_point.set_value(f_db)
+            else:
+                f_odd = True
+                f_point.set_value(-30)
+            self.phase_viewer.bars[f_i].set_value(-30)
+        self.phase_viewer.bars[2].set_value(-15)
         self.get_wav(True)
 
     def set_sine(self):
