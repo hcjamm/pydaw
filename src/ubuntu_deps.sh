@@ -6,7 +6,7 @@ debhelper dh-make build-essential automake autoconf \
 python3-pyqt4 python3 squashfs-tools genisoimage \
 python3-scipy python3-numpy libsamplerate0-dev \
 libfftw3-dev gcc python3-dev libsbsms-dev libcpufreq-dev \
-libav-tools lame vorbis-tools 
+libav-tools lame vorbis-tools gettext 
 echo
 echo
 echo
