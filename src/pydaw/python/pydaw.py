@@ -8922,13 +8922,6 @@ if os.path.exists(default_project_file):
 else:
     global_new_project(default_project_file, a_wait=False)
 
-if global_show_create_folder_error:
-    QtGui.QMessageBox.warning(
-        this_main_window, _("Warning"),
-        _("Error creating folder in {} , this is probably a permission issue"
-        "if you didn't use FAT as the filesystem, settings will NOT persist between sessions "
-        "until you make {} writable.").format(global_home, global_home))
-
 global_tooltips_enabled_file = "{}/tooltips.txt".format(global_pydaw_home)
 
 if os.path.isfile(global_tooltips_enabled_file):

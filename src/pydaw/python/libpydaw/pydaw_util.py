@@ -337,79 +337,12 @@ def pydaw_seconds_to_time_str(a_seconds, a_sections=1):
 
 global_show_create_folder_error = False
 
-def pydaw_set_live_mode_off():
-    global global_is_live_mode, global_home, global_default_project_folder, global_pydaw_home
-    global_is_live_mode = False
-    global_home = os.path.expanduser("~")
-    global_default_project_folder = global_home
-    global_pydaw_home = "{}/{}".format(os.path.expanduser("~"), global_pydaw_version_string)
-    if not os.path.isdir(global_pydaw_home):
-        os.mkdir(global_pydaw_home)
-
-if pydaw_which("gksudo") is not None:
-    global_pydaw_sudo_command = "gksudo"
-elif pydaw_which("sudo") is not None:
-    print("Warning, gksudo not found, falling back to sudo.  "
-    "If the GUI hangs before opening, this could be the reason why")
-    global_pydaw_sudo_command = "sudo"
-else:
-    print("Warning, gksudo and sudo not found.  If the GUI hangs "
-          "before opening, this could be the reason why")
-    global_pydaw_sudo_command = None
-
-global_dev_label_path = case_insensitive_path("/dev/disk/by-label/pydaw_data", False)
-
-if global_dev_label_path is not None and \
-(os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
-global_pydaw_sudo_command is not None:
-    global_dev_label_name = global_dev_label_path.rsplit('/', 1)[1]
-    if os.path.isdir("/home/liveuser"): #presumed to be Fedora or Fedora-like
-        global_home = "/run/media/liveuser/{}".format(global_dev_label_name)
-    else: #presumed to be Ubuntu or Ubuntu-like.
-        global_home = "/media/{}".format(global_dev_label_name)
-    if not os.path.isdir(global_home):
-        import getpass
-        f_new_path = "/media/{}/{}".format(getpass.getuser(), global_dev_label_name)
-        if os.path.exists(f_new_path):
-            global_home = f_new_path
-        else:
-            print("Attempting to mount {}.  If this causes the GUI to hang, "
-                "please try mounting the pydaw_data "
-                "partition before starting".format(global_home))
-            try:
-                os.system("{} mkdir {}".format(global_pydaw_sudo_command, global_home))
-                os.system("{} mount /dev/disk/by-label/{} {}".format(
-                    global_pydaw_sudo_command, global_dev_label_name, global_home))
-            except:
-                print("Could not mount pydaw_data partition, this may indicate "
-                "a problem with the flash drive or permissions")
-
-    global_is_live_mode = True
-    global_pydaw_home = "{}/{}".format(global_home, global_pydaw_version_string)
-    global_default_project_folder = "{}/{}_projects".format(
-        global_home, global_pydaw_version_string)
-
-    try:
-        if not os.path.isdir(global_pydaw_home):
-            print("{} did not exist, attempting to create.".format(global_pydaw_home))
-            os.system("{} mkdir '{}'".format(global_pydaw_sudo_command, global_pydaw_home))
-            os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command, global_pydaw_home))
-        if not os.path.isdir(global_default_project_folder):
-            print("{} did not exist, attempting to create.".format(global_default_project_folder))
-            os.system("{} mkdir '{}'".format(global_pydaw_sudo_command,
-                                             global_default_project_folder))
-            os.system("{} chmod -R 777 '{}'".format(global_pydaw_sudo_command,
-                                                    global_default_project_folder))
-            pydaw_write_file_text("{}/README.txt".format(global_default_project_folder),
-            "Create subfolders in here and save your live projects to those subfolders.  "
-            "Saving in the regular filesystem will not persist between live sessions.")
-    except Exception as ex:
-        print("pydaw_util :  Exception while creating folder.")
-        global_show_create_folder_error = True
-        pydaw_set_live_mode_off()
-else:
-    pydaw_set_live_mode_off()
-
+global_is_live_mode = False
+global_home = os.path.expanduser("~")
+global_default_project_folder = global_home
+global_pydaw_home = "{}/{}".format(os.path.expanduser("~"), global_pydaw_version_string)
+if not os.path.isdir(global_pydaw_home):
+    os.mkdir(global_pydaw_home)
 
 global_device_val_dict = {}
 global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
