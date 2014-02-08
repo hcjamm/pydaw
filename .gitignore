@@ -1,3 +1,5 @@
+src/pydaw-build/pydaw_os/*zip
+src/pydaw-build/pydaw_os/VirtualBox*
 src/pydaw/locale/goo/
 src/pydaw/locale/goo.tranz
 src/pydaw/locale/bin/
