@@ -15,6 +15,8 @@ GNU General Public License for more details.
 
 import os
 
+os.system("git pull")
+
 rpm_dir = "{}/rpmbuild/RPMS/*/".format(os.path.expanduser("~"))
 
-os.system('cp {}/pydaw*rpm ..'.format(rpm_dir))
+os.system("cp '{}'/pydaw*rpm ..".format(rpm_dir))
