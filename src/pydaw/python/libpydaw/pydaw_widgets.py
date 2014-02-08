@@ -1730,7 +1730,7 @@ global_additive_osc_height = 310
 global_additive_osc_inc = 10
 global_additive_max_y_pos = global_additive_osc_height - global_additive_osc_inc
 global_additive_osc_harmonic_count = 32
-global_additive_osc_bar_width = 20
+global_additive_osc_bar_width = 10
 global_additive_osc_width = global_additive_osc_harmonic_count * global_additive_osc_bar_width
 global_additive_wavetable_size = 1024 #pow(2, global_additive_osc_harmonic_count)
 #global_additive_osc_height_div2 = global_additive_osc_height * 0.5
@@ -1754,15 +1754,16 @@ global_add_osc_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
 global_add_osc_sine_cache = {}
 
-def global_get_sine(a_size):
-    if a_size in global_add_osc_sine_cache:
-        return numpy.copy(global_add_osc_sine_cache[a_size])
+def global_get_sine(a_size, a_phase):
+    f_key = (a_size, a_phase)
+    if f_key in global_add_osc_sine_cache:
+        return numpy.copy(global_add_osc_sine_cache[f_key])
     else:
-        f_lin = numpy.linspace(0.0, 2.0 * numpy.pi, a_size)
+        f_phase = a_phase * numpy.pi
+        f_lin = numpy.linspace(f_phase, (2.0 * numpy.pi) + f_phase, a_size)
         f_sin = numpy.sin(f_lin)
-        global_add_osc_sine_cache[a_size] = f_sin
+        global_add_osc_sine_cache[f_key] = f_sin
         return numpy.copy(f_sin)
-
 
 
 class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
@@ -1800,6 +1801,7 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
 class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
     def __init__(self):
         QtGui.QGraphicsView.__init__(self)
+        self.setMaximumWidth(600)
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.scene = QtGui.QGraphicsScene()
@@ -1809,6 +1811,7 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
                           global_additive_osc_height)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setRenderHint(QtGui.QPainter.Antialiasing)
 
     def draw_array(self, a_np_array):
         f_path = QtGui.QPainterPath(QtCore.QPointF(0.0, global_additive_osc_height * 0.5))
@@ -1831,10 +1834,11 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
 
 
 class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
-    def __init__(self, a_draw_callback, a_configure_callback=None):
+    def __init__(self, a_draw_callback, a_configure_callback, a_get_wav):
         QtGui.QGraphicsView.__init__(self)
+        self.setMaximumWidth(600)
         self.configure_callback = a_configure_callback
-        self.osc_num = 0
+        self.get_wav = a_get_wav
         self.draw_callback = a_draw_callback
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
@@ -1877,39 +1881,20 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         self.is_drawing = False
         self.get_wav(True)
 
-    def get_wav(self, a_configure=False):
-        f_result = numpy.zeros(global_additive_wavetable_size)
-        f_recall_list = []
-        for f_i in range(1, global_additive_osc_harmonic_count + 1):
-            f_size = int(global_additive_wavetable_size / f_i)
-            f_db = self.bars[f_i - 1].get_value()
-            if a_configure:
-                f_recall_list.append("{}".format(f_db))
-            if f_db > -29:
-                f_sin = global_get_sine(f_size) * pydaw_util.pydaw_db_to_lin(f_db)
-                for f_i2 in range(int(global_additive_wavetable_size / f_size)):
-                    f_start = (f_i2) * f_size
-                    f_end = f_start + f_size
-                    f_result[f_start:f_end] += f_sin
-        f_max = numpy.max(numpy.abs(f_result), axis=0)
-        if f_max > 0.0:
-            f_normalize = 0.99 / f_max
-            f_result *= f_normalize
-        self.draw_callback(f_result)
-        if a_configure and self.configure_callback is not None:
-            f_engine_list = []
-            for f_float in f_result:
-                f_engine_list.append("{}".format(round(f_float, 6)))
-            f_engine_str = "{}|{}".format(global_additive_wavetable_size,
-                "|".join(f_engine_list))
-            self.configure_callback("wayv_add_eng{}".format(self.osc_num), f_engine_str)
-            f_recall_str = "|".join(f_recall_list)
-            self.configure_callback("wayv_add_ui{}".format(self.osc_num), f_recall_str)
-
     def scene_mouseMoveEvent(self, a_event):
         if self.is_drawing:
             QtGui.QGraphicsScene.mouseMoveEvent(self.scene, a_event)
             self.draw_harmonics(a_event.scenePos())
+
+    def clear_osc(self):
+        for f_point in self.bars:
+            f_point.set_value(-30)
+        self.get_wav()
+
+    def open_osc(self, a_arr):
+        for f_val, f_point in zip(a_arr, self.bars):
+            f_point.set_value(int(f_val))
+        self.get_wav()
 
     def draw_harmonics(self, a_pos):
         f_pos = a_pos
@@ -1931,42 +1916,6 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         if self.bars[int(f_harmonic)].set_value(int(f_db)):
             self.get_wav()
 
-    def clear_osc(self):
-        for f_point in self.bars:
-            f_point.set_value(-30)
-        self.get_wav()
-
-    def set_saw(self):
-        f_db = 0
-        for f_point in self.bars:
-            f_point.set_value(f_db)
-            f_db -= 1
-        self.get_wav(True)
-
-    def set_square(self):
-        f_db = 0
-        f_odd = True
-        for f_point in self.bars:
-            if f_odd:
-                f_odd = False
-                f_point.set_value(f_db)
-                f_db -= 2
-            else:
-                f_odd = True
-                f_point.set_value(-30)
-        self.get_wav(True)
-
-    def set_sine(self):
-        self.bars[0].set_value(0)
-        for f_point in self.bars[1:]:
-            f_point.set_value(-30)
-        self.get_wav(True)
-
-    def open_osc(self, a_arr):
-        for f_val, f_point in zip(a_arr, self.bars):
-            f_point.set_value(int(f_val))
-        self.get_wav()
-
 
 class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
     def __init__(self, a_configure_callback=None, a_osc_count=3):
@@ -1974,6 +1923,7 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.configure_callback = a_configure_callback
         self.hlayout = QtGui.QHBoxLayout()
         self.layout.addLayout(self.hlayout)
+        self.osc_num = 0
         self.hlayout.addWidget(QtGui.QLabel(_("Oscillator#:")))
         self.osc_num_combobox = QtGui.QComboBox()
         self.osc_num_combobox.setMinimumWidth(66)
@@ -1996,17 +1946,27 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.hlayout.addWidget(QtGui.QLabel(_("Select (Additive [n]) as your osc type to use")))
         self.wav_viewer = pydaw_additive_wav_viewer()
+        self.draw_callback = self.wav_viewer.draw_array
         self.viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
-                                                self.configure_wrapper)
-        self.layout.addWidget(self.viewer)
-        self.layout.addWidget(self.wav_viewer)
+                                                self.configure_wrapper, self.get_wav)
+        self.phase_viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
+                                                      self.configure_wrapper, self.get_wav)
+        self.vlayout2 = QtGui.QVBoxLayout()
+        self.hlayout2 = QtGui.QHBoxLayout()
+        self.layout.addLayout(self.hlayout2)
+        self.hlayout2.addLayout(self.vlayout2)
+        self.vlayout2.addWidget(QtGui.QLabel(_("Harmonics")))
+        self.vlayout2.addWidget(self.viewer)
+        self.vlayout2.addWidget(QtGui.QLabel(_("Phases")))
+        self.vlayout2.addWidget(self.phase_viewer)
+        self.hlayout2.addWidget(self.wav_viewer)
 
         f_saw_action = self.tools_menu.addAction(_("Set Saw"))
-        f_saw_action.triggered.connect(self.viewer.set_saw)
+        f_saw_action.triggered.connect(self.set_saw)
         f_square_action = self.tools_menu.addAction(_("Set Square"))
-        f_square_action.triggered.connect(self.viewer.set_square)
+        f_square_action.triggered.connect(self.set_square)
         f_sine_action = self.tools_menu.addAction(_("Set Sine"))
-        f_sine_action.triggered.connect(self.viewer.set_sine)
+        f_sine_action.triggered.connect(self.set_sine)
         self.osc_values = {0 : None, 1 : None, 2 : None}
 
     def configure_wrapper(self, a_key, a_val):
@@ -2016,11 +1976,11 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             self.osc_values[int(a_key[-1])] = a_val.split("|")
 
     def osc_index_changed(self, a_event):
-        self.viewer.osc_num = self.osc_num_combobox.currentIndex()
-        if self.osc_values[self.viewer.osc_num] is None:
+        self.osc_num = self.osc_num_combobox.currentIndex()
+        if self.osc_values[self.osc_num] is None:
             self.viewer.clear_osc()
         else:
-            self.viewer.open_osc(self.osc_values[self.viewer.osc_num])
+            self.viewer.open_osc(self.osc_values[self.osc_num])
 
     def edit_mode_combobox_changed(self, a_event):
         self.viewer.set_edit_mode(self.edit_mode_combobox.currentIndex())
@@ -2031,6 +1991,68 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             self.osc_index_changed(None)
 
 
+    def get_wav(self, a_configure=False):
+        f_result = numpy.zeros(global_additive_wavetable_size)
+        f_recall_list = []
+        for f_i in range(1, global_additive_osc_harmonic_count + 1):
+            f_size = int(global_additive_wavetable_size / f_i)
+            f_db = self.viewer.bars[f_i - 1].get_value()
+            f_phase = (self.phase_viewer.bars[f_i - 1].get_value() + 30.0) / 15.0
+            if a_configure:
+                f_recall_list.append("{}".format(f_db))
+            if f_db > -29:
+                f_sin = global_get_sine(f_size, f_phase) * pydaw_util.pydaw_db_to_lin(f_db)
+                for f_i2 in range(int(global_additive_wavetable_size / f_size)):
+                    f_start = (f_i2) * f_size
+                    f_end = f_start + f_size
+                    f_result[f_start:f_end] += f_sin
+        f_max = numpy.max(numpy.abs(f_result), axis=0)
+        if f_max > 0.0:
+            f_normalize = 0.99 / f_max
+            f_result *= f_normalize
+        self.draw_callback(f_result)
+        if a_configure and self.configure_callback is not None:
+            f_engine_list = []
+            for f_float in f_result:
+                f_engine_list.append("{}".format(round(f_float, 6)))
+            f_engine_str = "{}|{}".format(global_additive_wavetable_size,
+                "|".join(f_engine_list))
+            self.configure_callback("wayv_add_eng{}".format(self.osc_num), f_engine_str)
+            f_recall_str = "|".join(f_recall_list)
+            self.configure_callback("wayv_add_ui{}".format(self.osc_num), f_recall_str)
+
+
+    def set_saw(self):
+        for f_i in range(len(self.viewer.bars)):
+            f_db = int(pydaw_util.pydaw_lin_to_db(1.0 / (f_i + 1)))
+            self.viewer.bars[f_i].set_value(f_db)
+        for f_i in range(len(self.phase_viewer.bars)):
+            self.phase_viewer.bars[f_i].set_value(-30)
+        for f_i in range(1, len(self.phase_viewer.bars), 2):
+            self.phase_viewer.bars[f_i].set_value(-15)
+        self.get_wav(True)
+
+    def set_square(self):
+        f_odd = True
+        for f_i in range(len(self.viewer.bars)):
+            f_point = self.viewer.bars[f_i]
+            if f_odd:
+                f_db = int(pydaw_util.pydaw_lin_to_db(1.0 / (f_i + 1)))
+                f_odd = False
+                f_point.set_value(f_db)
+            else:
+                f_odd = True
+                f_point.set_value(-30)
+            self.phase_viewer.bars[f_i].set_value(-30)
+        self.get_wav(True)
+
+    def set_sine(self):
+        self.viewer.bars[0].set_value(0)
+        for f_point in self.viewer.bars[1:]:
+            f_point.set_value(-30)
+        for f_i in range(len(self.phase_viewer.bars)):
+            self.phase_viewer.bars[f_i].set_value(-30)
+        self.get_wav(True)
 
 pydaw_audio_item_scene_height = 1200.0
 pydaw_audio_item_scene_width = 6000.0
