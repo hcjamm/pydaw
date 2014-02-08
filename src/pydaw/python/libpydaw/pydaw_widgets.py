@@ -1968,12 +1968,15 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         f_sine_action = self.tools_menu.addAction(_("Set Sine"))
         f_sine_action.triggered.connect(self.set_sine)
         self.osc_values = {0 : None, 1 : None, 2 : None}
+        self.phase_values = {0 : None, 1 : None, 2 : None}
 
     def configure_wrapper(self, a_key, a_val):
         if self.configure_callback is not None:
             self.configure_callback(a_key, a_val)
         if a_key.startswith("wayv_add_ui"):
             self.osc_values[int(a_key[-1])] = a_val.split("|")
+        elif a_key.startswith("wayv_add_phase"):
+            self.phase_values[int(a_key[-1])] = a_val.split("|")
 
     def osc_index_changed(self, a_event):
         self.osc_num = self.osc_num_combobox.currentIndex()
@@ -1981,6 +1984,10 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             self.viewer.clear_osc()
         else:
             self.viewer.open_osc(self.osc_values[self.osc_num])
+        if self.phase_values[self.osc_num] is None:
+            self.phase_viewer.clear_osc()
+        else:
+            self.phase_viewer.open_osc(self.phase_values[self.osc_num])
 
     def edit_mode_combobox_changed(self, a_event):
         self.viewer.set_edit_mode(self.edit_mode_combobox.currentIndex())
@@ -1990,16 +1997,23 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         if self.osc_num_combobox.currentIndex() == int(a_num):
             self.osc_index_changed(None)
 
+    def set_phases(self, a_num, a_val):
+        self.phase_values[int(a_num)] = a_val
+        if self.osc_num_combobox.currentIndex() == int(a_num):
+            self.osc_index_changed(None)
 
     def get_wav(self, a_configure=False):
         f_result = numpy.zeros(global_additive_wavetable_size)
         f_recall_list = []
+        f_phase_list = []
         for f_i in range(1, global_additive_osc_harmonic_count + 1):
             f_size = int(global_additive_wavetable_size / f_i)
             f_db = self.viewer.bars[f_i - 1].get_value()
-            f_phase = (self.phase_viewer.bars[f_i - 1].get_value() + 30.0) / 15.0
+            f_phase = self.phase_viewer.bars[f_i - 1].get_value()
             if a_configure:
                 f_recall_list.append("{}".format(f_db))
+                f_phase_list.append("{}".format(f_phase))
+            f_phase = (f_phase + 30.0) / 15.0
             if f_db > -29:
                 f_sin = global_get_sine(f_size, f_phase) * pydaw_util.pydaw_db_to_lin(f_db)
                 for f_i2 in range(int(global_additive_wavetable_size / f_size)):
@@ -2018,9 +2032,10 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             f_engine_str = "{}|{}".format(global_additive_wavetable_size,
                 "|".join(f_engine_list))
             self.configure_callback("wayv_add_eng{}".format(self.osc_num), f_engine_str)
-            f_recall_str = "|".join(f_recall_list)
-            self.configure_callback("wayv_add_ui{}".format(self.osc_num), f_recall_str)
-
+            self.configure_callback("wayv_add_ui{}".format(self.osc_num),
+                                    "|".join(f_recall_list))
+            self.configure_callback("wayv_add_phase{}".format(self.osc_num),
+                                    "|".join(f_phase_list))
 
     def set_saw(self):
         for f_i in range(len(self.viewer.bars)):
@@ -3933,6 +3948,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             self.configure_dict[a_key] = a_message
             f_arr = a_message.split("|")
             self.additive_osc.set_values(int(a_key[-1]), f_arr)
+        if a_key.startswith("wayv_add_phase"):
+            self.configure_dict[a_key] = a_message
+            f_arr = a_message.split("|")
+            self.additive_osc.set_phases(int(a_key[-1]), f_arr)
         elif a_key.startswith("wayv_add_eng"):
             pass
         else:
