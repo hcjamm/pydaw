@@ -83,7 +83,7 @@ nohw:
 eng:
 	rm src/*.o $(PYDAW_VERSION)-engine ; echo
 	rm -f $(PYDAW_VERSION)-engine src/*.o
-	make CFLAGS+=" -O3 " $(PYDAW_VERSION)-engine
+	make CFLAGS+=" -O2 " $(PYDAW_VERSION)-engine
 
 # --------------------------------------------------------------
 
