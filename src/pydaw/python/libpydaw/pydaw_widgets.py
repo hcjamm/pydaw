@@ -3979,10 +3979,11 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         # Clear existing sample tables
         f_ui_config_keys = ["wayv_add_ui0", "wayv_add_ui1", "wayv_add_ui2"]
         f_eng_config_keys = ["wayv_add_eng0", "wayv_add_eng1", "wayv_add_eng2"]
+        f_ui_phase_keys = ["wayv_add_phase0", "wayv_add_phase1", "wayv_add_phase2"]
         f_empty_ui_val = "|".join(["-30"] * global_additive_osc_harmonic_count)
         f_empty_eng_val = "{}|{}".format(global_additive_wavetable_size,
             "|".join(["0.0"] * global_additive_wavetable_size))
-        for f_key in f_ui_config_keys:
+        for f_key in (f_ui_config_keys + f_ui_phase_keys):
             if f_key in a_dict:
                 self.configure_plugin(f_key, a_dict[f_key])
                 self.set_configure(f_key, a_dict[f_key])
