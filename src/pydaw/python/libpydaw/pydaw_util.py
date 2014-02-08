@@ -85,12 +85,13 @@ def pydaw_str_has_bad_chars(a_str):
             return False
     return True
 
-def case_insensitive_path(a_path):
+def case_insensitive_path(a_path, a_assert=True):
     f_path = os.path.abspath(str(a_path))
     if os.path.exists(f_path):
         return a_path
     else:
         f_path_arr = f_path.split("/")
+        f_path_arr = [x for x in f_path_arr if x != ""]
         f_path = ""
         for f_dir in f_path_arr:
             if os.path.exists("{}/{}".format(f_path, f_dir)):
@@ -103,7 +104,10 @@ def case_insensitive_path(a_path):
                         f_path = "{}/{}".format(f_path, f_real_dir)
                         break
                 if not f_found:
-                    assert(False)
+                    if a_assert:
+                        assert(False)
+                    else:
+                        return None
         print(f_path)
         return f_path
 
@@ -353,23 +357,32 @@ else:
           "before opening, this could be the reason why")
     global_pydaw_sudo_command = None
 
-if (os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
-    os.path.islink("/dev/disk/by-label/pydaw_data") and global_pydaw_sudo_command is not None:
+global_dev_label_path = case_insensitive_path("/dev/disk/by-label/pydaw_data", False)
+
+if global_dev_label_path is not None and \
+(os.path.isdir("/home/ubuntu") or  os.path.isdir("/home/liveuser")) and \
+global_pydaw_sudo_command is not None:
+    global_dev_label_name = global_dev_label_path.rsplit('/', 1)[1]
     if os.path.isdir("/home/liveuser"): #presumed to be Fedora or Fedora-like
-        global_home = "/run/media/liveuser/pydaw_data"
+        global_home = "/run/media/liveuser/{}".format(global_dev_label_name)
     else: #presumed to be Ubuntu or Ubuntu-like.
-        global_home = "/media/pydaw_data"
+        global_home = "/media/{}".format(global_dev_label_name)
     if not os.path.isdir(global_home):
-        print("Attempting to mount {}.  If this causes the GUI to hang, "
-            "please try mounting the pydaw_data "
-            "partition before starting".format(global_home))
-        try:
-            os.system("{} mkdir {}".format(global_pydaw_sudo_command, global_home))
-            os.system("{} mount /dev/disk/by-label/pydaw_data {}".format(
-                global_pydaw_sudo_command, global_home))
-        except:
-            print("Could not mount pydaw_data partition, this may indicate "
-            "a problem with the flash drive or permissions")
+        import getpass
+        f_new_path = "/media/{}/{}".format(getpass.getuser(), global_dev_label_name)
+        if os.path.exists(f_new_path):
+            global_home = f_new_path
+        else:
+            print("Attempting to mount {}.  If this causes the GUI to hang, "
+                "please try mounting the pydaw_data "
+                "partition before starting".format(global_home))
+            try:
+                os.system("{} mkdir {}".format(global_pydaw_sudo_command, global_home))
+                os.system("{} mount /dev/disk/by-label/{} {}".format(
+                    global_pydaw_sudo_command, global_dev_label_name, global_home))
+            except:
+                print("Could not mount pydaw_data partition, this may indicate "
+                "a problem with the flash drive or permissions")
 
     global_is_live_mode = True
     global_pydaw_home = "{}/{}".format(global_home, global_pydaw_version_string)
