@@ -21,6 +21,8 @@ except ImportError:
 import locale
 import gettext
 
+_ = lambda x: x
+
 try:
     global_locale, global_encoding = locale.getdefaultlocale()
     global_language = gettext.translation("pydaw4",
@@ -29,4 +31,4 @@ try:
     global_language.install()
 except Exception as ex:
     print("Exception while setting locale, falling back to English (hopefully)")
-    def _(a_string): return a_string
+    _ = lambda x: x
