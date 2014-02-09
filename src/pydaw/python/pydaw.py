@@ -6668,6 +6668,11 @@ class transport_widget:
                                       _("Cannot use overdub mode with loop mode to record"))
             self.stop_button.setChecked(True)
             return
+        if this_wave_editor_widget.enabled_checkbox.isChecked():
+            QtGui.QMessageBox.warning(self.group_box, _("Error"),
+                                      _("The wave editor does not yet support recording."))
+            self.stop_button.setChecked(True)
+            return
         this_song_editor.table_widget.setEnabled(False)
         this_wave_editor_widget.on_play()
         this_region_settings.on_play()
