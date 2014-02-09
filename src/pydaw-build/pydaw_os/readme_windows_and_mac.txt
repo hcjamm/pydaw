@@ -20,6 +20,16 @@ and setting the CPU core count to 1, and/or disabling the features in:
 
 	[vm name]->settings->system->acceleration
 
+However, if Virtualbox is unstable on your CPU, you may need to disable 
+virtualization acceleration.
+
+You can adjust the number of cores that PyDAW can use by:
+
+1.  Click on VM
+2.  Click "Settings"
+3.  Click "System" tab on the left
+4.  Click the "Processor" tab on the top
+5.  Change the number of processors
 
 IMPORTANT:
 
