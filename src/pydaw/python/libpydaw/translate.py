@@ -32,8 +32,8 @@ try:
     global_language.install()
     print("Installed language for {}".format(global_locale))
     if not "_" in globals():
-        print("'_' not defined by Python gettext module, setting to gettext.lgettext")
-        _ = gettext.lgettext
+        print("'_' not defined by Python gettext module, setting to global_language.gettext")
+        _ = global_language.gettext
 except Exception as ex:
     print("Exception while setting locale, falling back to English (hopefully):\n".format(ex))
 
