@@ -28,9 +28,12 @@ try:
     global_language = gettext.translation("pydaw4",
         "{}/share/locale".format(global_pydaw_install_prefix),
         [global_locale])
-    print("global_language.info: {}".format(global_language.info))
+    print("global_language.info: {}".format(global_language.info()))
     global_language.install()
     print("Installed language for {}".format(global_locale))
+    if not "_" in globals():
+        print("'_' not defined by Python gettext module, setting to gettext.lgettext")
+        _ = gettext.lgettext
 except Exception as ex:
     print("Exception while setting locale, falling back to English (hopefully):\n".format(ex))
 
