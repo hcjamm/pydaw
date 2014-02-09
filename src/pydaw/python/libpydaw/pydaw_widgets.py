@@ -2186,6 +2186,11 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
+    def set_value(self, a_value):
+        self.value = float(a_value)
+        self.set_pos()
+        self.callback(self.value)
+
     def set_other(self, a_other, a_fade_marker=None):
         self.other = a_other
         self.fade_marker = a_fade_marker
@@ -2292,6 +2297,11 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         self.set_pos()
         self.callback(self.value)
 
+    def set_value(self, a_value):
+        self.value = float(a_value)
+        self.set_pos()
+        self.callback(self.value)
+
     def draw_lines(self):
         f_inc = pydaw_audio_item_scene_height / float(len(self.amp_lines))
         f_y_pos = 0
@@ -2356,6 +2366,11 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         if self.start_end_marker is not None:
             self.start_end_marker.callback(self.start_end_marker.value)
 
+global_audio_markers_clipboard = None
+
+def global_set_audio_markers_clipboard(a_s, a_e, a_fi, a_fo, a_ls=0.0, a_le=1000.0):
+    global global_audio_markers_clipboard
+    global_audio_markers_clipboard = (a_s, a_e, a_fi, a_fo, a_ls, a_le)
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
     def __init__(self, a_start_callback, a_end_callback,
@@ -2373,6 +2388,14 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scene.mousePressEvent = self.scene_mousePressEvent
         self.scene.mouseMoveEvent = self.scene_mouseMoveEvent
         self.scene.mouseReleaseEvent = self.scene_mouseReleaseEvent
+        self.scene_context_menu = QtGui.QMenu(self)
+        self.reset_markers_action = self.scene_context_menu.addAction(_("Reset Markers"))
+        self.reset_markers_action.triggered.connect(self.reset_markers)
+        self.copy_markers_action = self.scene_context_menu.addAction(_("Copy Markers"))
+        self.copy_markers_action.triggered.connect(self.copy_markers)
+        self.paste_markers_action = self.scene_context_menu.addAction(_("Paste Markers"))
+        self.paste_markers_action.triggered.connect(self.paste_markers)
+
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -2415,14 +2438,25 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.label.setText(f_val)
 
     def scene_contextMenuEvent(self):
-        f_menu = QtGui.QMenu(self)
-        f_reset_markers_action = f_menu.addAction("Reset markers")
-        f_reset_markers_action.triggered.connect(self.reset_markers)
-        f_menu.exec_(QtGui.QCursor.pos())
+        self.scene_context_menu.exec_(QtGui.QCursor.pos())
 
     def reset_markers(self):
         for f_marker in self.drag_start_markers + self.drag_end_markers:
             f_marker.reset_default()
+
+    def copy_markers(self):
+        if self.graph_object is not None:
+            global_set_audio_markers_clipboard(self.start_marker.value,
+                                               self.end_marker.value,
+                                               self.fade_in_marker.value,
+                                               self.fade_out_marker.value)
+
+    def paste_markers(self):
+        if self.graph_object is not None and global_audio_markers_clipboard is not None:
+            f_markers = (self.start_marker, self.end_marker,
+                         self.fade_in_marker, self.fade_out_marker)
+            for f_i in range(4):
+                f_markers[f_i].set_value(global_audio_markers_clipboard[f_i])
 
     def clear_drawn_items(self):
         self.scene.clear()
@@ -2545,6 +2579,12 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             pydaw_audio_item_scene_height
         self.scale(self.last_x_scale, self.last_y_scale)
 
+global_audio_loop_clipboard = None
+
+def global_set_audio_loop_clipboard(a_ls, a_le):
+    global global_audio_loop_clipboard
+    global_audio_loop_clipboard = (float(a_ls), float(a_le))
+
 
 class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
     def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
@@ -2553,6 +2593,21 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
                                                 a_fade_in_callback, a_fade_out_callback)
         self.loop_start_callback_x = a_loop_start_callback
         self.loop_end_callback_x = a_loop_end_callback
+        self.scene_context_menu.addSeparator()
+        self.loop_copy_action = self.scene_context_menu.addAction("Copy Loop Markers")
+        self.loop_copy_action.triggered.connect(self.copy_loop)
+        self.loop_paste_action = self.scene_context_menu.addAction("Paste Loop Markers")
+        self.loop_paste_action.triggered.connect(self.paste_loop)
+
+    def copy_loop(self):
+        if self.graph_object is not None:
+            global_set_audio_loop_clipboard(self.loop_start_marker.value,
+                                            self.loop_end_marker.value)
+
+    def paste_loop(self):
+        if self.graph_object is not None and global_audio_loop_clipboard is not None:
+            self.loop_start_marker.set_value(global_audio_loop_clipboard[0])
+            self.loop_end_marker.set_value(global_audio_loop_clipboard[1])
 
     def loop_start_callback(self, a_val):
         self.loop_start_callback_x(a_val)
@@ -4553,6 +4608,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                                        self.loop_end_callback,
                                                        self.fade_in_callback,
                                                        self.fade_out_callback)
+        self.sample_graph.scene_context_menu.addSeparator()
+        self.marker_all_action = self.sample_graph.scene_context_menu.addAction(
+            _("Apply Start/End/Fade Markers to All Samples"))
+        self.marker_all_action.triggered.connect(self.on_marker_all)
+        self.loop_all_action = self.sample_graph.scene_context_menu.addAction(
+            _("Apply Loop Markers to All Samples"))
+        self.loop_all_action.triggered.connect(self.on_loop_all)
         self.view_sample_tab_main_vlayout.addWidget(self.sample_graph)
         #The combobox for selecting the sample on the 'view' tab
         self.sample_view_select_sample_widget = QtGui.QWidget()
@@ -4876,6 +4938,25 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_index = self.selected_sample_index_combobox.currentIndex()
         self.fade_out_starts[f_index].set_value(a_val)
         self.fade_out_starts[f_index].control_value_changed(a_val)
+
+    def on_marker_all(self):
+        f_vals = (self.sample_graph.start_marker.value, self.sample_graph.end_marker.value,
+                  self.sample_graph.fade_in_marker.value, self.sample_graph.fade_out_marker.value)
+        f_lists = (self.sample_starts, self.sample_ends, self.fade_in_ends, self.fade_out_starts)
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            for f_i2 in range(len(f_vals)):
+                f_lists[f_i2][f_i].set_value(f_vals[f_i2])
+                f_lists[f_i2][f_i].control_value_changed(f_vals[f_i2])
+
+    def on_loop_all(self):
+        f_vals = (self.sample_graph.loop_start_marker.value,
+                  self.sample_graph.loop_end_marker.value,
+                  self.loop_mode_combobox.currentIndex())
+        f_lists = (self.loop_starts, self.loop_ends, self.loop_modes)
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            for f_i2 in range(len(f_vals)):
+                f_lists[f_i2][f_i].set_value(f_vals[f_i2])
+                f_lists[f_i2][f_i].control_value_changed(f_vals[f_i2])
 
     def on_loop_tune(self):
         self.find_selected_radio_button()
