@@ -204,11 +204,10 @@ class pydaw_abstract_ui_control:
                 self.value_label.setText(str(int(f_value)))
             elif self.val_conversion == kc_pitch:
                 self.value_label.setText(
-                    str(int(440.0 * pow(2.0,((float)(f_value - 57.0)) * 0.0833333))))
+                    str(int(pydaw_util.pydaw_pitch_to_hz(f_value))))
             elif self.val_conversion == kc_127_pitch:
                 self.value_label.setText(
-                    str(int(440.0 * pow(2.0, ((float)(((f_value * 0.818897638) + 20.0) -57.0)) * \
-                    0.0833333))))
+                    str(int(pydaw_util.pydaw_pitch_to_hz((f_value * 0.818897638) + 20.0))))
             elif self.val_conversion == kc_127_zero_to_x:
                 f_dec_value = (float(f_value) * self.label_value_127_multiply_by) - \
                     self.label_value_127_add_to
