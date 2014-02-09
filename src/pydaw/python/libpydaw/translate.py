@@ -21,14 +21,19 @@ except ImportError:
 import locale
 import gettext
 
-_ = lambda x: x
-
 try:
     global_locale, global_encoding = locale.getdefaultlocale()
+    print("locale: {}".format(global_locale))
+    print("encoding: {}".format(global_encoding))
     global_language = gettext.translation("pydaw4",
         "{}/share/locale".format(global_pydaw_install_prefix),
         [global_locale])
+    print("global_language.info: {}".format(global_language.info))
     global_language.install()
+    print("Installed language for {}".format(global_locale))
 except Exception as ex:
-    print("Exception while setting locale, falling back to English (hopefully)")
+    print("Exception while setting locale, falling back to English (hopefully):\n".format(ex))
+
+if not "_" in globals():
+    print("'_' not defined by Python gettext module, setting to lambda x: x")
     _ = lambda x: x
