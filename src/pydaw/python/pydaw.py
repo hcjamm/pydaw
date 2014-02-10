@@ -1809,12 +1809,25 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_edit_properties_action.triggered.connect(self.edit_properties)
         f_edit_paif_action = f_menu.addAction(_("Edit per-item effects"))
         f_edit_paif_action.triggered.connect(self.edit_paif)
+        f_menu.addSeparator()
         f_crossfade_action = f_menu.addAction(_("Crossfade selected items"))
         f_crossfade_action.triggered.connect(self.crossfade_selected)
+        f_reset_fades_action = f_menu.addAction(_("Reset fades"))
+        f_reset_fades_action.triggered.connect(self.reset_fades)
         f_menu.addSeparator()
         f_wave_editor_action = f_menu.addAction(_("Open in wave editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def reset_fades(self):
+        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        if f_list:
+            for f_item in f_list:
+                f_item.audio_item.fade_in = 0.0
+                f_item.audio_item.fade_out = 999.0
+            this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+            this_pydaw_project.commit(_("Reset audio item fades"))
+            global_open_audio_items(True)
 
     def crossfade_selected(self):
         f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
