@@ -1847,14 +1847,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
                 if f_start_sec > f_start_sec2 and \
                 f_end_sec > f_end_sec2 and \
-                f_start_sec2 < f_end_sec:  # item1 is after item2
+                f_end_sec2 > f_start_sec:  # item1 is after item2
                     f_changed = True
                     f_diff_sec = f_end_sec2 - f_start_sec
                     f_val = (f_diff_sec / f_time) * 1000.0
                     f_item.audio_item.set_fade_in(f_val)
                 elif f_start_sec < f_start_sec2 and \
                 f_end_sec < f_end_sec2 and \
-                f_end_sec > f_start_sec2: # item1 if before item2
+                f_end_sec > f_start_sec2: # item1 is before item2
                     f_changed = True
                     f_diff_sec = f_start_sec2 - f_start_sec
                     f_val = (f_diff_sec / f_time) * 1000.0
