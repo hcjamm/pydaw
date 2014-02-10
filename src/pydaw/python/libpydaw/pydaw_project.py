@@ -1955,6 +1955,14 @@ class pydaw_audio_item:
         self.start_bar = int(a_bar)
         self.start_beat = round(float(a_beat), 4)
 
+    def set_fade_in(self, a_value):
+        f_value = pydaw_clip_value(a_value, 0.0, self.fade_out - 1.0)
+        self.fade_in = f_value
+
+    def set_fade_out(self, a_value):
+        f_value = pydaw_clip_value(a_value, self.fade_in + 1.0, 999.0)
+        self.fade_out = f_value
+
     def clip_at_region_end(self, a_region_length, a_tempo, a_sample_length_seconds):
         f_region_length_beats = a_region_length * 4
         f_seconds_per_beat = (60.0 / a_tempo)
@@ -1975,6 +1983,9 @@ class pydaw_audio_item:
             return True
         else:
             return False
+
+    def __eq__(self, other):
+        return str(self) == str(other)
 
     def clone(self):
         """ Using and abusing the functions that are already there... """

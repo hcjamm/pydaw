@@ -296,6 +296,11 @@ def pydaw_db_to_lin(a_value):
 def pydaw_lin_to_db(a_value):
     return log(float(a_value), 10.0) * 20.0
 
+def musical_time_to_seconds(a_tempo, a_bar, a_beat):
+    f_seconds_per_beat = 60.0 / float(a_tempo)
+    f_beats = (float(a_bar) * 4.0) + float(a_beat)
+    return f_seconds_per_beat * f_beats
+
 def pydaw_wait_for_finished_file(a_file):
     """ Wait until a_file exists, then delete it and return.  It should
     already have the .finished extension"""
