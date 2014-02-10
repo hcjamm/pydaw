@@ -2905,15 +2905,15 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.menu_button = QtGui.QPushButton(_("Menu"))
         self.controls_grid_layout.addWidget(self.menu_button, 0, 10)
         self.action_menu = QtGui.QMenu(self.widget)
-        self.clone_action = QtGui.QAction(_("Clone from region..."), self.widget)
+        self.clone_action = self.action_menu.addAction(_("Clone from region..."))
         self.clone_action.triggered.connect(self.on_clone)
-        self.action_menu.addAction(self.clone_action)
-        self.copy_action = QtGui.QAction(_("Copy selected"), self.widget)
+        self.copy_action = self.action_menu.addAction(_("Copy selected"))
         self.copy_action.triggered.connect(self.on_copy)
-        self.action_menu.addAction(self.copy_action)
-        self.paste_action = QtGui.QAction(_("Paste"), self.widget)
+        self.paste_action = self.action_menu.addAction(_("Paste"))
         self.paste_action.triggered.connect(self.on_paste)
-        self.action_menu.addAction(self.paste_action)
+        self.select_all_action = self.action_menu.addAction(_("Select all"))
+        self.select_all_action.triggered.connect(self.on_select_all)
+
         self.menu_button.setMenu(self.action_menu)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
@@ -2948,6 +2948,10 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         global_audio_items_to_drop = []
         for f_item in self.list_file.selectedItems():
             global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
+
+    def on_select_all(self):
+        for f_item in this_audio_items_viewer.audio_items:
+            f_item.setSelected(True)
 
     def on_preview(self):
         f_list = self.list_file.selectedItems()
