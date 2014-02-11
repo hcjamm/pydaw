@@ -6,9 +6,10 @@ CXX ?= g++
 PREFIX ?= /usr
 
 #Default flags are mostly x86 specific
-PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse
+PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse \
+-mtune=generic
 
-BASE_FLAGS     = -ffast-math -mtune=generic -fprefetch-loop-arrays \
+BASE_FLAGS     = -ffast-math -fprefetch-loop-arrays \
 -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
 -Isrc -I../include -fstrength-reduce -fstrict-aliasing -finline-functions
 

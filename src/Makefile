@@ -23,7 +23,7 @@ deps:
 	cd pydaw/portaudio && ./configure --with-jack=no --with-oss=no
 	make -C pydaw/portaudio
 	cp pydaw/portaudio/lib/.libs/libportaudio.so.2.0.0 pydaw/python/libpydaw/libportaudio.so
-	cd pydaw_sbsms && ./configure && make
+	cd pydaw_sbsms && ( ./configure || ./configure --enable-sse=no ) && make
 	cd pydaw_sbsms/cli && make
 	cd pydaw_rubberband && ./configure --prefix=$(RUBBERBAND_PREFIX) && make
 
