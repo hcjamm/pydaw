@@ -942,24 +942,28 @@ class region_list_editor:
         self.edit_group_action.triggered.connect(self.edit_group)
         self.table_widget.addAction(self.edit_group_action)
 
-        self.copy_action = QtGui.QAction(_("Copy (CTRL+C)"), self.table_widget)
+        self.copy_action = QtGui.QAction(_("Copy"), self.table_widget)
         self.copy_action.triggered.connect(self.copy_selected)
+        self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
         self.table_widget.addAction(self.copy_action)
 
-        self.paste_action = QtGui.QAction(_("Paste (CTRL+V)"), self.table_widget)
+        self.paste_action = QtGui.QAction(_("Paste"), self.table_widget)
         self.paste_action.triggered.connect(self.paste_clipboard)
+        self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
         self.table_widget.addAction(self.paste_action)
 
-        self.paste_to_end_action = QtGui.QAction(_("Paste to Region End (ALT+V)"),
+        self.paste_to_end_action = QtGui.QAction(_("Paste to Region End"),
                                                  self.table_widget)
         self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
+        self.paste_to_end_action.setShortcut(QtGui.QKeySequence.fromString("ALT+V"))
         self.table_widget.addAction(self.paste_to_end_action)
 
         self.rename_action = QtGui.QAction(_("Rename Selected Items"), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_items)
         self.table_widget.addAction(self.rename_action)
-        self.unlink_action = QtGui.QAction(_("Unlink Single Item(CTRL+D)"), self.table_widget)
+        self.unlink_action = QtGui.QAction(_("Unlink Single Item"), self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
+        self.unlink_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+D"))
         self.table_widget.addAction(self.unlink_action)
         self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Selected Items"),
                                                     self.table_widget)
