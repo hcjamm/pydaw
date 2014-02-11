@@ -12,6 +12,9 @@ all:
 	make deps
 	make pydaw_src
 
+native:
+	make PLAT_FLAGS=" -march=native "
+
 pydaw_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
 
