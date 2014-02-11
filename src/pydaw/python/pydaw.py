@@ -967,6 +967,7 @@ class region_list_editor:
         self.table_widget.addAction(self.unlink_action)
         self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Selected Items"),
                                                     self.table_widget)
+        self.unlink_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+U"))
         self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
         self.delete_action = QtGui.QAction(_("Delete (Del)"), self.table_widget)
