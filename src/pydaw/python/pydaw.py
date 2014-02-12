@@ -2934,6 +2934,8 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
             global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
 
     def on_select_all(self):
+        if global_current_region is None or global_transport_is_playing:
+            return
         for f_item in this_audio_items_viewer.audio_items:
             f_item.setSelected(True)
 
