@@ -9027,7 +9027,8 @@ else:
     default_project_file = "{}/default-project/default.{}".format(
         global_pydaw_home, global_pydaw_version_string)
 
-if not os.access(os.path.dirname(default_project_file), os.W_OK):
+if os.path.exists(default_project_file) and \
+not os.access(os.path.dirname(default_project_file), os.W_OK):
     QtGui.QMessageBox.warning(this_wave_editor_widget.widget, _("Error"),
                               _("You do not have read+write permissions to {}, please correct "
                               "this and restart PyDAW".format(
