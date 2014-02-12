@@ -7070,6 +7070,16 @@ class pydaw_main_window(QtGui.QMainWindow):
         else:
             return True
 
+    def check_for_rw_perms(self, a_file):
+        if not os.access(os.path.dirname(str(a_file)), os.W_OK):
+            QtGui.QMessageBox.warning(self, _("Error"),
+                                      _("You do not have read+write permissions to "
+                                      "{}".format(global_pydaw_home)))
+            return False
+        else:
+            return True
+
+
     def on_new(self):
         if global_transport_is_playing:
             return
@@ -7081,7 +7091,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
                     f_file = str(f_file)
-                    if not self.check_for_empty_directory(f_file):
+                    if not self.check_for_empty_directory(f_file) or \
+                    not self.check_for_rw_perms(f_file):
                         continue
                     if not f_file.endswith("." + global_pydaw_version_string):
                         f_file += "." + global_pydaw_version_string
@@ -7102,6 +7113,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_file_str = str(f_file)
             if f_file_str == "":
                 return
+            if not self.check_for_rw_perms(f_file):
+                return
             global_open_project(f_file_str)
         except Exception as ex:
             pydaw_print_generic_exception(ex)
@@ -7118,7 +7131,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                                                                global_pydaw_version_string))
                 if not f_new_file is None and not str(f_new_file) == "":
                     f_new_file = str(f_new_file)
-                    if not self.check_for_empty_directory(f_new_file):
+                    if not self.check_for_empty_directory(f_new_file) or \
+                    not self.check_for_rw_perms(f_new_file):
                         continue
                     if not f_new_file.endswith(".{}".format(global_pydaw_version_string)):
                         f_new_file += ".{}".format(global_pydaw_version_string)
@@ -8831,6 +8845,13 @@ this_cc_automation_viewers.append(this_cc_automation_viewer1)
 this_cc_automation_viewers.append(this_cc_automation_viewer2)
 
 this_wave_editor_widget = pydaw_wave_editor_widget()
+
+if not os.access(global_pydaw_home, os.W_OK):
+    QtGui.QMessageBox.warning(this_wave_editor_widget.widget, _("Error"),
+                              _("You do not have read+write permissions to {}, please correct "
+                              "this and restart PyDAW".format(global_pydaw_home)))
+    exit(999)
+
 this_song_editor = song_editor()
 this_region_settings = region_settings()
 this_region_editor = region_list_editor(pydaw_track_type_enum.midi)
@@ -9005,6 +9026,14 @@ if os.path.exists(f_def_file):
 else:
     default_project_file = "{}/default-project/default.{}".format(
         global_pydaw_home, global_pydaw_version_string)
+
+if not os.access(os.path.dirname(default_project_file), os.W_OK):
+    QtGui.QMessageBox.warning(this_wave_editor_widget.widget, _("Error"),
+                              _("You do not have read+write permissions to {}, please correct "
+                              "this and restart PyDAW".format(
+                              os.path.dirname(default_project_file))))
+    exit(999)
+
 if os.path.exists(default_project_file):
     global_open_project(default_project_file, a_wait=False)
 else:
