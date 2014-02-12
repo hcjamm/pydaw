@@ -933,13 +933,13 @@ class region_list_editor:
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
-        self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
-        self.edit_group_action = QtGui.QAction(_("Edit Selected Items as Group"),
+        self.edit_group_action = QtGui.QAction(_("Edit Selected Item(s)"),
                                                self.table_widget)
         self.edit_group_action.triggered.connect(self.edit_group)
+        self.edit_group_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+E"))
         self.table_widget.addAction(self.edit_group_action)
 
         self.copy_action = QtGui.QAction(_("Copy"), self.table_widget)
@@ -952,6 +952,11 @@ class region_list_editor:
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
         self.table_widget.addAction(self.paste_action)
 
+        self.cut_action = QtGui.QAction(_("Cut"), self.table_widget)
+        self.cut_action.triggered.connect(self.cut_selected)
+        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
+        self.table_widget.addAction(self.cut_action)
+
         self.paste_to_end_action = QtGui.QAction(_("Paste to Region End"),
                                                  self.table_widget)
         self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
@@ -963,15 +968,15 @@ class region_list_editor:
         self.table_widget.addAction(self.rename_action)
         self.unlink_action = QtGui.QAction(_("Unlink Single Item"), self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
-        self.unlink_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+D"))
         self.table_widget.addAction(self.unlink_action)
         self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Selected Items"),
                                                     self.table_widget)
         self.unlink_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+U"))
         self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
-        self.delete_action = QtGui.QAction(_("Delete (Del)"), self.table_widget)
+        self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
+        self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
         self.table_widget.addAction(self.delete_action)
         if a_track_type == 0:
             self.transpose_action = QtGui.QAction(_("Transpose"), self.table_widget)
@@ -1055,22 +1060,9 @@ class region_list_editor:
         f_layout.addWidget(f_cancel, 6, 1)
         f_window.exec_()
 
-    def table_keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete:
-            self.delete_selected()
-        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.copy_selected()
-        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.paste_clipboard()
-        elif event.key() == QtCore.Qt.Key_V and event.modifiers() & QtCore.Qt.AltModifier:
-            self.paste_to_region_end()
-        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.copy_selected()
-            self.delete_selected()
-        elif event.key() == QtCore.Qt.Key_D and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.on_unlink_item()
-        else:
-            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
+    def cut_selected(self):
+        self.copy_selected()
+        self.delete_selected()
 
     def edit_group(self):
         f_result = []
