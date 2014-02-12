@@ -2915,6 +2915,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("H-Zoom:")), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
+        self.audio_items_clipboard = []
 
     def set_tooltips(self, a_on):
         self.folders_widget.setToolTip(_("Use this tab to browse your "
@@ -3008,7 +3009,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
     def on_paste(self):
         if global_current_region is None or global_transport_is_playing:
             return
-        if len(self.audio_items_clipboard) == 0:
+        if not self.audio_items_clipboard:
             QtGui.QMessageBox.warning(self.widget, _("Error"),
                                       _("Nothing copied to the clipboard."))
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(
