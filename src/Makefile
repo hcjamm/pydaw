@@ -13,10 +13,13 @@ all:
 	make pydaw_src
 
 native:
-	make PLAT_FLAGS=" -march=native "
+	make PLAT_FLAGS=" -march=native " CFLAGS+=" -O2 "
 
 pydaw_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
+
+native_src:
+	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 " -march=native
 
 # --------------------------------------------------------------
 

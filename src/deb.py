@@ -42,9 +42,15 @@ else:
     print("Did not find GCC 4.6; Early versions of GCC 4.7 and 4.8 may cause "
           "stability issues, please consider installing GCC 4.6")
 
+if "--native" in sys.argv:
+    f_target = "native_src"
+else:
+    f_target = "pydaw_src"
+
 f_build_cmd = ('make clean && make {} LDFLAGS+="-lcpufreq" '
-               'CFLAGS+="-DPYDAW_CPUFREQ" pydaw_src && '
-               'make DESTDIR="{}/pydaw-build/debian" install').format(f_gcc, f_base_dir)
+               'CFLAGS+="-DPYDAW_CPUFREQ" {} && '
+               'make DESTDIR="{}/pydaw-build/debian" install').format(
+               f_gcc, f_target, f_base_dir)
 
 f_version_file = "{}/{}-version.txt".format(f_base_dir, global_pydaw_version_string)
 
