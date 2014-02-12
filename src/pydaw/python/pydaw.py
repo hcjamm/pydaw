@@ -325,7 +325,6 @@ class song_editor:
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
-        self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
 
@@ -333,8 +332,10 @@ class song_editor:
         self.rename_action = QtGui.QAction(_("Rename region"), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_region)
         self.table_widget.addAction(self.rename_action)
-        self.delete_action = QtGui.QAction(_("Delete (Del)"), self.table_widget)
+        self.delete_action = QtGui.QAction(_("Delete region(s)"), self.table_widget)
         self.delete_action.triggered.connect(self.on_delete)
+        self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
+        self.delete_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.table_widget.addAction(self.delete_action)
 
     def set_tooltips(self, a_on):
@@ -349,18 +350,20 @@ class song_editor:
             self.table_widget.setToolTip("")
 
     def on_delete(self):
-        f_item = self.table_widget.currentItem()
-        if f_item is None:
+        if not self.table_widget.selectedIndexes():
             return
-        f_item_text = str(f_item.text())
-        f_empty = QtGui.QTableWidgetItem() #Clear the item
-        self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
+        f_commit_list = []
+        for f_item in self.table_widget.selectedIndexes():
+            f_commit_list.append(str(f_item.column()))
+            f_empty = QtGui.QTableWidgetItem() #Clear the item
+            self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
         self.tablewidget_to_song()
         this_region_settings.clear_items()
         this_region_settings.region_name_lineedit.setText("")
         this_region_settings.enabled = False
         this_region_settings.update_region_length() #TODO:  Is this right?
-        this_pydaw_project.commit(_("Remove {} from song").format(f_item_text))
+        this_pydaw_project.commit(
+            _("Deleted region references at {}").format(", ".join(f_commit_list)))
         pydaw_update_region_lengths_dict()
 
     def on_rename_region(self):
@@ -402,23 +405,6 @@ class song_editor:
         f_layout.addWidget(f_cancel_button, 5,1)
         f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
-
-    def table_keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete:
-            f_commit_msg = _("Deleted region references at ")
-            for f_item in self.table_widget.selectedIndexes():
-                f_commit_msg += str(f_item.column())
-                f_empty = QtGui.QTableWidgetItem() #Clear the item
-                self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
-            self.tablewidget_to_song()
-            this_region_settings.clear_items()
-            this_region_settings.region_name_lineedit.setText("")
-            this_region_settings.enabled = False
-            this_region_settings.update_region_length() #TODO:  Is this right?
-            this_pydaw_project.commit(f_commit_msg)
-            pydaw_update_region_lengths_dict()
-        else:
-            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
 
     def table_drop_event(self, a_event):
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
@@ -977,6 +963,7 @@ class region_list_editor:
         self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
+        self.delete_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.table_widget.addAction(self.delete_action)
         if a_track_type == 0:
             self.transpose_action = QtGui.QAction(_("Transpose"), self.table_widget)
