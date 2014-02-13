@@ -4553,20 +4553,16 @@ class piano_roll_editor_widget():
         self.edit_menu_button.setMenu(self.edit_menu)
         self.controls_grid_layout.addWidget(self.edit_menu_button, 0, 30)
 
-        self.quantize_action = QtGui.QAction(_("Quantize"), self.widget)
-        self.edit_menu.addAction(self.quantize_action)
+        self.quantize_action = self.edit_menu.addAction(_("Quantize"))
         self.quantize_action.triggered.connect(self.quantize_dialog)
 
-        self.transpose_action = QtGui.QAction(_("Transpose"), self.widget)
-        self.edit_menu.addAction(self.transpose_action)
+        self.transpose_action = self.edit_menu.addAction(_("Transpose"))
         self.transpose_action.triggered.connect(self.transpose_dialog)
 
-        self.velocity_action = QtGui.QAction(_("Velocity"), self.widget)
-        self.edit_menu.addAction(self.velocity_action)
+        self.velocity_action = self.edit_menu.addAction(_("Velocity"))
         self.velocity_action.triggered.connect(self.velocity_dialog)
 
-        self.select_all_action = QtGui.QAction(_("Select All"), self.widget)
-        self.edit_menu.addAction(self.select_all_action)
+        self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
 
         self.edit_menu.addSeparator()
