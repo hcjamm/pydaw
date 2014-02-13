@@ -965,7 +965,6 @@ class region_list_editor:
         self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
-        self.delete_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.table_widget.addAction(self.delete_action)
         if a_track_type == 0:
             self.transpose_action = QtGui.QAction(_("Transpose"), self.table_widget)
@@ -2924,7 +2923,6 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.delete_selected_action = self.action_menu.addAction(_("Delete Selected"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
-        self.delete_selected_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
