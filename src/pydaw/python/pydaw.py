@@ -6889,6 +6889,10 @@ class transport_widget:
         self.last_region_num = -99
         self.suppress_osc = False
 
+    def reset(self):
+        self.loop_mode_combobox.setCurrentIndex(0)
+        self.overdub_checkbox.setChecked(False)
+
     def set_tooltips(self, a_enabled):
         if a_enabled:
             self.tooltips_checkbox.setToolTip(
@@ -8717,6 +8721,7 @@ def global_close_all():
     for f_widget in this_item_editor.cc_auto_viewers:
         f_widget.update_ccs_in_use([])
     this_wave_editor_widget.clear()
+    this_transport.reset()
 
 def global_ui_refresh_callback(a_restore_all=False):
     """ Use this to re-open all existing items/regions/song in
