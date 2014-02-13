@@ -2357,6 +2357,21 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.clearSelection()
         self.scene.clear()
 
+    def delete_selected(self):
+        if pydaw_global_current_region_is_none() or self.check_running():
+            return
+        f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
+        f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+        for f_item in self.audio_items:
+            if f_item.isSelected():
+                f_items.remove_item(f_item.track_num)
+                f_paif.clear_row_if_exists(f_item.track_num)
+        this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
+        this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid,
+                                                         f_paif, False)
+        this_pydaw_project.commit(_("Delete audio item(s)"))
+        global_open_audio_items(True)
+
     def set_tooltips(self, a_on):
         if a_on:
             self.setToolTip(_("Drag .wav files from the file browser onto here.  "
@@ -2607,64 +2622,51 @@ class audio_items_viewer(QtGui.QGraphicsView):
         global_open_audio_items()
         self.last_open_dir = os.path.dirname(f_file_name_str)
 
-    def keyPressEvent(self, a_event):
-        if pydaw_global_current_region_is_none():
+    def glue_selected(self):
+        if pydaw_global_current_region_is_none() or self.check_running():
             return
-        if a_event.key() == QtCore.Qt.Key_Delete:
-            f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
-            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
-            for f_item in self.audio_items:
-                if f_item.isSelected():
-                    f_items.remove_item(f_item.track_num)
-                    f_paif.clear_row_if_exists(f_item.track_num)
-            this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
-            this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid,
-                                                             f_paif, False)
-            this_pydaw_project.commit(_("Delete audio item(s)"))
-            global_open_audio_items(True)
-        if a_event.key() == QtCore.Qt.Key_G and a_event.modifiers() == QtCore.Qt.ControlModifier:
-            f_region_uid = global_current_region.uid
-            f_indexes = []
-            f_start_bar = None
-            f_end_bar = None
-            f_lane = None
-            f_audio_track_num = None
-            for f_item in self.audio_items:
-                if f_item.isSelected():
-                    f_indexes.append(f_item.track_num)
-                    if f_start_bar is None or f_start_bar > f_item.audio_item.start_bar:
-                        f_start_bar = f_item.audio_item.start_bar
-                        f_lane = f_item.audio_item.lane_num
-                        f_audio_track_num = f_item.audio_item.output_track
-                    f_end, f_beat = \
-                    f_item.pos_to_musical_time(f_item.pos().x() + f_item.rect().width())
-                    if f_beat > 0.0:
-                        f_end += 1
-                    if f_end_bar is None or f_end_bar < f_end:
-                        f_end_bar = f_end
-            if len(f_indexes) == 0:
-                print(_("No audio items selected, not glueing"))
-                return
-            f_path = this_pydaw_project.get_next_glued_file_name()
-            this_pydaw_project.this_pydaw_osc.pydaw_glue_audio(f_path, global_current_song_index,
-                                                               f_start_bar, f_end_bar, f_indexes)
-            f_items = this_pydaw_project.get_audio_region(f_region_uid)
-            f_paif = this_pydaw_project.get_audio_per_item_fx_region(f_region_uid)
-            for f_index in f_indexes:
-                f_items.remove_item(f_index)
-                f_paif.clear_row_if_exists(f_index)
-            f_index = f_items.get_next_index()
-            f_uid = this_pydaw_project.get_wav_uid_by_name(f_path)
-            f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane,
-                                      a_output_track=f_audio_track_num)
-            f_items.add_item(f_index, f_item)
 
-            this_pydaw_project.save_audio_region(f_region_uid, f_items)
-            this_pydaw_project.save_audio_per_item_fx_region(f_region_uid, f_paif)
-            this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(f_region_uid)
-            this_pydaw_project.commit(_("Glued audio items"))
-            global_open_audio_items()
+        f_region_uid = global_current_region.uid
+        f_indexes = []
+        f_start_bar = None
+        f_end_bar = None
+        f_lane = None
+        f_audio_track_num = None
+        for f_item in self.audio_items:
+            if f_item.isSelected():
+                f_indexes.append(f_item.track_num)
+                if f_start_bar is None or f_start_bar > f_item.audio_item.start_bar:
+                    f_start_bar = f_item.audio_item.start_bar
+                    f_lane = f_item.audio_item.lane_num
+                    f_audio_track_num = f_item.audio_item.output_track
+                f_end, f_beat = \
+                f_item.pos_to_musical_time(f_item.pos().x() + f_item.rect().width())
+                if f_beat > 0.0:
+                    f_end += 1
+                if f_end_bar is None or f_end_bar < f_end:
+                    f_end_bar = f_end
+        if len(f_indexes) == 0:
+            print(_("No audio items selected, not glueing"))
+            return
+        f_path = this_pydaw_project.get_next_glued_file_name()
+        this_pydaw_project.this_pydaw_osc.pydaw_glue_audio(f_path, global_current_song_index,
+                                                           f_start_bar, f_end_bar, f_indexes)
+        f_items = this_pydaw_project.get_audio_region(f_region_uid)
+        f_paif = this_pydaw_project.get_audio_per_item_fx_region(f_region_uid)
+        for f_index in f_indexes:
+            f_items.remove_item(f_index)
+            f_paif.clear_row_if_exists(f_index)
+        f_index = f_items.get_next_index()
+        f_uid = this_pydaw_project.get_wav_uid_by_name(f_path)
+        f_item = pydaw_audio_item(f_uid, a_start_bar=f_start_bar, a_lane_num=f_lane,
+                                  a_output_track=f_audio_track_num)
+        f_items.add_item(f_index, f_item)
 
+        this_pydaw_project.save_audio_region(f_region_uid, f_items)
+        this_pydaw_project.save_audio_per_item_fx_region(f_region_uid, f_paif)
+        this_pydaw_project.this_pydaw_osc.pydaw_audio_per_item_fx_region(f_region_uid)
+        this_pydaw_project.commit(_("Glued audio items"))
+        global_open_audio_items()
 
     def set_playback_pos(self, a_bar=None, a_beat=0.0):
         if a_bar is None:
@@ -2889,16 +2891,26 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.menu_button = QtGui.QPushButton(_("Menu"))
         self.controls_grid_layout.addWidget(self.menu_button, 0, 10)
         self.action_menu = QtGui.QMenu(self.widget)
+        self.menu_button.setMenu(self.action_menu)
         self.clone_action = self.action_menu.addAction(_("Clone from region..."))
         self.clone_action.triggered.connect(self.on_clone)
         self.copy_action = self.action_menu.addAction(_("Copy selected"))
         self.copy_action.triggered.connect(self.on_copy)
+        self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
         self.paste_action = self.action_menu.addAction(_("Paste"))
         self.paste_action.triggered.connect(self.on_paste)
+        self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
         self.select_all_action = self.action_menu.addAction(_("Select all"))
         self.select_all_action.triggered.connect(self.on_select_all)
-
-        self.menu_button.setMenu(self.action_menu)
+        self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
+        self.action_menu.addSeparator()
+        self.glue_selected_action = self.action_menu.addAction(_("Glue selected"))
+        self.glue_selected_action.triggered.connect(self.on_glue_selected)
+        self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
+        self.action_menu.addSeparator()
+        self.delete_selected_action = self.action_menu.addAction(_("Delete selected"))
+        self.delete_selected_action.triggered.connect(self.on_delete_selected)
+        self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
@@ -2939,6 +2951,16 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
             return
         for f_item in this_audio_items_viewer.audio_items:
             f_item.setSelected(True)
+
+    def on_glue_selected(self):
+        if global_current_region is None or global_transport_is_playing:
+            return
+        this_audio_items_viewer.glue_selected()
+
+    def on_delete_selected(self):
+        if global_current_region is None or global_transport_is_playing:
+            return
+        this_audio_items_viewer.delete_selected()
 
     def on_preview(self):
         f_list = self.list_file.selectedItems()
