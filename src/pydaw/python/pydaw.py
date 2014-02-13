@@ -4564,6 +4564,7 @@ class piano_roll_editor_widget():
 
         self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
+        self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
 
         self.edit_menu.addSeparator()
 
