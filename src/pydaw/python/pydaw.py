@@ -30,41 +30,11 @@ from libpydaw.translate import _
 
 
 global_transport_is_playing = False
-global_region_lengths_dict = {}
-global_audio_region_snap_px = {}
-global_bar_count = 300 * 8
 
 class pydaw_track_type_enum:
     midi = 0
     bus = 1
     audio = 2
-
-def pydaw_update_region_lengths_dict():
-    """ Call this any time the region length setup may have changed... """
-    f_song = this_pydaw_project.get_song()
-    global global_region_lengths_dict, global_audio_region_snap_px, global_bar_count
-    global_region_lengths_dict = {}
-    global_audio_region_snap_px = {}
-    global_bar_count = 300 * 8
-    for k, v in list(f_song.regions.items()):
-        f_region = this_pydaw_project.get_region_by_uid(v)
-        if f_region.region_length_bars != 0:
-            global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
-            global_bar_count = global_bar_count - 8 + int(f_region.region_length_bars)
-    f_add = 0.0
-    global_audio_region_snap_px[0] = 0.0
-    for i in range(299):
-        f_value = pydaw_get_region_length(i) * global_audio_px_per_bar
-        global_audio_region_snap_px[i + 1] = f_value + f_add
-        f_add += f_value
-
-def pydaw_get_region_length(a_region_index):
-    """ Get the length of the region at song index a_region_index from the cache """
-    f_region_index = int(a_region_index)
-    if f_region_index in global_region_lengths_dict:
-        return global_region_lengths_dict[f_region_index]
-    else:
-        return 8
 
 def pydaw_get_current_region_length():
     if global_current_region is None:
@@ -75,61 +45,6 @@ def pydaw_get_current_region_length():
     else:
         return f_result
 
-def pydaw_get_pos_in_bars(a_reg, a_bar, a_beat):
-    f_result = 0.0
-    for i in range(a_reg):
-        f_result += pydaw_get_region_length(i)
-    f_result += (a_bar) + (a_beat * 0.25)
-    return f_result
-
-def pydaw_bars_to_pos(a_bars):
-    """ Convert a raw bar count to region, bar """
-    f_bar_total = 0
-    for i in range(299):
-        f_bar_count = pydaw_get_region_length(i)
-        if f_bar_total + f_bar_count > a_bars:
-            return i, a_bars - f_bar_total
-        else:
-            f_bar_total += f_bar_count
-    assert(False)
-
-def pydaw_get_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_end_reg, a_end_bar,
-                           a_end_beat):
-    """ Calculate the difference in bars, ie: 10.567 bars, between 2 points """
-    f_result = 0.0
-    if a_start_reg <= a_end_reg:
-        for i in range(a_start_reg, a_end_reg):
-            f_result += pydaw_get_region_length(i)
-        f_result += (a_end_bar - a_start_bar)
-        f_result += (a_end_beat - a_start_beat) * 0.25
-    else:
-        for i in range(a_start_reg, a_end_reg, -1):
-            f_result -= pydaw_get_region_length(i)
-        f_result += (a_start_bar - a_end_bar)
-        f_result += (a_start_beat - a_end_beat) * 0.25
-    return f_result
-
-def pydaw_add_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_bars):
-    """ Add a fractional number of bars, and return a tuple of region, bar and beat """
-    f_region = a_start_reg
-    f_bar = a_start_bar
-    f_beat = a_start_beat
-    f_int_bars = int(a_bars)
-    f_float_beats = (a_bars - float(f_int_bars)) * 4.0
-    f_beat += f_float_beats
-    if f_beat >= 4.0:
-        f_beat -= 4.0
-        f_bar += 1
-    f_beat = round(f_beat, 4)
-    f_bar += f_int_bars
-    while True:
-        f_reg_length = pydaw_get_region_length(f_region)
-        if f_bar >= f_reg_length:
-            f_bar -= f_reg_length
-            f_region += 1
-        else:
-            break
-    return (f_region, f_bar, f_beat)
 
 def pydaw_center_widget_on_screen(a_widget):
     f_desktop_center = QtGui.QApplication.desktop().screen().rect().center()
@@ -221,7 +136,6 @@ class song_editor:
         f_region_dict = this_pydaw_project.get_regions_dict()
         for f_pos, f_region in list(self.song.regions.items()):
             self.add_qtablewidgetitem(f_region_dict.get_name_by_uid(f_region), f_pos)
-        pydaw_update_region_lengths_dict()
         #global_open_audio_items()
         self.clipboard = []
 
@@ -366,7 +280,6 @@ class song_editor:
         this_region_settings.update_region_length() #TODO:  Is this right?
         this_pydaw_project.commit(
             _("Deleted region references at {}").format(", ".join(f_commit_list)))
-        pydaw_update_region_lengths_dict()
 
     def on_rename_region(self):
         f_item = self.table_widget.currentItem()
@@ -414,7 +327,6 @@ class song_editor:
         self.tablewidget_to_song()
         self.table_widget.clearSelection()
         this_pydaw_project.commit(_("Drag-n-drop song item(s)"))
-        pydaw_update_region_lengths_dict()
 
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to the native song class... """
@@ -468,7 +380,6 @@ class region_settings:
             global_audio_items.set_region_length(f_region_length)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             self.open_region(self.region_name_lineedit.text())
-            pydaw_update_region_lengths_dict()
             f_resave = False
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.clip_at_region_end():
@@ -1537,7 +1448,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt):
             f_temp_seconds *= self.audio_item.timestretch_amt
 
-        f_start = pydaw_get_pos_in_bars(0, self.audio_item.start_bar, self.audio_item.start_beat)
+        f_start = float(self.audio_item.start_bar) + (self.audio_item.start_beat * 0.25)
         f_start *= global_audio_px_per_bar
 
         f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * global_audio_px_per_bar
@@ -6629,18 +6540,6 @@ class transport_widget:
                         for f_region_editor in global_region_editors:
                             f_region_editor.set_region_length()
 
-    def get_pos_in_seconds(self):
-        f_bars = pydaw_get_pos_in_bars(self.get_region_value(), self.get_bar_value(), 0.0)
-        f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
-        return f_bars * f_seconds_per_bar
-
-    def set_pos_in_seconds(self, a_seconds):
-        f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
-        f_bars_total = int(a_seconds / f_seconds_per_bar)
-        f_region, f_bar = pydaw_bars_to_pos(f_bars_total)
-        self.set_region_value(f_region)
-        self.set_bar_value(f_bar)
-
     def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked():
             return
@@ -6828,7 +6727,8 @@ class transport_widget:
             this_audio_items_viewer.set_playback_pos(self.get_bar_value())
 
     def on_region_changed(self, a_region):
-        self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region - 1))
+        #self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region - 1))
+        self.bar_spinbox.setRange(1, pydaw_get_current_region_length())
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_audio_items_viewer.set_playback_pos(self.get_bar_value())
@@ -8825,7 +8725,6 @@ def global_open_project(a_project_file, a_wait=True):
     this_pydaw_project.open_project(a_project_file, False)
     this_wave_editor_widget.last_offline_dir = this_pydaw_project.user_folder
     this_song_editor.open_song()
-    pydaw_update_region_lengths_dict()
     for f_editor in global_region_editors:
         f_editor.open_tracks()
     this_transport.open_transport()
