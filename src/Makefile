@@ -19,7 +19,7 @@ pydaw_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
 
 native_src:
-	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 " -march=native
+	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 " PLAT_FLAGS=" -march=native "
 
 # --------------------------------------------------------------
 
