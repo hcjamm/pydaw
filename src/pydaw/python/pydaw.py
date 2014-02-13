@@ -334,8 +334,10 @@ class song_editor:
         self.table_widget.addAction(self.rename_action)
         self.delete_action = QtGui.QAction(_("Delete region(s)"), self.table_widget)
         self.delete_action.triggered.connect(self.on_delete)
-        self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
-        self.delete_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        #Too often, this was being triggered by accident, making it a PITA as there
+        #was no easy way to tell which widget had focus...
+        #self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
+        #self.delete_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.table_widget.addAction(self.delete_action)
 
     def set_tooltips(self, a_on):
@@ -2357,6 +2359,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.clearSelection()
         self.scene.clear()
 
+    def keyPressEvent(self, a_event):
+        #Done this way to prevent the region editor from grabbing the key
+        if a_event.key() == QtCore.Qt.Key_Delete:
+            self.delete_selected()
+        else:
+            QtGui.QGraphicsView.keyPressEvent(self, a_event)
+        QtGui.QApplication.restoreOverrideCursor()
+
     def delete_selected(self):
         if pydaw_global_current_region_is_none() or self.check_running():
             return
@@ -2911,6 +2921,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.delete_selected_action = self.action_menu.addAction(_("Delete Selected"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
+        self.delete_selected_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
@@ -3034,9 +3045,11 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         if not self.audio_items_clipboard:
             QtGui.QMessageBox.warning(self.widget, _("Error"),
                                       _("Nothing copied to the clipboard."))
+        this_audio_items_viewer.reselect_on_stop = []
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(
             global_current_region.uid)
         for f_str, f_list in self.audio_items_clipboard:
+            this_audio_items_viewer.reselect_on_stop.append(f_str)
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
                 break
@@ -3052,6 +3065,8 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
             global_current_region.uid)
         this_pydaw_project.commit(_("Paste audio items"))
         global_open_audio_items(True)
+        this_audio_items_viewer.scene.clearSelection()
+        this_audio_items_viewer.reset_selection()
 
     def on_clone(self):
         if global_current_region is None or global_transport_is_playing:
