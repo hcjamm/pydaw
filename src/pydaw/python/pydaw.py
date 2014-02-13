@@ -2892,23 +2892,23 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.controls_grid_layout.addWidget(self.menu_button, 0, 10)
         self.action_menu = QtGui.QMenu(self.widget)
         self.menu_button.setMenu(self.action_menu)
-        self.clone_action = self.action_menu.addAction(_("Clone from region..."))
+        self.clone_action = self.action_menu.addAction(_("Clone from Region..."))
         self.clone_action.triggered.connect(self.on_clone)
-        self.copy_action = self.action_menu.addAction(_("Copy selected"))
+        self.copy_action = self.action_menu.addAction(_("Copy Selected"))
         self.copy_action.triggered.connect(self.on_copy)
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
         self.paste_action = self.action_menu.addAction(_("Paste"))
         self.paste_action.triggered.connect(self.on_paste)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
-        self.select_all_action = self.action_menu.addAction(_("Select all"))
+        self.select_all_action = self.action_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.on_select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
         self.action_menu.addSeparator()
-        self.glue_selected_action = self.action_menu.addAction(_("Glue selected"))
+        self.glue_selected_action = self.action_menu.addAction(_("Glue Selected"))
         self.glue_selected_action.triggered.connect(self.on_glue_selected)
         self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
         self.action_menu.addSeparator()
-        self.delete_selected_action = self.action_menu.addAction(_("Delete selected"))
+        self.delete_selected_action = self.action_menu.addAction(_("Delete Selected"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
 
@@ -4200,13 +4200,17 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
-        if a_event.key() == QtCore.Qt.Key_Delete:
-            self.selected_note_strings = []
-            for f_item in self.note_items:
-                if f_item.isSelected():
-                    this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
-            global_save_and_reload_items()
         QtGui.QApplication.restoreOverrideCursor()
+
+    def delete_selected(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+        self.selected_note_strings = []
+        for f_item in self.note_items:
+            if f_item.isSelected():
+                this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
+        global_save_and_reload_items()
 
     def focusOutEvent(self, a_event):
         QtGui.QGraphicsView.focusOutEvent(self, a_event)
@@ -4516,18 +4520,33 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
 class piano_roll_editor_widget():
     def quantize_dialog(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
         this_item_editor.quantize_dialog(False, this_piano_roll_editor.has_selected)
 
     def transpose_dialog(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
         this_item_editor.transpose_dialog(False, this_piano_roll_editor.has_selected)
 
     def velocity_dialog(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
         this_item_editor.velocity_dialog(False, this_piano_roll_editor.has_selected)
 
     def clear_notes(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
         this_item_editor.clear_notes(False)
 
     def select_all(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
         for f_note in this_piano_roll_editor.note_items:
             f_note.setSelected(True)
 
@@ -4569,7 +4588,7 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("Emphasis")), 0, 18)
         self.controls_grid_layout.addWidget(self.vel_emphasis_combobox, 0, 19)
 
-        self.edit_menu_button = QtGui.QPushButton(_("Edit"))
+        self.edit_menu_button = QtGui.QPushButton(_("Menu"))
         self.edit_menu_button.setFixedWidth(60)
         self.edit_menu = QtGui.QMenu(self.widget)
         self.edit_menu_button.setMenu(self.edit_menu)
@@ -4587,6 +4606,10 @@ class piano_roll_editor_widget():
         self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
+
+        self.delete_selected_action = self.edit_menu.addAction(_("Delete Selected"))
+        self.delete_selected_action.triggered.connect(self.on_delete_selected)
+        self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
 
         self.edit_menu.addSeparator()
 
@@ -4610,6 +4633,9 @@ class piano_roll_editor_widget():
     def set_vel_rand(self, a_val=None):
         this_piano_roll_editor.set_vel_rand(self.vel_rand_combobox.currentIndex(),
                                             self.vel_emphasis_combobox.currentIndex())
+
+    def on_delete_selected(self):
+        this_piano_roll_editor.delete_selected()
 
     def set_snap(self, a_val=None):
         f_index = self.snap_combobox.currentIndex()
