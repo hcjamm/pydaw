@@ -1,3 +1,5 @@
+./rpm.py
+
 PYDAW_VERSION=pydaw4
 PYDAW_RELEASE=$(cat src/pydaw4-version.txt)
 PYDAW_DIR=pydawteam@frs.sourceforge.net:/home/frs/project/libmodsynth/$PYDAW_VERSION/linux
