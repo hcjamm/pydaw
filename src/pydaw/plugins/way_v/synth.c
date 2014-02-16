@@ -51,6 +51,7 @@ static void wayvPanic(PYFX_Handle instance)
     while(f_i < WAYV_POLYPHONY)
     {
         v_adsr_kill(plugin->data[f_i]->adsr_amp);
+        v_adsr_kill(plugin->data[f_i]->adsr_main);
         f_i++;
     }
 }
@@ -402,6 +403,12 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
     int midi_event_pos = 0;
 
     int f_poly_mode = (int)(*plugin_data->mono_mode);
+
+    if(f_poly_mode == 2 && plugin_data->voices->poly_mode != 2)
+    {
+        wayvPanic(instance);  //avoid hung notes
+    }
+
     plugin_data->voices->poly_mode = f_poly_mode;
 
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count;
