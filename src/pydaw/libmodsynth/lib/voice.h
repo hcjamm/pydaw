@@ -61,17 +61,21 @@ typedef struct st_voc_voices
 {
     t_voc_single_voice * voices;
     int count;
+    int thresh;  //when to start agressively killing voices
     int iterator;
     int steal_voice_index;
 }t_voc_voices;
 
-t_voc_voices * g_voc_get_voices(int);
+t_voc_voices * g_voc_get_voices(int, int);
 
-t_voc_voices * g_voc_get_voices(int a_count)
+t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
 {
+    assert(a_thresh < a_count);
+
     t_voc_voices * f_result = (t_voc_voices*)malloc(sizeof(t_voc_voices));
 
     f_result->count = a_count;
+    f_result->thresh = a_thresh;
 
     f_result->voices =
             (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice) * a_count);
@@ -90,6 +94,27 @@ t_voc_voices * g_voc_get_voices(int a_count)
     return f_result;
 }
 
+inline int i_get_oldest_voice(t_voc_voices *data)
+{
+    long oldest_tick = data->voices[0].on;
+    int oldest_tick_voice = 0;
+
+    data->iterator = 1;
+    /* otherwise find for the oldest note and replace that */
+    while ((data->iterator) < (data->count))
+    {
+	if (data->voices[(data->iterator)].on < oldest_tick &&
+                data->voices[(data->iterator)].on > -1)
+        {
+	    oldest_tick = data->voices[(data->iterator)].on;
+	    oldest_tick_voice = (data->iterator);
+	}
+        data->iterator = (data->iterator) + 1;
+    }
+
+    return oldest_tick_voice;
+}
+
 /* int i_pick_voice(
  * t_voc_voices *data,
  * int a_current_note)
@@ -102,7 +127,9 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
     /* Look for a duplicate note */
     int f_note_count = 0;
     int f_last_note = -1;
-    while ((data->iterator) < (data->count))
+    int f_active_count = 0;
+
+    while((data->iterator) < (data->count))
     {
 	//if ((data->voices[(data->iterator)].note == a_current_note) &&
         //(data->voices[(data->iterator)].n_state == note_state_running))
@@ -158,31 +185,30 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
 
             return (data->iterator);
 	}
-
-        data->iterator = (data->iterator) + 1;
-    }
-
-    int highest_note = 0;
-    int highest_note_voice = 0;
-
-    data->iterator = 0;
-    /* otherwise find for the highest note and replace that */
-    while ((data->iterator) < (data->count))
-    {
-	if (data->voices[(data->iterator)].note > highest_note)
+        else
         {
-	    highest_note = data->voices[(data->iterator)].note;
-	    highest_note_voice = (data->iterator);
-	}
+            f_active_count++;
+            
+            if(f_active_count >= data->thresh)
+            {
+                int f_voice_to_kill = i_get_oldest_voice(data);
+                data->voices[f_voice_to_kill].n_state = note_state_killed;
+                data->voices[f_voice_to_kill].off = a_current_sample;
+                f_active_count--;
+            }
+        }
+
         data->iterator = (data->iterator) + 1;
     }
 
-    data->voices[highest_note_voice].note = a_current_note;
-    data->voices[highest_note_voice].on = a_current_sample + a_tick;
-    data->voices[highest_note_voice].n_state = note_state_running;
-    data->voices[highest_note_voice].off = -1;
+    int oldest_tick_voice = i_get_oldest_voice(data);
 
-    return highest_note_voice;
+    data->voices[oldest_tick_voice].note = a_current_note;
+    data->voices[oldest_tick_voice].on = a_current_sample + a_tick;
+    data->voices[oldest_tick_voice].n_state = note_state_running;
+    data->voices[oldest_tick_voice].off = -1;
+
+    return oldest_tick_voice;
 }
 
 /* void v_voc_note_off(t_voc_voices * a_voc, int a_note,

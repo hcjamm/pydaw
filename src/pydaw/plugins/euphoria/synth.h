@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 
 #define EUPHORIA_POLYPHONY 20
+#define EUPHORIA_POLYPHONY_THRESH 16
 
 //How many buffers in between slow indexing operations.  Buffer == users soundcard latency settings, ie: 512 samples
 #define EUPHORIA_SLOW_INDEX_COUNT 64

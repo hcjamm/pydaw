@@ -211,6 +211,7 @@ extern "C" {
 #define WAYV_COUNT 163
 
 #define WAYV_POLYPHONY   16
+#define WAYV_POLYPHONY_THRESH 12
 
 typedef struct
 {

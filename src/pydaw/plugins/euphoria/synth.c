@@ -444,7 +444,8 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
 
     //pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
-    plugin_data->voices = g_voc_get_voices(EUPHORIA_POLYPHONY);
+    plugin_data->voices = g_voc_get_voices(EUPHORIA_POLYPHONY,
+            EUPHORIA_POLYPHONY_THRESH);
 
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;

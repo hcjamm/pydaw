@@ -62,6 +62,7 @@ extern "C" {
 #define RAYV_COUNT 39 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define RAYV_POLYPHONY   16
+#define RAYV_POLYPHONY_THRESH 12
 
 typedef struct {
     PYFX_Data *output0;

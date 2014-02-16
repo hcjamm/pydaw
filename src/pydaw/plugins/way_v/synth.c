@@ -372,7 +372,8 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
 
     int i;
 
-    plugin_data->voices = g_voc_get_voices(WAYV_POLYPHONY);
+    plugin_data->voices = g_voc_get_voices(WAYV_POLYPHONY,
+            WAYV_POLYPHONY_THRESH);
 
     for (i = 0; i < WAYV_POLYPHONY; i++)
     {

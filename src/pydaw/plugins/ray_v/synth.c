@@ -219,7 +219,8 @@ static void v_rayv_activate(PYFX_Handle instance, float * a_port_table)
 
     int i;
 
-    plugin_data->voices = g_voc_get_voices(RAYV_POLYPHONY);
+    plugin_data->voices = g_voc_get_voices(RAYV_POLYPHONY,
+            RAYV_POLYPHONY_THRESH);
 
     for (i=0; i<RAYV_POLYPHONY; i++) {
         plugin_data->data[i] = g_rayv_poly_init();
