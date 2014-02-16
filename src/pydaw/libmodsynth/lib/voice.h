@@ -62,7 +62,7 @@ typedef struct st_voc_voices
     t_voc_single_voice * voices;
     int count;
     int thresh;  //when to start agressively killing voices
-    int mono_mode;
+    int poly_mode;  //0 = retrigger, 1 = free, 2 = mono
     int iterator;
     int steal_voice_index;
 }t_voc_voices;
@@ -77,7 +77,7 @@ t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
 
     f_result->count = a_count;
     f_result->thresh = a_thresh;
-    f_result->mono_mode = 0;
+    f_result->poly_mode = 0;
 
     f_result->voices =
             (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice) * a_count);
@@ -125,7 +125,7 @@ inline int i_get_oldest_voice(t_voc_voices *data)
 int i_pick_voice(t_voc_voices *data, int a_current_note,
         long a_current_sample, long a_tick)
 {
-    if(data->mono_mode)
+    if(data->poly_mode == 2)
     {
         data->voices[0].on = a_current_sample + a_tick;
         data->voices[0].off = -1;
@@ -228,7 +228,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
 void v_voc_note_off(t_voc_voices * a_voc, int a_note,
         long a_current_sample, long a_tick)
 {
-    if(a_voc->mono_mode)
+    if(a_voc->poly_mode == 2)
     {
         //otherwise it's from an old note and should be ignored
         if(a_note == a_voc->voices[0].note)

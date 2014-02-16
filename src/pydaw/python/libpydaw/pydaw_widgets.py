@@ -1387,7 +1387,7 @@ class pydaw_master_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_vol_port,
                  a_glide_port, a_pitchbend_port, a_port_dict,
                  a_title=_("Master"), a_uni_voices_port=None,
-                 a_uni_spread_port=None, a_preset_mgr=None, a_mono_port=None):
+                 a_uni_spread_port=None, a_preset_mgr=None, a_poly_port=None):
         self.group_box = QtGui.QGroupBox()
         self.group_box.setObjectName("plugin_groupbox")
         self.group_box.setTitle(str(a_title))
@@ -1416,11 +1416,12 @@ class pydaw_master_widget:
                                           a_rel_callback, a_val_callback, 1, 36, 18,
                                           kc_integer, a_port_dict, a_preset_mgr)
         self.pb_knob.add_to_grid_layout(self.layout, 4)
-        if a_mono_port is not None:
-            self.mono_checkbox = pydaw_checkbox_control("Mono", a_mono_port,
+        if a_poly_port is not None:
+            self.mono_combobox = pydaw_combobox_control(81, "Poly Mode", a_poly_port,
                                                         a_rel_callback, a_val_callback,
-                                                        a_port_dict, a_preset_mgr)
-            self.mono_checkbox.add_to_grid_layout(self.layout, 5)
+                                                        ["Retrig.", "Free", "Mono"],
+                                                        a_port_dict, 0, a_preset_mgr)
+            self.mono_combobox.add_to_grid_layout(self.layout, 5)
 
 
 global_eq_point_diameter = 12.0
@@ -3514,7 +3515,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            pydaw_ports.RAYV_MASTER_UNISON_VOICES,
                                            pydaw_ports.RAYV_MASTER_UNISON_SPREAD,
                                            self.preset_manager,
-                                           a_mono_port=pydaw_ports.RAYV_MONO_MODE)
+                                           a_poly_port=pydaw_ports.RAYV_MONO_MODE)
         self.hlayout3.addWidget(self.master.group_box)
         self.pitch_env =  pydaw_ramp_env_widget(f_knob_size,
                                                 self.plugin_rel_callback,
@@ -3820,7 +3821,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            pydaw_ports.WAYV_MASTER_GLIDE,
                                            pydaw_ports.WAYV_MASTER_PITCHBEND_AMT,
                                            self.port_dict, a_preset_mgr=self.preset_manager,
-                                           a_mono_port=pydaw_ports.WAYV_MONO_MODE)
+                                           a_poly_port=pydaw_ports.WAYV_MONO_MODE)
 
         self.hlayout4.addWidget(self.master.group_box)
 

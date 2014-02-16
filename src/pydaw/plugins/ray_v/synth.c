@@ -250,8 +250,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
     plugin_data->midi_event_count = 0;
 
     int midi_event_pos = 0;
-    int f_mono_mode = (int)(*plugin_data->mono_mode);
-    plugin_data->voices->mono_mode = f_mono_mode;
+    int f_poly_mode = (int)(*plugin_data->mono_mode);
+    plugin_data->voices->poly_mode = f_poly_mode;
 
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count;
             plugin_data->event_pos = (plugin_data->event_pos) + 1)
@@ -368,7 +368,7 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
                         plugin_data->data[f_voice]->osc_unison2,
                         (int)(*plugin_data->osc2type));
 
-                if(!f_mono_mode)
+                if(f_poly_mode == 0)
                 {
                     v_osc_note_on_sync_phases(
                             plugin_data->data[f_voice]->osc_unison1);
@@ -846,7 +846,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
         port_descriptors[RAYV_MONO_MODE]= 1;
 	port_range_hints[RAYV_MONO_MODE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_MONO_MODE].LowerBound = 0.0f;
-	port_range_hints[RAYV_MONO_MODE].UpperBound = 1.0f;
+	port_range_hints[RAYV_MONO_MODE].UpperBound = 2.0f;
 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;
