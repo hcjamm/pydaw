@@ -62,6 +62,7 @@ typedef struct st_voc_voices
     t_voc_single_voice * voices;
     int count;
     int thresh;  //when to start agressively killing voices
+    int mono_mode;
     int iterator;
     int steal_voice_index;
 }t_voc_voices;
@@ -76,6 +77,7 @@ t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
 
     f_result->count = a_count;
     f_result->thresh = a_thresh;
+    f_result->mono_mode = 0;
 
     f_result->voices =
             (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice) * a_count);
@@ -123,6 +125,14 @@ inline int i_get_oldest_voice(t_voc_voices *data)
 int i_pick_voice(t_voc_voices *data, int a_current_note,
         long a_current_sample, long a_tick)
 {
+    if(data->mono_mode)
+    {
+        data->voices[0].on = a_current_sample + a_tick;
+        data->voices[0].note = a_current_note;
+        data->voices[0].n_state = note_state_running;
+        return 0;
+    }
+
     data->iterator = 0;
     /* Look for a duplicate note */
     int f_note_count = 0;
@@ -188,7 +198,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
         else
         {
             f_active_count++;
-            
+
             if(f_active_count >= data->thresh)
             {
                 int f_voice_to_kill = i_get_oldest_voice(data);
@@ -217,18 +227,32 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
 void v_voc_note_off(t_voc_voices * a_voc, int a_note,
         long a_current_sample, long a_tick)
 {
-    a_voc->iterator = 0;
-
-    while((a_voc->iterator) < (a_voc->count))
+    if(a_voc->mono_mode)
     {
-        if(((a_voc->voices[(a_voc->iterator)].note) == a_note) &&
-           ((a_voc->voices[(a_voc->iterator)].n_state) == note_state_running))
+        //otherwise it's from an old note and should be ignored
+        if(a_note == a_voc->voices[0].note)
         {
-            a_voc->voices[(a_voc->iterator)].n_state = note_state_releasing;
-            a_voc->voices[(a_voc->iterator)].off = a_current_sample + a_tick;
+            a_voc->voices[0].n_state = note_state_releasing;
+            a_voc->voices[0].off = a_current_sample + a_tick;
         }
+    }
+    else
+    {
+        a_voc->iterator = 0;
 
-        a_voc->iterator  = (a_voc->iterator) + 1;
+        while((a_voc->iterator) < (a_voc->count))
+        {
+            if(((a_voc->voices[(a_voc->iterator)].note) == a_note) &&
+               ((a_voc->voices[(a_voc->iterator)].n_state) ==
+                    note_state_running))
+            {
+                a_voc->voices[(a_voc->iterator)].n_state = note_state_releasing;
+                a_voc->voices[(a_voc->iterator)].off =
+                        a_current_sample + a_tick;
+            }
+
+            a_voc->iterator  = (a_voc->iterator) + 1;
+        }
     }
 }
 

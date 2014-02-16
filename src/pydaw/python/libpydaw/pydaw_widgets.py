@@ -1384,39 +1384,43 @@ class pydaw_preset_manager_widget:
         self.controls[a_control.port_num] = a_control
 
 class pydaw_master_widget:
-    def __init__(self, a_size, a_rel_callback, a_val_callback, a_master_vol_port,
-                 a_master_glide_port, a_master_pitchbend_port, a_port_dict,
-                 a_title=_("Master"), a_master_uni_voices_port=None,
-                 a_master_uni_spread_port=None, a_preset_mgr=None):
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_vol_port,
+                 a_glide_port, a_pitchbend_port, a_port_dict,
+                 a_title=_("Master"), a_uni_voices_port=None,
+                 a_uni_spread_port=None, a_preset_mgr=None, a_mono_port=None):
         self.group_box = QtGui.QGroupBox()
         self.group_box.setObjectName("plugin_groupbox")
         self.group_box.setTitle(str(a_title))
         self.layout = QtGui.QGridLayout(self.group_box)
         self.layout.setMargin(3)
-        self.vol_knob = pydaw_knob_control(a_size, _("Vol"), a_master_vol_port,
+        self.vol_knob = pydaw_knob_control(a_size, _("Vol"), a_vol_port,
                                            a_rel_callback, a_val_callback, -30,
                                            12, -6, kc_integer, a_port_dict, a_preset_mgr)
         self.vol_knob.add_to_grid_layout(self.layout, 0)
-        if a_master_uni_voices_port is not None and a_master_uni_spread_port is not None:
-            self.uni_voices_knob = pydaw_knob_control(a_size, _("Unison"), a_master_uni_voices_port,
+        if a_uni_voices_port is not None and a_uni_spread_port is not None:
+            self.uni_voices_knob = pydaw_knob_control(a_size, _("Unison"), a_uni_voices_port,
                                                       a_rel_callback, a_val_callback,
                                                       1, 7, 4, kc_integer, a_port_dict,
                                                       a_preset_mgr)
             self.uni_voices_knob.add_to_grid_layout(self.layout, 1)
-            self.uni_spread_knob = pydaw_knob_control(a_size, _("Spread"), a_master_uni_spread_port,
+            self.uni_spread_knob = pydaw_knob_control(a_size, _("Spread"), a_uni_spread_port,
                                                       a_rel_callback, a_val_callback,
                                                       10, 100, 50, kc_decimal, a_port_dict,
                                                       a_preset_mgr)
             self.uni_spread_knob.add_to_grid_layout(self.layout, 2)
-        self.glide_knob = pydaw_knob_control(a_size, _("Glide"), a_master_glide_port,
+        self.glide_knob = pydaw_knob_control(a_size, _("Glide"), a_glide_port,
                                              a_rel_callback, a_val_callback,
                                              0, 200, 0, kc_time_decimal, a_port_dict, a_preset_mgr)
         self.glide_knob.add_to_grid_layout(self.layout, 3)
-        self.pb_knob = pydaw_knob_control(a_size, _("Pitchbend"), a_master_pitchbend_port,
+        self.pb_knob = pydaw_knob_control(a_size, _("Pitchbend"), a_pitchbend_port,
                                           a_rel_callback, a_val_callback, 1, 36, 18,
                                           kc_integer, a_port_dict, a_preset_mgr)
         self.pb_knob.add_to_grid_layout(self.layout, 4)
-
+        if a_mono_port is not None:
+            self.mono_checkbox = pydaw_checkbox_control("Mono", a_mono_port,
+                                                        a_rel_callback, a_val_callback,
+                                                        a_port_dict, a_preset_mgr)
+            self.mono_checkbox.add_to_grid_layout(self.layout, 5)
 
 
 global_eq_point_diameter = 12.0
@@ -3509,7 +3513,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.port_dict, _("Master"),
                                            pydaw_ports.RAYV_MASTER_UNISON_VOICES,
                                            pydaw_ports.RAYV_MASTER_UNISON_SPREAD,
-                                           self.preset_manager)
+                                           self.preset_manager,
+                                           a_mono_port=pydaw_ports.RAYV_MONO_MODE)
         self.hlayout3.addWidget(self.master.group_box)
         self.pitch_env =  pydaw_ramp_env_widget(f_knob_size,
                                                 self.plugin_rel_callback,

@@ -59,7 +59,10 @@ extern "C" {
 #define RAYV_OSC_HARD_SYNC 36
 #define RAYV_RAMP_CURVE 37
 #define RAYV_FILTER_KEYTRK 38
-#define RAYV_COUNT 39 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define RAYV_MONO_MODE 39
+/* must be 1 + highest value above
+ * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define RAYV_COUNT 40
 
 #define RAYV_POLYPHONY   16
 #define RAYV_POLYPHONY_THRESH 12
@@ -116,6 +119,7 @@ typedef struct {
     PYFX_Data *ramp_curve;
 
     PYFX_Data *sync_hard;
+    PYFX_Data *mono_mode;
 
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
     t_voc_voices * voices;
