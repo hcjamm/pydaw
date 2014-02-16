@@ -6596,12 +6596,12 @@ class transport_widget:
         self.last_region_num = self.get_region_value()
         self.start_region = self.get_region_value()
         self.last_bar = self.get_bar_value()
-        this_pydaw_project.this_pydaw_osc.pydaw_play(a_region_num=self.get_region_value(),
-                                                     a_bar=self.get_bar_value())
         self.trigger_audio_playback()
         this_wave_editor_widget.on_play()
         self.menu_button.setEnabled(False)
         this_audio_items_viewer.set_playback_clipboard()
+        this_pydaw_project.this_pydaw_osc.pydaw_play(a_region_num=self.get_region_value(),
+                                                     a_bar=self.get_bar_value())
 
     def trigger_audio_playback(self):
         if not self.follow_checkbox.isChecked():
