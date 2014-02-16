@@ -23,8 +23,9 @@ extern "C" {
 #include "../../lib/amp.h"
 #include "../../lib/osc_core.h"
 #include "osc_simple.h"
-    
-/*Define the maximum number of harmonics in a wave.  A given note may have fewer than this if it exceeds the Nyquist frequency*/
+
+/*Define the maximum number of harmonics in a wave.
+ * A given note may have fewer than this if it exceeds the Nyquist frequency*/
 #define OSC_ADDITIVE_MAX_HARMONICS 64
 
 typedef struct st_osca_additive
