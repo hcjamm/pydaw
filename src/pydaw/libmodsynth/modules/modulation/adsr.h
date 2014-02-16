@@ -268,12 +268,12 @@ void v_adsr_release(t_adsr *__restrict a_adsr_ptr)
  * float a_sr_recip) // 1.0f/sample_rate (TODO: use sample_rate instead)
  *
  */
-t_adsr * g_adsr_get_adsr(float a_sr_recip)
+t_adsr * g_adsr_get_adsr(float a_sr)
 {
     t_adsr * f_result = (t_adsr*)malloc(sizeof(t_adsr));
 
-    f_result->sr_recip = a_sr_recip;
-    f_result->sr = 1.0f / a_sr_recip;  //TODO: use sr for the arg
+    f_result->sr = a_sr;
+    f_result->sr_recip = 1.0f / a_sr;
     f_result->amp_ptr = g_amp_get();
 
     f_result->output = 0.0f;

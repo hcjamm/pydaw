@@ -201,12 +201,30 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
 }
 
 static PYFX_Handle g_rayv_instantiate(const PYFX_Descriptor * descriptor,
-				   int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
+                int a_sr, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
-    t_rayv *plugin_data = (t_rayv *) malloc(sizeof(t_rayv));
+    t_rayv *plugin_data = (t_rayv*) malloc(sizeof(t_rayv));
 
-    plugin_data->fs = s_rate;
-    v_rayv_init_lms(s_rate);
+    plugin_data->fs = a_sr;
+
+    int i;
+
+    plugin_data->voices = g_voc_get_voices(RAYV_POLYPHONY,
+            RAYV_POLYPHONY_THRESH);
+
+    for (i=0; i<RAYV_POLYPHONY; i++)
+    {
+        plugin_data->data[i] = g_rayv_poly_init(a_sr);
+        plugin_data->data[i]->note_f = i;
+    }
+
+    plugin_data->sampleNo = 0;
+
+    plugin_data->pitch = 1.0f;
+    plugin_data->sv_pitch_bend_value = 0.0f;
+    plugin_data->sv_last_note = 60.0f;  //For glide
+
+    plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);  //initialize all monophonic modules
 
     return (PYFX_Handle) plugin_data;
 }
@@ -216,23 +234,6 @@ static void v_rayv_activate(PYFX_Handle instance, float * a_port_table)
     t_rayv *plugin_data = (t_rayv *) instance;
 
     plugin_data->port_table = a_port_table;
-
-    int i;
-
-    plugin_data->voices = g_voc_get_voices(RAYV_POLYPHONY,
-            RAYV_POLYPHONY_THRESH);
-
-    for (i=0; i<RAYV_POLYPHONY; i++) {
-        plugin_data->data[i] = g_rayv_poly_init();
-        plugin_data->data[i]->note_f = i;
-    }
-    plugin_data->sampleNo = 0;
-
-    plugin_data->pitch = 1.0f;
-    plugin_data->sv_pitch_bend_value = 0.0f;
-    plugin_data->sv_last_note = 60.0f;  //For glide
-
-    plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);  //initialize all monophonic modules
 }
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,

@@ -34,29 +34,6 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 
-/*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
- require less CPU time than running through if or switch statements.
- Functions from the library that have their own parameters (such as a pointer to
- their associated struct type as a parameter) should declare their own function pointer types*/
-typedef float (*fp_funcptr_audio_generic)();
-
-/*Declare any static variables that should be used globally in LibModSynth
- Note that any constants not requiring dynamically generated data should be declared in constants.h
- */
-static float va_rayv_sr_recip;
-static float va_rayv_sample_rate;
-
-void v_rayv_init_lms(float f_sr);
-
-void v_rayv_init_lms(float f_sr)
-{
-    va_rayv_sample_rate = f_sr;
-    va_rayv_sr_recip = 1.0f/f_sr;
-}
-
-/*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
- of an instrument, you will most likely want to define all of your modules here*/
-
 typedef struct st_rayv_mono_modules
 {
     t_smoother_linear * filter_smoother;
@@ -65,7 +42,7 @@ typedef struct st_rayv_mono_modules
     t_amp * amp_ptr;
 }t_rayv_mono_modules;
 
-/*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
+
 typedef struct st_rayv_poly_voice
 {
     t_osc_simple_unison * osc_unison1;
@@ -120,23 +97,23 @@ typedef struct st_rayv_poly_voice
     float unison_spread;
 }t_rayv_poly_voice;
 
-t_rayv_poly_voice * g_rayv_poly_init();
+t_rayv_poly_voice * g_rayv_poly_init(float);
 
-/*initialize all of the modules in an instance of poly_voice*/
 
-t_rayv_poly_voice * g_rayv_poly_init()
+
+t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
 {
     t_rayv_poly_voice * f_voice = (t_rayv_poly_voice*)malloc(sizeof(t_rayv_poly_voice));
 
     /*TODO:  Remove some of the set values, they were from the early days and aren't needed anymore*/
 
-    f_voice->osc_unison1 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);
-    f_voice->osc_unison2 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);
+    f_voice->osc_unison1 = g_osc_get_osc_simple_unison(a_sr);
+    f_voice->osc_unison2 = g_osc_get_osc_simple_unison(a_sr);
 
     f_voice->osc1_pitch_adjust = 0.0f;
     f_voice->osc2_pitch_adjust = 0.0f;
 
-    f_voice->svf_filter = g_svf_get(va_rayv_sample_rate);
+    f_voice->svf_filter = g_svf_get(a_sr);
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
 
     f_voice->filter_keytrk = 0.0f;
@@ -144,14 +121,14 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->clipper1 = g_clp_get_clipper();
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
 
-    f_voice->adsr_amp = g_adsr_get_adsr(va_rayv_sr_recip);
-    f_voice->adsr_filter = g_adsr_get_adsr(va_rayv_sr_recip);
+    f_voice->adsr_amp = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_filter = g_adsr_get_adsr(a_sr);
 
-    f_voice->white_noise1 = g_get_white_noise(va_rayv_sample_rate);
+    f_voice->white_noise1 = g_get_white_noise(a_sr);
     f_voice->noise_amp = 0;
 
-    f_voice->glide_env = g_rmp_get_ramp_env(va_rayv_sample_rate);
-    f_voice->pitch_env = g_rmp_get_ramp_env(va_rayv_sample_rate);
+    f_voice->glide_env = g_rmp_get_ramp_env(a_sr);
+    f_voice->pitch_env = g_rmp_get_ramp_env(a_sr);
 
     //f_voice->real_pitch = 60.0f;
 
@@ -163,7 +140,7 @@ t_rayv_poly_voice * g_rayv_poly_init()
 
     f_voice->filter_output = 0.0f;
 
-    f_voice->lfo1 = g_lfs_get(va_rayv_sample_rate);
+    f_voice->lfo1 = g_lfs_get(a_sr);
 
     f_voice->lfo_amp_output = 0.0f;
     f_voice->lfo_filter_output = 0.0f;

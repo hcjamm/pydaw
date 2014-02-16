@@ -131,8 +131,6 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr);
 
 t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 {
-    float f_sr_recip = 1.0f / a_sr;
-
     t_wayv_poly_voice * f_voice =
             (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
 
@@ -158,10 +156,10 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->fm2_last = 0.0;
     f_voice->fm3_last = 0.0;
 
-    f_voice->adsr_main = g_adsr_get_adsr(f_sr_recip);
-    f_voice->adsr_amp1 = g_adsr_get_adsr(f_sr_recip);
-    f_voice->adsr_amp2 = g_adsr_get_adsr(f_sr_recip);
-    f_voice->adsr_amp3 = g_adsr_get_adsr(f_sr_recip);
+    f_voice->adsr_main = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_amp1 = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_amp2 = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_amp3 = g_adsr_get_adsr(a_sr);
 
     f_voice->white_noise1 = g_get_white_noise(a_sr);
     f_voice->noise_amp = 0;
@@ -196,8 +194,8 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 
     int f_i = 0;
 
-    f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);
-    f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
+    f_voice->adsr_amp = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_filter = g_adsr_get_adsr(a_sr);
 
     f_voice->noise_amp = 0.0f;
 

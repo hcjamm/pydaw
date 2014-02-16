@@ -130,10 +130,8 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
 
     int f_i = 0;
 
-    float f_sr_recip = 1.0f/a_sr;
-
-    f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);
-    f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
+    f_voice->adsr_amp = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_filter = g_adsr_get_adsr(a_sr);
 
     f_voice->glide_env = g_rmp_get_ramp_env(a_sr);
     f_voice->ramp_env = g_rmp_get_ramp_env(a_sr);
