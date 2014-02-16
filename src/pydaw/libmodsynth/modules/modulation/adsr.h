@@ -41,6 +41,7 @@ typedef struct st_adsr
     float r_inc;
     float r_time;
 
+    float sr;
     float sr_recip;
     int stage;  //0=a,1=d,2=s,3=r,4=inactive
     float output;
@@ -156,8 +157,10 @@ void v_adsr_set_r_time(t_adsr*__restrict a_adsr_ptr, float a_time)
  */
 void v_adsr_set_fast_release(t_adsr*__restrict a_adsr_ptr)
 {
-    a_adsr_ptr->r_time = .05f;
-    a_adsr_ptr->r_inc = -.0002f;
+    a_adsr_ptr->r_time = .005f;
+    a_adsr_ptr->r_inc = -.002f;
+    a_adsr_ptr->r_inc_db = ((a_adsr_ptr->sr) * -0.005f) /
+            (ADSR_DB_RELEASE);
     a_adsr_ptr->stage = 3;
 }
 
@@ -270,6 +273,7 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     t_adsr * f_result = (t_adsr*)malloc(sizeof(t_adsr));
 
     f_result->sr_recip = a_sr_recip;
+    f_result->sr = 1.0f / a_sr_recip;  //TODO: use sr for the arg
     f_result->amp_ptr = g_amp_get();
 
     f_result->output = 0.0f;
