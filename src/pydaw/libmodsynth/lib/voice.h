@@ -128,6 +128,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
     if(data->mono_mode)
     {
         data->voices[0].on = a_current_sample + a_tick;
+        data->voices[0].off = -1;
         data->voices[0].note = a_current_note;
         data->voices[0].n_state = note_state_running;
         return 0;
