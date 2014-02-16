@@ -205,10 +205,11 @@ extern "C" {
 #define WAYV_PERC_ENV_PITCH2 160
 #define WAYV_PERC_ENV_ON 161
 #define WAYV_RAMP_CURVE 162
+#define WAYV_MONO_MODE 163
 
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 163
+#define WAYV_COUNT 164
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -311,6 +312,8 @@ typedef struct
     PYFX_Data *perc_env_time2;
     PYFX_Data *perc_env_pitch2;
     PYFX_Data *perc_env_on;
+
+    PYFX_Data *mono_mode;
 
     //Corresponds to the actual knobs on the effects themselves,
     //not the mod matrix

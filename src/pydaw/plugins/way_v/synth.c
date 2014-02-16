@@ -352,6 +352,8 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_PERC_ENV_ON: plugin->perc_env_on = data; break;
 
         case WAYV_RAMP_CURVE: plugin->ramp_curve = data; break;
+
+        case WAYV_MONO_MODE: plugin->mono_mode = data; break;
     }
 }
 
@@ -398,6 +400,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
     plugin_data->midi_event_count = 0;
 
     int midi_event_pos = 0;
+
+    int f_mono_mode = (int)(*plugin_data->mono_mode);
+    plugin_data->voices->mono_mode = f_mono_mode;
 
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count;
             plugin_data->event_pos = (plugin_data->event_pos) + 1)
@@ -536,9 +541,11 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 {
                     plugin_data->data[f_voice]->osc1_on = 1;
 
-                    v_osc_wav_note_on_sync_phases(
-                            plugin_data->data[f_voice]->osc_wavtable1);
-
+                    if(!f_mono_mode)
+                    {
+                        v_osc_wav_note_on_sync_phases(
+                                plugin_data->data[f_voice]->osc_wavtable1);
+                    }
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable1,
                             plugin_data->mono_modules->
@@ -560,9 +567,11 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 {
                     plugin_data->data[f_voice]->osc2_on = 1;
 
-                    v_osc_wav_note_on_sync_phases(
-                            plugin_data->data[f_voice]->osc_wavtable2);
-
+                    if(!f_mono_mode)
+                    {
+                        v_osc_wav_note_on_sync_phases(
+                                plugin_data->data[f_voice]->osc_wavtable2);
+                    }
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable2,
                             plugin_data->mono_modules->wavetables->
@@ -585,9 +594,11 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 {
                     plugin_data->data[f_voice]->osc3_on = 1;
 
-                    v_osc_wav_note_on_sync_phases(
-                            plugin_data->data[f_voice]->osc_wavtable3);
-
+                    if(!f_mono_mode)
+                    {
+                        v_osc_wav_note_on_sync_phases(
+                                plugin_data->data[f_voice]->osc_wavtable3);
+                    }
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable3,
                             plugin_data->mono_modules->wavetables->
@@ -2005,6 +2016,12 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_RAMP_CURVE].DefaultValue = 50.0f;
 	port_range_hints[WAYV_RAMP_CURVE].LowerBound = 0.0f;
 	port_range_hints[WAYV_RAMP_CURVE].UpperBound = 100.0f;
+
+        port_descriptors[WAYV_MONO_MODE] = 1;
+	port_range_hints[WAYV_MONO_MODE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_MONO_MODE].LowerBound = 0.0f;
+	port_range_hints[WAYV_MONO_MODE].UpperBound = 1.0f;
+
 
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;

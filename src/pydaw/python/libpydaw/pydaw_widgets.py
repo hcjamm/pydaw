@@ -3819,7 +3819,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            pydaw_ports.WAYV_MASTER_VOLUME,
                                            pydaw_ports.WAYV_MASTER_GLIDE,
                                            pydaw_ports.WAYV_MASTER_PITCHBEND_AMT,
-                                           self.port_dict, a_preset_mgr=self.preset_manager)
+                                           self.port_dict, a_preset_mgr=self.preset_manager,
+                                           a_mono_port=pydaw_ports.WAYV_MONO_MODE)
 
         self.hlayout4.addWidget(self.master.group_box)
 
