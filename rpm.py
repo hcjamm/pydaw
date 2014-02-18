@@ -52,6 +52,10 @@ else:
 
 global_rpmmacros_file.close()
 
+if "--native" in sys.argv:
+    f_native = "native"
+else:
+    f_native = ""
 
 f_spec_template = \
 """
@@ -77,7 +81,7 @@ instrument and effects plugins.
 %setup -q
 
 %build
-make
+make {}
 
 %install
 export DONT_STRIP=1
@@ -206,7 +210,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc
 
-""".format(global_pydaw_version_string, global_version_fedora, global_tarball_url)
+""".format(global_pydaw_version_string, global_version_fedora, global_tarball_url, f_native)
 
 f_spec_file = open(global_spec_file, "w")
 f_spec_file.write(f_spec_template)
