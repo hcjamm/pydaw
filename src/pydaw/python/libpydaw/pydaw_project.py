@@ -68,7 +68,7 @@ pydaw_file_pystretch = "default.pystretch"
 pydaw_file_pystretch_map = "map.pystretch"
 pydaw_file_notes = "notes.txt"
 
-pydaw_min_note_length = 4.0/128.0  #Anything smaller gets deleted when doing a transform
+pydaw_min_note_length = 4.0/129.0  #Anything smaller gets deleted when doing a transform
 
 pydaw_terminating_char = "\\"
 
