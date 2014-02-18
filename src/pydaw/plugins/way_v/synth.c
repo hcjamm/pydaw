@@ -2031,7 +2031,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         port_descriptors[WAYV_MONO_MODE] = 1;
 	port_range_hints[WAYV_MONO_MODE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_MONO_MODE].LowerBound = 0.0f;
-	port_range_hints[WAYV_MONO_MODE].UpperBound = 2.0f;
+	port_range_hints[WAYV_MONO_MODE].UpperBound = 3.0f;
 
 
 	LMSLDescriptor->activate = v_wayv_activate;

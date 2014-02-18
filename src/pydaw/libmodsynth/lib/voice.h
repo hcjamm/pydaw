@@ -62,7 +62,7 @@ typedef struct st_voc_voices
     t_voc_single_voice * voices;
     int count;
     int thresh;  //when to start agressively killing voices
-    int poly_mode;  //0 = retrigger, 1 = free, 2 = mono
+    int poly_mode;  //0 = retrigger, 1 = free, 2 = mono, 3 = mono_v2
     int iterator;
     int steal_voice_index;
 }t_voc_voices;
@@ -133,6 +133,44 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
         data->voices[0].n_state = note_state_running;
         return 0;
     }
+    else if(data->poly_mode == 3)
+    {
+        int f_i = 0;
+
+        while(f_i < data->count)
+        {
+            if(data->voices[f_i].n_state == note_state_running ||
+                data->voices[f_i].n_state == note_state_releasing)
+            {
+                data->voices[f_i].n_state = note_state_killed;
+                data->voices[f_i].off = a_current_sample + a_tick;
+            }
+
+            f_i++;
+        }
+
+        f_i = 0;
+
+        while (f_i < (data->count))
+        {
+            if (data->voices[f_i].n_state == note_state_off)
+            {
+                data->voices[f_i].note = a_current_note;
+                data->voices[f_i].n_state = note_state_running;
+                data->voices[f_i].on = a_current_sample + a_tick;
+
+                return f_i;
+            }
+
+            f_i++;
+        }
+
+        data->voices[0].note = a_current_note;
+        data->voices[0].n_state = note_state_running;
+        data->voices[0].on = a_current_sample + a_tick;
+        return 0;
+    }
+
 
     data->iterator = 0;
     /* Look for a duplicate note */

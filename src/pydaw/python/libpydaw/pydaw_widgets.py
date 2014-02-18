@@ -1417,9 +1417,9 @@ class pydaw_master_widget:
                                           kc_integer, a_port_dict, a_preset_mgr)
         self.pb_knob.add_to_grid_layout(self.layout, 4)
         if a_poly_port is not None:
-            self.mono_combobox = pydaw_combobox_control(81, "Poly Mode", a_poly_port,
+            self.mono_combobox = pydaw_combobox_control(90, "Poly Mode", a_poly_port,
                                                         a_rel_callback, a_val_callback,
-                                                        ["Retrig.", "Free", "Mono"],
+                                                        ["Retrig.", "Free", "Mono", "Mono2"],
                                                         a_port_dict, 0, a_preset_mgr)
             self.mono_combobox.add_to_grid_layout(self.layout, 5)
 

@@ -852,7 +852,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
         port_descriptors[RAYV_MONO_MODE]= 1;
 	port_range_hints[RAYV_MONO_MODE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_MONO_MODE].LowerBound = 0.0f;
-	port_range_hints[RAYV_MONO_MODE].UpperBound = 2.0f;
+	port_range_hints[RAYV_MONO_MODE].UpperBound = 3.0f;
 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;
