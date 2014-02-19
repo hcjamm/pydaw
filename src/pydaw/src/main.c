@@ -776,6 +776,12 @@ int main(int argc, char **argv)
 
     while(1)
     {
+        if(f_failure_count > 4)
+        {
+            printf("Failed to load device 3 times, quitting...\n");
+            exit(9996);
+        }
+
         if(i_pydaw_file_exists(f_device_file_path))
         {
             printf("device.txt exists\n");
@@ -871,6 +877,7 @@ int main(int argc, char **argv)
 
                 if(f_device_id == pmNoDevice)
                 {
+                    f_failure_count++;
                     sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd,
                             "Error: did not find MIDI device:",
                             f_midi_device_name);
@@ -884,6 +891,7 @@ int main(int argc, char **argv)
 
                 if(f_midi_err != pmNoError)
                 {
+                    f_failure_count++;
                     sprintf(f_cmd_buffer, "%s \"%s %s, %s\"", f_show_dialog_cmd,
                             "Error opening MIDI device: ",
                             f_midi_device_name, Pm_GetErrorText(f_midi_err));
@@ -898,6 +906,7 @@ int main(int argc, char **argv)
         else
         {
 #ifndef PYDAW_NO_HARDWARE
+            f_failure_count++;
             printf("%s does not exist, running %s\n", f_device_file_path,
                     f_show_dialog_cmd);
             f_device_name[0] = '\0';
@@ -964,6 +973,7 @@ int main(int argc, char **argv)
                     "%s \"Did not find device '%s' on this system.\"",
                     f_show_dialog_cmd, f_device_name);
             system(f_cmd_buffer);
+            f_failure_count++;
             continue;
         }
 
@@ -981,13 +991,6 @@ int main(int argc, char **argv)
         if( err != paNoError )
         {
             f_failure_count++;
-
-            if(f_failure_count > 3)
-            {
-                printf("Failed to load device 3 times, quitting...\n");
-                exit(9996);
-            }
-
             sprintf(f_cmd_buffer, "%s \"%s %s\"", f_show_dialog_cmd,
                     "Error while opening audio device: ", Pa_GetErrorText(err));
             system(f_cmd_buffer);
