@@ -55,10 +55,10 @@ class pydaw_device_dialog:
 
     def check_device(self):
         if not pydaw_util.global_device_val_dict:
-            self.show_device_dialog(_("No device configuration found"))
+            self.show_device_dialog(_("No device configuration found"), a_exit_on_cancel=True)
             return
         elif not "name" in pydaw_util.global_device_val_dict:
-            self.show_device_dialog(_("Invalid device configuration"))
+            self.show_device_dialog(_("Invalid device configuration"), a_exit_on_cancel=True)
             return
 
         f_device_str = pydaw_util.global_device_val_dict["name"]
@@ -66,7 +66,6 @@ class pydaw_device_dialog:
         self.open_devices()
 
         f_count = self.pyaudio.Pa_GetDeviceCount()
-        print("f_count == {}".format(f_count))
 
         f_audio_device_names = []
 
@@ -97,12 +96,15 @@ class pydaw_device_dialog:
                         f_file.write("\\")
                         f_file.close()
                         return
-                self.show_device_dialog(_("Device not found: {}").format(f_device_str))
+                self.show_device_dialog(_("Device not found: {}").format(f_device_str),
+                                        a_exit_on_cancel=True)
             else:
-                self.show_device_dialog(_("Device not found: {}").format(f_device_str))
+                self.show_device_dialog(_("Device not found: {}").format(f_device_str),
+                                        a_exit_on_cancel=True)
 
 
-    def show_device_dialog(self, a_msg=None, a_notify=False):
+    def show_device_dialog(self, a_msg=None, a_notify=False, a_exit_on_cancel=False):
+        self.dialog_result = False
         self.open_devices()
         if self.is_running:
             f_window = QtGui.QDialog()
@@ -112,6 +114,8 @@ class pydaw_device_dialog:
 
         def f_close_event(a_self=None, a_event=None):
             self.close_devices()
+            if a_exit_on_cancel and not self.dialog_result:
+                exit(9876)
 
         f_window.closeEvent = f_close_event
         f_window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -312,7 +316,9 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
                       "applied next time you start PyDAW."))
                 time.sleep(1.0)
                 pydaw_util.pydaw_read_device_config()
+                self.dialog_result = True
                 f_window.close()
+
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, _("Error"),
                     _("Couldn't open audio device\n\n{}\n\n"
