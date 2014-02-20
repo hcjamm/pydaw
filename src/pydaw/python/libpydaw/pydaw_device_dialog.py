@@ -23,6 +23,36 @@ except ImportError:
     import pydaw_util, portaudio, portmidi
     from translate import _
 
+f_device_tooltip = _(
+"""
+Normal:  Run the audio engine without elevated privileges.  This generally works
+well enough, but may require higher latency settings.
+(YOU SHOULD PROBABLY USE THIS IF YOU ARE USING THE LIVE DVD/USB OR HAVE SELINUX ENABLED,
+THE ELEVATED OPTIONS MAY NOT WORK DUE TO THE SECURITY CONFIGURATION)
+
+Elevated:  Run the audio engine with elevated privilege, this gives the best possible latency,
+but if your desktop uses GTK+ it may refuse to run it. (USE THIS OPTION IF POSSIBLE)
+
+Elevated(sandbox):  Same as "Elevated", but works around GTK+'s decision to prevent executing code
+with elevated rights by using a helper program to launch the engine. (USE THIS OPTION IF POSSIBLE)
+
+OPTIONS BELOW ARE DEVELOPER OPTIONS THAT NORMAL USERS SHOULD NEVER USE
+
+Debug:  Run with debug symbols and create a core dump on crashing.  This is useful for
+diagnosing the cause of a crash, but consumes much more CPU and RAM, and is not
+recommended for normal use.
+
+GDB:  Open in the GDB debugger with no audio or external MIDI to allow setting
+      breakpoints and pausing execution.
+
+Valgrind:  Open in Valgrind, with no audio or external MIDI.  VERY SLOW unless worker
+           threads is set to 1!!!
+
+GUI Only:  Run the UI only with no audio engine
+
+No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
+""")
+
 class pydaw_device_dialog:
     def __init__(self, a_is_running=False):
         self.is_running = a_is_running
@@ -155,35 +185,7 @@ class pydaw_device_dialog:
         f_audio_engine_combobox.addItems([_("Normal"), _("Elevated"), _("Elevated(sandbox)"),
                                           _("Debug"), _("GDB"), _("Valgrind"),
                                           _("GUI Only"), _("No Audio")])
-        f_audio_engine_combobox.setToolTip(_(
-"""
-Normal:  Run the audio engine without elevated privileges.  This generally works
-well enough, but may require higher latency settings.
-(YOU SHOULD PROBABLY USE THIS IF YOU ARE USING THE LIVE DVD/USB OR HAVE SELINUX ENABLED,
-THE ELEVATED OPTIONS MAY NOT WORK DUE TO THE SECURITY CONFIGURATION)
-
-Elevated:  Run the audio engine with elevated privilege, this gives the best possible latency,
-but if your desktop uses GTK+ it may refuse to run it. (USE THIS OPTION IF POSSIBLE)
-
-Elevated(sandbox):  Same as "Elevated", but works around GTK+'s decision to prevent executing code
-with elevated rights by using a helper program to launch the engine. (USE THIS OPTION IF POSSIBLE)
-
-OPTIONS BELOW ARE DEVELOPER OPTIONS THAT NORMAL USERS SHOULD NEVER USE
-
-Debug:  Run with debug symbols and create a core dump on crashing.  This is useful for
-diagnosing the cause of a crash, but consumes much more CPU and RAM, and is not
-recommended for normal use.
-
-GDB:  Open in the GDB debugger with no audio or external MIDI to allow setting
-      breakpoints and pausing execution.
-
-Valgrind:  Open in Valgrind, with no audio or external MIDI.  VERY SLOW unless worker
-           threads is set to 1!!!
-
-GUI Only:  Run the UI only with no audio engine
-
-No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
-"""))
+        f_audio_engine_combobox.setToolTip(f_device_tooltip)
         f_window_layout.addWidget(f_audio_engine_combobox, 4, 1)
         f_thread_affinity_checkbox = QtGui.QCheckBox(_("Lock worker threads to own core?"))
         f_thread_affinity_checkbox.setToolTip(_("This may give better performance with fewer "
@@ -372,7 +374,7 @@ No Audio:  No audio or MIDI, mostly useful for attaching an external debugger.
                 int(pydaw_util.global_device_val_dict["audioEngine"]))
 
         if a_msg is not None:
-            QtGui.QMessageBox.warning(f_window, "Error", a_msg)
+            QtGui.QMessageBox.warning(f_window, _("Error"), a_msg)
 
         f_screen = QtGui.QDesktopWidget().screenGeometry()
         f_size = f_window.geometry()
