@@ -4836,11 +4836,6 @@ class automation_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         global_save_and_reload_items()
 
-    def mouseMoveEvent(self, a_event):
-        QtGui.QGraphicsView.mouseMoveEvent(self, a_event)
-        if self.scene.mouseGrabberItem():
-            self.connect_points()
-
     def draw_axis(self):
         self.x_axis = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.axis_size)
         self.x_axis.setPos(self.axis_size, 0)
@@ -4925,10 +4920,6 @@ class automation_viewer(QtGui.QGraphicsView):
                 self.scale(self.last_x_scale, 1.0)
             self.horizontalScrollBar().setSliderPosition(0)
 
-    #TODO:  Remove
-    def connect_points(self):
-        pass
-
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
         self.cc_num = a_port_num
@@ -4978,7 +4969,6 @@ class automation_viewer(QtGui.QGraphicsView):
         f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc, a_item_index)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
-        self.connect_points()
 
 global_last_ipb_value = 18  #For the 'add point' dialog to remember settings
 
