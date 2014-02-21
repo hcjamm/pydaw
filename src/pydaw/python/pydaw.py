@@ -4627,29 +4627,12 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.cc_item = a_cc
         self.parent_view = a_view
         self.is_cc = a_is_cc
-        self.is_copying = False
 
     def set_brush(self):
         if self.isSelected():
             self.setBrush(global_automation_selected_gradient)
         else:
             self.setBrush(global_automation_gradient)
-
-    def mousePressEvent(self, a_event):
-        QtGui.QGraphicsEllipseItem.mousePressEvent(self, a_event)
-        if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            self.is_copying = True
-            for f_item in self.parent_view.automation_points:
-                if f_item.isSelected():
-                    self.parent_view.draw_point(f_item.cc_item, f_item.item_index, False)
-                    if self.is_cc:
-                        this_item_editor.items[f_item.item_index].ccs.append(
-                            f_item.cc_item.clone())
-                    else:
-                        this_item_editor.items[f_item.item_index].pitchbends.append(
-                            f_item.cc_item.clone())
-        else:
-            self.is_copying = False
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
@@ -4679,8 +4662,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_cc_start = 0.0
                 f_new_item_index, f_cc_start = pydaw_beats_to_index(f_cc_start)
                 if self.is_cc:
-                    if not self.is_copying:
-                        this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
+                    this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = (127.0 - (((f_point.pos().y() -
                     global_automation_min_height) / global_automation_height) * 127.0))
@@ -4690,9 +4672,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].ccs.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].ccs.sort()
                 else:
-                    if not self.is_copying:
-                        this_item_editor.items[f_point.item_index].\
-                            pitchbends.remove(f_point.cc_item)
+                    this_item_editor.items[f_point.item_index].pitchbends.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = (1.0 - (((f_point.pos().y() -
                     global_automation_min_height) / global_automation_height) * 2.0))
@@ -4759,8 +4739,7 @@ class automation_viewer(QtGui.QGraphicsView):
             self.setToolTip(
                 _("{}Draw points by double-clicking, then click the 'smooth' button to "
                 "draw extra points between them.\nClick+drag to select points\n"
-                "Ctrl+click+drag selected points to copy\npress the 'delete' button"
-                " to delete selected points.").format(f_start))
+                "Press the 'delete' button to delete selected points.").format(f_start))
         else:
             self.setToolTip("")
 
