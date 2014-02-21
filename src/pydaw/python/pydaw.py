@@ -5278,8 +5278,8 @@ def global_open_items(a_items=None):
         for f_item_name in a_items:
             global_open_items_uids.append(f_items_dict.get_uid_by_name(f_item_name))
 
-    this_cc_automation_viewer0.clear_drawn_items()
-    this_pb_automation_viewer.clear_drawn_items()
+    this_cc_editor.clear_drawn_items()
+    this_pb_editor.clear_drawn_items()
 
     this_item_editor.items = []
     f_cc_dict = {}
@@ -5295,13 +5295,13 @@ def global_open_items(a_items=None):
 
     this_piano_roll_editor.draw_item()
 
-    this_cc_automation_widget.update_ccs_in_use(list(f_cc_dict.keys()))
+    this_cc_editor_widget.update_ccs_in_use(list(f_cc_dict.keys()))
 
     if a_items is not None:
         for f_cc_num in list(f_cc_dict.keys()):
-            this_cc_automation_widget.set_cc_num(f_cc_num)
-    this_cc_automation_viewer0.draw_item()
-    this_pb_automation_viewer.draw_item()
+            this_cc_editor_widget.set_cc_num(f_cc_num)
+    this_cc_editor.draw_item()
+    this_pb_editor.draw_item()
     this_item_editor.open_item_list()
 
     if a_items is not None and f_index == 1:
@@ -5634,9 +5634,9 @@ class item_list_editor:
         global global_item_zoom_index
         global_item_zoom_index = f_index
 
-        this_cc_automation_viewer0.scale_to_width()
+        this_cc_editor.scale_to_width()
         this_piano_roll_editor.scale_to_width()
-        this_pb_automation_viewer.scale_to_width()
+        this_pb_editor.scale_to_width()
 
     def tab_changed(self, a_val=None):
         this_piano_roll_editor.click_enabled = True
@@ -5779,7 +5779,7 @@ class item_list_editor:
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         self.notes_hlayout.addWidget(self.ccs_groupbox)
 
-        self.main_vlayout.addWidget(this_cc_automation_widget.widget)
+        self.main_vlayout.addWidget(this_cc_editor_widget.widget)
         self.main_vlayout.addItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout = QtGui.QHBoxLayout()
@@ -5812,7 +5812,7 @@ class item_list_editor:
         self.notes_hlayout.addWidget(self.pb_groupbox)
         self.pb_auto_vlayout = QtGui.QVBoxLayout()
         self.pb_hlayout.addLayout(self.pb_auto_vlayout)
-        self.pb_viewer_widget = automation_viewer_widget(this_pb_automation_viewer, False)
+        self.pb_viewer_widget = automation_viewer_widget(this_pb_editor, False)
         self.pb_auto_vlayout.addWidget(self.pb_viewer_widget.widget)
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum,
                                                        QtGui.QSizePolicy.Expanding))
@@ -7870,7 +7870,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 this_audio_items_viewer.prepare_to_quit()
                 this_piano_roll_editor.prepare_to_quit()
 
-                this_cc_automation_viewer0.prepare_to_quit()
+                this_cc_editor.prepare_to_quit()
                 sleep(0.5)
                 global_close_all_plugin_windows()
                 if self.osc_server is not None:
@@ -8654,9 +8654,9 @@ def global_close_all():
     this_item_editor.clear_new()
     this_song_editor.table_widget.clearContents()
     this_audio_items_viewer.clear_drawn_items()
-    this_pb_automation_viewer.clear_drawn_items()
-    this_cc_automation_viewer0.clear_drawn_items()
-    this_cc_automation_widget.update_ccs_in_use([])
+    this_pb_editor.clear_drawn_items()
+    this_cc_editor.clear_drawn_items()
+    this_cc_editor_widget.update_ccs_in_use([])
     this_wave_editor_widget.clear()
     this_transport.reset()
 
@@ -8758,9 +8758,9 @@ app.setWindowIcon(QtGui.QIcon("{}/share/pixmaps/{}.png".format(
                   pydaw_util.global_pydaw_install_prefix,
                   global_pydaw_version_string)))
 
-this_pb_automation_viewer = automation_viewer(a_is_cc=False)
-this_cc_automation_viewer0 = automation_viewer()
-this_cc_automation_widget = automation_viewer_widget(this_cc_automation_viewer0)
+this_pb_editor = automation_viewer(a_is_cc=False)
+this_cc_editor = automation_viewer()
+this_cc_editor_widget = automation_viewer_widget(this_cc_editor)
 
 this_wave_editor_widget = pydaw_wave_editor_widget()
 
@@ -8927,7 +8927,7 @@ this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
 this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(4)
 
 #Get the plugin/control comboboxes populated
-this_cc_automation_widget.plugin_changed()
+this_cc_editor_widget.plugin_changed()
 
 # ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
