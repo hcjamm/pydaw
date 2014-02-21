@@ -1671,7 +1671,7 @@ class pydaw_cc(pydaw_abstract_midi_event):
             f_val = 127.0
         elif f_val < 0.0:
             f_val = 0.0
-        self.cc_val = f_val
+        self.cc_val = round(f_val, 4)
 
     def __str__(self):
         return "c|{}\n".format("|".join(map(str,
@@ -1705,7 +1705,7 @@ class pydaw_pitchbend(pydaw_abstract_midi_event):
             f_val = 1.0
         elif f_val < -1.0:
             f_val = -1.0
-        self.pb_val = f_val
+        self.pb_val = round(f_val, 4)
 
     def __str__(self):
         return "p|{}|{}\n".format(self.start, self.pb_val)

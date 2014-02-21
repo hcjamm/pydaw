@@ -4582,9 +4582,9 @@ class piano_roll_editor_widget():
 
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
-global_automation_ruler_width = 24
-global_automation_width = 690
-global_automation_height = 300
+global_automation_ruler_width = 24.0
+global_automation_width = 690.0
+global_automation_height = 300.0
 
 global_automation_grid_max_start_time = \
 global_automation_width + global_automation_ruler_width - global_automation_point_radius
@@ -4641,7 +4641,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
             self.is_copying = True
             for f_item in self.parent_view.automation_points:
                 if f_item.isSelected():
-                    self.parent_view.draw_point(f_item.cc_item, f_item.item_index)
+                    self.parent_view.draw_point(f_item.cc_item, f_item.item_index, False)
                     if self.is_cc:
                         this_item_editor.items[f_item.item_index].ccs.append(
                             f_item.cc_item.clone())
@@ -4667,12 +4667,12 @@ class automation_item(QtGui.QGraphicsEllipseItem):
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
         self.setGraphicsEffect(None)
+        self.parent_view.selected_str = []
         for f_point in self.parent_view.automation_points:
             if f_point.isSelected():
                 f_cc_start = \
                 round((((f_point.pos().x() - global_automation_min_height) /
                     global_automation_width) * 4.0), 4)
-
                 if f_cc_start >= 4.0 * global_item_editing_count:
                     f_cc_start = (4.0 * global_item_editing_count) - 0.01
                 elif f_cc_start < 0.0:
@@ -4682,7 +4682,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     if not self.is_copying:
                         this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
-                    f_cc_val = int(127.0 - (((f_point.pos().y() - \
+                    f_cc_val = (127.0 - (((f_point.pos().y() -
                     global_automation_min_height) / global_automation_height) * 127.0))
 
                     f_point.cc_item.start = f_cc_start
@@ -4691,18 +4691,19 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].ccs.sort()
                 else:
                     if not self.is_copying:
-                        this_item_editor.items[f_point.item_index].pitchbends.remove(
-                        f_point.cc_item)
+                        this_item_editor.items[f_point.item_index].\
+                            pitchbends.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
-                    f_cc_val = (1.0 - (((f_point.pos().y() - \
+                    f_cc_val = (1.0 - (((f_point.pos().y() -
                     global_automation_min_height) / global_automation_height) * 2.0))
 
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
                     this_item_editor.items[f_point.item_index].pitchbends.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].pitchbends.sort()
+                self.parent_view.selected_str.append((int(f_point.item_index),
+                                                      str(f_point.cc_item)))
         global_save_and_reload_items()
-        QtGui.QApplication.restoreOverrideCursor()
 
 global_automation_editors = []
 
@@ -4715,6 +4716,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.grid_div = a_grid_div
         self.automation_points = []
         self.clipboard = []
+        self.selected_str = []
 
         self.axis_size = global_automation_ruler_width
 
@@ -4776,6 +4778,7 @@ class automation_viewer(QtGui.QGraphicsView):
     def paste(self):
         if not this_item_editor.enabled:
             return
+        self.selected_str = []
         if self.clipboard:
             for f_item, f_index in self.clipboard:
                 if f_index < global_item_editing_count:
@@ -4785,6 +4788,7 @@ class automation_viewer(QtGui.QGraphicsView):
                         this_item_editor.items[f_index].add_cc(f_item2)
                     else:
                         this_item_editor.items[f_index].add_pb(f_item2)
+                    self.selected_str.append((f_index, str(f_item2)))
             global_save_and_reload_items()
 
     def delete_selected(self):
@@ -4797,6 +4801,7 @@ class automation_viewer(QtGui.QGraphicsView):
                     this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
                 else:
                     this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
+        self.selected_str = []
         global_save_and_reload_items()
         self.selection_enabled = True
 
@@ -4810,6 +4815,7 @@ class automation_viewer(QtGui.QGraphicsView):
                 this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
             else:
                 this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
+        self.selected_str = []
         global_save_and_reload_items()
         self.selection_enabled = True
 
@@ -4959,7 +4965,7 @@ class automation_viewer(QtGui.QGraphicsView):
                 self.scene.addItem(f_note_item)
             f_item_index += 1
 
-    def draw_point(self, a_cc, a_item_index):
+    def draw_point(self, a_cc, a_item_index, a_select=True):
         """ a_cc is an instance of the pydaw_cc class"""
         f_time = self.axis_size + (((float(a_item_index) * 4.0) + a_cc.start) * self.beat_width)
         if self.is_cc:
@@ -4969,6 +4975,8 @@ class automation_viewer(QtGui.QGraphicsView):
         f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc, a_item_index)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
+        if a_select and (a_item_index, str(a_cc)) in self.selected_str:
+            f_point.setSelected(True)
 
 global_last_ipb_value = 18  #For the 'add point' dialog to remember settings
 
@@ -5017,6 +5025,7 @@ class automation_viewer_widget:
                 global_plugin_numbers[self.plugin_combobox.currentIndex()], f_map.port)
         else:
             pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
+        self.automation_viewer.selected_str = []
         global_save_and_reload_items()
 
     def __init__(self, a_viewer, a_is_cc=True):
