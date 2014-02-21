@@ -4768,14 +4768,24 @@ class automation_viewer(QtGui.QGraphicsView):
         self.scene.clear()
 
     def copy_selected(self):
+        if not this_item_editor.enabled:
+            return
         self.clipboard = [(x.cc_item.clone(), x.item_index)
             for x in self.automation_points if x.isSelected()]
 
-    def paste_selected(self):
-        if self.is_cc:
-            pass
-        else:
-            pass
+    def paste(self):
+        if not this_item_editor.enabled:
+            return
+        if self.clipboard:
+            for f_item, f_index in self.clipboard:
+                if f_index < global_item_editing_count:
+                    f_item2 = f_item.clone()
+                    if self.is_cc:
+                        f_item2.cc_num = self.cc_num
+                        this_item_editor.items[f_index].add_cc(f_item2)
+                    else:
+                        this_item_editor.items[f_index].add_pb(f_item2)
+            global_save_and_reload_items()
 
     def delete_selected(self):
         if not this_item_editor.enabled:
@@ -5060,15 +5070,24 @@ class automation_viewer_widget:
         self.edit_button = QtGui.QPushButton(_("Menu"))
         self.hlayout.addWidget(self.edit_button)
         self.edit_menu = QtGui.QMenu(self.widget)
+        self.copy_action = self.edit_menu.addAction(_("Copy"))
+        self.copy_action.triggered.connect(self.automation_viewer.copy_selected)
+        self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
+        self.paste_action = self.edit_menu.addAction(_("Paste"))
+        self.paste_action.triggered.connect(self.automation_viewer.paste)
+        self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
+
+        self.edit_menu.addSeparator()
         self.add_point_action = self.edit_menu.addAction(_("Add Point"))
         if self.is_cc:
             self.add_point_action.triggered.connect(self.add_cc_point)
-            self.paste_point_action = self.edit_menu.addAction(_("Paste Point"))
+            self.paste_point_action = self.edit_menu.addAction(_("Paste Point from Plugin"))
             self.paste_point_action.triggered.connect(self.paste_cc_point)
         else:
             self.add_point_action.triggered.connect(self.add_pb_point)
         self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
+        self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
         self.edit_menu.addSeparator()
         self.delete_action = self.edit_menu.addAction(_("Delete Selected"))
         self.delete_action.triggered.connect(self.automation_viewer.delete_selected)
