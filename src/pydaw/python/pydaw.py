@@ -5278,8 +5278,7 @@ def global_open_items(a_items=None):
         for f_item_name in a_items:
             global_open_items_uids.append(f_items_dict.get_uid_by_name(f_item_name))
 
-    for i in range(3):
-        this_cc_automation_viewers[i].clear_drawn_items()
+    this_cc_automation_viewer0.clear_drawn_items()
     this_pb_automation_viewer.clear_drawn_items()
 
     this_item_editor.items = []
@@ -5295,17 +5294,13 @@ def global_open_items(a_items=None):
             f_cc_dict[f_key] = cc
 
     this_piano_roll_editor.draw_item()
-    for i in range(3):
-        this_item_editor.cc_auto_viewers[i].update_ccs_in_use(list(f_cc_dict.keys()))
-    f_i = 0
+
+    this_cc_automation_widget.update_ccs_in_use(list(f_cc_dict.keys()))
+
     if a_items is not None:
         for f_cc_num in list(f_cc_dict.keys()):
-            this_item_editor.cc_auto_viewers[f_i].set_cc_num(f_cc_num)
-            f_i += 1
-            if f_i >= len(this_item_editor.cc_auto_viewers):
-                break
-    for i in range(3):
-        this_cc_automation_viewers[i].draw_item()
+            this_cc_automation_widget.set_cc_num(f_cc_num)
+    this_cc_automation_viewer0.draw_item()
     this_pb_automation_viewer.draw_item()
     this_item_editor.open_item_list()
 
@@ -5639,8 +5634,7 @@ class item_list_editor:
         global global_item_zoom_index
         global_item_zoom_index = f_index
 
-        for f_viewer in this_cc_automation_viewers:
-            f_viewer.scale_to_width()
+        this_cc_automation_viewer0.scale_to_width()
         this_piano_roll_editor.scale_to_width()
         this_pb_automation_viewer.scale_to_width()
 
@@ -5677,11 +5671,9 @@ class item_list_editor:
         self.tab_widget.addTab(self.pitchbend_tab, _("Pitchbend"))
 
         self.main_vlayout = QtGui.QVBoxLayout()
-        self.main_hlayout = QtGui.QHBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.editing_hboxlayout = QtGui.QHBoxLayout()
         self.master_vlayout.addWidget(self.tab_widget)
-        self.main_vlayout.addLayout(self.main_hlayout)
 
         self.notes_groupbox = QtGui.QGroupBox(_("Notes"))
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
@@ -5787,22 +5779,8 @@ class item_list_editor:
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         self.notes_hlayout.addWidget(self.ccs_groupbox)
 
-        self.cc_auto_viewer_scrollarea = QtGui.QScrollArea()
-        self.cc_auto_viewer_scrollarea.setMinimumWidth(900)
-        self.cc_auto_viewer_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
-        self.cc_auto_viewer_scrollarea_widget.setObjectName("plugin_ui")
-        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(880, 1330)
-        self.cc_auto_viewer_scrollarea.setWidgetResizable(True)
-        self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
-        self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
-
-        self.cc_auto_viewers = []
-        for i in range(3):
-            self.cc_auto_viewers.append(automation_viewer_widget(this_cc_automation_viewers[i]))
-            self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewers[i].widget)
-        self.main_hlayout.addWidget(self.cc_auto_viewer_scrollarea)
+        self.main_vlayout.addWidget(this_cc_automation_widget.widget)
+        self.main_vlayout.addItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
@@ -7891,8 +7869,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             else:
                 this_audio_items_viewer.prepare_to_quit()
                 this_piano_roll_editor.prepare_to_quit()
-                for f_viewer in this_cc_automation_viewers:
-                    f_viewer.prepare_to_quit()
+
+                this_cc_automation_viewer0.prepare_to_quit()
                 sleep(0.5)
                 global_close_all_plugin_windows()
                 if self.osc_server is not None:
@@ -8677,10 +8655,8 @@ def global_close_all():
     this_song_editor.table_widget.clearContents()
     this_audio_items_viewer.clear_drawn_items()
     this_pb_automation_viewer.clear_drawn_items()
-    for f_viewer in this_cc_automation_viewers:
-        f_viewer.clear_drawn_items()
-    for f_widget in this_item_editor.cc_auto_viewers:
-        f_widget.update_ccs_in_use([])
+    this_cc_automation_viewer0.clear_drawn_items()
+    this_cc_automation_widget.update_ccs_in_use([])
     this_wave_editor_widget.clear()
     this_transport.reset()
 
@@ -8783,13 +8759,8 @@ app.setWindowIcon(QtGui.QIcon("{}/share/pixmaps/{}.png".format(
                   global_pydaw_version_string)))
 
 this_pb_automation_viewer = automation_viewer(a_is_cc=False)
-this_cc_automation_viewers = []
 this_cc_automation_viewer0 = automation_viewer()
-this_cc_automation_viewer1 = automation_viewer()
-this_cc_automation_viewer2 = automation_viewer()
-this_cc_automation_viewers.append(this_cc_automation_viewer0)
-this_cc_automation_viewers.append(this_cc_automation_viewer1)
-this_cc_automation_viewers.append(this_cc_automation_viewer2)
+this_cc_automation_widget = automation_viewer_widget(this_cc_automation_viewer0)
 
 this_wave_editor_widget = pydaw_wave_editor_widget()
 
@@ -8955,10 +8926,8 @@ this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
 this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(4)
 
-for f_viewer in this_item_editor.cc_auto_viewers:  #Get the plugin/control comboboxes populated
-    f_viewer.plugin_changed()
-this_item_editor.cc_auto_viewers[1].set_cc_num(2)
-this_item_editor.cc_auto_viewers[2].set_cc_num(3)
+#Get the plugin/control comboboxes populated
+this_cc_automation_widget.plugin_changed()
 
 # ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
