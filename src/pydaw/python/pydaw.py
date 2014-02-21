@@ -4681,8 +4681,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_point.cc_item.set_val(f_cc_val)
                     this_item_editor.items[f_point.item_index].pitchbends.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].pitchbends.sort()
-                self.parent_view.selected_str.append((int(f_point.item_index),
-                                                      str(f_point.cc_item)))
+                self.parent_view.selected_str.append(hash((int(f_point.item_index),
+                                                     str(f_point.cc_item))))
         global_save_and_reload_items()
 
 global_automation_editors = []
@@ -4767,7 +4767,7 @@ class automation_viewer(QtGui.QGraphicsView):
                         this_item_editor.items[f_index].add_cc(f_item2)
                     else:
                         this_item_editor.items[f_index].add_pb(f_item2)
-                    self.selected_str.append((f_index, str(f_item2)))
+                    self.selected_str.append(hash((f_index, str(f_item2))))
             global_save_and_reload_items()
 
     def delete_selected(self):
@@ -4954,7 +4954,7 @@ class automation_viewer(QtGui.QGraphicsView):
         f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc, a_item_index)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
-        if a_select and (a_item_index, str(a_cc)) in self.selected_str:
+        if a_select and hash((a_item_index, str(a_cc))) in self.selected_str:
             f_point.setSelected(True)
 
 global_last_ipb_value = 18  #For the 'add point' dialog to remember settings
