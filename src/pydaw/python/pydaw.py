@@ -4714,6 +4714,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.viewer_height = global_automation_height
         self.grid_div = a_grid_div
         self.automation_points = []
+        self.clipboard = []
 
         self.axis_size = global_automation_ruler_width
 
@@ -4766,20 +4767,28 @@ class automation_viewer(QtGui.QGraphicsView):
         self.scene.clearSelection()
         self.scene.clear()
 
-    def keyPressEvent(self, a_event):
-        QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
+    def copy_selected(self):
+        self.clipboard = [(x.cc_item.clone(), x.item_index)
+            for x in self.automation_points if x.isSelected()]
+
+    def paste_selected(self):
+        if self.is_cc:
+            pass
+        else:
+            pass
+
+    def delete_selected(self):
         if not this_item_editor.enabled:
             return
-        if a_event.key() == QtCore.Qt.Key_Delete:
-            self.selection_enabled = False
-            for f_point in self.automation_points:
-                if f_point.isSelected():
-                    if self.is_cc:
-                        this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
-                    else:
-                        this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
-            global_save_and_reload_items()
-            self.selection_enabled = True
+        self.selection_enabled = False
+        for f_point in self.automation_points:
+            if f_point.isSelected():
+                if self.is_cc:
+                    this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
+                else:
+                    this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
+        global_save_and_reload_items()
+        self.selection_enabled = True
 
     def clear_current_item(self):
         """ If this is a CC editor, it only clears the selected CC.  """
@@ -5048,7 +5057,7 @@ class automation_viewer_widget:
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10))
-        self.edit_button = QtGui.QPushButton(_("Edit"))
+        self.edit_button = QtGui.QPushButton(_("Menu"))
         self.hlayout.addWidget(self.edit_button)
         self.edit_menu = QtGui.QMenu(self.widget)
         self.add_point_action = self.edit_menu.addAction(_("Add Point"))
@@ -5061,6 +5070,9 @@ class automation_viewer_widget:
         self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
         self.edit_menu.addSeparator()
+        self.delete_action = self.edit_menu.addAction(_("Delete Selected"))
+        self.delete_action.triggered.connect(self.automation_viewer.delete_selected)
+        self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
         self.clear_action = self.edit_menu.addAction(_("Clear"))
         self.clear_action.triggered.connect(self.clear)
         self.edit_button.setMenu(self.edit_menu)
