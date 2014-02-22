@@ -1,4 +1,6 @@
-cp /usr/lib/pydaw4/mixxx/mixxx-launcher.py /usr/bin
+PYDAW_VERSION=$(cat ../../major-version.txt)
+
+cp /usr/lib/$(PYDAW_VERSION)/mixxx/mixxx-launcher.py /usr/bin
 apt-get clean
 rm -rf /tmp/* ~/.bash_history
 #rm /etc/hosts
