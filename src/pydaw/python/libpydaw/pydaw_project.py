@@ -36,6 +36,12 @@ def track_all_to_type_and_index(a_index):
     else:
         return 0, f_index
 
+def proj_file_str(a_val):
+    f_val = a_val
+    if isinstance(f_val, float):
+        f_val = round(a_val, 6)
+    return str(f_val)
+
 pydaw_max_audio_item_count = 256
 pydaw_max_region_length = 256 #bars
 
@@ -1202,9 +1208,8 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                 while f_adjusted_start >= 4.0:
                     f_index_offset += 1
                     f_adjusted_start -= 4.0
-                f_interpolated_cc = pydaw_cc(round((f_adjusted_start), 4),
-                                             a_plugin_index, f_cc_num,
-                                             round(f_new_val, 4))
+                f_interpolated_cc = pydaw_cc(f_adjusted_start, a_plugin_index,
+                                             f_cc_num, f_new_val)
                 f_new_val += f_inc
                 f_new_index = f_this_cc_arr[i].item_index + f_index_offset
                 if f_new_index >= len(f_result_arr):
@@ -1249,8 +1254,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                 while f_adjusted_start >= 4.0:
                     f_index_offset += 1
                     f_adjusted_start -= 4.0
-                f_interpolated_pb = pydaw_pitchbend(round((f_adjusted_start), 4),
-                                                    round(f_new_val, 4))
+                f_interpolated_pb = pydaw_pitchbend(f_adjusted_start, f_new_val)
                 f_new_val += f_val_inc
                 f_result_arr[f_this_pb_arr[i].item_index +
                     f_index_offset].append(f_interpolated_pb)
@@ -1516,9 +1520,9 @@ class pydaw_item:
             f_inc = -1
         else:
             f_inc = 1
-        f_time_inc = abs(f_start_diff/float(f_val_diff))
+        f_time_inc = abs(f_start_diff / float(f_val_diff))
         for i in range(0, (f_val_diff + 1)):
-            self.ccs.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
+            self.ccs.append(pydaw_cc(f_start, f_cc, f_start_val))
             f_start_val += f_inc
             f_start += f_time_inc
         self.ccs.sort()
@@ -1558,7 +1562,7 @@ class pydaw_item:
             f_inc = 0.025
         f_time_inc = abs(f_start_diff/(float(f_val_diff) * 40.0))
         for i in range(0, int((f_val_diff * 40) + 1)):
-            self.pitchbends.append(pydaw_pitchbend(round(f_start, 4), f_start_val))
+            self.pitchbends.append(pydaw_pitchbend(f_start, f_start_val))
             f_start_val += f_inc
             f_start += f_time_inc
         #Ensure that the last value is what the user wanted it to be
@@ -1613,19 +1617,19 @@ class pydaw_note(pydaw_abstract_midi_event):
         (self.length == other.length) and (self.velocity == other.velocity))
 
     def set_start(self, a_start):
-        self.start = round(float(a_start), 4)
+        self.start = float(a_start)
         self.set_end()
 
     def set_length(self, a_length):
-        self.length = round(float(a_length), 4)
+        self.length = float(a_length)
         self.set_end()
 
     def set_end(self):
         self.end = self.length + self.start
 
     def __init__(self, a_start, a_length, a_note_number, a_velocity):
-        self.start = round(float(a_start), 4)
-        self.length = round(float(a_length), 4)
+        self.start = float(a_start)
+        self.length = float(a_length)
         self.velocity = int(a_velocity)
         self.note_num = int(a_note_number)
         self.is_selected = False
@@ -1650,8 +1654,8 @@ class pydaw_note(pydaw_abstract_midi_event):
         return pydaw_note.from_arr(f_arr[1:])
 
     def __str__(self):
-        return "n|{}\n".format("|".join(map(str,
-            (self.start, self.length, self.note_num, self.velocity))))
+        return "{}\n".format("|".join(map(proj_file_str,
+            ("n", self.start, self.length, self.note_num, self.velocity))))
 
 class pydaw_cc(pydaw_abstract_midi_event):
     def __eq__(self, other):
@@ -1659,22 +1663,17 @@ class pydaw_cc(pydaw_abstract_midi_event):
         (self.cc_num == other.cc_num) and (self.cc_val == other.cc_val))
 
     def __init__(self, a_start, a_plugin_index, a_port_num, a_cc_val):
-        self.start = round(float(a_start), 4)
+        self.start = float(a_start)
         self.plugin_index = int(a_plugin_index)
         self.cc_num = int(a_port_num) #This is really port_num, I'll rename later...
-        self.cc_val = round(float(a_cc_val), 4)
+        self.cc_val = float(a_cc_val)
 
     def set_val(self, a_val):
-        f_val = float(a_val)
-        if f_val > 127.0:
-            f_val = 127.0
-        elif f_val < 0.0:
-            f_val = 0.0
-        self.cc_val = round(f_val, 4)
+        self.cc_val = pydaw_clip_value(float(a_val), 0.0, 127.0, True)
 
     def __str__(self):
-        return "c|{}\n".format("|".join(map(str,
-            (self.start, self.plugin_index, self.cc_num, self.cc_val))))
+        return "{}\n".format("|".join(map(proj_file_str,
+            ("c", self.start, self.plugin_index, self.cc_num, self.cc_val))))
 
     @staticmethod
     def from_arr(a_arr):
@@ -1695,19 +1694,14 @@ class pydaw_pitchbend(pydaw_abstract_midi_event):
         return ((self.start == other.start) and (self.pb_val == other.pb_val))
 
     def __init__(self, a_start, a_pb_val):
-        self.start = round(float(a_start), 4)
-        self.pb_val = round(float(a_pb_val), 4)
+        self.start = float(a_start)
+        self.pb_val = float(a_pb_val)
 
     def set_val(self, a_val):
-        f_val = round(float(a_val), 4)
-        if f_val > 1.0:
-            f_val = 1.0
-        elif f_val < -1.0:
-            f_val = -1.0
-        self.pb_val = round(f_val, 4)
+        self.pb_val = pydaw_clip_value(float(a_val), -1.0, 1.0, True)
 
     def __str__(self):
-        return "p|{}|{}\n".format(self.start, self.pb_val)
+        return "{}\n".format("|".join(map(proj_file_str, ("p", self.start, self.pb_val))))
 
     @staticmethod
     def from_arr(a_arr):
@@ -1767,7 +1761,7 @@ class pydaw_track(pydaw_abstract_track):
         self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "{}\n".format("|".join(map(str,
+        return "{}\n".format("|".join(map(proj_file_str,
             (bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
             self.name, self.inst, self.bus_num, self.track_pos))))
 
@@ -1842,7 +1836,7 @@ class pydaw_audio_track(pydaw_abstract_track):
         self.set_track_pos(a_track_pos)
 
     def __str__(self):
-        return "{}\n".format("|".join(map(str,
+        return "{}\n".format("|".join(map(proj_file_str,
             (bool_to_int(self.solo), bool_to_int(self.mute), self.vol,
              self.name, self.bus_num, self.track_pos))))
 
@@ -1930,17 +1924,17 @@ class pydaw_audio_item:
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
         self.start_bar = int(a_start_bar)
-        self.start_beat = round(float(a_start_beat), 6)
+        self.start_beat = float(a_start_beat)
         self.time_stretch_mode = int(a_timestretch_mode)
-        self.pitch_shift = round(float(a_pitch_shift), 6)
+        self.pitch_shift = float(a_pitch_shift)
         self.output_track = int(a_output_track)
         self.vol = int(a_vol)
-        self.timestretch_amt = round(float(a_timestretch_amt), 6)
+        self.timestretch_amt = float(a_timestretch_amt)
         self.fade_in = float(a_fade_in)
         self.fade_out = float(a_fade_out)
         self.lane_num = int(a_lane_num)
-        self.pitch_shift_end = round(float(a_pitch_shift_end), 6)
-        self.timestretch_amt_end = round(float(a_timestretch_amt_end), 6)
+        self.pitch_shift_end = float(a_pitch_shift_end)
+        self.timestretch_amt_end = float(a_timestretch_amt_end)
         if isinstance(a_reversed, bool):
             self.reversed = a_reversed
         else:
@@ -1952,7 +1946,7 @@ class pydaw_audio_item:
 
     def set_pos(self, a_bar, a_beat):
         self.start_bar = int(a_bar)
-        self.start_beat = round(float(a_beat), 4)
+        self.start_beat = float(a_beat)
 
     def set_fade_in(self, a_value):
         f_value = pydaw_clip_value(a_value, 0.0, self.fade_out - 1.0)
@@ -1991,13 +1985,13 @@ class pydaw_audio_item:
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
 
     def __str__(self):
-        return "{}\n".format("|".join(map(str,
-        (self.uid, round(self.sample_start, 6), round(self.sample_end, 6),
-        self.start_bar, round(self.start_beat, 6),
+        return "{}\n".format("|".join(map(proj_file_str,
+        (self.uid, self.sample_start, self.sample_end,
+        self.start_bar, self.start_beat,
         self.time_stretch_mode, self.pitch_shift, self.output_track, self.vol,
-        round(self.timestretch_amt, 6),
-        self.fade_in, self.fade_out, self.lane_num, round(self.pitch_shift_end, 6 ),
-        round(self.timestretch_amt_end, 6), bool_to_int(self.reversed), int(self.crispness),
+        self.timestretch_amt,
+        self.fade_in, self.fade_out, self.lane_num, self.pitch_shift_end,
+        self.timestretch_amt_end, bool_to_int(self.reversed), int(self.crispness),
         int(self.fadein_vol), int(self.fadeout_vol), int(self.paif_automation_uid)))))
 
     @staticmethod
@@ -2082,7 +2076,7 @@ class pydaw_audio_item_fx:
             return self.fx_num < other.fx_num
 
     def __str__(self):
-        return "|{}".format("|".join(map(str,
+        return "|{}".format("|".join(map(proj_file_str,
             (self.knobs[0], self.knobs[1], self.knobs[2], self.fx_type))))
 
 class pydaw_audio_input_tracks:
@@ -2145,7 +2139,7 @@ class pydaw_cc_map_item:
         self.modulex_port = int(a_modulex_port)
 
     def __str__(self):
-        return "{}\n".format("|".join(map(str,
+        return "{}\n".format("|".join(map(proj_file_str,
             (self.effects_only, self.rayv_port, self.wayv_port,
             self.euphoria_port, self.modulex_port))))
 

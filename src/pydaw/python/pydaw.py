@@ -1616,7 +1616,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def pos_to_musical_time(self, a_pos):
         f_bar_frac = a_pos / global_audio_px_per_bar
         f_pos_bars = int(f_bar_frac)
-        f_pos_beats = round((f_bar_frac - f_pos_bars) * 4.0, 6)
+        f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
         return(f_pos_bars, f_pos_beats)
 
     def start_handle_mouseClickEvent(self, a_event):
@@ -4649,13 +4649,12 @@ class automation_item(QtGui.QGraphicsEllipseItem):
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
-        self.setGraphicsEffect(None)
         self.parent_view.selected_str = []
         for f_point in self.parent_view.automation_points:
             if f_point.isSelected():
                 f_cc_start = \
-                round((((f_point.pos().x() - global_automation_min_height) /
-                    global_automation_width) * 4.0), 4)
+                (((f_point.pos().x() - global_automation_min_height) /
+                    global_automation_width) * 4.0)
                 if f_cc_start >= 4.0 * global_item_editing_count:
                     f_cc_start = (4.0 * global_item_editing_count) - 0.01
                 elif f_cc_start < 0.0:
@@ -4672,7 +4671,11 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].ccs.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].ccs.sort()
                 else:
-                    this_item_editor.items[f_point.item_index].pitchbends.remove(f_point.cc_item)
+                    #try:
+                    this_item_editor.items[f_point.item_index].pitchbends.\
+                        remove(f_point.cc_item)
+                    #except ValueError:
+                    #print("Exception removing {} from list".format(f_point.cc_item))
                     f_point.item_index = f_new_item_index
                     f_cc_val = (1.0 - (((f_point.pos().y() -
                     global_automation_min_height) / global_automation_height) * 2.0))
@@ -4811,13 +4814,13 @@ class automation_viewer(QtGui.QGraphicsView):
             f_cc_val = int(127.0 - (((f_pos_y - global_automation_min_height) /
                 global_automation_height) * 127.0))
             f_cc_val = pydaw_clip_value(f_cc_val, 0, 127)
-            this_item_editor.add_cc(pydaw_cc(round(f_cc_start, 4),
-                                             self.plugin_index, self.cc_num, f_cc_val))
+            this_item_editor.add_cc(pydaw_cc(f_cc_start, self.plugin_index,
+                                             self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) /
                 global_automation_height) * 2.0)
             f_cc_val = pydaw_clip_value(f_cc_val, -1.0, 1.0)
-            this_item_editor.add_pb(pydaw_pitchbend(round(f_cc_start, 4), round(f_cc_val, 4)))
+            this_item_editor.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         global_save_and_reload_items()
 
@@ -6115,7 +6118,7 @@ class item_list_editor:
             if f_length.value() < f_frac:
                 f_length.setValue(f_frac)
             else:
-                f_val = round(f_length.value()/f_frac) * f_frac
+                f_val = round(f_length.value() / f_frac) * f_frac
                 f_length.setValue(f_val)
 
         def add_another_clicked(a_checked):

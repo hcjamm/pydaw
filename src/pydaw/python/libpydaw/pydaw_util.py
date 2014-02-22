@@ -148,7 +148,7 @@ def bar_frac_text_to_float(a_text):
 def pydaw_beats_to_index(a_beat, a_divisor=4.0):
     f_index = int(a_beat / a_divisor)
     f_start = a_beat - (float(f_index) * a_divisor)
-    return f_index, round(f_start, 4)
+    return f_index, round(f_start, 6)
 
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -190,7 +190,7 @@ def pydaw_clip_value(a_val, a_min, a_max, a_round=False):
     else:
         f_result = a_val
     if a_round:
-        f_result = round(f_result, 4)
+        f_result = round(f_result, 6)
     return f_result
 
 def pydaw_clip_min(a_val, a_min):
@@ -279,7 +279,7 @@ def time_quantize_round(a_input):
     if round(a_input) == round(a_input, 2):
         return round(a_input)
     else:
-        return round(a_input, 4)
+        return round(a_input, 6)
 
 def pydaw_pitch_to_hz(a_pitch):
     return (440.0 * pow(2.0,(float(a_pitch) - 57.0) * 0.0833333))
