@@ -51,9 +51,11 @@ else:
 
 os.system("setenforce 0")
 
-global_pydaw_version = "pydaw4"
+pydaw_version_file = open("../../major-version.txt")
+global_pydaw_version = pydaw_version_file.read().strip()
+pydaw_version_file.close()
 
-pydaw_version_file = open("../../{}-version.txt".format(global_pydaw_version))
+pydaw_version_file = open("../../minor-version.txt")
 pydaw_version = pydaw_version_file.read().strip()
 pydaw_version_file.close()
 
