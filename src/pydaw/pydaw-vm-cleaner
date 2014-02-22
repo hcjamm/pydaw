@@ -1,8 +1,10 @@
-if [ ! -n $(which yum) ]; then
+if [ -e /usr/bin/yum ]; then
 	sudo yum clean all
-elif [ ! -n $(which apt-get) ]; then
+elif [ -e /usr/bin/apt-get ]; then
 	sudo apt-get clean
 fi
+
+sudo rm -f /var/log/*.gz
 
 TMP_FILE=/tmp/zero.bin
 
