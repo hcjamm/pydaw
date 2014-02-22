@@ -7325,9 +7325,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setFixedSize(420, 90)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_version = QtGui.QLabel(pydaw_read_file_text( "{}/lib/{}/{}-version.txt".format(
-            pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string,
-            global_pydaw_version_string)))
+        f_major_version = pydaw_read_file_text( "{}/lib/{}/major-version.txt".format(
+            pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string))
+        f_minor_version = pydaw_read_file_text( "{}/lib/{}/major-version.txt".format(
+            pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string))
+        f_version = QtGui.QLabel("{}\n{}".format(f_major_version, f_minor_version))
         f_version.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         f_layout.addWidget(f_version)
         f_ok_button = QtGui.QPushButton(_("OK"))

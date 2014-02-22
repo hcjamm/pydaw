@@ -108,16 +108,19 @@ install:
 	install -m 755 $(PYDAW_VERSION)-engine-dbg $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION)-engine-no-hw $(DESTDIR)$(PREFIX)/bin
 	install -s -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
-	install -s -m 755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root
+	install -s -m 755 $(PYDAW_VERSION)-engine \
+	$(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root
 	cp -r python $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r share $(DESTDIR)$(PREFIX)
 	locale/Makefile.py $(DESTDIR)$(PREFIX)
-	install -m 644 ../$(PYDAW_VERSION)-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	install -m 644 ../major-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	install -m 644 ../minor-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	#Add the Git revision to the version.txt file if possible
 	@       if [ -e /usr/bin/git ] && [ -e ../../.git ]; then \
-                        echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/$(PYDAW_VERSION)-version.txt ; \
+                        echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> \
+			$(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/minor-version.txt ; \
                 fi
 
 clean:

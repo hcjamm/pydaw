@@ -52,7 +52,7 @@ f_build_cmd = ('make clean && make {} LDFLAGS+="-lcpufreq" '
                'make DESTDIR="{}/pydaw-build/debian" install').format(
                f_gcc, f_target, f_base_dir)
 
-f_version_file = "{}/{}-version.txt".format(f_base_dir, global_pydaw_version_string)
+f_version_file = "{}/minor-version.txt".format(f_base_dir)
 
 f_short_name = global_pydaw_version_string
 f_arch = subprocess.getoutput("dpkg --print-architecture").strip()
