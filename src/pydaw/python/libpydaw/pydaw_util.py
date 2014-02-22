@@ -148,7 +148,7 @@ def bar_frac_text_to_float(a_text):
 def pydaw_beats_to_index(a_beat, a_divisor=4.0):
     f_index = int(a_beat / a_divisor)
     f_start = a_beat - (float(f_index) * a_divisor)
-    return f_index, f_start
+    return f_index, round(f_start, 4)
 
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
