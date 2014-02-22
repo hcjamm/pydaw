@@ -1,3 +1,4 @@
+git pull
 ./install_deb.sh
 PYDAW_VERSION=pydaw4
 PYDAW_RELEASE=$(cat pydaw4-version.txt)
