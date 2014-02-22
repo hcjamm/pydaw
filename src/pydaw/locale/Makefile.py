@@ -3,7 +3,8 @@
 import os
 import sys
 
-global_pydaw_version_string = open("../../major-version.txt").read().strip()
+global_pydaw_version_string = open("{}/../../major-version.txt".format(
+    os.path.dirname(os.path.abspath(__file__)))).read().strip()
 
 f_base_dir = os.path.dirname(__file__)
 f_src_dir = "{}/src".format(f_base_dir)
