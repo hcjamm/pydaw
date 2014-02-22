@@ -1,0 +1,11 @@
+if [ ! -n $(which yum) ]; then
+	sudo yum clean all
+elif [ ! -n $(which apt-get) ]; then
+	sudo apt-get clean
+fi
+
+TMP_FILE=/tmp/zero.bin
+
+dd if=/dev/zero of=$TMP_FILE
+rm -rf $TMP_FILE
+
