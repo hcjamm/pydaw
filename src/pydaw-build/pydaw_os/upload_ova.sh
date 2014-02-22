@@ -7,11 +7,14 @@ PYDAW_MAC_NAME=$PYDAW_NAME-mac.zip
 
 PYDAW_DIR=pydawteam@frs.sourceforge.net:/home/frs/project/libmodsynth/$PYDAW_VERSION
 
-echo "scp'ing $PYDAW_WIN_NAME $PYDAW_DIR"
+$WIN_DIR = $PYDAW_DIR/windows
+$MAC_DIR = $PYDAW_DIR/mac
 
-scp -l 3000 $PYDAW_WIN_NAME $PYDAW_DIR/windows
+echo "scp'ing $PYDAW_WIN_NAME $WIN_DIR"
 
-echo "scp'ing $PYDAW_MAC_NAME $PYDAW_DIR"
+scp -l 3000 $PYDAW_WIN_NAME $WIN_DIR
 
-scp -l 3000 $PYDAW_MAC_NAME $PYDAW_DIR/mac
+echo "scp'ing $PYDAW_MAC_NAME $MAC_DIR"
+
+scp -l 3000 $PYDAW_MAC_NAME $MAC_DIR
 
