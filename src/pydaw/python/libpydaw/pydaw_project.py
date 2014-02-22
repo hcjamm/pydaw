@@ -227,9 +227,8 @@ class pydaw_project:
 
         self.create_file("", "version.txt",
                          "Created with {}-{}".format(global_pydaw_version_string,
-        pydaw_read_file_text("{}/lib/{}/{}-version.txt".format(global_pydaw_install_prefix,
-                                               global_pydaw_version_string,
-                                               global_pydaw_version_string))))
+                             pydaw_read_file_text("{}/lib/{}/minor-version.txt".format(
+                                 global_pydaw_install_prefix, global_pydaw_version_string))))
         self.create_file("", os.path.basename(a_project_file),
                          "This file is not supposed to contain any data, it is "
                          "only a placeholder for saving and opening the project")

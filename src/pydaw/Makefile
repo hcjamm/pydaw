@@ -99,7 +99,8 @@ $(PYDAW_VERSION)-engine: $(C_OBJS)
 # --------------------------------------------------------------
 
 install:
-	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~ python/core
+	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ \
+	python/libpydaw/*~ python/core
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION) $(DESTDIR)$(PREFIX)/bin
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
@@ -115,8 +116,10 @@ install:
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r share $(DESTDIR)$(PREFIX)
 	locale/Makefile.py $(DESTDIR)$(PREFIX)
-	install -m 644 ../major-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
-	install -m 644 ../minor-version.txt $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	install -m 644 ../major-version.txt \
+		$(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
+	install -m 644 ../minor-version.txt \
+		$(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	#Add the Git revision to the version.txt file if possible
 	@       if [ -e /usr/bin/git ] && [ -e ../../.git ]; then \
                         echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> \
