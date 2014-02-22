@@ -14,8 +14,10 @@ GNU General Public License for more details.
 
 import os
 
+global_pydaw_version_string = open("../major-version.txt").read().strip()
+
 f_dir_name = os.path.abspath(os.path.dirname(__file__))
-f_po_file = "{}/pydaw4.po".format(f_dir_name)
+f_po_file = "{}/{}.po".format(f_dir_name, global_pydaw_version_string)
 f_gtranz_file = "{}/locale/goo.tranz".format(f_dir_name)
 f_path = "{}/locale/src".format(f_dir_name)
 
@@ -52,14 +54,15 @@ def gen_gtranz():
 
 
 os.system('find python -iname "*.py" | xargs xgettext '
-    '--from-code=UTF-8 --default-domain=pydaw4')
+    '--from-code=UTF-8 --default-domain={}'.format(global_pydaw_version_string))
 
 os.system("sed --in-place '{}' --expression=s/CHARSET/UTF-8/".format(f_po_file))
 
 gen_gtranz()
 
 for f_file in os.listdir(f_path):
-    f_locale_file = "{}/{}/pydaw4.po".format(f_path, f_file)
+    f_locale_file = "{}/{}/{}.po".format(f_path, f_file, 
+        global_pydaw_version_string)
     print(f_locale_file)
     if os.path.isfile(f_locale_file):
         os.system('msgmerge --update "{}" "{}"'.format(f_locale_file, f_po_file))
