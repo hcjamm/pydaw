@@ -2683,6 +2683,17 @@ class pydaw_modulex_single:
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
 
+    def wheel_event(self, a_event=None):
+        pass
+
+    def disable_mousewheel(self):
+        """ Mousewheel events cause problems with per-audio-item-fx because they rely
+            on the mouse release event.
+        """
+        for knob in self.knobs:
+            knob.control.wheelEvent = self.wheel_event
+        self.combobox.control.wheelEvent = self.wheel_event
+
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.group_box)
         f_copy_action = QtGui.QAction(_("Copy"), self.group_box)
@@ -3030,6 +3041,7 @@ class pydaw_per_audio_item_fx_widget:
         for f_i in range(8):
             f_effect = pydaw_modulex_single(_("FX{}").format(f_i), f_port,
                                             a_rel_callback, a_val_callback)
+            f_effect.disable_mousewheel()
             self.effects.append(f_effect)
             self.layout.addWidget(f_effect.group_box)
             f_port += 4
