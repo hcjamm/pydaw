@@ -4,7 +4,7 @@ CC  ?= gcc
 CXX ?= g++
 
 PREFIX ?= /usr
-PYDAW_VERSION = pydaw4
+PYDAW_VERSION = $(shell cat ../major-version.txt)
 
 #Default flags are mostly x86 specific
 PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse \

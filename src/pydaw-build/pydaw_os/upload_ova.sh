@@ -1,7 +1,9 @@
+rm -f *.ova
+
 ./ova.sh
 
-PYDAW_VERSION=pydaw4
-PYDAW_NAME=$PYDAW_VERSION-$(cat ../../pydaw4-version.txt)
+PYDAW_VERSION=$(cat ../../major-version.txt)
+PYDAW_NAME=$PYDAW_VERSION-$(cat ../../minor-version.txt)
 PYDAW_WIN_NAME=$PYDAW_NAME-windows.zip
 PYDAW_MAC_NAME=$PYDAW_NAME-mac.zip
 
