@@ -48,10 +48,8 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/sbsms
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/rubberband
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
-	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/mixxx
-	install -m 755 mixxx/mixxx-launcher.py $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/mixxx
-	install -m 755 mixxx/mixxx.desktop $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/mixxx
-	make -C pydaw_sbsms/cli PREFIX=$(SBSMS_PREFIX)  DESTDIR=$(DESTDIR) install
+	make -C pydaw_sbsms/cli PREFIX=$(SBSMS_PREFIX) \
+	DESTDIR=$(DESTDIR) install
 	make -C pydaw_rubberband DESTDIR=$(DESTDIR) install
 
 # --------------------------------------------------------------
