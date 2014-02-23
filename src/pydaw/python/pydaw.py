@@ -8660,6 +8660,7 @@ def set_default_project(a_project_path):
     f_handle.close()
 
 def global_close_all():
+    global global_open_items_uids, global_audio_items_to_drop
     close_pydaw_engine()
     global_close_all_plugin_windows()
     this_region_settings.clear_new()
@@ -8671,6 +8672,8 @@ def global_close_all():
     this_cc_editor_widget.update_ccs_in_use([])
     this_wave_editor_widget.clear()
     this_transport.reset()
+    global_open_items_uids = []
+    global_audio_items_to_drop = []
 
 def global_ui_refresh_callback(a_restore_all=False):
     """ Use this to re-open all existing items/regions/song in
