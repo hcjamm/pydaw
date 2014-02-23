@@ -1,6 +1,7 @@
 if [ -e /usr/bin/yum ]; then
 	sudo yum clean all
 elif [ -e /usr/bin/apt-get ]; then
+	sudo apt-get autoremove
 	sudo apt-get clean
 fi
 
@@ -9,5 +10,5 @@ sudo rm -f /var/log/*.gz
 TMP_FILE=/tmp/zero.bin
 
 dd if=/dev/zero of=$TMP_FILE
-rm -rf $TMP_FILE
+rm -f $TMP_FILE
 
