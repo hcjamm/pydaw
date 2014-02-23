@@ -1361,7 +1361,6 @@ class pydaw_preset_manager_widget:
             print("empty")
         else:
             f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
-            print("setting preset {}".format(f_preset))
             f_preset_dict = {}
             f_configure_dict = {}
             for f_i in range(1, len(f_preset)):
