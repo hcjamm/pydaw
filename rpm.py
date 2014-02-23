@@ -103,13 +103,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755, root, root) /usr/bin/pydaw4-engine-no-hw
 %attr(755, root, root) /usr/bin/pydaw4-engine-no-root
 %attr(755, root, root) /usr/bin/pydaw4-project-recover
-%attr(755, root, root) /usr/lib/pydaw4/mixxx/mixxx-launcher.py
 %attr(755, root, root) /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.py
 %attr(755, root, root) /usr/lib/pydaw4/pydaw/python/pydaw.py
 %attr(755, root, root) /usr/lib/pydaw4/rubberband/bin/rubberband
 %attr(755, root, root) /usr/lib/pydaw4/sbsms/bin/sbsms
 
-/usr/lib/pydaw4/mixxx/mixxx.desktop
 /usr/lib/pydaw4/presets/MODULEX.pypresets
 /usr/lib/pydaw4/presets/RAYV.pypresets
 /usr/lib/pydaw4/presets/WAYV.pypresets
@@ -175,8 +173,6 @@ rm -rf $RPM_BUILD_ROOT
 #to have the bytecode cache files, since only root would be able to create them
 #once installed.
 
-/usr/lib/pydaw4/mixxx/mixxx-launcher.pyc
-/usr/lib/pydaw4/mixxx/mixxx-launcher.pyo
 /usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyc
 /usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyo
 /usr/lib/pydaw4/pydaw/python/libpydaw/portaudio.pyc
