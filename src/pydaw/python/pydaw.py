@@ -208,6 +208,7 @@ class song_editor:
             f_cancel_button = QtGui.QPushButton(_("Cancel"))
             f_ok_cancel_layout.addWidget(f_cancel_button)
             f_cancel_button.clicked.connect(song_cancel_handler)
+            f_window.move(QtGui.QCursor.pos())
             f_window.exec_()
         else:
             this_region_settings.open_region(str(f_cell.text()))
@@ -794,6 +795,7 @@ class region_list_editor:
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_ok_cancel_layout.addWidget(f_cancel_button)
         f_cancel_button.clicked.connect(note_cancel_handler)
+        f_window.move(QtGui.QCursor.pos())
         f_window.exec_()
 
     def column_clicked(self, a_val):
