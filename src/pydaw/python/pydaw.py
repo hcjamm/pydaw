@@ -1846,15 +1846,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             os.system(f_cmd)
 
     def open_item_folder(self):
-        this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(0)
         f_path = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
         f_dir = os.path.dirname(f_path)
         if os.path.isdir(f_dir):
+            this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(0)
             this_audio_items_viewer_widget.set_folder(f_dir, True)
             f_file = os.path.basename(f_path)
             this_audio_items_viewer_widget.select_file(f_file)
         else:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"), \
+            QtGui.QMessageBox.warning(this_main_window, _("Error"),
             _("The folder did not exist:\n\n{}").format(f_dir))
 
     def mousePressEvent(self, a_event):
@@ -8247,6 +8247,8 @@ class pydaw_wave_editor_widget:
         self.copy_action.triggered.connect(self.copy_file_to_clipboard)
         self.paste_action = self.menu.addAction(_("Paste File from Clipboard"))
         self.paste_action.triggered.connect(self.open_file_from_clipboard)
+        self.open_folder_action = self.menu.addAction(_("Open parent folder in browser"))
+        self.open_folder_action.triggered.connect(self.open_item_folder)
         self.menu.addSeparator()
         self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
@@ -8298,6 +8300,17 @@ class pydaw_wave_editor_widget:
         self.graph_object = None
         self.current_file = None
 
+    def open_item_folder(self):
+        f_path = str(self.file_lineedit.text())
+        f_dir = os.path.dirname(f_path)
+        if os.path.isdir(f_dir):
+            self.file_browser.folders_tab_widget.setCurrentIndex(0)
+            self.file_browser.set_folder(f_dir, True)
+            f_file = os.path.basename(f_path)
+            self.file_browser.select_file(f_file)
+        else:
+            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+            _("The folder did not exist:\n\n{}").format(f_dir))
 
     def normalize_dialog(self):
         if self.graph_object is None:
