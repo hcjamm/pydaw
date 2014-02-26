@@ -702,7 +702,7 @@ EUPHORIA_PORT_MAP = \
 ("ADSR2 Decay", "8", "2", "10.0", "100.0"),
 ("ADSR2 Sustain", "9", "2", "0.0", "100.0"),
 ("ADSR2 Release", "10", "2", "10.0", "200.0"),
-("Noise Amp", "11", "0", "-60.0", "0.0"),
+("LFO Pitch", "11", "0", "-36.0", "36.0"),
 ("Master Glide", "13", "2", "0.0", "200.0"),
 ("Pitch Env Time", "15", "2", "0.0", "200.0"),
 ("LFO Freq", "16", "2", "10.0", "1600.0"),
@@ -718,7 +718,10 @@ EUPHORIA_PORT_MAP = \
 ("FX3 Knob0", "30", "0", "0.0", "127.0"),
 ("FX3 Knob1", "31", "0", "0.0", "127.0"),
 ("FX3 Knob2", "32", "0", "0.0", "127.0"),
-("LFO Pitch", "83", "0", "-36.0", "36.0"),]
+#This one is kept for compatibility because it was once in here incorrectly
+#TODO:  Delete at PyDAWv5
+("zzDeprecated ignore", "83", "0", "-36.0", "36.0")
+]
 
 _euphoria_port_mins = (EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN,
                        EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN,
