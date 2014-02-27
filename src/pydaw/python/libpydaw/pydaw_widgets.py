@@ -1642,6 +1642,7 @@ class eq_widget:
                                             a_port_dict, a_preset_mgr)
         self.gain_knob.add_to_grid_layout(self.layout, 2)
 
+EQ6_CLIPBOARD = None
 
 class eq6_widget:
     def __init__(self, a_first_port, a_rel_callback, a_val_callback,
@@ -1650,8 +1651,6 @@ class eq6_widget:
         self.val_callback = a_val_callback
         self.widget = QtGui.QWidget()
         self.widget.setObjectName("plugin_ui")
-        self.reset_button = QtGui.QPushButton(_("Reset"))
-        self.reset_button.pressed.connect(self.reset_controls)
         self.eq_viewer = eq_viewer(a_val_callback)
 
         self.vlayout = QtGui.QVBoxLayout()
@@ -1676,7 +1675,18 @@ class eq6_widget:
             self.hlayout.addLayout(self.grid_layout)
 
         self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.combobox_hlayout.addWidget(self.reset_button)
+
+        self.menu_button = QtGui.QPushButton(_("Menu"))
+        self.menu = QtGui.QMenu(self.menu_button)
+        self.menu_button.setMenu(self.menu)
+        self.copy_action = self.menu.addAction(_("Copy"))
+        self.copy_action.triggered.connect(self.on_copy)
+        self.paste_action = self.menu.addAction(_("Paste"))
+        self.paste_action.triggered.connect(self.on_paste)
+        self.menu.addSeparator()
+        self.reset_action = self.menu.addAction(_("Reset"))
+        self.reset_action.triggered.connect(self.reset_controls)
+        self.combobox_hlayout.addWidget(self.menu_button)
 
         self.eqs = []
 
@@ -1702,6 +1712,27 @@ class eq6_widget:
             f_port += 3
             f_default_value += 18
         self.update_viewer()
+
+    def on_paste(self):
+        global EQ6_CLIPBOARD
+        if EQ6_CLIPBOARD is not None:
+            for f_eq, f_tuple in zip(self.eqs, EQ6_CLIPBOARD):
+                f_eq.freq_knob.set_value(f_tuple[0])
+                f_eq.freq_knob.control_value_changed(f_tuple[0])
+                f_eq.res_knob.set_value(f_tuple[1])
+                f_eq.res_knob.control_value_changed(f_tuple[1])
+                f_eq.gain_knob.set_value(f_tuple[2])
+                f_eq.gain_knob.control_value_changed(f_tuple[2])
+
+    def on_copy(self):
+        global EQ6_CLIPBOARD
+        EQ6_CLIPBOARD = []
+        for f_eq in self.eqs:
+            EQ6_CLIPBOARD.append(
+            (f_eq.freq_knob.get_value(),
+            f_eq.res_knob.get_value(),
+            f_eq.gain_knob.get_value())
+            )
 
     def knob_callback(self, a_port, a_val):
         self.val_callback(a_port, a_val)
