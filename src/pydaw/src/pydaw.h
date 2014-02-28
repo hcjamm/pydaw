@@ -1231,10 +1231,13 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn,
     event->value = (event->value * 0.0078125f * f_diff) + f_lb;
     //this may or may not already be set.  TODO:  simplify
     event->port = controlIn;
-    sprintf(a_pydaw_data->osc_cursor_message[a_track_num], "%i|%i|%i|%f",
-            a_is_inst, a_track_num, controlIn, event->value);
-    v_queue_osc_message(a_pydaw_data, "pc",
-            a_pydaw_data->osc_cursor_message[a_track_num]);
+    if(!a_pydaw_data->is_offline_rendering)
+    {
+        sprintf(a_pydaw_data->osc_cursor_message[a_track_num], "%i|%i|%i|%f",
+                a_is_inst, a_track_num, controlIn, event->value);
+        v_queue_osc_message(a_pydaw_data, "pc",
+                a_pydaw_data->osc_cursor_message[a_track_num]);
+    }
 }
 
 inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
