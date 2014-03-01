@@ -1198,7 +1198,12 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                 continue
             f_time_inc = .0625  #1/16 of a beat
             f_start = f_this_cc_arr[i].start + f_time_inc
-            f_inc = (f_val_diff / ((f_this_cc_arr[i + 1].start - f_this_cc_arr[i].start) * 16.0))
+
+            f_start_diff = f_this_cc_arr[i + 1].start - f_this_cc_arr[i].start
+            if f_start_diff == 0.0:
+                continue
+
+            f_inc = (f_val_diff / (f_start_diff * 16.0))
             if (f_this_cc_arr[i].cc_val) > (f_this_cc_arr[i + 1].cc_val):
                 f_inc *= -1.0
             f_new_val = f_this_cc_arr[i].cc_val + f_inc
@@ -1241,9 +1246,10 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                 continue
             f_time_inc = 0.0625
             f_start = f_this_pb_arr[i].start + f_time_inc
-
-            f_val_inc = f_val_diff / ((f_this_pb_arr[i + 1].start -
-                f_this_pb_arr[i].start) * 16.0)
+            f_start_diff = f_this_pb_arr[i + 1].start - f_this_pb_arr[i].start
+            if f_start_diff == 0.0:
+                continue
+            f_val_inc = f_val_diff / (f_start_diff * 16.0)
             if f_this_pb_arr[i].pb_val > f_this_pb_arr[i + 1].pb_val:
                 f_val_inc *= -1.0
             f_new_val = f_this_pb_arr[i].pb_val + f_val_inc
