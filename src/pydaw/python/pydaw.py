@@ -7494,7 +7494,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                          f_input_file, f_output_file]
             f_proc = subprocess.Popen(f_cmd)
             f_proc.communicate()
-            f_window.close()
+            if f_close_checkbox.isChecked():
+                f_window.close()
             QtGui.QMessageBox.warning(self, _("Success"), _("Created file"))
 
         def cancel_handler():
@@ -7589,22 +7590,28 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_mp3_layout.addWidget(f_mp3_radiobutton)
         f_mp3_radiobutton.toggled.connect(format_changed)
         f_mp3_br_combobox = QtGui.QComboBox()
-        f_mp3_br_combobox.addItems(["320", "160", "128"])
+        f_mp3_br_combobox.addItems(["320", "256", "192", "160", "128"])
         f_mp3_layout.addWidget(QtGui.QLabel(_("Bitrate")))
         f_mp3_layout.addWidget(f_mp3_br_combobox)
         f_layout.addLayout(f_mp3_layout, 3, 1)
+
+        f_close_checkbox = QtGui.QCheckBox("Close on finish?")
+        f_close_checkbox.setChecked(True)
+        f_layout.addWidget(f_close_checkbox, 9, 1)
 
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton(_("OK"))
+        f_ok.setMinimumWidth(75)
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
-        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_layout.addLayout(f_ok_layout, 9, 2)
         f_cancel = QtGui.QPushButton(_("Cancel"))
+        f_cancel.setMinimumWidth(75)
         f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 9, 2)
+        f_ok_layout.addWidget(f_cancel)
         f_window.exec_()
 
     def set_tooltips(self, a_on):
