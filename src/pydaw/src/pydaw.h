@@ -5294,7 +5294,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     sleep(1);
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    //pthread_mutex_lock(&a_pydaw_data->main_mutex);
 
     a_pydaw_data->is_offline_rendering = 1;
     a_pydaw_data->input_buffers_active = 0;
@@ -5438,7 +5438,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;
 
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 
