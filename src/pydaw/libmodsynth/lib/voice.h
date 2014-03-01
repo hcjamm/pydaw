@@ -64,7 +64,6 @@ typedef struct st_voc_voices
     int thresh;  //when to start agressively killing voices
     int poly_mode;  //0 = retrigger, 1 = free, 2 = mono, 3 = mono_v2
     int iterator;
-    int steal_voice_index;
 }t_voc_voices;
 
 t_voc_voices * g_voc_get_voices(int, int);
@@ -83,7 +82,6 @@ t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
             (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice) * a_count);
 
     f_result->iterator = 0;
-    f_result->steal_voice_index = 0;
 
     int f_i = 0;
 
@@ -99,22 +97,19 @@ t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
 static inline int i_get_oldest_voice(t_voc_voices *data, int a_running,
         int a_note_num)
 {
-    long oldest_tick = data->voices[0].on;
-    int oldest_tick_voice = 0;
+    int f_i = 0;
+    long oldest_tick = LONG_MAX;
+    int oldest_tick_voice = -1;
 
-    int f_i = 1;
-    /* otherwise find for the oldest note and replace that */
     while (f_i < (data->count))
     {
-        if(a_note_num < 0 || a_note_num ==
-                data->voices[f_i].note)
+        if(a_note_num < 0 || a_note_num == data->voices[f_i].note)
         {
             if (data->voices[f_i].on < oldest_tick &&
                 data->voices[f_i].on > -1)
             {
                 if(!a_running ||
-                (data->voices[f_i].n_state == note_state_running ||
-                data->voices[f_i].n_state == note_state_releasing))
+                (data->voices[f_i].n_state != note_state_off))
                 {
                     oldest_tick = data->voices[f_i].on;
                     oldest_tick_voice = f_i;
@@ -125,6 +120,7 @@ static inline int i_get_oldest_voice(t_voc_voices *data, int a_running,
         f_i++;
     }
 
+    assert(oldest_tick_voice != -1);
     return oldest_tick_voice;
 }
 
@@ -186,7 +182,6 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
     data->iterator = 0;
     /* Look for a duplicate note */
     int f_note_count = 0;
-    int f_last_note = -1;
     int f_active_count = 0;
 
     while((data->iterator) < (data->count))
@@ -201,33 +196,23 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
             {
                 data->voices[(data->iterator)].n_state = note_state_killed;
                 data->voices[(data->iterator)].off = a_current_sample;
+                f_note_count++;
             }
-
-            f_note_count++;
+            else if(data->voices[(data->iterator)].n_state ==
+                    note_state_killed)
+            {
+                f_note_count++;
+            }
             //do not allow more than 2 voices for any note, at any time...
-            if(f_note_count > 1)
+            if(f_note_count > 2)
             {
-                if(data->steal_voice_index == 0)
-                {
-                    data->steal_voice_index = 1;
-                    data->voices[(data->iterator)].on =
-                            a_current_sample + a_tick;
-                    data->voices[(data->iterator)].n_state = note_state_running;
-                    //data->voices[(data->iterator)].off = -1;
-                    return (data->iterator);
-                }
-                else
-                {
-                    data->steal_voice_index = 0;
-                    data->voices[f_last_note].on = a_current_sample + a_tick;
-                    data->voices[f_last_note].n_state = note_state_running;
-                    //data->voices[f_last_note].off = -1;
-                    return f_last_note;
-                }
-            }
-            else
-            {
-                f_last_note = (data->iterator);
+                int f_steal_voice =
+                    i_get_oldest_voice(data, 1, a_current_note);
+                data->voices[f_steal_voice].on = a_current_sample + a_tick;
+                data->voices[f_steal_voice].note = a_current_note;
+                data->voices[f_steal_voice].off = -1;
+                data->voices[f_steal_voice].n_state = note_state_running;
+                return f_steal_voice;
             }
         }
         data->iterator = (data->iterator) + 1;
