@@ -96,27 +96,33 @@ t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
     return f_result;
 }
 
-static inline int i_get_oldest_voice(t_voc_voices *data, int a_running)
+static inline int i_get_oldest_voice(t_voc_voices *data, int a_running,
+        int a_note_num)
 {
     long oldest_tick = data->voices[0].on;
     int oldest_tick_voice = 0;
 
-    data->iterator = 1;
+    int f_i = 1;
     /* otherwise find for the oldest note and replace that */
-    while ((data->iterator) < (data->count))
+    while (f_i < (data->count))
     {
-	if (data->voices[(data->iterator)].on < oldest_tick &&
-            data->voices[(data->iterator)].on > -1)
+        if(a_note_num < 0 || a_note_num ==
+                data->voices[f_i].note)
         {
-            if(!a_running ||
-            (data->voices[(data->iterator)].n_state == note_state_running ||
-            data->voices[(data->iterator)].n_state == note_state_releasing))
+            if (data->voices[f_i].on < oldest_tick &&
+                data->voices[f_i].on > -1)
             {
-                oldest_tick = data->voices[(data->iterator)].on;
-                oldest_tick_voice = (data->iterator);
+                if(!a_running ||
+                (data->voices[f_i].n_state == note_state_running ||
+                data->voices[f_i].n_state == note_state_releasing))
+                {
+                    oldest_tick = data->voices[f_i].on;
+                    oldest_tick_voice = f_i;
+                }
             }
-	}
-        data->iterator = (data->iterator) + 1;
+        }
+
+        f_i++;
     }
 
     return oldest_tick_voice;
@@ -245,7 +251,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
 
             if(f_active_count >= data->thresh)
             {
-                int f_voice_to_kill = i_get_oldest_voice(data, 1);
+                int f_voice_to_kill = i_get_oldest_voice(data, 1, -1);
                 data->voices[f_voice_to_kill].n_state = note_state_killed;
                 data->voices[f_voice_to_kill].off = a_current_sample;
                 f_active_count--;
@@ -255,7 +261,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note,
         data->iterator = (data->iterator) + 1;
     }
 
-    int oldest_tick_voice = i_get_oldest_voice(data, 0);
+    int oldest_tick_voice = i_get_oldest_voice(data, 0, -1);
 
     data->voices[oldest_tick_voice].note = a_current_note;
     data->voices[oldest_tick_voice].on = a_current_sample + a_tick;
