@@ -1,7 +1,7 @@
 rm -f *.iso
 
-./copy_rpms.py
-sudo ./build.py
+#./copy_rpms.py
+#sudo ./build.py
 
 PYDAW_VERSION=$(cat ../../major-version.txt)
 PYDAW_RELEASE=$(cat ../../minor-version.txt)
