@@ -157,10 +157,9 @@ void v_adsr_set_r_time(t_adsr*__restrict a_adsr_ptr, float a_time)
  */
 void v_adsr_set_fast_release(t_adsr*__restrict a_adsr_ptr)
 {
-    a_adsr_ptr->r_time = .005f;
+    a_adsr_ptr->r_time = .01f;
     a_adsr_ptr->r_inc = -.002f;
-    a_adsr_ptr->r_inc_db = ((a_adsr_ptr->sr) * -0.005f) /
-            (ADSR_DB_RELEASE);
+    a_adsr_ptr->r_inc_db = ((a_adsr_ptr->sr) * -0.01f) / ADSR_DB_RELEASE;
     a_adsr_ptr->stage = 3;
 }
 
