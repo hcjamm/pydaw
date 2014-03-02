@@ -40,16 +40,25 @@ class pydaw_plugin_file:
         self.configure_dict = {}
         if a_path is not None:
             f_text = pydaw_util.pydaw_read_file_text(a_path)
-            f_line_arr = f_text.split("\n")
-            for f_line in f_line_arr:
-                if f_line == "\\":
-                    break
-                f_items = f_line.split("|", 1)
-                if f_items[0] == 'c':
-                    f_items2 = f_items[1].split("|", 1)
-                    self.configure_dict[(f_items2[0])] = f_items2[1]
-                else:
-                    self.port_dict[int(f_items[0])] = int(float(f_items[1]))
+            self.set_from_str(f_text)
+
+    def set_from_str(self, a_str):
+        f_line_arr = a_str.split("\n")
+        for f_line in f_line_arr:
+            if f_line == "\\":
+                break
+            f_items = f_line.split("|", 1)
+            if f_items[0] == 'c':
+                f_items2 = f_items[1].split("|", 1)
+                self.configure_dict[(f_items2[0])] = f_items2[1]
+            else:
+                self.port_dict[int(f_items[0])] = int(float(f_items[1]))
+
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_plugin_file()
+        f_result.set_from_str(a_str)
+        return f_result
 
     @staticmethod
     def from_dict(a_port_dict, a_configure_dict):
@@ -4145,6 +4154,8 @@ SMP_TB_PITCH_INDEX  =  9
 SMP_TB_TUNE_INDEX  =  10
 SMP_TB_INTERPOLATION_MODE_INDEX  =  11
 
+EUPHORIA_INSTRUMENT_CLIPBOARD = None
+
 class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num,
                  a_project, a_folder, a_track_type, a_track_name,
@@ -4619,13 +4630,21 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         menuFile =  QtGui.QMenu("Menu", menubar)
         actionSave_instrument_to_file =  menuFile.addAction(_("Save instrument to file"))
         actionOpen_instrument_from_file = menuFile.addAction(_("Open instrument from file"))
+        menuFile.addSeparator()
+        action_copy_instrument = menuFile.addAction(_("Copy instrument"))
+        action_paste_instrument = menuFile.addAction(_("Paste instrument"))
+        menuFile.addSeparator()
         actionMapToWhiteKeys =  menuFile.addAction(_("Map All Samples to 1 White Key"))
         actionMapToMonoFX =  menuFile.addAction(_("Map All Samples to Own MonoFX Group"))
+        menuFile.addSeparator()
         actionClearAllSamples =  menuFile.addAction(_("Clear All Samples"))
+        menuFile.addSeparator()
         actionImportSfz = menuFile.addAction(_("Import SFZ"))
+        menuFile.addSeparator()
         actionTsPs = menuFile.addAction(_("Time-Stretch/Pitch-Shift"))
 
         menubar.setMenu(menuFile)
+        menuFile.addSeparator()
         menuSetAll = menuFile.addMenu("Set all...")
 
         actionSetAllHighPitches = menuSetAll.addAction(_("High Notes"))
@@ -4642,6 +4661,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         actionSave_instrument_to_file.triggered.connect(self.saveToFile)
         actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
+        action_copy_instrument.triggered.connect(self.copy_instrument)
+        action_paste_instrument.triggered.connect(self.paste_instrument)
         actionMapToWhiteKeys.triggered.connect(self.mapAllSamplesToOneWhiteKey)
         actionMapToMonoFX.triggered.connect(self.mapAllSamplesToOneMonoFXgroup)
         actionClearAllSamples.triggered.connect(self.clearAllSamples)
@@ -5089,7 +5110,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.clear()
         self.mono_fx_tab_selected_sample.addItems(f_combobox_items)
         self.selected_radiobuttons[0].click()
-        self.update_eq6(0)
+        self.sample_selected_monofx_groupChanged(0)
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
@@ -5597,7 +5618,27 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_result += "sample|{}|{}\n".format(i, f_file_name)
         return f_result
 
-    def saveToFile(self):
+    def copy_instrument(self):
+        global EUPHORIA_INSTRUMENT_CLIPBOARD
+        f_plugin_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
+        EUPHORIA_INSTRUMENT_CLIPBOARD = str(f_plugin_file)
+
+    def paste_instrument(self):
+        if EUPHORIA_INSTRUMENT_CLIPBOARD:
+            f_file = pydaw_plugin_file.from_str(EUPHORIA_INSTRUMENT_CLIPBOARD)
+            for k, v in list(f_file.port_dict.items()):
+                f_port = int(k)
+                f_value = int(v)
+                self.port_dict[f_port].set_value(f_value)
+                self.port_dict[f_port].control_value_changed(f_value)
+            for k, v in list(f_file.configure_dict.items()):
+                self.set_configure(k, v)
+            self.save_plugin_file()
+            self.open_plugin_file()
+            self.generate_files_string()
+            self.configure_plugin("load", self.files_string)
+
+    def saveToFile(self, a_copy=False):
         while True:
             f_selected_path = QtGui.QFileDialog.getSaveFileName(self.widget,
             _("Select a directory to copy the samples to..."), pydaw_util.global_home,
@@ -5620,7 +5661,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_plugin_file = pydaw_plugin_file.from_dict(self.port_dict, {})
                 f_result_str = "{}{}".format(f_sample_str, f_plugin_file)
                 pydaw_util.pydaw_write_file_text(f_selected_path, f_result_str)
-                break
             else:
                 break
 
