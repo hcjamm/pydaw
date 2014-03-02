@@ -1183,12 +1183,8 @@ class pydaw_preset_manager_widget:
             pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string,
             a_plugin_name)
         self.bank_file = "{}/{}.bank".format(pydaw_util.global_pydaw_home, a_plugin_name)
-        self.preset_path = "{}/{}.pypresets".format(pydaw_util.global_pydaw_home, a_plugin_name)
 
-        if os.path.isfile(self.bank_file):
-            f_text = pydaw_util.pydaw_read_file_text(self.bank_file)
-            if os.path.isfile(f_text):
-                self.preset_path = f_text
+        self.load_default_preset_path()
 
         self.group_box = QtGui.QGroupBox()
         self.group_box.setObjectName("plugin_groupbox")
@@ -1209,10 +1205,13 @@ class pydaw_preset_manager_widget:
         self.reset_button.pressed.connect(self.reset_controls)
         self.layout.addWidget(self.reset_button)
         self.more_button = QtGui.QPushButton(_("More"))
-        self.more_button.pressed.connect(self.on_more)
 
         self.more_menu = QtGui.QMenu(self.more_button)
 
+        f_new_bank_action = self.more_menu.addAction(_("New bank..."))
+        f_new_bank_action.triggered.connect(self.on_new_bank)
+        f_reload_bank_action = self.more_menu.addAction(_("Reload bank..."))
+        f_reload_bank_action.triggered.connect(self.reload_default_presets)
         f_save_as_action = self.more_menu.addAction(_("Save bank as..."))
         f_save_as_action.triggered.connect(self.on_save_as)
         f_open_action = self.more_menu.addAction(_("Open bank..."))
@@ -1233,6 +1232,23 @@ class pydaw_preset_manager_widget:
             self.program_combobox.addItem("empty")
         self.load_presets()
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
+
+    def load_default_preset_path(self):
+        self.preset_path = "{}/{}.pypresets".format(
+            pydaw_util.global_pydaw_home, self.plugin_name)
+        if os.path.isfile(self.bank_file):
+            f_text = pydaw_util.pydaw_read_file_text(self.bank_file)
+            if os.path.isfile(f_text):
+                print("Setting self.preset_path to {}".format(f_text))
+                self.preset_path = f_text
+            else:
+                print("{} does not exist".format(f_text))
+        else:
+            print("{} does not exist".format(self.bank_file))
+
+    def reload_default_presets(self):
+        self.load_default_preset_path()
+        self.load_presets()
 
     def on_copy(self):
         f_result = {}
@@ -1257,10 +1273,10 @@ class pydaw_preset_manager_widget:
         if global_plugin_configure_clipboard is not None:
             self.reconfigure_callback(global_plugin_configure_clipboard)
 
-    def on_more(self):
-        self.more_button.showMenu()
+    def on_new_bank(self):
+        self.on_save_as(True)
 
-    def on_save_as(self):
+    def on_save_as(self, a_new=False):
         f_file = QtGui.QFileDialog.getSaveFileName(parent=self.group_box,
                                                    caption=_('Save preset bank...'),
                                                    directory=pydaw_util.global_home,
@@ -1269,9 +1285,17 @@ class pydaw_preset_manager_widget:
             f_file = str(f_file)
             if not f_file.endswith(".pypresets"):
                 f_file += ".pypresets"
-            os.system('cp "{}" "{}"'.format(self.preset_path, f_file))
+            if a_new:
+                pydaw_util.pydaw_write_file_text(f_file,
+                                                 "\n".join([self.plugin_name] +
+                                                 ["empty" for i in range(128)]))
+            else:
+                os.system('cp "{}" "{}"'.format(self.preset_path, f_file))
             self.preset_path = f_file
             pydaw_util.pydaw_write_file_text(self.bank_file, self.preset_path)
+            if a_new:
+                self.program_combobox.setCurrentIndex(0)
+                self.load_presets()
 
     def on_open_bank(self):
         f_file = QtGui.QFileDialog.getOpenFileName(parent=self.group_box,
@@ -1282,7 +1306,9 @@ class pydaw_preset_manager_widget:
             f_file = str(f_file)
             self.preset_path = f_file
             pydaw_util.pydaw_write_file_text(self.bank_file, self.preset_path)
+            self.program_combobox.setCurrentIndex(0)
             self.load_presets()
+
 
     def on_restore_bank(self):
         if os.path.isfile(self.bank_file):
@@ -1290,6 +1316,7 @@ class pydaw_preset_manager_widget:
         self.preset_path = "{}/{}.pypresets".format(pydaw_util.global_pydaw_home,
                                                     self.plugin_name)
         os.system('rm "{}"'.format(self.preset_path))
+        self.program_combobox.setCurrentIndex(0)
         self.load_presets()
 
     def reset_controls(self):
@@ -1300,7 +1327,7 @@ class pydaw_preset_manager_widget:
 
     def load_presets(self):
         if os.path.isfile(self.preset_path):
-            print("loading presets from file")
+            print("loading presets from file {}".format(self.preset_path))
             f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
             f_line_arr = f_text.split("\n")
         elif os.path.isfile(self.factory_preset_path):
