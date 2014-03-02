@@ -80,9 +80,8 @@ def get_scaled_pixmap_knob(a_size):
             "{}/pydaw-knob.png".format(pydaw_util.global_stylesheet_dir))
 
     if not a_size in global_pydaw_knob_pixmap_cache:
-        global_pydaw_knob_pixmap_cache[a_size] = \
-        global_pydaw_knob_pixmap.scaled(a_size, a_size, \
-        QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        global_pydaw_knob_pixmap_cache[a_size] = global_pydaw_knob_pixmap.scaled(a_size, a_size,
+            QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
 
     return global_pydaw_knob_pixmap_cache[a_size]
 
@@ -249,6 +248,7 @@ class pydaw_abstract_ui_control:
         f_ok_button = QtGui.QPushButton(_("OK"))
         f_ok_button.pressed.connect(ok_handler)
         f_layout.addWidget(f_ok_button, 6, 1)
+        f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
         f_dialog.exec_()
 
     def tempo_sync_dialog(self):
@@ -292,6 +292,7 @@ class pydaw_abstract_ui_control:
         f_groupbox_layout.addWidget(f_beat_frac_combobox, 1, 1)
         f_groupbox_layout.addWidget(f_cancel_button, 2, 0)
         f_groupbox_layout.addWidget(f_sync_button, 2, 1)
+        f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
         f_dialog.exec_()
 
     def set_note_dialog(self):
@@ -316,6 +317,7 @@ class pydaw_abstract_ui_control:
         f_ok_cancel_layout.addWidget(f_cancel_button)
         f_ok_cancel_layout.addWidget(f_ok_button)
         f_vlayout.addLayout(f_ok_cancel_layout)
+        f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
         f_dialog.exec_()
 
 
