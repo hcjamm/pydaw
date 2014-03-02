@@ -399,10 +399,18 @@ class region_settings:
         self.region_name_lineedit.setEnabled(False)
         self.region_name_lineedit.setMaximumWidth(330)
         self.hlayout0.addWidget(self.region_name_lineedit)
+
+        self.menu_button = QtGui.QPushButton(_("Menu"))
+        self.hlayout0.addWidget(self.menu_button)
+        self.menu = QtGui.QMenu(self.menu_button)
+        self.menu_button.setMenu(self.menu)
+        self.shift_action = self.menu.addAction(_("Shift Song"))
+        self.shift_action.triggered.connect(self.on_shift)
+        self.menu.addSeparator()
+        self.split_action = self.menu.addAction(_("Split Region"))
+        self.split_action.triggered.connect(self.on_split)
+
         self.hlayout0.addItem(QtGui.QSpacerItem(10,10, QtGui.QSizePolicy.Expanding))
-        self.split_button = QtGui.QPushButton(_("Split"))
-        self.split_button.pressed.connect(self.on_split)
-        self.hlayout0.addWidget(self.split_button)
         self.hlayout0.addWidget(QtGui.QLabel(_("Region Length:")))
         self.length_default_radiobutton = QtGui.QRadioButton(_("default"))
         self.length_default_radiobutton.setChecked(True)
@@ -417,6 +425,43 @@ class region_settings:
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
+
+    def on_shift(self):
+        def ok_handler():
+            f_song = this_pydaw_project.get_song()
+            f_amt = f_shift_amt.value()
+            if f_amt == 0:
+                return
+            f_song.shift(f_amt)
+            this_pydaw_project.save_song(f_song)
+            this_pydaw_project.commit("Shift song by {}".format(f_amt))
+
+            this_song_editor.open_song()
+            self.clear_items()
+            this_song_editor.open_first_region()
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle(_("Shift song..."))
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_shift_amt = QtGui.QSpinBox()
+        f_shift_amt.setRange(-10, 10)
+        f_layout.addWidget(QtGui.QLabel(_("Amount:")), 2, 1)
+        f_layout.addWidget(f_shift_amt, 2, 2)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout, 5, 2)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_ok_cancel_layout.addWidget(f_ok_button)
+        f_ok_button.clicked.connect(ok_handler)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_ok_cancel_layout.addWidget(f_cancel_button)
+        f_cancel_button.clicked.connect(cancel_handler)
+        f_window.exec_()
+
 
     def on_split(self):
         if global_current_region is None or this_transport.is_playing or \
@@ -435,7 +480,7 @@ class region_settings:
             this_pydaw_project.save_region(f_region_name, f_midi_tuple[1])
             this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_tuple[0])
             this_pydaw_project.save_audio_region(f_new_uid, f_audio_tuple[1])
-            this_pydaw_project.commit(_("Split region {}  into {}").format(
+            this_pydaw_project.commit(_("Split region {} into {}").format(
                 global_current_region_name, f_region_name))
             this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
@@ -446,19 +491,19 @@ class region_settings:
             f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle(_("Split region..."))
+        f_window.setWindowTitle(_("Split Region..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_vlayout0 = QtGui.QVBoxLayout()
         f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
         f_new_lineedit.editingFinished.connect(on_name_changed)
         f_new_lineedit.setMaxLength(24)
-        f_layout.addWidget(QtGui.QLabel(_("New name:")), 0, 1)
+        f_layout.addWidget(QtGui.QLabel(_("New Name:")), 0, 1)
         f_layout.addWidget(f_new_lineedit, 0, 2)
         f_layout.addLayout(f_vlayout0, 1, 0)
         f_split_at = QtGui.QSpinBox()
         f_split_at.setRange(1, pydaw_get_current_region_length() - 1)
-        f_layout.addWidget(QtGui.QLabel(_("Split at:")), 2, 1)
+        f_layout.addWidget(QtGui.QLabel(_("Split After:")), 2, 1)
         f_layout.addWidget(f_split_at, 2, 2)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_ok_cancel_layout, 5, 2)

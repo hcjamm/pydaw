@@ -986,6 +986,14 @@ class pydaw_song:
                 return k
         assert(False)
 
+    def shift(self, a_amt):
+        f_result = {}
+        for k, v in self.regions.items():
+            f_index = k + a_amt
+            if f_index >= 0 and f_index < 300:
+                f_result[f_index] = v
+        self.regions = f_result
+
     def insert_region(self, a_index, a_region_uid):
         f_new_dict = {}
         f_old_dict = {}
