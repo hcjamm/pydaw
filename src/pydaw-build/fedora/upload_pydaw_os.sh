@@ -1,4 +1,4 @@
-rm -f *.iso
+#rm -f *.iso
 
 #./copy_rpms.py
 #sudo ./build.py
