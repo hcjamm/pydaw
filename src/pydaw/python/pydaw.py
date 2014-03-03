@@ -1024,8 +1024,11 @@ class region_list_editor:
                         "individual item names before editing as a group.").format(f_result_str))
                         return
                     f_result.append(f_result_str)
-        global_open_items(f_result)
-        this_main_window.main_tabwidget.setCurrentIndex(1)
+        if f_result:
+            global_open_items(f_result)
+            this_main_window.main_tabwidget.setCurrentIndex(1)
+        else:
+            QtGui.QMessageBox.warning(self.table_widget, _("Error"), _("No items selected"))
 
     def on_rename_items(self):
         f_result = []
