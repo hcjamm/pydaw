@@ -1034,9 +1034,9 @@ class region_list_editor:
         f_result = []
         for f_item in self.table_widget.selectedItems():
             f_item_name = str(f_item.text())
-            if not f_item_name in f_result:
+            if f_item_name != "" and not f_item_name in f_result:
                 f_result.append(f_item_name)
-        if len(f_result) == 0:
+        if not f_result:
             return
 
         def ok_handler():
