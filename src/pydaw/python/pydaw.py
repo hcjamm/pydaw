@@ -8712,7 +8712,7 @@ class pydaw_wave_editor_widget:
 
     def set_sample_graph(self, a_file_name):
         this_pydaw_project.delete_sample_graph_by_name(a_file_name)
-        self.graph_object = this_pydaw_project.get_sample_graph_by_name(a_file_name)
+        self.graph_object = this_pydaw_project.get_sample_graph_by_name(a_file_name, a_cp=False)
         self.sample_graph.draw_item(self.graph_object, 0.0, 1000.0, 0.0, 1000.0)
 
     def clear_sample_graph(self):

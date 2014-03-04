@@ -666,8 +666,8 @@ class pydaw_project:
             if a_commit:
                 self.commit("Update per-audio-item effects")
 
-    def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
-        f_uid = self.get_wav_uid_by_name(a_path)
+    def get_sample_graph_by_name(self, a_path, a_uid_dict=None, a_cp=True):
+        f_uid = self.get_wav_uid_by_name(a_path, a_cp=a_cp)
         return self.get_sample_graph_by_uid(f_uid)
 
     def get_sample_graph_by_uid(self, a_uid):
@@ -683,14 +683,14 @@ class pydaw_project:
             return f_result
 
     def delete_sample_graph_by_name(self, a_path):
-        f_uid = self.get_wav_uid_by_name(a_path)
+        f_uid = self.get_wav_uid_by_name(a_path, a_cp=False)
         self.delete_sample_graph_by_uid(f_uid)
 
     def delete_sample_graph_by_uid(self, a_uid):
         f_pygraph_file = "{}/{}".format(self.samplegraph_folder, a_uid)
         pydaw_remove_item_from_sg_cache(f_pygraph_file)
 
-    def get_wav_uid_by_name(self, a_path, a_uid_dict=None, a_uid=None):
+    def get_wav_uid_by_name(self, a_path, a_uid_dict=None, a_uid=None, a_cp=True):
         """ Return the UID from the wav pool, or add to the pool if it does not exist """
         if a_uid_dict is None:
             f_uid_dict = self.get_wavs_dict()
@@ -701,12 +701,15 @@ class pydaw_project:
             return f_uid_dict.get_uid_by_name(f_path)
         else:
             f_uid = f_uid_dict.add_new_item(f_path, a_uid)
-            f_cp_path = "{}{}".format(self.samples_folder, f_path)
-            f_cp_dir = os.path.dirname(f_cp_path)
-            if not os.path.isdir(f_cp_dir):
-                os.makedirs(f_cp_dir)
-            if not os.path.isfile(f_cp_path):
-                os.system("cp -f '{}' '{}'".format(f_path, f_cp_path))
+            if a_cp:
+                f_cp_path = "{}{}".format(self.samples_folder, f_path)
+                f_cp_dir = os.path.dirname(f_cp_path)
+                if not os.path.isdir(f_cp_dir):
+                    os.makedirs(f_cp_dir)
+                if not os.path.isfile(f_cp_path):
+                    f_cmd = "cp -f '{}' '{}'".format(f_path, f_cp_path)
+                    print(f_cmd)
+                    os.system(f_cmd)
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
             return f_uid
