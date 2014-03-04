@@ -29,10 +29,7 @@ extern "C" {
 //Used to switch between values, uses much less CPU than a switch statement
 typedef float (*fp_get_osc_func_ptr)(t_osc_core*);
 
-
-/*A unison oscillator.  The _osc_type pointer determines which waveform it uses,
- * it defaults to saw unless you set it to something else*/
-typedef struct st_osc_simple_unison
+typedef struct
 {
     float sr_recip;
     //Set this to the max number of voices, not to exceed OSC_UNISON_MAX_VOICES
@@ -221,6 +218,11 @@ inline float f_get_osc_off(t_osc_core * a_core)
     return 0.0f;
 }
 
+fp_get_osc_func_ptr SIMPLE_OSC_TYPES[] =
+{
+    f_get_saw, f_get_square, f_get_triangle, f_get_sine, f_get_osc_off
+};
+
 /* void v_osc_set_simple_osc_unison_type(
  * t_osc_simple_unison * a_osc_ptr, int a_index)
  *
@@ -234,25 +236,7 @@ inline float f_get_osc_off(t_osc_core * a_core)
 inline void v_osc_set_simple_osc_unison_type(
         t_osc_simple_unison * a_osc_ptr, int a_index)
 {
-    switch(a_index)
-    {
-        case 0:
-            a_osc_ptr->osc_type = f_get_saw;
-            break;
-        case 1:
-            a_osc_ptr->osc_type = f_get_square;
-            break;
-        case 2:
-            a_osc_ptr->osc_type = f_get_triangle;
-            break;
-        case 3:
-            a_osc_ptr->osc_type = f_get_sine;
-            break;
-        case 4:
-            a_osc_ptr->osc_type = f_get_osc_off;
-            break;
-    }
-
+    a_osc_ptr->osc_type = SIMPLE_OSC_TYPES[a_index];
 }
 
 
