@@ -697,22 +697,28 @@ class pydaw_project:
         else:
             f_uid_dict = a_uid_dict
         f_path = str(a_path).replace("//", "/")
+        if a_cp:
+            self.cp_audio_file_to_cache(f_path)
         if f_uid_dict.name_exists(f_path):
             return f_uid_dict.get_uid_by_name(f_path)
         else:
             f_uid = f_uid_dict.add_new_item(f_path, a_uid)
-            if a_cp:
-                f_cp_path = "{}{}".format(self.samples_folder, f_path)
-                f_cp_dir = os.path.dirname(f_cp_path)
-                if not os.path.isdir(f_cp_dir):
-                    os.makedirs(f_cp_dir)
-                if not os.path.isfile(f_cp_path):
-                    f_cmd = "cp -f '{}' '{}'".format(f_path, f_cp_path)
-                    print(f_cmd)
-                    os.system(f_cmd)
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
             return f_uid
+
+    def cp_audio_file_to_cache(self, a_file):
+        if a_file in self.cached_audio_files:
+            return
+        f_cp_path = "{}{}".format(self.samples_folder, a_file)
+        f_cp_dir = os.path.dirname(f_cp_path)
+        if not os.path.isdir(f_cp_dir):
+            os.makedirs(f_cp_dir)
+        if not os.path.isfile(f_cp_path):
+            f_cmd = "cp -f '{}' '{}'".format(a_file, f_cp_path)
+            print(f_cmd)
+            os.system(f_cmd)
+        self.cached_audio_files.append(a_file)
 
     def get_wav_name_by_uid(self, a_uid, a_uid_dict=None):
         """ Return the UID from the wav pool, or add to the pool if it does not exist """
@@ -968,6 +974,7 @@ class pydaw_project:
         self.last_region_number = 1
         self.history_files = []
         self.history_commits = []
+        self.cached_audio_files = []
         self.history_undo_cursor = 0
         self.this_pydaw_osc = pydaw_osc(a_with_audio)
         self.glued_name_index = 0
