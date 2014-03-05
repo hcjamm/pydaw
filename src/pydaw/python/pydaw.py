@@ -1895,15 +1895,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def open_item_folder(self):
         f_path = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
-        f_dir = os.path.dirname(f_path)
-        if os.path.isdir(f_dir):
-            this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(0)
-            this_audio_items_viewer_widget.set_folder(f_dir, True)
-            f_file = os.path.basename(f_path)
-            this_audio_items_viewer_widget.select_file(f_file)
-        else:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"),
-            _("The folder did not exist:\n\n{}").format(f_dir))
+        this_audio_items_viewer_widget.open_file_in_browser(f_path)
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -8359,15 +8351,7 @@ class pydaw_wave_editor_widget:
 
     def open_item_folder(self):
         f_path = str(self.file_lineedit.text())
-        f_dir = os.path.dirname(f_path)
-        if os.path.isdir(f_dir):
-            self.file_browser.folders_tab_widget.setCurrentIndex(0)
-            self.file_browser.set_folder(f_dir, True)
-            f_file = os.path.basename(f_path)
-            self.file_browser.select_file(f_file)
-        else:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"),
-            _("The folder did not exist:\n\n{}").format(f_dir))
+        self.file_browser.open_file_in_browser(f_path)
 
     def normalize_dialog(self):
         if self.graph_object is None:

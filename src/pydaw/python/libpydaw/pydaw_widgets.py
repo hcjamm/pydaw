@@ -945,6 +945,17 @@ class pydaw_abstract_file_browser_widget():
         self.audio_items_clipboard = []
         self.hsplitter.setSizes([300, 9999])
 
+    def open_file_in_browser(self, a_path):
+        f_path = str(a_path)
+        f_dir = os.path.dirname(f_path)
+        if os.path.isdir(f_dir):
+            self.folders_tab_widget.setCurrentIndex(0)
+            self.set_folder(f_dir, True)
+            f_file = os.path.basename(f_path)
+            self.select_file(f_file)
+        else:
+            QtGui.QMessageBox.warning(self.vsplitter, _("Error"),
+            _("The folder did not exist:\n\n{}").format(f_dir))
 
     def on_bookmark_save_as(self):
         f_file = QtGui.QFileDialog.getSaveFileName(parent=self.bookmarks_tab,
@@ -4628,11 +4639,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.main_bottom_hlayout.addWidget(f_logo_label, alignment=QtCore.Qt.AlignRight)
 
         menuFile =  QtGui.QMenu("Menu", menubar)
-        actionSave_instrument_to_file =  menuFile.addAction(_("Save instrument to file"))
-        actionOpen_instrument_from_file = menuFile.addAction(_("Open instrument from file"))
+        action_open_in_browser = menuFile.addAction(_("Open Selected Sample in Browser"))
         menuFile.addSeparator()
-        action_copy_instrument = menuFile.addAction(_("Copy instrument"))
-        action_paste_instrument = menuFile.addAction(_("Paste instrument"))
+        actionSave_instrument_to_file =  menuFile.addAction(_("Save Instrument to File"))
+        actionOpen_instrument_from_file = menuFile.addAction(_("Open Instrument from File"))
+        menuFile.addSeparator()
+        action_copy_instrument = menuFile.addAction(_("Copy Instrument"))
+        action_paste_instrument = menuFile.addAction(_("Paste Instrument"))
         menuFile.addSeparator()
         actionMapToWhiteKeys =  menuFile.addAction(_("Map All Samples to 1 White Key"))
         actionMapToMonoFX =  menuFile.addAction(_("Map All Samples to Own MonoFX Group"))
@@ -4659,6 +4672,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         actionSetAllNoiseTypes = menuSetAll.addAction(_("Noise Types"))
         actionSetAllNoiseAmps = menuSetAll.addAction(_("Noise Amps"))
 
+        action_open_in_browser.triggered.connect(self.open_file_in_browser)
         actionSave_instrument_to_file.triggered.connect(self.saveToFile)
         actionOpen_instrument_from_file.triggered.connect(self.openFromFile)
         action_copy_instrument.triggered.connect(self.copy_instrument)
@@ -5094,6 +5108,18 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         else:
             self.sample_graph.clear_drawn_items()
 
+    def get_selected_sample(self):
+        self.find_selected_radio_button()
+        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
+            return ""
+        else:
+            return str(self.sample_table.item(self.selected_row_index,
+                                              SMP_TB_FILE_PATH_INDEX).text())
+
+    def open_file_in_browser(self):
+        f_path = self.get_selected_sample()
+        self.file_browser.open_file_in_browser(f_path)
+
     def open_plugin_file(self):
         pydaw_abstract_plugin_ui.open_plugin_file(self)
         self.sample_table.resizeColumnsToContents()
@@ -5358,8 +5384,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             return
         self.suppress_selected_sample_changed = True
         self.find_selected_radio_button()
-        self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
-        self.mono_fx_tab_selected_sample.setCurrentIndex((self.selected_row_index))
+        self.selected_sample_index_combobox.setCurrentIndex(self.selected_row_index)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(self.selected_row_index)
         self.setSelectedMonoFX()
         self.suppress_selected_sample_changed = False
         self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
