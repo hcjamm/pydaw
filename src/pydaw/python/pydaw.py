@@ -7402,6 +7402,8 @@ class pydaw_main_window(QtGui.QMainWindow):
     def tab_changed(self):
         if this_item_editor.delete_radiobutton.isChecked():
             this_item_editor.add_radiobutton.setChecked(True)
+        if not global_transport_is_playing and self.main_tabwidget.currentIndex() != 3:
+            this_wave_editor_widget.enabled_checkbox.setChecked(False)
 
     def on_import_midi(self):
         self.midi_file = None
@@ -7803,7 +7805,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
         #The tabs
         self.main_tabwidget = QtGui.QTabWidget()
-        self.main_tabwidget.currentChanged.connect(self.tab_changed)
         self.transport_splitter.addWidget(self.main_tabwidget)
 
         self.regions_tab_widget = QtGui.QTabWidget()
@@ -7843,6 +7844,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.notes_tab.setAcceptRichText(False)
         self.notes_tab.leaveEvent = self.on_edit_notes
         self.main_tabwidget.addTab(self.notes_tab, _("Project Notes"))
+        self.main_tabwidget.currentChanged.connect(self.tab_changed)
 
         try:
             self.osc_server = liblo.Server(30321)
