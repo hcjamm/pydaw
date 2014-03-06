@@ -4141,6 +4141,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.piano_keys = None
         self.vel_rand = 0
         self.vel_emphasis = 0
+        self.clipboard = []
 
     def set_tooltips(self, a_on):
         if a_on:
@@ -4203,6 +4204,31 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
+
+    def copy_selected(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+        self.clipboard = [(str(x.note_item), x.item_index)
+                          for x in self.note_items if x.isSelected()]
+
+    def paste(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+        if not self.clipboard:
+            QtGui.QMessageBox.warning(self, _("Error"), _("Nothing copied to the clipboard"))
+            return
+        f_item_count = len(this_item_editor.items)
+        for f_item, f_index in self.clipboard:
+            if f_index < f_item_count:
+                this_item_editor.items[f_index].add_note(pydaw_note.from_str(f_item))
+        global_save_and_reload_items()
+        self.scene.clearSelection()
+        for f_item in self.note_items:
+            f_tuple = (str(f_item.note_item), f_item.item_index)
+            if f_tuple in self.clipboard:
+                f_item.setSelected(True)
 
     def delete_selected(self):
         if not this_item_editor.enabled:
@@ -4604,6 +4630,16 @@ class piano_roll_editor_widget():
 
         self.velocity_action = self.edit_menu.addAction(_("Velocity"))
         self.velocity_action.triggered.connect(self.velocity_dialog)
+
+        self.edit_menu.addSeparator()
+
+        self.copy_action = self.edit_menu.addAction(_("Copy Selected"))
+        self.copy_action.triggered.connect(this_piano_roll_editor.copy_selected)
+        self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
+
+        self.paste_action = self.edit_menu.addAction(_("Paste"))
+        self.paste_action.triggered.connect(this_piano_roll_editor.paste)
+        self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
 
         self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
