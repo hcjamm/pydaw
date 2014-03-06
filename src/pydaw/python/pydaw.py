@@ -915,11 +915,17 @@ class region_list_editor:
         self.unlink_action = QtGui.QAction(_("Unlink Single Item"), self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
         self.table_widget.addAction(self.unlink_action)
-        self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Selected Items"),
+        self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Items"),
                                                     self.table_widget)
         self.unlink_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+U"))
         self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
+        self.unlink_unique_action = QtGui.QAction(_("Auto-Unlink Unique Items"),
+                                                    self.table_widget)
+        self.unlink_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+U"))
+        self.unlink_unique_action.triggered.connect(self.on_auto_unlink_unique)
+        self.table_widget.addAction(self.unlink_unique_action)
+
         self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
@@ -1156,6 +1162,33 @@ class region_list_editor:
         this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()),
                                        global_current_region)
         this_pydaw_project.commit(_("Auto-Unlink items"))
+
+    def on_auto_unlink_unique(self):
+        f_result = {}
+        for i in range(self.track_count):
+            for i2 in range(1, self.region_length + 1):
+                f_item = self.table_widget.item(i, i2)
+                if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
+                    f_result[(i, i2)] = str(f_item.text())
+
+        old_new_map = {}
+
+        for f_item_name in set(f_result.values()):
+            f_name_suffix = 1
+            while this_pydaw_project.item_exists("{}-{}".format(f_item_name,
+                                                                f_name_suffix)):
+                f_name_suffix += 1
+            f_cell_text = "{}-{}".format(f_item_name, f_name_suffix)
+            f_uid = this_pydaw_project.copy_item(f_item_name, f_cell_text)
+            old_new_map[f_item_name] = (f_cell_text, f_uid)
+
+        for k, v in f_result.items():
+            self.add_qtablewidgetitem(old_new_map[v][0], k[0], k[1] - 1)
+            global_current_region.add_item_ref_by_uid(k[0] + self.track_offset, k[1] - 1,
+                                                      old_new_map[v][1])
+        this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()),
+                                       global_current_region)
+        this_pydaw_project.commit(_("Auto-Unlink unique items"))
 
     def paste_to_region_end(self):
         if not self.enabled:
