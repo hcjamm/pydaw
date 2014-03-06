@@ -2202,6 +2202,8 @@ pydaw_loop_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 180, 30))
 pydaw_loop_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
 pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30), 12.0)
 
+pydaw_marker_min_diff = 1.0
+
 class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
     mode_start_end = 0
     mode_loop = 1
@@ -2299,16 +2301,19 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.value = f_new_val
         if self.other is not None:
             if self.marker_type == 0:
-                if self.value > self.other.value - 6.0:
-                    self.other.value = self.value + 6.0
+                if self.value > self.other.value - pydaw_marker_min_diff:
+                    self.other.value = self.value + pydaw_marker_min_diff
                     self.other.value = pydaw_util.pydaw_clip_value(self.other.value,
-                                                                   6.0, 1000.0, a_round=True)
+                                                                   pydaw_marker_min_diff,
+                                                                   1000.0, a_round=True)
                     self.other.set_pos()
             elif self.marker_type == 1:
-                if self.other.value > self.value - 6.0:
-                    self.other.value = self.value - 6.0
+                if self.other.value > self.value - pydaw_marker_min_diff:
+                    self.other.value = self.value - pydaw_marker_min_diff
                     self.other.value = pydaw_util.pydaw_clip_value(self.other.value,
-                                                                   0.0, 994.0, a_round=True)
+                                                                   0.0,
+                                                                   1000.0 - pydaw_marker_min_diff,
+                                                                   a_round=True)
                     self.other.set_pos()
         if self.fade_marker is not None:
             self.fade_marker.draw_lines()
@@ -5081,7 +5086,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     self.loop_starts[self.selected_row_index].get_value() + f_loop_length
                 f_loop_end_value = pydaw_util.pydaw_clip_value(
                     f_loop_end_value,
-                    self.loop_starts[self.selected_row_index].get_value() + 6.0,
+                    self.loop_starts[self.selected_row_index].get_value() + pydaw_marker_min_diff,
                     1000.0, a_round=True)
                 self.loop_ends[self.selected_row_index].set_value(f_loop_end_value)
                 self.loop_ends[self.selected_row_index].control_value_changed(f_loop_end_value)
