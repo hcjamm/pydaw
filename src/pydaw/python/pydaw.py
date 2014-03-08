@@ -4933,6 +4933,7 @@ class automation_viewer(QtGui.QGraphicsView):
             f_cc_val = pydaw_clip_value(f_cc_val, -1.0, 1.0)
             this_item_editor.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
+        self.selected_str = []
         global_save_and_reload_items()
 
     def draw_axis(self):
