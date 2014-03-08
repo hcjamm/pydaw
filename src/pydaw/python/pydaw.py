@@ -7751,7 +7751,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         #self.setMinimumSize(1100, 600)
         self.setObjectName("mainwindow")
 
-        self.setStyleSheet(global_stylesheet)
+        app.setStyleSheet(global_stylesheet)
         self.first_offline_render = True
         self.last_offline_dir = global_home
         self.last_ac_dir = global_home
