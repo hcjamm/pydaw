@@ -340,11 +340,6 @@ QPushButton:disabled, QComboBox:disabled
 	background-color: #323232;
 }
 
-QAbstractItemView
-{
-	background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4d4d4d, stop: 0.1 #646464, stop: 1 #5d5d5d);
-}
-
 QLineEdit, QLineEdit:disabled
 {
 	color:white;
@@ -405,6 +400,7 @@ QComboBox:on
 
 QAbstractItemView
 {
+        background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4d4d4d, stop: 0.1 #646464, stop: 1 #5d5d5d);
 	border: 2px solid darkgray;
 	selection-background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #dddddd);
 }
