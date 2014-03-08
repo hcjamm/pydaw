@@ -1216,7 +1216,7 @@ class pydaw_preset_manager_widget:
         self.program_combobox.setEditable(True)
         self.program_combobox.setMinimumWidth(190)
         self.layout.addWidget(self.program_combobox)
-        self.save_button = QtGui.QPushButton("Save Preset")
+        self.save_button = QtGui.QPushButton("Save")
         self.save_button.setToolTip(_("Save the current settings to a preset.  "
         "Plugin settings are saved to the project automatically\n"
         "when you close the plugin window, this button is only for presets."))
