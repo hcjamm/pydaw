@@ -1216,17 +1216,13 @@ class pydaw_preset_manager_widget:
         self.program_combobox.setEditable(True)
         self.program_combobox.setMinimumWidth(190)
         self.layout.addWidget(self.program_combobox)
-        self.save_button = QtGui.QPushButton("Save")
+        self.save_button = QtGui.QPushButton("Save Preset")
         self.save_button.setToolTip(_("Save the current settings to a preset.  "
         "Plugin settings are saved to the project automatically\n"
         "when you close the plugin window, this button is only for presets."))
         self.save_button.pressed.connect(self.save_presets)
         self.layout.addWidget(self.save_button)
-        self.reset_button = QtGui.QPushButton(_("Reset"))
-        self.reset_button.setToolTip(_("Resets all controls to their default value"))
-        self.reset_button.pressed.connect(self.reset_controls)
-        self.layout.addWidget(self.reset_button)
-        self.more_button = QtGui.QPushButton(_("More"))
+        self.more_button = QtGui.QPushButton(_("Menu"))
 
         self.more_menu = QtGui.QMenu(self.more_button)
 
@@ -1245,6 +1241,9 @@ class pydaw_preset_manager_widget:
         f_copy_action.triggered.connect(self.on_copy)
         f_paste_action = self.more_menu.addAction(_("Paste plugin settings..."))
         f_paste_action.triggered.connect(self.on_paste)
+        self.more_menu.addSeparator()
+        f_reset_default_action = self.more_menu.addAction(_("Reset to default values"))
+        f_reset_default_action.triggered.connect(self.reset_controls)
 
         self.more_button.setMenu(self.more_menu)
         self.layout.addWidget(self.more_button)
