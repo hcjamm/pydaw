@@ -1796,10 +1796,22 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_crossfade_action.triggered.connect(self.crossfade_selected)
         f_reset_fades_action = f_menu.addAction(_("Reset fades"))
         f_reset_fades_action.triggered.connect(self.reset_fades)
+        f_move_to_end_action = f_menu.addAction(_("Move to region end"))
+        f_move_to_end_action.triggered.connect(self.move_to_region_end)
         f_menu.addSeparator()
         f_wave_editor_action = f_menu.addAction(_("Open in wave editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def move_to_region_end(self):
+        f_current_region_length = pydaw_get_current_region_length()
+        f_global_tempo = float(this_transport.tempo_spinbox.value())
+        f_graph = this_pydaw_project.get_sample_graph_by_uid(self.audio_item.uid)
+        self.audio_item.clip_at_region_end(f_current_region_length, f_global_tempo,
+                                           f_graph.length_in_seconds, False)
+        this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+        this_pydaw_project.commit(_("Move audio item to region end"))
+        global_open_audio_items(True)
 
     def reset_fades(self):
         f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
