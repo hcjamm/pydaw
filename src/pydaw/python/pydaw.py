@@ -1428,7 +1428,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_y_pos += self.y_inc
         f_file_name = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
         f_file_name = this_pydaw_project.timestretch_lookup_orig_path(f_file_name)
-        f_name_arr = f_file_name.split("/")
+        f_name_arr = f_file_name.rsplit("/", 1)
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
         self.label.setPos(10, 28)
@@ -1772,7 +1772,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if not self.isSelected():
             self.setSelected(True)
         f_menu = QtGui.QMenu(this_main_window)
-        f_save_a_copy_action = f_menu.addAction(_("Save a Copy"))
+        f_save_a_copy_action = f_menu.addAction(_("Save a Copy..."))
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
         f_open_folder_action = f_menu.addAction(_("Open File in Browser"))
         f_open_folder_action.triggered.connect(self.open_item_folder)
@@ -1782,18 +1782,18 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_replace_action = f_menu.addAction(_("Replace with Path in Clipboard"))
         f_replace_action.triggered.connect(self.replace_with_path_in_clipboard)
         f_menu.addSeparator()
-        f_edit_properties_action = f_menu.addAction(_("Edit Properties (Double-Click)"))
+        f_edit_properties_action = f_menu.addAction(_("Edit Properties"))
         f_edit_properties_action.triggered.connect(self.edit_properties)
         f_edit_paif_action = f_menu.addAction(_("Edit Per-Item Effects"))
         f_edit_paif_action.triggered.connect(self.edit_paif)
         f_menu.addSeparator()
-        f_normalize_action = f_menu.addAction(_("Normalize Selected"))
+        f_normalize_action = f_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
-        f_crossfade_action = f_menu.addAction(_("Crossfade Selected"))
+        f_crossfade_action = f_menu.addAction(_("Crossfade"))
         f_crossfade_action.triggered.connect(self.crossfade_selected)
         f_reset_fades_action = f_menu.addAction(_("Reset Fades"))
         f_reset_fades_action.triggered.connect(self.reset_fades)
-        f_move_to_end_action = f_menu.addAction(_("Move Selected to Region End"))
+        f_move_to_end_action = f_menu.addAction(_("Move to Region End"))
         f_move_to_end_action.triggered.connect(self.move_to_region_end)
         f_menu.addSeparator()
         f_wave_editor_action = f_menu.addAction(_("Open in Wave Editor"))
@@ -2028,9 +2028,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.width_orig = 0.0
                     else:
                         f_item.width_orig = f_item.rect().width()
-
-    def mouseDoubleClickEvent(self, a_event):
-        this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
 
     def hoverEnterEvent(self, a_event):
         f_item_pos = self.pos().x()
