@@ -404,10 +404,10 @@ class region_settings:
         self.hlayout0.addWidget(self.menu_button)
         self.menu = QtGui.QMenu(self.menu_button)
         self.menu_button.setMenu(self.menu)
-        self.shift_action = self.menu.addAction(_("Shift Song"))
+        self.shift_action = self.menu.addAction(_("Shift Song..."))
         self.shift_action.triggered.connect(self.on_shift)
         self.menu.addSeparator()
-        self.split_action = self.menu.addAction(_("Split Region"))
+        self.split_action = self.menu.addAction(_("Split Region..."))
         self.split_action.triggered.connect(self.on_split)
 
         self.hlayout0.addItem(QtGui.QSpacerItem(10,10, QtGui.QSizePolicy.Expanding))
@@ -909,10 +909,10 @@ class region_list_editor:
         self.paste_to_end_action.setShortcut(QtGui.QKeySequence.fromString("ALT+V"))
         self.table_widget.addAction(self.paste_to_end_action)
 
-        self.rename_action = QtGui.QAction(_("Rename Selected Items"), self.table_widget)
+        self.rename_action = QtGui.QAction(_("Rename Selected Items..."), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_items)
         self.table_widget.addAction(self.rename_action)
-        self.unlink_action = QtGui.QAction(_("Unlink Single Item"), self.table_widget)
+        self.unlink_action = QtGui.QAction(_("Unlink Single Item..."), self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
         self.table_widget.addAction(self.unlink_action)
         self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Items"),
@@ -931,7 +931,7 @@ class region_list_editor:
         self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
         self.table_widget.addAction(self.delete_action)
         if a_track_type == 0:
-            self.transpose_action = QtGui.QAction(_("Transpose"), self.table_widget)
+            self.transpose_action = QtGui.QAction(_("Transpose..."), self.table_widget)
             self.transpose_action.triggered.connect(self.transpose_dialog)
             self.table_widget.addAction(self.transpose_action)
 
@@ -5179,10 +5179,10 @@ class automation_viewer_widget:
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
 
         self.edit_menu.addSeparator()
-        self.add_point_action = self.edit_menu.addAction(_("Add Point"))
+        self.add_point_action = self.edit_menu.addAction(_("Add Point..."))
         if self.is_cc:
             self.add_point_action.triggered.connect(self.add_cc_point)
-            self.paste_point_action = self.edit_menu.addAction(_("Paste Point from Plugin"))
+            self.paste_point_action = self.edit_menu.addAction(_("Paste Point from Plugin..."))
             self.paste_point_action.triggered.connect(self.paste_cc_point)
         else:
             self.add_point_action.triggered.connect(self.add_pb_point)
@@ -7783,11 +7783,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_transport.menu_button.setMenu(self.menu_bar)
         self.menu_file = self.menu_bar.addMenu(_("&File"))
 
-        self.new_action = self.menu_file.addAction(_("New"))
+        self.new_action = self.menu_file.addAction(_("New..."))
         self.new_action.triggered.connect(self.on_new)
         self.new_action.setShortcut(QtGui.QKeySequence.New)
 
-        self.open_action = self.menu_file.addAction(_("Open"))
+        self.open_action = self.menu_file.addAction(_("Open..."))
         self.open_action.triggered.connect(self.on_open)
         self.open_action.setShortcut(QtGui.QKeySequence.Open)
 
@@ -8367,7 +8367,7 @@ class pydaw_wave_editor_widget:
         self.menu_button = QtGui.QPushButton(_("Menu"))
         self.menu_button.setMenu(self.menu)
         self.file_hlayout.addWidget(self.menu_button)
-        self.export_action = self.menu.addAction(_("Export"))
+        self.export_action = self.menu.addAction(_("Export..."))
         self.export_action.triggered.connect(self.on_export)
         self.menu.addSeparator()
         self.copy_action = self.menu.addAction(_("Copy File to Clipboard"))
@@ -8379,9 +8379,9 @@ class pydaw_wave_editor_widget:
         self.menu.addSeparator()
         self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
-        self.normalize_action = self.menu.addAction(_("Normalize (non-destructive)"))
+        self.normalize_action = self.menu.addAction(_("Normalize (non-destructive)..."))
         self.normalize_action.triggered.connect(self.normalize_dialog)
-        self.stretch_shift_action = self.menu.addAction(_("Time-Stretch/Pitch-Shift"))
+        self.stretch_shift_action = self.menu.addAction(_("Time-Stretch/Pitch-Shift..."))
         self.stretch_shift_action.triggered.connect(self.stretch_shift_dialog)
 
         self.history_button = QtGui.QPushButton(_("History"))
