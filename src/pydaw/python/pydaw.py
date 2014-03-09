@@ -1809,7 +1809,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.audio_item.clip_at_region_end(f_current_region_length, f_global_tempo,
                                                      f_item.graph_object.length_in_seconds, False)
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
-            this_pydaw_project.commit(_("Move audio item to region end"))
+            this_pydaw_project.commit(_("Move audio item(s) to region end"))
             global_open_audio_items(True)
 
     def reset_fades(self):
