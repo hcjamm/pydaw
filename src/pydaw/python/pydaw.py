@@ -6629,15 +6629,15 @@ class transport_widget:
         if self.follow_checkbox.isChecked() and (self.is_playing or self.is_recording):
             f_region = int(a_region)
             f_bar = int(a_bar)
-            if self.region_spinbox.value() != f_region or \
-            self.bar_spinbox.value() != f_bar:
+            if self.get_region_value() != f_region or \
+            self.get_bar_value() != f_bar:
+                #print("region: {} bar: {}".format(f_region, f_bar))
                 self.set_region_value(f_region)
                 self.set_bar_value(f_bar)
                 this_audio_items_viewer.set_playback_pos(f_bar)
                 f_bar += 1
-                this_region_audio_editor.table_widget.selectColumn(f_bar)
-                this_region_editor.table_widget.selectColumn(f_bar)
-                this_region_bus_editor.table_widget.selectColumn(f_bar)
+                for f_editor in global_region_editors:
+                    f_editor.table_widget.selectColumn(f_bar)
                 if f_region != self.last_region_num:
                     self.last_region_num = f_region
                     f_item = this_song_editor.table_widget.item(0, f_region)
