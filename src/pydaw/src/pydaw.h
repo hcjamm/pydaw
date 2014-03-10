@@ -877,7 +877,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
             {
                 if(!a_pydaw_data->is_offline_rendering)
                 {
-                    sprintf(f_msg, "%i|%i|%f", a_pydaw_data->ml_current_region,
+                    sprintf(f_msg, "%i|%i|%f", a_pydaw_data->ml_next_region,
                             a_pydaw_data->ml_next_bar,
                             a_pydaw_data->ml_next_beat);
                     v_queue_osc_message(a_pydaw_data, "cur", f_msg);
