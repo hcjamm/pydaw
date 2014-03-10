@@ -3954,6 +3954,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
             this_item_editor.items[self.item_index].remove_note(self.note_item)
+            this_piano_roll_editor.selected_note_strings = []
             global_save_and_reload_items()
             QtGui.QApplication.restoreOverrideCursor()
             self.showing_resize_cursor = False
