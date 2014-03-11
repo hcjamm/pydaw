@@ -162,9 +162,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/doc/pydaw4/copyright
 /usr/share/doc/pydaw4/readme.txt
 /usr/share/pixmaps/pydaw4.png
-/usr/share/locale/pt_PT/LC_MESSAGES/pydaw4.mo
-/usr/share/locale/de/LC_MESSAGES/pydaw4.mo
-/usr/share/locale/fr/LC_MESSAGES/pydaw4.mo
+#/usr/share/locale/pt_PT/LC_MESSAGES/pydaw4.mo
+#/usr/share/locale/de/LC_MESSAGES/pydaw4.mo
+#/usr/share/locale/fr/LC_MESSAGES/pydaw4.mo
 
 
 #These seem like undesirable files to package, but it seems that rpmbuild

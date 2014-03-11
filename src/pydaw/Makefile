@@ -115,7 +115,7 @@ install:
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r presets $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	cp -r share $(DESTDIR)$(PREFIX)
-	locale/Makefile.py $(DESTDIR)$(PREFIX)
+	#locale/Makefile.py $(DESTDIR)$(PREFIX)
 	install -m 644 ../major-version.txt \
 		$(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)
 	install -m 644 ../minor-version.txt \
