@@ -2557,6 +2557,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         return f_result
 
     def scene_mousePressEvent(self, a_event):
+        if self.graph_object is None:
+            return
         if a_event.button() == QtCore.Qt.RightButton:
             self.scene_contextMenuEvent()
             return
@@ -2566,8 +2568,15 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             f_pos_x = a_event.scenePos().x()
             f_val = self.pos_to_marker_val(f_pos_x)
             self.drag_start_pos = f_val
+            if f_val < self.end_marker.value:
+                for f_marker in self.drag_start_markers:
+                    f_marker.value = f_val
+                    f_marker.set_pos()
+                    f_marker.callback(f_marker.value)
 
     def scene_mouseReleaseEvent(self, a_event):
+        if self.graph_object is None:
+            return
         QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
         if not a_event.isAccepted():
             self.is_drag_selecting = False
@@ -2575,6 +2584,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                 f_marker.callback(f_marker.value)
 
     def scene_mouseMoveEvent(self, a_event):
+        if self.graph_object is None:
+            return
         QtGui.QGraphicsScene.mouseMoveEvent(self.scene, a_event)
         if not a_event.isAccepted() and self.is_drag_selecting:
             f_val = self.pos_to_marker_val(a_event.scenePos().x())
