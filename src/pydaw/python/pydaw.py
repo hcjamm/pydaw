@@ -20,7 +20,7 @@ import subprocess
 from time import sleep
 import time
 import random
-import gc
+
 from PyQt4 import QtGui, QtCore
 from libpydaw import *
 import libpydaw.liblo as liblo
@@ -8034,7 +8034,6 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_quit_timer.start(1000)
         else:
             event.accept()
-            gc.disable()  # Prevent Qt SEGFAULT on exit
 
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
@@ -9118,4 +9117,9 @@ else:
 
 QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("UTF-8"))
 
-sys.exit(app.exec_())
+app.lastWindowClosed.connect(app.quit)
+app.exec_()
+app = None
+time.sleep(0.1)
+
+exit(0)
