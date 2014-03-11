@@ -4,7 +4,7 @@ import os, sys, subprocess
 
 pydaw_version = "pydaw4"
 
-print("sys.argv == %s" % (sys.argv,))
+print("sys.argv == {}".format(sys.argv))
 
 if len(sys.argv) > 1:
 
@@ -14,21 +14,21 @@ if len(sys.argv) > 1:
         try:
             f_proc.kill()
         except Exception as ex:
-            print("Exception while trying to kill engine from helper script: %s" % (ex,))
+            print("Exception while trying to kill engine from helper script: {}".format(ex))
 
     signal.signal(signal.SIGTERM, sig_handle)
     signal.signal(signal.SIGINT, sig_handle)
     signal.signal(signal.SIGABRT, sig_handle)
 
-    f_path = "%s/%s-engine" % (os.path.dirname(__file__), pydaw_version)
+    f_path = "{}/{}-engine".format(os.path.dirname(__file__), pydaw_version)
     print(f_path)
     f_proc = subprocess.Popen([f_path] + sys.argv[1:])
     f_proc.wait()
-    print("helper script:  f_proc returned with %s" % (f_proc.returncode,))
+    print("helper script:  f_proc returned with {}".format(f_proc.returncode))
     sys.exit(f_proc.returncode)
 else:
     f_prefix_dir = os.path.dirname(__file__)
-    f_path = "%s/../lib/%s/pydaw/python/pydaw.py" % (f_prefix_dir, pydaw_version)
+    f_path = "{}/../lib/{}/pydaw/python/pydaw.py".format(f_prefix_dir, pydaw_version)
     f_path = os.path.abspath(f_path)
     print(f_path)
     subprocess.Popen(['python3', f_path])
