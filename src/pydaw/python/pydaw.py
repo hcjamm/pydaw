@@ -141,8 +141,7 @@ class song_editor:
 
     def cell_clicked(self, x, y):
         f_is_playing = False
-        if (this_transport.is_playing or this_transport.is_recording) and \
-        this_transport.follow_checkbox.isChecked():
+        if global_transport_is_playing and this_transport.follow_checkbox.isChecked():
             f_is_playing = True
             this_transport.follow_checkbox.setChecked(False)
             this_region_editor.table_widget.clearSelection()
@@ -362,7 +361,7 @@ class region_settings:
     def update_region_length(self, a_value=None):
         f_region_name = str(self.region_name_lineedit.text())
         global global_current_region
-        if not this_transport.is_playing and not this_transport.is_recording and \
+        if not global_transport_is_playing and \
         global_current_region is not None and f_region_name != "":
             if not self.enabled or global_current_region is None:
                 return
@@ -427,6 +426,9 @@ class region_settings:
         self.hlayout0.addWidget(self.length_alternate_spinbox)
 
     def on_shift(self):
+        if global_transport_is_playing:
+            return
+
         def ok_handler():
             f_song = this_pydaw_project.get_song()
             f_amt = f_shift_amt.value()
@@ -464,9 +466,10 @@ class region_settings:
 
 
     def on_split(self):
-        if global_current_region is None or this_transport.is_playing or \
-        this_transport.is_recording or global_current_region.region_length_bars == 1:
+        if global_current_region is None or global_transport_is_playing or \
+        global_current_region.region_length_bars == 1:
             return
+
         def split_ok_handler():
             f_index = f_split_at.value()
             f_region_name = str(f_new_lineedit.text())
@@ -699,7 +702,7 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-        if (this_transport.is_playing or this_transport.is_recording) and \
+        if global_transport_is_playing and \
         this_transport.follow_checkbox.isChecked():
             this_transport.follow_checkbox.setChecked(False)
         f_item = self.table_widget.item(x, y)
@@ -844,7 +847,7 @@ class region_list_editor:
         f_window.exec_()
 
     def column_clicked(self, a_val):
-        if this_transport.is_playing or this_transport.is_recording:
+        if global_transport_is_playing:
             return
         if a_val > 0:
             this_transport.set_bar_value(a_val - 1)
@@ -2558,8 +2561,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         a_event.setDropAction(QtCore.Qt.CopyAction)
 
     def check_running(self):
-        if pydaw_global_current_region_is_none() or \
-        this_transport.is_playing or this_transport.is_recording:
+        if pydaw_global_current_region_is_none() or global_transport_is_playing:
             return True
         if global_pydaw_subprocess is None:
             QtGui.QMessageBox.warning(this_main_window, _("Error"),
