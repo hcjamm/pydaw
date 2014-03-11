@@ -1295,6 +1295,7 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127,
     f_range_beats = 0.0
     f_tmp_index = 0
     f_break = False
+
     for f_item in a_items:
         for note in f_item.notes:
             if not a_selected_only or (a_selected_only and note.is_selected):
@@ -1321,8 +1322,8 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127,
         for note in f_item.notes:
             if a_selected_only and not note.is_selected:
                 continue
-            if a_line:
-                f_frac = ((note.start + f_beat_offset - f_start_beat)/f_range_beats)
+            if a_line and f_range_beats != 0.0:
+                f_frac = ((note.start + f_beat_offset - f_start_beat) / f_range_beats)
                 f_value = int(((a_end_amt - a_amt) * f_frac) + a_amt)
             else:
                 f_value = int(a_amt)
