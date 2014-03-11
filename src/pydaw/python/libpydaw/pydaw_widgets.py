@@ -2574,6 +2574,11 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                     f_marker.set_pos()
                     f_marker.callback(f_marker.value)
 
+                if self.fade_out_marker.value <= f_val + pydaw_marker_min_diff:
+                    self.fade_out_marker.value = f_val + pydaw_marker_min_diff
+                    self.fade_out_marker.set_pos()
+                    self.fade_out_marker.callback(self.fade_out_marker.value)
+
     def scene_mouseReleaseEvent(self, a_event):
         if self.graph_object is None:
             return
