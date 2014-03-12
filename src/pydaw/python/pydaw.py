@@ -955,7 +955,7 @@ class region_list_editor:
         self.unlink_action.triggered.connect(self.on_unlink_item)
         self.table_widget.addAction(self.unlink_action)
 
-        if a_track_type == 0:
+        if a_track_type == pydaw_track_type_enum.midi:
             self.transpose_action = QtGui.QAction(_("Transpose..."), self.table_widget)
             self.transpose_action.triggered.connect(self.transpose_dialog)
             self.table_widget.addAction(self.transpose_action)
@@ -1065,6 +1065,8 @@ class region_list_editor:
         if f_result:
             global_open_items(f_result)
             this_main_window.main_tabwidget.setCurrentIndex(1)
+            if self.track_type != pydaw_track_type_enum.midi:
+                this_item_editor.tab_widget.setCurrentIndex(1)
         else:
             QtGui.QMessageBox.warning(self.table_widget, _("Error"), _("No items selected"))
 
