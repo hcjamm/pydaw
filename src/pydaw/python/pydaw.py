@@ -891,6 +891,12 @@ class region_list_editor:
         self.edit_group_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+E"))
         self.table_widget.addAction(self.edit_group_action)
 
+        self.edit_unique_action = QtGui.QAction(_("Edit Unique Item(s)"),
+                                                self.table_widget)
+        self.edit_unique_action.triggered.connect(self.edit_unique)
+        self.edit_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+E"))
+        self.table_widget.addAction(self.edit_unique_action)
+
         self.copy_action = QtGui.QAction(_("Copy"), self.table_widget)
         self.copy_action.triggered.connect(self.copy_selected)
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
@@ -912,18 +918,18 @@ class region_list_editor:
         self.paste_to_end_action.setShortcut(QtGui.QKeySequence.fromString("ALT+V"))
         self.table_widget.addAction(self.paste_to_end_action)
 
-        self.rename_action = QtGui.QAction(_("Rename Selected Items..."), self.table_widget)
+        self.rename_action = QtGui.QAction(_("Rename Selected Item(s)..."), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_items)
         self.table_widget.addAction(self.rename_action)
         self.unlink_action = QtGui.QAction(_("Unlink Single Item..."), self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
         self.table_widget.addAction(self.unlink_action)
-        self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Items"),
+        self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Item(s)"),
                                                     self.table_widget)
         self.unlink_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+U"))
         self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
-        self.unlink_unique_action = QtGui.QAction(_("Auto-Unlink Unique Items"),
+        self.unlink_unique_action = QtGui.QAction(_("Auto-Unlink Unique Item(s)"),
                                                     self.table_widget)
         self.unlink_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+U"))
         self.unlink_unique_action.triggered.connect(self.on_auto_unlink_unique)
@@ -1019,7 +1025,10 @@ class region_list_editor:
         self.copy_selected()
         self.delete_selected()
 
-    def edit_group(self):
+    def edit_unique(self):
+        self.edit_group(True)
+
+    def edit_group(self, a_unique=False):
         f_result = []
         for i in range(self.track_count):
             for i2 in range(1, self.region_length + 1):
@@ -1027,11 +1036,15 @@ class region_list_editor:
                 if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
                     f_result_str = str(f_item.text())
                     if f_result_str in f_result:
-                        QtGui.QMessageBox.warning(self.table_widget, _("Error"),
-                        _("You cannot open multiple instances of the same item as a group.\n"
-                        "You should unlink all duplicate instances of {} into their own "
-                        "individual item names before editing as a group.").format(f_result_str))
-                        return
+                        if a_unique:
+                            continue
+                        else:
+                            QtGui.QMessageBox.warning(self.table_widget, _("Error"),
+                            _("You cannot open multiple instances of the same item as a group.\n"
+                            "You should unlink all duplicate instances of {} into their own "
+                            "individual item names before editing as a group.").format(
+                                f_result_str))
+                            return
                     f_result.append(f_result_str)
         if f_result:
             global_open_items(f_result)
