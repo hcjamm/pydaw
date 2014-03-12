@@ -897,6 +897,10 @@ class region_list_editor:
         self.edit_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+E"))
         self.table_widget.addAction(self.edit_unique_action)
 
+        self.separator_action1 = QtGui.QAction("", self.table_widget)
+        self.separator_action1.setSeparator(True)
+        self.table_widget.addAction(self.separator_action1)
+
         self.copy_action = QtGui.QAction(_("Copy"), self.table_widget)
         self.copy_action.triggered.connect(self.copy_selected)
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
@@ -907,38 +911,50 @@ class region_list_editor:
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
         self.table_widget.addAction(self.paste_action)
 
-        self.cut_action = QtGui.QAction(_("Cut"), self.table_widget)
-        self.cut_action.triggered.connect(self.cut_selected)
-        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
-        self.table_widget.addAction(self.cut_action)
-
         self.paste_to_end_action = QtGui.QAction(_("Paste to Region End"),
                                                  self.table_widget)
         self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
         self.paste_to_end_action.setShortcut(QtGui.QKeySequence.fromString("ALT+V"))
         self.table_widget.addAction(self.paste_to_end_action)
 
-        self.rename_action = QtGui.QAction(_("Rename Selected Item(s)..."), self.table_widget)
-        self.rename_action.triggered.connect(self.on_rename_items)
-        self.table_widget.addAction(self.rename_action)
-        self.unlink_action = QtGui.QAction(_("Unlink Single Item..."), self.table_widget)
-        self.unlink_action.triggered.connect(self.on_unlink_item)
-        self.table_widget.addAction(self.unlink_action)
+        self.separator_action2 = QtGui.QAction("", self.table_widget)
+        self.separator_action2.setSeparator(True)
+        self.table_widget.addAction(self.separator_action2)
+
+        self.cut_action = QtGui.QAction(_("Cut"), self.table_widget)
+        self.cut_action.triggered.connect(self.cut_selected)
+        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
+        self.table_widget.addAction(self.cut_action)
+
+        self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
+        self.delete_action.triggered.connect(self.delete_selected)
+        self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
+        self.table_widget.addAction(self.delete_action)
+
+        self.separator_action3 = QtGui.QAction("", self.table_widget)
+        self.separator_action3.setSeparator(True)
+        self.table_widget.addAction(self.separator_action3)
+
         self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Item(s)"),
                                                     self.table_widget)
         self.unlink_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+U"))
         self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
+
         self.unlink_unique_action = QtGui.QAction(_("Auto-Unlink Unique Item(s)"),
                                                     self.table_widget)
         self.unlink_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+U"))
         self.unlink_unique_action.triggered.connect(self.on_auto_unlink_unique)
         self.table_widget.addAction(self.unlink_unique_action)
 
-        self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
-        self.delete_action.triggered.connect(self.delete_selected)
-        self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
-        self.table_widget.addAction(self.delete_action)
+        self.rename_action = QtGui.QAction(_("Rename Selected Item(s)..."), self.table_widget)
+        self.rename_action.triggered.connect(self.on_rename_items)
+        self.table_widget.addAction(self.rename_action)
+
+        self.unlink_action = QtGui.QAction(_("Unlink Single Item..."), self.table_widget)
+        self.unlink_action.triggered.connect(self.on_unlink_item)
+        self.table_widget.addAction(self.unlink_action)
+
         if a_track_type == 0:
             self.transpose_action = QtGui.QAction(_("Transpose..."), self.table_widget)
             self.transpose_action.triggered.connect(self.transpose_dialog)
