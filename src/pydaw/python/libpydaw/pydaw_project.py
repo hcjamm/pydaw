@@ -148,7 +148,7 @@ class pydaw_project:
     def delete_inst_file(self, a_track_num):
         f_file_path = "{}/{}.pyinst".format(self.instrument_folder, a_track_num)
         if os.path.isfile(f_file_path):
-            os.system("rm '{}'".format(f_file_path))
+            os.system("rm -f '{}'".format(f_file_path))
 
     def flush_history(self):
         for f_commit in self.history_commits:
@@ -2224,7 +2224,7 @@ def pydaw_clear_sample_graph_cache():
 def pydaw_remove_item_from_sg_cache(a_path):
     global global_sample_graph_cache
     if os.path.exists(a_path):
-        os.system("rm '{}'".format(a_path))
+        os.system("rm -f '{}'".format(a_path))
     if a_path in global_sample_graph_cache:
         global_sample_graph_cache.pop(a_path)
     else:
