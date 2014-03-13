@@ -7492,14 +7492,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_ok_button.pressed.connect(on_ok)
         f_window.exec_()
 
-    def on_website(self):
-        QtGui.QDesktopServices.openUrl(
-            QtCore.QUrl("http://sourceforge.net/projects/libmodsynth/"))
-
-    def on_youtube(self):
-        QtGui.QDesktopServices.openUrl(
-            QtCore.QUrl("http://www.youtube.com/channel/UCSthu7FZNk2E-FjX-Ek53Gg/videos"))
-
     def on_spacebar(self):
         this_transport.on_spacebar()
 
@@ -7890,12 +7882,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.ac_action.triggered.connect(self.ogg_converter_dialog)
 
         self.menu_help = self.menu_bar.addMenu(_("&Help"))
-
-        self.youtube_action = self.menu_help.addAction(_("PyDAW Youtube Channel..."))
-        self.youtube_action.triggered.connect(self.on_youtube)
-
-        self.website_action = self.menu_help.addAction(_("PyDAW Website..."))
-        self.website_action.triggered.connect(self.on_website)
 
         self.version_action = self.menu_help.addAction(_("Version Info..."))
         self.version_action.triggered.connect(self.on_version)
