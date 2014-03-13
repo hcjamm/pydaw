@@ -9152,8 +9152,8 @@ app.lastWindowClosed.connect(app.quit)
 app.exec_()
 time.sleep(0.3)
 app.processEvents()
-time.sleep(0.6)
+time.sleep(1.2)
 app = None
-time.sleep(0.3)
+time.sleep(0.6)
 
 exit(0)
