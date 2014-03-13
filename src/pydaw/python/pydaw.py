@@ -9150,7 +9150,8 @@ QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("UTF-8"))
 
 app.lastWindowClosed.connect(app.quit)
 app.exec_()
+time.sleep(0.6)
 app = None
-time.sleep(0.1)
+time.sleep(0.3)
 
 exit(0)
