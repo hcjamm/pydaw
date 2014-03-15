@@ -111,7 +111,7 @@ def case_insensitive_path(a_path, a_assert=True):
         print(f_path)
         return f_path
 
-AUDIO_FILE_EXTS = [".WAV", ".AIF", ".AIFF"]
+AUDIO_FILE_EXTS = [".WAV", ".AIF", ".AIFF", ".FLAC"]
 
 def is_audio_file(a_file):
     """ Only checks the extension, not the MIME type """
