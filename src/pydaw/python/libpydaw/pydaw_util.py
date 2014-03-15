@@ -115,7 +115,7 @@ AUDIO_FILE_EXTS = [".WAV", ".AIF", ".AIFF", ".FLAC"]
 
 def is_audio_file(a_file):
     """ Only checks the extension, not the MIME type """
-    f_file = str(a_file).upper()
+    f_file = str(a_file)[-5:].upper()
     for f_ext in AUDIO_FILE_EXTS:
         if f_file.endswith(f_ext):
             return True
