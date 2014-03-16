@@ -4258,9 +4258,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def copy_selected(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
-            return
+            return 0
         self.clipboard = [(str(x.note_item), x.item_index)
                           for x in self.note_items if x.isSelected()]
+        return len(self.clipboard)
 
     def paste(self):
         if not this_item_editor.enabled:
@@ -4596,7 +4597,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_beat = 0.5 - f_beat
         return int(f_beat * 2.0 * a_amt)
 
-class piano_roll_editor_widget():
+class piano_roll_editor_widget:
     def quantize_dialog(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
@@ -4691,6 +4692,10 @@ class piano_roll_editor_widget():
         self.paste_action.triggered.connect(this_piano_roll_editor.paste)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
 
+        self.cut_action = self.edit_menu.addAction(_("Cut Selected"))
+        self.cut_action.triggered.connect(self.on_cut)
+        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
+
         self.select_all_action = self.edit_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
@@ -4724,6 +4729,10 @@ class piano_roll_editor_widget():
 
     def on_delete_selected(self):
         this_piano_roll_editor.delete_selected()
+
+    def on_cut(self):
+        if this_piano_roll_editor.copy_selected():
+            self.on_delete_selected()
 
     def set_snap(self, a_val=None):
         f_index = self.snap_combobox.currentIndex()
