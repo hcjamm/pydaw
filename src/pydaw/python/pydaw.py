@@ -2939,6 +2939,9 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.paste_action = self.action_menu.addAction(_("Paste"))
         self.paste_action.triggered.connect(self.on_paste)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
+        self.cut_action = self.action_menu.addAction(_("Cut Selected"))
+        self.cut_action.triggered.connect(self.on_cut)
+        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
         self.select_all_action = self.action_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.on_select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
@@ -3053,7 +3056,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
 
     def on_copy(self):
         if global_current_region is None or global_transport_is_playing:
-            return
+            return 0
         self.audio_items_clipboard = []
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(
             global_current_region.uid)
@@ -3066,6 +3069,11 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
                                                                               True)))
         if not f_count:
             QtGui.QMessageBox.warning(self.widget, _("Error"), _("Nothing selected."))
+        return f_count
+
+    def on_cut(self):
+        if self.on_copy():
+            self.on_delete_selected()
 
     def on_paste(self):
         if global_current_region is None or global_transport_is_playing:
