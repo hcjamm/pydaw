@@ -285,17 +285,21 @@ class song_editor:
         f_item = self.table_widget.currentItem()
         if f_item is None:
             return
+
         f_item_text = str(f_item.text())
+        f_index = self.table_widget.currentColumn()
 
         def ok_handler():
             f_new_name = str(f_new_lineedit.text())
             if f_new_name == "":
-                QtGui.QMessageBox.warning(self.table_widget, _("Error"), _("Name cannot be blank"))
+                QtGui.QMessageBox.warning(self.table_widget, _("Error"),
+                                          _("Name cannot be blank"))
                 return
             this_pydaw_project.rename_region(f_item_text, f_new_name)
             this_pydaw_project.commit(_("Rename region"))
             this_song_editor.open_song()
             this_region_settings.open_region(f_new_name)
+            this_song_editor.table_widget.setCurrentCell(0, f_index)
             f_window.close()
 
         def cancel_handler():
