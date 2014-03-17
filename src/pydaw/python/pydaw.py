@@ -4878,15 +4878,16 @@ class automation_viewer(QtGui.QGraphicsView):
         self.lines = []
 
         QtGui.QGraphicsView.__init__(self)
+        self.setMinimumHeight(370)
         self.scene = QtGui.QGraphicsScene(self)
-        self.scene.setBackgroundBrush(QtGui.QColor(100,100,100))
+        self.scene.setBackgroundBrush(QtGui.QColor(100, 100, 100))
         self.scene.mouseDoubleClickEvent = self.sceneMouseDoubleClickEvent
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.setScene(self.scene)
         self.draw_axis()
         self.draw_grid()
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.cc_num = 1
