@@ -595,6 +595,9 @@ class region_settings:
         self.length_alternate_radiobutton.setEnabled(True)
         self.length_alternate_spinbox.setEnabled(True)
 
+REGION_CLIPBOARD_ROW_OFFSET = 0
+REGION_CLIPBOARD_COL_OFFSET = 0
+
 class region_list_editor:
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False,
                              a_is_offset=False):
@@ -920,6 +923,11 @@ class region_list_editor:
         self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
         self.paste_to_end_action.setShortcut(QtGui.QKeySequence.fromString("ALT+V"))
         self.table_widget.addAction(self.paste_to_end_action)
+
+        self.paste_to_orig_action = QtGui.QAction(_("Paste to Original Pos"),
+                                                 self.table_widget)
+        self.paste_to_orig_action.triggered.connect(self.paste_at_original_pos)
+        self.table_widget.addAction(self.paste_to_orig_action)
 
         self.separator_action2 = QtGui.QAction("", self.table_widget)
         self.separator_action2.setSeparator(True)
@@ -1248,15 +1256,22 @@ class region_list_editor:
             self.add_qtablewidgetitem(f_item[2], f_base_row, f_column)
         global_tablewidget_to_region()
 
-    def paste_clipboard(self):
+    def paste_at_original_pos(self):
+        self.paste_clipboard(True)
+
+    def paste_clipboard(self, a_original_pos=False):
         if not self.enabled:
             self.warn_no_region_selected()
             return
         f_selected_cells = self.table_widget.selectedIndexes()
         if len(f_selected_cells) == 0:
             return
-        f_base_row = f_selected_cells[0].row()
-        f_base_column = f_selected_cells[0].column() - 1
+        if a_original_pos:
+            f_base_row = REGION_CLIPBOARD_ROW_OFFSET
+            f_base_column = REGION_CLIPBOARD_COL_OFFSET
+        else:
+            f_base_row = f_selected_cells[0].row()
+            f_base_column = f_selected_cells[0].column() - 1
         f_region_length = pydaw_get_current_region_length()
         for f_item in global_region_clipboard:
             f_column = f_item[1] + f_base_column
@@ -1282,7 +1297,7 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-        global global_region_clipboard
+        global global_region_clipboard, REGION_CLIPBOARD_ROW_OFFSET, REGION_CLIPBOARD_COL_OFFSET
         global_region_clipboard = []  #Clear the clipboard
         for f_item in self.table_widget.selectedIndexes():
             f_cell = self.table_widget.item(f_item.row(), f_item.column())
@@ -1298,6 +1313,8 @@ class region_list_editor:
             f_column_offset = global_region_clipboard[0][1]
             for f_item in global_region_clipboard:
                 f_item[1] -= f_column_offset
+            REGION_CLIPBOARD_COL_OFFSET = f_column_offset
+            REGION_CLIPBOARD_ROW_OFFSET = f_row_offset
 
     def table_drop_event(self, a_event):
         if a_event.pos().x() <= self.table_widget.columnWidth(0) or \
