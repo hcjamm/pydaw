@@ -421,6 +421,30 @@ class pydaw_project:
             f_regions_dict.rename_item(a_old_name, a_new_name)
         self.save_regions_dict(f_regions_dict)
 
+    def set_vol_for_all_audio_items(self, a_uid, a_vol, a_reverse=None):
+        """ a_uid:  wav_pool uid
+            a_vol:  dB
+            a_reverse:  None=All, True=reversed-only, False=only-if-not-reversed
+        """
+        f_uid = int(a_uid)
+        f_changed_any = False
+        f_pysong = self.get_song()
+        for f_region_uid in f_pysong.regions.values():
+            f_audio_region = self.get_audio_region(f_region_uid)
+            f_changed = False
+            for f_audio_item in f_audio_region.items.values():
+                if f_audio_item.uid == f_uid:
+                    if a_reverse is None or \
+                    (a_reverse and f_audio_item.reversed) or \
+                    (not a_reverse and not f_audio_item.reversed):
+                        f_audio_item.vol = int(a_vol)
+                        f_changed = True
+            if f_changed:
+                self.save_audio_region(f_region_uid, f_audio_region)
+                f_changed_any = True
+        if f_changed_any:
+            self.commit("Changed volume for all audio items with uid {}".format(f_uid))
+
     def get_item_string(self, a_item_uid):
         try:
             f_file = open("{}/{}".format(self.items_folder, a_item_uid), "r")

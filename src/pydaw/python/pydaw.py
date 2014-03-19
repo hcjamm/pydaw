@@ -1876,10 +1876,55 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_reset_fades_action.triggered.connect(self.reset_fades)
         f_move_to_end_action = f_menu.addAction(_("Move to Region End"))
         f_move_to_end_action.triggered.connect(self.move_to_region_end)
+        f_move_to_end_action = f_menu.addAction(_("Set Volume For All Instances of This File..."))
+        f_move_to_end_action.triggered.connect(self.set_vol_for_all_instances)
         f_menu.addSeparator()
         f_wave_editor_action = f_menu.addAction(_("Open in Wave Editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def set_vol_for_all_instances(self):
+        def ok_handler():
+            f_index = f_reverse_combobox.currentIndex()
+            f_reverse_val = None
+            if f_index == 1:
+                f_reverse_val = False
+            elif f_index == 2:
+                f_reverse_val = True
+            this_pydaw_project.set_vol_for_all_audio_items(self.audio_item.uid,
+                                                           f_vol_slider.value(), f_reverse_val)
+            f_dialog.close()
+            global_open_audio_items()
+
+        def cancel_handler():
+            f_dialog.close()
+
+        def vol_changed(a_val=None):
+            f_vol_label.setText("{}dB".format(f_vol_slider.value()))
+
+        f_dialog = QtGui.QDialog(this_main_window)
+        f_layout = QtGui.QGridLayout(f_dialog)
+        f_layout.setAlignment(QtCore.Qt.AlignCenter)
+        f_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
+        f_vol_slider.setRange(-24, 24)
+        f_vol_slider.setMinimumHeight(480)
+        f_vol_slider.valueChanged.connect(vol_changed)
+        f_layout.addWidget(f_vol_slider, 0, 1)
+        f_vol_label = QtGui.QLabel("0dB")
+        f_layout.addWidget(f_vol_label, 1, 1)
+        f_vol_slider.setValue(self.audio_item.vol)
+        f_reverse_combobox = QtGui.QComboBox()
+        f_reverse_combobox.addItems([_("Either"), _("Not-Reversed"), _("Reversed")])
+        f_reverse_combobox.setMinimumWidth(105)
+        f_layout.addWidget(QtGui.QLabel(_("Reversed Items?")), 2, 0)
+        f_layout.addWidget(f_reverse_combobox, 2, 1)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_ok_button.pressed.connect(ok_handler)
+        f_layout.addWidget(f_ok_button, 10, 0)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel_button, 10, 1)
+        f_dialog.exec_()
 
     def move_to_region_end(self):
         f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
