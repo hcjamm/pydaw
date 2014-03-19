@@ -358,6 +358,20 @@ class song_editor:
                 f_item.setSelected(True)
                 break
 
+
+def global_update_hidden_rows(a_val=None):
+    if global_current_region and this_region_settings.hide_checkbox.isChecked():
+        f_active = [x.track_num for x in global_current_region.items]
+        for f_i in range(this_region_editor.table_widget.rowCount()):
+            if f_i in f_active:
+                this_region_editor.table_widget.showRow(f_i)
+            else:
+                this_region_editor.table_widget.hideRow(f_i)
+    else:
+        for f_i in range(this_region_editor.table_widget.rowCount()):
+            this_region_editor.table_widget.showRow(f_i)
+
+
 global_current_region = None
 global_current_region_name = None
 
@@ -392,6 +406,9 @@ class region_settings:
                 this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             this_pydaw_project.commit(f_commit_message)
 
+    def toggle_hide_inactive(self):
+        self.hide_checkbox.toggle()
+
     def __init__(self):
         self.enabled = False
         self.hlayout0 = QtGui.QHBoxLayout()
@@ -412,6 +429,14 @@ class region_settings:
         self.menu.addSeparator()
         self.split_action = self.menu.addAction(_("Split Region..."))
         self.split_action.triggered.connect(self.on_split)
+        self.menu.addSeparator()
+        self.toggle_hide_action = self.menu.addAction(_("Toggle Hide Inactive"))
+        self.toggle_hide_action.triggered.connect(self.toggle_hide_inactive)
+        self.toggle_hide_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
+
+        self.hide_checkbox = QtGui.QCheckBox("Hide Inactive")
+        self.hlayout0.addWidget(self.hide_checkbox)
+        self.hide_checkbox.stateChanged.connect(global_update_hidden_rows)
 
         self.hlayout0.addItem(QtGui.QSpacerItem(10,10, QtGui.QSizePolicy.Expanding))
         self.hlayout0.addWidget(QtGui.QLabel(_("Region Length:")))
@@ -567,6 +592,7 @@ class region_settings:
                                                                   f_item.bar_num, a_is_offset=True)
         this_audio_items_viewer.scale_to_region_size()
         global_open_audio_items()
+        global_update_hidden_rows()
 
     def clear_items(self):
         self.region_name_lineedit.setText("")
