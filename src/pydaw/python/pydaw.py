@@ -430,11 +430,11 @@ class region_settings:
         self.split_action = self.menu.addAction(_("Split Region..."))
         self.split_action.triggered.connect(self.on_split)
         self.menu.addSeparator()
-        self.toggle_hide_action = self.menu.addAction(_("Toggle Hide Inactive"))
+        self.toggle_hide_action = self.menu.addAction(_("Hide/Unhide Inactive Instruments"))
         self.toggle_hide_action.triggered.connect(self.toggle_hide_inactive)
         self.toggle_hide_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
 
-        self.hide_checkbox = QtGui.QCheckBox("Hide Inactive")
+        self.hide_checkbox = QtGui.QCheckBox(_("Hide Inactive"))
         self.hlayout0.addWidget(self.hide_checkbox)
         self.hide_checkbox.stateChanged.connect(global_update_hidden_rows)
 
