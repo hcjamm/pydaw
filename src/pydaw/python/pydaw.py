@@ -5020,6 +5020,10 @@ class automation_viewer(QtGui.QGraphicsView):
         self.clipboard = [(x.cc_item.clone(), x.item_index)
             for x in self.automation_points if x.isSelected()]
 
+    def cut(self):
+        self.copy_selected()
+        self.delete_selected()
+
     def paste(self):
         if not this_item_editor.enabled:
             return
@@ -5318,6 +5322,9 @@ class automation_viewer_widget:
         self.copy_action = self.edit_menu.addAction(_("Copy"))
         self.copy_action.triggered.connect(self.automation_viewer.copy_selected)
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
+        self.cut_action = self.edit_menu.addAction(_("Cut"))
+        self.cut_action.triggered.connect(self.automation_viewer.cut)
+        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
         self.paste_action = self.edit_menu.addAction(_("Paste"))
         self.paste_action.triggered.connect(self.automation_viewer.paste)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
