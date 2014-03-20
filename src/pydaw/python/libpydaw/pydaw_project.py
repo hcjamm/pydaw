@@ -1140,10 +1140,12 @@ class pydaw_name_uid_dict:
         return f_result
 
     def __str__(self):
-        f_result = ""
-        for k, v in list(self.name_lookup.items()):
-            f_result += "{}|{}\n".format(k, v)
-        return f_result + pydaw_terminating_char
+        f_result = []
+        for k in sorted(self.name_lookup.keys()):
+            v = self.name_lookup[k]
+            f_result.append("|".join((str(k), v)))
+        f_result.append(pydaw_terminating_char)
+        return "\n".join(f_result)
 
 class pydaw_region:
     def __init__(self, a_uid):
