@@ -5619,40 +5619,6 @@ def global_save_and_reload_items():
 global_item_zoom_index = 0
 
 class item_list_editor:
-    def clear_notes(self, a_is_list=True):
-        if self.enabled:
-            if a_is_list:
-                self.item.notes = []
-                this_pydaw_project.save_item(self.item_name, self.item)
-            else:
-                for f_i in range(len(self.items)):
-                    self.items[f_i].notes = []
-                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            this_pydaw_project.commit(_("Clear notes"))
-            global_open_items()
-    def clear_ccs(self, a_is_list=True):
-        if self.enabled:
-            if a_is_list:
-                self.item.ccs = []
-                this_pydaw_project.save_item(self.item_name, self.item)
-            else:
-                for f_i in range(len(self.items)):
-                    self.items[f_i].ccs = []
-                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            this_pydaw_project.commit(_("Clear CCs"))
-            global_open_items()
-    def clear_pb(self, a_is_list=True):
-        if self.enabled:
-            if a_is_list:
-                self.item.pitchbends = []
-                this_pydaw_project.save_item(self.item_name, self.item)
-            else:
-                for f_i in range(len(self.items)):
-                    self.items[f_i].pitchbends = []
-                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            this_pydaw_project.commit(_("Clear pitchbends"))
-            global_open_items()
-
     def clear_new(self):
         self.enabled = False
         self.ccs_table_widget.clearContents()
@@ -5661,39 +5627,6 @@ class item_list_editor:
         this_piano_roll_editor.clear_drawn_items()
         self.item = None
         self.items = []
-        self.notes_clipboard = []
-        self.ccs_clipboard = []
-        self.pbs_clipboard = []
-
-    def get_notes_table_selected_rows(self):
-        f_result = []
-        for i in range(0, self.notes_table_widget.rowCount()):
-            f_item = self.notes_table_widget.item(i, 0)
-            if not f_item is None and f_item.isSelected():
-                f_result.append(pydaw_note(self.notes_table_widget.item(i, 0).text(),
-                                           self.notes_table_widget.item(i, 1).text(),
-                                           self.notes_table_widget.item(i, 3).text(),
-                                           self.notes_table_widget.item(i, 4).text()))
-        return f_result
-
-    def get_ccs_table_selected_rows(self):
-        f_result = []
-        for i in range(0, self.ccs_table_widget.rowCount()):
-            f_item = self.ccs_table_widget.item(i, 0)
-            if not f_item is None and f_item.isSelected():
-                f_result.append(pydaw_cc(self.ccs_table_widget.item(i, 0).text(),
-                                         self.ccs_table_widget.item(i, 1).text(),
-                                         self.ccs_table_widget.item(i, 2).text()))
-        return f_result
-
-    def get_pbs_table_selected_rows(self):
-        f_result = []
-        for i in range(0, self.pitchbend_table_widget.rowCount()):
-            f_item = self.pitchbend_table_widget.item(i, 0)
-            if not f_item is None and f_item.isSelected():
-                f_result.append(pydaw_pitchbend(self.pitchbend_table_widget.item(i, 0).text(),
-                                                self.pitchbend_table_widget.item(i, 1).text()))
-        return f_result
 
     def quantize_dialog(self, a_is_list=True, a_selected_only=False):
         if not self.enabled:
@@ -6100,10 +6033,6 @@ class item_list_editor:
         self.default_pb_start = 0
         self.default_pb_val = 0
         self.default_pb_quantize = 0
-
-        self.notes_clipboard = []
-        self.ccs_clipboard = []
-        self.pbs_clipboard = []
 
 
     def item_index_changed(self, a_index=None):
