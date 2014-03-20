@@ -5877,7 +5877,7 @@ class item_list_editor:
             else:
                 for f_i in range(len(self.items)):
                     self.items[f_i].transpose(f_semitone.value(), f_octave.value(),
-                                              a_selected_only=a_selected_only,
+                                              a_selected_only=f_selected_only.isChecked(),
                                               a_duplicate=f_duplicate_notes.isChecked())
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
@@ -5904,6 +5904,9 @@ class item_list_editor:
         f_duplicate_notes.setToolTip(_("Checking this box causes the transposed notes "
                                      "to be added rather than moving the existing notes."))
         f_layout.addWidget(f_duplicate_notes, 2, 1)
+        f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
+        f_selected_only.setChecked(a_selected_only)
+        f_layout.addWidget(f_selected_only, 4, 1)
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(transpose_ok_handler)
         f_layout.addWidget(f_ok, 6, 0)
