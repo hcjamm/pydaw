@@ -5713,15 +5713,22 @@ class item_list_editor:
         def quantize_ok_handler():
             f_quantize_text = f_quantize_combobox.currentText()
             self.events_follow_default = f_events_follow_notes.isChecked()
+            f_clip = []
             for f_i in range(len(self.items)):
                 if f_multiselect:
                     self.items[f_i].quantize(f_quantize_text,
                                              f_events_follow_notes.isChecked(), f_ms_rows)
                 else:
-                    self.items[f_i].quantize(f_quantize_text,
-                                             f_events_follow_notes.isChecked(),
-                                             a_selected_only=f_selected_only.isChecked())
+                    f_clip += self.items[f_i].quantize(f_quantize_text,
+                        f_events_follow_notes.isChecked(),
+                        a_selected_only=f_selected_only.isChecked(), a_index=f_i)
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+
+            if f_selected_only.isChecked():
+                this_piano_roll_editor.selected_note_strings = f_clip
+            else:
+                this_piano_roll_editor.selected_note_strings = []
+
             global_open_items()
             this_pydaw_project.commit(_("Quantize item(s)"))
             f_window.close()
@@ -5799,10 +5806,16 @@ class item_list_editor:
                                            f_add_values.isChecked())
                 this_pydaw_project.save_item(self.item_name, self.item)
             else:
-                pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(),
-                                   f_end_amount.value(),
-                                   f_add_values.isChecked(),
-                                   a_selected_only=f_selected_only.isChecked())
+                f_clip = pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(),
+                                            f_end_amount.value(),
+                                            f_add_values.isChecked(),
+                                            a_selected_only=f_selected_only.isChecked())
+                print(f_clip)
+                print(this_piano_roll_editor.selected_note_strings)
+                if f_selected_only.isChecked():
+                    this_piano_roll_editor.selected_note_strings = f_clip
+                else:
+                    this_piano_roll_editor.selected_note_strings = []
                 for f_i in range(global_item_editing_count):
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
@@ -5883,6 +5896,7 @@ class item_list_editor:
                     f_multiselect = True
 
         def transpose_ok_handler():
+            f_clip = []
             if a_is_list:
                 if f_multiselect:
                     self.item.transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
@@ -5891,10 +5905,16 @@ class item_list_editor:
                 this_pydaw_project.save_item(self.item_name, self.item)
             else:
                 for f_i in range(len(self.items)):
-                    self.items[f_i].transpose(f_semitone.value(), f_octave.value(),
-                                              a_selected_only=f_selected_only.isChecked(),
-                                              a_duplicate=f_duplicate_notes.isChecked())
+                    f_clip += self.items[f_i].transpose(f_semitone.value(), f_octave.value(),
+                        a_selected_only=f_selected_only.isChecked(),
+                        a_duplicate=f_duplicate_notes.isChecked(), a_index=f_i)
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+
+            if f_selected_only.isChecked():
+                this_piano_roll_editor.selected_note_strings = f_clip
+            else:
+                this_piano_roll_editor.selected_note_strings = []
+
             global_open_items()
             this_pydaw_project.commit(_("Transpose item(s)"))
             f_window.close()

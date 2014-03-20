@@ -1321,6 +1321,7 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127,
     f_range_beats = 0.0
     f_tmp_index = 0
     f_break = False
+    f_result = []
 
     for f_item in a_items:
         for note in f_item.notes:
@@ -1344,7 +1345,7 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127,
         f_tmp_index -= 1
 
     f_beat_offset = 0.0
-    for f_item in a_items:
+    for f_index, f_item in zip(range(len(a_items)), a_items):
         for note in f_item.notes:
             if a_selected_only and not note.is_selected:
                 continue
@@ -1361,7 +1362,9 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127,
                 note.velocity = 127
             elif note.velocity < 1:
                 note.velocity = 1
+            f_result.append("{}|{}".format(f_index, note))
         f_beat_offset += 4.0
+    return f_result
 
 
 class pydaw_item:
@@ -1428,10 +1431,12 @@ class pydaw_item:
                     note.velocity = 1
 
     def quantize(self, a_beat_frac, a_events_move_with_item=False,
-                 a_notes=None, a_selected_only=False):
+                 a_notes=None, a_selected_only=False, a_index=0):
         f_notes = []
         f_ccs = []
         f_pbs = []
+
+        f_result = []
 
         if a_notes is None:
             f_notes = self.notes
@@ -1466,6 +1471,7 @@ class pydaw_item:
             if f_new_length == 0.0:
                 f_new_length = f_quantized_value
             note.length = f_new_length
+            f_result.append("{}|{}".format(a_index, note))
 
         self.fix_overlaps()
 
@@ -1475,10 +1481,13 @@ class pydaw_item:
             for pb in f_pbs:
                 pb.start -= shift_adjust
 
+        return f_result
+
     def transpose(self, a_semitones, a_octave=0, a_notes=None,
-                  a_selected_only=False, a_duplicate=False):
+                  a_selected_only=False, a_duplicate=False, a_index=0):
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
+        f_result = []
 
         if a_notes is None:
             f_notes = self.notes
@@ -1500,9 +1509,11 @@ class pydaw_item:
                 note.note_num = 0
             elif note.note_num > 127:
                 note.note_num = 127
+            f_result.append("{}|{}".format(a_index, note))
         if a_duplicate:
             self.notes += f_duplicates
             self.notes.sort()
+        return f_result
 
     def fix_overlaps(self):
         """ Truncate the lengths of any notes that overlap the start of another note """
