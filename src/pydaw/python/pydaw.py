@@ -4694,19 +4694,19 @@ class piano_roll_editor_widget:
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        this_item_editor.quantize_dialog(False, this_piano_roll_editor.has_selected)
+        this_item_editor.quantize_dialog(this_piano_roll_editor.has_selected)
 
     def transpose_dialog(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        this_item_editor.transpose_dialog(False, this_piano_roll_editor.has_selected)
+        this_item_editor.transpose_dialog(this_piano_roll_editor.has_selected)
 
     def velocity_dialog(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        this_item_editor.velocity_dialog(False, this_piano_roll_editor.has_selected)
+        this_item_editor.velocity_dialog(this_piano_roll_editor.has_selected)
 
     def clear_notes(self):
         if not this_item_editor.enabled:
@@ -5628,33 +5628,19 @@ class item_list_editor:
         self.item = None
         self.items = []
 
-    def quantize_dialog(self, a_is_list=True, a_selected_only=False):
+    def quantize_dialog(self, a_selected_only=False):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        f_multiselect = False
-        if a_is_list:
-            if self.multiselect_radiobutton.isChecked():
-                f_ms_rows = self.get_notes_table_selected_rows()
-                if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, _("Error"),
-                    _("You have editing in multiselect mode, but you have not selected "
-                    "anything.  All items will be processed"))
-                else:
-                    f_multiselect = True
 
         def quantize_ok_handler():
             f_quantize_text = f_quantize_combobox.currentText()
             self.events_follow_default = f_events_follow_notes.isChecked()
             f_clip = []
             for f_i in range(len(self.items)):
-                if f_multiselect:
-                    self.items[f_i].quantize(f_quantize_text,
-                                             f_events_follow_notes.isChecked(), f_ms_rows)
-                else:
-                    f_clip += self.items[f_i].quantize(f_quantize_text,
-                        f_events_follow_notes.isChecked(),
-                        a_selected_only=f_selected_only.isChecked(), a_index=f_i)
+                f_clip += self.items[f_i].quantize(f_quantize_text,
+                    f_events_follow_notes.isChecked(),
+                    a_selected_only=f_selected_only.isChecked(), a_index=f_i)
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
 
             if f_selected_only.isChecked():
@@ -5696,28 +5682,10 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def velocity_dialog(self, a_is_list=True, a_selected_only=False):
+    def velocity_dialog(self, a_selected_only=False):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        f_multiselect = False
-        if a_is_list:
-            if self.multiselect_radiobutton.isChecked():
-                f_ms_rows = self.get_notes_table_selected_rows()
-                if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, _("Error"),
-                    _("You have editing in multiselect mode, but you have not selected anything.  "
-                    "All items will be processed"))
-                else:
-                    f_multiselect = True
-            f_start_beat_val = (4.0 * global_item_editing_count) - 0.01
-            f_end_beat_val = 0.0
-            if f_multiselect:
-                for f_note in f_ms_rows:
-                    if f_note.start < f_start_beat_val:
-                        f_start_beat_val = f_note.start
-                    elif f_note.start > f_end_beat_val:
-                        f_end_beat_val = f_note.start
 
         def ok_handler():
             if f_draw_line.isChecked() and not f_add_values.isChecked() and \
@@ -5726,31 +5694,18 @@ class item_list_editor:
                 _("Cannot have end value less than 1 if not using 'Add Values'"))
                 return
 
-            if a_is_list:
-                if f_multiselect:
-                    self.item.velocity_mod(f_amount.value(), f_start_beat.value(),
-                                           f_end_beat.value(), f_draw_line.isChecked(),
-                                           f_end_amount.value(),
-                                           f_add_values.isChecked(), f_ms_rows)
-                else:
-                    self.item.velocity_mod(f_amount.value(), f_start_beat.value(),
-                                           f_end_beat.value(),
-                                           f_draw_line.isChecked(), f_end_amount.value(),
-                                           f_add_values.isChecked())
-                this_pydaw_project.save_item(self.item_name, self.item)
+            f_clip = pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(),
+                                        f_end_amount.value(),
+                                        f_add_values.isChecked(),
+                                        a_selected_only=f_selected_only.isChecked())
+            print(f_clip)
+            print(this_piano_roll_editor.selected_note_strings)
+            if f_selected_only.isChecked():
+                this_piano_roll_editor.selected_note_strings = f_clip
             else:
-                f_clip = pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(),
-                                            f_end_amount.value(),
-                                            f_add_values.isChecked(),
-                                            a_selected_only=f_selected_only.isChecked())
-                print(f_clip)
-                print(this_piano_roll_editor.selected_note_strings)
-                if f_selected_only.isChecked():
-                    this_piano_roll_editor.selected_note_strings = f_clip
-                else:
-                    this_piano_roll_editor.selected_note_strings = []
-                for f_i in range(global_item_editing_count):
-                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+                this_piano_roll_editor.selected_note_strings = []
+            for f_i in range(global_item_editing_count):
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
             this_pydaw_project.commit(_("Velocity mod item(s)"))
             f_window.close()
@@ -5780,19 +5735,6 @@ class item_list_editor:
         f_end_amount.valueChanged.connect(end_value_changed)
         f_layout.addWidget(f_end_amount, 2, 1)
 
-        if a_is_list:
-            f_layout.addWidget(QtGui.QLabel(_("Start Beat")), 3, 0)
-            f_start_beat = QtGui.QDoubleSpinBox()
-            f_start_beat.setRange(0.0, 3.99)
-            f_start_beat.setValue(f_start_beat_val)
-            f_layout.addWidget(f_start_beat, 3, 1)
-
-            f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
-            f_end_beat = QtGui.QDoubleSpinBox()
-            f_end_beat.setRange(0.01, 3.99)
-            f_end_beat.setValue(f_end_beat_val)
-            f_layout.addWidget(f_end_beat, 4, 1)
-
         f_add_values = QtGui.QCheckBox(_("Add Values?"))
         f_add_values.setToolTip(_("Check this to add Amount to the existing value, or leave\n"
                                 "unchecked to set the value to Amount."))
@@ -5812,36 +5754,19 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def transpose_dialog(self, a_is_list=True, a_selected_only=False):
+    def transpose_dialog(self, a_selected_only=False):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        f_multiselect = False
-        if a_is_list:
-            if self.multiselect_radiobutton.isChecked():
-                f_ms_rows = self.get_notes_table_selected_rows()
-                if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, _("Error"),
-                                              _("You are editing in multiselect mode, "
-                                              "but you have not selected "
-                                              "anything.  All items will be processed"))
-                else:
-                    f_multiselect = True
 
         def transpose_ok_handler():
             f_clip = []
-            if a_is_list:
-                if f_multiselect:
-                    self.item.transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
-                else:
-                    self.item.transpose(f_semitone.value(), f_octave.value())
-                this_pydaw_project.save_item(self.item_name, self.item)
-            else:
-                for f_i in range(len(self.items)):
-                    f_clip += self.items[f_i].transpose(f_semitone.value(), f_octave.value(),
-                        a_selected_only=f_selected_only.isChecked(),
-                        a_duplicate=f_duplicate_notes.isChecked(), a_index=f_i)
-                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+
+            for f_i in range(len(self.items)):
+                f_clip += self.items[f_i].transpose(f_semitone.value(), f_octave.value(),
+                    a_selected_only=f_selected_only.isChecked(),
+                    a_duplicate=f_duplicate_notes.isChecked(), a_index=f_i)
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
 
             if f_selected_only.isChecked():
                 this_piano_roll_editor.selected_note_strings = f_clip
