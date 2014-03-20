@@ -5746,7 +5746,7 @@ class item_list_editor:
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
 
-        f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
+        f_selected_only = QtGui.QCheckBox(_("Selected Notes Only?"))
         f_selected_only.setChecked(a_selected_only)
         f_layout.addWidget(f_selected_only, 2, 1)
 
@@ -5852,7 +5852,7 @@ class item_list_editor:
                                 "unchecked to set the value to Amount."))
         f_layout.addWidget(f_add_values, 5, 1)
 
-        f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
+        f_selected_only = QtGui.QCheckBox(_("Selected Notes Only?"))
         f_selected_only.setChecked(a_selected_only)
         f_layout.addWidget(f_selected_only, 6, 1)
 
@@ -5919,7 +5919,7 @@ class item_list_editor:
         f_duplicate_notes.setToolTip(_("Checking this box causes the transposed notes "
                                      "to be added rather than moving the existing notes."))
         f_layout.addWidget(f_duplicate_notes, 2, 1)
-        f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
+        f_selected_only = QtGui.QCheckBox(_("Selected Notes Only?"))
         f_selected_only.setChecked(a_selected_only)
         f_layout.addWidget(f_selected_only, 4, 1)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
