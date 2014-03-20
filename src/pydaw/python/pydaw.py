@@ -5975,68 +5975,23 @@ class item_list_editor:
         self.notes_groupbox = QtGui.QGroupBox(_("Notes"))
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
 
-
-        self.editing_hboxlayout.addWidget(QtGui.QLabel(_("Editing Item:")))
+        self.editing_hboxlayout.addWidget(QtGui.QLabel(_("Viewing Item:")))
         self.item_name_combobox = QtGui.QComboBox()
         self.item_name_combobox.setMinimumWidth(150)
         self.item_name_combobox.setEditable(False)
         self.item_name_combobox.currentIndexChanged.connect(self.item_index_changed)
         self.item_index_enabled = True
         self.editing_hboxlayout.addWidget(self.item_name_combobox)
+        self.editing_hboxlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
-        self.edit_mode_groupbox = QtGui.QGroupBox()
-        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
-        self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                          QtGui.QSizePolicy.Minimum))
-        self.edit_mode_hlayout0.addWidget(QtGui.QLabel(_("Mode")))
-        self.add_radiobutton = QtGui.QRadioButton(_("Add/Edit"))
-        self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
-        self.multiselect_radiobutton = QtGui.QRadioButton(_("Multiselect"))
-        self.edit_mode_hlayout0.addWidget(self.multiselect_radiobutton)
-        self.delete_radiobutton = QtGui.QRadioButton(_("Delete"))
-        self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
-        self.add_radiobutton.setChecked(True)
-        self.editing_hboxlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignLeft)
-        self.editing_hboxlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                          QtGui.QSizePolicy.Minimum))
-
-        self.notes_gridlayout = QtGui.QGridLayout()
-
-        f_button_width = 82
-        self.notes_quantize_button = QtGui.QPushButton(_("Quantize"))
-        self.notes_quantize_button.setMinimumWidth(f_button_width)
-        self.notes_quantize_button.pressed.connect(self.quantize_dialog)
-        self.notes_gridlayout.addWidget(self.notes_quantize_button, 0, 0)
-        self.notes_transpose_button = QtGui.QPushButton(_("Transpose"))
-        self.notes_transpose_button.setMinimumWidth(f_button_width)
-        self.notes_transpose_button.pressed.connect(self.transpose_dialog)
-        self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
-
-        self.notes_velocity_button = QtGui.QPushButton(_("Velocity"))
-        self.notes_velocity_button.setMinimumWidth(f_button_width)
-        self.notes_velocity_button.pressed.connect(self.velocity_dialog)
-        self.notes_gridlayout.addWidget(self.notes_velocity_button, 0, 2)
-
-        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                        QtGui.QSizePolicy.Minimum), 0, 3)
-
-        self.notes_clear_button = QtGui.QPushButton(_("Clear"))
-        self.notes_clear_button.setMinimumWidth(f_button_width)
-        self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 4)
-        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                        QtGui.QSizePolicy.Minimum), 0, 6, 1, 1)
-        self.notes_vlayout.addLayout(self.notes_gridlayout)
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.notes_table_widget.setColumnCount(5)
         self.notes_table_widget.setRowCount(256)
-        self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
         self.notes_table_widget.sortItems(0)
         self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.notes_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.notes_table_widget.keyPressEvent = self.notes_keyPressEvent
         self.notes_vlayout.addWidget(self.notes_table_widget)
         self.notes_table_widget.resizeColumnsToContents()
 
@@ -6053,16 +6008,7 @@ class item_list_editor:
 
         self.ccs_groupbox = QtGui.QGroupBox(_("CCs"))
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
-        self.ccs_gridlayout = QtGui.QGridLayout()
-        self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                      QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
-        self.ccs_clear_button = QtGui.QPushButton(_("Clear"))
-        self.ccs_clear_button.setMinimumWidth(f_button_width)
-        self.ccs_clear_button.pressed.connect(self.clear_ccs)
-        self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 1)
-        self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                      QtGui.QSizePolicy.Minimum), 0, 2, 1, 1)
-        self.ccs_vlayout.addLayout(self.ccs_gridlayout)
+
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(4)
@@ -6071,7 +6017,6 @@ class item_list_editor:
         self.ccs_table_widget.sortItems(0)
         self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_table_widget.resizeColumnsToContents()
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         self.notes_hlayout.addWidget(self.ccs_groupbox)
@@ -6084,26 +6029,15 @@ class item_list_editor:
         self.pb_groupbox = QtGui.QGroupBox(_("Pitchbend"))
         self.pb_groupbox.setFixedWidth(240)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
-        self.pb_gridlayout = QtGui.QGridLayout()
-        self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                     QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
-        self.pb_clear_button = QtGui.QPushButton(_("Clear"))
-        self.pb_clear_button.setMinimumWidth(f_button_width)
-        self.pb_clear_button.pressed.connect(self.clear_pb)
-        self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
-        self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                     QtGui.QSizePolicy.Minimum), 0, 2, 1, 1)
-        self.pb_vlayout.addLayout(self.pb_gridlayout)
+
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.pitchbend_table_widget.setColumnCount(2)
         self.pitchbend_table_widget.setRowCount(256)
-        self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
         self.pitchbend_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.sortItems(0)
         self.pitchbend_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.pitchbend_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.pitchbend_table_widget.keyPressEvent = self.pbs_keyPressEvent
         self.pitchbend_table_widget.resizeColumnsToContents()
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
         self.notes_hlayout.addWidget(self.pb_groupbox)
@@ -6114,7 +6048,7 @@ class item_list_editor:
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum,
                                                        QtGui.QSizePolicy.Expanding))
 
-        self.tab_widget.addTab(self.notes_tab, _("List Editors"))
+        self.tab_widget.addTab(self.notes_tab, _("List Viewers"))
 
         self.set_headers()
         self.default_note_start = 0.0
@@ -6209,344 +6143,6 @@ class item_list_editor:
         self.ccs_table_widget.resizeColumnsToContents()
         self.pitchbend_table_widget.resizeColumnsToContents()
 
-    def notes_keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete:
-            if self.multiselect_radiobutton.isChecked():
-                f_notes = self.get_notes_table_selected_rows()
-                for f_note in f_notes:
-                    self.item.remove_note(f_note)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Delete notes from item '{}'").format(self.item_name))
-        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.notes_clipboard = self.get_notes_table_selected_rows()
-        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
-            for f_note in self.notes_clipboard:
-                self.item.add_note(f_note)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Paste notes into item '{}'").format(self.item_name))
-        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.notes_clipboard = self.get_notes_table_selected_rows()
-            for f_note in self.notes_clipboard:
-                self.item.remove_note(f_note)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Cut notes from item '{}'").format(self.item_name))
-        else:
-            QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)
-
-    def ccs_keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete:
-            if self.multiselect_radiobutton.isChecked():
-                f_ccs = self.get_ccs_table_selected_rows()
-                for f_cc in f_ccs:
-                    self.item.remove_cc(f_cc)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Delete CCs from item '{}'").format(self.item_name))
-        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.ccs_clipboard = self.get_ccs_table_selected_rows()
-        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
-            for f_cc in self.ccs_clipboard:
-                self.item.add_cc(f_cc)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Paste CCs into item '{}'").format(self.item_name))
-        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.ccs_clipboard = self.get_ccs_table_selected_rows()
-            for f_cc in self.ccs_clipboard:
-                self.item.remove_cc(f_cc)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Cut CCs from item '{}'").format(self.item_name))
-        else:
-            QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)
-
-    def pbs_keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete:
-            if self.multiselect_radiobutton.isChecked():
-                f_pbs = self.get_pbs_table_selected_rows()
-                for f_pb in f_pbs:
-                    self.item.remove_pb(f_pb)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Delete pitchbends from item '{}'").format(self.item_name))
-        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.pbs_clipboard = self.get_pbs_table_selected_rows()
-        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
-            for f_pb in self.pbs_clipboard:
-                self.item.add_pb(f_pb)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Paste pitchbends into item '{}'").format(self.item_name))
-        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.pbs_clipboard = self.get_pbs_table_selected_rows()
-            for f_pb in self.pbs_clipboard:
-                self.item.remove_pb(f_pb)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Cut pitchbends from item '{}'").format(self.item_name))
-        else:
-            QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)
-
-    def notes_click_handler(self, x, y):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        if self.add_radiobutton.isChecked():
-            self.notes_show_event_dialog(x, y)
-        elif self.delete_radiobutton.isChecked():
-            if self.notes_table_widget.item(x, 0) is None or \
-            str(self.notes_table_widget.item(x, 0).text()) == "":
-                return
-            self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(),
-                                             self.notes_table_widget.item(x, 1).text(),
-                                             self.notes_table_widget.item(x, 3).text(),
-                                             self.notes_table_widget.item(x, 4).text()))
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Delete note from item '{}'").format(self.item_name))
-
-    def pitchbend_click_handler(self, x, y):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        if self.add_radiobutton.isChecked():
-            self.pitchbend_show_event_dialog(x, y)
-        elif self.delete_radiobutton.isChecked():
-            if self.pitchbend_table_widget.item(x, 0) is None:
-                return
-            self.item.remove_pb(pydaw_pitchbend(self.pitchbend_table_widget.item(x, 0).text(),
-                                                self.pitchbend_table_widget.item(x, 1).text()))
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Delete pitchbend from item '{}'").format(self.item_name))
-
-    def notes_show_event_dialog(self, x, y, a_note=None, a_index=None):
-        if a_note is not None:
-            self.is_existing_note = True
-            f_note_item = a_note
-            if a_index is None:
-                f_note_index, f_note_item.start = pydaw_beats_to_index( f_note_item.start)
-            else:
-                f_note_index = a_index
-            self.default_note_start = f_note_item.start
-            self.default_note_length = f_note_item.length
-            self.default_note_note = f_note_item.note_num % 12
-            self.default_note_octave = (f_note_item.note_num / 12) - 2
-            self.default_note_velocity = f_note_item.velocity
-        else:
-            f_cell = self.notes_table_widget.item(x, y)
-            if f_cell is not None:
-                f_note_item = pydaw_note(self.notes_table_widget.item(x, 0).text(),
-                                         self.notes_table_widget.item(x, 1).text(),
-                                         self.notes_table_widget.item(x, 3).text(),
-                                         self.notes_table_widget.item(x, 4).text())
-                self.is_existing_note = True
-                self.default_note_start = float(self.notes_table_widget.item(x, 0).text())
-                self.default_note_length = float(self.notes_table_widget.item(x, 1).text())
-                self.default_note_note = int(self.notes_table_widget.item(x, 3).text()) % 12
-                self.default_note_octave = \
-                    (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
-                self.default_note_velocity = int(self.notes_table_widget.item(x, 4).text())
-            else:
-                self.is_existing_note = False
-
-        def note_ok_handler():
-            f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
-            f_start_rounded = time_quantize_round(f_start.value())
-            f_length_rounded = time_quantize_round(f_length.value())
-            f_new_note = pydaw_note(f_start_rounded, f_length_rounded,
-                                    f_note_value, f_velocity.value())
-
-            if self.is_existing_note and a_note is not None:
-                self.items[f_note_index].remove_note(f_note_item)
-                self.items[f_note_index].add_note(f_new_note)
-                this_pydaw_project.save_item(self.item_names[f_note_index],
-                                             self.items[f_note_index])
-            elif self.is_existing_note and a_note is None:
-                self.item.remove_note(f_note_item)
-                self.item.add_note(f_new_note)
-                this_pydaw_project.save_item(self.item_name, self.item)
-            else:
-                f_item_index = self.add_note(f_new_note)
-                this_pydaw_project.save_item(self.item_names[f_item_index],
-                                             self.items[f_item_index])
-
-            self.default_note_start = f_new_note.start
-            self.default_note_length = f_length_rounded
-            self.default_note_note = int(f_note.currentIndex())
-            self.default_note_octave = int(f_octave.value())
-            self.default_note_velocity = int(f_velocity.value())
-            self.default_quantize = int(f_quantize_combobox.currentIndex())
-
-            global_open_items()
-            this_pydaw_project.commit(_("Update notes for item(s)"))
-
-            if self.is_existing_note:
-                f_window.close()
-            elif not f_add_another.isChecked():
-                f_window.close()
-
-        def note_cancel_handler():
-            f_window.close()
-
-        def quantize_changed(f_quantize_index):
-            f_frac = beat_frac_text_to_float(f_quantize_index)
-            f_start.setSingleStep(f_frac)
-            f_length.setSingleStep(f_frac)
-            self.default_quantize = f_quantize_index
-
-        def length_changed(a_val=None):
-            f_frac = beat_frac_text_to_float(f_quantize_combobox.currentIndex())
-            if f_length.value() < f_frac:
-                f_length.setValue(f_frac)
-            else:
-                f_val = round(f_length.value() / f_frac) * f_frac
-                f_length.setValue(f_val)
-
-        def add_another_clicked(a_checked):
-            if a_checked:
-                f_cancel_button.setText(_("Close"))
-            else:
-                f_cancel_button.setText("Cancel")
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle(_("Notes"))
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-        f_quantize_combobox = QtGui.QComboBox()
-        f_quantize_combobox.addItems(beat_fracs)
-        f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
-        f_layout.addWidget(QtGui.QLabel(_("Quantize(beats)")), 0, 0)
-        f_layout.addWidget(f_quantize_combobox, 0, 1)
-        f_note_layout = QtGui.QHBoxLayout()
-        f_note = QtGui.QComboBox()
-        f_note.setMinimumWidth(66)
-        f_note.addItems(int_to_note_array)
-        f_note.setCurrentIndex(self.default_note_note)
-        f_note_layout.addWidget(f_note)
-        f_layout.addWidget(QtGui.QLabel(_("Note")), 1, 0)
-        f_octave = QtGui.QSpinBox()
-        f_octave.setRange(-2, 8)
-        f_octave.setValue(self.default_note_octave)
-        f_note_layout.addWidget(f_octave)
-        f_layout.addLayout(f_note_layout, 1, 1)
-        f_layout.addWidget(QtGui.QLabel(_("Start(beats)")), 2, 0)
-        f_start = QtGui.QDoubleSpinBox()
-        f_start.setRange(0.0, 3.99)
-        f_start.setValue(self.default_note_start)
-        f_layout.addWidget(f_start, 2, 1)
-        f_layout.addWidget(QtGui.QLabel(_("Length(beats)")), 3, 0)
-        f_length = QtGui.QDoubleSpinBox()
-        f_length.setRange(0.01, 32.0)
-        f_length.setValue(self.default_note_length)
-        f_layout.addWidget(f_length, 3, 1)
-        f_length.valueChanged.connect(length_changed)
-        f_velocity = QtGui.QSpinBox()
-        f_velocity.setRange(1, 127)
-        f_velocity.setValue(self.default_note_velocity)
-        f_layout.addWidget(QtGui.QLabel(_("Velocity")), 4, 0)
-        f_layout.addWidget(f_velocity, 4, 1)
-        if not self.is_existing_note:
-            f_add_another = QtGui.QCheckBox(_("Add another?"))
-            f_add_another.toggled.connect(add_another_clicked)
-            f_layout.addWidget(f_add_another, 5, 1)
-        f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button, 6,0)
-        f_ok_button.clicked.connect(note_ok_handler)
-        f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_layout.addWidget(f_cancel_button, 6,1)
-        f_cancel_button.clicked.connect(note_cancel_handler)
-        f_quantize_combobox.setCurrentIndex(self.default_quantize)
-        f_window.exec_()
-
-    def pitchbend_show_event_dialog(self, x, y):
-        f_cell = self.pitchbend_table_widget.item(x, y)
-        f_old_pb = None
-        if f_cell is not None:
-            self.default_pb_start = float(self.pitchbend_table_widget.item(x, 0).text())
-            self.default_pb_val = float(self.pitchbend_table_widget.item(x, 1).text())
-            f_old_pb = pydaw_pitchbend(self.default_pb_start, self.default_pb_val)
-
-        def pb_ok_handler():
-            f_start_rounded = time_quantize_round(f_start.value())
-            if f_draw_line_checkbox.isChecked():
-                self.item.draw_pb_line(f_start.value(), f_pb.value(),
-                                       f_end.value(), f_end_value.value())
-            else:
-                if f_old_pb is not None:
-                    self.item.remove_pb(f_old_pb)
-                if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
-                    QtGui.QMessageBox.warning(f_window, _("Error"), _("Duplicate pitchbend event"))
-                    return
-
-            self.default_pb_start = f_start_rounded
-            self.default_pb_val = f_pb.value()
-
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit(_("Update pitchbends for item '{}'").format(self.item_name))
-            if not f_add_another.isChecked():
-                f_window.close()
-
-        def pb_cancel_handler():
-            f_window.close()
-
-        def quantize_changed(f_quantize_index):
-            f_frac = beat_frac_text_to_float(f_quantize_index)
-            f_start.setSingleStep(f_frac)
-            self.default_pb_quantize = f_quantize_index
-
-        def add_another_clicked(a_checked):
-            if a_checked:
-                f_cancel_button.setText(_("Close"))
-            else:
-                f_cancel_button.setText("Cancel")
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle(_("Pitchbend"))
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-        f_quantize_combobox = QtGui.QComboBox()
-        f_quantize_combobox.addItems(beat_fracs)
-        f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
-        f_layout.addWidget(QtGui.QLabel(_("Quantize(beats)")), 0, 0)
-        f_layout.addWidget(f_quantize_combobox, 0, 1)
-        f_pb = QtGui.QDoubleSpinBox()
-        f_pb.setSingleStep(0.01)
-        f_pb.setRange(-1, 1)
-        f_pb.setValue(self.default_pb_val)
-        f_layout.addWidget(QtGui.QLabel(_("Value")), 2, 0)
-        f_layout.addWidget(f_pb, 2, 1)
-        f_layout.addWidget(QtGui.QLabel(_("Position(beats)")), 3, 0)
-        f_start = QtGui.QDoubleSpinBox()
-        f_start.setRange(0.0, 3.99)
-        f_start.setValue(self.default_pb_start)
-        f_layout.addWidget(f_start, 3, 1)
-        f_draw_line_checkbox = QtGui.QCheckBox(_("Draw line"))
-        f_layout.addWidget(f_draw_line_checkbox, 4, 1)
-        f_layout.addWidget(QtGui.QLabel(_("End(beats)")), 5, 0)
-        f_end = QtGui.QDoubleSpinBox()
-        f_end.setRange(0, 3.99)
-        f_layout.addWidget(f_end, 5, 1)
-        f_layout.addWidget(QtGui.QLabel(_("End Value")), 6, 0)
-        f_end_value = QtGui.QDoubleSpinBox()
-        f_end_value.setRange(-1, 1)
-        f_end_value.setSingleStep(0.01)
-        f_layout.addWidget(f_end_value, 6, 1)
-        f_add_another = QtGui.QCheckBox(_("Add another?"))
-        f_add_another.toggled.connect(add_another_clicked)
-        f_layout.addWidget(f_add_another, 7, 1)
-        f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button, 8,0)
-        f_ok_button.clicked.connect(pb_ok_handler)
-        f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_layout.addWidget(f_cancel_button, 8,1)
-        f_cancel_button.clicked.connect(pb_cancel_handler)
-        f_quantize_combobox.setCurrentIndex(self.default_pb_quantize)
-        f_window.exec_()
 
 rec_button_group = QtGui.QButtonGroup()
 
@@ -7627,8 +7223,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_transport.on_spacebar()
 
     def tab_changed(self):
-        if this_item_editor.delete_radiobutton.isChecked():
-            this_item_editor.add_radiobutton.setChecked(True)
         if not global_transport_is_playing and self.main_tabwidget.currentIndex() != 3:
             this_wave_editor_widget.enabled_checkbox.setChecked(False)
 
