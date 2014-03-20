@@ -5720,7 +5720,7 @@ class item_list_editor:
                 else:
                     self.items[f_i].quantize(f_quantize_text,
                                              f_events_follow_notes.isChecked(),
-                                             a_selected_only=a_selected_only)
+                                             a_selected_only=f_selected_only.isChecked())
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
             this_pydaw_project.commit(_("Quantize item(s)"))
@@ -5745,8 +5745,11 @@ class item_list_editor:
         f_ok.pressed.connect(quantize_ok_handler)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_ok_cancel_layout.addWidget(f_ok)
-        if a_selected_only:
-            f_layout.addWidget(QtGui.QLabel(_("Only the selected notes will be quantized.")), 2, 1)
+
+        f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
+        f_selected_only.setChecked(a_selected_only)
+        f_layout.addWidget(f_selected_only, 2, 1)
+
         f_layout.addLayout(f_ok_cancel_layout, 3, 1)
         f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(quantize_cancel_handler)
@@ -5798,7 +5801,8 @@ class item_list_editor:
             else:
                 pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(),
                                    f_end_amount.value(),
-                                   f_add_values.isChecked(), a_selected_only=a_selected_only)
+                                   f_add_values.isChecked(),
+                                   a_selected_only=f_selected_only.isChecked())
                 for f_i in range(global_item_editing_count):
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
@@ -5847,6 +5851,10 @@ class item_list_editor:
         f_add_values.setToolTip(_("Check this to add Amount to the existing value, or leave\n"
                                 "unchecked to set the value to Amount."))
         f_layout.addWidget(f_add_values, 5, 1)
+
+        f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
+        f_selected_only.setChecked(a_selected_only)
+        f_layout.addWidget(f_selected_only, 6, 1)
 
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
@@ -5914,12 +5922,14 @@ class item_list_editor:
         f_selected_only = QtGui.QCheckBox("Selected Notes Only?")
         f_selected_only.setChecked(a_selected_only)
         f_layout.addWidget(f_selected_only, 4, 1)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout, 6, 1)
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(transpose_ok_handler)
-        f_layout.addWidget(f_ok, 6, 0)
+        f_ok_cancel_layout.addWidget(f_ok)
         f_cancel = QtGui.QPushButton(_("Cancel"))
         f_cancel.pressed.connect(transpose_cancel_handler)
-        f_layout.addWidget(f_cancel, 6, 1)
+        f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
     def show_not_enabled_warning(self):
