@@ -75,7 +75,6 @@ def pydaw_remove_bad_chars(a_str):
     f_str = str(a_str)
     for f_char in pydaw_bad_chars:
         f_str = f_str.replace(f_char, "")
-    f_str = f_str.replace(' ', '_')
     return f_str
 
 def pydaw_str_has_bad_chars(a_str):
