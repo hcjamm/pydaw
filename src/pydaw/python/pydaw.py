@@ -20,6 +20,7 @@ import subprocess
 from time import sleep
 import time
 import random
+import gc
 
 from PyQt4 import QtGui, QtCore
 from libpydaw import *
@@ -8815,5 +8816,6 @@ app.removeEventFilter(app)
 time.sleep(1.2)
 app = None
 time.sleep(0.6)
+print("gc.collect() returned {} unreachable objects".format(gc.collect()))
 
 exit(0)
