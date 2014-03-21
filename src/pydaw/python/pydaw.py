@@ -417,7 +417,7 @@ class region_settings:
         self.hlayout0.addWidget(self.region_num_label)
         self.region_name_lineedit = QtGui.QLineEdit()
         self.region_name_lineedit.setEnabled(False)
-        self.region_name_lineedit.setMaximumWidth(330)
+        self.region_name_lineedit.setMaximumWidth(210)
         self.hlayout0.addWidget(self.region_name_lineedit)
 
         self.menu_button = QtGui.QPushButton(_("Menu"))
