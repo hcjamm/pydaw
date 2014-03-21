@@ -4347,6 +4347,62 @@ class piano_roll_editor(QtGui.QGraphicsView):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
 
+    def glue_selected(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+
+        f_selected = [x for x in self.note_items if x.isSelected()]
+        if not f_selected:
+            QtGui.QMessageBox.warning(self, _("Error"), _("Nothing selected"))
+            return
+
+        f_dict = {}
+        for f_note in f_selected:
+            f_note_num = f_note.note_item.note_num
+            if not f_note_num in f_dict:
+                f_dict[f_note_num] = []
+            f_dict[f_note_num].append(f_note)
+
+        f_result = []
+
+        for k in sorted(f_dict.keys()):
+            v = f_dict[k]
+            if len(v) == 1:
+                v[0].setSelected(False)
+                f_dict.pop(k)
+            else:
+                f_max = -1.0
+                f_min = 99999999.9
+                for f_note in f_dict[k]:
+                    f_offset = f_note.item_index * 4.0
+                    f_start = f_note.note_item.start + f_offset
+                    if f_start < f_min:
+                        f_min = f_start
+                    f_end = f_note.note_item.length + f_start
+                    if f_end > f_max:
+                        f_max = f_end
+                f_vels = [x.note_item.velocity for x in f_dict[k]]
+                f_vel = int(sum(f_vels) // len(f_vels))
+
+                print(str(f_max))
+                print(str(f_min))
+                f_length = f_max - f_min
+                print(str(f_length))
+                f_index = int(f_min // 4)
+                print(str(f_index))
+                f_start = f_min % 4.0
+                print(str(f_start))
+                f_new_note = pydaw_note(f_start, f_length, k, f_vel)
+                print(str(f_new_note))
+                f_result.append((f_index, f_new_note))
+
+        self.delete_selected(False)
+        for f_index, f_new_note in f_result:
+            this_item_editor.items[f_index].add_note(f_new_note, False)
+        global_save_and_reload_items()
+
+
     def copy_selected(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
@@ -4373,7 +4429,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             if f_tuple in self.clipboard:
                 f_item.setSelected(True)
 
-    def delete_selected(self):
+    def delete_selected(self, a_save_and_reload=True):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
@@ -4381,7 +4437,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         for f_item in self.note_items:
             if f_item.isSelected():
                 this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
-        global_save_and_reload_items()
+        if a_save_and_reload:
+            global_save_and_reload_items()
 
     def focusOutEvent(self, a_event):
         QtGui.QGraphicsView.focusOutEvent(self, a_event)
@@ -4689,6 +4746,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_beat = 0.5 - f_beat
         return int(f_beat * 2.0 * a_amt)
 
+
 class piano_roll_editor_widget:
     def quantize_dialog(self):
         if not this_item_editor.enabled:
@@ -4795,6 +4853,12 @@ class piano_roll_editor_widget:
         self.delete_selected_action = self.edit_menu.addAction(_("Delete Selected"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
+
+        self.edit_menu.addSeparator()
+
+        self.glue_selected_action = self.edit_menu.addAction(_("Glue Selected"))
+        self.glue_selected_action.triggered.connect(this_piano_roll_editor.glue_selected)
+        self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
 
         self.edit_menu.addSeparator()
 
