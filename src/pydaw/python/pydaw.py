@@ -4079,8 +4079,6 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
-        this_item_editor.notes_show_event_dialog(None, None,
-                                                 self.note_item, self.item_index)
 
     def mousePressEvent(self, a_event):
         a_event.setAccepted(True)
