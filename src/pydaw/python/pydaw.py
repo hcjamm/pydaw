@@ -1849,6 +1849,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def show_context_menu(self):
         if not self.isSelected():
             self.setSelected(True)
+        global global_current_audio_item_index
+        f_global_current_audio_item_index = global_current_audio_item_index
+        global_current_audio_item_index = self.track_num
         f_menu = QtGui.QMenu(this_main_window)
         f_save_a_copy_action = f_menu.addAction(_("Save a Copy..."))
         f_save_a_copy_action.triggered.connect(self.save_a_copy)
@@ -1865,7 +1868,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_edit_paif_action = f_menu.addAction(_("Edit Per-Item Effects"))
         f_edit_paif_action.triggered.connect(self.edit_paif)
         f_menu.addSeparator()
-
+        f_paif_menu = f_menu.addMenu(_("Per-Item FX"))
+        f_paif_copy = f_paif_menu.addAction(_("Copy"))
+        f_paif_copy.triggered.connect(this_audio_items_viewer_widget.on_modulex_copy)
+        f_paif_paste = f_paif_menu.addAction(_("Paste"))
+        f_paif_paste.triggered.connect(this_audio_items_viewer_widget.on_modulex_paste)
+        f_paif_clear = f_paif_menu.addAction(_("Clear"))
+        f_paif_clear.triggered.connect(this_audio_items_viewer_widget.on_modulex_clear)
+        f_menu.addSeparator()
         f_output_menu = f_menu.addMenu("Audio Track")
         f_output_menu.triggered.connect(self.output_menu_triggered)
         for f_track_name, f_index in zip(global_audio_track_names,
@@ -1904,6 +1914,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_wave_editor_action = f_menu.addAction(_("Open in Wave Editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+        global_current_audio_item_index = f_global_current_audio_item_index
 
     def output_menu_triggered(self, a_action):
         f_index = global_audio_track_names.index(str(a_action.text()))
@@ -2623,8 +2634,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         else:
             this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
 
-        this_audio_items_viewer_widget.set_paif_buttons_enabled(len(f_selected_items))
-
         f_timestretch_checked = True
         if len( f_selected_items) > 1:
             f_time_stretch_mode_val = f_selected_items[0].audio_item.time_stretch_mode
@@ -3038,24 +3047,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.modulex_vlayout = QtGui.QVBoxLayout(self.modulex_widget)
         self.folders_tab_widget.addTab(self.modulex_widget, _("Per-Item FX"))
         self.modulex.widget.setDisabled(True)
-
-        self.modulex_copy_button = QtGui.QPushButton(_("Copy"))
-        self.modulex_copy_button.setFixedWidth(105)
-        self.modulex_copy_button.pressed.connect(self.on_modulex_copy)
-        self.modulex_paste_button = QtGui.QPushButton(_("Paste"))
-        self.modulex_paste_button.setFixedWidth(105)
-        self.modulex_paste_button.pressed.connect(self.on_modulex_paste)
-        self.modulex_clear_button = QtGui.QPushButton(_("Clear"))
-        self.modulex_clear_button.setFixedWidth(105)
-        self.modulex_clear_button.pressed.connect(self.on_modulex_clear)
-        self.modulex_hlayout = QtGui.QHBoxLayout()
-        self.modulex_hlayout.addWidget(self.modulex_copy_button)
-        self.modulex_hlayout.addWidget(self.modulex_paste_button)
-        self.modulex_hlayout.addWidget(self.modulex_clear_button)
-        self.modulex_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.modulex_vlayout.addLayout(self.modulex_hlayout)
         self.modulex_vlayout.addWidget(self.modulex.scroll_area)
-        self.set_paif_buttons_enabled(0)
 
         self.widget = QtGui.QWidget()
         self.hsplitter.addWidget(self.widget)
@@ -3161,20 +3153,6 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
 
     def on_stop_preview(self):
         this_pydaw_project.this_pydaw_osc.pydaw_stop_preview()
-
-    def set_paif_buttons_enabled(self, a_count):
-        if a_count == 0:
-            self.modulex_copy_button.setEnabled(False)
-            self.modulex_paste_button.setEnabled(False)
-            self.modulex_clear_button.setEnabled(False)
-        elif a_count == 1:
-            self.modulex_copy_button.setEnabled(True)
-            self.modulex_paste_button.setEnabled(True)
-            self.modulex_clear_button.setEnabled(True)
-        elif a_count > 1:
-            self.modulex_copy_button.setEnabled(False)
-            self.modulex_paste_button.setEnabled(True)
-            self.modulex_clear_button.setEnabled(True)
 
     def on_modulex_copy(self):
         if global_current_audio_item_index is not None and global_current_region is not None:
