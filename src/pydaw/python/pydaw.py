@@ -4627,6 +4627,11 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 12: #Double Harmonic
+            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
+            f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
+            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
+            f_white_key_brush]
 
         f_current_key = 0
         if not self.first_open:
@@ -4812,7 +4817,7 @@ class piano_roll_editor_widget:
         self.scale_combobox.addItems(["Major", "Melodic Minor", "Harmonic Minor",
                                       "Natural Minor", "Pentatonic Major", "Pentatonic Minor",
                                       "Dorian", "Phrygian", "Lydian", "Mixolydian", "Locrian",
-                                      "Phrygian Dominant"])
+                                      "Phrygian Dominant", "Double Harmonic"])
         self.scale_combobox.currentIndexChanged.connect(self.reload_handler)
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("Scale:")), 0, 5)
         self.controls_grid_layout.addWidget(self.scale_combobox, 0, 6)
