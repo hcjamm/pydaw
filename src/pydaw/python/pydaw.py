@@ -1877,8 +1877,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_normalize_action = f_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
-        f_crossfade_action = f_menu.addAction(_("Crossfade"))
-        f_crossfade_action.triggered.connect(self.crossfade_selected)
         f_reset_fades_action = f_menu.addAction(_("Reset Fades"))
         f_reset_fades_action.triggered.connect(self.reset_fades)
         f_move_to_end_action = f_menu.addAction(_("Move to Region End"))
@@ -2002,55 +2000,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.audio_item.fade_out = 999.0
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             this_pydaw_project.commit(_("Reset audio item fades"))
-            global_open_audio_items(True)
-
-    def crossfade_selected(self):
-        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
-        if len(f_list) < 2:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"),
-                                      _("You must have at least 2 items selected to crossfade"))
-            return
-
-        f_tempo = float(this_transport.tempo_spinbox.value())
-        f_changed = False
-
-        for f_item in f_list:
-            f_start_sec = pydaw_util.musical_time_to_seconds(f_tempo,
-                                                             f_item.audio_item.start_bar,
-                                                             f_item.audio_item.start_beat)
-            f_time_frac = f_item.audio_item.sample_end - f_item.audio_item.sample_start
-            f_time_frac *= 0.001
-            f_time = f_item.graph_object.length_in_seconds * f_time_frac
-            f_end_sec = f_start_sec + f_time
-            f_list2 = [x for x in f_list if x.audio_item != f_item.audio_item]
-
-            for f_item2 in f_list2:
-                f_start_sec2 = pydaw_util.musical_time_to_seconds(f_tempo,
-                                                                  f_item2.audio_item.start_bar,
-                                                                  f_item2.audio_item.start_beat)
-                f_time_frac2 = f_item2.audio_item.sample_end - f_item2.audio_item.sample_start
-                f_time_frac2 *= 0.001
-                f_time2 = f_item2.graph_object.length_in_seconds * f_time_frac2
-                f_end_sec2 = f_start_sec2 + f_time2
-
-                if f_start_sec > f_start_sec2 and \
-                f_end_sec > f_end_sec2 and \
-                f_end_sec2 > f_start_sec:  # item1 is after item2
-                    f_changed = True
-                    f_diff_sec = f_end_sec2 - f_start_sec
-                    f_val = (f_diff_sec / f_time) * 1000.0
-                    f_item.audio_item.set_fade_in(f_val)
-                elif f_start_sec < f_start_sec2 and \
-                f_end_sec < f_end_sec2 and \
-                f_end_sec > f_start_sec2: # item1 is before item2
-                    f_changed = True
-                    f_diff_sec = f_start_sec2 - f_start_sec
-                    f_val = (f_diff_sec / f_time) * 1000.0
-                    f_item.audio_item.set_fade_out(f_val)
-
-        if f_changed:
-            this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
-            this_pydaw_project.commit(_("Crossfade audio items"))
             global_open_audio_items(True)
 
     def replace_with_path_in_clipboard(self):
@@ -2559,6 +2508,56 @@ class audio_items_viewer(QtGui.QGraphicsView):
                                                          f_paif, False)
         this_pydaw_project.commit(_("Delete audio item(s)"))
         global_open_audio_items(True)
+
+    def crossfade_selected(self):
+        f_list = [x for x in self.audio_items if x.isSelected()]
+        if len(f_list) < 2:
+            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+                                      _("You must have at least 2 items selected to crossfade"))
+            return
+
+        f_tempo = float(this_transport.tempo_spinbox.value())
+        f_changed = False
+
+        for f_item in f_list:
+            f_start_sec = pydaw_util.musical_time_to_seconds(f_tempo,
+                                                             f_item.audio_item.start_bar,
+                                                             f_item.audio_item.start_beat)
+            f_time_frac = f_item.audio_item.sample_end - f_item.audio_item.sample_start
+            f_time_frac *= 0.001
+            f_time = f_item.graph_object.length_in_seconds * f_time_frac
+            f_end_sec = f_start_sec + f_time
+            f_list2 = [x for x in f_list if x.audio_item != f_item.audio_item]
+
+            for f_item2 in f_list2:
+                f_start_sec2 = pydaw_util.musical_time_to_seconds(f_tempo,
+                                                                  f_item2.audio_item.start_bar,
+                                                                  f_item2.audio_item.start_beat)
+                f_time_frac2 = f_item2.audio_item.sample_end - f_item2.audio_item.sample_start
+                f_time_frac2 *= 0.001
+                f_time2 = f_item2.graph_object.length_in_seconds * f_time_frac2
+                f_end_sec2 = f_start_sec2 + f_time2
+
+                if f_start_sec > f_start_sec2 and \
+                f_end_sec > f_end_sec2 and \
+                f_end_sec2 > f_start_sec:  # item1 is after item2
+                    f_changed = True
+                    f_diff_sec = f_end_sec2 - f_start_sec
+                    f_val = (f_diff_sec / f_time) * 1000.0
+                    f_item.audio_item.set_fade_in(f_val)
+                elif f_start_sec < f_start_sec2 and \
+                f_end_sec < f_end_sec2 and \
+                f_end_sec > f_start_sec2: # item1 is before item2
+                    f_changed = True
+                    f_diff_sec = f_start_sec2 - f_start_sec
+                    f_val = (f_diff_sec / f_time) * 1000.0
+                    f_item.audio_item.set_fade_out(f_val)
+
+        if f_changed:
+            this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+            this_pydaw_project.commit(_("Crossfade audio items"))
+            global_open_audio_items(True)
+
 
     def set_tooltips(self, a_on):
         if a_on:
@@ -3100,6 +3099,9 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.glue_selected_action = self.action_menu.addAction(_("Glue Selected"))
         self.glue_selected_action.triggered.connect(self.on_glue_selected)
         self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
+        self.crossfade_action = self.action_menu.addAction(_("Crossfade Selected"))
+        self.crossfade_action.triggered.connect(this_audio_items_viewer.crossfade_selected)
+        self.crossfade_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+F"))
 
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
