@@ -1386,7 +1386,7 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         f_current_index = f_cbox.currentIndex()
         f_cbox.clear()
         f_cbox.clearEditText()
-        f_cbox.addItems(list(global_audio_track_names.values()))
+        f_cbox.addItems(global_audio_track_names)
         f_cbox.setCurrentIndex(f_current_index)
 
     global_suppress_audio_track_combobox_changes = False
@@ -1865,6 +1865,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_edit_paif_action = f_menu.addAction(_("Edit Per-Item Effects"))
         f_edit_paif_action.triggered.connect(self.edit_paif)
         f_menu.addSeparator()
+
+        f_output_menu = f_menu.addMenu("Audio Track")
+        f_output_menu.triggered.connect(self.output_menu_triggered)
+        for f_track_name, f_index in zip(global_audio_track_names,
+                                         range(len(global_audio_track_names))):
+            f_action = f_output_menu.addAction(f_track_name)
+            if f_index == self.audio_item.output_track:
+                f_action.setCheckable(True)
+                f_action.setChecked(True)
+
         f_normalize_action = f_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
         f_crossfade_action = f_menu.addAction(_("Crossfade"))
@@ -1882,10 +1892,34 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_all_volumes_action.triggered.connect(self.set_vol_for_all_instances)
         f_all_fades_action = f_per_file_menu.addAction(_("Fades"))
         f_all_fades_action.triggered.connect(self.set_fades_for_all_instances)
+
+        f_set_all_output_menu = f_per_file_menu.addMenu("Audio Track")
+        f_set_all_output_menu.triggered.connect(self.set_all_output_menu_triggered)
+        for f_track_name, f_index in zip(global_audio_track_names,
+                                         range(len(global_audio_track_names))):
+            f_action = f_set_all_output_menu.addAction(f_track_name)
+            if f_index == self.audio_item.output_track:
+                f_action.setCheckable(True)
+                f_action.setChecked(True)
+
         f_menu.addSeparator()
         f_wave_editor_action = f_menu.addAction(_("Open in Wave Editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def output_menu_triggered(self, a_action):
+        f_index = global_audio_track_names.index(str(a_action.text()))
+        f_list = [x.audio_item for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        for f_item in f_list:
+            f_item.output_track = f_index
+        this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+        this_pydaw_project.commit(_("Change output track for audio item(s)"))
+        global_open_audio_items()
+
+    def set_all_output_menu_triggered(self, a_action):
+        f_index = global_audio_track_names.index(str(a_action.text()))
+        this_pydaw_project.set_output_for_all_audio_items(self.audio_item.uid, f_index)
+        global_open_audio_items()
 
     def set_fades_for_all_instances(self):
         this_pydaw_project.set_fades_for_all_audio_items(self.audio_item)
@@ -3407,7 +3441,7 @@ class audio_item_editor_widget:
         global global_audio_track_comboboxes
         global_audio_track_comboboxes.append(self.output_combobox)
         self.output_combobox.setMinimumWidth(210)
-        self.output_combobox.addItems(list(global_audio_track_names.values()))
+        self.output_combobox.addItems(global_audio_track_names)
         self.output_combobox.currentIndexChanged.connect(self.output_changed)
         self.output_hlayout.addWidget(self.output_combobox)
         self.vlayout2.addLayout(self.output_hlayout)
@@ -8627,8 +8661,9 @@ pydaw_load_controller_maps()
 global_timestretch_modes = [_("None"), _("Pitch(affecting time)"),
                             _("Time(affecting pitch)"), "Rubberband",
                             "Rubberband(formants)", "SBSMS", "Paulstretch"]
-global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4",
-                            4:"track5", 5:"track6", 6:"track7", 7:"track8"}
+
+global_audio_track_names = ["track{}".format(x + 1) for x in range(pydaw_audio_track_count)]
+
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
 
