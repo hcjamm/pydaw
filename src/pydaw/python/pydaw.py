@@ -8835,6 +8835,25 @@ else:
 
 QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("UTF-8"))
 
+def final_gc():
+    """ Brute-force garbage collect all possible objects to prevent the infamous
+        PyQt SEGFAULT-on-exit...
+    """
+    f_last_unreachable = gc.collect()
+    for f_i in range(2, 12):
+        f_unreachable = gc.collect()
+        if f_unreachable == 0:
+            print("Successfully garbage collected all objects "
+                "in {} iterations".format(f_i))
+            return
+        elif f_unreachable >= f_last_unreachable:
+            break
+        else:
+            f_last_unreachable = f_unreachable
+    print("gc.collect() returned {} unreachable objects "
+        "after {} iterations".format(f_unreachable, f_i))
+
+
 app.lastWindowClosed.connect(app.quit)
 app.exec_()
 time.sleep(0.3)
@@ -8843,6 +8862,6 @@ app.removeEventFilter(app)
 time.sleep(1.2)
 app = None
 time.sleep(0.6)
-print("gc.collect() returned {} unreachable objects".format(gc.collect()))
+final_gc()
 
 exit(0)
