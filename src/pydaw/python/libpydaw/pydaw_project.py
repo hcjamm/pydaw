@@ -447,6 +447,31 @@ class pydaw_project:
         if f_changed_any:
             self.commit("Changed volume for all audio items with uid {}".format(f_uid))
 
+    def set_fades_for_all_audio_items(self, a_item):
+        """ a_uid:  wav_pool uid
+            a_item:  pydaw_audio_item
+        """
+        f_changed_any = False
+        f_pysong = self.get_song()
+        for f_region_uid in f_pysong.regions.values():
+            f_audio_region = self.get_audio_region(f_region_uid)
+            f_changed = False
+            for f_audio_item in f_audio_region.items.values():
+                if f_audio_item.uid == a_item.uid:
+                    if a_item.reversed == f_audio_item.reversed and \
+                    a_item.sample_start == f_audio_item.sample_start and \
+                    a_item.sample_end == f_audio_item.sample_end:
+                        f_audio_item.fade_in = a_item.fade_in
+                        f_audio_item.fade_out = a_item.fade_out
+                        f_audio_item.fadein_vol = a_item.fadein_vol
+                        f_audio_item.fadeout_vol = a_item.fadeout_vol
+                        f_changed = True
+            if f_changed:
+                self.save_audio_region(f_region_uid, f_audio_region)
+                f_changed_any = True
+        if f_changed_any:
+            self.commit("Changed volume for all audio items with uid {}".format(a_item.uid))
+
     def get_item_string(self, a_item_uid):
         try:
             f_file = open("{}/{}".format(self.items_folder, a_item_uid), "r")

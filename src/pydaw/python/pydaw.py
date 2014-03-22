@@ -1875,12 +1875,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_move_to_end_action.triggered.connect(self.move_to_region_end)
         f_reverse_action = f_menu.addAction(_("Reverse/Unreverse"))
         f_reverse_action.triggered.connect(self.reverse)
-        f_move_to_end_action = f_menu.addAction(_("Set Volume For All Instances of This File..."))
-        f_move_to_end_action.triggered.connect(self.set_vol_for_all_instances)
+
+        f_per_file_menu = f_menu.addMenu("For All Instances of This File Set")
+
+        f_all_volumes_action = f_per_file_menu.addAction(_("Volume..."))
+        f_all_volumes_action.triggered.connect(self.set_vol_for_all_instances)
+        f_all_fades_action = f_per_file_menu.addAction(_("Fades"))
+        f_all_fades_action.triggered.connect(self.set_fades_for_all_instances)
         f_menu.addSeparator()
         f_wave_editor_action = f_menu.addAction(_("Open in Wave Editor"))
         f_wave_editor_action.triggered.connect(self.open_in_wave_editor)
         f_menu.exec_(QtGui.QCursor.pos())
+
+    def set_fades_for_all_instances(self):
+        this_pydaw_project.set_fades_for_all_audio_items(self.audio_item)
+        global_open_audio_items()
 
     def set_vol_for_all_instances(self):
         def ok_handler():
