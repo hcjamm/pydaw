@@ -1873,6 +1873,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_reset_fades_action.triggered.connect(self.reset_fades)
         f_move_to_end_action = f_menu.addAction(_("Move to Region End"))
         f_move_to_end_action.triggered.connect(self.move_to_region_end)
+        f_reverse_action = f_menu.addAction(_("Reverse/Unreverse"))
+        f_reverse_action.triggered.connect(self.reverse)
         f_move_to_end_action = f_menu.addAction(_("Set Volume For All Instances of This File..."))
         f_move_to_end_action.triggered.connect(self.set_vol_for_all_instances)
         f_menu.addSeparator()
@@ -1922,6 +1924,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_cancel_button.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel_button, 10, 1)
         f_dialog.exec_()
+
+    def reverse(self):
+        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        for f_item in f_list:
+            f_item.audio_item.reversed = not f_item.audio_item.reversed
+        this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+        this_pydaw_project.commit(_("Toggle audio items reversed"))
+        global_open_audio_items(True)
 
     def move_to_region_end(self):
         f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
