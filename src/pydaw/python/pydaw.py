@@ -1891,7 +1891,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             elif f_index == 2:
                 f_reverse_val = True
             this_pydaw_project.set_vol_for_all_audio_items(self.audio_item.uid,
-                                                           f_vol_slider.value(), f_reverse_val)
+                                                           f_vol_slider.value(), f_reverse_val,
+                                                           f_same_vol_checkbox.isChecked(),
+                                                           self.audio_item.vol)
             f_dialog.close()
             global_open_audio_items()
 
@@ -1906,9 +1908,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_layout.setAlignment(QtCore.Qt.AlignCenter)
         f_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
         f_vol_slider.setRange(-24, 24)
-        f_vol_slider.setMinimumHeight(480)
+        f_vol_slider.setMinimumHeight(360)
         f_vol_slider.valueChanged.connect(vol_changed)
-        f_layout.addWidget(f_vol_slider, 0, 1)
+        f_layout.addWidget(f_vol_slider, 0, 1, QtCore.Qt.AlignCenter)
         f_vol_label = QtGui.QLabel("0dB")
         f_layout.addWidget(f_vol_label, 1, 1)
         f_vol_slider.setValue(self.audio_item.vol)
@@ -1917,12 +1919,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_reverse_combobox.setMinimumWidth(105)
         f_layout.addWidget(QtGui.QLabel(_("Reversed Items?")), 2, 0)
         f_layout.addWidget(f_reverse_combobox, 2, 1)
+        f_same_vol_checkbox = QtGui.QCheckBox("Only items with same volume?")
+        f_layout.addWidget(f_same_vol_checkbox, 3, 1)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout, 10, 1)
         f_ok_button = QtGui.QPushButton(_("OK"))
         f_ok_button.pressed.connect(ok_handler)
-        f_layout.addWidget(f_ok_button, 10, 0)
+        f_ok_cancel_layout.addWidget(f_ok_button)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
         f_cancel_button.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel_button, 10, 1)
+        f_ok_cancel_layout.addWidget(f_cancel_button)
         f_dialog.exec_()
 
     def reverse(self):

@@ -421,7 +421,8 @@ class pydaw_project:
             f_regions_dict.rename_item(a_old_name, a_new_name)
         self.save_regions_dict(f_regions_dict)
 
-    def set_vol_for_all_audio_items(self, a_uid, a_vol, a_reverse=None):
+    def set_vol_for_all_audio_items(self, a_uid, a_vol, a_reverse=None, a_same_vol=False,
+                                    a_old_vol=0):
         """ a_uid:  wav_pool uid
             a_vol:  dB
             a_reverse:  None=All, True=reversed-only, False=only-if-not-reversed
@@ -437,8 +438,9 @@ class pydaw_project:
                     if a_reverse is None or \
                     (a_reverse and f_audio_item.reversed) or \
                     (not a_reverse and not f_audio_item.reversed):
-                        f_audio_item.vol = int(a_vol)
-                        f_changed = True
+                        if not a_same_vol or a_old_vol == f_audio_item.vol:
+                            f_audio_item.vol = int(a_vol)
+                            f_changed = True
             if f_changed:
                 self.save_audio_region(f_region_uid, f_audio_region)
                 f_changed_any = True
