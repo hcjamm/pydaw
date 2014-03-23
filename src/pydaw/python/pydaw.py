@@ -8871,7 +8871,11 @@ def final_gc():
         PyQt SEGFAULT-on-exit...
     """
     f_last_unreachable = gc.collect()
+    if not f_last_unreachable:
+        print("Successfully garbage collected all objects")
+        return
     for f_i in range(2, 12):
+        sleep(0.1)
         f_unreachable = gc.collect()
         if f_unreachable == 0:
             print("Successfully garbage collected all objects "
@@ -8884,13 +8888,23 @@ def final_gc():
     print("gc.collect() returned {} unreachable objects "
         "after {} iterations".format(f_unreachable, f_i))
 
+def flush_events():
+    for f_i in range(1, 10):
+        if app.hasPendingEvents():
+            app.processEvents()
+            sleep(0.1)
+        else:
+            print("Successfully processed all pending events in {} iterations".format(f_i))
+            return
+    print("Could not process all events")
+
 
 app.lastWindowClosed.connect(app.quit)
 app.exec_()
-time.sleep(0.3)
-app.flush()
-app.removeEventFilter(app)
-time.sleep(1.2)
+time.sleep(0.6)
+flush_events()
+app.deleteLater()
+time.sleep(0.6)
 app = None
 time.sleep(0.6)
 final_gc()
