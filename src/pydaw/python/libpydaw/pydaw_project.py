@@ -474,8 +474,7 @@ class pydaw_project:
 
     def set_output_for_all_audio_items(self, a_uid, a_index):
         """ a_uid:  wav_pool uid
-            a_vol:  dB
-            a_reverse:  None=All, True=reversed-only, False=only-if-not-reversed
+            a_index:  output track
         """
         f_uid = int(a_uid)
         f_changed_any = False
@@ -493,6 +492,29 @@ class pydaw_project:
         if f_changed_any:
             self.commit("Changed output to {} for all "
                 "audio items with uid {}".format(a_index, f_uid))
+
+    def set_paif_for_all_audio_items(self, a_uid, a_paif):
+        """ a_uid:  wav_pool uid
+            a_paif:  a list that corresponds to a paif row
+        """
+        f_uid = int(a_uid)
+        f_changed_any = False
+        f_pysong = self.get_song()
+        for f_region_uid in f_pysong.regions.values():
+            f_audio_region = self.get_audio_region(f_region_uid)
+            f_paif = self.get_audio_per_item_fx_region(f_region_uid)
+            f_changed = False
+            for f_index, f_audio_item in f_audio_region.items.items():
+                if f_audio_item.uid == f_uid:
+                    f_paif.set_row(f_index, a_paif)
+                    self.save_audio_per_item_fx_region(f_region_uid, f_paif)
+                    self.this_pydaw_osc.pydaw_audio_per_item_fx_region(f_region_uid)
+                    f_changed = True
+            if f_changed:
+                self.save_audio_region(f_region_uid, f_audio_region)
+                f_changed_any = True
+        if f_changed_any:
+            self.commit("Update per-audio-item-fx for all audio items with uid {}".format(f_uid))
 
     def get_item_string(self, a_item_uid):
         try:

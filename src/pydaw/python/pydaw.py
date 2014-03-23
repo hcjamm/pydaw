@@ -1900,6 +1900,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_all_volumes_action.triggered.connect(self.set_vol_for_all_instances)
         f_all_fades_action = f_per_file_menu.addAction(_("Fades"))
         f_all_fades_action.triggered.connect(self.set_fades_for_all_instances)
+        f_all_paif_action = f_per_file_menu.addAction(_("Per-Item FX"))
+        f_all_paif_action.triggered.connect(self.set_paif_for_all_instance)
 
         f_set_all_output_menu = f_per_file_menu.addMenu("Audio Track")
         f_set_all_output_menu.triggered.connect(self.set_all_output_menu_triggered)
@@ -1924,6 +1926,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
         this_pydaw_project.commit(_("Change output track for audio item(s)"))
         global_open_audio_items()
+
+    def set_paif_for_all_instance(self):
+        f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+        f_paif_row = f_paif.get_row(self.track_num)
+        this_pydaw_project.set_paif_for_all_audio_items(self.audio_item.uid, f_paif_row)
 
     def set_all_output_menu_triggered(self, a_action):
         f_index = global_audio_track_names.index(str(a_action.text()))
