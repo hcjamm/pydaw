@@ -380,7 +380,7 @@ def pydaw_read_device_config():
             f_selinux = False
             try:
                 if pydaw_which("getenforce"):
-                    if subprocess.check_output("getenforce").strip().lower() == "enforcing":
+                    if subprocess.check_output("getenforce").strip().lower() == b"enforcing":
                         f_selinux = True
             except Exception as ex:
                 print("Exception while checking getenforce, assuming SELinux is "
