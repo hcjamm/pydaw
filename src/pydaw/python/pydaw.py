@@ -7538,7 +7538,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_bar = QtGui.QMenu(self)
         # Dirty hack, rather than moving the methods to the transport
         this_transport.menu_button.setMenu(self.menu_bar)
-        self.menu_file = self.menu_bar.addMenu(_("&File"))
+        self.menu_file = self.menu_bar.addMenu(_("File"))
 
         self.new_action = self.menu_file.addAction(_("New..."))
         self.new_action.triggered.connect(self.on_new)
@@ -7569,7 +7569,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.quit_action.triggered.connect(self.close)
         self.quit_action.setShortcut(QtGui.QKeySequence.Quit)
 
-        self.menu_edit = self.menu_bar.addMenu(_("&Edit"))
+        self.menu_edit = self.menu_bar.addMenu(_("Edit"))
 
         self.undo_action = self.menu_edit.addAction(_("Undo"))
         self.undo_action.triggered.connect(self.on_undo)
@@ -7587,7 +7587,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.verify_history_action = self.menu_edit.addAction(_("Verify History DB..."))
         self.verify_history_action.triggered.connect(self.on_verify_history)
 
-        self.menu_appearance = self.menu_bar.addMenu(_("&Appearance"))
+        self.menu_appearance = self.menu_bar.addMenu(_("Appearance"))
 
         self.collapse_splitters_action = self.menu_appearance.addAction(
             _("Collapse transport and song editor"))
@@ -7604,7 +7604,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.open_theme_action = self.menu_appearance.addAction(_("Open Theme..."))
         self.open_theme_action.triggered.connect(self.on_open_theme)
 
-        self.menu_tools = self.menu_bar.addMenu(_("&Tools"))
+        self.menu_tools = self.menu_bar.addMenu(_("Tools"))
 
         self.ac_action = self.menu_tools.addAction(_("MP3 Converter..."))
         self.ac_action.triggered.connect(self.mp3_converter_dialog)
@@ -7612,7 +7612,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.ac_action = self.menu_tools.addAction(_("Ogg Converter..."))
         self.ac_action.triggered.connect(self.ogg_converter_dialog)
 
-        self.menu_help = self.menu_bar.addMenu(_("&Help"))
+        self.menu_help = self.menu_bar.addMenu(_("Help"))
 
         self.version_action = self.menu_help.addAction(_("Version Info..."))
         self.version_action.triggered.connect(self.on_version)
