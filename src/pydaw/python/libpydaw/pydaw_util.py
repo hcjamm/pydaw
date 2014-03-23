@@ -377,13 +377,29 @@ def pydaw_read_device_config():
             global_pydaw_is_sandboxed = False
             global_pydaw_with_audio = True
 
+            f_selinux = False
+            try:
+                if pydaw_which("getenforce"):
+                    if subprocess.check_output("getenforce").strip().lower() == "enforcing":
+                        f_selinux = True
+            except Exception as ex:
+                print("Exception while checking getenforce, assuming SELinux is "
+                    "enabled\n{}".format(ex))
+                f_selinux = True
+
+            if f_selinux:
+                print("SELinux detected, not using any setuid binaries to prevent lockups.")
+
             if global_pydaw_bin_path is not None:
                 if int(global_device_val_dict["audioEngine"]) == 0:
                     global_pydaw_bin_path += "-no-root"
-                elif int(global_device_val_dict["audioEngine"]) == 2:
-                    global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix,
-                                                               global_pydaw_version_string)
-                    global_pydaw_is_sandboxed = True
+                elif int(global_device_val_dict["audioEngine"]) <= 2:
+                    if f_selinux:  #the setuid binaries will get blocked by SELinux, so don't use
+                        global_pydaw_bin_path += "-no-root"
+                    elif int(global_device_val_dict["audioEngine"]) == 2:
+                        global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix,
+                                                                   global_pydaw_version_string)
+                        global_pydaw_is_sandboxed = True
                 elif int(global_device_val_dict["audioEngine"]) == 3:
                     global_pydaw_bin_path += "-dbg"
                 elif int(global_device_val_dict["audioEngine"]) == 4 or \
