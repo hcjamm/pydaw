@@ -832,7 +832,7 @@ class pydaw_file_select_widget:
             QtGui.QMessageBox.warning(self.paste_from_clipboard, _("Error"),
             _("No file path in the system clipboard."))
         else:
-            f_text = str(f_text)
+            f_text = str(f_text).strip()
             if os.path.isfile(f_text):
                 self.set_file(f_text)
                 self.load_callback([f_text])

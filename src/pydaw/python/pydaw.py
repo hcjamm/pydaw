@@ -8441,7 +8441,7 @@ class pydaw_wave_editor_widget:
 
     def open_file_from_clipboard(self):
         f_clipboard = QtGui.QApplication.clipboard()
-        f_text = str(f_clipboard.text())
+        f_text = str(f_clipboard.text()).strip()
         if len(f_text) < 1000 and os.path.isfile(f_text):
             self.open_file(f_text)
         else:
