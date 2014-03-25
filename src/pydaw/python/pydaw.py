@@ -5585,6 +5585,14 @@ class automation_viewer_widget:
         def ipb_changed(a_self=None, a_event=None):
             f_epb_spinbox.setRange(f_ipb_spinbox.value() * -1, f_ipb_spinbox.value())
 
+        def goto_start():
+            f_bar_spinbox.setValue(f_bar_spinbox.minimum())
+            f_pos_spinbox.setValue(f_pos_spinbox.minimum())
+
+        def goto_end():
+            f_bar_spinbox.setValue(f_bar_spinbox.maximum())
+            f_pos_spinbox.setValue(f_pos_spinbox.maximum())
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Add automation point"))
         f_layout = QtGui.QGridLayout()
@@ -5601,6 +5609,16 @@ class automation_viewer_widget:
         f_pos_spinbox.setDecimals(2)
         f_pos_spinbox.setSingleStep(0.25)
         f_layout.addWidget(f_pos_spinbox, 5, 1)
+
+        f_begin_end_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_begin_end_layout, 6, 1)
+        f_start_button = QtGui.QPushButton("<<")
+        f_start_button.pressed.connect(goto_start)
+        f_begin_end_layout.addWidget(f_start_button)
+        f_begin_end_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        f_end_button = QtGui.QPushButton(">>")
+        f_end_button.pressed.connect(goto_end)
+        f_begin_end_layout.addWidget(f_end_button)
 
         f_layout.addWidget(QtGui.QLabel(_("Instrument Pitchbend")), 10, 0)
         f_ipb_spinbox = QtGui.QSpinBox()
