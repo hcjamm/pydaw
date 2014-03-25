@@ -8466,6 +8466,7 @@ class pydaw_wave_editor_widget:
         f_start = self.sample_graph.start_marker.value
         f_end = self.sample_graph.end_marker.value
         f_diff = f_end - f_start
+        f_diff = pydaw_clip_value(f_diff, 0.1, 1000.0)
         f_fade_in = ((self.sample_graph.fade_in_marker.value - f_start) / f_diff) * 1000.0
         f_fade_out = 1000.0 - \
             (((f_end - self.sample_graph.fade_out_marker.value) / f_diff) * 1000.0)
