@@ -1305,6 +1305,7 @@ class region_list_editor:
                 continue
             self.add_qtablewidgetitem(f_item[2], f_row, f_column)
         global_tablewidget_to_region()
+        global_update_hidden_rows()
 
     def delete_selected(self):
         if not self.enabled:
