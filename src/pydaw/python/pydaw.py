@@ -132,11 +132,14 @@ class song_editor:
         """ This method clears the existing song from the editor and opens the
             one currently in this_pydaw_project
         """
+        self.table_widget.setUpdatesEnabled(False)
         self.table_widget.clearContents()
         self.song = this_pydaw_project.get_song()
         f_region_dict = this_pydaw_project.get_regions_dict()
         for f_pos, f_region in list(self.song.regions.items()):
             self.add_qtablewidgetitem(f_region_dict.get_name_by_uid(f_region), f_pos)
+        self.table_widget.setUpdatesEnabled(True)
+        self.table_widget.update()
         #global_open_audio_items()
         self.clipboard = []
 
@@ -361,16 +364,16 @@ class song_editor:
 
 
 def global_update_hidden_rows(a_val=None):
+    this_region_editor.table_widget.setUpdatesEnabled(False)
     if global_current_region and this_region_settings.hide_checkbox.isChecked():
         f_active = [x.track_num for x in global_current_region.items]
         for f_i in range(this_region_editor.table_widget.rowCount()):
-            if f_i in f_active:
-                this_region_editor.table_widget.showRow(f_i)
-            else:
-                this_region_editor.table_widget.hideRow(f_i)
+            this_region_editor.table_widget.setRowHidden(f_i, f_i not in f_active)
     else:
         for f_i in range(this_region_editor.table_widget.rowCount()):
-            this_region_editor.table_widget.showRow(f_i)
+            this_region_editor.table_widget.setRowHidden(f_i, False)
+    this_region_editor.table_widget.setUpdatesEnabled(True)
+    this_region_editor.table_widget.update()
 
 
 global_current_region = None
@@ -556,6 +559,7 @@ class region_settings:
         self.enabled = False
         for f_editor in global_region_editors:
             f_editor.enabled = False
+            f_editor.table_widget.setUpdatesEnabled(True)
         self.clear_items()
         self.region_name_lineedit.setText(a_file_name)
         global global_current_region_name
@@ -591,6 +595,9 @@ class region_settings:
                 else:
                     this_region_audio_editor.add_qtablewidgetitem(f_item_name, f_item.track_num,
                                                                   f_item.bar_num, a_is_offset=True)
+        for f_editor in global_region_editors:
+            f_editor.table_widget.setUpdatesEnabled(True)
+            f_editor.table_widget.update()
         this_audio_items_viewer.scale_to_region_size()
         global_open_audio_items()
         global_update_hidden_rows()
@@ -3779,6 +3786,7 @@ def global_open_audio_items(a_update_viewer=True):
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected():
                 f_selected_list.append(str(f_item.audio_item))
+        this_audio_items_viewer.setUpdatesEnabled(False)
         this_audio_items_viewer.clear_drawn_items()
         for k, v in list(global_audio_items.items.items()):
             try:
@@ -3802,6 +3810,8 @@ def global_open_audio_items(a_update_viewer=True):
         for f_item in this_audio_items_viewer.audio_items:
             if str(f_item.audio_item) in f_selected_list:
                 f_item.setSelected(True)
+        this_audio_items_viewer.setUpdatesEnabled(True)
+        this_audio_items_viewer.update()
 
 
 def global_save_all_region_tracks():
@@ -4743,19 +4753,21 @@ class piano_roll_editor(QtGui.QGraphicsView):
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = \
             (999.0 * global_item_editing_count) + global_piano_keys_width
+        self.setUpdatesEnabled(False)
         self.clear_drawn_items()
-        if not this_item_editor.enabled:
-            return
-        f_beat_offset = 0
-        for f_item in this_item_editor.items:
-            for f_note in f_item.notes:
-                f_note_item = self.draw_note(f_note, f_beat_offset)
-                f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
-                f_note_item.resize_pos = f_note_item.scenePos()
-                if f_note_item.get_selected_string() in self.selected_note_strings:
-                    f_note_item.setSelected(True)
-            f_beat_offset += 1
-        self.scrollContentsBy(0, 0)
+        if this_item_editor.enabled:
+            f_beat_offset = 0
+            for f_item in this_item_editor.items:
+                for f_note in f_item.notes:
+                    f_note_item = self.draw_note(f_note, f_beat_offset)
+                    f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
+                    f_note_item.resize_pos = f_note_item.scenePos()
+                    if f_note_item.get_selected_string() in self.selected_note_strings:
+                        f_note_item.setSelected(True)
+                f_beat_offset += 1
+            self.scrollContentsBy(0, 0)
+        self.setUpdatesEnabled(True)
+        self.update()
 
     def draw_note(self, a_note, a_item_index):
         """ a_note is an instance of the pydaw_note class"""
