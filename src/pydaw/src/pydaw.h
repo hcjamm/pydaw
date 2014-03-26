@@ -5440,7 +5440,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
 
     //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
-}
+} __attribute__((optimize("-O0")))
 
 void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
 {
