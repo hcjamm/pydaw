@@ -554,6 +554,7 @@ void * ui_process_monitor_thread(void * a_thread_args)
     ui_thread_args * f_thread_args = (ui_thread_args*)(a_thread_args);
     sprintf(f_proc_path, "/proc/%i", f_thread_args->pid);
     struct stat sts;
+    int f_exited = 0;
 
     while(!exiting)
     {
@@ -562,8 +563,15 @@ void * ui_process_monitor_thread(void * a_thread_args)
         {
             printf("UI process doesn't exist, exiting.\n");
             exiting = 1;
+            f_exited = 1;
             break;
         }
+    }
+
+    if(f_exited)
+    {
+        sleep(3);
+        exit(0);
     }
 
     return (void*)0;
