@@ -832,6 +832,12 @@ class region_list_editor:
         def on_name_changed():
             f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
+        def goto_start():
+            f_item_count.setValue(f_item_count.minimum())
+
+        def goto_end():
+            f_item_count.setValue(f_item_count.maximum())
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Add item reference to region..."))
         f_layout = QtGui.QGridLayout()
@@ -864,7 +870,17 @@ class region_list_editor:
         f_item_count = QtGui.QSpinBox()
         f_item_count.setRange(1, self.region_length - y + 1)
         f_item_count.setToolTip(_("Only used for 'New'"))
-        f_layout.addWidget(f_item_count, 2, 2)
+
+        f_begin_end_layout = QtGui.QHBoxLayout()
+        f_begin_end_layout.addWidget(f_item_count)
+        f_layout.addLayout(f_begin_end_layout, 2, 2)
+        f_start_button = QtGui.QPushButton("<<")
+        f_start_button.pressed.connect(goto_start)
+        f_begin_end_layout.addWidget(f_start_button)
+        #f_begin_end_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        f_end_button = QtGui.QPushButton(">>")
+        f_end_button.pressed.connect(goto_end)
+        f_begin_end_layout.addWidget(f_end_button)
 
         if len(global_region_clipboard) > 0:
             f_paste_clipboard_button = QtGui.QPushButton(_("Paste Clipboard"))
