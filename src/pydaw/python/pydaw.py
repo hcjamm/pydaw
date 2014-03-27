@@ -8943,4 +8943,4 @@ app = None
 time.sleep(0.6)
 final_gc()
 
-exit(0)
+#exit(0)
