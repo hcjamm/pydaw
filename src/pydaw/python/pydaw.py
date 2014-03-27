@@ -5311,6 +5311,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.draw_item()
 
     def draw_item(self):
+        self.setUpdatesEnabled(False)
         self.viewer_width = global_automation_width * global_item_editing_count
         self.item_length = 4.0 * global_item_editing_count
         global global_automation_grid_max_start_time
@@ -5342,6 +5343,8 @@ class automation_viewer(QtGui.QGraphicsView):
                 f_note_item.setPen(f_pen)
                 self.scene.addItem(f_note_item)
             f_item_index += 1
+        self.setUpdatesEnabled(True)
+        self.update()
 
     def draw_point(self, a_cc, a_item_index, a_select=True):
         """ a_cc is an instance of the pydaw_cc class"""
