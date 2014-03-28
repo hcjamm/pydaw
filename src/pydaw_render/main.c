@@ -39,7 +39,7 @@ GNU General Public License for more details.
 
 void print_help()
 {
-    printf("Usage:  %s_render [project_path] [output_file] [start_region] "
+    printf("Usage:  %s_render [project_dir] [output_file] [start_region] "
             "[start_bar] [end_region] [end_bar] [sample_rate] "
             "[buffer_size]\n\n", PYDAW_VERSION);
 }
@@ -67,10 +67,8 @@ int main(int argc, char** argv)
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
     PYFX_Handle f_handle =  g_pydaw_instantiate(f_ldesc, f_sample_rate);
 
-    v_pydaw_activate(f_handle, 1, 1, f_project_dir);
+    v_pydaw_activate(f_handle, 1, 0, f_project_dir);
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
-
-    v_open_project(pydaw_data, f_project_dir, 1);
 
     f_engine->output0 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * f_buffer_size);
     f_engine->output1 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * f_buffer_size);
