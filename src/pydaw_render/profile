@@ -1,5 +1,5 @@
 PYDAW_VERSION=$(cat ../major-version.txt)
-BIN=$PYDAW_VERSION_render
+BIN=$PYDAW_VERSION"_render"
 PROJECT=$HOME/$PYDAW_VERSION/default-project
 
 make clean && make gprof && \
