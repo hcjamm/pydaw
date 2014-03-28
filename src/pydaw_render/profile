@@ -1,4 +1,5 @@
-make clean && make gprof && ./debugger && gprof ./debugger > profile.txt
+BIN=pydaw4_render
+make clean && make gprof && ./$BIN && gprof ./$BIN > profile.txt
 
 if [ -f /usr/bin/gedit ]; then
 	gedit profile.txt

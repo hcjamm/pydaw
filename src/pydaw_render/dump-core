@@ -3,4 +3,4 @@ if [ -f ./core ]; then
 fi
 
 ulimit -c unlimited
-make clean && make && ./debugger dump
+make clean && make && ./pydaw4_render dump

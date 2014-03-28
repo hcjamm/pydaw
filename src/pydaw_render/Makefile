@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+PREFIX ?= /usr
+DESTDIR ?= 
 CC  ?= gcc
 
 BASE_FLAGS     = -Wall -mstackrealign -fsingle-precision-constant -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fstrength-reduce -fstrict-aliasing -fprefetch-loop-arrays -finline-functions
@@ -10,7 +12,7 @@ C_OBJS   = main.o
 
 # --------------------------------------------------------------
 
-all: debugger
+all: pydaw4_render
 
 debug:
 	make CFLAGS+=" -O0 -gdwarf-3 -Wstack-usage=4096 -fstack-usage "
@@ -21,7 +23,7 @@ pydaw_benchmark:
 gprof:
 	make CFLAGS+=" -O3 -pg " LDFLAGS+=" -pg "
 
-debugger: $(C_OBJS)
+pydaw4_render: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
 
 # --------------------------------------------------------------
@@ -32,5 +34,10 @@ debugger: $(C_OBJS)
 # --------------------------------------------------------------
 
 clean:
-	rm -f *.o *.so debugger *.pymap *.wav profile.txt gmon.out
+	rm -f *.o *.so pydaw*render *.pymap *.wav profile.txt gmon.out
+
+install:
+	install -d $(DESTDIR)/$(PREFIX)
+	install -d $(DESTDIR)/$(PREFIX)/bin
+	install -m 755 pydaw4_render $(DESTDIR)/$(PREFIX)/bin
 

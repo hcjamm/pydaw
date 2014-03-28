@@ -34,6 +34,12 @@ GNU General Public License for more details.
 
 #define DEBUGGER_SAMPLE_COUNT 512
 
+void print_help()
+{
+    printf("Usage:  %s_render [project_path] [start_region] [start_bar] "
+            "[end_region] [end_bar] [buffer_size]\n"
+            "\n", PYDAW_VERSION);
+}
 
 int main(int argc, char** argv)
 {

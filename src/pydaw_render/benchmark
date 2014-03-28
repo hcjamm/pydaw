@@ -1,1 +1,2 @@
-make clean && make pydaw_benchmark && ./debugger
+make clean && make pydaw_benchmark && ./pydaw4_render
+

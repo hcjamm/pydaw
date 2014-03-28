@@ -1,2 +1,2 @@
 make clean && make debug && \
-valgrind --alignment=16 --track-origins=yes ./debugger
+valgrind --alignment=16 --track-origins=yes ./pydaw4_render

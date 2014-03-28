@@ -1,1 +1,1 @@
-gdb ./debugger ./core
+gdb ./pydaw4_render ./core
