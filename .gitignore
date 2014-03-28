@@ -39,13 +39,13 @@ src/pydaw-build/pydaw_os/extract-cd
 src/pydaw-build/pydaw_os/mnt
 src/pydaw-build/pydaw_os/md5sum.txt
 *.iso
-tools/debugger/*.pymap
-tools/debugger/profile.txt
+src/pydaw_render/*.pymap
+src/pydaw_render/profile.txt
 *.project
 *.cproject
 src/pydaw/python/libpydaw/history_test*
-tools/debugger/gmon.out
-tools/debugger/profiling.txt
+src/pydaw_render/gmon.out
+src/pydaw_render/profiling.txt
 src/pydaw-build/debian/DEBIAN/control
 src/pydaw-build/debian/DEBIAN/md5sums
 tools/wavetable_maker/wavs/*.wav
@@ -55,8 +55,8 @@ src/way_v/WAY_V_qt
 tools/wavetable_maker/wtgen
 src/libmodsynth/libmodsynth.so
 core
-tools/debugger/debugger
-tools/debugger/*.wav
+src/pydaw_render/debugger
+src/pydaw_render/*.wav
 src/build-suffix.txt
 src/pydaw_jack_oscrolloscope/pydaw_jack_oscrolloscope
 *.pyc
@@ -68,7 +68,7 @@ src/maintainer.txt
 *.la
 *.lo
 *~
-tools/debugger/test.wav.finished
+src/pydaw_render/test.wav.finished
 *.log
 *.libs*
 *.deps*
