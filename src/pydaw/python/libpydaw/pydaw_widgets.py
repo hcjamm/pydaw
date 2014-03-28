@@ -2483,6 +2483,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.copy_markers_action.triggered.connect(self.copy_markers)
         self.paste_markers_action = self.scene_context_menu.addAction(_("Paste Markers"))
         self.paste_markers_action.triggered.connect(self.paste_markers)
+        self.tempo_sync_action = self.scene_context_menu.addAction(_("Tempo Sync"))
+        self.tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -2524,6 +2526,50 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_val = " ".join(map(str, (self.length_str + self.drag_start_markers +
             self.drag_end_markers)))
         self.label.setText(f_val)
+
+    def tempo_sync_dialog(self):
+        def sync_button_pressed(a_self=None):
+            global global_last_tempo_combobox_index
+            f_frac = 1.0
+            f_switch = (f_beat_frac_combobox.currentIndex())
+            f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75,
+                      5 : 1.0, 6 : 2.0, 7 : 4.0}
+            f_frac = f_dict[f_switch]
+            f_seconds_per_beat = 60 / (f_spinbox.value())
+
+            f_result = ((f_seconds_per_beat * f_frac) /
+                self.graph_object.length_in_seconds) * 1000.0
+            for f_marker in self.drag_end_markers:
+                f_new = f_marker.other.value + f_result
+                f_new = pydaw_util.pydaw_clip_value(f_new, 1.0, 1000.0)
+                f_marker.set_value(f_new)
+            global_last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
+            f_dialog.close()
+
+        f_dialog = QtGui.QDialog(self)
+        f_dialog.setWindowTitle(_("Tempo Sync"))
+        f_groupbox_layout =  QtGui.QGridLayout(f_dialog)
+        f_spinbox =  QtGui.QDoubleSpinBox()
+        f_spinbox.setDecimals(1)
+        f_spinbox.setRange(60, 200)
+        f_spinbox.setSingleStep(0.1)
+        f_spinbox.setValue(global_tempo)
+        f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16", "1/4", "2/4", "4/4"]
+        f_beat_frac_combobox =  QtGui.QComboBox()
+        f_beat_frac_combobox.setMinimumWidth(75)
+        f_beat_frac_combobox.addItems(f_beat_fracs)
+        f_beat_frac_combobox.setCurrentIndex(global_last_tempo_combobox_index)
+        f_sync_button =  QtGui.QPushButton(_("Sync"))
+        f_sync_button.pressed.connect(sync_button_pressed)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(f_dialog.close)
+        f_groupbox_layout.addWidget(QtGui.QLabel(_("BPM")), 0, 0)
+        f_groupbox_layout.addWidget(f_spinbox, 1, 0)
+        f_groupbox_layout.addWidget(QtGui.QLabel("Length"), 0, 1)
+        f_groupbox_layout.addWidget(f_beat_frac_combobox, 1, 1)
+        f_groupbox_layout.addWidget(f_cancel_button, 2, 0)
+        f_groupbox_layout.addWidget(f_sync_button, 2, 1)
+        f_dialog.exec_()
 
     def scene_contextMenuEvent(self):
         self.scene_context_menu.exec_(QtGui.QCursor.pos())
