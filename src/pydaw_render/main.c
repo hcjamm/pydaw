@@ -23,8 +23,8 @@ GNU General Public License for more details.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../src/pydaw/src/synth.c"
-#include "../../src/pydaw/include/pydaw_plugin.h"
+#include "../pydaw/src/synth.c"
+#include "../pydaw/include/pydaw_plugin.h"
 #include <unistd.h>
 
 //#define DEBUGGER_SIMULATE_EXTERNAL_MIDI
