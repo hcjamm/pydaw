@@ -2614,7 +2614,10 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             self.graph_object.length_in_seconds))]
         self.path_list = a_graph_object.create_sample_graph(True)
         self.path_count = len(self.path_list)
+        self.setUpdatesEnabled(False)
         self.redraw_item(a_start, a_end, a_fade_in, a_fade_out)
+        self.setUpdatesEnabled(True)
+        self.update()
 
     def redraw_item(self, a_start, a_end, a_fade_in, a_fade_out):
         self.clear_drawn_items()
