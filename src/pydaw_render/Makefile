@@ -3,6 +3,8 @@
 PREFIX ?= /usr
 DESTDIR ?= 
 CC  ?= gcc
+PYDAW_VERSION = $(shell cat ../major-version.txt)
+PYDAW_FILE = $(PYDAW_VERSION)_render
 
 BASE_FLAGS     = -Wall -mstackrealign -fsingle-precision-constant -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fstrength-reduce -fstrict-aliasing -fprefetch-loop-arrays -finline-functions
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
@@ -12,7 +14,7 @@ C_OBJS   = main.o
 
 # --------------------------------------------------------------
 
-all: pydaw4_render
+all: $(PYDAW_FILE)
 
 debug:
 	make CFLAGS+=" -O0 -gdwarf-3 -Wstack-usage=4096 -fstack-usage "
@@ -23,7 +25,7 @@ pydaw_benchmark:
 gprof:
 	make CFLAGS+=" -O3 -pg " LDFLAGS+=" -pg "
 
-pydaw4_render: $(C_OBJS)
+$(PYDAW_FILE): $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
 
 # --------------------------------------------------------------
@@ -34,10 +36,10 @@ pydaw4_render: $(C_OBJS)
 # --------------------------------------------------------------
 
 clean:
-	rm -f *.o *.so pydaw*render *.pymap *.wav profile.txt gmon.out
+	rm -f *.o *.so $(PYDAW_FILE) *.pymap *.wav profile.txt gmon.out
 
 install:
 	install -d $(DESTDIR)/$(PREFIX)
 	install -d $(DESTDIR)/$(PREFIX)/bin
-	install -m 755 pydaw4_render $(DESTDIR)/$(PREFIX)/bin
+	install -m 755 $(PYDAW_FILE) $(DESTDIR)/$(PREFIX)/bin
 

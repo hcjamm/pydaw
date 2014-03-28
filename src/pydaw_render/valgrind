@@ -1,2 +1,8 @@
+PYDAW_VERSION=$(cat ../major-version.txt)
+BIN=$PYDAW_VERSION_render
+PROJECT=$HOME/$PYDAW_VERSION/default-project
+
 make clean && make debug && \
-valgrind --alignment=16 --track-origins=yes ./pydaw4_render
+valgrind --alignment=16 --track-origins=yes \
+./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512
+

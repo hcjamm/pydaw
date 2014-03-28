@@ -1,5 +1,10 @@
-BIN=pydaw4_render
-make clean && make gprof && ./$BIN && gprof ./$BIN > profile.txt
+PYDAW_VERSION=$(cat ../major-version.txt)
+BIN=$PYDAW_VERSION_render
+PROJECT=$HOME/$PYDAW_VERSION/default-project
+
+make clean && make gprof && \
+./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512 \
+&& gprof ./$BIN > profile.txt
 
 if [ -f /usr/bin/gedit ]; then
 	gedit profile.txt
@@ -8,3 +13,4 @@ elif [ -f /usr/bin/kate ]; then
 else
 	echo "Now open profile.txt in your favorite editor."
 fi
+

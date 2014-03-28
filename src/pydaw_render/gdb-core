@@ -1,1 +1,5 @@
-gdb ./pydaw4_render ./core
+PYDAW_VERSION=$(cat ../major-version.txt)
+BIN=$PYDAW_VERSION_render
+
+gdb ./$BIN ./core
+

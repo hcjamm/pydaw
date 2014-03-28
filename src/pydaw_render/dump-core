@@ -1,6 +1,0 @@
-if [ -f ./core ]; then
-	rm ./core
-fi
-
-ulimit -c unlimited
-make clean && make && ./pydaw4_render dump

@@ -1,2 +1,7 @@
-make clean && make pydaw_benchmark && ./pydaw4_render
+PYDAW_VERSION=$(cat ../major-version.txt)
+BIN=$PYDAW_VERSION_render
+PROJECT=$HOME/$PYDAW_VERSION/default-project
+
+make clean && make pydaw_benchmark && \
+./$BIN $PROJECT "test.wav" 0 0 10 0 44100 512
 

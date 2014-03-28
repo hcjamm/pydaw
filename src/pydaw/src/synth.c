@@ -62,7 +62,8 @@ static void v_pydaw_cleanup(PYFX_Handle instance)
     free(instance);
 }
 
-static void v_pydaw_connect_port(PYFX_Handle instance, int port, PYFX_Data * data)
+static void v_pydaw_connect_port(PYFX_Handle instance, int port,
+        PYFX_Data * data)
 {
     t_pydaw_engine *plugin;
 
@@ -82,10 +83,13 @@ static void v_pydaw_connect_port(PYFX_Handle instance, int port, PYFX_Data * dat
     }
 }
 
-static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s_rate)
+static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor,
+        int s_rate)
 {
-    t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
-    plugin_data->input_arr = (PYFX_Data**)malloc(sizeof(PYFX_Data*) * PYDAW_INPUT_COUNT);
+    t_pydaw_engine *plugin_data =
+            (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
+    plugin_data->input_arr =
+            (PYFX_Data**)malloc(sizeof(PYFX_Data*) * PYDAW_INPUT_COUNT);
 
     pydaw_data = g_pydaw_data_get(s_rate);
 
@@ -94,7 +98,8 @@ static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s
     return (PYFX_Handle) plugin_data;
 }
 
-void v_pydaw_activate(PYFX_Handle instance, int a_thread_count, int a_set_thread_affinity, char * a_project_path)
+void v_pydaw_activate(PYFX_Handle instance, int a_thread_count,
+        int a_set_thread_affinity, char * a_project_path)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     v_pydaw_init_worker_threads(pydaw_data, a_thread_count, a_set_thread_affinity);
@@ -109,13 +114,16 @@ static void runLMSWrapper(PYFX_Handle instance, int sample_count)
 }
 */
 
-void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count)
+void v_pydaw_run(PYFX_Handle instance, int sample_count,
+        t_pydaw_seq_event *events, int event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
 
     int f_lock_result = pthread_mutex_trylock(&pydaw_data->offline_mutex);
 
-    if(f_lock_result == 0)  //Don't try to process the main loop if another process, ie:  offline rendering of a project, has locked it
+    //Don't try to process the main loop if another process,
+    //ie:  offline rendering of a project, has locked it
+    if(f_lock_result == 0)
     {
         pthread_mutex_lock(&pydaw_data->main_mutex);
         pydaw_data->input_buffers_active = 1;
