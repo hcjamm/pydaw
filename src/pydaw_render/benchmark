@@ -2,6 +2,6 @@ PYDAW_VERSION=$(cat ../major-version.txt)
 BIN=$PYDAW_VERSION"_render"
 PROJECT=$HOME/$PYDAW_VERSION/default-project
 
-make clean && make pydaw_benchmark && \
-./$BIN $PROJECT "test.wav" 0 0 10 0 44100 512
+make clean && make release && \
+./$BIN $PROJECT "test.wav" 0 0 10 0 44100 512 0
 

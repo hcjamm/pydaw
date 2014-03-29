@@ -3,7 +3,7 @@ BIN=$PYDAW_VERSION"_render"
 PROJECT=$HOME/$PYDAW_VERSION/default-project
 
 make clean && make gprof && \
-./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512 \
+./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512 0 \
 && gprof ./$BIN > profile.txt
 
 if [ -f /usr/bin/gedit ]; then

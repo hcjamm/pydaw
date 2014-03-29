@@ -7173,6 +7173,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_eb = f_end_bar.value() - 1
             f_samp_rate = f_sample_rate.currentText()
             f_buff_size = pydaw_util.global_device_val_dict["bufferSize"]
+            f_thread_count = pydaw_util.global_device_val_dict["threads"]
 
             self.start_reg = f_start_region.value()
             self.end_reg = f_end_region.value()
@@ -7182,7 +7183,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
             f_cmd = [str(x) for x in (pydaw_util.global_pydaw_render_bin_path,
                                       f_dir, f_out_file, f_sr, f_sb, f_er, f_eb,
-                                      f_samp_rate, f_buff_size)]
+                                      f_samp_rate, f_buff_size, f_thread_count)]
             self.show_offline_rendering_wait_window_v2(f_cmd, f_out_file)
 
         def cancel_handler():
