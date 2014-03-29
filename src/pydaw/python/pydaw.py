@@ -7087,14 +7087,14 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         def timeout_handler():
             if f_proc.poll() != None:
+                f_timer.stop()
                 f_ok.setEnabled(True)
                 f_cancel.setEnabled(False)
-                f_timer.stop()
                 f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
                 os.system("rm -f '{}'".format(f_file_name))
-                f_output = f_proc.communicate()[0]
-                print(a_cmd_list)
-                print(f_output)
+                f_proc.communicate()[0]
+                #f_output = f_proc.communicate()[0]
+                #print(f_output)
                 f_exitCode = f_proc.returncode
                 if f_exitCode != 0:
                     QtGui.QMessageBox.warning(self, _("Error"),
@@ -7117,14 +7117,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_timer = QtCore.QTimer()
         f_timer.timeout.connect(timeout_handler)
 
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        f_layout.addLayout(f_ok_cancel_layout, 2, 1)
         f_ok = QtGui.QPushButton(_("OK"))
+        f_ok.setMinimumWidth(75)
         f_ok.pressed.connect(ok_handler)
         f_ok.setEnabled(False)
-        f_layout.addWidget(f_ok)
-        f_layout.addWidget(f_ok, 2, 2)
-        f_cancel = QtGui.QPushButton("Cancel")
+        f_ok_cancel_layout.addWidget(f_ok)
+        f_cancel = QtGui.QPushButton(_("Cancel"))
+        f_cancel.setMinimumWidth(75)
         f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 2, 3)
+        f_ok_cancel_layout.addWidget(f_cancel)
         f_timer.start(100)
         f_window.exec_()
 
