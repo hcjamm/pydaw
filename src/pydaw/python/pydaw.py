@@ -7074,11 +7074,21 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
 
         def cancel_handler():
+            f_timer.stop()
+            try:
+                f_proc.kill()
+            except Exception as ex:
+                print("Exception while killing process\n{}".format(ex))
+            if os.path.exists(a_file_name):
+                os.system("rm -f '{}'".format(a_file_name))
+            if os.path.exists(f_file_name):
+                os.system("rm -f '{}'".format(f_file_name))
             f_window.close()
 
         def timeout_handler():
             if f_proc.poll() != None:
                 f_ok.setEnabled(True)
+                f_cancel.setEnabled(False)
                 f_timer.stop()
                 f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
                 os.system("rm -f '{}'".format(f_file_name))
@@ -7112,9 +7122,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_ok.setEnabled(False)
         f_layout.addWidget(f_ok)
         f_layout.addWidget(f_ok, 2, 2)
-        #f_cancel = QtGui.QPushButton("Cancel")
-        #f_cancel.pressed.connect(cancel_handler)
-        #f_layout.addWidget(f_cancel, 9, 2)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 2, 3)
         f_timer.start(100)
         f_window.exec_()
 
