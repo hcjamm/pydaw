@@ -17,11 +17,11 @@ native:
 
 pydaw_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
-	make -C pydaw_render release
+	make -C pydaw_render
 
 native_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 " PLAT_FLAGS=" -march=native "
-	make -C pydaw_render release CFLAGS+=" -march=native "
+	make -C pydaw_render
 
 # --------------------------------------------------------------
 
@@ -59,7 +59,7 @@ install:
 
 clean:
 	make -C pydaw clean
-	make -C pydaw_render
+	make -C pydaw_render clean
 
 
 
