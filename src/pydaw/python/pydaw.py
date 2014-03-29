@@ -7108,6 +7108,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 #print(f_output)
                 f_exitCode = f_proc.returncode
                 if f_exitCode != 0:
+                    f_window.close()
                     QtGui.QMessageBox.warning(self, _("Error"),
                                               _("Offline render exited abnormally with exit "
                                               "code {}").format(f_exitCode))
@@ -7117,10 +7118,11 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         f_proc = subprocess.Popen(a_cmd_list,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
         f_start_time = time.time()
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(this_main_window,
+                                 QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
         f_window.setWindowTitle(_("Rendering to .wav, please wait"))
+        f_window.setMinimumSize(420, 210)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_time_label = QtGui.QLabel("")
