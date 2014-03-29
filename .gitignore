@@ -55,7 +55,7 @@ src/way_v/WAY_V_qt
 tools/wavetable_maker/wtgen
 src/libmodsynth/libmodsynth.so
 core
-src/pydaw_render/pydaw4_render
+src/pydaw_render/pydaw4_render*
 src/pydaw_render/*.wav
 src/build-suffix.txt
 src/pydaw_jack_oscrolloscope/pydaw_jack_oscrolloscope
