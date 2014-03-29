@@ -7252,12 +7252,14 @@ class pydaw_main_window(QtGui.QMainWindow):
                                               QtGui.QSizePolicy.Expanding,
                                               QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton(_("OK"))
+        f_ok.setMinimumWidth(75)
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
         f_layout.addLayout(f_ok_layout, 9, 1)
         f_cancel = QtGui.QPushButton(_("Cancel"))
+        f_cancel.setMinimumWidth(75)
         f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 9, 2)
+        f_ok_layout.addWidget(f_cancel)
         f_window.exec_()
 
     def on_undo(self):
