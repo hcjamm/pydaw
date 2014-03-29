@@ -3,6 +3,6 @@ BIN=$PYDAW_VERSION"_render-dbg"
 PROJECT=$HOME/$PYDAW_VERSION/default-project
 
 make clean && make debug && \
-valgrind --alignment=16 --track-origins=yes \
-./$BIN $PROJECT "test.wav" 0 0 23 3 44100 512 1
+valgrind --tool=helgrind --alignment=16 \
+./$BIN $PROJECT "test.wav" 0 0 23 3 44100 512 0
 
