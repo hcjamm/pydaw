@@ -18,8 +18,8 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-/*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 28
+/*This is actually count, not index TODO:  Rename*/
+#define MULTIFX3KNOB_MAX_INDEX 29
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf_stereo.h"
@@ -103,6 +103,7 @@ inline void v_mf3_run_lp_hp(t_mf3_multi*,float,float);
 inline void v_mf3_run_growl_filter(t_mf3_multi*,float,float);
 inline void v_mf3_run_screech_lp(t_mf3_multi*,float,float);
 inline void v_mf3_run_metal_comb(t_mf3_multi*,float,float);
+inline void v_mf3_run_notch_dw(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -141,7 +142,8 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_run_lp_hp, //24
         v_mf3_run_growl_filter, //25
         v_mf3_run_screech_lp, //26
-        v_mf3_run_metal_comb   //27
+        v_mf3_run_metal_comb,   //27
+        v_mf3_run_notch_dw //28
 };
 
 
@@ -182,6 +184,7 @@ const fp_mf3_reset mf3_reset_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_reset_null, //25
         v_mf3_reset_svf, //26
         v_mf3_reset_null, //27
+        v_mf3_reset_svf //28
 };
 
 
@@ -600,6 +603,17 @@ inline void v_mf3_run_hp_dw(t_mf3_multi*__restrict a_mf3, float a_in0,
     a_mf3->control_value[2] = a_mf3->control[2] * 0.007874016f;
     v_axf_set_xfade(a_mf3->xfader, a_mf3->control_value[2]);
     v_svf2_run_2_pole_hp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, a_mf3->svf->output0);
+    a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, a_mf3->svf->output1);
+}
+
+inline void v_mf3_run_notch_dw(t_mf3_multi*__restrict a_mf3, float a_in0,
+        float a_in1)
+{
+    f_mfx_transform_svf_filter(a_mf3);
+    a_mf3->control_value[2] = a_mf3->control[2] * 0.007874016f;
+    v_axf_set_xfade(a_mf3->xfader, a_mf3->control_value[2]);
+    v_svf2_run_4_pole_notch(a_mf3->svf, a_in0, a_in1);
     a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, a_mf3->svf->output0);
     a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, a_mf3->svf->output1);
 }
