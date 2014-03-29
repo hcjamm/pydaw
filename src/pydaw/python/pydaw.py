@@ -46,6 +46,17 @@ def pydaw_get_current_region_length():
     else:
         return f_result
 
+def pydaw_get_region_length(a_index):
+    f_song = this_pydaw_project.get_song()
+    if not a_index in f_song.regions:
+        return 8
+    else:
+        f_region = this_pydaw_project.get_region_by_uid(f_song.regions[a_index])
+        f_result = f_region.region_length_bars
+        if f_result == 0:
+            return 8
+        else:
+            return f_result
 
 def pydaw_center_widget_on_screen(a_widget):
     f_desktop_center = QtGui.QApplication.desktop().screen().rect().center()
@@ -7211,6 +7222,14 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.end_reg = i + 1
                     break
 
+        def start_region_changed(a_val=None):
+            f_max = pydaw_get_region_length(f_start_region.value() - 1)
+            f_start_bar.setMaximum(f_max)
+
+        def end_region_changed(a_val=None):
+            f_max = pydaw_get_region_length(f_end_region.value() - 1)
+            f_end_bar.setMaximum(f_max)
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Offline Render"))
         f_layout = QtGui.QGridLayout()
@@ -7238,6 +7257,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_start_bar.setRange(1, 8)
         f_start_bar.setValue(self.start_bar)
         f_start_hlayout.addWidget(f_start_bar)
+        f_start_region.valueChanged.connect(start_region_changed)
+        start_region_changed()
 
         f_layout.addWidget(QtGui.QLabel(_("End:")), 2, 0)
         f_end_hlayout = QtGui.QHBoxLayout()
@@ -7252,6 +7273,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_end_bar.setRange(1, 8)
         f_end_bar.setValue(self.end_bar)
         f_end_hlayout.addWidget(f_end_bar)
+        f_end_region.valueChanged.connect(end_region_changed)
+        end_region_changed()
+
         f_sample_rate_hlayout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_sample_rate_hlayout, 3, 1)
         f_sample_rate_hlayout.addWidget(QtGui.QLabel(_("Sample Rate")))
