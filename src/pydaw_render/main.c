@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     }
 #endif
 
-
+    v_pydaw_offline_render_prep(pydaw_data);
 
 #ifdef DEBUGGER_SIMULATE_RECORD
     v_set_playback_mode(pydaw_data, 0, 0, 0);

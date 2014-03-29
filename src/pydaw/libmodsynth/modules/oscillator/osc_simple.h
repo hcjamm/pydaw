@@ -155,6 +155,23 @@ inline float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
     return (a_osc_ptr->current_sample) * (a_osc_ptr->adjusted_amp);
 }
 
+/* float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
+ *
+ * For warming up oscillators
+ */
+inline void f_osc_run_unison_osc_core_only(t_osc_simple_unison * a_osc_ptr)
+{
+    a_osc_ptr->i_run_unison = 0;
+    a_osc_ptr->current_sample = 0.0f;
+
+    while((a_osc_ptr->i_run_unison) < (a_osc_ptr->voice_count))
+    {
+        v_run_osc((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]),
+                (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
+        a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
+    }
+}
+
 inline float f_osc_run_unison_osc_sync(t_osc_simple_unison * a_osc_ptr)
 {
     a_osc_ptr->i_run_unison = 0;

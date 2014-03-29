@@ -5288,6 +5288,27 @@ inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data,
     return ((float)(f_beat_total)) + (a_end_beat - a_start_beat);
 }
 
+void v_pydaw_offline_render_prep(t_pydaw_data * a_pydaw_data)
+{
+    printf("Warming up plugins for offline rendering...\n");
+    int f_i = 0;
+
+    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    {
+        t_pytrack * f_track = a_pydaw_data->track_pool[f_i];
+        if(f_track->plugin_index > 0)
+        {
+            if(f_track->instrument->descriptor->offline_render_prep)
+            {
+                f_track->instrument->descriptor->offline_render_prep(
+                        f_track->instrument->PYFX_handle);
+            }
+        }
+        f_i++;
+    }
+    printf("Finished warming up plugins\n");
+}
+
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
         int a_start_bar, int a_end_region,
         int a_end_bar, char * a_file_out, int a_is_audio_glue)

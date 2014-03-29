@@ -2321,6 +2321,7 @@ const PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
     euphoriaDDescriptor->PYFX_Plugin = euphoria_PYFX_descriptor(0);
     euphoriaDDescriptor->configure = c_euphoria_configure;
     euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
+    euphoriaDDescriptor->offline_render_prep = NULL;
 
     return euphoriaDDescriptor;
 }

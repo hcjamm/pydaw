@@ -44,6 +44,40 @@ static void v_cleanup_wayv(PYFX_Handle instance)
     free(instance);
 }
 
+static void v_wayv_or_prep(PYFX_Handle instance)
+{
+    t_wayv *plugin = (t_wayv *)instance;
+    int f_i2 = 0;
+
+    int f_osc1_on = ((int)(*plugin->osc1type) - 1);
+    int f_osc2_on = ((int)(*plugin->osc2type) - 1);
+    int f_osc3_on = ((int)(*plugin->osc3type) - 1);
+
+    while(f_i2 < WAYV_POLYPHONY)
+    {
+        t_wayv_poly_voice * f_voice = plugin->data[f_i2];
+        int f_i = 0;
+        while(f_i < 1000000)
+        {
+            if(f_osc1_on >= 0)
+            {
+                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable1);
+            }
+            if(f_osc2_on >= 0)
+            {
+                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable2);
+            }
+            if(f_osc3_on >= 0)
+            {
+                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable3);
+            }
+
+            f_i++;
+        }
+        f_i2++;
+    }
+}
+
 static void wayvPanic(PYFX_Handle instance)
 {
     t_wayv *plugin = (t_wayv *)instance;
@@ -2066,6 +2100,7 @@ const PYINST_Descriptor *wayv_PYINST_descriptor(int index)
 	LMSDDescriptor->PYFX_Plugin = wayv_PYFX_descriptor(0);
 	LMSDDescriptor->configure = c_wayv_configure;
 	LMSDDescriptor->run_synth = v_run_wayv;
+        LMSDDescriptor->offline_render_prep = v_wayv_or_prep;
     }
 
     return LMSDDescriptor;

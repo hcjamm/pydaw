@@ -45,6 +45,23 @@ static void v_cleanup_rayv(PYFX_Handle instance)
     free(instance);
 }
 
+static void v_rayv_or_prep(PYFX_Handle instance)
+{
+    t_rayv *plugin = (t_rayv *)instance;
+    int f_i2 = 0;
+    while(f_i2 < RAYV_POLYPHONY)
+    {
+        t_rayv_poly_voice * f_voice = plugin->data[f_i2];
+        int f_i = 0;
+        while(f_i < 1000000)
+        {
+            f_osc_run_unison_osc_core_only(f_voice->osc_unison1);
+            f_osc_run_unison_osc_core_only(f_voice->osc_unison2);
+            f_i++;
+        }
+        f_i2++;
+    }
+}
 
 static void rayvPanic(PYFX_Handle instance)
 {
@@ -881,13 +898,13 @@ const PYINST_Descriptor *rayv_PYINST_descriptor(int index)
 {
     PYINST_Descriptor *LMSDDescriptor = NULL;
 
-
     LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
     if (LMSDDescriptor) {
 	LMSDDescriptor->PYINST_API_Version = 1;
 	LMSDDescriptor->PYFX_Plugin = rayv_PYFX_descriptor(0);
 	LMSDDescriptor->configure = NULL;
 	LMSDDescriptor->run_synth = v_run_rayv;
+        LMSDDescriptor->offline_render_prep = v_rayv_or_prep;
     }
 
     return LMSDDescriptor;

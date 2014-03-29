@@ -20,23 +20,23 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#define PYDAW_EVENT_NOTEON     0    
+#define PYDAW_EVENT_NOTEON     0
 #define PYDAW_EVENT_NOTEOFF    1
 #define PYDAW_EVENT_PITCHBEND  2
 #define PYDAW_EVENT_CONTROLLER 3
-    
+
 // MIDI event
-typedef struct 
+typedef struct
 {
-	int type;               /**< event type */	        
+	int type;               /**< event type */
 	int tick;	        /**< tick-time */
 	unsigned int tv_sec;	/**< seconds */
-	unsigned int tv_nsec;	/**< nanoseconds */	
+	unsigned int tv_nsec;	/**< nanoseconds */
         int channel;		/**< channel number */
 	int note;		/**< note */
-	int velocity;		/**< velocity */	
+	int velocity;		/**< velocity */
 	int duration;		/**< duration until note-off; only for #PYDAW_EVENT_NOTEON */
-	int param;		/**< control parameter */	
+	int param;		/**< control parameter */
         float value;
         float start;
         float length;
@@ -56,7 +56,7 @@ typedef struct
     int is_loaded;  //wav's are now loaded dynamically when they are first seen
     float host_sr;  //host sample-rate, cached here for easy access
 }t_wav_pool_item;
-    
+
 void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
 {
     a_event->type = -1;
@@ -102,7 +102,7 @@ typedef t_wav_pool_item * (*fp_get_wavpool_item_from_host)(int);
 /* Fundamental data type passed in and out of plugin. This data type
    is used to communicate audio samples and control values. It is
    assumed that the plugin will work sensibly given any numeric input
-   value although it may have a preferred range (see hints below). 
+   value although it may have a preferred range (see hints below).
 
    For audio it is generally assumed that 1.0f is the `0dB' reference
    amplitude and is a `normal' signal level. */
@@ -111,7 +111,7 @@ typedef float PYFX_Data;
 
 /*****************************************************************************/
 
-/* Plugin Ports: 
+/* Plugin Ports:
  * Set this to 1 if the port is valid, 0 if not
  *  */
 
@@ -122,7 +122,7 @@ typedef struct _PYFX_PortRangeHint {
 
   /* Hints about the port. */
   //PYFX_PortRangeHintDescriptor HintDescriptor;
-  
+
   PYFX_Data DefaultValue;
 
   /* Meaningful when hint PYFX_HINT_BOUNDED_BELOW is active. When
@@ -139,7 +139,7 @@ typedef struct _PYFX_PortRangeHint {
 
 /*****************************************************************************/
 
-/* Plugin Handles: 
+/* Plugin Handles:
 
    This plugin handle indicates a particular instance of the plugin
    concerned. It is valid to compare this to NULL (0 for C++) but
@@ -150,20 +150,20 @@ typedef void * PYFX_Handle;
 
 /*****************************************************************************/
 
-/* Descriptor for a Type of Plugin: 
+/* Descriptor for a Type of Plugin:
 
    This structure is used to describe a plugin type. It provides a
    number of functions to examine the type, instantiate it, link it to
    buffers and workspaces and to run it. */
 
-typedef struct _PYFX_Descriptor { 
+typedef struct _PYFX_Descriptor {
 
   /* This numeric identifier indicates the plugin type
      uniquely. Plugin programmers may reserve ranges of IDs from a
      central body to avoid clashes. Hosts may assume that IDs are
      below 0x1000000. */
   unsigned long UniqueID;
-  
+
   /* This member points to the null-terminated name of the plugin
      (e.g. "Sine Oscillator"). */
   const char * Name;
@@ -188,13 +188,13 @@ typedef struct _PYFX_Descriptor {
   /* This member indicates an array of range hints for each port (see
      above). Valid indices vary from 0 to PortCount-1. */
   const PYFX_PortRangeHint * PortRangeHints;
-  
+
   /* This member is a function pointer that instantiates a plugin. A
      handle is returned indicating the new plugin instance. The
      instantiation function accepts a sample rate as a parameter. The
      plugin descriptor from which this instantiate function was found
      must also be passed. This function must return NULL if
-     instantiation fails. 
+     instantiation fails.
 
      Note that instance initialisation should generally occur in
      activate() rather than here. */
@@ -228,7 +228,7 @@ typedef struct _PYFX_Descriptor {
      However, overlapped buffers or use of a single buffer for both
      audio and control data may result in unexpected behaviour. */
    void (*connect_port)(PYFX_Handle Instance, int Port, PYFX_Data * DataLocation);
-   
+
    /* Assign the audio buffer at DataLocation to index a_index
     */
    void (*connect_buffer)(PYFX_Handle Instance, int a_index, float * DataLocation);
@@ -272,13 +272,13 @@ typedef struct _PYFX_Descriptor {
   /* Once an instance of a plugin has been finished with it can be
      deleted using the following function. The instance handle passed
      ceases to be valid after this call.
-  
+
      If activate() was called for a plugin instance then a
      corresponding call to deactivate() must be made before cleanup()
      is called. */
   void (*cleanup)(PYFX_Handle Instance);
-  
-  
+
+
   /* When a panic message is sent, do whatever it takes to fix any stuck
    notes. */
   void (*panic)(PYFX_Handle Instance);
@@ -315,7 +315,7 @@ typedef struct _PYFX_Descriptor {
 const PYFX_Descriptor * ladspa_descriptor(int Index);
 
 /* Datatype corresponding to the ladspa_descriptor() function. */
-typedef const PYFX_Descriptor * 
+typedef const PYFX_Descriptor *
 (*PYFX_Descriptor_Function)(int Index);
 
 /**********************************************************************/
@@ -413,12 +413,12 @@ typedef struct _PYINST_Descriptor {
      * ~~~~~~~~~~~
      * There are two minor requirements aimed at making the plugin
      * writer's life as simple as possible:
-     * 
+     *
      * 1. A host must never send events of type SND_SEQ_EVENT_NOTE.
      * Notes should always be sent as separate SND_SEQ_EVENT_NOTE_ON
      * and NOTE_OFF events.  A plugin should discard any one-point
      * NOTE events it sees.
-     * 
+     *
      * 2. A host must not attempt to switch notes off by sending
      * zero-velocity NOTE_ON events.  It should always send true
      * NOTE_OFFs.  It is the host's responsibility to remap events in
@@ -429,6 +429,12 @@ typedef struct _PYINST_Descriptor {
 		      int    SampleCount,
 		      t_pydaw_seq_event *Events,
 		      int    EventCount);
+
+    /* Do anything like warming up oscillators, etc...  in preparation
+     * for offline rendering.  This must be called after loading
+     * the project.
+     */
+    void (*offline_render_prep)(PYFX_Handle Instance);
 
 } PYINST_Descriptor;
 
@@ -453,7 +459,7 @@ typedef struct _PYINST_Descriptor {
  */
 
 const PYINST_Descriptor *dssi_descriptor(int Index);
-  
+
 typedef const PYINST_Descriptor *(*PYINST_Descriptor_Function)(int Index);
 
 #ifdef __cplusplus
