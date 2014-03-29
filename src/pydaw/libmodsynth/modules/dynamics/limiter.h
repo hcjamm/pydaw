@@ -20,6 +20,8 @@ extern "C" {
 
 #include "../../lib/lms_math.h"
 #include "../../lib/amp.h"
+    #include "../../lib/pitch_core.h"
+#include "../filter/svf.h"
 #include <math.h>
 #include <assert.h>
 
@@ -37,6 +39,7 @@ typedef struct st_lim_limiter
     float *buffer0, *buffer1;
     int buffer_size, buffer_index, buffer_read_index;
     t_amp * amp_ptr;
+    t_state_variable_filter * filter;
 }t_lim_limiter;
 
 t_lim_limiter * g_lim_get(float);
@@ -151,13 +154,14 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
         a_lim->buffer_index = 0;
     }
 
-    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) *
-            (a_lim->gain) * (a_lim->autogain);
-    a_lim->output1 = (a_lim->buffer1[(a_lim->buffer_index)]) *
-            (a_lim->gain) * (a_lim->autogain);
+    float f_gain =
+        v_svf_run_4_pole_lp(a_lim->filter, (a_lim->gain) * (a_lim->autogain));
+
+    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) * f_gain;
+    a_lim->output1 = (a_lim->buffer1[(a_lim->buffer_index)]) * f_gain;
 }
 
-t_lim_limiter * g_lim_get(float srate)
+t_lim_limiter * g_lim_get(float a_sr)
 {
     t_lim_limiter * f_result;
     if(posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter)) != 0)
@@ -165,9 +169,9 @@ t_lim_limiter * g_lim_get(float srate)
         return 0;
     }
 
-    f_result->holdtime = ((int)(srate/LMS_HOLD_TIME_DIVISOR));
+    f_result->holdtime = ((int)(a_sr / LMS_HOLD_TIME_DIVISOR));
 
-    f_result->buffer_size = (f_result->holdtime); // (int)(srate*0.003f);
+    f_result->buffer_size = (f_result->holdtime); // (int)(a_sr*0.003f);
     f_result->buffer_index = 0;
 
     if(posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) *
@@ -208,8 +212,20 @@ t_lim_limiter * g_lim_get(float srate)
     f_result->release = 0.0f;
     f_result->thresh = 0.0f;
     f_result->volume = 0.0f;
-    f_result->sr = srate;
-    f_result->sr_recip = 1.0f/srate;
+    f_result->sr = a_sr;
+    f_result->sr_recip = 1.0f / a_sr;
+
+    f_result->filter = g_svf_get(a_sr);
+    v_svf_set_res(f_result->filter, -9.0f);
+    v_svf_set_cutoff_base(f_result->filter, f_pit_hz_to_midi_note(4000.0f));
+    v_svf_set_cutoff(f_result->filter);
+
+    f_i = 0;
+    while(f_i < 50)
+    {
+        v_svf_run_4_pole_lp(f_result->filter, 1.0f);
+        f_i++;
+    }
 
     //nonsensical values that it won't evaluate to on the first run
     f_result->last_ceiling = 1234.4522f;
