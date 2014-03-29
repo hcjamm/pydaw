@@ -19,11 +19,11 @@ all: $(PYDAW_FILE)
 debug:
 	make CFLAGS+=" -O0 -gdwarf-3 -Wstack-usage=4096 -fstack-usage "
 
-pydaw_benchmark:
-	make CFLAGS+=" -O3 "
+release:
+	make CFLAGS+=" -O2 "
 
 gprof:
-	make CFLAGS+=" -O3 -pg " LDFLAGS+=" -pg "
+	make CFLAGS+=" -O2 -pg " LDFLAGS+=" -pg "
 
 $(PYDAW_FILE): $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
