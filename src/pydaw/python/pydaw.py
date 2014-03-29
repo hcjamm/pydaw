@@ -7146,7 +7146,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_sb = f_start_bar.value() - 1
             f_er = f_end_region.value() - 1
             f_eb = f_end_bar.value() - 1
-            f_samp_rate = pydaw_util.global_device_val_dict["sampleRate"]
+            f_samp_rate = f_sample_rate.currentText()
             f_buff_size = pydaw_util.global_device_val_dict["bufferSize"]
 
             self.start_reg = f_start_region.value()
@@ -7238,15 +7238,31 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_end_bar.setRange(1, 8)
         f_end_bar.setValue(self.end_bar)
         f_end_hlayout.addWidget(f_end_bar)
+        f_sample_rate_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_sample_rate_hlayout, 3, 1)
+        f_sample_rate_hlayout.addWidget(QtGui.QLabel(_("Sample Rate")))
+        f_sample_rate = QtGui.QComboBox()
+        f_sample_rate.setMinimumWidth(105)
+        f_sample_rate.addItems(["44100", "48000", "88200", "96000", "192000"])
+
+        try:
+            f_sr_index = f_sample_rate.findText(
+                pydaw_util.global_device_val_dict["sampleRate"])
+            f_sample_rate.setCurrentIndex(f_sr_index)
+        except:
+            pass
+
+        f_sample_rate_hlayout.addWidget(f_sample_rate)
+        f_sample_rate_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+
         f_layout.addWidget(QtGui.QLabel(
-        _("File is exported to 32 bit .wav at the sample rate your audio "
-        "interface is running at.\nYou can convert "
-        "the format using other programs such as Audacity")), 3, 1)
+        _("File is exported to 32 bit .wav at the selected sample rate. "
+        "\nYou can convert the format using Menu->Tools->MP3/Ogg Converter")), 6, 1)
         f_copy_to_clipboard_checkbox = QtGui.QCheckBox(
         _("Copy export path to clipboard? (useful for right-click pasting "
         "back into the audio sequencer)"))
         f_copy_to_clipboard_checkbox.setChecked(self.copy_to_clipboard_checked)
-        f_layout.addWidget(f_copy_to_clipboard_checkbox, 4, 1)
+        f_layout.addWidget(f_copy_to_clipboard_checkbox, 7, 1)
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
                                               QtGui.QSizePolicy.Expanding,
