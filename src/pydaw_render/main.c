@@ -61,7 +61,6 @@ int main(int argc, char** argv)
     int f_sample_rate = atoi(argv[7]);
     int f_buffer_size = atoi(argv[8]);
 
-
     v_pydaw_constructor();
 
     const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);

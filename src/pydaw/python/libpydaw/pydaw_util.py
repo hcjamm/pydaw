@@ -26,6 +26,7 @@ global_euphoria_file_type_string = 'PyDAW4 Euphoria Sample File (*.u4ia4)'
 global_euphoria_file_type_ext = '.u4ia4'
 
 global_pydaw_bin_path = None
+global_pydaw_render_bin_path = None
 global_pydaw_is_sandboxed = False
 
 global_pydaw_with_audio = True
@@ -39,8 +40,10 @@ else:
         "{}/../../../../..".format(os.path.dirname(__file__)))
 
 def pydaw_set_bin_path():
-    global global_pydaw_bin_path
+    global global_pydaw_bin_path, global_pydaw_render_bin_path
     global_pydaw_bin_path = "{}/bin/{}-engine".format(
+        global_pydaw_install_prefix, global_pydaw_version_string)
+    global_pydaw_render_bin_path = "{}/bin/{}_render".format(
         global_pydaw_install_prefix, global_pydaw_version_string)
 
 def pydaw_escape_stylesheet(a_stylesheet, a_path):

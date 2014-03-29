@@ -7057,7 +7057,56 @@ class pydaw_main_window(QtGui.QMainWindow):
         #f_cancel = QtGui.QPushButton("Cancel")
         #f_cancel.pressed.connect(cancel_handler)
         #f_layout.addWidget(f_cancel, 9, 2)
-        #TODO:  Send a 'cancel_offline_render' message to the engine...
+        f_timer.start(100)
+        f_window.exec_()
+
+    def show_offline_rendering_wait_window_v2(self, a_cmd_list, a_file_name):
+        f_file_name = "{}.finished".format(a_file_name)
+        def ok_handler():
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        def timeout_handler():
+            if f_proc.poll() != None:
+                f_ok.setEnabled(True)
+                f_timer.stop()
+                f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
+                os.system("rm -f '{}'".format(f_file_name))
+                f_output = f_proc.communicate()[0]
+                print(a_cmd_list)
+                print(f_output)
+                f_exitCode = f_proc.returncode
+                if f_exitCode != 0:
+                    QtGui.QMessageBox.warning(self, _("Error"),
+                                              _("Offline render exited abnormally with exit "
+                                              "code {}").format(f_exitCode))
+            else:
+                f_elapsed_time = time.time() - f_start_time
+                f_time_label.setText(str(round(f_elapsed_time, 1)))
+
+        f_proc = subprocess.Popen(a_cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        f_start_time = time.time()
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle(_("Rendering to .wav, please wait"))
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_time_label = QtGui.QLabel("")
+        f_time_label.setMinimumWidth(360)
+        f_layout.addWidget(f_time_label, 1, 1)
+        f_timer = QtCore.QTimer()
+        f_timer.timeout.connect(timeout_handler)
+
+        f_ok = QtGui.QPushButton(_("OK"))
+        f_ok.pressed.connect(ok_handler)
+        f_ok.setEnabled(False)
+        f_layout.addWidget(f_ok)
+        f_layout.addWidget(f_ok, 2, 2)
+        #f_cancel = QtGui.QPushButton("Cancel")
+        #f_cancel.pressed.connect(cancel_handler)
+        #f_layout.addWidget(f_cancel, 9, 2)
         f_timer.start(100)
         f_window.exec_()
 
@@ -7080,18 +7129,26 @@ class pydaw_main_window(QtGui.QMainWindow):
             else:
                 self.copy_to_clipboard_checked = False
             #TODO:  Check that the end is actually after the start....
-            this_pydaw_project.this_pydaw_osc.pydaw_offline_render(f_start_region.value() - 1,
-                                                                   f_start_bar.value() - 1,
-                                                                   f_end_region.value() - 1,
-                                                                   f_end_bar.value() - 1,
-                                                                   f_name.text())
+
+            f_dir = this_pydaw_project.project_folder
+            f_out_file = f_name.text()
+            f_sr = f_start_region.value() - 1
+            f_sb = f_start_bar.value() - 1
+            f_er = f_end_region.value() - 1
+            f_eb = f_end_bar.value() - 1
+            f_samp_rate = pydaw_util.global_device_val_dict["sampleRate"]
+            f_buff_size = pydaw_util.global_device_val_dict["bufferSize"]
+
             self.start_reg = f_start_region.value()
             self.end_reg = f_end_region.value()
             self.start_bar = f_start_bar.value()
             self.end_bar = f_end_bar.value()
             self.last_offline_dir = os.path.dirname(str(f_name.text()))
             f_window.close()
-            self.show_offline_rendering_wait_window(f_name.text())
+            f_cmd = [str(x) for x in (pydaw_util.global_pydaw_render_bin_path,
+                                      f_dir, f_out_file, f_sr, f_sb, f_er, f_eb,
+                                      f_samp_rate, f_buff_size)]
+            self.show_offline_rendering_wait_window_v2(f_cmd, f_out_file)
 
         def cancel_handler():
             f_window.close()
