@@ -6930,6 +6930,14 @@ def global_close_all_plugin_windows():
     global_open_fx_ui_dicts = [{}, {}, {}, {}, {}]
     global_open_inst_ui_dict = {}
 
+def global_save_all_plugin_state():
+    for f_dict in global_open_fx_ui_dicts:
+        for v in list(f_dict.values()):
+            v.save_plugin_file()
+    for v in list(global_open_inst_ui_dict.values()):
+        v.save_plugin_file()
+
+
 class pydaw_main_window(QtGui.QMainWindow):
     def check_for_empty_directory(self, a_file):
         """ Return true if directory is empty, show error message and
@@ -7121,6 +7129,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 QtGui.QMessageBox.warning(f_window, _("Error"),
                 _("End point is before start point."))
                 return
+
+            global_save_all_plugin_state()
 
             if f_copy_to_clipboard_checkbox.isChecked():
                 self.copy_to_clipboard_checked = True
