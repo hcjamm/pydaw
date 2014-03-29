@@ -226,7 +226,7 @@ static PYFX_Handle g_rayv_instantiate(const PYFX_Descriptor * descriptor,
 
     plugin_data->pitch = 1.0f;
     plugin_data->sv_pitch_bend_value = 0.0f;
-    plugin_data->sv_last_note = 60.0f;  //For glide
+    plugin_data->sv_last_note = -1.0f;  //For glide
 
     //initialize all monophonic modules
     plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);
@@ -291,8 +291,17 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice]->target_pitch =
                         (plugin_data->data[f_voice]->note_f);
-                plugin_data->data[f_voice]->last_pitch =
-                        (plugin_data->sv_last_note);
+
+                if(plugin_data->sv_last_note < 0.0f)
+                {
+                    plugin_data->data[f_voice]->last_pitch =
+                            (plugin_data->data[f_voice]->note_f);
+                }
+                else
+                {
+                    plugin_data->data[f_voice]->last_pitch =
+                            (plugin_data->sv_last_note);
+                }
 
                 plugin_data->data[f_voice]->osc1_pitch_adjust =
                         (*plugin_data->osc1pitch) +
@@ -303,7 +312,7 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 
                 v_rmp_retrigger_glide_t(plugin_data->data[f_voice]->glide_env,
                         (*(plugin_data->master_glide) * 0.01f),
-                        (plugin_data->sv_last_note),
+                        (plugin_data->data[f_voice]->last_pitch),
                         (plugin_data->data[f_voice]->target_pitch));
 
                 plugin_data->data[f_voice]->osc1_linamp =

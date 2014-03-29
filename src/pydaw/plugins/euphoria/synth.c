@@ -498,7 +498,7 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
 
     plugin_data->sampleRate = s_rate;
     plugin_data->sv_pitch_bend_value = 0.0f;
-    plugin_data->sv_last_note = 36.0f;
+    plugin_data->sv_last_note = -1.0f;
     plugin_data->channels = 2;
     plugin_data->amp_ptr = g_amp_get();
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);
@@ -1089,12 +1089,25 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice_num]->note_f = (float)f_note;
 
-                plugin_data->data[f_voice_num]->target_pitch = (plugin_data->data[f_voice_num]->note_f);
-                plugin_data->data[f_voice_num]->last_pitch = (plugin_data->sv_last_note);
+                plugin_data->data[f_voice_num]->target_pitch =
+                        (plugin_data->data[f_voice_num]->note_f);
 
-                v_rmp_retrigger_glide_t(plugin_data->data[f_voice_num]->glide_env , (*(plugin_data->master_glide) * .01),
-                        (plugin_data->sv_last_note), (plugin_data->data[f_voice_num]->target_pitch));
+                if(plugin_data->sv_last_note < 0.0f)
+                {
+                    plugin_data->data[f_voice_num]->last_pitch =
+                        (plugin_data->data[f_voice_num]->note_f);
+                }
+                else
+                {
+                    plugin_data->data[f_voice_num]->last_pitch =
+                            (plugin_data->sv_last_note);
+                }
 
+                v_rmp_retrigger_glide_t(
+                        plugin_data->data[f_voice_num]->glide_env,
+                        (*(plugin_data->master_glide) * .01),
+                        (plugin_data->data[f_voice_num]->last_pitch),
+                        (plugin_data->data[f_voice_num]->target_pitch));
 
                 /*Retrigger ADSR envelopes and LFO*/
                 v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_amp);

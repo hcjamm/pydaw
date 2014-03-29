@@ -387,7 +387,7 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
 
     //plugin_data->pitch = 1.0f;
     plugin_data->sv_pitch_bend_value = 0.0f;
-    plugin_data->sv_last_note = 60.0f;  //For glide
+    plugin_data->sv_last_note = -1.0f;  //For glide
 
     plugin_data->mono_modules = v_wayv_mono_init(plugin_data->fs);
 }
@@ -449,12 +449,20 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice]->target_pitch =
                         (plugin_data->data[f_voice]->note_f);
-                plugin_data->data[f_voice]->last_pitch =
-                        (plugin_data->sv_last_note);
 
+                if(plugin_data->sv_last_note < 0.0f)
+                {
+                    plugin_data->data[f_voice]->last_pitch =
+                            (plugin_data->data[f_voice]->note_f);
+                }
+                else
+                {
+                    plugin_data->data[f_voice]->last_pitch =
+                            (plugin_data->sv_last_note);
+                }
                 v_rmp_retrigger_glide_t(plugin_data->data[f_voice]->glide_env,
                         (*(plugin_data->master_glide) * 0.01f),
-                        (plugin_data->sv_last_note),
+                        (plugin_data->data[f_voice]->last_pitch),
                         (plugin_data->data[f_voice]->target_pitch));
 
                 plugin_data->data[f_voice]->osc1_linamp =
