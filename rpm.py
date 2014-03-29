@@ -99,6 +99,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(4755, root, root) /usr/bin/pydaw4-engine
 
 %attr(755, root, root) /usr/bin/pydaw4
+%attr(755, root, root) /usr/bin/pydaw4_render
 %attr(755, root, root) /usr/bin/pydaw4-engine-dbg
 %attr(755, root, root) /usr/bin/pydaw4-engine-no-hw
 %attr(755, root, root) /usr/bin/pydaw4-engine-no-root

@@ -17,6 +17,7 @@ native:
 
 pydaw_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 "
+	make -C pydaw_render
 
 native_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 " PLAT_FLAGS=" -march=native "
@@ -51,11 +52,13 @@ install:
 	make -C pydaw_sbsms/cli PREFIX=$(SBSMS_PREFIX) \
 	DESTDIR=$(DESTDIR) install
 	make -C pydaw_rubberband DESTDIR=$(DESTDIR) install
+	make -C pydaw_render DESTDIR=$(DESTDIR) PREFIX=$(PREFIX) install
 
 # --------------------------------------------------------------
 
 clean:
 	make -C pydaw clean
+	make -C pydaw_render
 
 
 
