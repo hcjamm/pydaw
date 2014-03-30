@@ -1894,6 +1894,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_open_folder_action.triggered.connect(self.open_item_folder)
         f_copy_file_path_action = f_menu.addAction(_("Copy File Path to Clipboard"))
         f_copy_file_path_action.triggered.connect(self.copy_file_path_to_clipboard)
+        f_select_instance_action = f_menu.addAction(_("Select All Instances of This File"))
+        f_select_instance_action.triggered.connect(self.select_file_instance)
         f_menu.addSeparator()
         f_replace_action = f_menu.addAction(_("Replace with Path in Clipboard"))
         f_replace_action.triggered.connect(self.replace_with_path_in_clipboard)
@@ -1961,6 +1963,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
         this_pydaw_project.commit(_("Change output track for audio item(s)"))
         global_open_audio_items()
+
+    def select_file_instance(self):
+        this_audio_items_viewer.scene.clearSelection()
+        f_uid = self.audio_item.uid
+        for f_item in this_audio_items_viewer.audio_items:
+            if f_item.audio_item.uid == f_uid:
+                f_item.setSelected(True)
 
     def set_paif_for_all_instance(self):
         f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
