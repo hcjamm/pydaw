@@ -7871,13 +7871,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             print("Error creating OSC server: {}".format(err))
             self.osc_server = None
         if self.osc_server is not None:
-            print((self.osc_server.get_url()))
+            print(self.osc_server.get_url())
             self.osc_server.add_method("pydaw/ui_configure", 's', self.configure_callback)
             self.osc_server.add_method(None, None, self.osc_fallback)
             self.osc_timer = QtCore.QTimer(self)
             self.osc_timer.setSingleShot(False)
             self.osc_timer.timeout.connect(self.osc_time_callback)
-            self.osc_timer.start(20)
+            self.osc_timer.start(0)
         if global_pydaw_with_audio:
             self.subprocess_timer = QtCore.QTimer(self)
             self.subprocess_timer.timeout.connect(self.subprocess_monitor)
