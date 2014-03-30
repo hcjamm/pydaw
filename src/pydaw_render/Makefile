@@ -48,6 +48,6 @@ clean:
 install:
 	install -d $(DESTDIR)/$(PREFIX)
 	install -d $(DESTDIR)/$(PREFIX)/bin
-	install -m 755 $(PYDAW_FILE) $(DESTDIR)/$(PREFIX)/bin
+	install -s -m 755 $(PYDAW_FILE) $(DESTDIR)/$(PREFIX)/bin
 	install -m 755 $(PYDAW_DBG) $(DESTDIR)/$(PREFIX)/bin
 
