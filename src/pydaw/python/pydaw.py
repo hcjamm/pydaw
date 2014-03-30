@@ -7903,9 +7903,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.osc_server.recv(1)
 
     def osc_fallback(self, path, args, types, src):
-        print(("got unknown message '{}' from '{}'".format(path, src)))
+        print("got unknown message '{}' from '{}'".format(path, src))
         for a, t in zip(args, types):
-            print(("argument of type '{}': {}".format(t, a)))
+            print("argument of type '{}': {}".format(t, a))
 
     def configure_callback(self, path, arr):
         f_pc_dict = {}
