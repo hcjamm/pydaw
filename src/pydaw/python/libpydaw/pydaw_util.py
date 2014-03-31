@@ -303,6 +303,13 @@ def musical_time_to_seconds(a_tempo, a_bar, a_beat):
     f_beats = (float(a_bar) * 4.0) + float(a_beat)
     return f_seconds_per_beat * f_beats
 
+def seconds_to_beats(a_tempo, a_seconds):
+    f_seconds_per_beat = 60.0 / float(a_tempo)
+    return a_seconds / f_seconds_per_beat
+
+def linear_interpolate(a_point1, a_point2, a_frac):
+    return ((a_point2 - a_point1) * a_frac) + a_point1
+
 def pydaw_wait_for_finished_file(a_file):
     """ Wait until a_file exists, then delete it and return.  It should
     already have the .finished extension"""
