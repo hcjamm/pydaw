@@ -2051,7 +2051,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item_start = (f_item.start_bar * 4.0) + f_item.start_beat
                 if f_item_start < f_start_beat:
                     f_start_beat = f_item_start
-                f_item_end = pydaw_util.seconds_to_beats(f_tempo, f_seconds)
+                f_sample_start_seconds = (f_item.sample_start * 0.001 * f_seconds)
+                f_sample_end_seconds = (f_item.sample_end * 0.001 * f_seconds)
+                f_actual_sample_length = f_sample_end_seconds - f_sample_start_seconds
+                f_item_end = pydaw_util.seconds_to_beats(f_tempo, f_actual_sample_length)
                 f_item_end += f_item_start
                 if f_item_end > f_end_beat:
                     f_end_beat = f_item_end
@@ -2073,7 +2076,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
                 if f_ts_result is not None:
                     f_stretched_items.append(f_ts_result)
-            f_dialog.close()
+
             this_pydaw_project.save_stretch_dicts()
             for f_stretch_item in f_stretched_items:
                 f_stretch_item[2].wait()
@@ -2082,6 +2085,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             this_pydaw_project.commit(_("Pitchbend audio items"))
             global_open_audio_items()
+            f_dialog.close()
 
         def cancel_handler():
             f_dialog.close()
