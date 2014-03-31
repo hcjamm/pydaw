@@ -2051,10 +2051,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item_start = (f_item.start_bar * 4.0) + f_item.start_beat
                 if f_item_start < f_start_beat:
                     f_start_beat = f_item_start
-                f_sample_start_seconds = (f_item.sample_start * 0.001 * f_seconds)
-                f_sample_end_seconds = (f_item.sample_end * 0.001 * f_seconds)
-                f_actual_sample_length = f_sample_end_seconds - f_sample_start_seconds
-                f_item_end = pydaw_util.seconds_to_beats(f_tempo, f_actual_sample_length)
+                f_item_end = pydaw_util.seconds_to_beats(f_tempo, f_seconds)
                 f_item_end += f_item_start
                 if f_item_end > f_end_beat:
                     f_end_beat = f_item_end
