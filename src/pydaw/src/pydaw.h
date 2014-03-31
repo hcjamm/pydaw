@@ -5452,8 +5452,6 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
 
     v_pydaw_write_to_file(f_tmp_finished, "finished");
 
-    v_set_playback_cursor(a_pydaw_data, a_start_region, a_start_bar);
-
     v_pydaw_panic(a_pydaw_data);  //ensure all notes are off before returning
 
     a_pydaw_data->is_offline_rendering = 0;
