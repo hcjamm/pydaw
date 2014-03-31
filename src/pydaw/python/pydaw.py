@@ -2049,6 +2049,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
             for f_item, f_seconds in f_list:
                 f_item_start = (f_item.start_bar * 4.0) + f_item.start_beat
+                f_sample_start_seconds = (f_item.sample_start * 0.001 * f_seconds)
+                f_item_start -= pydaw_util.seconds_to_beats(
+                    f_tempo, f_sample_start_seconds)
                 if f_item_start < f_start_beat:
                     f_start_beat = f_item_start
                 f_item_end = pydaw_util.seconds_to_beats(f_tempo, f_seconds)
@@ -2065,10 +2068,17 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.x_start -= f_start_beat
                 f_item.x_end -= f_start_beat
                 #print("{} {}".format(f_item.x_start, f_item.x_end))
+
                 f_item.pitch_shift = pydaw_util.linear_interpolate(
                     f_start, f_end, f_item.x_start / f_length)
+                f_item.pitch_shift = pydaw_util.pydaw_clip_value(
+                    f_item.pitch_shift, -36, 36)
+
                 f_item.pitch_shift_end = pydaw_util.linear_interpolate(
                     f_start, f_end, f_item.x_end / f_length)
+                f_item.pitch_shift_end = pydaw_util.pydaw_clip_value(
+                    f_item.pitch_shift_end, -36, 36)
+
                 #print("{} {}".format(f_item.pitch_shift, f_item.pitch_shift_end))
                 f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
                 if f_ts_result is not None:
