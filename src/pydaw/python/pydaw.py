@@ -8430,7 +8430,6 @@ class pydaw_wave_editor_widget:
 
         self.history_button = QtGui.QPushButton(_("History"))
         self.file_hlayout.addWidget(self.history_button)
-        self.history_button.pressed.connect(self.history_contextMenuEvent)
 
         self.fx_button = QtGui.QPushButton(_("Effects"))
         self.fx_button.pressed.connect(self.on_show_fx)
@@ -8598,14 +8597,6 @@ class pydaw_wave_editor_widget:
 
         f_window.exec_()
 
-    def history_contextMenuEvent(self):
-        if self.history:
-            f_menu = QtGui.QMenu(self.history_button)
-            f_menu.triggered.connect(self.open_file_from_action)
-            for f_path in reversed(self.history):
-                f_menu.addAction(f_path)
-            f_menu.exec_(QtGui.QCursor.pos())
-
     def open_file_from_action(self, a_action):
         self.open_file(str(a_action.text()))
 
@@ -8751,6 +8742,11 @@ class pydaw_wave_editor_widget:
         if f_file in self.history:
             self.history.remove(f_file)
         self.history.append(f_file)
+        f_menu = QtGui.QMenu(self.history_button)
+        f_menu.triggered.connect(self.open_file_from_action)
+        for f_path in reversed(self.history):
+            f_menu.addAction(f_path)
+        self.history_button.setMenu(f_menu)
         this_pydaw_project.this_pydaw_osc.pydaw_ab_open(a_file)
         self.marker_callback()
 
