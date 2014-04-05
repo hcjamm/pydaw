@@ -236,8 +236,6 @@ class song_editor:
     def __init__(self):
         self.song = pydaw_song()
         self.main_vlayout = QtGui.QVBoxLayout()
-        self.hlayout0 = QtGui.QHBoxLayout()
-        self.main_vlayout.addLayout(self.hlayout0)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(300)
         self.table_widget.setRowCount(1)
