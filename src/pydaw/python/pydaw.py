@@ -6575,7 +6575,8 @@ class transport_widget:
                             f_region_editor.set_region_length()
 
     def init_playback_cursor(self, a_start=True):
-        if not self.follow_checkbox.isChecked():
+        if not self.follow_checkbox.isChecked() or \
+        this_wave_editor_widget.enabled_checkbox.isChecked():
             return
         if this_song_editor.table_widget.item(0, self.get_region_value()) is not None:
             f_region_name = \
