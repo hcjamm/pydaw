@@ -1318,15 +1318,16 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-        f_selected_cells = self.table_widget.selectedIndexes()
-        if len(f_selected_cells) == 0:
-            return
         if a_original_pos:
             f_base_row = REGION_CLIPBOARD_ROW_OFFSET
             f_base_column = REGION_CLIPBOARD_COL_OFFSET
         else:
+            f_selected_cells = self.table_widget.selectedIndexes()
+            if not f_selected_cells:
+                return
             f_base_row = f_selected_cells[0].row()
             f_base_column = f_selected_cells[0].column() - 1
+        self.table_widget.clearSelection()
         f_region_length = pydaw_get_current_region_length()
         for f_item in global_region_clipboard:
             f_column = f_item[1] + f_base_column
@@ -1335,9 +1336,10 @@ class region_list_editor:
             f_row = f_item[0] + f_base_row
             if f_row >= self.track_count or f_row < 0:
                 continue
-            self.add_qtablewidgetitem(f_item[2], f_row, f_column)
+            self.add_qtablewidgetitem(f_item[2], f_row, f_column, a_selected=True)
         global_tablewidget_to_region()
         global_update_hidden_rows()
+
 
     def delete_selected(self):
         if not self.enabled:
