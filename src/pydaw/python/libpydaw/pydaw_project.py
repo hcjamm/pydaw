@@ -2630,18 +2630,16 @@ class pydaw_midi_file_to_items:
                 f_result.append(k[0])
         return len(f_result)
 
-    def populate_region_from_track_map(self, a_project, a_name):
+    def populate_region_from_track_map(self, a_project, a_name, a_index):
         f_actual_track_num = 0
         f_song = a_project.get_song()
-        f_song_pos = f_song.get_next_empty_pos()
-        if f_song_pos is not None:
-            f_region_name = a_project.get_next_default_region_name(a_name)
-            f_region_uid = a_project.create_empty_region(f_region_name)
-            f_result_region = a_project.get_region_by_uid(f_region_uid)
-            f_song.add_region_ref_by_uid(f_song_pos, f_region_uid)
-            a_project.save_song(f_song)
-        else:
-            return False
+
+        f_region_name = a_project.get_next_default_region_name(a_name)
+        f_region_uid = a_project.create_empty_region(f_region_name)
+        f_result_region = a_project.get_region_by_uid(f_region_uid)
+        f_song.add_region_ref_by_uid(a_index, f_region_uid)
+        a_project.save_song(f_song)
+
         if self.bar_count > pydaw_max_region_length:
             f_result_region.region_length_bars = pydaw_max_region_length
         else:
