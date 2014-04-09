@@ -6650,6 +6650,12 @@ class transport_widget:
         global_transport_is_playing = False
         this_song_editor.table_widget.setEnabled(True)
         this_region_settings.on_stop()
+
+        f_we_enabled = this_wave_editor_widget.enabled_checkbox.isChecked()
+        f_tab_index = this_main_window.main_tabwidget.currentIndex()
+        if f_tab_index != 3 and f_we_enabled:
+            this_wave_editor_widget.enabled_checkbox.setChecked(False)
+
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
         self.overdub_checkbox.setEnabled(True)
