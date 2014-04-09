@@ -719,6 +719,9 @@ class pydaw_osc_widget:
         self.grid_layout.addWidget(self.osc_type_combobox.name_label, 0, 3)
         self.grid_layout.addWidget(self.osc_type_combobox.control, 1, 3)
 
+
+NOTE_SELECTOR_CLIPBOARD = None
+
 class pydaw_note_selector_widget:
     def __init__(self, a_port_num, a_rel_callback, a_val_callback,
                  a_port_dict=None, a_default_value=None, a_preset_mgr=None):
@@ -731,9 +734,11 @@ class pydaw_note_selector_widget:
         self.note_combobox.setMinimumWidth(60)
         self.note_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#",
                                      "G", "G#", "A", "A#", "B"])
+        self.note_combobox.contextMenuEvent = self.context_menu_event
         self.octave_spinbox = QtGui.QSpinBox()
         self.octave_spinbox.setRange(-2, 8)
         self.octave_spinbox.setValue(3)
+        self.octave_spinbox.contextMenuEvent = self.context_menu_event
         self.widget = QtGui.QWidget()
         self.layout = QtGui.QHBoxLayout()
         self.layout.setMargin(0)
@@ -754,6 +759,23 @@ class pydaw_note_selector_widget:
             self.selected_note = 60
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
+
+    def context_menu_event(self, a_event=None):
+        f_menu = QtGui.QMenu(self.widget)
+        f_copy_action = f_menu.addAction(_("Copy"))
+        f_copy_action.triggered.connect(self.copy_to_clipboard)
+        f_paste_action = f_menu.addAction(_("Paste"))
+        f_paste_action.triggered.connect(self.paste_from_clipboard)
+        f_menu.exec_(QtGui.QCursor.pos())
+
+    def copy_to_clipboard(self):
+        global NOTE_SELECTOR_CLIPBOARD
+        NOTE_SELECTOR_CLIPBOARD = self.get_value()
+
+    def paste_from_clipboard(self):
+        if NOTE_SELECTOR_CLIPBOARD is not None:
+            self.set_value(NOTE_SELECTOR_CLIPBOARD)
+            self.control_value_changed()
 
     def wheel_event(self, a_event=None):
         pass
