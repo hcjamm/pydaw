@@ -4660,8 +4660,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_drawn_note.resize_pos = f_drawn_note.pos()
                 f_drawn_note.resize_rect = f_drawn_note.rect()
                 f_drawn_note.is_resizing = True
-                f_drawn_note.mouse_y_pos = QtGui.QCursor.pos().y()
-                f_drawn_note.resize_last_mouse_pos = a_event.pos().x()
+                f_cursor_pos = QtGui.QCursor.pos()
+                f_drawn_note.mouse_y_pos = f_cursor_pos.y()
+                f_drawn_note.resize_last_mouse_pos = f_cursor_pos.x()
+
         a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
 
