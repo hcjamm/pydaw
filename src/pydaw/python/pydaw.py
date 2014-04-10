@@ -534,6 +534,13 @@ class region_settings:
         self.toggle_hide_action = self.menu.addAction(_("Hide/Unhide Inactive Instruments"))
         self.toggle_hide_action.triggered.connect(self.toggle_hide_inactive)
         self.toggle_hide_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
+        self.menu.addSeparator()
+        self.unsolo_action = self.menu.addAction(_("Un-Solo All"))
+        self.unsolo_action.triggered.connect(self.unsolo_all)
+        self.unsolo_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+J"))
+        self.unmute_action = self.menu.addAction(_("Un-Mute All"))
+        self.unmute_action.triggered.connect(self.unmute_all)
+        self.unmute_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+M"))
 
         self.hide_checkbox = QtGui.QCheckBox(_("Hide Inactive"))
         self.hlayout0.addWidget(self.hide_checkbox)
@@ -554,6 +561,16 @@ class region_settings:
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
+
+
+    def unsolo_all(self):
+        for f_track in this_region_editor.tracks + this_region_audio_editor.tracks:
+            f_track.solo_checkbox.setChecked(False)
+
+    def unmute_all(self):
+        for f_track in this_region_editor.tracks + this_region_audio_editor.tracks:
+            f_track.mute_checkbox.setChecked(False)
+
 
     def on_shift(self):
         if global_transport_is_playing:
@@ -4167,11 +4184,11 @@ class audio_track:
         self.hlayout3.addWidget(self.bus_combobox)
         self.hlayout3.addWidget(self.fx_button)
         self.solo_checkbox = QtGui.QCheckBox()
-        self.solo_checkbox.clicked.connect(self.on_solo)
+        self.solo_checkbox.stateChanged.connect(self.on_solo)
         self.solo_checkbox.setObjectName("solo_checkbox")
         self.hlayout3.addWidget(self.solo_checkbox)
         self.mute_checkbox = QtGui.QCheckBox()
-        self.mute_checkbox.clicked.connect(self.on_mute)
+        self.mute_checkbox.stateChanged.connect(self.on_mute)
         self.mute_checkbox.setObjectName("mute_checkbox")
         self.hlayout3.addWidget(self.mute_checkbox)
         self.hlayout3.addWidget(self.fx_button)
@@ -6537,21 +6554,7 @@ class seq_track:
         pass
 
     def context_menu_event(self, a_event=None):
-        if self.is_instrument:
-            f_menu = QtGui.QMenu(self.group_box)
-            f_solo_action = f_menu.addAction("Un-Solo All")
-            f_solo_action.triggered.connect(self.unsolo_all)
-            f_mute_action = f_menu.addAction("Un-Mute All")
-            f_mute_action.triggered.connect(self.unmute_all)
-            f_menu.exec_(QtGui.QCursor.pos())
-
-    def unsolo_all(self):
-        for f_track in this_region_editor.tracks:
-            f_track.solo_checkbox.setChecked(False)
-
-    def unmute_all(self):
-        for f_track in this_region_editor.tracks:
-            f_track.mute_checkbox.setChecked(False)
+        pass
 
     def __init__(self, a_track_num, a_track_text=_("track"), a_instrument=True):
         self.is_instrument = a_instrument
