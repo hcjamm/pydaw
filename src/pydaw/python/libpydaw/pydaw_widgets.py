@@ -4749,6 +4749,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         menuFile.addSeparator()
         actionMapToWhiteKeys =  menuFile.addAction(_("Map All Samples to 1 White Key"))
         actionMapToMonoFX =  menuFile.addAction(_("Map All Samples to Own MonoFX Group"))
+        f_map_octaves_action = menuFile.addAction(_("Map to 2 octaves per sample"))
         menuFile.addSeparator()
         actionClearAllSamples =  menuFile.addAction(_("Clear All Samples"))
         menuFile.addSeparator()
@@ -4782,6 +4783,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         actionClearAllSamples.triggered.connect(self.clearAllSamples)
         actionImportSfz.triggered.connect(self.sfz_dialog)
         actionTsPs.triggered.connect(self.stretch_shift_dialog)
+        f_map_octaves_action.triggered.connect(self.map_2_octaves_per_sample)
 
         actionSetAllHighPitches.triggered.connect(self.set_all_high_notes)
         actionSetAllLowPitches.triggered.connect(self.set_all_low_notes)
@@ -5377,6 +5379,17 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             i_white_notes+= 1
             if i_white_notes >= 7:
                 i_white_notes = 0
+
+    def map_2_octaves_per_sample(self):
+        f_index = 0
+        for f_i in range(0, 120, 24):
+            self.sample_low_notes[f_index].set_value(f_i)
+            self.sample_base_pitches[f_index].set_value(f_i + 12)
+            self.sample_high_notes[f_index].set_value(f_i + 24)
+            self.sample_base_pitches[f_index].control_value_changed()
+            self.sample_high_notes[f_index].control_value_changed()
+            self.sample_low_notes[f_index].control_value_changed()
+            f_index += 1
 
     def viewSampleSelectedIndexChanged(self, a_index):
         if self.suppress_selected_sample_changed:
