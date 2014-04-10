@@ -2866,18 +2866,17 @@ class pydaw_modulex_single:
 
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.group_box)
-        f_copy_action = QtGui.QAction(_("Copy"), self.group_box)
+        f_copy_action = f_menu.addAction(_("Copy"))
         f_copy_action.triggered.connect(self.copy_settings)
-        f_menu.addAction(f_copy_action)
-        f_paste_action = QtGui.QAction(_("Paste"), self.group_box)
+        f_cut_action = f_menu.addAction(_("Cut"))
+        f_cut_action.triggered.connect(self.cut_settings)
+        f_paste_action = f_menu.addAction(_("Paste"))
         f_paste_action.triggered.connect(self.paste_settings)
-        f_menu.addAction(f_paste_action)
-        f_paste_and_copy_action = QtGui.QAction(_("Paste and Copy"), self.group_box)
+        f_paste_and_copy_action = f_menu.addAction(_("Paste and Copy"))
         f_paste_and_copy_action.triggered.connect(self.paste_and_copy)
         f_menu.addAction(f_paste_and_copy_action)
-        f_reset_action = QtGui.QAction(_("Reset"), self.group_box)
+        f_reset_action = f_menu.addAction(_("Reset"))
         f_reset_action.triggered.connect(self.reset_settings)
-        f_menu.addAction(f_reset_action)
         f_menu.exec_(QtGui.QCursor.pos())
 
     def copy_settings(self):
@@ -2904,6 +2903,10 @@ class pydaw_modulex_single:
         for f_knob in self.knobs:
             f_knob.control_value_changed(f_knob.get_value())
         self.combobox.control_value_changed(self.combobox.get_value())
+
+    def cut_settings(self):
+        self.copy_settings()
+        self.reset_settings()
 
     def reset_settings(self):
         self.set_from_class(pydaw_audio_item_fx(64, 64, 64, 0))
