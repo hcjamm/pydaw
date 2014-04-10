@@ -6435,8 +6435,10 @@ class seq_track:
             this_pydaw_project.save_busses(f_tracks)
             this_pydaw_project.commit(_("Set volume for bus track {} to {}").format(
                 self.track_number, self.volume_slider.value()))
+
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_solo(self.track_number,
@@ -6444,6 +6446,7 @@ class seq_track:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.commit(_("Set solo for MIDI track {} to {}").format(
                 self.track_number, self.solo_checkbox.isChecked()))
+
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_mute(self.track_number,
@@ -6451,6 +6454,7 @@ class seq_track:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.commit(_("Set mute for MIDI track {} to {}").format(
                 self.track_number, self.mute_checkbox.isChecked()))
+
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_track_rec(
@@ -6513,7 +6517,21 @@ class seq_track:
         pass
 
     def context_menu_event(self, a_event=None):
-        pass
+        if self.is_instrument:
+            f_menu = QtGui.QMenu(self.group_box)
+            f_solo_action = f_menu.addAction("Un-Solo All")
+            f_solo_action.triggered.connect(self.unsolo_all)
+            f_mute_action = f_menu.addAction("Un-Mute All")
+            f_mute_action.triggered.connect(self.unmute_all)
+            f_menu.exec_(QtGui.QCursor.pos())
+
+    def unsolo_all(self):
+        for f_track in this_region_editor.tracks:
+            f_track.solo_checkbox.setChecked(False)
+
+    def unmute_all(self):
+        for f_track in this_region_editor.tracks:
+            f_track.mute_checkbox.setChecked(False)
 
     def __init__(self, a_track_num, a_track_text=_("track"), a_instrument=True):
         self.is_instrument = a_instrument
@@ -6580,11 +6598,11 @@ class seq_track:
             self.hlayout2.addWidget(self.bus_combobox)
             self.hlayout3.addWidget(self.fx_button)
             self.solo_checkbox = QtGui.QCheckBox()
-            self.solo_checkbox.clicked.connect(self.on_solo)
+            self.solo_checkbox.stateChanged.connect(self.on_solo)
             self.solo_checkbox.setObjectName("solo_checkbox")
             self.hlayout3.addWidget(self.solo_checkbox)
             self.mute_checkbox = QtGui.QCheckBox()
-            self.mute_checkbox.clicked.connect(self.on_mute)
+            self.mute_checkbox.stateChanged.connect(self.on_mute)
             self.mute_checkbox.setObjectName("mute_checkbox")
             self.hlayout3.addWidget(self.mute_checkbox)
         else:
