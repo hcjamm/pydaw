@@ -876,6 +876,11 @@ class region_list_editor:
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 global_current_region.add_item_ref_by_uid(x + self.track_offset,
                                                           y - 1, f_uid)
+                if f_repeat_checkbox.isChecked():
+                    for i in range(y - 1, pydaw_get_current_region_length()):
+                        self.add_qtablewidgetitem(f_cell_text, x, i + 1, True)
+                        global_current_region.add_item_ref_by_uid(x + self.track_offset,
+                                                                  i, f_uid)
             elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
                 f_name_suffix = 1
                 f_cell_text = str(f_new_lineedit.text())
