@@ -1306,6 +1306,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
             f_index += 1
             f_result_arr.append([])
 
+        f_result_arr_len = len(f_result_arr)
         f_this_cc_arr.sort()
         for i in range(len(f_this_cc_arr) - 1):
             f_val_diff = abs(f_this_cc_arr[i + 1].cc_val - f_this_cc_arr[i].cc_val)
@@ -1332,7 +1333,8 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                                              f_cc_num, f_new_val)
                 f_new_val += f_inc
                 f_new_index = f_this_cc_arr[i].item_index + f_index_offset
-                if f_new_index >= len(f_result_arr):
+                if f_new_index >= f_result_arr_len:
+                    print("Error, {} >= {}".format(f_new_index, f_result_arr_len))
                     break
                 f_result_arr[f_new_index].append(f_interpolated_cc)
                 f_start += f_time_inc
@@ -1355,6 +1357,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
             f_beat_offset += 4.0
             f_index += 1
             f_result_arr.append([])
+        f_result_arr_len = len(f_result_arr)
         for i in range(len(f_this_pb_arr) - 1):
             f_val_diff = abs(f_this_pb_arr[i + 1].pb_val - f_this_pb_arr[i].pb_val)
             if f_val_diff == 0.0:
@@ -1377,8 +1380,11 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                     f_adjusted_start -= 4.0
                 f_interpolated_pb = pydaw_pitchbend(f_adjusted_start, f_new_val)
                 f_new_val += f_val_inc
-                f_result_arr[f_this_pb_arr[i].item_index +
-                    f_index_offset].append(f_interpolated_pb)
+                f_new_index = f_this_pb_arr[i].item_index + f_index_offset
+                if f_new_index >= f_result_arr_len:
+                    print("Error, {} >= {}".format(f_new_index, f_result_arr_len))
+                    break
+                f_result_arr[f_new_index].append(f_interpolated_pb)
                 f_start += f_time_inc
                 if f_start >= (f_this_pb_arr[i + 1].start - 0.0625):
                     break
