@@ -987,7 +987,6 @@ class region_list_editor:
         f_start_button = QtGui.QPushButton("<<")
         f_start_button.pressed.connect(goto_start)
         f_begin_end_layout.addWidget(f_start_button)
-        #f_begin_end_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_end_button = QtGui.QPushButton(">>")
         f_end_button.pressed.connect(goto_end)
         f_begin_end_layout.addWidget(f_end_button)
