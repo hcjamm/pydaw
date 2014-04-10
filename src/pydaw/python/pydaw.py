@@ -874,19 +874,32 @@ class region_list_editor:
                     return
                 f_uid = this_pydaw_project.create_empty_item(f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
+                global_current_region.add_item_ref_by_uid(x + self.track_offset,
+                                                          y - 1, f_uid)
             elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
                 f_name_suffix = 1
                 f_cell_text = str(f_new_lineedit.text())
+                f_list = []
                 for i in range(f_item_count.value()):
                     while this_pydaw_project.item_exists(
                         "{}-{}".format(f_cell_text, f_name_suffix)):
                         f_name_suffix += 1
                     f_item_name = "{}-{}".format(f_cell_text, f_name_suffix)
                     f_uid = this_pydaw_project.create_empty_item(f_item_name)
+                    f_list.append((f_uid, f_item_name))
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
-                    global_current_region.add_item_ref_by_uid(
-                    x + self.track_offset, y - 1 + i, f_uid)
+                    global_current_region.add_item_ref_by_uid(x + self.track_offset,
+                                                              y - 1 + i, f_uid)
+                if f_repeat_checkbox.isChecked():
+                    f_i = 0
+                    for i in range(i + 1, pydaw_get_current_region_length()):
+                        f_uid, f_item_name = f_list[f_i]
+                        f_i += 1
+                        if f_i >= len(f_list):
+                            f_i = 0
+                        self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
+                        global_current_region.add_item_ref_by_uid(x + self.track_offset,
+                                                                  y - 1 + i, f_uid)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
@@ -979,7 +992,10 @@ class region_list_editor:
         f_end_button.pressed.connect(goto_end)
         f_begin_end_layout.addWidget(f_end_button)
 
-        if len(global_region_clipboard) > 0:
+        f_repeat_checkbox = QtGui.QCheckBox(_("Repeat to end?"))
+        f_layout.addWidget(f_repeat_checkbox, 3, 2)
+
+        if global_region_clipboard:
             f_paste_clipboard_button = QtGui.QPushButton(_("Paste Clipboard"))
             f_layout.addWidget(f_paste_clipboard_button, 4, 2)
             f_paste_clipboard_button.pressed.connect(paste_button_pressed)
