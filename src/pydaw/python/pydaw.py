@@ -7768,7 +7768,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.last_ac_dir = global_home
                 if f_batch_checkbox.isChecked():
                     f_dir = QtGui.QFileDialog.getExistingDirectory(f_window,
-                                                                   _("Open Folder"))
+                        _("Open Folder"), self.last_ac_dir)
                     if f_dir is None:
                         return
                     f_dir = str(f_dir)
@@ -7784,12 +7784,12 @@ class pydaw_main_window(QtGui.QMainWindow):
                     if not f_file_name is None and str(f_file_name) != "":
                         f_name.setText(str(f_file_name))
                         self.last_ac_dir = os.path.dirname(f_file_name)
-                    if f_file_name.lower().endswith(".{}".format(a_label)):
-                        f_wav_radiobutton.setChecked(True)
-                    else:
-                        f_mp3_radiobutton.setChecked(True)
-                    set_output_file_name()
-                    self.last_ac_dir = os.path.dirname(f_file_name)
+                        if f_file_name.lower().endswith(".{}".format(a_label)):
+                            f_wav_radiobutton.setChecked(True)
+                        elif f_file_name.lower().endswith(".wav"):
+                            f_mp3_radiobutton.setChecked(True)
+                        set_output_file_name()
+                        self.last_ac_dir = os.path.dirname(f_file_name)
             except Exception as ex:
                 pydaw_print_generic_exception(ex)
 
@@ -7799,7 +7799,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.last_ac_dir = global_home
                 if f_batch_checkbox.isChecked():
                     f_dir = QtGui.QFileDialog.getExistingDirectory(f_window,
-                                                                   _("Open Folder"))
+                        _("Open Folder"), self.last_ac_dir)
                     if f_dir is None:
                         return
                     f_dir = str(f_dir)
@@ -7860,6 +7860,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_select_file_output.pressed.connect(file_name_select_output)
         f_layout.addWidget(f_select_file_output, 1, 2)
 
+        f_layout.addWidget(QtGui.QLabel(_("Convert to:")), 2, 1)
         f_rb_group = QtGui.QButtonGroup()
         f_wav_radiobutton = QtGui.QRadioButton("wav")
         f_wav_radiobutton.setEnabled(True)
@@ -7867,7 +7868,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_rb_group.addButton(f_wav_radiobutton)
         f_wav_layout = QtGui.QHBoxLayout()
         f_wav_layout.addWidget(f_wav_radiobutton)
-        f_layout.addLayout(f_wav_layout, 2, 1)
+        f_layout.addLayout(f_wav_layout, 3, 1)
         f_wav_radiobutton.toggled.connect(format_changed)
 
         f_mp3_radiobutton = QtGui.QRadioButton(a_label)
@@ -7880,11 +7881,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_mp3_br_combobox.addItems(["320", "256", "192", "160", "128"])
         f_mp3_layout.addWidget(QtGui.QLabel(_("Bitrate")))
         f_mp3_layout.addWidget(f_mp3_br_combobox)
-        f_layout.addLayout(f_mp3_layout, 3, 1)
+        f_layout.addLayout(f_mp3_layout, 4, 1)
 
         f_batch_checkbox = QtGui.QCheckBox(_("Batch process?"))
         f_batch_checkbox.stateChanged.connect(batch_changed)
-        f_layout.addWidget(f_batch_checkbox, 4, 1)
+        f_layout.addWidget(f_batch_checkbox, 6, 1)
 
         f_close_checkbox = QtGui.QCheckBox("Close on finish?")
         f_close_checkbox.setChecked(True)
