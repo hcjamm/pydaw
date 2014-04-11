@@ -7,8 +7,19 @@ PYDAW_VERSION = $(shell cat ../major-version.txt)
 PYDAW_FILE = $(PYDAW_VERSION)_render
 PYDAW_DBG = $(PYDAW_FILE)-dbg
 
-BASE_FLAGS     = -Wall -mstackrealign -fsingle-precision-constant -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fstrength-reduce -fstrict-aliasing -fprefetch-loop-arrays -finline-functions
-BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
+#BASE_FLAGS     = -Wall -mstackrealign -fsingle-precision-constant -mtune=generic -msse 
+#-msse2 -msse3 -mfpmath=sse -fstrength-reduce -fstrict-aliasing -fprefetch-loop-arrays -finline-functions
+
+#Default flags are mostly x86 specific
+PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse \
+-mtune=generic
+
+BASE_FLAGS     = -ffast-math -fprefetch-loop-arrays \
+-floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
+-Isrc -Iportaudio/include -fstrength-reduce -fstrict-aliasing -finline-functions
+
+
+BUILD_CFLAGS   = $(PLAT_FLAGS) $(BASE_FLAGS) $(CFLAGS)
 LINK_CFLAGS    = -ldl -lm $(shell pkg-config --libs liblo sndfile) $(LDFLAGS)
 
 C_OBJS   = main.o
