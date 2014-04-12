@@ -146,6 +146,7 @@ kc_log_time = 6
 kc_127_zero_to_x_int = 7
 kc_time_decimal = 8
 kc_hz_decimal = 9
+kc_int_pitch = 10
 
 global_last_tempo_combobox_index = 2
 
@@ -208,7 +209,8 @@ class pydaw_abstract_ui_control:
             self.val_conversion == kc_time_decimal or \
             self.val_conversion == kc_hz_decimal:
                 self.value_label.setText(str(round(f_value * .01, 2)))
-            elif self.val_conversion == kc_integer:
+            elif self.val_conversion == kc_integer or \
+            self.val_conversion == kc_int_pitch:
                 self.value_label.setText(str(int(f_value)))
             elif self.val_conversion == kc_pitch:
                 self.value_label.setText(
@@ -329,13 +331,39 @@ class pydaw_abstract_ui_control:
         f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
         f_dialog.exec_()
 
+    def set_ratio_dialog(self):
+        def ok_button_pressed():
+            f_value = pydaw_util.pydaw_ratio_to_pitch(f_ratio_spinbox.value())
+            self.set_value(f_value)
+            f_dialog.close()
+        f_dialog = QtGui.QDialog(self.control)
+        f_dialog.setMinimumWidth(210)
+        f_dialog.setWindowTitle(_("Set to Ratio"))
+        f_layout =  QtGui.QGridLayout(f_dialog)
+        f_layout.addWidget(QtGui.QLabel(_("Ratio:")), 0, 0)
+        f_ratio_spinbox = QtGui.QDoubleSpinBox()
+
+        f_min = pydaw_util.pydaw_pitch_to_ratio(self.control.minimum())
+        f_max = pydaw_util.pydaw_pitch_to_ratio(self.control.maximum())
+        f_ratio_spinbox.setRange(f_min, round(f_max))
+        f_ratio_spinbox.setDecimals(4)
+        f_ratio_spinbox.setValue(pydaw_util.pydaw_pitch_to_ratio(self.get_value()))
+        f_layout.addWidget(f_ratio_spinbox, 0, 1)
+
+        f_ok_button =  QtGui.QPushButton(_("OK"))
+        f_ok_button.pressed.connect(ok_button_pressed)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(f_dialog.close)
+        f_layout.addWidget(f_ok_button, 5, 0)
+        f_layout.addWidget(f_cancel_button, 5, 1)
+        f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
+        f_dialog.exec_()
 
     def copy_automation(self):
         global global_cc_clipboard
         f_value = ((self.get_value() - self.control.minimum()) /
                   (self.control.maximum() - self.control.minimum())) * 127.0
         global_cc_clipboard = pydaw_util.pydaw_clip_value(f_value, 0.0, 127.0)
-        print(str(global_cc_clipboard))
 
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.control)
@@ -345,14 +373,19 @@ class pydaw_abstract_ui_control:
         f_set_value_action.triggered.connect(self.set_value_dialog)
         f_copy_automation_action = f_menu.addAction(_("Copy Automation"))
         f_copy_automation_action.triggered.connect(self.copy_automation)
-        if self.val_conversion == kc_time_decimal or self.val_conversion == kc_hz_decimal:
+
+        if self.val_conversion == kc_time_decimal or \
+        self.val_conversion == kc_hz_decimal:
             f_tempo_sync_action = f_menu.addAction(_("Tempo Sync"))
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
         if self.val_conversion == kc_pitch:
             f_set_note_action = f_menu.addAction(_("Set to Note"))
             f_set_note_action.triggered.connect(self.set_note_dialog)
-        f_menu.exec_(QtGui.QCursor.pos())
+        if self.val_conversion == kc_int_pitch:
+            f_set_ratio_action = f_menu.addAction(_("Set to Ratio"))
+            f_set_ratio_action.triggered.connect(self.set_ratio_dialog)
 
+        f_menu.exec_(QtGui.QCursor.pos())
 
 
 class pydaw_null_control:
@@ -691,7 +724,7 @@ class pydaw_osc_widget:
                  a_port_dict=None, a_preset_mgr=None, a_default_type=0):
         self.pitch_knob = pydaw_knob_control(a_size, _("Pitch"), a_pitch_port,
                                              a_rel_callback, a_val_callback, -36, 36,
-                                             0, a_val_conversion=kc_integer,
+                                             0, a_val_conversion=kc_int_pitch,
                                              a_port_dict=a_port_dict,
                                              a_preset_mgr=a_preset_mgr)
         self.fine_knob = pydaw_knob_control(a_size, _("Fine"), a_fine_port, a_rel_callback,

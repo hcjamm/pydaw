@@ -284,13 +284,18 @@ def time_quantize_round(a_input):
         return round(a_input, 6)
 
 def pydaw_pitch_to_hz(a_pitch):
-    return (440.0 * pow(2.0,(float(a_pitch) - 57.0) * 0.0833333))
+    return (440.0 * pow(2.0, (float(a_pitch) - 57.0) * 0.0833333))
 
 def pydaw_hz_to_pitch(a_hz):
-    return ((12.0 * log(float(a_hz) * (1.0/440.0), 2.0)) + 57.0)
+    return ((12.0 * log(float(a_hz) * (1.0 / 440.0), 2.0)) + 57.0)
 
 def pydaw_pitch_to_ratio(a_pitch):
     return (1.0 / pydaw_pitch_to_hz(0.0)) * pydaw_pitch_to_hz(float(a_pitch))
+
+def pydaw_ratio_to_pitch(a_ratio):
+    f_base = (pydaw_pitch_to_hz(0.0))
+    f_hz = f_base * a_ratio
+    return pydaw_hz_to_pitch(f_hz)
 
 def pydaw_db_to_lin(a_value):
     return pow(10.0, (0.05 * float(a_value)))
