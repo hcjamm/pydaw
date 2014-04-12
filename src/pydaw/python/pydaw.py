@@ -7838,14 +7838,15 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.ac_ext = ".wav"
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle(_("Audio File Converter"))
+
+        f_window.setWindowTitle(_("{} Converter".format(a_label)))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
 
         f_name = QtGui.QLineEdit()
         f_name.setReadOnly(True)
-        f_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel(_("Input File:")), 0, 0)
+        f_name.setMinimumWidth(480)
+        f_layout.addWidget(QtGui.QLabel(_("Input:")), 0, 0)
         f_layout.addWidget(f_name, 0, 1)
         f_select_file = QtGui.QPushButton(_("Select"))
         f_select_file.pressed.connect(file_name_select)
@@ -7853,8 +7854,8 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         f_output_name = QtGui.QLineEdit()
         f_output_name.setReadOnly(True)
-        f_output_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel(_("Output File:")), 1, 0)
+        f_output_name.setMinimumWidth(480)
+        f_layout.addWidget(QtGui.QLabel(_("Output:")), 1, 0)
         f_layout.addWidget(f_output_name, 1, 1)
         f_select_file_output = QtGui.QPushButton(_("Select"))
         f_select_file_output.pressed.connect(file_name_select_output)
@@ -7883,7 +7884,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_mp3_layout.addWidget(f_mp3_br_combobox)
         f_layout.addLayout(f_mp3_layout, 4, 1)
 
-        f_batch_checkbox = QtGui.QCheckBox(_("Batch process?"))
+        f_batch_checkbox = QtGui.QCheckBox(_("Batch convert entire folder?"))
         f_batch_checkbox.stateChanged.connect(batch_changed)
         f_layout.addWidget(f_batch_checkbox, 6, 1)
 
