@@ -372,24 +372,35 @@ class pydaw_abstract_ui_control:
                   (self.control.maximum() - self.control.minimum())) * 127.0
         global_cc_clipboard = pydaw_util.pydaw_clip_value(f_value, 0.0, 127.0)
 
+    def paste_automation(self):
+        f_frac = global_cc_clipboard / 127.0
+        f_frac = pydaw_util.pydaw_clip_value(f_frac, 0.0, 1.0)
+        f_min = self.control.minimum()
+        f_max = self.control.maximum()
+        f_value = round(((f_max - f_min) * f_frac) + f_min)
+        self.set_value(f_value)
+
     def contextMenuEvent(self, a_event):
         f_menu = QtGui.QMenu(self.control)
         f_reset_action = f_menu.addAction(_("Reset to Default Value"))
         f_reset_action.triggered.connect(self.reset_default_value)
-        f_set_value_action = f_menu.addAction(_("Set Raw Controller Value"))
+        f_set_value_action = f_menu.addAction(_("Set Raw Controller Value..."))
         f_set_value_action.triggered.connect(self.set_value_dialog)
         f_copy_automation_action = f_menu.addAction(_("Copy Automation"))
         f_copy_automation_action.triggered.connect(self.copy_automation)
+        if global_cc_clipboard:
+            f_paste_automation_action = f_menu.addAction(_("Paste Automation"))
+            f_paste_automation_action.triggered.connect(self.paste_automation)
 
         if self.val_conversion == kc_time_decimal or \
         self.val_conversion == kc_hz_decimal:
-            f_tempo_sync_action = f_menu.addAction(_("Tempo Sync"))
+            f_tempo_sync_action = f_menu.addAction(_("Tempo Sync..."))
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
         if self.val_conversion == kc_pitch:
-            f_set_note_action = f_menu.addAction(_("Set to Note"))
+            f_set_note_action = f_menu.addAction(_("Set to Note..."))
             f_set_note_action.triggered.connect(self.set_note_dialog)
         if self.val_conversion == kc_int_pitch:
-            f_set_ratio_action = f_menu.addAction(_("Set to Ratio"))
+            f_set_ratio_action = f_menu.addAction(_("Set to Ratio..."))
             f_set_ratio_action.triggered.connect(self.set_ratio_dialog)
 
         f_menu.exec_(QtGui.QCursor.pos())
