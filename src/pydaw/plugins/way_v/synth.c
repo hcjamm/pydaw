@@ -1330,8 +1330,8 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 
 	port_descriptors[WAYV_OSC1_PITCH] = 1;
 	port_range_hints[WAYV_OSC1_PITCH].DefaultValue = 0.0f;
-	port_range_hints[WAYV_OSC1_PITCH].LowerBound =  -36.0f;
-	port_range_hints[WAYV_OSC1_PITCH].UpperBound =  36.0f;
+	port_range_hints[WAYV_OSC1_PITCH].LowerBound = -72.0f;
+	port_range_hints[WAYV_OSC1_PITCH].UpperBound = 72.0f;
 
 	port_descriptors[WAYV_OSC1_TUNE] = 1;
 	port_range_hints[WAYV_OSC1_TUNE].DefaultValue = 0.0f;
@@ -1350,8 +1350,8 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 
 	port_descriptors[WAYV_OSC2_PITCH] = 1;
 	port_range_hints[WAYV_OSC2_PITCH].DefaultValue = 0.0f;
-	port_range_hints[WAYV_OSC2_PITCH].LowerBound =  -36.0f;
-	port_range_hints[WAYV_OSC2_PITCH].UpperBound =  36.0f;
+	port_range_hints[WAYV_OSC2_PITCH].LowerBound = -72.0f;
+	port_range_hints[WAYV_OSC2_PITCH].UpperBound = 72.0f;
 
 	port_descriptors[WAYV_OSC2_TUNE] = 1;
 	port_range_hints[WAYV_OSC2_TUNE].DefaultValue = 0.0f;
@@ -1820,8 +1820,8 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 
 	port_descriptors[WAYV_OSC3_PITCH] = 1;
 	port_range_hints[WAYV_OSC3_PITCH].DefaultValue = 0.0f;
-	port_range_hints[WAYV_OSC3_PITCH].LowerBound =  -36.0f;
-	port_range_hints[WAYV_OSC3_PITCH].UpperBound =  36.0f;
+	port_range_hints[WAYV_OSC3_PITCH].LowerBound =  -72.0f;
+	port_range_hints[WAYV_OSC3_PITCH].UpperBound =  72.0f;
 
 	port_descriptors[WAYV_OSC3_TUNE] = 1;
 	port_range_hints[WAYV_OSC3_TUNE].DefaultValue = 0.0f;

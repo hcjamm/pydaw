@@ -3782,6 +3782,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             #The custom additive oscillator tab
             _("(Additive 1)"), _("(Additive 2)"), _("(Additive 3)")
         ]
+
         f_lfo_types = [_("Off"), _("Sine"), _("Triangle")]
         self.tab_widget =  QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
@@ -3808,7 +3809,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                       self.plugin_rel_callback,
                                       self.plugin_val_callback, _("Oscillator 1"),
                                       self.port_dict, self.preset_manager, 1)
-
+        self.osc1.pitch_knob.control.setRange(-72, 72)
         self.osc1_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
                                                    pydaw_ports.WAYV_OSC1_UNISON_VOICES,
                                                    self.plugin_rel_callback,
@@ -3874,7 +3875,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                       self.plugin_rel_callback, self.plugin_val_callback,
                                       _("Oscillator 2"),
                                       self.port_dict, self.preset_manager)
-
+        self.osc2.pitch_knob.control.setRange(-72, 72)
         self.osc2_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
                                                    pydaw_ports.WAYV_OSC2_UNISON_VOICES,
                                                    self.plugin_rel_callback,
@@ -3948,7 +3949,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                       self.plugin_rel_callback, self.plugin_val_callback,
                                       _("Oscillator 3"),
                                       self.port_dict, self.preset_manager)
-
+        self.osc3.pitch_knob.control.setRange(-72, 72)
         self.osc3_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
                                                    pydaw_ports.WAYV_OSC3_UNISON_VOICES,
                                                    self.plugin_rel_callback,
