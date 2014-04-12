@@ -366,6 +366,31 @@ class pydaw_abstract_ui_control:
         f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
         f_dialog.exec_()
 
+    def set_octave_dialog(self):
+        def ok_button_pressed():
+            f_value = f_spinbox.value() * 12
+            self.set_value(f_value)
+            f_dialog.close()
+        f_dialog = QtGui.QDialog(self.control)
+        f_dialog.setMinimumWidth(210)
+        f_dialog.setWindowTitle(_("Set to Octave"))
+        f_layout =  QtGui.QGridLayout(f_dialog)
+        f_layout.addWidget(QtGui.QLabel(_("Octave:")), 0, 0)
+        f_spinbox = QtGui.QSpinBox()
+        f_min = self.control.minimum() // 12
+        f_max = self.control.maximum() // 12
+        f_spinbox.setRange(f_min, f_max)
+        f_spinbox.setValue(self.get_value() // 12)
+        f_layout.addWidget(f_spinbox, 0, 1)
+        f_ok_button =  QtGui.QPushButton(_("OK"))
+        f_ok_button.pressed.connect(ok_button_pressed)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_cancel_button.pressed.connect(f_dialog.close)
+        f_layout.addWidget(f_ok_button, 5, 0)
+        f_layout.addWidget(f_cancel_button, 5, 1)
+        f_dialog.move(self.control.mapToGlobal(QtCore.QPoint(0.0, 0.0)))
+        f_dialog.exec_()
+
     def copy_automation(self):
         global global_cc_clipboard
         f_value = ((self.get_value() - self.control.minimum()) /
@@ -402,6 +427,9 @@ class pydaw_abstract_ui_control:
         if self.val_conversion == kc_int_pitch:
             f_set_ratio_action = f_menu.addAction(_("Set to Ratio..."))
             f_set_ratio_action.triggered.connect(self.set_ratio_dialog)
+            f_set_octave_action = f_menu.addAction(_("Set to Octave..."))
+            f_set_octave_action.triggered.connect(self.set_octave_dialog)
+
 
         f_menu.exec_(QtGui.QCursor.pos())
 
