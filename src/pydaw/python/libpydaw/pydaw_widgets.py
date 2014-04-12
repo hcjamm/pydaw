@@ -170,6 +170,7 @@ class pydaw_abstract_ui_control:
         if a_preset_mgr is not None:
             a_preset_mgr.add_control(self)
         self.default_value = a_default_value
+        self.ratio_callback = None
 
     def reset_default_value(self):
         if self.default_value is not None:
@@ -334,7 +335,13 @@ class pydaw_abstract_ui_control:
     def set_ratio_dialog(self):
         def ok_button_pressed():
             f_value = pydaw_util.pydaw_ratio_to_pitch(f_ratio_spinbox.value())
-            self.set_value(f_value)
+            if self.ratio_callback:
+                f_int = round(f_value)
+                self.set_value(f_int)
+                f_frac = int((f_value - f_int) * 100)
+                self.ratio_callback(f_frac)
+            else:
+                self.set_value(f_value)
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
         f_dialog.setMinimumWidth(210)
@@ -732,6 +739,9 @@ class pydaw_osc_widget:
                                             0, a_val_conversion=kc_decimal,
                                             a_port_dict=a_port_dict,
                                             a_preset_mgr=a_preset_mgr)
+
+        self.pitch_knob.ratio_callback = self.fine_knob.set_value
+
         self.vol_knob = pydaw_knob_control(a_size, _("Vol"), a_vol_port, a_rel_callback,
                                            a_val_callback, -30, 0, -6,
                                            a_val_conversion=kc_integer,
