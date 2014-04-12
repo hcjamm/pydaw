@@ -7833,8 +7833,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         def batch_changed(a_val=None):
             f_name.setText("")
             f_output_name.setText("")
-            f_mp3_radiobutton.setEnabled(True)
-            f_wav_radiobutton.setEnabled(True)
 
         self.ac_ext = ".wav"
         f_window = QtGui.QDialog(this_main_window)
@@ -7864,7 +7862,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(QtGui.QLabel(_("Convert to:")), 2, 1)
         f_rb_group = QtGui.QButtonGroup()
         f_wav_radiobutton = QtGui.QRadioButton("wav")
-        f_wav_radiobutton.setEnabled(True)
         f_wav_radiobutton.setChecked(True)
         f_rb_group.addButton(f_wav_radiobutton)
         f_wav_layout = QtGui.QHBoxLayout()
@@ -7873,7 +7870,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_wav_radiobutton.toggled.connect(format_changed)
 
         f_mp3_radiobutton = QtGui.QRadioButton(a_label)
-        #f_mp3_radiobutton.setEnabled(False)
         f_rb_group.addButton(f_mp3_radiobutton)
         f_mp3_layout = QtGui.QHBoxLayout()
         f_mp3_layout.addWidget(f_mp3_radiobutton)
