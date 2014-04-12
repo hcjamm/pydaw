@@ -1918,6 +1918,7 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
         self.setRenderHint(QtGui.QPainter.Antialiasing)
 
     def draw_array(self, a_np_array):
+        self.setUpdatesEnabled(False)
         f_path = QtGui.QPainterPath(QtCore.QPointF(0.0, global_additive_osc_height * 0.5))
         f_x = 1.0
         f_half = global_additive_osc_height * 0.5
@@ -1927,6 +1928,8 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
         self.scene.clear()
         f_path_item = self.scene.addPath(f_path, QtGui.QPen(QtCore.Qt.white, 1.0))
         f_path_item.setBrush(global_add_osc_fill)
+        self.setUpdatesEnabled(True)
+        self.update()
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
