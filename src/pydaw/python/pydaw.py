@@ -5739,7 +5739,7 @@ class automation_viewer_widget:
         if pydaw_widgets.global_cc_clipboard is None:
             QtGui.QMessageBox.warning(self.widget, _("Error"),
                                       _("Nothing copied to the clipboard.\n"
-                                      "Right-click->'Copy Automation' on any knob on any plugin."))
+                                      "Right-click->'Copy' on any knob on any plugin."))
             return
         self.add_cc_point(pydaw_widgets.global_cc_clipboard)
 

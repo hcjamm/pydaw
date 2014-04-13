@@ -411,11 +411,13 @@ class pydaw_abstract_ui_control:
         f_reset_action.triggered.connect(self.reset_default_value)
         f_set_value_action = f_menu.addAction(_("Set Raw Controller Value..."))
         f_set_value_action.triggered.connect(self.set_value_dialog)
-        f_copy_automation_action = f_menu.addAction(_("Copy Automation"))
+        f_menu.addSeparator()
+        f_copy_automation_action = f_menu.addAction(_("Copy"))
         f_copy_automation_action.triggered.connect(self.copy_automation)
         if global_cc_clipboard:
-            f_paste_automation_action = f_menu.addAction(_("Paste Automation"))
+            f_paste_automation_action = f_menu.addAction(_("Paste"))
             f_paste_automation_action.triggered.connect(self.paste_automation)
+        f_menu.addSeparator()
 
         if self.val_conversion == kc_time_decimal or \
         self.val_conversion == kc_hz_decimal:
