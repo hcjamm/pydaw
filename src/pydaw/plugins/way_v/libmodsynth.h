@@ -24,6 +24,8 @@ extern "C" {
 //How many modular PolyFX
 #define WAYV_MODULAR_POLYFX_COUNT 4
 
+#define WAYV_FM_MACRO_COUNT 2
+
 #include "../../libmodsynth/constants.h"
 #include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/pitch_core.h"
@@ -44,6 +46,7 @@ typedef struct
 {
     t_wt_wavetables * wavetables;
     t_smoother_linear * pitchbend_smoother;
+    t_smoother_linear * fm_macro_smoother[WAYV_FM_MACRO_COUNT];
     t_amp * amp_ptr;
     int reset_wavetables;
 }t_wayv_mono_modules;
@@ -55,14 +58,16 @@ typedef struct
     t_osc_wav_unison * osc_wavtable1;
     t_osc_wav_unison * osc_wavtable2;
     t_osc_wav_unison * osc_wavtable3;
+    t_osc_wav_unison * osc_wavtable4;
 
-    float osc1_uni_spread, osc2_uni_spread, osc3_uni_spread;
+    float osc1_uni_spread, osc2_uni_spread, osc3_uni_spread, osc4_uni_spread;
 
-    float osc1fm1, osc1fm2, osc1fm3;
-    float osc2fm1, osc2fm2, osc2fm3;
-    float osc3fm1, osc3fm2, osc3fm3;
+    float osc1fm1, osc1fm2, osc1fm3, osc1fm4;
+    float osc2fm1, osc2fm2, osc2fm3, osc2fm4;
+    float osc3fm1, osc3fm2, osc3fm3, osc3fm4;
+    float osc4fm1, osc4fm2, osc4fm3, osc4fm4;
 
-    float fm1_last, fm2_last, fm3_last;
+    float fm1_last, fm2_last, fm3_last, fm4_last;
 
     t_white_noise * white_noise1;
     t_adsr * adsr_main;
@@ -73,6 +78,8 @@ typedef struct
     int adsr_amp2_on;
     t_adsr * adsr_amp3;
     int adsr_amp3_on;
+    t_adsr * adsr_amp4;
+    int adsr_amp4_on;
 
     float noise_amp;
 
@@ -97,6 +104,7 @@ typedef struct
     float osc1_linamp;
     float osc2_linamp;
     float osc3_linamp;
+    float osc4_linamp;
     float noise_linamp;
     int i_voice;  //for the runVoice function to iterate the current block
 
@@ -117,6 +125,7 @@ typedef struct
     int osc1_on;
     int osc2_on;
     int osc3_on;
+    int osc4_on;
 
     float velocity_track;
     float keyboard_track;
@@ -137,29 +146,44 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(a_sr);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(a_sr);
     f_voice->osc_wavtable3 = g_osc_get_osc_wav_unison(a_sr);
+    f_voice->osc_wavtable4 = g_osc_get_osc_wav_unison(a_sr);
 
     f_voice->osc1_uni_spread = 0.0f;
     f_voice->osc2_uni_spread = 0.0f;
     f_voice->osc3_uni_spread = 0.0f;
+    f_voice->osc4_uni_spread = 0.0f;
 
     f_voice->osc1fm1 = 0.0;
     f_voice->osc1fm2 = 0.0;
     f_voice->osc1fm3 = 0.0;
+    f_voice->osc1fm4 = 0.0;
+
+
     f_voice->osc2fm1 = 0.0;
     f_voice->osc2fm2 = 0.0;
     f_voice->osc2fm3 = 0.0;
+    f_voice->osc2fm4 = 0.0;
+
     f_voice->osc3fm1 = 0.0;
     f_voice->osc3fm2 = 0.0;
     f_voice->osc3fm3 = 0.0;
+    f_voice->osc3fm4 = 0.0;
+
+    f_voice->osc4fm1 = 0.0;
+    f_voice->osc4fm2 = 0.0;
+    f_voice->osc4fm3 = 0.0;
+    f_voice->osc4fm4 = 0.0;
 
     f_voice->fm1_last = 0.0;
     f_voice->fm2_last = 0.0;
     f_voice->fm3_last = 0.0;
+    f_voice->fm4_last = 0.0;
 
     f_voice->adsr_main = g_adsr_get_adsr(a_sr);
     f_voice->adsr_amp1 = g_adsr_get_adsr(a_sr);
     f_voice->adsr_amp2 = g_adsr_get_adsr(a_sr);
     f_voice->adsr_amp3 = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_amp4 = g_adsr_get_adsr(a_sr);
 
     f_voice->white_noise1 = g_get_white_noise(a_sr);
     f_voice->noise_amp = 0;
@@ -178,15 +202,19 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 
     f_voice->amp = 1.0f;
     f_voice->note_f = 1.0f;
+
     f_voice->osc1_linamp = 1.0f;
     f_voice->osc2_linamp = 1.0f;
     f_voice->osc3_linamp = 1.0f;
+    f_voice->osc4_linamp = 1.0f;
+
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
 
     f_voice->osc1_on = 0;
     f_voice->osc2_on = 0;
     f_voice->osc3_on = 0;
+    f_voice->osc4_on = 0;
 
     f_voice->lfo_amount_output = 0.0f;
     f_voice->lfo_amp_output = 0.0f;
@@ -211,6 +239,7 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->adsr_amp1_on = 0;
     f_voice->adsr_amp2_on = 0;
     f_voice->adsr_amp3_on = 0;
+    f_voice->adsr_amp4_on = 0;
 
     for(f_i = 0; f_i < WAYV_MODULAR_POLYFX_COUNT; f_i++)
     {
@@ -250,6 +279,7 @@ void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
     v_adsr_release(a_voice->adsr_amp1);
     v_adsr_release(a_voice->adsr_amp2);
     v_adsr_release(a_voice->adsr_amp3);
+    v_adsr_release(a_voice->adsr_amp4);
 }
 
 t_wayv_mono_modules * v_wayv_mono_init(float);
@@ -262,6 +292,15 @@ t_wayv_mono_modules * v_wayv_mono_init(float a_sr)
             (t_wayv_mono_modules*)malloc(sizeof(t_wayv_mono_modules));
     a_mono->pitchbend_smoother =
             g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
+
+    int f_i = 0;
+    while(f_i < WAYV_FM_MACRO_COUNT)
+    {
+        a_mono->fm_macro_smoother[f_i] =
+                g_sml_get_smoother_linear(a_sr, 0.0f, 100.0f, 0.2f);
+        f_i++;
+    }
+
     a_mono->amp_ptr = g_amp_get();
     a_mono->wavetables = g_wt_wavetables_get();
     //indicates that wavetables must be re-pointered immediately

@@ -432,7 +432,6 @@ class pydaw_abstract_ui_control:
             f_set_octave_action = f_menu.addAction(_("Set to Octave..."))
             f_set_octave_action.triggered.connect(self.set_octave_dialog)
 
-
         f_menu.exec_(QtGui.QCursor.pos())
 
 
@@ -3873,6 +3872,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         self.osc_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.osc_tab, _("Oscillators"))
+        self.master_tab = QtGui.QWidget()
+        self.tab_widget.addTab(self.master_tab, _("Master"))
         self.poly_fx_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.poly_fx_tab, _("PolyFX"))
         self.oscillator_layout =  QtGui.QVBoxLayout(self.osc_tab)
@@ -3948,6 +3949,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             self.preset_manager)
         self.osc1_fm3.add_to_grid_layout(self.groupbox_osc1_fm_layout, 2)
 
+        self.osc1_fm4 =  pydaw_knob_control(f_knob_size, _("Osc4"), pydaw_ports.WAYV_OSC1_FM4,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc1_fm4.add_to_grid_layout(self.groupbox_osc1_fm_layout, 3)
+
         self.hlayout1.addWidget(self.groupbox_osc1_fm)
 
         #Osc2
@@ -4018,6 +4025,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             0, 100, 0, kc_integer,
                                             self.port_dict, self.preset_manager)
         self.osc2_fm3.add_to_grid_layout(self.groupbox_osc2_fm_layout, 2)
+
+        self.osc2_fm4 =  pydaw_knob_control(f_knob_size, _("Osc4"), pydaw_ports.WAYV_OSC2_FM4,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc2_fm4.add_to_grid_layout(self.groupbox_osc2_fm_layout, 3)
 
         self.hlayout2.addWidget(self.groupbox_osc2_fm)
 
@@ -4093,10 +4106,105 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             self.preset_manager)
         self.osc3_fm3.add_to_grid_layout(self.groupbox_osc3_fm_layout, 2)
 
+        self.osc3_fm4 =  pydaw_knob_control(f_knob_size, _("Osc4"), pydaw_ports.WAYV_OSC3_FM4,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc3_fm4.add_to_grid_layout(self.groupbox_osc3_fm_layout, 3)
+
         self.hlayout3.addWidget(self.groupbox_osc3_fm)
 
+        ######################
+
+
+        #osc4
         self.hlayout4 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout4)
+        self.osc4 =  pydaw_osc_widget(f_knob_size,
+                                      pydaw_ports.WAYV_OSC4_PITCH,
+                                      pydaw_ports.WAYV_OSC4_TUNE,
+                                      pydaw_ports.WAYV_OSC4_VOLUME,
+                                      pydaw_ports.WAYV_OSC4_TYPE,
+                                      f_osc_types,
+                                      self.plugin_rel_callback, self.plugin_val_callback,
+                                      _("Oscillator 4"),
+                                      self.port_dict, self.preset_manager)
+        self.osc4.pitch_knob.control.setRange(-72, 72)
+        self.osc4_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
+                                                   pydaw_ports.WAYV_OSC4_UNISON_VOICES,
+                                                   self.plugin_rel_callback,
+                                                   self.plugin_val_callback,
+                                                   1, 7, 4, kc_integer,
+                                                   self.port_dict, self.preset_manager)
+        self.osc4_uni_voices.add_to_grid_layout(self.osc4.grid_layout, 4)
+        self.osc4_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
+                                                   pydaw_ports.WAYV_OSC4_UNISON_SPREAD,
+                                                   self.plugin_rel_callback,
+                                                   self.plugin_val_callback,
+                                                   0, 100, 50, kc_decimal,
+                                                   self.port_dict, self.preset_manager)
+        self.osc4_uni_spread.add_to_grid_layout(self.osc4.grid_layout, 5)
+
+        self.hlayout4.addWidget(self.osc4.group_box)
+
+        self.adsr_amp4 =  pydaw_adsr_widget(f_knob_size,  True,
+                                            pydaw_ports.WAYV_ATTACK4,
+                                            pydaw_ports.WAYV_DECAY4,
+                                            pydaw_ports.WAYV_SUSTAIN4,
+                                            pydaw_ports.WAYV_RELEASE4,
+                                            _("ADSR Osc4"),
+                                            self.plugin_rel_callback,
+                                            self.plugin_val_callback,
+                                            self.port_dict, self.preset_manager)
+
+        self.hlayout4.addWidget(self.adsr_amp4.groupbox)
+
+        self.adsr_amp4_checkbox =  pydaw_checkbox_control(_("On"),
+                                                          pydaw_ports.WAYV_ADSR4_CHECKBOX,
+                                                          self.plugin_rel_callback,
+                                                          self.plugin_val_callback,
+                                                          self.port_dict, self.preset_manager)
+        self.adsr_amp4_checkbox.add_to_grid_layout(self.adsr_amp4.layout, 4)
+
+        self.groupbox_osc4_fm =  QtGui.QGroupBox(_("Osc4 FM"))
+        self.groupbox_osc4_fm_layout = QtGui.QGridLayout(self.groupbox_osc4_fm)
+        self.groupbox_osc4_fm_layout.setMargin(4)
+        self.groupbox_osc4_fm.setObjectName("plugin_groupbox")
+
+        self.osc4_fm1 =  pydaw_knob_control(f_knob_size, _("Osc1"), pydaw_ports.WAYV_OSC4_FM1,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc4_fm1.add_to_grid_layout(self.groupbox_osc4_fm_layout, 0)
+
+        self.osc4_fm2 =  pydaw_knob_control(f_knob_size, _("Osc2"), pydaw_ports.WAYV_OSC4_FM2,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc4_fm2.add_to_grid_layout(self.groupbox_osc4_fm_layout, 1)
+
+        self.osc4_fm3 =  pydaw_knob_control(f_knob_size, _("Osc3"), pydaw_ports.WAYV_OSC4_FM3,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc4_fm3.add_to_grid_layout(self.groupbox_osc4_fm_layout, 2)
+
+        self.osc4_fm4 =  pydaw_knob_control(f_knob_size, _("Osc4"), pydaw_ports.WAYV_OSC4_FM4,
+                                            self.plugin_rel_callback, self.plugin_val_callback,
+                                            0, 100, 0, kc_integer, self.port_dict,
+                                            self.preset_manager)
+        self.osc4_fm4.add_to_grid_layout(self.groupbox_osc4_fm_layout, 3)
+
+        self.hlayout4.addWidget(self.groupbox_osc4_fm)
+
+
+        ######################
+
+
+        self.master_vlayout =  QtGui.QVBoxLayout(self.master_tab)
+
+        self.hlayout_master = QtGui.QHBoxLayout()
+        self.master_vlayout.addLayout(self.hlayout_master)
         self.master =  pydaw_master_widget(f_knob_size,  self.plugin_rel_callback,
                                            self.plugin_val_callback,
                                            pydaw_ports.WAYV_MASTER_VOLUME,
@@ -4105,7 +4213,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.port_dict, a_preset_mgr=self.preset_manager,
                                            a_poly_port=pydaw_ports.WAYV_MONO_MODE)
 
-        self.hlayout4.addWidget(self.master.group_box)
+        self.hlayout_master.addWidget(self.master.group_box)
 
         self.adsr_amp_main =  pydaw_adsr_widget(f_knob_size, True,
                                                 pydaw_ports.WAYV_ATTACK_MAIN,
@@ -4116,12 +4224,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                 self.plugin_rel_callback,
                                                 self.plugin_val_callback,
                                                 self.port_dict, self.preset_manager)
-        self.hlayout4.addWidget(self.adsr_amp_main.groupbox)
+        self.hlayout_master.addWidget(self.adsr_amp_main.groupbox)
 
         self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
         self.groupbox_noise.setObjectName("plugin_groupbox")
         self.groupbox_noise_layout = QtGui.QGridLayout(self.groupbox_noise)
-        self.hlayout4.addWidget(self.groupbox_noise)
+        self.hlayout_master.addWidget(self.groupbox_noise)
         self.noise_amp =  pydaw_knob_control(f_knob_size, _("Vol"),
                                              pydaw_ports.WAYV_NOISE_AMP,
                                              self.plugin_rel_callback,
@@ -4151,7 +4259,13 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                               a_preset_mgr=self.preset_manager
                                               )
 
-        self.hlayout4.addWidget(self.perc_env.groupbox)
+        self.hlayout_master.addWidget(self.perc_env.groupbox)
+
+
+        self.master_vlayout.addItem(
+            QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
+
+        ############################
 
         self.main_layout =  QtGui.QVBoxLayout(self.poly_fx_tab)
         self.hlayout5 = QtGui.QHBoxLayout()

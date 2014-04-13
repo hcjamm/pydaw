@@ -389,6 +389,31 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_RAMP_CURVE: plugin->ramp_curve = data; break;
 
         case WAYV_MONO_MODE: plugin->mono_mode = data; break;
+
+        case WAYV_OSC1_FM4: plugin->osc1fm4 = data;  break;
+        case WAYV_OSC2_FM4: plugin->osc2fm4 = data;  break;
+        case WAYV_OSC3_FM4: plugin->osc3fm4 = data;  break;
+
+        case WAYV_OSC4_UNISON_VOICES: plugin->osc4_uni_voice = data; break;
+        case WAYV_OSC4_UNISON_SPREAD: plugin->osc4_uni_spread = data; break;
+
+        case WAYV_OSC4_PITCH: plugin->osc4pitch = data; break;
+        case WAYV_OSC4_TUNE: plugin->osc4tune = data; break;
+        case WAYV_OSC4_TYPE: plugin->osc4type = data; break;
+        case WAYV_OSC4_VOLUME: plugin->osc4vol = data;  break;
+
+        case WAYV_OSC4_FM1: plugin->osc4fm1 = data;  break;
+        case WAYV_OSC4_FM2: plugin->osc4fm2 = data;  break;
+        case WAYV_OSC4_FM3: plugin->osc4fm3 = data;  break;
+        case WAYV_OSC4_FM4: plugin->osc4fm4 = data;  break;
+
+        case WAYV_ATTACK4: plugin->attack3 = data; break;
+        case WAYV_DECAY4: plugin->decay3 = data; break;
+        case WAYV_SUSTAIN4: plugin->sustain3 = data; break;
+        case WAYV_RELEASE4: plugin->release3 = data; break;
+
+        case WAYV_ADSR4_CHECKBOX: plugin->adsr4_checked = data; break;
+
     }
 }
 
@@ -494,6 +519,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     plugin_data->data[f_voice]->last_pitch =
                             (plugin_data->sv_last_note);
                 }
+
                 v_rmp_retrigger_glide_t(plugin_data->data[f_voice]->glide_env,
                         (*(plugin_data->master_glide) * 0.01f),
                         (plugin_data->data[f_voice]->last_pitch),
@@ -508,6 +534,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->osc3_linamp =
                     f_db_to_linear_fast(*(plugin_data->osc3vol),
                         plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice]->osc4_linamp =
+                    f_db_to_linear_fast(*(plugin_data->osc4vol),
+                        plugin_data->mono_modules->amp_ptr);
                 plugin_data->data[f_voice]->noise_linamp =
                     f_db_to_linear_fast(*(plugin_data->noise_amp),
                         plugin_data->mono_modules->amp_ptr);
@@ -516,6 +545,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp1);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp2);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp3);
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp4);
 
                 float f_attack = *(plugin_data->attack_main) * .01f;
                 f_attack = (f_attack) * (f_attack);
@@ -578,6 +608,23 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp3,
                         (f_attack3), (f_decay3), *(plugin_data->sustain3),
                             (f_release3));
+                }
+
+                plugin_data->data[f_voice]->adsr_amp4_on =
+                        (int)(*(plugin_data->adsr4_checked));
+
+                if(plugin_data->data[f_voice]->adsr_amp4_on)
+                {
+                    float f_attack4 = *(plugin_data->attack4) * .01f;
+                    f_attack4 = (f_attack4) * (f_attack4);
+                    float f_decay4 = *(plugin_data->decay4) * .01f;
+                    f_decay4 = (f_decay4) * (f_decay4);
+                    float f_release4 = *(plugin_data->release4) * .01f;
+                    f_release4 = (f_release4) * (f_release4);
+
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp4,
+                        (f_attack4), (f_decay4), *(plugin_data->sustain4),
+                            (f_release4));
                 }
 
                 plugin_data->data[f_voice]->noise_amp =
@@ -665,6 +712,34 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 }
 
 
+                int f_osc_type4 = (int)(*plugin_data->osc4type) - 1;
+
+                if(f_osc_type4 >= 0)
+                {
+                    plugin_data->data[f_voice]->osc4_on = 1;
+
+                    if(f_poly_mode == 0)
+                    {
+                        v_osc_wav_note_on_sync_phases(
+                                plugin_data->data[f_voice]->osc_wavtable4);
+                    }
+                    v_osc_wav_set_waveform(
+                            plugin_data->data[f_voice]->osc_wavtable4,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type4]->wavetable,
+                            plugin_data->mono_modules->wavetables->
+                            tables[f_osc_type4]->length);
+
+                    v_osc_wav_set_uni_voice_count(
+                            plugin_data->data[f_voice]->osc_wavtable4,
+                            *plugin_data->osc4_uni_voice);
+                }
+                else
+                {
+                    plugin_data->data[f_voice]->osc4_on = 0;
+                }
+
+
                 /*Set the last_note property, so the next note can glide from
                  * it if glide is turned on*/
                 plugin_data->sv_last_note =
@@ -736,6 +811,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (*plugin_data->osc2_uni_spread) * 0.01f;
                 plugin_data->data[f_voice]->osc3_uni_spread =
                         (*plugin_data->osc3_uni_spread) * 0.01f;
+                plugin_data->data[f_voice]->osc4_uni_spread =
+                        (*plugin_data->osc4_uni_spread) * 0.01f;
 
                 plugin_data->data[f_voice]->osc1fm1 =
                         (*plugin_data->osc1fm1) * 0.005f;
@@ -743,6 +820,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (*plugin_data->osc1fm2) * 0.005f;
                 plugin_data->data[f_voice]->osc1fm3 =
                         (*plugin_data->osc1fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc1fm4 =
+                        (*plugin_data->osc1fm4) * 0.005f;
 
                 plugin_data->data[f_voice]->osc2fm1 =
                         (*plugin_data->osc2fm1) * 0.005f;
@@ -750,6 +829,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (*plugin_data->osc2fm2) * 0.005f;
                 plugin_data->data[f_voice]->osc2fm3 =
                         (*plugin_data->osc2fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc2fm4 =
+                        (*plugin_data->osc2fm4) * 0.005f;
 
                 plugin_data->data[f_voice]->osc3fm1 =
                         (*plugin_data->osc3fm1) * 0.005f;
@@ -757,6 +838,17 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (*plugin_data->osc3fm2) * 0.005f;
                 plugin_data->data[f_voice]->osc3fm3 =
                         (*plugin_data->osc3fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc3fm4 =
+                        (*plugin_data->osc3fm4) * 0.005f;
+
+                plugin_data->data[f_voice]->osc4fm1 =
+                        (*plugin_data->osc4fm1) * 0.005f;
+                plugin_data->data[f_voice]->osc4fm2 =
+                        (*plugin_data->osc4fm2) * 0.005f;
+                plugin_data->data[f_voice]->osc4fm3 =
+                        (*plugin_data->osc4fm3) * 0.005f;
+                plugin_data->data[f_voice]->osc4fm4 =
+                        (*plugin_data->osc4fm4) * 0.005f;
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
@@ -886,6 +978,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
             int f_osc_type1 = (int)(*plugin_data->osc1type) - 1;
             int f_osc_type2 = (int)(*plugin_data->osc2type) - 1;
             int f_osc_type3 = (int)(*plugin_data->osc3type) - 1;
+            int f_osc_type4 = (int)(*plugin_data->osc4type) - 1;
 
             while(f_voice < WAYV_POLYPHONY)
             {
@@ -894,9 +987,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable1,
                             plugin_data->mono_modules->wavetables->
-                            tables[f_osc_type1]->wavetable,
+                                tables[f_osc_type1]->wavetable,
                             plugin_data->mono_modules->wavetables->
-                            tables[f_osc_type1]->length);
+                                tables[f_osc_type1]->length);
                 }
 
                 if(f_osc_type2 >= 0)
@@ -904,9 +997,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable2,
                             plugin_data->mono_modules->wavetables->
-                            tables[f_osc_type2]->wavetable,
+                                tables[f_osc_type2]->wavetable,
                             plugin_data->mono_modules->wavetables->
-                            tables[f_osc_type2]->length);
+                                tables[f_osc_type2]->length);
                 }
 
                 if(f_osc_type3 >= 0)
@@ -914,10 +1007,21 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     v_osc_wav_set_waveform(
                             plugin_data->data[f_voice]->osc_wavtable3,
                             plugin_data->mono_modules->wavetables->
-                            tables[f_osc_type3]->wavetable,
+                                tables[f_osc_type3]->wavetable,
                             plugin_data->mono_modules->wavetables->
-                            tables[f_osc_type3]->length);
+                                tables[f_osc_type3]->length);
                 }
+
+                if(f_osc_type4 >= 0)
+                {
+                    v_osc_wav_set_waveform(
+                            plugin_data->data[f_voice]->osc_wavtable4,
+                            plugin_data->mono_modules->wavetables->
+                                tables[f_osc_type4]->wavetable,
+                            plugin_data->mono_modules->wavetables->
+                                tables[f_osc_type4]->length);
+                }
+
                 f_voice++;
             }
 
@@ -1023,6 +1127,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
             (*(plugin_data->master_pb_amt))) + (a_voice->last_pitch) +
             (a_voice->lfo_pitch_output);
     }
+    
     if(a_voice->osc1_on)
     {
         v_osc_wav_set_unison_pitch(
@@ -1036,6 +1141,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 a_voice->osc1fm2, a_voice->fm2_last);
         v_osc_wav_apply_fm(a_voice->osc_wavtable1,
                 a_voice->osc1fm3, a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable1,
+                a_voice->osc1fm4, a_voice->fm4_last);
 
         if(a_voice->adsr_amp1_on)
         {
@@ -1067,6 +1174,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 a_voice->fm2_last);
         v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm3,
                 a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm4,
+                a_voice->fm4_last);
 
         if(a_voice->adsr_amp2_on)
         {
@@ -1097,6 +1206,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 a_voice->fm2_last);
         v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm3,
                 a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm4,
+                a_voice->fm4_last);
 
         if(a_voice->adsr_amp3_on)
         {
@@ -1110,6 +1221,37 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         {
             a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3);
             a_voice->current_sample += (a_voice->fm3_last) * (a_voice->osc3_linamp);
+        }
+    }
+
+    if(a_voice->osc4_on)
+    {
+        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable4,
+                (a_voice->osc4_uni_spread),
+                ((a_voice->base_pitch) + (*plugin_data->osc4pitch) +
+                ((*plugin_data->osc4tune) * 0.01f) ));
+
+        v_osc_wav_apply_fm(a_voice->osc_wavtable4, a_voice->osc4fm1,
+                a_voice->fm1_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable4, a_voice->osc4fm2,
+                a_voice->fm2_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable4, a_voice->osc4fm3,
+                a_voice->fm3_last);
+        v_osc_wav_apply_fm(a_voice->osc_wavtable4, a_voice->osc4fm3,
+                a_voice->fm4_last);
+
+        if(a_voice->adsr_amp4_on)
+        {
+            v_adsr_run_db(a_voice->adsr_amp4);
+            a_voice->fm4_last = f_osc_wav_run_unison(a_voice->osc_wavtable4) *
+                    (a_voice->adsr_amp4->output);
+            a_voice->current_sample += (a_voice->fm4_last) *
+                    (a_voice->adsr_amp4->output) * (a_voice->osc4_linamp);
+        }
+        else
+        {
+            a_voice->fm4_last = f_osc_wav_run_unison(a_voice->osc_wavtable4);
+            a_voice->current_sample += (a_voice->fm4_last) * (a_voice->osc4_linamp);
         }
     }
 
@@ -2074,6 +2216,100 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_MONO_MODE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_MONO_MODE].LowerBound = 0.0f;
 	port_range_hints[WAYV_MONO_MODE].UpperBound = 3.0f;
+
+
+        port_descriptors[WAYV_OSC1_FM4] = 1;
+	port_range_hints[WAYV_OSC1_FM4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC1_FM4].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC1_FM4].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC2_FM4] = 1;
+	port_range_hints[WAYV_OSC2_FM4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC2_FM4].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC2_FM4].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC3_FM4] = 1;
+	port_range_hints[WAYV_OSC3_FM4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC3_FM4].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC3_FM4].UpperBound =  100.0f;
+
+        // Oscillator 4
+
+        port_descriptors[WAYV_OSC4_TYPE] = 1;
+	port_range_hints[WAYV_OSC4_TYPE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_TYPE].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC4_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
+
+	port_descriptors[WAYV_OSC4_PITCH] = 1;
+	port_range_hints[WAYV_OSC4_PITCH].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_PITCH].LowerBound =  -72.0f;
+	port_range_hints[WAYV_OSC4_PITCH].UpperBound =  72.0f;
+
+	port_descriptors[WAYV_OSC4_TUNE] = 1;
+	port_range_hints[WAYV_OSC4_TUNE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_TUNE].LowerBound = -100.0f;
+	port_range_hints[WAYV_OSC4_TUNE].UpperBound = 100.0f;
+
+	port_descriptors[WAYV_OSC4_VOLUME] = 1;
+	port_range_hints[WAYV_OSC4_VOLUME].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_VOLUME].LowerBound =  -30.0f;
+	port_range_hints[WAYV_OSC4_VOLUME].UpperBound =  0.0f;
+
+        port_descriptors[WAYV_OSC4_UNISON_VOICES] = 1;
+	port_range_hints[WAYV_OSC4_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC4_UNISON_VOICES].LowerBound =  1.0f;
+	port_range_hints[WAYV_OSC4_UNISON_VOICES].UpperBound =  7.0f;
+
+	port_descriptors[WAYV_OSC4_UNISON_SPREAD] = 1;
+	port_range_hints[WAYV_OSC4_UNISON_SPREAD].DefaultValue = 50.0f;
+	port_range_hints[WAYV_OSC4_UNISON_SPREAD].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC4_UNISON_SPREAD].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC4_FM1] = 1;
+	port_range_hints[WAYV_OSC4_FM1].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_FM1].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC4_FM1].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC4_FM2] = 1;
+	port_range_hints[WAYV_OSC4_FM2].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_FM2].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC4_FM2].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC4_FM3] = 1;
+	port_range_hints[WAYV_OSC4_FM3].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_FM3].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC4_FM3].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC4_FM4] = 1;
+	port_range_hints[WAYV_OSC4_FM4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC4_FM4].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC4_FM4].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_ATTACK4] = 1;
+	port_range_hints[WAYV_ATTACK4].DefaultValue = 10.0f;
+	port_range_hints[WAYV_ATTACK4].LowerBound = 0.0f;
+	port_range_hints[WAYV_ATTACK4].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_DECAY4] = 1;
+	port_range_hints[WAYV_DECAY4].DefaultValue = 50.0f;
+	port_range_hints[WAYV_DECAY4].LowerBound = 10.0f;
+	port_range_hints[WAYV_DECAY4].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_SUSTAIN4] = 1;
+	port_range_hints[WAYV_SUSTAIN4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_SUSTAIN4].LowerBound = -30.0f;
+	port_range_hints[WAYV_SUSTAIN4].UpperBound = 0.0f;
+
+	port_descriptors[WAYV_RELEASE4] = 1;
+	port_range_hints[WAYV_RELEASE4].DefaultValue = 50.0f;
+	port_range_hints[WAYV_RELEASE4].LowerBound = 10.0f;
+	port_range_hints[WAYV_RELEASE4].UpperBound = 400.0f;
+
+        port_descriptors[WAYV_ADSR4_CHECKBOX] = 1;
+	port_range_hints[WAYV_ADSR4_CHECKBOX].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR4_CHECKBOX].LowerBound =  0;
+	port_range_hints[WAYV_ADSR4_CHECKBOX].UpperBound =  1;
+
 
 
 	LMSLDescriptor->activate = v_wayv_activate;

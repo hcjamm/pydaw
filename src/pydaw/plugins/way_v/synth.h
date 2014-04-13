@@ -207,9 +207,28 @@ extern "C" {
 #define WAYV_RAMP_CURVE 162
 #define WAYV_MONO_MODE 163
 
+#define WAYV_OSC4_TYPE 164
+#define WAYV_OSC4_PITCH 165
+#define WAYV_OSC4_TUNE 166
+#define WAYV_OSC4_VOLUME 167
+#define WAYV_OSC4_UNISON_VOICES 168
+#define WAYV_OSC4_UNISON_SPREAD 169
+#define WAYV_OSC1_FM4 170
+#define WAYV_OSC2_FM4 171
+#define WAYV_OSC3_FM4 172
+#define WAYV_OSC4_FM1 173
+#define WAYV_OSC4_FM2 174
+#define WAYV_OSC4_FM3 175
+#define WAYV_OSC4_FM4 176
+#define WAYV_ATTACK4  177
+#define WAYV_DECAY4   178
+#define WAYV_SUSTAIN4 179
+#define WAYV_RELEASE4 180
+#define WAYV_ADSR4_CHECKBOX 181
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 164
+#define WAYV_COUNT 182
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -238,6 +257,11 @@ typedef struct
     PYFX_Data *sustain3;
     PYFX_Data *release3;
 
+    PYFX_Data *attack4;
+    PYFX_Data *decay4;
+    PYFX_Data *sustain4;
+    PYFX_Data *release4;
+
     //PYFX_Data pitch;
 
     PYFX_Data *osc1pitch;
@@ -255,17 +279,30 @@ typedef struct
     PYFX_Data *osc3type;
     PYFX_Data *osc3vol;
 
+    PYFX_Data *osc4pitch;
+    PYFX_Data *osc4tune;
+    PYFX_Data *osc4type;
+    PYFX_Data *osc4vol;
+
     PYFX_Data *osc1fm1;
     PYFX_Data *osc1fm2;
     PYFX_Data *osc1fm3;
+    PYFX_Data *osc1fm4;
 
     PYFX_Data *osc2fm1;
     PYFX_Data *osc2fm2;
     PYFX_Data *osc2fm3;
+    PYFX_Data *osc2fm4;
 
     PYFX_Data *osc3fm1;
     PYFX_Data *osc3fm2;
     PYFX_Data *osc3fm3;
+    PYFX_Data *osc3fm4;
+
+    PYFX_Data *osc4fm1;
+    PYFX_Data *osc4fm2;
+    PYFX_Data *osc4fm3;
+    PYFX_Data *osc4fm4;
 
     PYFX_Data *master_vol;
 
@@ -288,6 +325,8 @@ typedef struct
     PYFX_Data *osc2_uni_spread;
     PYFX_Data *osc3_uni_voice;
     PYFX_Data *osc3_uni_spread;
+    PYFX_Data *osc4_uni_voice;
+    PYFX_Data *osc4_uni_spread;
 
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;
@@ -302,6 +341,7 @@ typedef struct
     PYFX_Data * adsr1_checked;
     PYFX_Data * adsr2_checked;
     PYFX_Data * adsr3_checked;
+    PYFX_Data * adsr4_checked;
 
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
