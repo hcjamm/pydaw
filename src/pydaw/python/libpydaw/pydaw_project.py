@@ -73,6 +73,7 @@ pydaw_file_pywavs = "default.pywavs"
 pydaw_file_pystretch = "default.pystretch"
 pydaw_file_pystretch_map = "map.pystretch"
 pydaw_file_notes = "notes.txt"
+pydaw_file_wave_editor_bookmarks = "wave_editor_bookmarks.txt"
 
 pydaw_min_note_length = 4.0/129.0  #Anything smaller gets deleted when doing a transform
 
@@ -202,6 +203,7 @@ class pydaw_project:
         self.pystretch_map_file = "{}/{}".format(self.project_folder, pydaw_file_pystretch_map)
         self.pyscale_file = "{}/default.pyscale".format(self.project_folder)
         self.pynotes_file = "{}/{}".format(self.project_folder, pydaw_file_notes)
+        self.pywebm_file = "{}/{}".format(self.project_folder, pydaw_file_wave_editor_bookmarks)
 
         pydaw_clear_sample_graph_cache()
 
@@ -327,6 +329,17 @@ class pydaw_project:
             return (int(f_list[0]), int(f_list[1]))
         else:
             return None
+
+    def set_we_bm(self, a_file_list):
+        f_list = [x for x in sorted(a_file_list) if len(x) < 1000]
+        pydaw_write_file_text(self.pywebm_file, "\n".join(f_list))
+
+    def get_we_bm(self):
+        if os.path.exists(self.pywebm_file):
+            f_list = pydaw_read_file_text(self.pywebm_file).split("\n")
+            return [x for x in f_list if x]
+        else:
+            return []
 
     def get_regions_dict(self):
         try:

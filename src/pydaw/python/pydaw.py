@@ -8539,12 +8539,22 @@ class pydaw_wave_editor_widget:
         self.open_folder_action = self.menu.addAction(_("Open parent folder in browser"))
         self.open_folder_action.triggered.connect(self.open_item_folder)
         self.menu.addSeparator()
+        self.bookmark_action = self.menu.addAction(_("Bookmark File"))
+        self.bookmark_action.triggered.connect(self.bookmark_file)
+        self.bookmark_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+D"))
+        self.delete_bookmark_action = self.menu.addAction(_("Delete Bookmark"))
+        self.delete_bookmark_action.triggered.connect(self.delete_bookmark)
+        self.delete_bookmark_action.setShortcut(QtGui.QKeySequence.fromString("ALT+D"))
+        self.menu.addSeparator()
         self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
         self.normalize_action = self.menu.addAction(_("Normalize (non-destructive)..."))
         self.normalize_action.triggered.connect(self.normalize_dialog)
         self.stretch_shift_action = self.menu.addAction(_("Time-Stretch/Pitch-Shift..."))
         self.stretch_shift_action.triggered.connect(self.stretch_shift_dialog)
+
+        self.bookmark_button = QtGui.QPushButton(_("Bookmarks"))
+        self.file_hlayout.addWidget(self.bookmark_button)
 
         self.history_button = QtGui.QPushButton(_("History"))
         self.file_hlayout.addWidget(self.history_button)
@@ -8587,6 +8597,34 @@ class pydaw_wave_editor_widget:
         self.history = []
         self.graph_object = None
         self.current_file = None
+
+    def bookmark_file(self):
+        if self.graph_object is None:
+            return
+        f_list = this_pydaw_project.get_we_bm()
+        f_list.append(self.current_file)
+        this_pydaw_project.set_we_bm(f_list)
+        self.open_project()
+
+    def open_project(self):
+        f_list = this_pydaw_project.get_we_bm()
+        if f_list:
+            f_menu = QtGui.QMenu(self.widget)
+            f_menu.triggered.connect(self.open_file_from_action)
+            for f_item in f_list:
+                f_menu.addAction(f_item)
+            self.bookmark_button.setMenu(f_menu)
+        else:
+            self.bookmark_button.setMenu(None)
+
+    def delete_bookmark(self):
+        if self.graph_object is None:
+            return
+        f_list = this_pydaw_project.get_we_bm()
+        if self.current_file in f_list:
+            f_list.remove(self.current_file)
+            this_pydaw_project.set_we_bm(f_list)
+            self.open_project()
 
     def open_item_folder(self):
         f_path = str(self.file_lineedit.text())
@@ -8848,11 +8886,16 @@ class pydaw_wave_editor_widget:
         if len(f_text) < 1000 and os.path.isfile(f_text):
             self.open_file(f_text)
         else:
-            QtGui.QMessageBox.warning(self.widget, _("Error"), _("No file path in the clipboard"))
+            QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                      _("No file path in the clipboard"))
 
     def open_file(self, a_file):
-        self.clear_sample_graph()
         f_file = str(a_file)
+        if not os.path.exists(f_file):
+            QtGui.QMessageBox.warning(self.widget, _("Error"),
+                                      _("{} does not exist".format(f_file)))
+            return
+        self.clear_sample_graph()
         self.current_file = f_file
         self.file_lineedit.setText(f_file)
         self.set_sample_graph(f_file)
@@ -9023,6 +9066,7 @@ def global_open_project(a_project_file, a_wait=True):
     this_song_editor.open_first_region()
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
     this_main_window.notes_tab.setText(this_pydaw_project.get_notes())
+    this_wave_editor_widget.open_project()
 
 def global_new_project(a_project_file, a_wait=True):
     global_close_all()
@@ -9042,6 +9086,7 @@ def global_new_project(a_project_file, a_wait=True):
     set_window_title()
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
     this_main_window.notes_tab.setText("")
+    this_wave_editor_widget.open_project()
 
 this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
