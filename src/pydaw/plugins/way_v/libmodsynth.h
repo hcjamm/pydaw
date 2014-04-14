@@ -51,35 +51,24 @@ typedef struct
     int reset_wavetables;
 }t_wayv_mono_modules;
 
-/*define static variables for libmodsynth modules.  Once instance of
- * this type will be created for each polyphonic voice.*/
+
 typedef struct
 {
-    t_osc_wav_unison * osc_wavtable1;
-    t_osc_wav_unison * osc_wavtable2;
-    t_osc_wav_unison * osc_wavtable3;
-    t_osc_wav_unison * osc_wavtable4;
+    t_osc_wav_unison * osc_wavtable[4];
 
-    float osc1_uni_spread, osc2_uni_spread, osc3_uni_spread, osc4_uni_spread;
+    float osc_uni_spread[4];
 
-    float osc1fm1, osc1fm2, osc1fm3, osc1fm4;
-    float osc2fm1, osc2fm2, osc2fm3, osc2fm4;
-    float osc3fm1, osc3fm2, osc3fm3, osc3fm4;
-    float osc4fm1, osc4fm2, osc4fm3, osc4fm4;
+    float osc_fm[4][4];
 
-    float fm1_last, fm2_last, fm3_last, fm4_last;
+    float fm_osc_values[4][4];
+
+    float fm_last[4];
 
     t_white_noise * white_noise1;
     t_adsr * adsr_main;
 
-    t_adsr * adsr_amp1;
-    int adsr_amp1_on;
-    t_adsr * adsr_amp2;
-    int adsr_amp2_on;
-    t_adsr * adsr_amp3;
-    int adsr_amp3_on;
-    t_adsr * adsr_amp4;
-    int adsr_amp4_on;
+    t_adsr * adsr_amp_osc[4];
+    int adsr_amp_on[4];
 
     float noise_amp;
 
@@ -101,10 +90,7 @@ typedef struct
     float master_vol_lin;
     float note_f;
     int note;
-    float osc1_linamp;
-    float osc2_linamp;
-    float osc3_linamp;
-    float osc4_linamp;
+    float osc_linamp[4];
     float noise_linamp;
     int i_voice;  //for the runVoice function to iterate the current block
 
@@ -122,10 +108,7 @@ typedef struct
     float filter_output;
     float noise_sample;
 
-    int osc1_on;
-    int osc2_on;
-    int osc3_on;
-    int osc4_on;
+    int osc_on[4];
 
     float velocity_track;
     float keyboard_track;
@@ -143,47 +126,29 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     t_wayv_poly_voice * f_voice =
             (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
 
-    f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(a_sr);
-    f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(a_sr);
-    f_voice->osc_wavtable3 = g_osc_get_osc_wav_unison(a_sr);
-    f_voice->osc_wavtable4 = g_osc_get_osc_wav_unison(a_sr);
+    int f_i = 0;
 
-    f_voice->osc1_uni_spread = 0.0f;
-    f_voice->osc2_uni_spread = 0.0f;
-    f_voice->osc3_uni_spread = 0.0f;
-    f_voice->osc4_uni_spread = 0.0f;
+    while(f_i < 4)
+    {
+        f_voice->osc_wavtable[f_i] = g_osc_get_osc_wav_unison(a_sr);
+        f_voice->osc_uni_spread[f_i] = 0.0f;
+        f_voice->osc_on[f_i] = 0;
+        f_voice->fm_last[f_i] = 0.0;
+        f_voice->adsr_amp_osc[f_i] = g_adsr_get_adsr(a_sr);
+        f_voice->adsr_amp_on[f_i] = 0;
+        f_voice->osc_linamp[f_i] = 1.0f;
 
-    f_voice->osc1fm1 = 0.0;
-    f_voice->osc1fm2 = 0.0;
-    f_voice->osc1fm3 = 0.0;
-    f_voice->osc1fm4 = 0.0;
+        int f_i2 = 0;
+        while(f_i2 < 4)
+        {
+            f_voice->osc_fm[f_i][f_i2] = 0.0;
+            f_i2++;
+        }
+        f_i++;
+    }
 
-
-    f_voice->osc2fm1 = 0.0;
-    f_voice->osc2fm2 = 0.0;
-    f_voice->osc2fm3 = 0.0;
-    f_voice->osc2fm4 = 0.0;
-
-    f_voice->osc3fm1 = 0.0;
-    f_voice->osc3fm2 = 0.0;
-    f_voice->osc3fm3 = 0.0;
-    f_voice->osc3fm4 = 0.0;
-
-    f_voice->osc4fm1 = 0.0;
-    f_voice->osc4fm2 = 0.0;
-    f_voice->osc4fm3 = 0.0;
-    f_voice->osc4fm4 = 0.0;
-
-    f_voice->fm1_last = 0.0;
-    f_voice->fm2_last = 0.0;
-    f_voice->fm3_last = 0.0;
-    f_voice->fm4_last = 0.0;
 
     f_voice->adsr_main = g_adsr_get_adsr(a_sr);
-    f_voice->adsr_amp1 = g_adsr_get_adsr(a_sr);
-    f_voice->adsr_amp2 = g_adsr_get_adsr(a_sr);
-    f_voice->adsr_amp3 = g_adsr_get_adsr(a_sr);
-    f_voice->adsr_amp4 = g_adsr_get_adsr(a_sr);
 
     f_voice->white_noise1 = g_get_white_noise(a_sr);
     f_voice->noise_amp = 0;
@@ -203,24 +168,25 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->amp = 1.0f;
     f_voice->note_f = 1.0f;
 
-    f_voice->osc1_linamp = 1.0f;
-    f_voice->osc2_linamp = 1.0f;
-    f_voice->osc3_linamp = 1.0f;
-    f_voice->osc4_linamp = 1.0f;
-
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
-
-    f_voice->osc1_on = 0;
-    f_voice->osc2_on = 0;
-    f_voice->osc3_on = 0;
-    f_voice->osc4_on = 0;
 
     f_voice->lfo_amount_output = 0.0f;
     f_voice->lfo_amp_output = 0.0f;
     f_voice->lfo_pitch_output = 0.0f;
 
-    int f_i = 0;
+    int f_i2 = 0;
+    while(f_i2 < 4)
+    {
+        int f_i3 = 0;
+        while(f_i3 < 4)
+        {
+            f_voice->fm_osc_values[f_i2][f_i3] = 0.0f;
+            f_i3++;
+        }
+
+        f_i2++;
+    }
 
     f_voice->adsr_amp = g_adsr_get_adsr(a_sr);
     f_voice->adsr_filter = g_adsr_get_adsr(a_sr);
@@ -236,10 +202,6 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 
     f_voice->noise_sample = 0.0f;
 
-    f_voice->adsr_amp1_on = 0;
-    f_voice->adsr_amp2_on = 0;
-    f_voice->adsr_amp3_on = 0;
-    f_voice->adsr_amp4_on = 0;
 
     for(f_i = 0; f_i < WAYV_MODULAR_POLYFX_COUNT; f_i++)
     {
@@ -276,10 +238,14 @@ void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
         v_adsr_release(a_voice->adsr_main);
     }
 
-    v_adsr_release(a_voice->adsr_amp1);
-    v_adsr_release(a_voice->adsr_amp2);
-    v_adsr_release(a_voice->adsr_amp3);
-    v_adsr_release(a_voice->adsr_amp4);
+    int f_i = 0;
+
+    while(f_i < 4)
+    {
+        v_adsr_release(a_voice->adsr_amp_osc[f_i]);
+        f_i++;
+    }
+
 }
 
 t_wayv_mono_modules * v_wayv_mono_init(float);
@@ -297,7 +263,7 @@ t_wayv_mono_modules * v_wayv_mono_init(float a_sr)
     while(f_i < WAYV_FM_MACRO_COUNT)
     {
         a_mono->fm_macro_smoother[f_i] =
-                g_sml_get_smoother_linear(a_sr, 0.0f, 100.0f, 0.2f);
+                g_sml_get_smoother_linear(a_sr, 0.0f, 0.5f, 0.2f);
         f_i++;
     }
 

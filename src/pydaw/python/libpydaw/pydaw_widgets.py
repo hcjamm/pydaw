@@ -4261,7 +4261,50 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.hlayout_master.addWidget(self.perc_env.groupbox)
 
+        self.fm_mod_macros_hlayout = QtGui.QHBoxLayout()
+        self.master_vlayout.addLayout(self.fm_mod_macros_hlayout)
+        self.fm_mod_macros_hlayout.addWidget(QtGui.QLabel(_("FM\nModulation\nMacros")))
 
+        self.fm_macro_knobs_gridlayout = QtGui.QGridLayout()
+        self.fm_mod_macros_hlayout.addLayout(self.fm_macro_knobs_gridlayout)
+        self.fm_mod_matrix = QtGui.QTableWidget()
+        self.fm_mod_matrix.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.master_vlayout.addWidget(self.fm_mod_matrix)
+        self.fm_mod_matrix.setFixedHeight(105)
+        self.fm_mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.fm_mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.fm_mod_matrix.setRowCount(2)
+        self.fm_mod_matrix.setVerticalHeaderLabels([_("Macro 1"), _("Macro 2")])
+        self.fm_mod_matrix.setColumnCount(4 * 4)
+
+        f_column_labels = []
+        f_port = pydaw_ports.WAYV_FM_MACRO1
+
+        for f_i in range(2):
+            f_macro = pydaw_knob_control(f_knob_size, _("Macro {}".format(f_i + 1)),
+                                         f_port,
+                                         self.plugin_rel_callback,
+                                         self.plugin_val_callback,
+                                         0, 100, 0, kc_decimal,
+                                         self.port_dict, self.preset_manager)
+            f_macro.add_to_grid_layout(self.fm_macro_knobs_gridlayout, f_i)
+            f_port += 1
+
+            for f_i2 in range(4):
+                for f_i3 in range(4):
+                    f_column_labels.append("Osc{}FM{}".format(f_i2 + 1, f_i3 + 1))
+                    f_spinbox = pydaw_spinbox_control(None, f_port,
+                                                     self.plugin_rel_callback,
+                                                     self.plugin_val_callback,
+                                                     -100, 100, 0, kc_none,
+                                                     self.port_dict, self.preset_manager)
+                    f_port += 1
+                    self.fm_mod_matrix.setCellWidget(f_i, (f_i2 * 4) + f_i3, f_spinbox.control)
+
+        self.fm_mod_matrix.setHorizontalHeaderLabels(f_column_labels)
+        self.fm_mod_matrix.resizeColumnsToContents()
+        self.fm_mod_macros_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.master_vlayout.addItem(
             QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 

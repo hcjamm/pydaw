@@ -226,9 +226,45 @@ extern "C" {
 #define WAYV_RELEASE4 180
 #define WAYV_ADSR4_CHECKBOX 181
 
+#define WAYV_FM_MACRO1 182
+#define WAYV_FM_MACRO1_OSC1_FM1 183
+#define WAYV_FM_MACRO1_OSC1_FM2 184
+#define WAYV_FM_MACRO1_OSC1_FM3 185
+#define WAYV_FM_MACRO1_OSC1_FM4 186
+#define WAYV_FM_MACRO1_OSC2_FM1 187
+#define WAYV_FM_MACRO1_OSC2_FM2 188
+#define WAYV_FM_MACRO1_OSC2_FM3 189
+#define WAYV_FM_MACRO1_OSC2_FM4 190
+#define WAYV_FM_MACRO1_OSC3_FM1 191
+#define WAYV_FM_MACRO1_OSC3_FM2 192
+#define WAYV_FM_MACRO1_OSC3_FM3 193
+#define WAYV_FM_MACRO1_OSC3_FM4 194
+#define WAYV_FM_MACRO1_OSC4_FM1 195
+#define WAYV_FM_MACRO1_OSC4_FM2 196
+#define WAYV_FM_MACRO1_OSC4_FM3 197
+#define WAYV_FM_MACRO1_OSC4_FM4 198
+
+#define WAYV_FM_MACRO2 199
+#define WAYV_FM_MACRO2_OSC1_FM1 200
+#define WAYV_FM_MACRO2_OSC1_FM2 201
+#define WAYV_FM_MACRO2_OSC1_FM3 202
+#define WAYV_FM_MACRO2_OSC1_FM4 203
+#define WAYV_FM_MACRO2_OSC2_FM1 204
+#define WAYV_FM_MACRO2_OSC2_FM2 205
+#define WAYV_FM_MACRO2_OSC2_FM3 206
+#define WAYV_FM_MACRO2_OSC2_FM4 207
+#define WAYV_FM_MACRO2_OSC3_FM1 208
+#define WAYV_FM_MACRO2_OSC3_FM2 209
+#define WAYV_FM_MACRO2_OSC3_FM3 210
+#define WAYV_FM_MACRO2_OSC3_FM4 211
+#define WAYV_FM_MACRO2_OSC4_FM1 212
+#define WAYV_FM_MACRO2_OSC4_FM2 213
+#define WAYV_FM_MACRO2_OSC4_FM3 214
+#define WAYV_FM_MACRO2_OSC4_FM4 215
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 182
+#define WAYV_COUNT 216
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -264,8 +300,8 @@ typedef struct
 
     //PYFX_Data pitch;
 
-    PYFX_Data *osc1pitch;
-    PYFX_Data *osc1tune;
+    PYFX_Data *osc_pitch[4];
+    PYFX_Data *osc_tune[4];
     PYFX_Data *osc1type;
     PYFX_Data *osc1vol;
 
@@ -284,25 +320,7 @@ typedef struct
     PYFX_Data *osc4type;
     PYFX_Data *osc4vol;
 
-    PYFX_Data *osc1fm1;
-    PYFX_Data *osc1fm2;
-    PYFX_Data *osc1fm3;
-    PYFX_Data *osc1fm4;
-
-    PYFX_Data *osc2fm1;
-    PYFX_Data *osc2fm2;
-    PYFX_Data *osc2fm3;
-    PYFX_Data *osc2fm4;
-
-    PYFX_Data *osc3fm1;
-    PYFX_Data *osc3fm2;
-    PYFX_Data *osc3fm3;
-    PYFX_Data *osc3fm4;
-
-    PYFX_Data *osc4fm1;
-    PYFX_Data *osc4fm2;
-    PYFX_Data *osc4fm3;
-    PYFX_Data *osc4fm4;
+    PYFX_Data *osc_fm[4][4];
 
     PYFX_Data *master_vol;
 
@@ -319,14 +337,8 @@ typedef struct
     PYFX_Data *noise_amp;
     PYFX_Data *noise_type;
 
-    PYFX_Data *osc1_uni_voice;
-    PYFX_Data *osc1_uni_spread;
-    PYFX_Data *osc2_uni_voice;
-    PYFX_Data *osc2_uni_spread;
-    PYFX_Data *osc3_uni_voice;
-    PYFX_Data *osc3_uni_spread;
-    PYFX_Data *osc4_uni_voice;
-    PYFX_Data *osc4_uni_spread;
+    PYFX_Data *osc_uni_voice[4];
+    PYFX_Data *osc_uni_spread[4];
 
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;
@@ -352,6 +364,9 @@ typedef struct
     PYFX_Data *perc_env_time2;
     PYFX_Data *perc_env_pitch2;
     PYFX_Data *perc_env_on;
+
+    PYFX_Data *fm_macro[2];
+    PYFX_Data *fm_macro_values[2][4][4];
 
     PYFX_Data *mono_mode;
 
