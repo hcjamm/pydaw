@@ -81,6 +81,12 @@ static void v_wayv_or_prep(PYFX_Handle instance)
         }
         f_i2++;
     }
+
+    plugin->mono_modules->fm_macro_smoother[0]->last_value =
+            (*plugin->fm_macro[0] * 0.01f);
+
+    plugin->mono_modules->fm_macro_smoother[1]->last_value =
+            (*plugin->fm_macro[1] * 0.01f);
 }
 
 static void wayvPanic(PYFX_Handle instance)
@@ -1181,15 +1187,19 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
             while(f_i < 2)
             {
-                int f_i2 = 0;
-                while(f_i2 < 4)
+                if(plugin_data->mono_modules->fm_macro_smoother[f_i]->last_value
+                        > 0.0f)
                 {
-                    a_voice->fm_osc_values[f_osc_num][f_i2] +=
-                        ((*plugin_data->fm_macro_values[f_i][f_osc_num][f_i2]
-                            * 0.005f) *
-                        plugin_data->mono_modules->
-                            fm_macro_smoother[f_i]->last_value);
-                    f_i2++;
+                    int f_i2 = 0;
+                    while(f_i2 < 4)
+                    {
+                        a_voice->fm_osc_values[f_osc_num][f_i2] +=
+                          ((*plugin_data->fm_macro_values[f_i][f_osc_num][f_i2]
+                                * 0.005f) *
+                            plugin_data->mono_modules->
+                                fm_macro_smoother[f_i]->last_value);
+                        f_i2++;
+                    }
                 }
                 f_i++;
             }
