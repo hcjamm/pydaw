@@ -3866,6 +3866,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             _("(Additive 1)"), _("(Additive 2)"), _("(Additive 3)")
         ]
 
+        self.fm_knobs = []
+        self.fm_origin = None
+        self.fm_macro_spinboxes = [[], []]
+
         f_lfo_types = [_("Off"), _("Sine"), _("Triangle")]
         self.tab_widget =  QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
@@ -3929,6 +3933,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.groupbox_osc1_fm_layout = QtGui.QGridLayout(self.groupbox_osc1_fm)
         self.groupbox_osc1_fm_layout.setMargin(3)
         self.groupbox_osc1_fm.setObjectName("plugin_groupbox")
+        self.groupbox_osc1_fm.contextMenuEvent = self.fm_context_menu
 
         self.osc1_fm1 =  pydaw_knob_control(f_knob_size, _("Osc1"), pydaw_ports.WAYV_OSC1_FM1,
                                             self.plugin_rel_callback, self.plugin_val_callback,
@@ -3953,6 +3958,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             0, 100, 0, kc_integer, self.port_dict,
                                             self.preset_manager)
         self.osc1_fm4.add_to_grid_layout(self.groupbox_osc1_fm_layout, 3)
+
+        self.fm_knobs += [self.osc1_fm1, self.osc1_fm2, self.osc1_fm3, self.osc1_fm4]
 
         self.hlayout1.addWidget(self.groupbox_osc1_fm)
 
@@ -4005,6 +4012,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.groupbox_osc2_fm_layout = QtGui.QGridLayout(self.groupbox_osc2_fm)
         self.groupbox_osc2_fm_layout.setMargin(3)
         self.groupbox_osc2_fm.setObjectName("plugin_groupbox")
+        self.groupbox_osc2_fm.contextMenuEvent = self.fm_context_menu
 
         self.osc2_fm1 =  pydaw_knob_control(f_knob_size, _("Osc1"), pydaw_ports.WAYV_OSC2_FM1,
                                             self.plugin_rel_callback,
@@ -4030,6 +4038,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             0, 100, 0, kc_integer, self.port_dict,
                                             self.preset_manager)
         self.osc2_fm4.add_to_grid_layout(self.groupbox_osc2_fm_layout, 3)
+
+        self.fm_knobs += [self.osc2_fm1, self.osc2_fm2, self.osc2_fm3, self.osc2_fm4]
 
         self.hlayout2.addWidget(self.groupbox_osc2_fm)
 
@@ -4086,6 +4096,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.groupbox_osc3_fm_layout = QtGui.QGridLayout(self.groupbox_osc3_fm)
         self.groupbox_osc3_fm_layout.setMargin(3)
         self.groupbox_osc3_fm.setObjectName("plugin_groupbox")
+        self.groupbox_osc3_fm.contextMenuEvent = self.fm_context_menu
 
         self.osc3_fm1 =  pydaw_knob_control(f_knob_size, _("Osc1"), pydaw_ports.WAYV_OSC3_FM1,
                                             self.plugin_rel_callback, self.plugin_val_callback,
@@ -4110,6 +4121,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             0, 100, 0, kc_integer, self.port_dict,
                                             self.preset_manager)
         self.osc3_fm4.add_to_grid_layout(self.groupbox_osc3_fm_layout, 3)
+
+        self.fm_knobs += [self.osc3_fm1, self.osc3_fm2, self.osc3_fm3, self.osc3_fm4]
 
         self.hlayout3.addWidget(self.groupbox_osc3_fm)
 
@@ -4169,6 +4182,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.groupbox_osc4_fm_layout = QtGui.QGridLayout(self.groupbox_osc4_fm)
         self.groupbox_osc4_fm_layout.setMargin(4)
         self.groupbox_osc4_fm.setObjectName("plugin_groupbox")
+        self.groupbox_osc4_fm.contextMenuEvent = self.fm_context_menu
 
         self.osc4_fm1 =  pydaw_knob_control(f_knob_size, _("Osc1"), pydaw_ports.WAYV_OSC4_FM1,
                                             self.plugin_rel_callback, self.plugin_val_callback,
@@ -4193,6 +4207,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             0, 100, 0, kc_integer, self.port_dict,
                                             self.preset_manager)
         self.osc4_fm4.add_to_grid_layout(self.groupbox_osc4_fm_layout, 3)
+
+        self.fm_knobs += [self.osc4_fm1, self.osc4_fm2, self.osc4_fm3, self.osc4_fm4]
 
         self.hlayout4.addWidget(self.groupbox_osc4_fm)
 
@@ -4304,6 +4320,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                      self.port_dict, self.preset_manager)
                     f_port += 1
                     self.fm_mod_matrix.setCellWidget(f_i, (f_i2 * 4) + f_i3, f_spinbox.control)
+                    self.fm_macro_spinboxes[f_i].append(f_spinbox)
 
         self.fm_mod_matrix.setHorizontalHeaderLabels(f_column_labels)
         self.fm_mod_matrix.resizeColumnsToContents()
@@ -4396,8 +4413,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.plugin_rel_callback,
                                            self.plugin_val_callback,
                                            self.port_dict, self.preset_manager)
-        #self.adsr_amp.lms_release.lms_knob.setMinimum(5) #overriding the default for self,
-       #because we want a low minimum default that won't click
+
         self.hlayout7.addWidget(self.adsr_amp.groupbox)
 
         self.adsr_filter =  pydaw_adsr_widget(f_knob_size,  False,
@@ -4502,6 +4518,59 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
         self.widget.setWindowTitle("PyDAW Way-V - {}".format(self.track_name))
+
+    def set_fm_origin(self):
+        self.fm_origin = []
+        for f_knob in self.fm_knobs:
+            self.fm_origin.append(f_knob.get_value())
+
+    def return_to_origin(self):
+        for f_value, f_knob in zip(self.fm_origin, self.fm_knobs):
+            f_knob.set_value(f_value)
+            f_knob.control_value_changed(f_value)
+
+    def set_fm_macro1_end(self):
+        self.set_fm_macro_end(0)
+
+    def set_fm_macro2_end(self):
+        self.set_fm_macro_end(1)
+
+    def set_fm_macro_end(self, a_index):
+        for f_spinbox, f_knob in zip(self.fm_macro_spinboxes[a_index], self.fm_knobs):
+            f_value = f_knob.get_value()
+            f_spinbox.set_value(f_value)
+            f_spinbox.control_value_changed(f_value)
+
+    def return_fm_macro1_end(self):
+        self.return_fm_macro_end(0)
+
+    def return_fm_macro2_end(self):
+        self.return_fm_macro_end(1)
+
+    def return_fm_macro_end(self, a_index):
+        for f_spinbox, f_knob in zip(self.fm_macro_spinboxes[a_index], self.fm_knobs):
+            f_value = f_spinbox.get_value()
+            f_knob.set_value(f_value)
+            f_knob.control_value_changed(f_value)
+
+    def fm_context_menu(self, a_event=None):
+        f_menu = QtGui.QMenu(self.widget)
+        f_origin_action = f_menu.addAction(_("Set Origin"))
+        f_origin_action.triggered.connect(self.set_fm_origin)
+        if self.fm_origin:
+            f_return_action = f_menu.addAction(_("Return to Origin"))
+            f_return_action.triggered.connect(self.return_to_origin)
+        f_menu.addSeparator()
+        f_macro1_action = f_menu.addAction(_("Set Macro 1 End"))
+        f_macro1_action.triggered.connect(self.set_fm_macro1_end)
+        f_macro2_action = f_menu.addAction(_("Set Macro 2 End"))
+        f_macro2_action.triggered.connect(self.set_fm_macro2_end)
+        f_menu.addSeparator()
+        f_return_macro1_action = f_menu.addAction(_("Return to Macro 1 End"))
+        f_return_macro1_action.triggered.connect(self.return_fm_macro1_end)
+        f_return_macro2_action = f_menu.addAction(_("Return to Macro 2 End"))
+        f_return_macro2_action.triggered.connect(self.return_fm_macro2_end)
+        f_menu.exec_(QtGui.QCursor.pos())
 
 
 SMP_TB_RADIOBUTTON_INDEX  =  0
