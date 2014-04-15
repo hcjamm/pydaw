@@ -3881,7 +3881,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                            self.reconfigure_plugin)
         self.hlayout0 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout0)
-        self.hlayout0.addWidget(self.preset_manager.group_box)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_knob_size = 48
 
@@ -4202,6 +4201,11 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
 
         self.master_vlayout =  QtGui.QVBoxLayout(self.master_tab)
+        self.preset_hlayout = QtGui.QHBoxLayout()
+        self.preset_hlayout.addWidget(QtGui.QLabel(_("Presets")))
+        self.preset_hlayout.addWidget(self.preset_manager.group_box)
+        self.preset_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.master_vlayout.addLayout(self.preset_hlayout)
 
         self.hlayout_master = QtGui.QHBoxLayout()
         self.master_vlayout.addLayout(self.hlayout_master)
