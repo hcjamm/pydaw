@@ -91,6 +91,7 @@ typedef struct
     float note_f;
     int note;
     float osc_linamp[4];
+    int osc_audible[4];
     float noise_linamp;
     int i_voice;  //for the runVoice function to iterate the current block
 
@@ -137,6 +138,7 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
         f_voice->adsr_amp_osc[f_i] = g_adsr_get_adsr(a_sr);
         f_voice->adsr_amp_on[f_i] = 0;
         f_voice->osc_linamp[f_i] = 1.0f;
+        f_voice->osc_audible[f_i] = 1;
 
         int f_i2 = 0;
         while(f_i2 < 4)

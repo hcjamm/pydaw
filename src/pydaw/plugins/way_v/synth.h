@@ -302,23 +302,13 @@ typedef struct
 
     PYFX_Data *osc_pitch[4];
     PYFX_Data *osc_tune[4];
+    PYFX_Data *osc_vol[4];
+    
     PYFX_Data *osc1type;
-    PYFX_Data *osc1vol;
-
-    PYFX_Data *osc2pitch;
-    PYFX_Data *osc2tune;
     PYFX_Data *osc2type;
-    PYFX_Data *osc2vol;
-
-    PYFX_Data *osc3pitch;
-    PYFX_Data *osc3tune;
     PYFX_Data *osc3type;
-    PYFX_Data *osc3vol;
-
-    PYFX_Data *osc4pitch;
-    PYFX_Data *osc4tune;
     PYFX_Data *osc4type;
-    PYFX_Data *osc4vol;
+
 
     PYFX_Data *osc_fm[4][4];
 

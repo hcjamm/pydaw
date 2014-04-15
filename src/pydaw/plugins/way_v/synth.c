@@ -178,7 +178,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
             plugin->osc1type = data;
             break;
         case WAYV_OSC1_VOLUME:
-            plugin->osc1vol = data;
+            plugin->osc_vol[0] = data;
             break;
         case WAYV_OSC2_PITCH:
             plugin->osc_pitch[1] = data;
@@ -190,7 +190,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
             plugin->osc2type = data;
             break;
         case WAYV_OSC2_VOLUME:
-            plugin->osc2vol = data;
+            plugin->osc_vol[1] = data;
             break;
         case WAYV_OSC1_UNISON_VOICES:
             plugin->osc_uni_voice[0] = data;
@@ -362,7 +362,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_OSC3_PITCH: plugin->osc_pitch[2] = data; break;
         case WAYV_OSC3_TUNE: plugin->osc_tune[2] = data; break;
         case WAYV_OSC3_TYPE: plugin->osc3type = data; break;
-        case WAYV_OSC3_VOLUME: plugin->osc3vol = data;  break;
+        case WAYV_OSC3_VOLUME: plugin->osc_vol[2] = data;  break;
 
         case WAYV_OSC1_FM1: plugin->osc_fm[0][0] = data;  break;
         case WAYV_OSC1_FM2: plugin->osc_fm[0][1] = data;  break;
@@ -403,7 +403,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_OSC4_PITCH: plugin->osc_pitch[3] = data; break;
         case WAYV_OSC4_TUNE: plugin->osc_tune[3] = data; break;
         case WAYV_OSC4_TYPE: plugin->osc4type = data; break;
-        case WAYV_OSC4_VOLUME: plugin->osc4vol = data;  break;
+        case WAYV_OSC4_VOLUME: plugin->osc_vol[3] = data;  break;
 
         case WAYV_OSC4_FM1: plugin->osc_fm[3][0] = data;  break;
         case WAYV_OSC4_FM2: plugin->osc_fm[3][1] = data;  break;
@@ -563,27 +563,37 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (plugin_data->data[f_voice]->last_pitch),
                         (plugin_data->data[f_voice]->target_pitch));
 
-                plugin_data->data[f_voice]->osc_linamp[0] =
-                    f_db_to_linear_fast(*(plugin_data->osc1vol),
-                        plugin_data->mono_modules->amp_ptr);
-                plugin_data->data[f_voice]->osc_linamp[1] =
-                    f_db_to_linear_fast(*(plugin_data->osc2vol),
-                        plugin_data->mono_modules->amp_ptr);
-                plugin_data->data[f_voice]->osc_linamp[2] =
-                    f_db_to_linear_fast(*(plugin_data->osc3vol),
-                        plugin_data->mono_modules->amp_ptr);
-                plugin_data->data[f_voice]->osc_linamp[3] =
-                    f_db_to_linear_fast(*(plugin_data->osc4vol),
-                        plugin_data->mono_modules->amp_ptr);
+                int f_i = 0;
+
+                float f_db;
+
+                while(f_i < 4)
+                {
+                    f_db = (*plugin_data->osc_vol[f_i]);
+
+                    v_adsr_retrigger(
+                        plugin_data->data[f_voice]->adsr_amp_osc[f_i]);
+
+                    if(f_db > -29.2f)
+                    {
+                        plugin_data->data[f_voice]->osc_linamp[f_i] =
+                            f_db_to_linear_fast(f_db,
+                                plugin_data->mono_modules->amp_ptr);
+                        plugin_data->data[f_voice]->osc_audible[f_i] = 1;
+                    }
+                    else
+                    {
+                        plugin_data->data[f_voice]->osc_audible[f_i] = 0;
+                    }
+
+                    f_i++;
+                }
+
                 plugin_data->data[f_voice]->noise_linamp =
                     f_db_to_linear_fast(*(plugin_data->noise_amp),
                         plugin_data->mono_modules->amp_ptr);
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_main);
-                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp_osc[0]);
-                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp_osc[1]);
-                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp_osc[2]);
-                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp_osc[3]);
 
                 float f_attack = *(plugin_data->attack_main) * .01f;
                 f_attack = (f_attack) * (f_attack);
@@ -845,7 +855,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->noise_func_ptr =
                         fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
 
-                int f_i = 0;
+                f_i = 0;
 
                 while(f_i < 4)
                 {
@@ -1209,14 +1219,15 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                 a_voice->fm_last[f_osc_num] =
                     f_osc_wav_run_unison(a_voice->osc_wavtable[f_osc_num])
                         * (a_voice->adsr_amp_osc[f_osc_num]->output);
-                a_voice->current_sample +=
-                        (a_voice->fm_last[f_osc_num]) *
-                        (a_voice->osc_linamp[f_osc_num]);
             }
             else
             {
                 a_voice->fm_last[f_osc_num] =
                         f_osc_wav_run_unison(a_voice->osc_wavtable[f_osc_num]);
+            }
+
+            if(a_voice->osc_audible[f_osc_num])
+            {
                 a_voice->current_sample +=
                         (a_voice->fm_last[f_osc_num]) *
                         (a_voice->osc_linamp[f_osc_num]);
