@@ -4299,6 +4299,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         f_column_labels = []
         f_port = pydaw_ports.WAYV_FM_MACRO1
+        self.fm_macro_knobs = []
 
         for f_i in range(2):
             f_macro = pydaw_knob_control(f_knob_size, _("Macro {}".format(f_i + 1)),
@@ -4308,6 +4309,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                          0, 100, 0, kc_decimal,
                                          self.port_dict, self.preset_manager)
             f_macro.add_to_grid_layout(self.fm_macro_knobs_gridlayout, f_i)
+            self.fm_macro_knobs.append(f_macro)
             f_port += 1
 
             for f_i2 in range(4):
@@ -4475,6 +4477,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.open_plugin_file()
 
+    def open_plugin_file(self):
+        pydaw_abstract_plugin_ui.open_plugin_file(self)
+        self.set_fm_origin()
+
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
         self.configure_callback(True, 0, self.track_num, a_key, a_message)
@@ -4528,6 +4534,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         for f_value, f_knob in zip(self.fm_origin, self.fm_knobs):
             f_knob.set_value(f_value)
             f_knob.control_value_changed(f_value)
+        self.reset_fm_macro_knobs()
+
+    def reset_fm_macro_knobs(self):
+        for f_knob in self.fm_macro_knobs:
+            f_knob.set_value(0)
+            f_knob.control_value_changed(0)
 
     def set_fm_macro1_end(self):
         self.set_fm_macro_end(0)
@@ -4536,8 +4548,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.set_fm_macro_end(1)
 
     def set_fm_macro_end(self, a_index):
-        for f_spinbox, f_knob in zip(self.fm_macro_spinboxes[a_index], self.fm_knobs):
-            f_value = f_knob.get_value()
+        for f_spinbox, f_knob, f_origin in zip(self.fm_macro_spinboxes[a_index],
+                                               self.fm_knobs, self.fm_origin):
+            f_value = f_knob.get_value() - f_origin
+            f_value = pydaw_util.pydaw_clip_value(f_value, -100, 100)
             f_spinbox.set_value(f_value)
             f_spinbox.control_value_changed(f_value)
 
@@ -4548,18 +4562,20 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.return_fm_macro_end(1)
 
     def return_fm_macro_end(self, a_index):
-        for f_spinbox, f_knob in zip(self.fm_macro_spinboxes[a_index], self.fm_knobs):
-            f_value = f_spinbox.get_value()
+        for f_spinbox, f_knob, f_origin in zip(self.fm_macro_spinboxes[a_index],
+                                               self.fm_knobs, self.fm_origin):
+            f_value = f_spinbox.get_value() + f_origin
+            f_value = pydaw_util.pydaw_clip_value(f_value, 0, 100)
             f_knob.set_value(f_value)
             f_knob.control_value_changed(f_value)
+        self.reset_fm_macro_knobs()
 
     def fm_context_menu(self, a_event=None):
         f_menu = QtGui.QMenu(self.widget)
         f_origin_action = f_menu.addAction(_("Set Origin"))
         f_origin_action.triggered.connect(self.set_fm_origin)
-        if self.fm_origin:
-            f_return_action = f_menu.addAction(_("Return to Origin"))
-            f_return_action.triggered.connect(self.return_to_origin)
+        f_return_action = f_menu.addAction(_("Return to Origin"))
+        f_return_action.triggered.connect(self.return_to_origin)
         f_menu.addSeparator()
         f_macro1_action = f_menu.addAction(_("Set Macro 1 End"))
         f_macro1_action.triggered.connect(self.set_fm_macro1_end)
