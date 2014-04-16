@@ -458,6 +458,8 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_FM_MACRO2_OSC4_FM2: plugin->fm_macro_values[1][3][1] = data; break;
         case WAYV_FM_MACRO2_OSC4_FM3: plugin->fm_macro_values[1][3][2] = data; break;
         case WAYV_FM_MACRO2_OSC4_FM4: plugin->fm_macro_values[1][3][3] = data; break;
+
+        case WAYV_LFO_PHASE: plugin->lfo_phase = data; break;
     }
 }
 
@@ -880,8 +882,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
-                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f,
-                        *(plugin_data->lfo_type));
+                v_lfs_sync(plugin_data->data[f_voice]->lfo1,
+                           *plugin_data->lfo_phase * 0.01f,
+                           *plugin_data->lfo_type);
 
                 float f_attack_a = (*(plugin_data->attack) * .01);
                 f_attack_a *= f_attack_a;
@@ -2302,6 +2305,11 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_ADSR4_CHECKBOX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_ADSR4_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR4_CHECKBOX].UpperBound =  1;
+
+        port_descriptors[WAYV_LFO_PHASE] = 1;
+	port_range_hints[WAYV_LFO_PHASE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_LFO_PHASE].LowerBound =  0.0f;
+	port_range_hints[WAYV_LFO_PHASE].UpperBound =  100.0;
 
         int f_i = 0;
         int f_port = WAYV_FM_MACRO1;

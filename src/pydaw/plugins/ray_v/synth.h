@@ -60,9 +60,11 @@ extern "C" {
 #define RAYV_RAMP_CURVE 37
 #define RAYV_FILTER_KEYTRK 38
 #define RAYV_MONO_MODE 39
+#define RAYV_LFO_PHASE 40
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define RAYV_COUNT 40
+#define RAYV_COUNT 41
 
 #define RAYV_POLYPHONY   16
 #define RAYV_POLYPHONY_THRESH 12
@@ -113,6 +115,7 @@ typedef struct {
 
     PYFX_Data *lfo_freq;
     PYFX_Data *lfo_type;
+    PYFX_Data *lfo_phase;
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
     PYFX_Data *lfo_filter;

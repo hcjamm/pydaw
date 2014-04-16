@@ -218,6 +218,9 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
         case RAYV_MONO_MODE:
             plugin->mono_mode = data;
             break;
+        case RAYV_LFO_PHASE:
+            plugin->lfo_phase = data;
+            break;
     }
 }
 
@@ -347,8 +350,10 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
-                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f,
-                        *(plugin_data->lfo_type));
+
+                v_lfs_sync(plugin_data->data[f_voice]->lfo1,
+                        *plugin_data->lfo_phase * 0.01f,
+                        *plugin_data->lfo_type);
 
                 float f_attack = *(plugin_data->attack) * .01;
                 f_attack = (f_attack) * (f_attack);
@@ -879,6 +884,11 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_MONO_MODE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_MONO_MODE].LowerBound = 0.0f;
 	port_range_hints[RAYV_MONO_MODE].UpperBound = 3.0f;
+
+        port_descriptors[RAYV_LFO_PHASE]= 1;
+	port_range_hints[RAYV_LFO_PHASE].DefaultValue = 0.0f;
+	port_range_hints[RAYV_LFO_PHASE].LowerBound = 0.0f;
+	port_range_hints[RAYV_LFO_PHASE].UpperBound = 100.0f;
 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;

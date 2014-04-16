@@ -748,7 +748,7 @@ class pydaw_ramp_env_widget:
 class pydaw_lfo_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict,
                  a_freq_port, a_type_port, a_type_list,
-                 a_label=_("LFO"), a_preset_mgr=None):
+                 a_label=_("LFO"), a_preset_mgr=None, a_phase_port=None):
         self.groupbox = QtGui.QGroupBox(str(a_label))
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
@@ -764,6 +764,12 @@ class pydaw_lfo_widget:
                                                     a_preset_mgr=a_preset_mgr)
         self.layout.addWidget(self.type_combobox.name_label, 0, 1)
         self.layout.addWidget(self.type_combobox.control, 1, 1)
+        if a_phase_port:
+            self.phase_knob = pydaw_knob_control(a_size, _("Phase"), a_phase_port,
+                                                 a_rel_callback, a_val_callback,
+                                                 0, 100, 0, kc_decimal, a_port_dict,
+                                                 a_preset_mgr)
+            self.phase_knob.add_to_grid_layout(self.layout, 2)
 
 class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port,
@@ -3812,25 +3818,25 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                      pydaw_ports.RAYV_LFO_FREQ,
                                      pydaw_ports.RAYV_LFO_TYPE,
                                      f_lfo_types, _("LFO"),
-                                     self.preset_manager)
+                                     self.preset_manager, pydaw_ports.RAYV_LFO_PHASE)
         self.hlayout3.addWidget(self.lfo.groupbox)
 
         self.lfo_amp =  pydaw_knob_control(f_knob_size, _("Amp"),
                                            pydaw_ports.RAYV_LFO_AMP, self.plugin_rel_callback,
                                            self.plugin_val_callback, -24, 24, 0, kc_integer,
                                            self.port_dict, self.preset_manager)
-        self.lfo_amp.add_to_grid_layout(self.lfo.layout, 2)
+        self.lfo_amp.add_to_grid_layout(self.lfo.layout, 7)
         self.lfo_pitch =  pydaw_knob_control(f_knob_size, _("Pitch"), pydaw_ports.RAYV_LFO_PITCH,
                                              self.plugin_rel_callback, self.plugin_val_callback,
                                              -36, 36, 0,
                                              kc_integer, self.port_dict, self.preset_manager)
-        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 3)
+        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 8)
         self.lfo_cutoff =  pydaw_knob_control(f_knob_size, _("Filter"),
                                               pydaw_ports.RAYV_LFO_FILTER,
                                               self.plugin_rel_callback, self.plugin_val_callback,
                                               -48, 48, 0,
                                               kc_integer, self.port_dict, self.preset_manager)
-        self.lfo_cutoff.add_to_grid_layout(self.lfo.layout, 4)
+        self.lfo_cutoff.add_to_grid_layout(self.lfo.layout, 9)
 
         self.open_plugin_file()
 
@@ -4446,7 +4452,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                      self.plugin_rel_callback, self.plugin_val_callback,
                                      self.port_dict, pydaw_ports.WAYV_LFO_FREQ,
                                      pydaw_ports.WAYV_LFO_TYPE, f_lfo_types,
-                                     _("LFO"), self.preset_manager)
+                                     _("LFO"), self.preset_manager, pydaw_ports.WAYV_LFO_PHASE)
         self.hlayout7.addWidget(self.lfo.groupbox)
 
         self.lfo_amount =  pydaw_knob_control(f_knob_size, _("Amount"),
@@ -4455,7 +4461,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                               self.plugin_val_callback,
                                               0, 100, 100, kc_decimal,
                                               self.port_dict, self.preset_manager)
-        self.lfo_amount.add_to_grid_layout(self.lfo.layout, 2)
+        self.lfo_amount.add_to_grid_layout(self.lfo.layout, 7)
 
         self.lfo_amp =  pydaw_knob_control(f_knob_size, _("Amp"),
                                            pydaw_ports.WAYV_LFO_AMP,
@@ -4463,7 +4469,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.plugin_val_callback,
                                            -24, 24, 0, kc_integer,
                                            self.port_dict, self.preset_manager)
-        self.lfo_amp.add_to_grid_layout(self.lfo.layout, 3)
+        self.lfo_amp.add_to_grid_layout(self.lfo.layout, 8)
 
         self.lfo_pitch =  pydaw_knob_control(f_knob_size, _("Pitch"),
                                              pydaw_ports.WAYV_LFO_PITCH,
@@ -4471,7 +4477,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                              self.plugin_val_callback,
                                              -36, 36, 0,  kc_integer,
                                              self.port_dict, self.preset_manager)
-        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 4)
+        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 9)
 
         self.additive_osc = pydaw_custom_additive_oscillator(self.configure_plugin)
         self.tab_widget.addTab(self.additive_osc.widget, "Additive")
@@ -5332,14 +5338,15 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.lfo =  pydaw_lfo_widget(f_knob_size, self.plugin_rel_callback,
                                      self.plugin_val_callback,  self.port_dict,
                                      pydaw_ports.EUPHORIA_LFO_FREQ,
-                                     pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types, _("LFO"))
+                                     pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types,
+                                     _("LFO"))
         self.hlayout2.addWidget(self.lfo.groupbox)
 
         self.lfo_pitch =  pydaw_knob_control(f_knob_size, _("Pitch"),
                                              pydaw_ports.EUPHORIA_LFO_PITCH,
                                              self.plugin_rel_callback, self.plugin_val_callback,
                                              -36, 36, 0, kc_integer, self.port_dict)
-        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 2)
+        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 7)
 
         #MonoFX Tab
         self.mono_fx_tab_main_layout =  QtGui.QVBoxLayout(self.mono_fx_tab)
