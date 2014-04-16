@@ -4366,9 +4366,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix.setFixedHeight(222)
         self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.mod_matrix.setHorizontalHeaderLabels([_("FX0\nCtrl1"), _("FX0\nCtrl2"),
-            _("FX0\nCtrl3"), _("FX1\nCtrl1"), _("FX1\nCtrl2"), _("FX1\nCtrl3"), _("FX2\nCtrl1"),
-            _("FX2\nCtrl2"), _("FX2\nCtrl3"), _("FX3\nCtrl1"), _("FX3\nCtrl2"), _("FX3\nCtrl3")])
+        f_hlabels = []
+        [[f_hlabels.append(_("FX{}\nCtrl{}").format(x, y))
+            for y in range(1, 4)] for x in range(4)]
+        self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
         self.mod_matrix.setVerticalHeaderLabels([_("ADSR 1"), _("ADSR 2"), _("Ramp Env"),
                                                  _("LFO"), _("Pitch"), _("Velocity")])
 
