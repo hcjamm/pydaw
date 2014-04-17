@@ -566,12 +566,15 @@ class pydaw_checkbox_control(pydaw_abstract_ui_control):
     def control_released(self, a_val=None):
         pass
 
-    def set_value(self, a_val):
+    def set_value(self, a_val, a_changed=False):
+        if not a_changed:
+            self.suppress_changes = True
         f_val = int(a_val)
         if f_val == 0:
             self.control.setChecked(False)
         else:
             self.control.setChecked(True)
+        self.suppress_changes = False
 
     def get_value(self):
         if self.control.isChecked():
