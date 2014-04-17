@@ -416,10 +416,10 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_OSC4_FM3: plugin->osc_fm[3][2] = data;  break;
         case WAYV_OSC4_FM4: plugin->osc_fm[3][3] = data;  break;
 
-        case WAYV_ATTACK4: plugin->attack3 = data; break;
-        case WAYV_DECAY4: plugin->decay3 = data; break;
-        case WAYV_SUSTAIN4: plugin->sustain3 = data; break;
-        case WAYV_RELEASE4: plugin->release3 = data; break;
+        case WAYV_ATTACK4: plugin->attack4 = data; break;
+        case WAYV_DECAY4: plugin->decay4 = data; break;
+        case WAYV_SUSTAIN4: plugin->sustain4 = data; break;
+        case WAYV_RELEASE4: plugin->release4 = data; break;
 
         case WAYV_ADSR4_CHECKBOX: plugin->adsr4_checked = data; break;
 
