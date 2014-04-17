@@ -2231,10 +2231,11 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
     def configure_wrapper(self, a_key, a_val):
         if self.configure_callback is not None:
             self.configure_callback(a_key, a_val)
+        f_index = int(a_key[-1])
         if a_key.startswith("wayv_add_ui"):
-            self.osc_values[int(a_key[-1])] = a_val.split("|")
+            self.osc_values[f_index] = a_val.split("|")
         elif a_key.startswith("wayv_add_phase"):
-            self.phase_values[int(a_key[-1])] = a_val.split("|")
+            self.phase_values[f_index] = a_val.split("|")
 
     def osc_index_changed(self, a_event):
         self.osc_num = self.osc_num_combobox.currentIndex()
@@ -2289,10 +2290,10 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
                 f_engine_list.append("{}".format(round(f_float, 6)))
             f_engine_str = "{}|{}".format(global_additive_wavetable_size,
                 "|".join(f_engine_list))
-            self.configure_callback("wayv_add_eng{}".format(self.osc_num), f_engine_str)
-            self.configure_callback("wayv_add_ui{}".format(self.osc_num),
+            self.configure_wrapper("wayv_add_eng{}".format(self.osc_num), f_engine_str)
+            self.configure_wrapper("wayv_add_ui{}".format(self.osc_num),
                                     "|".join(f_recall_list))
-            self.configure_callback("wayv_add_phase{}".format(self.osc_num),
+            self.configure_wrapper("wayv_add_phase{}".format(self.osc_num),
                                     "|".join(f_phase_list))
 
     def set_saw(self):
