@@ -174,11 +174,11 @@ class pydaw_abstract_ui_control:
 
     def reset_default_value(self):
         if self.default_value is not None:
-            self.set_value(self.default_value)
-            self.control_value_changed(self.default_value)
+            self.set_value(self.default_value, True)
 
-    def set_value(self, a_val):
-        self.suppress_changes = True
+    def set_value(self, a_val, a_changed=False):
+        if not a_changed:
+            self.suppress_changes = True
         f_val = int(a_val)
         self.control.setValue(f_val)
         self.control_value_changed(f_val)
@@ -456,16 +456,17 @@ class pydaw_null_control:
 
     def reset_default_value(self):
         if self.default_value is not None:
-            self.set_value(self.default_value)
-            self.control_value_changed(self.default_value)
+            self.set_value(self.default_value, True)
 
     def get_value(self):
         return self.value
 
-    def set_value(self, a_val):
+    def set_value(self, a_val, a_changed=False):
         self.value = a_val
         if self.control_callback is not None:
             self.control_callback.set_value(self.value)
+        if a_changed:
+            self.control_value_changed(a_val)
 
     def set_control_callback(self, a_callback=None):
         self.control_callback = a_callback
@@ -614,8 +615,9 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
             if self.rel_callback is not None:
                 self.rel_callback(self.port_num, a_val)
 
-    def set_value(self, a_val):
-        self.suppress_changes = True
+    def set_value(self, a_val, a_changed=False):
+        if not a_changed:
+            self.suppress_changes = True
         self.control.setCurrentIndex(int(a_val))
         self.suppress_changes = False
 
@@ -863,8 +865,7 @@ class pydaw_note_selector_widget:
 
     def paste_from_clipboard(self):
         if NOTE_SELECTOR_CLIPBOARD is not None:
-            self.set_value(NOTE_SELECTOR_CLIPBOARD)
-            self.control_value_changed()
+            self.set_value(NOTE_SELECTOR_CLIPBOARD, True)
 
     def wheel_event(self, a_event=None):
         pass
@@ -878,11 +879,13 @@ class pydaw_note_selector_widget:
             if self.rel_callback is not None:
                 self.rel_callback(self.port_num, self.selected_note)
 
-    def set_value(self, a_val):
+    def set_value(self, a_val, a_changed=False):
         self.suppress_changes = True
         self.note_combobox.setCurrentIndex(a_val % 12)
         self.octave_spinbox.setValue((int(float(a_val) / 12.0)) - 2)
         self.suppress_changes = False
+        if a_changed:
+            self.control_value_changed(a_val)
 
     def get_value(self):
         return self.selected_note
@@ -1400,8 +1403,7 @@ class pydaw_preset_manager_widget:
             return
         f_dict = global_plugin_settings_clipboard[self.plugin_name]
         for k, v in f_dict.items():
-            self.controls[k].set_value(v)
-            self.controls[k].control_value_changed(v)
+            self.controls[k].set_value(v, True)
         if global_plugin_configure_clipboard is not None:
             self.reconfigure_callback(global_plugin_configure_clipboard)
 
@@ -1531,8 +1533,7 @@ class pydaw_preset_manager_widget:
 
             for k, v in self.controls.items():
                 if int(k) in f_preset_dict:
-                    v.set_value(f_preset_dict[k])
-                    v.control_value_changed(f_preset_dict[k])
+                    v.set_value(f_preset_dict[k], True)
                 else:
                     v.reset_default_value()
             if self.reconfigure_callback is not None:
@@ -1919,25 +1920,19 @@ class eq6_widget:
         f_hz_list, f_db_list, f_bw_list = EQ6_FORMANTS[f_key]
         for f_eq, f_hz, f_db, f_bw in zip(self.eqs, f_hz_list, f_db_list, f_bw_list):
             f_pitch = pydaw_util.pydaw_hz_to_pitch(f_hz)
-            f_eq.freq_knob.set_value(f_pitch)
-            f_eq.freq_knob.control_value_changed(f_pitch)
+            f_eq.freq_knob.set_value(f_pitch, True)
             f_bw_adjusted = f_bw + 60
-            f_eq.res_knob.set_value(f_bw_adjusted)
-            f_eq.res_knob.control_value_changed(f_bw_adjusted)
+            f_eq.res_knob.set_value(f_bw_adjusted, True)
             f_db_adjusted = (f_db * 0.3) + 21.0
-            f_eq.gain_knob.set_value(f_db_adjusted)
-            f_eq.gain_knob.control_value_changed(f_db_adjusted)
+            f_eq.gain_knob.set_value(f_db_adjusted, True)
 
     def on_paste(self):
         global EQ6_CLIPBOARD
         if EQ6_CLIPBOARD is not None:
             for f_eq, f_tuple in zip(self.eqs, EQ6_CLIPBOARD):
-                f_eq.freq_knob.set_value(f_tuple[0])
-                f_eq.freq_knob.control_value_changed(f_tuple[0])
-                f_eq.res_knob.set_value(f_tuple[1])
-                f_eq.res_knob.control_value_changed(f_tuple[1])
-                f_eq.gain_knob.set_value(f_tuple[2])
-                f_eq.gain_knob.control_value_changed(f_tuple[2])
+                f_eq.freq_knob.set_value(f_tuple[0], True)
+                f_eq.res_knob.set_value(f_tuple[1], True)
+                f_eq.gain_knob.set_value(f_tuple[2], True)
 
     def on_copy(self):
         global EQ6_CLIPBOARD
@@ -4596,14 +4591,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
     def return_to_origin(self):
         for f_value, f_knob in zip(self.fm_origin, self.fm_knobs):
-            f_knob.set_value(f_value)
-            f_knob.control_value_changed(f_value)
+            f_knob.set_value(f_value, True)
         self.reset_fm_macro_knobs()
 
     def reset_fm_macro_knobs(self):
         for f_knob in self.fm_macro_knobs:
-            f_knob.set_value(0)
-            f_knob.control_value_changed(0)
+            f_knob.set_value(0, True)
 
     def set_fm_macro1_end(self):
         self.set_fm_macro_end(0)
@@ -4616,8 +4609,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                self.fm_knobs, self.fm_origin):
             f_value = f_knob.get_value() - f_origin
             f_value = pydaw_util.pydaw_clip_value(f_value, -100, 100)
-            f_spinbox.set_value(f_value)
-            f_spinbox.control_value_changed(f_value)
+            f_spinbox.set_value(f_value, True)
 
     def return_fm_macro1_end(self):
         self.return_fm_macro_end(0)
@@ -4630,8 +4622,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                self.fm_knobs, self.fm_origin):
             f_value = f_spinbox.get_value() + f_origin
             f_value = pydaw_util.pydaw_clip_value(f_value, 0, 100)
-            f_knob.set_value(f_value)
-            f_knob.control_value_changed(f_value)
+            f_knob.set_value(f_value, True)
         self.reset_fm_macro_knobs()
 
     def fm_context_menu(self, a_event=None):
@@ -5481,8 +5472,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_knob_num = a_port % 3
         f_index = self.mono_fx_tab_selected_group.currentIndex()
         f_cntrl = self.eq_ports[f_index][f_eq_num][f_knob_num]
-        f_cntrl.set_value(a_val)
-        f_cntrl.control_value_changed(a_val)
+        f_cntrl.set_value(a_val, True)
 
     def eq6_rel_callback(self, a_port, a_val):
         print("eq6_rel_callback called (unexpected?)")
@@ -5517,39 +5507,31 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def monofx_all_callback(self, a_port, a_val, a_list):
         f_index = self.mono_fx_tab_selected_group.currentIndex()
         f_ctrl = a_list[a_port][f_index]
-        f_ctrl.set_value(a_val)
-        f_ctrl.control_value_changed(a_val)
-
+        f_ctrl.set_value(a_val, True)
 
     def sample_start_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.sample_starts[f_index].set_value(a_val)
-        self.sample_starts[f_index].control_value_changed(a_val)
+        self.sample_starts[f_index].set_value(a_val, True)
 
     def sample_end_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.sample_ends[f_index].set_value(a_val)
-        self.sample_ends[f_index].control_value_changed(a_val)
+        self.sample_ends[f_index].set_value(a_val, True)
 
     def loop_start_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.loop_starts[f_index].set_value(a_val)
-        self.loop_starts[f_index].control_value_changed(a_val)
+        self.loop_starts[f_index].set_value(a_val, True)
 
     def loop_end_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.loop_ends[f_index].set_value(a_val)
-        self.loop_ends[f_index].control_value_changed(a_val)
+        self.loop_ends[f_index].set_value(a_val, True)
 
     def fade_in_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.fade_in_ends[f_index].set_value(a_val)
-        self.fade_in_ends[f_index].control_value_changed(a_val)
+        self.fade_in_ends[f_index].set_value(a_val, True)
 
     def fade_out_callback(self, a_val):
         f_index = self.selected_sample_index_combobox.currentIndex()
-        self.fade_out_starts[f_index].set_value(a_val)
-        self.fade_out_starts[f_index].control_value_changed(a_val)
+        self.fade_out_starts[f_index].set_value(a_val, True)
 
     def on_marker_all(self):
         f_vals = (self.sample_graph.start_marker.value, self.sample_graph.end_marker.value,
@@ -5557,8 +5539,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_lists = (self.sample_starts, self.sample_ends, self.fade_in_ends, self.fade_out_starts)
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             for f_i2 in range(len(f_vals)):
-                f_lists[f_i2][f_i].set_value(f_vals[f_i2])
-                f_lists[f_i2][f_i].control_value_changed(f_vals[f_i2])
+                f_lists[f_i2][f_i].set_value(f_vals[f_i2], True)
 
     def on_loop_all(self):
         f_vals = (self.sample_graph.loop_start_marker.value,
@@ -5567,8 +5548,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_lists = (self.loop_starts, self.loop_ends, self.loop_modes)
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             for f_i2 in range(len(f_vals)):
-                f_lists[f_i2][f_i].set_value(f_vals[f_i2])
-                f_lists[f_i2][f_i].control_value_changed(f_vals[f_i2])
+                f_lists[f_i2][f_i].set_value(f_vals[f_i2], True)
 
     def on_loop_tune(self):
         self.find_selected_radio_button()
@@ -5587,8 +5567,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_loop_end_value,
                     self.loop_starts[self.selected_row_index].get_value() + pydaw_marker_min_diff,
                     1000.0, a_round=True)
-                self.loop_ends[self.selected_row_index].set_value(f_loop_end_value)
-                self.loop_ends[self.selected_row_index].control_value_changed(f_loop_end_value)
+                self.loop_ends[self.selected_row_index].set_value(f_loop_end_value, True)
                 self.set_sample_graph()
                 self.loop_mode_combobox.setCurrentIndex(1)
 
@@ -5720,8 +5699,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         def on_ok(a_val=None):
             f_val = a_widget.get_value()
             for f_item in a_list:
-                f_item.set_value(f_val)
-                f_item.control_value_changed(f_val)
+                f_item.set_value(f_val, True)
             f_window.close()
 
         def on_cancel(a_val=None):
@@ -5759,8 +5737,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def mapAllSamplesToOneMonoFXgroup(self):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            self.monofx_groups[f_i].set_value(f_i)
-            self.monofx_groups[f_i].control_value_changed(f_i)
+            self.monofx_groups[f_i].set_value(f_i, True)
         self.mono_fx_tab_selected_sample.setCurrentIndex(1)
         self.mono_fx_tab_selected_sample.setCurrentIndex(0)
 
@@ -5769,12 +5746,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         i_white_notes = 0
         f_white_notes = [2,2,1,2,2,2,1]
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            self.sample_base_pitches[f_i].set_value(f_current_note)
-            self.sample_high_notes[f_i].set_value(f_current_note)
-            self.sample_low_notes[f_i].set_value(f_current_note)
-            self.sample_base_pitches[f_i].control_value_changed(f_current_note)
-            self.sample_high_notes[f_i].control_value_changed(f_current_note)
-            self.sample_low_notes[f_i].control_value_changed(f_current_note)
+            self.sample_base_pitches[f_i].set_value(f_current_note, True)
+            self.sample_high_notes[f_i].set_value(f_current_note, True)
+            self.sample_low_notes[f_i].set_value(f_current_note, True)
             f_current_note += f_white_notes[i_white_notes]
             if f_current_note >= 120:
                 break
@@ -5785,12 +5759,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def map_2_octaves_per_sample(self):
         f_index = 0
         for f_i in range(0, 120, 24):
-            self.sample_low_notes[f_index].set_value(f_i)
-            self.sample_base_pitches[f_index].set_value(f_i + 12)
-            self.sample_high_notes[f_index].set_value(f_i + 24)
-            self.sample_base_pitches[f_index].control_value_changed()
-            self.sample_high_notes[f_index].control_value_changed()
-            self.sample_low_notes[f_index].control_value_changed()
+            self.sample_low_notes[f_index].set_value(f_i, True)
+            self.sample_base_pitches[f_index].set_value(f_i + 12, True)
+            self.sample_high_notes[f_index].set_value(f_i + 24, True)
             f_index += 1
 
     def viewSampleSelectedIndexChanged(self, a_index):
@@ -5815,8 +5786,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def loopModeChanged(self, a_value):
         self.find_selected_radio_button()
-        self.loop_modes[self.selected_row_index].set_value(a_value)
-        self.loop_modes[self.selected_row_index].control_value_changed(a_value)
+        self.loop_modes[self.selected_row_index].set_value(a_value, True)
 
     def set_selected_sample_combobox_item(self, a_index,  a_text):
         self.suppress_selected_sample_changed = True
@@ -5948,9 +5918,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.update_eq6(a_value)
 
         if not self.suppress_selected_sample_changed:
-            self.monofx_groups[self.selected_row_index].set_value(a_value)
-            self.monofx_groups[self.selected_row_index].control_value_changed(a_value)
-
+            self.monofx_groups[self.selected_row_index].set_value(a_value, True)
         self.set_monofx_knob_callbacks(a_value)
 
     def set_monofx_knob_callbacks(self, a_value):
@@ -6009,14 +5977,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     print("Skipping note {}, out of permissible range".format(f_note_str))
                     continue
                 if not f_is_single:
-                    self.sample_base_pitches[f_selected_index].set_value(f_new_note)
-                    self.sample_low_notes[f_selected_index].set_value(f_new_note)
-                    self.sample_high_notes[f_selected_index].set_value(f_new_note + f_step_m1)
-
-                    self.sample_base_pitches[f_selected_index].control_value_changed(f_new_note)
-                    self.sample_low_notes[f_selected_index].control_value_changed(f_new_note)
-                    self.sample_high_notes[f_selected_index].control_value_changed(
-                        f_new_note + f_step_m1)
+                    self.sample_base_pitches[f_selected_index].set_value(f_new_note, True)
+                    self.sample_low_notes[f_selected_index].set_value(f_new_note, True)
+                    self.sample_high_notes[f_selected_index].set_value(f_new_note + f_step_m1,
+                                                                       True)
                     f_selected_index += 1
                 f_file = "{}/{}-{}-{}.wav".format(f_dir, f_uid, f_base_file_name, f_note_str)
                 if f_algo == 0:
@@ -6170,8 +6134,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             for k, v in list(f_file.port_dict.items()):
                 f_port = int(k)
                 f_value = int(v)
-                self.port_dict[f_port].set_value(f_value)
-                self.port_dict[f_port].control_value_changed(f_value)
+                self.port_dict[f_port].set_value(f_value, True)
             for k, v in list(f_file.configure_dict.items()):
                 self.set_configure(k, v)
             self.save_plugin_file()
@@ -6233,8 +6196,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 else:
                     f_port = int(f_line_arr[0])
                     f_value = int(f_line_arr[1])
-                    self.port_dict[f_port].set_value(f_value)
-                    self.port_dict[f_port].control_value_changed(f_value)
+                    self.port_dict[f_port].set_value(f_value, True)
 
             self.generate_files_string()
             self.configure_plugin("load", self.files_string)
@@ -6333,27 +6295,21 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
                     if "key" in f_sample.dict:
                         f_val = int(float(f_sample.dict["key"]))
-                        self.sample_base_pitches[f_index].set_value(f_val)
-                        self.sample_base_pitches[f_index].control_value_changed(f_val)
-                        self.sample_high_notes[f_index].set_value(f_val)
-                        self.sample_high_notes[f_index].control_value_changed(f_val)
-                        self.sample_low_notes[f_index].set_value(f_val)
-                        self.sample_low_notes[f_index].control_value_changed(f_val)
+                        self.sample_base_pitches[f_index].set_value(f_val, True)
+                        self.sample_high_notes[f_index].set_value(f_val, True)
+                        self.sample_low_notes[f_index].set_value(f_val, True)
 
                     if "pitch_keycenter" in f_sample.dict:
                         f_val = int(float(f_sample.dict["pitch_keycenter"]))
-                        self.sample_base_pitches[f_index].set_value(f_val)
-                        self.sample_base_pitches[f_index].control_value_changed(f_val)
+                        self.sample_base_pitches[f_index].set_value(f_val, True)
 
                     if "lokey" in f_sample.dict:
                         f_val = int(float(f_sample.dict["lokey"]))
-                        self.sample_low_notes[f_index].set_value(f_val)
-                        self.sample_low_notes[f_index].control_value_changed(f_val)
+                        self.sample_low_notes[f_index].set_value(f_val, True)
 
                     if "hikey" in f_sample.dict:
                         f_val = int(float(f_sample.dict["hikey"]))
-                        self.sample_high_notes[f_index].set_value(f_val)
-                        self.sample_high_notes[f_index].control_value_changed(f_val)
+                        self.sample_high_notes[f_index].set_value(f_val, True)
 
                     if "offset" in f_sample.dict:
                         f_val = (float(f_sample.dict["offset"]) / f_frame_count) * 1000.0
