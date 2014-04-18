@@ -8193,7 +8193,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_quit_timer.start(1000)
                 except Exception as ex:
                     print("Exception thrown while attempting to exit, forcing PyDAW to exit")
-                    print("Exception:  ".format(ex))
+                    print("Exception:  {}".format(ex))
                     exit(999)
         else:
             event.accept()
