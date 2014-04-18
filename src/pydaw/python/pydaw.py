@@ -370,17 +370,20 @@ class song_editor:
         if not self.table_widget.selectedIndexes():
             return
         f_commit_list = []
-        for f_item in self.table_widget.selectedIndexes():
-            f_commit_list.append(str(f_item.column()))
-            f_empty = QtGui.QTableWidgetItem() #Clear the item
-            self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
-        self.tablewidget_to_song()
-        this_region_settings.clear_items()
-        this_region_settings.region_name_lineedit.setText("")
-        this_region_settings.enabled = False
-        this_region_settings.update_region_length() #TODO:  Is this right?
-        this_pydaw_project.commit(
-            _("Deleted region references at {}").format(", ".join(f_commit_list)))
+        for f_index in self.table_widget.selectedIndexes():
+            f_item = self.table_widget.item(f_index.row(), f_index.column())
+            if f_item is not None and str(f_item.text()) != "":
+                f_commit_list.append(str(f_index.column()))
+                f_empty = QtGui.QTableWidgetItem()
+                self.table_widget.setItem(f_index.row(), f_index.column(), f_empty)
+        if f_commit_list:
+            self.tablewidget_to_song()
+            this_region_settings.clear_items()
+            this_region_settings.region_name_lineedit.setText("")
+            this_region_settings.enabled = False
+            this_region_settings.update_region_length()
+            this_pydaw_project.commit(
+                _("Deleted region references at {}").format(", ".join(f_commit_list)))
 
     def on_rename_region(self):
         f_item = self.table_widget.currentItem()
@@ -388,6 +391,10 @@ class song_editor:
             return
 
         f_item_text = str(f_item.text())
+
+        if f_item_text == "":
+            return
+
         f_index = self.table_widget.currentColumn()
 
         def ok_handler():
