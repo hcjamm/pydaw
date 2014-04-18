@@ -4744,6 +4744,21 @@ class piano_roll_editor(QtGui.QGraphicsView):
         if a_save_and_reload:
             global_save_and_reload_items()
 
+    def transpose_selected(self, a_amt):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+
+        f_list = [x for x in self.note_items if x.isSelected()]
+        if not f_list:
+            return
+        self.selected_note_strings = []
+        for f_item in f_list:
+            f_item.note_item.note_num = pydaw_clip_value(
+                f_item.note_item.note_num + a_amt, 0, 120)
+            self.selected_note_strings.append(f_item.get_selected_string())
+        global_save_and_reload_items()
+
     def focusOutEvent(self, a_event):
         QtGui.QGraphicsView.focusOutEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
@@ -5181,6 +5196,24 @@ class piano_roll_editor_widget:
 
         self.edit_menu.addSeparator()
 
+        self.up_semitone_action = self.edit_menu.addAction(_("Up Semitone"))
+        self.up_semitone_action.triggered.connect(self.transpose_up_semitone)
+        self.up_semitone_action.setShortcut(QtGui.QKeySequence.fromString("SHIFT+UP"))
+
+        self.down_semitone_action = self.edit_menu.addAction(_("Down Semitone"))
+        self.down_semitone_action.triggered.connect(self.transpose_down_semitone)
+        self.down_semitone_action.setShortcut(QtGui.QKeySequence.fromString("SHIFT+DOWN"))
+
+        self.up_octave_action = self.edit_menu.addAction(_("Up Octave"))
+        self.up_octave_action.triggered.connect(self.transpose_up_octave)
+        self.up_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+UP"))
+
+        self.down_octave_action = self.edit_menu.addAction(_("Down Octave"))
+        self.down_octave_action.triggered.connect(self.transpose_down_octave)
+        self.down_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+DOWN"))
+
+        self.edit_menu.addSeparator()
+
         self.clear_action = QtGui.QAction(_("Clear All"), self.widget)
         self.edit_menu.addAction(self.clear_action)
         self.clear_action.triggered.connect(self.clear_notes)
@@ -5197,6 +5230,18 @@ class piano_roll_editor_widget:
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("Snap:")), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+
+    def transpose_up_semitone(self):
+        this_piano_roll_editor.transpose_selected(1)
+
+    def transpose_down_semitone(self):
+        this_piano_roll_editor.transpose_selected(-1)
+
+    def transpose_up_octave(self):
+        this_piano_roll_editor.transpose_selected(12)
+
+    def transpose_down_octave(self):
+        this_piano_roll_editor.transpose_selected(-12)
 
     def set_vel_rand(self, a_val=None):
         this_piano_roll_editor.set_vel_rand(self.vel_rand_combobox.currentIndex(),
