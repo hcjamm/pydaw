@@ -4375,7 +4375,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
             for f_i2 in range(4):
                 for f_i3 in range(4):
-                    f_column_labels.append("Osc{}FM{}".format(f_i2 + 1, f_i3 + 1))
+                    f_column_labels.append("Osc{}\nFM{}".format(f_i2 + 1, f_i3 + 1))
                     f_spinbox = pydaw_spinbox_control(None, f_port,
                                                      self.plugin_rel_callback,
                                                      self.plugin_val_callback,
