@@ -8169,27 +8169,32 @@ class pydaw_main_window(QtGui.QMainWindow):
                 self.setEnabled(True)
                 return
             else:
-                this_audio_items_viewer.prepare_to_quit()
-                this_piano_roll_editor.prepare_to_quit()
+                try:
+                    this_audio_items_viewer.prepare_to_quit()
+                    this_piano_roll_editor.prepare_to_quit()
 
-                this_cc_editor.prepare_to_quit()
-                sleep(0.5)
-                global_close_all_plugin_windows()
-                if self.osc_server is not None:
-                    self.osc_timer.stop()
-                if global_pydaw_with_audio: #Wait up to 6 seconds and then kill the process
-                    self.subprocess_timer.stop()
-                    if not "--debug" in sys.argv:
-                        close_pydaw_engine()
-                else:
-                    this_pydaw_project.flush_history()
-                if self.osc_server is not None:
-                    self.osc_server.free()
-                self.ignore_close_event = False
-                f_quit_timer = QtCore.QTimer(self)
-                f_quit_timer.setSingleShot(True)
-                f_quit_timer.timeout.connect(self.close)
-                f_quit_timer.start(1000)
+                    this_cc_editor.prepare_to_quit()
+                    sleep(0.5)
+                    global_close_all_plugin_windows()
+                    if self.osc_server is not None:
+                        self.osc_timer.stop()
+                    if global_pydaw_with_audio:
+                        self.subprocess_timer.stop()
+                        if not "--debug" in sys.argv:
+                            close_pydaw_engine()
+                    else:
+                        this_pydaw_project.flush_history()
+                    if self.osc_server is not None:
+                        self.osc_server.free()
+                    self.ignore_close_event = False
+                    f_quit_timer = QtCore.QTimer(self)
+                    f_quit_timer.setSingleShot(True)
+                    f_quit_timer.timeout.connect(self.close)
+                    f_quit_timer.start(1000)
+                except Exception as ex:
+                    print("Exception thrown while attempting to exit, forcing PyDAW to exit")
+                    print("Exception:  ".format(ex))
+                    exit(999)
         else:
             event.accept()
 
