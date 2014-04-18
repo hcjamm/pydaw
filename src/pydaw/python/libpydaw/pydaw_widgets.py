@@ -1325,7 +1325,7 @@ class pydaw_preset_manager_widget:
 
         self.load_default_preset_path()
 
-        self.group_box = QtGui.QGroupBox()
+        self.group_box = QtGui.QWidget()
         self.group_box.setObjectName("plugin_groupbox")
         self.layout = QtGui.QHBoxLayout(self.group_box)
         self.layout.setMargin(3)
