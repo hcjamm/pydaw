@@ -595,7 +595,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     plugin_data->data[f_voice]->osc_linamp[f_i] =
                         f_db_to_linear_fast(f_db,
                             plugin_data->mono_modules->amp_ptr);
-                    
+
                     if(f_db > -29.2f)
                     {
                         plugin_data->data[f_voice]->osc_audible[f_i] = 1;
@@ -1192,6 +1192,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     int f_osc_num = 0;
     float f_macro_amp;
+    float f_osc_amp;
 
     while(f_osc_num < 4)
     {
@@ -1277,11 +1278,19 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
             if(a_voice->osc_audible[f_osc_num] || f_macro_amp >= 1.0f)
             {
-                a_voice->current_sample +=
-                        (a_voice->fm_last[f_osc_num]) *
-                        (a_voice->osc_linamp[f_osc_num]) *
+                f_osc_amp = (a_voice->osc_linamp[f_osc_num]) *
                         f_db_to_linear(f_macro_amp,
                             plugin_data->mono_modules->amp_ptr);
+
+                if(f_osc_amp > 1.0f)  //clip at 0dB
+                {
+                    a_voice->current_sample += (a_voice->fm_last[f_osc_num]);
+                }
+                else
+                {
+                    a_voice->current_sample +=
+                        (a_voice->fm_last[f_osc_num]) * f_osc_amp;
+                }
             }
         }
 
