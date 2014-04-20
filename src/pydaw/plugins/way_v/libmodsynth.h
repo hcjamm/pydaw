@@ -267,7 +267,7 @@ t_wayv_mono_modules * v_wayv_mono_init(float a_sr)
     while(f_i < WAYV_FM_MACRO_COUNT)
     {
         a_mono->fm_macro_smoother[f_i] =
-                g_sml_get_smoother_linear(a_sr, 0.5f, 0.0f, 0.1f);
+                g_sml_get_smoother_linear(a_sr, 0.5f, 0.0f, 0.02f);
         f_i++;
     }
 
