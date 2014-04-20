@@ -4545,7 +4545,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
-        global_save_and_reload_items()  #<Was above the loop before, but I'm not sure why...
+        global_save_and_reload_items()
         self.showing_resize_cursor = False
         QtGui.QApplication.restoreOverrideCursor()
         this_piano_roll_editor.click_enabled = True
