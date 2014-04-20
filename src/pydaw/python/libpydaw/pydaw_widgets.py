@@ -3676,7 +3676,8 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_vlayout.addLayout(self.reverb_hlayout)
         self.reverb_hlayout.addWidget(reverb_groupbox)
         self.reverb_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        m_reverb_time =  pydaw_knob_control(f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
+        m_reverb_time =  pydaw_knob_control(f_knob_size, _("Time"),
+                                            pydaw_ports.MODULEX_REVERB_TIME,
                                             self.plugin_rel_callback, self.plugin_val_callback,
                                             0, 100, 50,
                                             kc_decimal, self.port_dict, self.preset_manager)
