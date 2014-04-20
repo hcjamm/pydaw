@@ -67,7 +67,7 @@ def pydaw_center_widget_on_screen(a_widget):
 
 
 def pydaw_print_generic_exception(a_ex):
-    QtGui.QMessageBox.warning(this_main_window, _("Warning"), 
+    QtGui.QMessageBox.warning(this_main_window, _("Warning"),
                               _("The following error happened:\n{}").format(a_ex))
 
 def global_get_audio_file_from_clipboard():
@@ -4289,6 +4289,27 @@ global_piano_note_gradient_tuple = \
 ((255, 0, 0), (255, 123, 0), (255, 255, 0), (123, 255, 0), (0, 255, 0),
  (0, 255, 123), (0, 255, 255), (0, 123, 255), (0, 0, 255), (0, 0, 255))
 
+global_piano_roll_delete_mode = False
+global_piano_roll_deleted_notes = []
+
+def piano_roll_set_delete_mode(a_enabled):
+    global global_piano_roll_delete_mode, global_piano_roll_deleted_notes
+    if a_enabled:
+        this_piano_roll_editor.setDragMode(QtGui.QGraphicsView.NoDrag)
+        global_piano_roll_deleted_notes = []
+        global_piano_roll_delete_mode = True
+        QtGui.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.ForbiddenCursor))
+    else:
+        this_piano_roll_editor.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        global_piano_roll_delete_mode = False
+        for f_item in global_piano_roll_deleted_notes:
+            f_item.delete()
+        this_piano_roll_editor.selected_note_strings = []
+        global_save_and_reload_items()
+        QtGui.QApplication.restoreOverrideCursor()
+
+
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
@@ -4358,6 +4379,15 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             this_piano_roll_editor.click_enabled = False
             self.show_resize_cursor(a_event)
 
+    def delete_later(self):
+        global global_piano_roll_deleted_notes
+        if self not in global_piano_roll_deleted_notes:
+            global_piano_roll_deleted_notes.append(self)
+            self.hide()
+
+    def delete(self):
+        this_item_editor.items[self.item_index].remove_note(self.note_item)
+
     def show_resize_cursor(self, a_event):
         f_is_at_end = self.mouse_is_at_end(a_event.pos())
         if f_is_at_end and not self.showing_resize_cursor:
@@ -4385,15 +4415,12 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         QtGui.QApplication.restoreOverrideCursor()
 
     def mousePressEvent(self, a_event):
-        a_event.setAccepted(True)
-        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
-            this_item_editor.items[self.item_index].remove_note(self.note_item)
-            this_piano_roll_editor.selected_note_strings = []
-            global_save_and_reload_items()
-            QtGui.QApplication.restoreOverrideCursor()
-            self.showing_resize_cursor = False
+            piano_roll_set_delete_mode(True)
+            self.delete_later()
         else:
+            a_event.setAccepted(True)
+            QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.setBrush(pydaw_note_selected_gradient)
             self.o_pos = self.pos()
             if self.mouse_is_at_end(a_event.pos()):
@@ -4449,6 +4476,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_item.setPos(f_pos_x, f_pos_y)
 
     def mouseReleaseEvent(self, a_event):
+        if global_piano_roll_delete_mode:
+            piano_roll_set_delete_mode(False)
+            return
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         global global_selected_piano_note
@@ -4762,18 +4792,20 @@ class piano_roll_editor(QtGui.QGraphicsView):
         QtGui.QApplication.restoreOverrideCursor()
 
     def sceneMouseReleaseEvent(self, a_event):
-        QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
+        if global_piano_roll_delete_mode:
+            piano_roll_set_delete_mode(False)
+        else:
+            QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
         self.click_enabled = True
 
     def sceneMousePressEvent(self, a_event):
-        QtGui.QApplication.restoreOverrideCursor()
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
-            a_event.setAccepted(True)
-            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
-            return
-        if a_event.modifiers() == QtCore.Qt.ControlModifier:
+        elif a_event.modifiers() == QtCore.Qt.ControlModifier:
             self.hover_restore_cursor_event()
+        elif a_event.modifiers() == QtCore.Qt.ShiftModifier:
+            piano_roll_set_delete_mode(True)
+            return
         elif self.click_enabled and this_item_editor.enabled:
             self.scene.clearSelection()
             f_pos_x = a_event.scenePos().x()
@@ -4813,6 +4845,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+        QtGui.QApplication.restoreOverrideCursor()
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsView.mouseMoveEvent(self, a_event)
+        if global_piano_roll_delete_mode:
+            f_item = self.itemAt(a_event.pos())
+            if isinstance(f_item, piano_roll_note_item):
+                f_item.delete_later()
 
     def hover_restore_cursor_event(self, a_event=None):
         QtGui.QApplication.restoreOverrideCursor()
