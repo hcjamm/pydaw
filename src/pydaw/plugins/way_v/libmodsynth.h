@@ -60,6 +60,8 @@ typedef struct
 
     float osc_fm[4][4];
 
+    float osc_macro_amp[2][4];
+
     float fm_osc_values[4][4];
 
     float fm_last[4];

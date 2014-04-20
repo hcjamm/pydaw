@@ -459,6 +459,16 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_FM_MACRO2_OSC4_FM3: plugin->fm_macro_values[1][3][2] = data; break;
         case WAYV_FM_MACRO2_OSC4_FM4: plugin->fm_macro_values[1][3][3] = data; break;
 
+        case WAYV_FM_MACRO1_OSC1_VOL: plugin->amp_macro_values[0][0] = data; break;
+        case WAYV_FM_MACRO1_OSC2_VOL: plugin->amp_macro_values[0][1] = data; break;
+        case WAYV_FM_MACRO1_OSC3_VOL: plugin->amp_macro_values[0][2] = data; break;
+        case WAYV_FM_MACRO1_OSC4_VOL: plugin->amp_macro_values[0][3] = data; break;
+
+        case WAYV_FM_MACRO2_OSC1_VOL: plugin->amp_macro_values[1][0] = data; break;
+        case WAYV_FM_MACRO2_OSC2_VOL: plugin->amp_macro_values[1][1] = data; break;
+        case WAYV_FM_MACRO2_OSC3_VOL: plugin->amp_macro_values[1][2] = data; break;
+        case WAYV_FM_MACRO2_OSC4_VOL: plugin->amp_macro_values[1][3] = data; break;
+
         case WAYV_LFO_PHASE: plugin->lfo_phase = data; break;
     }
 }
@@ -582,11 +592,12 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     v_adsr_retrigger(
                         plugin_data->data[f_voice]->adsr_amp_osc[f_i]);
 
+                    plugin_data->data[f_voice]->osc_linamp[f_i] =
+                        f_db_to_linear_fast(f_db,
+                            plugin_data->mono_modules->amp_ptr);
+                    
                     if(f_db > -29.2f)
                     {
-                        plugin_data->data[f_voice]->osc_linamp[f_i] =
-                            f_db_to_linear_fast(f_db,
-                                plugin_data->mono_modules->amp_ptr);
                         plugin_data->data[f_voice]->osc_audible[f_i] = 1;
                     }
                     else
@@ -880,6 +891,20 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     f_i++;
                 }
 
+                f_i = 0;
+
+                while(f_i < 2)
+                {
+                    int f_i2 = 0;
+                    while(f_i2 < 4)
+                    {
+                        plugin_data->data[f_voice]->osc_macro_amp[f_i][f_i2] =
+                                (*plugin_data->amp_macro_values[f_i][f_i2]);
+                        f_i2++;
+                    }
+                    f_i++;
+                }
+
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
                 v_lfs_sync(plugin_data->data[f_voice]->lfo1,
@@ -1166,9 +1191,12 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
     }
 
     int f_osc_num = 0;
+    float f_macro_amp;
 
     while(f_osc_num < 4)
     {
+        f_macro_amp = 0.0f;
+
         if(a_voice->osc_on[f_osc_num])
         {
             v_osc_wav_set_unison_pitch(
@@ -1203,7 +1231,15 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                                 fm_macro_smoother[f_i]->last_value);
                         f_i2++;
                     }
+
+                    if(a_voice->osc_macro_amp[f_i][f_osc_num] != 0.0f)
+                    {
+                        f_macro_amp +=
+                            plugin_data->mono_modules->fm_macro_smoother[f_i]->last_value *
+                            a_voice->osc_macro_amp[f_i][f_osc_num];
+                    }
                 }
+
                 f_i++;
             }
 
@@ -1239,11 +1275,13 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                         f_osc_wav_run_unison(a_voice->osc_wavtable[f_osc_num]);
             }
 
-            if(a_voice->osc_audible[f_osc_num])
+            if(a_voice->osc_audible[f_osc_num] || f_macro_amp >= 1.0f)
             {
                 a_voice->current_sample +=
                         (a_voice->fm_last[f_osc_num]) *
-                        (a_voice->osc_linamp[f_osc_num]);
+                        (a_voice->osc_linamp[f_osc_num]) *
+                        f_db_to_linear(f_macro_amp,
+                            plugin_data->mono_modules->amp_ptr);
             }
         }
 
@@ -2338,6 +2376,27 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
                     f_i3++;
                 }
 
+                f_i2++;
+            }
+
+            f_i++;
+        }
+
+
+        f_i = 0;
+        f_port = WAYV_FM_MACRO1_OSC1_VOL;
+
+        while(f_i < 2)
+        {
+            int f_i2 = 0;
+
+            while(f_i2 < 4)
+            {
+                port_descriptors[f_port] = 1;
+                port_range_hints[f_port].DefaultValue = 0.0f;
+                port_range_hints[f_port].LowerBound = -30.0f;
+                port_range_hints[f_port].UpperBound = 30.0f;
+                f_port++;
                 f_i2++;
             }
 

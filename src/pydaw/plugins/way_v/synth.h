@@ -264,9 +264,19 @@ extern "C" {
 
 #define WAYV_LFO_PHASE 216
 
+#define WAYV_FM_MACRO1_OSC1_VOL 217
+#define WAYV_FM_MACRO1_OSC2_VOL 218
+#define WAYV_FM_MACRO1_OSC3_VOL 219
+#define WAYV_FM_MACRO1_OSC4_VOL 220
+
+#define WAYV_FM_MACRO2_OSC1_VOL 221
+#define WAYV_FM_MACRO2_OSC2_VOL 222
+#define WAYV_FM_MACRO2_OSC3_VOL 223
+#define WAYV_FM_MACRO2_OSC4_VOL 224
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 217
+#define WAYV_COUNT 225
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -360,6 +370,7 @@ typedef struct
 
     PYFX_Data *fm_macro[2];
     PYFX_Data *fm_macro_values[2][4][4];
+    PYFX_Data *amp_macro_values[2][4];
 
     PYFX_Data *mono_mode;
 
