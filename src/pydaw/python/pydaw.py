@@ -67,10 +67,8 @@ def pydaw_center_widget_on_screen(a_widget):
 
 
 def pydaw_print_generic_exception(a_ex):
-    QtGui.QMessageBox.warning(this_main_window, _("Warning"), _("The following error happened:\n{}"
-    "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out "
-    "due to the slow nature of flash drives.  If the problem persists, you should consider "
-    "installing PyDAW-OS to your hard drive instead").format(a_ex))
+    QtGui.QMessageBox.warning(this_main_window, _("Warning"), 
+                              _("The following error happened:\n{}").format(a_ex))
 
 def global_get_audio_file_from_clipboard():
     f_clipboard = QtGui.QApplication.clipboard()
