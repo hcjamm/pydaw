@@ -4619,16 +4619,16 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip(_("Click+drag to draw notes\nCTRL+click+drag to "
-            "marquee select multiple items\n"
-            "Press the Del button to delete selected notes\nTo edit velocity, use the velocity "
-            "button\n"
+            self.setToolTip(_("Click+drag to draw notes\n"
+            "CTRL+click+drag to marquee select multiple items\n"
+            "Shift+click+drag to delete notes\n"
+            "Press the Delete button on your keyboard to delete selected notes\n"
+            "To edit velocity, press the menu button and select the Velocity...  action\n"
             "Double-click to edit note properties\nClick and drag the note end to change length\n"
-            "Shift+click to delete a note\n"
             "To edit multiple items as one logical item, select multiple items in the region "
             "editor and right-click + 'Edit Selected Items as Group'\n"
-            "The Quantize, Transpose and Velocity buttons open dialogs to manipulate the selected "
-            "notes (or all notes if none are selected)"
+            "The Quantize, Transpose and Velocity actions in the menu button open dialogs \n"
+            "to manipulate the selected notes (or all notes if none are selected)"
             "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
         else:
             self.setToolTip("")
