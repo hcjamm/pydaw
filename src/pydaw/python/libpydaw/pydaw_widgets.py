@@ -4397,7 +4397,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc_amp_mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.osc_amp_mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.osc_amp_mod_matrix.setRowCount(2)
-        self.osc_amp_mod_matrix.setFixedSize(400, 120)
+        self.osc_amp_mod_matrix.setFixedSize(330, 120)
         self.osc_amp_mod_matrix.setVerticalHeaderLabels([_("Macro 1"), _("Macro 2")])
         self.osc_amp_mod_matrix.setColumnCount(4)
         self.fm_mod_macros_hlayout.addItem(
