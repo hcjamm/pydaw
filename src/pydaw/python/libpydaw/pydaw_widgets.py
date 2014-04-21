@@ -4569,6 +4569,14 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                              self.port_dict, self.preset_manager)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 9)
 
+        self.lfo_pitch_fine =  pydaw_knob_control(f_knob_size, _("Fine"),
+                                                  pydaw_ports.WAYV_LFO_PITCH_FINE,
+                                                  self.plugin_rel_callback,
+                                                  self.plugin_val_callback,
+                                                  -100, 100, 0,  kc_decimal,
+                                                  self.port_dict, self.preset_manager)
+        self.lfo_pitch_fine.add_to_grid_layout(self.lfo.layout, 10)
+
         self.additive_osc = pydaw_custom_additive_oscillator(self.configure_plugin)
         self.tab_widget.addTab(self.additive_osc.widget, "Additive")
 

@@ -273,10 +273,11 @@ extern "C" {
 #define WAYV_FM_MACRO2_OSC2_VOL 222
 #define WAYV_FM_MACRO2_OSC3_VOL 223
 #define WAYV_FM_MACRO2_OSC4_VOL 224
+#define WAYV_LFO_PITCH_FINE 225
 
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 225
+#define WAYV_COUNT 226
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -360,6 +361,7 @@ typedef struct
 
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
+    PYFX_Data *lfo_pitch_fine;
     PYFX_Data *lfo_amount;
 
     PYFX_Data *perc_env_time1;

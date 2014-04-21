@@ -470,6 +470,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_FM_MACRO2_OSC4_VOL: plugin->amp_macro_values[1][3] = data; break;
 
         case WAYV_LFO_PHASE: plugin->lfo_phase = data; break;
+        case WAYV_LFO_PITCH_FINE: plugin->lfo_pitch_fine = data; break;
     }
 }
 
@@ -1173,7 +1174,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
             a_voice->amp_ptr);
 
     a_voice->lfo_pitch_output =
-            (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);
+            (*plugin_data->lfo_pitch + (*plugin_data->lfo_pitch_fine * 0.01f))
+            * (a_voice->lfo_amount_output);
 
     if(a_voice->perc_env_on)
     {
@@ -2412,6 +2414,10 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
             f_i++;
         }
 
+        port_descriptors[WAYV_LFO_PITCH_FINE] = 1;
+	port_range_hints[WAYV_LFO_PITCH_FINE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_LFO_PITCH_FINE].LowerBound =  -100.0f;
+	port_range_hints[WAYV_LFO_PITCH_FINE].UpperBound =  100.0;
 
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
