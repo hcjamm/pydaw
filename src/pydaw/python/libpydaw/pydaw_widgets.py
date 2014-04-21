@@ -1328,6 +1328,7 @@ class pydaw_preset_manager_widget:
         self.group_box = QtGui.QWidget()
         self.group_box.setObjectName("plugin_groupbox")
         self.layout = QtGui.QHBoxLayout(self.group_box)
+        self.layout.addWidget(QtGui.QLabel(_("Presets")))
         self.layout.setMargin(3)
         self.program_combobox = QtGui.QComboBox()
         self.program_combobox.setEditable(True)
@@ -4289,7 +4290,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.master_vlayout =  QtGui.QVBoxLayout(self.master_tab)
         self.preset_hlayout = QtGui.QHBoxLayout()
-        self.preset_hlayout.addWidget(QtGui.QLabel(_("Presets")))
         self.preset_hlayout.addWidget(self.preset_manager.group_box)
         self.preset_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.master_vlayout.addLayout(self.preset_hlayout)
