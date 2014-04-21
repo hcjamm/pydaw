@@ -3867,7 +3867,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                 pydaw_ports.RAYV_PITCH_ENV_AMT,
                                                 _("Pitch Env"), self.preset_manager,
                                                 pydaw_ports.RAYV_RAMP_CURVE)
-        self.hlayout3.addWidget(self.pitch_env.groupbox)
+        self.hlayout1.addWidget(self.pitch_env.groupbox)
         self.lfo =  pydaw_lfo_widget(f_knob_size,
                                      self.plugin_rel_callback, self.plugin_val_callback,
                                      self.port_dict,
@@ -3887,12 +3887,21 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                              -36, 36, 0,
                                              kc_integer, self.port_dict, self.preset_manager)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 8)
+
+        self.lfo_pitch_fine =  pydaw_knob_control(f_knob_size, _("Fine"),
+                                                  pydaw_ports.RAYV_LFO_PITCH_FINE,
+                                                  self.plugin_rel_callback,
+                                                  self.plugin_val_callback,
+                                                  -100, 100, 0,  kc_decimal,
+                                                  self.port_dict, self.preset_manager)
+        self.lfo_pitch_fine.add_to_grid_layout(self.lfo.layout, 9)
+
         self.lfo_cutoff =  pydaw_knob_control(f_knob_size, _("Filter"),
                                               pydaw_ports.RAYV_LFO_FILTER,
                                               self.plugin_rel_callback, self.plugin_val_callback,
                                               -48, 48, 0,
                                               kc_integer, self.port_dict, self.preset_manager)
-        self.lfo_cutoff.add_to_grid_layout(self.lfo.layout, 9)
+        self.lfo_cutoff.add_to_grid_layout(self.lfo.layout, 10)
 
         self.open_plugin_file()
 

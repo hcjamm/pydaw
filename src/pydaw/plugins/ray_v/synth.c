@@ -221,6 +221,9 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
         case RAYV_LFO_PHASE:
             plugin->lfo_phase = data;
             break;
+        case RAYV_LFO_PITCH_FINE:
+            plugin->lfo_pitch_fine = data;
+            break;
     }
 }
 
@@ -583,7 +586,8 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
     a_voice->lfo_filter_output =
             (*plugin_data->lfo_filter) * (a_voice->lfo1->output);
     a_voice->lfo_pitch_output =
-            (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);
+            (*plugin_data->lfo_pitch + (*plugin_data->lfo_pitch_fine * 0.01f))
+            * (a_voice->lfo1->output);
 
     if(a_voice->hard_sync)
     {
@@ -889,6 +893,11 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_LFO_PHASE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_LFO_PHASE].LowerBound = 0.0f;
 	port_range_hints[RAYV_LFO_PHASE].UpperBound = 100.0f;
+
+        port_descriptors[RAYV_LFO_PITCH_FINE]= 1;
+	port_range_hints[RAYV_LFO_PITCH_FINE].DefaultValue = 0.0f;
+	port_range_hints[RAYV_LFO_PITCH_FINE].LowerBound = -100.0f;
+	port_range_hints[RAYV_LFO_PITCH_FINE].UpperBound = 100.0f;
 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;
