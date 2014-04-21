@@ -9044,6 +9044,7 @@ class pydaw_wave_editor_widget:
         self.vol_slider.setEnabled(False)
         self.menu_button.setEnabled(False)
         self.enabled_checkbox.setEnabled(False)
+        self.bookmark_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             self.time_label_enabled = True
             self.playback_cursor = self.sample_graph.scene.addLine(
@@ -9059,6 +9060,7 @@ class pydaw_wave_editor_widget:
         self.menu_button.setEnabled(True)
         self.history_button.setEnabled(True)
         self.enabled_checkbox.setEnabled(True)
+        self.bookmark_button.setEnabled(True)
         if self.playback_cursor is not None:
             #self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
