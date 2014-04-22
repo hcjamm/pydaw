@@ -81,6 +81,7 @@ typedef struct {
     PYFX_Data *lfo_freq;
     PYFX_Data *lfo_type;
     PYFX_Data *lfo_pitch;
+    PYFX_Data *lfo_pitch_fine;
 
     PYFX_Data *global_midi_octaves_offset;
 

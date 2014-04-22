@@ -5451,6 +5451,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                              -36, 36, 0, kc_integer, self.port_dict)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 7)
 
+        self.lfo_pitch_fine =  pydaw_knob_control(f_knob_size, _("Fine"),
+                                                  pydaw_ports.EUPHORIA_LFO_PITCH_FINE,
+                                                  self.plugin_rel_callback,
+                                                  self.plugin_val_callback,
+                                                  -100, 100, 0, kc_decimal, self.port_dict)
+        self.lfo_pitch_fine.add_to_grid_layout(self.lfo.layout, 8)
+
         #MonoFX Tab
         self.mono_fx_tab_main_layout =  QtGui.QVBoxLayout(self.mono_fx_tab)
         self.mono_fx_tab_selected_hlayout =  QtGui.QHBoxLayout()

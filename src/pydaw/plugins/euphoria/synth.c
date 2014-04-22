@@ -428,6 +428,10 @@ static void connectPortSampler(PYFX_Handle instance, int port,
         int f_diff = f_port % 18;
         v_eq6_connect_port(plugin->mono_modules->eqs[f_instance], f_diff, data);
     }
+    else if(port == EUPHORIA_LFO_PITCH_FINE)
+    {
+        plugin->lfo_pitch_fine = data;
+    }
 }
 
 static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
@@ -652,8 +656,9 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
 
     f_voice->base_pitch = (f_voice->glide_env->output_multiplied)
             +  (plugin_data->mono_modules->pitchbend_smoother->last_value *
-            (*(plugin_data->master_pb_amt)))  //(plugin_data->sv_pitch_bend_value)
-            + (f_voice->last_pitch) + ((f_voice->lfo1->output) * (*(plugin_data->lfo_pitch)));
+            (*(plugin_data->master_pb_amt)))
+            + (f_voice->last_pitch) + ((f_voice->lfo1->output) *
+            (*plugin_data->lfo_pitch + (*plugin_data->lfo_pitch_fine * 0.01f)));
 
     if(plugin_data->voices->voices[n].off == plugin_data->sampleNo)
     {
@@ -2297,6 +2302,11 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
         f_i2++;
     }
+
+    port_descriptors[EUPHORIA_LFO_PITCH_FINE] = 1;
+    port_range_hints[EUPHORIA_LFO_PITCH_FINE].DefaultValue = 0.0f;
+    port_range_hints[EUPHORIA_LFO_PITCH_FINE].LowerBound = -100.0f;
+    port_range_hints[EUPHORIA_LFO_PITCH_FINE].UpperBound = 100.0f;
 
 
     desc->activate = v_euphoria_activate;

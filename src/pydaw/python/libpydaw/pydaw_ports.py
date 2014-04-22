@@ -275,6 +275,7 @@ EUPHORIA_FIRST_EQ_PORT = EUPHORIA_SAMPLE_FADE_OUT_MAX
 
 EUPHORIA_LAST_EQ_PORT = (EUPHORIA_FIRST_EQ_PORT + (18 * 100))
 
+EUPHORIA_LFO_PITCH_FINE = EUPHORIA_LAST_EQ_PORT
 
 
 #Modulex
@@ -783,6 +784,7 @@ EUPHORIA_PORT_MAP = [
     ("ADSR2 Sustain", "9", "2", "0.0", "100.0"),
     ("ADSR2 Release", "10", "2", "10.0", "200.0"),
     ("LFO Pitch", "11", "0", "-36.0", "36.0"),
+    ("LFO Pitch Fine", EUPHORIA_LFO_PITCH_FINE, "0", "-100.0", "100.0"),
     ("Master Glide", "13", "2", "0.0", "200.0"),
     ("Pitch Env Time", "15", "2", "0.0", "200.0"),
     ("LFO Freq", "16", "2", "10.0", "1600.0"),
