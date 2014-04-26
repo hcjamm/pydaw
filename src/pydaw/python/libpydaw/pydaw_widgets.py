@@ -1961,6 +1961,27 @@ class eq6_widget:
             f_eq.res_knob.reset_default_value()
             f_eq.gain_knob.reset_default_value()
 
+class morph_eq(eq6_widget):
+    def __init__(self, a_first_port, a_rel_callback, a_val_callback,
+                 a_port_dict=None, a_preset_mgr=None, a_size=48, a_vlayout=True):
+        raise NotImplementedError()
+        self.rel_callback_orig = a_rel_callback
+        self.val_callback_orig = a_val_callback
+        eq6_widget.__init__(self, a_first_port, self.rel_callback_wrapper, a_val_callback,
+                            a_port_dict, a_preset_mgr, a_size, a_vlayout)
+        self.eq_num_spinbox = QtGui.QSpinBox()
+        self.eq_num_spinbox.setRange(1, 2)
+        self.eq_num_spinbox.valueChanged.connect(self.eq_num_changed)
+        self.eq_values = {}
+
+    def eq_num_changed(self, a_val=None):
+        self.eq_index = self.eq_num_spinbox.value() - 1
+
+    def val_callback_wrapper(self, ):
+        pass
+
+    def rel_callback_wrapper(self, ):
+        pass
 
 # Custom oscillator widgets
 
