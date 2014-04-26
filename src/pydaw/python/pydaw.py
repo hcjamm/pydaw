@@ -5203,8 +5203,28 @@ class piano_roll_editor_widget:
         self.quantize_action = self.edit_menu.addAction(_("Quantize..."))
         self.quantize_action.triggered.connect(self.quantize_dialog)
 
-        self.transpose_action = self.edit_menu.addAction(_("Transpose..."))
+        self.transpose_menu = self.edit_menu.addMenu("Transpose")
+
+        self.transpose_action = self.transpose_menu.addAction(_("Dialog..."))
         self.transpose_action.triggered.connect(self.transpose_dialog)
+
+        self.transpose_menu.addSeparator()
+
+        self.up_semitone_action = self.transpose_menu.addAction(_("Up Semitone"))
+        self.up_semitone_action.triggered.connect(self.transpose_up_semitone)
+        self.up_semitone_action.setShortcut(QtGui.QKeySequence.fromString("SHIFT+UP"))
+
+        self.down_semitone_action = self.transpose_menu.addAction(_("Down Semitone"))
+        self.down_semitone_action.triggered.connect(self.transpose_down_semitone)
+        self.down_semitone_action.setShortcut(QtGui.QKeySequence.fromString("SHIFT+DOWN"))
+
+        self.up_octave_action = self.transpose_menu.addAction(_("Up Octave"))
+        self.up_octave_action.triggered.connect(self.transpose_up_octave)
+        self.up_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+UP"))
+
+        self.down_octave_action = self.transpose_menu.addAction(_("Down Octave"))
+        self.down_octave_action.triggered.connect(self.transpose_down_octave)
+        self.down_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+DOWN"))
 
         self.velocity_action = self.edit_menu.addAction(_("Velocity..."))
         self.velocity_action.triggered.connect(self.velocity_dialog)
@@ -5236,24 +5256,6 @@ class piano_roll_editor_widget:
         self.glue_selected_action = self.edit_menu.addAction(_("Glue Selected"))
         self.glue_selected_action.triggered.connect(this_piano_roll_editor.glue_selected)
         self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
-
-        self.edit_menu.addSeparator()
-
-        self.up_semitone_action = self.edit_menu.addAction(_("Up Semitone"))
-        self.up_semitone_action.triggered.connect(self.transpose_up_semitone)
-        self.up_semitone_action.setShortcut(QtGui.QKeySequence.fromString("SHIFT+UP"))
-
-        self.down_semitone_action = self.edit_menu.addAction(_("Down Semitone"))
-        self.down_semitone_action.triggered.connect(self.transpose_down_semitone)
-        self.down_semitone_action.setShortcut(QtGui.QKeySequence.fromString("SHIFT+DOWN"))
-
-        self.up_octave_action = self.edit_menu.addAction(_("Up Octave"))
-        self.up_octave_action.triggered.connect(self.transpose_up_octave)
-        self.up_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+UP"))
-
-        self.down_octave_action = self.edit_menu.addAction(_("Down Octave"))
-        self.down_octave_action.triggered.connect(self.transpose_down_octave)
-        self.down_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+DOWN"))
 
         self.edit_menu.addSeparator()
 
