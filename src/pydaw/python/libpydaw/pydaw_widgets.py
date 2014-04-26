@@ -106,6 +106,7 @@ class pydaw_pixmap_knob(QtGui.QDial):
         QtGui.QDial.__init__(self)
         self.setRange(a_min_val, a_max_val)
         self.val_step = float(a_max_val - a_min_val) * 0.005  # / 200.0
+        self.val_step_small = self.val_step * 0.1
         self.setGeometry(0, 0, a_size, a_size)
         self.pixmap_size = a_size - 10
         self.pixmap = get_scaled_pixmap_knob(self.pixmap_size)
@@ -141,18 +142,24 @@ class pydaw_pixmap_knob(QtGui.QDial):
             QtGui.QDial.mousePressEvent(self, a_event)
             return
         self.mouse_pos = QtGui.QCursor.pos()
-        self.orig_y = a_event.pos().y()
+        f_pos = a_event.pos()
+        self.orig_x = f_pos.x()
+        self.orig_y = f_pos.y()
         self.orig_value = self.value()
-        if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            self.current_val_step = self.val_step * 0.2
-        else:
-            self.current_val_step = self.val_step
+        self.fine_only = (a_event.modifiers() == QtCore.Qt.ControlModifier)
         QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
 
     def mouseMoveEvent(self, a_event):
-        f_y = a_event.pos().y()
-        f_diff = self.orig_y - f_y
-        f_val = (f_diff * self.current_val_step) + self.orig_value
+        f_pos = a_event.pos()
+        f_x = f_pos.x()
+        f_diff_x = f_x - self.orig_x
+        if self.fine_only:
+            f_val = (f_diff_x * self.val_step_small) + self.orig_value
+        else:
+            f_y = f_pos.y()
+            f_diff_y = self.orig_y - f_y
+            f_val = ((f_diff_y * self.val_step) +
+                (f_diff_x * self.val_step_small)) + self.orig_value
         f_val = pydaw_util.pydaw_clip_value(f_val, self.minimum(), self.maximum())
         f_val = int(f_val)
         self.setValue(f_val)
