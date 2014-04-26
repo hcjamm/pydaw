@@ -105,6 +105,7 @@ class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val):
         QtGui.QDial.__init__(self)
         self.setRange(a_min_val, a_max_val)
+        self.val_step = float(a_max_val - a_min_val) * 0.005  # / 200.0
         self.setGeometry(0, 0, a_size, a_size)
         self.pixmap_size = a_size - 10
         self.pixmap = get_scaled_pixmap_knob(self.pixmap_size)
@@ -134,6 +135,33 @@ class pydaw_pixmap_knob(QtGui.QDial):
         rx = -(self.pixmap_size * 0.5)
         ry = -(self.pixmap_size * 0.5)
         p.drawPixmap(rx, ry, self.pixmap)
+
+    def mousePressEvent(self, a_event):
+        if a_event.button() == QtCore.Qt.RightButton:
+            QtGui.QDial.mousePressEvent(self, a_event)
+            return
+        self.mouse_pos = QtGui.QCursor.pos()
+        self.orig_y = a_event.pos().y()
+        self.orig_value = self.value()
+        if a_event.modifiers() == QtCore.Qt.ControlModifier:
+            self.current_val_step = self.val_step * 0.2
+        else:
+            self.current_val_step = self.val_step
+        QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
+
+    def mouseMoveEvent(self, a_event):
+        f_y = a_event.pos().y()
+        f_diff = self.orig_y - f_y
+        f_val = (f_diff * self.current_val_step) + self.orig_value
+        f_val = pydaw_util.pydaw_clip_value(f_val, self.minimum(), self.maximum())
+        f_val = int(f_val)
+        self.setValue(f_val)
+        self.valueChanged.emit(f_val)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QCursor.setPos(self.mouse_pos)
+        QtGui.QApplication.restoreOverrideCursor()
+        self.sliderReleased.emit()
 
 
 kc_integer = 0
