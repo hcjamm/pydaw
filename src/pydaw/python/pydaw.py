@@ -4292,6 +4292,8 @@ global_piano_note_gradient_tuple = \
 global_piano_roll_delete_mode = False
 global_piano_roll_deleted_notes = []
 
+global_last_resize = 0.25
+
 def piano_roll_set_delete_mode(a_enabled):
     global global_piano_roll_delete_mode, global_piano_roll_deleted_notes
     if a_enabled:
@@ -4529,6 +4531,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_item.note_item.note_num = f_new_note_num
                         this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
                         this_item_editor.items[f_item.item_index].notes.sort()
+        if self.is_resizing:
+            global global_last_resize
+            global_last_resize = self.note_item.length
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
         global_selected_piano_note = None
@@ -4824,7 +4829,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     f_beat = (int((f_pos_x - global_piano_keys_width) /
                              global_piano_roll_snap_value) * \
                              global_piano_roll_snap_value) * 0.001 * 4.0
-                    f_note_item = pydaw_note(f_beat, global_piano_roll_snap_beats, f_note,
+                    f_note_item = pydaw_note(f_beat, global_last_resize, f_note,
                                              self.get_vel(f_beat))
                 else:
                     f_beat = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
