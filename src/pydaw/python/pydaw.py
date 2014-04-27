@@ -5187,10 +5187,32 @@ class piano_roll_editor_widget:
         self.edit_menu_button.setMenu(self.edit_menu)
         self.controls_grid_layout.addWidget(self.edit_menu_button, 0, 30)
 
+        self.edit_actions_menu = self.edit_menu.addMenu(_("Edit"))
+
+        self.copy_action = self.edit_actions_menu.addAction(_("Copy"))
+        self.copy_action.triggered.connect(this_piano_roll_editor.copy_selected)
+        self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
+
+        self.cut_action = self.edit_actions_menu.addAction(_("Cut"))
+        self.cut_action.triggered.connect(self.on_cut)
+        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
+
+        self.paste_action = self.edit_actions_menu.addAction(_("Paste"))
+        self.paste_action.triggered.connect(this_piano_roll_editor.paste)
+        self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
+
+        self.select_all_action = self.edit_actions_menu.addAction(_("Select All"))
+        self.select_all_action.triggered.connect(self.select_all)
+        self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
+
+        self.delete_selected_action = self.edit_actions_menu.addAction(_("Delete"))
+        self.delete_selected_action.triggered.connect(self.on_delete_selected)
+        self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
+
         self.quantize_action = self.edit_menu.addAction(_("Quantize..."))
         self.quantize_action.triggered.connect(self.quantize_dialog)
 
-        self.transpose_menu = self.edit_menu.addMenu("Transpose")
+        self.transpose_menu = self.edit_menu.addMenu(_("Transpose"))
 
         self.transpose_action = self.transpose_menu.addAction(_("Dialog..."))
         self.transpose_action.triggered.connect(self.transpose_dialog)
@@ -5215,7 +5237,7 @@ class piano_roll_editor_widget:
 
         self.velocity_menu = self.edit_menu.addMenu(_("Velocity"))
 
-        self.velocity_action = self.velocity_menu.addAction(_("Velocity..."))
+        self.velocity_action = self.velocity_menu.addAction(_("Dialog..."))
         self.velocity_action.triggered.connect(self.velocity_dialog)
 
         self.velocity_menu.addSeparator()
@@ -5247,28 +5269,6 @@ class piano_roll_editor_widget:
             f_action.my_index = f_i
             if f_i == 0:
                 f_action.setChecked(True)
-
-        self.edit_menu.addSeparator()
-
-        self.copy_action = self.edit_menu.addAction(_("Copy"))
-        self.copy_action.triggered.connect(this_piano_roll_editor.copy_selected)
-        self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
-
-        self.cut_action = self.edit_menu.addAction(_("Cut"))
-        self.cut_action.triggered.connect(self.on_cut)
-        self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
-
-        self.paste_action = self.edit_menu.addAction(_("Paste"))
-        self.paste_action.triggered.connect(this_piano_roll_editor.paste)
-        self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
-
-        self.select_all_action = self.edit_menu.addAction(_("Select All"))
-        self.select_all_action.triggered.connect(self.select_all)
-        self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
-
-        self.delete_selected_action = self.edit_menu.addAction(_("Delete"))
-        self.delete_selected_action.triggered.connect(self.on_delete_selected)
-        self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
 
         self.edit_menu.addSeparator()
 
