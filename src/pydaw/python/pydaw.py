@@ -4798,9 +4798,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
             this_item_editor.show_not_enabled_warning()
             return
         self.selected_note_strings = []
-        for f_item in self.note_items:
-            if f_item.isSelected():
-                this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
+        for f_item in self.get_selected_items():
+            this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
         if a_save_and_reload:
             global_save_and_reload_items()
 
