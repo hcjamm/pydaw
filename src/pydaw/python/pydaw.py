@@ -5181,19 +5181,6 @@ class piano_roll_editor_widget:
         self.controls_grid_layout.addItem(
             QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
 
-        self.vel_rand_combobox = QtGui.QComboBox()
-        self.vel_rand_combobox.setMinimumWidth(90)
-        self.vel_rand_combobox.addItems([_("None"), _("Tight"), _("Loose")])
-        self.vel_rand_combobox.currentIndexChanged.connect(self.set_vel_rand)
-        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Vel. Rand.")), 0, 14)
-        self.controls_grid_layout.addWidget(self.vel_rand_combobox, 0, 15)
-        self.vel_emphasis_combobox = QtGui.QComboBox()
-        self.vel_emphasis_combobox.setMinimumWidth(100)
-        self.vel_emphasis_combobox.addItems([_("None"), _("On-beat"), _("Off-beat")])
-        self.vel_emphasis_combobox.currentIndexChanged.connect(self.set_vel_rand)
-        self.controls_grid_layout.addWidget(QtGui.QLabel(_("Emphasis")), 0, 18)
-        self.controls_grid_layout.addWidget(self.vel_emphasis_combobox, 0, 19)
-
         self.edit_menu_button = QtGui.QPushButton(_("Menu"))
         self.edit_menu_button.setFixedWidth(60)
         self.edit_menu = QtGui.QMenu(self.widget)
@@ -5226,8 +5213,40 @@ class piano_roll_editor_widget:
         self.down_octave_action.triggered.connect(self.transpose_down_octave)
         self.down_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+DOWN"))
 
-        self.velocity_action = self.edit_menu.addAction(_("Velocity..."))
+        self.velocity_menu = self.edit_menu.addMenu(_("Velocity"))
+
+        self.velocity_action = self.velocity_menu.addAction(_("Velocity..."))
         self.velocity_action.triggered.connect(self.velocity_dialog)
+
+        self.velocity_menu.addSeparator()
+
+        self.vel_random_index = 0
+        self.velocity_random_menu = self.velocity_menu.addMenu(_("Randomness"))
+        self.random_types = [_("None"), _("Tight"), _("Loose")]
+        self.vel_rand_action_group = QtGui.QActionGroup(self.velocity_random_menu)
+        self.velocity_random_menu.triggered.connect(self.vel_rand_triggered)
+
+        for f_i, f_type in zip(range(len(self.random_types)), self.random_types):
+            f_action = self.velocity_random_menu.addAction(f_type)
+            f_action.setActionGroup(self.vel_rand_action_group)
+            f_action.setCheckable(True)
+            f_action.my_index = f_i
+            if f_i == 0:
+                f_action.setChecked(True)
+
+        self.vel_emphasis_index = 0
+        self.velocity_emphasis_menu = self.velocity_menu.addMenu(_("Emphasis"))
+        self.emphasis_types = [_("None"), _("On-beat"), _("Off-beat")]
+        self.vel_emphasis_action_group = QtGui.QActionGroup(self.velocity_random_menu)
+        self.velocity_emphasis_menu.triggered.connect(self.vel_emphasis_triggered)
+
+        for f_i, f_type in zip(range(len(self.emphasis_types)), self.emphasis_types):
+            f_action = self.velocity_emphasis_menu.addAction(f_type)
+            f_action.setActionGroup(self.vel_emphasis_action_group)
+            f_action.setCheckable(True)
+            f_action.my_index = f_i
+            if f_i == 0:
+                f_action.setChecked(True)
 
         self.edit_menu.addSeparator()
 
@@ -5276,6 +5295,14 @@ class piano_roll_editor_widget:
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
 
+    def vel_rand_triggered(self, a_action):
+        self.vel_random_index = a_action.my_index
+        self.set_vel_rand()
+
+    def vel_emphasis_triggered(self, a_action):
+        self.vel_emphasis_index = a_action.my_index
+        self.set_vel_rand()
+
     def transpose_up_semitone(self):
         this_piano_roll_editor.transpose_selected(1)
 
@@ -5289,8 +5316,7 @@ class piano_roll_editor_widget:
         this_piano_roll_editor.transpose_selected(-12)
 
     def set_vel_rand(self, a_val=None):
-        this_piano_roll_editor.set_vel_rand(self.vel_rand_combobox.currentIndex(),
-                                            self.vel_emphasis_combobox.currentIndex())
+        this_piano_roll_editor.set_vel_rand(self.vel_random_index, self.vel_emphasis_index)
 
     def on_delete_selected(self):
         this_piano_roll_editor.delete_selected()
