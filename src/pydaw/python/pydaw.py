@@ -4432,7 +4432,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             for f_item in this_piano_roll_editor.get_selected_items():
                 f_item.orig_value = f_item.note_item.velocity
                 f_item.set_brush()
-                f_item.note_text.setText(str(f_item.orig_value))
+            for f_item in this_piano_roll_editor.note_items:
+                f_item.note_text.setText(str(f_item.note_item.velocity))
         else:
             a_event.setAccepted(True)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
