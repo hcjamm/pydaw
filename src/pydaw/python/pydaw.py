@@ -4479,6 +4479,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 f_item.note_item.velocity = f_new_vel
                 f_item.note_text.setText(str(f_new_vel))
                 f_item.set_brush()
+                f_item.set_vel_line()
             else:
                 f_pos_x = f_item.pos().x()
                 f_pos_y = f_item.pos().y()
