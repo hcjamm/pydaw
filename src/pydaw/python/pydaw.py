@@ -4429,7 +4429,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.is_velocity_dragging = True
             self.orig_y = a_event.pos().y()
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
-            for f_item in (x for x in this_piano_roll_editor.note_items if x.isSelected()):
+            for f_item in this_piano_roll_editor.get_selected_items():
                 f_item.orig_value = f_item.note_item.velocity
                 f_item.set_brush()
                 f_item.note_text.setText(str(f_item.orig_value))
@@ -4442,17 +4442,14 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 self.is_resizing = True
                 self.mouse_y_pos = QtGui.QCursor.pos().y()
                 self.resize_last_mouse_pos = a_event.pos().x()
-                for f_item in this_piano_roll_editor.note_items:
-                    if f_item.isSelected():
-                        f_item.resize_start_pos = f_item.note_item.start + \
-                            (4.0 * f_item.item_index)
-                        f_item.resize_pos = f_item.pos()
-                        f_item.resize_rect = f_item.rect()
+                for f_item in this_piano_roll_editor.get_selected_items():
+                    f_item.resize_start_pos = f_item.note_item.start + (4.0 * f_item.item_index)
+                    f_item.resize_pos = f_item.pos()
+                    f_item.resize_rect = f_item.rect()
             elif a_event.modifiers() == QtCore.Qt.ControlModifier:
                 self.is_copying = True
-                for f_item in this_piano_roll_editor.note_items:
-                    if f_item.isSelected():
-                        this_piano_roll_editor.draw_note(f_item.note_item, f_item.item_index)
+                for f_item in this_piano_roll_editor.get_selected_items():
+                    this_piano_roll_editor.draw_note(f_item.note_item, f_item.item_index)
         this_piano_roll_editor.click_enabled = True
 
     def mouseMoveEvent(self, a_event):
@@ -4467,7 +4464,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         if self.is_resizing:
             f_adjusted_width_diff = (a_event.pos().x() - self.resize_last_mouse_pos)
             self.resize_last_mouse_pos = a_event.pos().x()
-        for f_item in (x for x in this_piano_roll_editor.note_items if x.isSelected()):
+        for f_item in this_piano_roll_editor.get_selected_items():
             if self.is_resizing:
                 f_adjusted_width = pydaw_clip_min(f_item.resize_rect.width() +
                                                   f_adjusted_width_diff,
@@ -4511,7 +4508,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         global global_selected_piano_note
         if self.is_copying:
             f_new_selection = []
-        for f_item in (x for x in this_piano_roll_editor.note_items if x.isSelected()):
+        for f_item in this_piano_roll_editor.get_selected_items():
             f_pos_x = f_item.pos().x()
             f_pos_y = f_item.pos().y()
             if self.is_resizing:
@@ -4569,10 +4566,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 this_piano_roll_editor.selected_note_strings.append(
                     f_new_item.get_selected_string())
         else:
-            for f_item in this_piano_roll_editor.note_items:
-                if f_item.isSelected():
-                    this_piano_roll_editor.selected_note_strings.append(
-                        f_item.get_selected_string())
+            for f_item in this_piano_roll_editor.get_selected_items():
+                this_piano_roll_editor.selected_note_strings.append(
+                    f_item.get_selected_string())
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
@@ -4648,6 +4644,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.vel_rand = 0
         self.vel_emphasis = 0
         self.clipboard = []
+
+    def get_selected_items(self):
+        return (x for x in self.note_items if x.isSelected())
 
     def set_tooltips(self, a_on):
         if a_on:
