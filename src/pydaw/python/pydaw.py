@@ -4427,9 +4427,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.setSelected(True)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.is_velocity_dragging = True
-            self.mouse_pos = QtGui.QCursor.pos()
-            f_pos = a_event.pos()
-            self.orig_y = f_pos.y()
+            self.orig_y = a_event.pos().y()
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
             for f_item in (x for x in this_piano_roll_editor.note_items if x.isSelected()):
                 f_item.orig_value = f_item.note_item.velocity
