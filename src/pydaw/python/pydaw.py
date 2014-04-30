@@ -4313,12 +4313,19 @@ def piano_roll_set_delete_mode(a_enabled):
 
 
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
-    def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
+    def __init__(self, a_length, a_note_height, a_note, a_note_item,
+                 a_item_index, a_enabled=True):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
         self.item_index = a_item_index
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        if a_enabled:
+            self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+            self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+            self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+            self.setZValue(1002.0)
+        else:
+            self.setZValue(1001.0)
+            self.setEnabled(False)
+            self.setOpacity(0.3)
         self.note_height = a_note_height
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
@@ -4334,7 +4341,6 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.showing_resize_cursor = False
         self.resize_rect = self.rect()
         self.mouse_y_pos = QtGui.QCursor.pos().y()
-        self.setZValue(1002.0)
         self.note_text = QtGui.QGraphicsSimpleTextItem(self)
         self.note_text.setPen(QtGui.QPen(QtCore.Qt.black))
         self.update_note_text()
@@ -5082,42 +5088,45 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.draw_grid()
 
     def draw_item(self):
-        """ Draw all notes in an instance of the pydaw_item class"""
         self.has_selected = False #Reset the selected-ness state...
         self.viewer_width = 1000 * global_item_editing_count
         self.item_length = float(4 * global_item_editing_count)
-        #pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = \
             (999.0 * global_item_editing_count) + global_piano_keys_width
         self.setUpdatesEnabled(False)
         self.clear_drawn_items()
         if this_item_editor.enabled:
-            f_beat_offset = 0
-            for f_item in this_item_editor.items:
+            f_item_count = len(this_item_editor.items)
+            for f_i, f_item in zip(range(f_item_count), this_item_editor.items):
                 for f_note in f_item.notes:
-                    f_note_item = self.draw_note(f_note, f_beat_offset)
+                    f_note_item = self.draw_note(f_note, f_i)
                     f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
                     f_note_item.resize_pos = f_note_item.scenePos()
                     if f_note_item.get_selected_string() in self.selected_note_strings:
                         f_note_item.setSelected(True)
-                f_beat_offset += 1
+            if global_draw_last_items:
+                for f_i, f_uid in zip(range(f_item_count), global_last_open_item_uids):
+                    f_item = this_pydaw_project.get_item_by_uid(f_uid)
+                    for f_note in f_item.notes:
+                        f_note_item = self.draw_note(f_note, f_i, False)
             self.scrollContentsBy(0, 0)
         self.setUpdatesEnabled(True)
         self.update()
 
-    def draw_note(self, a_note, a_item_index):
+    def draw_note(self, a_note, a_item_index, a_enabled=True):
         """ a_note is an instance of the pydaw_note class"""
         f_start = self.piano_width + self.padding + self.beat_width * (a_note.start +
             (float(a_item_index) * 4.0))
         f_length = self.beat_width * a_note.length
         f_note = self.header_height + self.note_height * (self.total_notes - a_note.note_num)
         f_note_item = piano_roll_note_item(f_length, self.note_height,
-                                           a_note.note_num, a_note, a_item_index)
+                                           a_note.note_num, a_note, a_item_index, a_enabled)
         f_note_item.setPos(f_start, f_note)
         self.scene.addItem(f_note_item)
-        self.note_items.append(f_note_item)
-        return f_note_item
+        if a_enabled:
+            self.note_items.append(f_note_item)
+            return f_note_item
 
     def set_vel_rand(self, a_rand, a_emphasis):
         self.vel_rand = int(a_rand)
@@ -5302,6 +5311,17 @@ class piano_roll_editor_widget:
 
         self.edit_menu.addSeparator()
 
+        self.draw_last_action = self.edit_menu.addAction(_("Draw Last Item(s)"))
+        self.draw_last_action.triggered.connect(self.draw_last)
+        self.draw_last_action.setCheckable(True)
+        self.draw_last_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+F"))
+
+        self.open_last_action = self.edit_menu.addAction(_("Open Last Item(s)"))
+        self.open_last_action.triggered.connect(self.open_last)
+        self.open_last_action.setShortcut(QtGui.QKeySequence.fromString("ALT+F"))
+
+        self.edit_menu.addSeparator()
+
         self.clear_action = QtGui.QAction(_("Clear All"), self.widget)
         self.edit_menu.addAction(self.clear_action)
         self.clear_action.triggered.connect(self.clear_notes)
@@ -5318,6 +5338,16 @@ class piano_roll_editor_widget:
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("Snap:")), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+
+    def open_last(self):
+        if global_last_open_item_names:
+            global_open_items(global_last_open_item_names)
+
+    def draw_last(self):
+        global global_draw_last_items
+        global_draw_last_items = not global_draw_last_items
+        self.draw_last_action.setChecked(global_draw_last_items)
+        global_open_items()
 
     def vel_rand_triggered(self, a_action):
         self.vel_random_index = a_action.my_index
@@ -6062,6 +6092,9 @@ class automation_viewer_widget:
         f_window.exec_()
 
 global_open_items_uids = []
+global_last_open_item_uids = []
+global_open_item_names = []
+global_last_open_item_names = []
 
 def global_update_items_label():
     """ Refresh the item tab labels, ie:  when rnemaing items """
@@ -6090,12 +6123,15 @@ def global_check_midi_items():
     else:
         return True
 
+global_draw_last_items = False
+
 def global_open_items(a_items=None):
     """ a_items is a list of str, which are the names of the items.
         Leave blank to open the existing list
     """
     this_item_editor.enabled = True
-    global global_open_items_uids
+    global global_open_item_names, global_open_items_uids, \
+           global_last_open_item_uids, global_last_open_item_names
 
     if a_items is not None:
         this_piano_roll_editor.selected_note_strings = []
@@ -6118,7 +6154,10 @@ def global_open_items(a_items=None):
         this_item_editor.item_index_enabled = True
         this_piano_roll_editor.horizontalScrollBar().setSliderPosition(0)
         this_item_editor.set_zoom(a_is_refresh=True)
+        global_last_open_item_names = global_open_item_names
+        global_open_item_names = a_items[:]
         f_items_dict = this_pydaw_project.get_items_dict()
+        global_last_open_item_uids = global_open_items_uids
         global_open_items_uids = []
         for f_item_name in a_items:
             global_open_items_uids.append(f_items_dict.get_uid_by_name(f_item_name))
