@@ -4843,6 +4843,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def sceneMousePressEvent(self, a_event):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
+        elif a_event.button() == QtCore.Qt.RightButton:
+            return
         elif a_event.modifiers() == QtCore.Qt.ControlModifier:
             self.hover_restore_cursor_event()
         elif a_event.modifiers() == QtCore.Qt.ShiftModifier:
