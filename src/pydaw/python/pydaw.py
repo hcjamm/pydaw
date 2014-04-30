@@ -4718,6 +4718,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_item.note_item.is_selected = False
                 f_item.set_brush()
 
+    def set_selected_strings(self):
+        self.selected_note_strings = \
+            [x.get_selected_string() for x in self.note_items if x.isSelected()]
+
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
@@ -5391,7 +5395,8 @@ class piano_roll_editor_widget:
     def set_snap(self, a_val=None):
         f_index = self.snap_combobox.currentIndex()
         pydaw_set_piano_roll_quantize(f_index)
-        if len(global_open_items_uids) > 0:
+        if global_open_items_uids:
+            this_piano_roll_editor.set_selected_strings()
             global_open_items()
         else:
             this_piano_roll_editor.clear_drawn_items()
@@ -5399,7 +5404,8 @@ class piano_roll_editor_widget:
     def reload_handler(self, a_val=None):
         this_pydaw_project.set_midi_scale(self.scale_key_combobox.currentIndex(),
                                           self.scale_combobox.currentIndex())
-        if len(global_open_items_uids) > 0:
+        if global_open_items_uids:
+            this_piano_roll_editor.set_selected_strings()
             global_open_items()
         else:
             this_piano_roll_editor.clear_drawn_items()
