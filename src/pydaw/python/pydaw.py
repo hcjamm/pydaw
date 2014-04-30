@@ -4398,7 +4398,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
     def delete_later(self):
         global global_piano_roll_deleted_notes
-        if self not in global_piano_roll_deleted_notes:
+        if self.isEnabled() and self not in global_piano_roll_deleted_notes:
             global_piano_roll_deleted_notes.append(self)
             self.hide()
 
