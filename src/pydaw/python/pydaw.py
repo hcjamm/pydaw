@@ -4463,13 +4463,11 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
 
         if self.is_resizing:
-            f_adjusted_width_diff = (a_event.pos().x() - self.resize_last_mouse_pos)
+            f_pos_x = a_event.pos().x()
             self.resize_last_mouse_pos = a_event.pos().x()
         for f_item in this_piano_roll_editor.get_selected_items():
             if self.is_resizing:
-                f_adjusted_width = pydaw_clip_min(f_item.resize_rect.width() +
-                                                  f_adjusted_width_diff,
-                                                  global_piano_roll_min_note_length)
+                f_adjusted_width = pydaw_clip_min(f_pos_x, global_piano_roll_min_note_length)
                 f_item.resize_rect.setWidth(f_adjusted_width)
                 f_item.setRect(f_item.resize_rect)
                 f_item.setPos(f_item.resize_pos.x(), f_item.resize_pos.y())
@@ -4874,7 +4872,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_drawn_note.is_resizing = True
                 f_cursor_pos = QtGui.QCursor.pos()
                 f_drawn_note.mouse_y_pos = f_cursor_pos.y()
-                f_drawn_note.resize_last_mouse_pos = f_cursor_pos.x()
+                f_drawn_note.resize_last_mouse_pos = f_pos_x - f_drawn_note.pos().x()
 
         a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
