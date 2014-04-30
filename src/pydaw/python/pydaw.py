@@ -1281,13 +1281,20 @@ class region_list_editor:
             if f_new_name == "":
                 QtGui.QMessageBox.warning(self.group_box, _("Error"), _("Name cannot be blank"))
                 return
-            global global_region_clipboard
+            global global_region_clipboard, global_open_item_names, \
+                global_last_open_item_names, global_last_open_item_uids
             #Clear the clipboard, otherwise the names could be invalid
             global_region_clipboard = []
+            global_open_item_names = []
+            global_last_open_item_names = []
+            global_last_open_item_uids = []
             this_pydaw_project.rename_items(f_result, f_new_name)
             this_pydaw_project.commit(_("Rename items"))
             this_region_settings.open_region_by_uid(global_current_region.uid)
             global_update_items_label()
+            if global_draw_last_items:
+                global_open_items()
+                global_open_item_names = this_item_editor.item_names[:]
             f_window.close()
 
         def cancel_handler():
@@ -6157,7 +6164,7 @@ def global_open_items(a_items=None):
         global_last_open_item_names = global_open_item_names
         global_open_item_names = a_items[:]
         f_items_dict = this_pydaw_project.get_items_dict()
-        global_last_open_item_uids = global_open_items_uids
+        global_last_open_item_uids = global_open_items_uids[:]
         global_open_items_uids = []
         for f_item_name in a_items:
             global_open_items_uids.append(f_items_dict.get_uid_by_name(f_item_name))
@@ -6582,7 +6589,7 @@ class item_list_editor:
         self.ccs_table_widget.clear()
         self.pitchbend_table_widget.clear()
         self.set_headers()
-        self.item_name = str(self.item_name_combobox.currentText())
+        self.item_name = self.item_names[self.item_name_combobox.currentIndex()]
         self.item = this_pydaw_project.get_item_by_name(self.item_name)
         self.notes_table_widget.setSortingEnabled(False)
         f_i = 0
