@@ -2060,6 +2060,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_pitchbend_action.triggered.connect(self.pitchbend_selected)
         f_reset_fades_action = f_properties_menu.addAction(_("Reset Fades"))
         f_reset_fades_action.triggered.connect(self.reset_fades)
+        f_reset_end_action = f_properties_menu.addAction(_("Reset End"))
+        f_reset_end_action.triggered.connect(self.reset_end)
         f_move_to_end_action = f_properties_menu.addAction(_("Move to Region End"))
         f_move_to_end_action.triggered.connect(self.move_to_region_end)
         f_reverse_action = f_properties_menu.addAction(_("Reverse/Unreverse"))
@@ -2285,6 +2287,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
             this_pydaw_project.commit(_("Reset audio item fades"))
             global_open_audio_items(True)
+
+    def reset_end(self):
+        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        for f_item in f_list:
+            f_item.audio_item.sample_end = 1000.0
+            self.draw()
+            self.clip_at_region_end()
+        this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+        this_pydaw_project.commit(_("Reset sample end for audio item(s)"))
+        global_open_audio_items()
 
     def replace_with_path_in_clipboard(self):
         f_path = global_get_audio_file_from_clipboard()
@@ -4749,15 +4761,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_index = f_note.item_index
             f_note_num = f_note.note_item.note_num
             f_velocity = f_note.note_item.velocity
+            self.selected_note_strings.append("{}|{}".format(f_index, f_note.note_item))
             if f_new_start >= 4.0:
-                f_index += f_new_start // 4.0
+                f_index += int(f_new_start // 4)
                 if f_index >= len(global_open_items_uids):
                     print("Item start exceeded item index length")
                     continue
                 f_new_start = f_new_start % 4.0
             f_new_note_item = pydaw_note(f_new_start, f_half, f_note_num, f_velocity)
             this_item_editor.items[f_index].add_note(f_new_note_item, False)
-            self.selected_note_strings.append("{}|{}".format(f_index, f_note.note_item))
             self.selected_note_strings.append("{}|{}".format(f_index, f_new_note_item))
 
         global_save_and_reload_items()
