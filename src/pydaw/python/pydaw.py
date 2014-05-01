@@ -7284,7 +7284,8 @@ class transport_widget:
     def set_tooltips(self, a_enabled):
         if a_enabled:
             self.panic_button.setToolTip(
-                _("Panic button:   Sends a note-off signal on every note to every instrument"))
+                _("Panic button:   Sends a note-off signal on every note to every instrument\n"
+                    "You can also use CTRL+P"))
             self.overdub_checkbox.setToolTip(
                 _("Checking this box causes recording to unlink existing items and append "
                 "new events to the existing events"))
@@ -8294,6 +8295,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.addAction(self.loop_mode_action)
         self.loop_mode_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+L"))
         self.loop_mode_action.triggered.connect(this_transport.toggle_loop_mode)
+
+        self.panic_action = QtGui.QAction(self)
+        self.addAction(self.panic_action)
+        self.panic_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+P"))
+        self.panic_action.triggered.connect(this_transport.on_panic)
 
         self.transport_widget = QtGui.QWidget()
         self.transport_hlayout = QtGui.QHBoxLayout(self.transport_widget)
