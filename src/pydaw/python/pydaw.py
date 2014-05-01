@@ -262,10 +262,10 @@ class song_editor:
         self.main_vlayout.addWidget(self.table_widget)
 
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.rename_action = QtGui.QAction(_("Rename region"), self.table_widget)
+        self.rename_action = QtGui.QAction(_("Rename Region"), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_region)
         self.table_widget.addAction(self.rename_action)
-        self.delete_action = QtGui.QAction(_("Delete region(s)"), self.table_widget)
+        self.delete_action = QtGui.QAction(_("Delete Region(s)"), self.table_widget)
         self.delete_action.triggered.connect(self.on_delete)
         #Too often, this was being triggered by accident, making it a PITA as there
         #was no easy way to tell which widget had focus...
@@ -358,9 +358,9 @@ class song_editor:
             self.table_widget.setToolTip(
             _("This is the song editor.  A song is a timeline "
             "consisting of regions,\nclick here to add a region, click and drag to move a "
-            "region, or press the 'delete' button to delete\nthe selected regions.  "
+            "region, or 'right-click->Delete Region' to delete\nthe selected regions.  "
             "Click on a region to edit it in the region editor below.\n\n"
-            "Click 'menu->Show Tooltips' in the transport to disable these tooltips"))
+            "Click 'Menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.table_widget.setToolTip("")
 
@@ -1167,14 +1167,14 @@ class region_list_editor:
             "items and tracks.\nA track is either a plugin instrument, audio track or bus track.\n"
             "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add "
             "a new item\nDouble click an item to open it in the piano-roll-editor or select "
-            "multiple and right-click->'edit multiple items as group'\n\n"
+            "multiple and right-click->'Edit Selected Items'\n\n"
             "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted "
             "with CTRL+V, and deleted by pressing 'Delete'\n\n"
             "Additional functions can be found by right-clicking on the items, the term "
             "'unlink' means to create a new copy of the item that\n"
             "does not change it's parent item when edited (by default all items are "
             "'ghost items' that update all items with the same name)\n\n"
-            "Click 'menu->Show Tooltips' in the transport to disable these tooltips"))
+            "Click 'Menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.table_widget.setToolTip("")
 
@@ -2860,7 +2860,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.setToolTip(_("Drag .wav files from the file browser onto here.  "
             "You can edit item properties with the\n"
             "'Edit' tab to the left, or by clicking and dragging the item handles."
-            "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
+            "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.setToolTip("")
         for f_item in self.audio_items:
@@ -3402,7 +3402,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         "folders and files.\nDrag and drop one file at a time onto the sequencer.\n.wav files "
         "are the only supported audio file format.\nClick the 'Bookmark' button to save the "
         "current folder to your bookmarks located on the 'Bookmarks' tab."
-        "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
+        "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
         self.modulex.widget.setToolTip(_("This tab allows you to set "
         "effects per-item.\nThe tab is only enabled when you have exactly one item selected, "
         "the copy and paste buttons allow you to copy settings between multipe items."))
@@ -3765,7 +3765,7 @@ class audio_item_editor_widget:
             "click or marquee select items, then change their properties and click "
             "'Save Changes'\n"
             "Only the control section(s) whose checkbox is checked will be updated.\n\n"
-            "Click 'menu->Show Tooltips' in the transport to disable these tooltips"))
+            "Click 'Menu->Show Tooltips' in the transport to disable these tooltips"))
             self.crispness_combobox.setToolTip(_("Affects the sharpness of transients, only "
             "for modes using Rubberband"))
             self.timestretch_mode.setToolTip(_("Modes:\n\nNone:  No stretching or "
@@ -4684,7 +4684,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             "editor and right-click + 'Edit Selected Items as Group'\n"
             "The Quantize, Transpose and Velocity actions in the menu button open dialogs \n"
             "to manipulate the selected notes (or all notes if none are selected)"
-            "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
+            "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.setToolTip("")
 
@@ -7145,6 +7145,12 @@ class transport_widget:
         if not self.suppress_osc:
             this_pydaw_project.this_pydaw_osc.pydaw_set_loop_mode(a_loop_mode)
 
+    def toggle_loop_mode(self):
+        f_index = self.loop_mode_combobox.currentIndex() + 1
+        if f_index >= self.loop_mode_combobox.count():
+            f_index = 0
+        self.loop_mode_combobox.setCurrentIndex(f_index)
+
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
@@ -7284,6 +7290,8 @@ class transport_widget:
                 "new events to the existing events"))
             self.follow_checkbox.setToolTip(
                 _("Checking this box causes the region editor to follow playback"))
+            self.loop_mode_combobox.setToolTip(_("Use this to toggle between normal playback "
+                "and looping a region.\nYou can toggle between settings with CTRL+L"))
             self.group_box.setToolTip(_("This is the transport, use this control to "
                 "start/stop playback or recording.\n"
                 "You can start or stop playback by pressing spacebar\n"
@@ -7295,11 +7303,12 @@ class transport_widget:
                 "items, rather than placed in new items that replace the existing items.\n"
                 "The panic button sends a note-off event on every note to every plugin.  "
                 "Use this when you get a stuck note."
-                "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
+                "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.panic_button.setToolTip("")
             self.overdub_checkbox.setToolTip("")
             self.follow_checkbox.setToolTip("")
+            self.loop_mode_combobox.setToolTip("")
             self.group_box.setToolTip("")
 
 
@@ -8280,6 +8289,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.tooltips_action.setCheckable(True)
         self.tooltips_action.setChecked(global_tooltips_enabled)
         self.tooltips_action.triggered.connect(self.set_tooltips_enabled)
+
+        self.loop_mode_action = QtGui.QAction(self)
+        self.addAction(self.loop_mode_action)
+        self.loop_mode_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+L"))
+        self.loop_mode_action.triggered.connect(this_transport.toggle_loop_mode)
 
         self.transport_widget = QtGui.QWidget()
         self.transport_hlayout = QtGui.QHBoxLayout(self.transport_widget)
