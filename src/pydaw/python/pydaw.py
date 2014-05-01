@@ -360,7 +360,7 @@ class song_editor:
             "consisting of regions,\nclick here to add a region, click and drag to move a "
             "region, or press the 'delete' button to delete\nthe selected regions.  "
             "Click on a region to edit it in the region editor below.\n\n"
-            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
+            "Click 'menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.table_widget.setToolTip("")
 
@@ -1174,7 +1174,7 @@ class region_list_editor:
             "'unlink' means to create a new copy of the item that\n"
             "does not change it's parent item when edited (by default all items are "
             "'ghost items' that update all items with the same name)\n\n"
-            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
+            "Click 'menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.table_widget.setToolTip("")
 
@@ -2860,7 +2860,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.setToolTip(_("Drag .wav files from the file browser onto here.  "
             "You can edit item properties with the\n"
             "'Edit' tab to the left, or by clicking and dragging the item handles."
-            "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+            "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.setToolTip("")
         for f_item in self.audio_items:
@@ -3402,7 +3402,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         "folders and files.\nDrag and drop one file at a time onto the sequencer.\n.wav files "
         "are the only supported audio file format.\nClick the 'Bookmark' button to save the "
         "current folder to your bookmarks located on the 'Bookmarks' tab."
-        "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+        "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
         self.modulex.widget.setToolTip(_("This tab allows you to set "
         "effects per-item.\nThe tab is only enabled when you have exactly one item selected, "
         "the copy and paste buttons allow you to copy settings between multipe items."))
@@ -3765,7 +3765,7 @@ class audio_item_editor_widget:
             "click or marquee select items, then change their properties and click "
             "'Save Changes'\n"
             "Only the control section(s) whose checkbox is checked will be updated.\n\n"
-            "Click the 'tooltips' checkbox in the transport to disable these tooltips"))
+            "Click 'menu->Show Tooltips' in the transport to disable these tooltips"))
             self.crispness_combobox.setToolTip(_("Affects the sharpness of transients, only "
             "for modes using Rubberband"))
             self.timestretch_mode.setToolTip(_("Modes:\n\nNone:  No stretching or "
@@ -4684,7 +4684,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             "editor and right-click + 'Edit Selected Items as Group'\n"
             "The Quantize, Transpose and Velocity actions in the menu button open dialogs \n"
             "to manipulate the selected notes (or all notes if none are selected)"
-            "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+            "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
             self.setToolTip("")
 
@@ -7264,11 +7264,8 @@ class transport_widget:
         f_lower_ctrl_layout.addWidget(self.menu_button)
         self.panic_button = QtGui.QPushButton(_("Panic"))
         self.panic_button.pressed.connect(self.on_panic)
-        f_lower_ctrl_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        f_lower_ctrl_layout.addWidget(self.panic_button)
-        self.tooltips_checkbox = QtGui.QCheckBox(_("Tooltips"))
-        self.tooltips_checkbox.stateChanged.connect(pydaw_set_tooltips_enabled)
-        f_upper_ctrl_layout.addWidget(self.tooltips_checkbox)
+        f_upper_ctrl_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        f_upper_ctrl_layout.addWidget(self.panic_button)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
         self.last_region_num = -99
@@ -7280,9 +7277,6 @@ class transport_widget:
 
     def set_tooltips(self, a_enabled):
         if a_enabled:
-            self.tooltips_checkbox.setToolTip(
-                _("Check this box to show really annoying (but useful) tooltips "
-                "for everything"))
             self.panic_button.setToolTip(
                 _("Panic button:   Sends a note-off signal on every note to every instrument"))
             self.overdub_checkbox.setToolTip(
@@ -7301,9 +7295,8 @@ class transport_widget:
                 "items, rather than placed in new items that replace the existing items.\n"
                 "The panic button sends a note-off event on every note to every plugin.  "
                 "Use this when you get a stuck note."
-                "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips"))
+                "\n\nClick 'menu->Show Tooltips' in the transport to disable these tooltips"))
         else:
-            self.tooltips_checkbox.setToolTip("")
             self.panic_button.setToolTip("")
             self.overdub_checkbox.setToolTip("")
             self.follow_checkbox.setToolTip("")
@@ -8281,6 +8274,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.version_action = self.menu_help.addAction(_("Version Info..."))
         self.version_action.triggered.connect(self.on_version)
 
+        self.menu_bar.addSeparator()
+
+        self.tooltips_action = self.menu_bar.addAction(_("Show Tooltips"))
+        self.tooltips_action.setCheckable(True)
+        self.tooltips_action.setChecked(global_tooltips_enabled)
+        self.tooltips_action.triggered.connect(self.set_tooltips_enabled)
+
         self.transport_widget = QtGui.QWidget()
         self.transport_hlayout = QtGui.QHBoxLayout(self.transport_widget)
         self.transport_hlayout.setMargin(2)
@@ -8351,6 +8351,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.subprocess_timer.start(1000)
         self.show()
         self.ignore_close_event = True
+
+    def set_tooltips_enabled(self):
+        pydaw_set_tooltips_enabled(self.tooltips_action.isChecked())
 
     def subprocess_monitor(self):
         try:
@@ -9535,11 +9538,20 @@ def open_pydaw_engine(a_project_path):
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
 
+global_tooltips_enabled_file = "{}/tooltips.txt".format(global_pydaw_home)
+
+if os.path.isfile(global_tooltips_enabled_file):
+    if pydaw_read_file_text(global_tooltips_enabled_file) == "True":
+        global_tooltips_enabled = True
+
 #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window = pydaw_main_window()
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
 this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(4)
+
+if global_tooltips_enabled:
+    pydaw_set_tooltips_enabled(global_tooltips_enabled)
 
 #Get the plugin/control comboboxes populated
 this_cc_editor_widget.plugin_changed()
@@ -9570,14 +9582,6 @@ if os.path.exists(default_project_file):
     global_open_project(default_project_file, a_wait=False)
 else:
     global_new_project(default_project_file, a_wait=False)
-
-global_tooltips_enabled_file = "{}/tooltips.txt".format(global_pydaw_home)
-
-if os.path.isfile(global_tooltips_enabled_file):
-    if pydaw_read_file_text(global_tooltips_enabled_file) == "True":
-        this_transport.tooltips_checkbox.setChecked(True)
-else:
-    this_transport.tooltips_checkbox.setChecked(True)
 
 QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("UTF-8"))
 
