@@ -4726,6 +4726,42 @@ class piano_roll_editor(QtGui.QGraphicsView):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
 
+    def half_selected(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+
+        self.selected_note_strings = []
+
+        min_split_size = 4.0 / 64.0
+
+        f_selected = [x for x in self.note_items if x.isSelected()]
+        if not f_selected:
+            QtGui.QMessageBox.warning(self, _("Error"), _("Nothing selected"))
+            return
+
+        for f_note in f_selected:
+            if f_note.note_item.length < min_split_size:
+                continue
+            f_half = f_note.note_item.length * 0.5
+            f_note.note_item.length = f_half
+            f_new_start = f_note.note_item.start + f_half
+            f_index = f_note.item_index
+            f_note_num = f_note.note_item.note_num
+            f_velocity = f_note.note_item.velocity
+            if f_new_start >= 4.0:
+                f_index += f_new_start // 4.0
+                if f_index >= len(global_open_items_uids):
+                    print("Item start exceeded item index length")
+                    continue
+                f_new_start = f_new_start % 4.0
+            f_new_note_item = pydaw_note(f_new_start, f_half, f_note_num, f_velocity)
+            this_item_editor.items[f_index].add_note(f_new_note_item, False)
+            self.selected_note_strings.append("{}|{}".format(f_index, f_note.note_item))
+            self.selected_note_strings.append("{}|{}".format(f_index, f_new_note_item))
+
+        global_save_and_reload_items()
+
     def glue_selected(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
@@ -5321,6 +5357,11 @@ class piano_roll_editor_widget:
         self.glue_selected_action = self.edit_menu.addAction(_("Glue Selected"))
         self.glue_selected_action.triggered.connect(this_piano_roll_editor.glue_selected)
         self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
+
+        self.half_selected_action = self.edit_menu.addAction(_("Split Selected in Half"))
+        self.half_selected_action.triggered.connect(this_piano_roll_editor.half_selected)
+        self.half_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
+
 
         self.edit_menu.addSeparator()
 
