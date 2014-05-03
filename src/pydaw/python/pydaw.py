@@ -6222,6 +6222,22 @@ def global_check_midi_items():
 
 global_draw_last_items = False
 
+def global_set_midi_zoom(a_is_refresh=False):
+    if not this_item_editor.enabled:
+        return
+    f_index = 1 if this_main_window.midi_zoom_action.isChecked() else 0
+    f_item_count = len(this_item_editor.items)
+    if not a_is_refresh and f_item_count < 2:
+        return
+
+    global global_item_zoom_index
+    global_item_zoom_index = f_index
+
+    this_cc_editor.scale_to_width()
+    this_piano_roll_editor.scale_to_width()
+    this_pb_editor.scale_to_width()
+
+
 def global_open_items(a_items=None):
     """ a_items is a list of str, which are the names of the items.
         Leave blank to open the existing list
@@ -6232,9 +6248,9 @@ def global_open_items(a_items=None):
 
     if a_items is not None:
         this_piano_roll_editor.selected_note_strings = []
-        f_index = this_item_editor.zoom_combobox.currentIndex()
+        f_index = 1 if this_main_window.midi_zoom_action.isChecked() else 0
         if f_index == 1:
-            this_item_editor.zoom_combobox.setCurrentIndex(0)
+            this_main_window.midi_zoom_action.setChecked(False)
         global global_item_editing_count
         global_item_editing_count = len(a_items)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
@@ -6246,7 +6262,7 @@ def global_open_items(a_items=None):
         this_item_editor.item_name_combobox.setCurrentIndex(0)
         this_item_editor.item_index_enabled = True
         this_piano_roll_editor.horizontalScrollBar().setSliderPosition(0)
-        this_item_editor.set_zoom(a_is_refresh=True)
+        global_set_midi_zoom(a_is_refresh=True)
         global_last_open_item_names = global_open_item_names
         global_open_item_names = a_items[:]
         f_items_dict = this_pydaw_project.get_items_dict()
@@ -6486,28 +6502,13 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
+    def tab_changed(self, a_val=None):
+        this_piano_roll_editor.click_enabled = True
+
     def show_not_enabled_warning(self):
         QtGui.QMessageBox.warning(this_main_window, _("Error"),
                                   _("You must open an item first by double-clicking on one in "
                                   "the region editor on the 'Song/Region' tab."))
-
-    def set_zoom(self, a_value=None, a_is_refresh=False):
-        if not self.enabled:
-            return
-        f_index = self.zoom_combobox.currentIndex()
-        f_item_count = len(self.items)
-        if not a_is_refresh and f_item_count < 2:
-            return
-
-        global global_item_zoom_index
-        global_item_zoom_index = f_index
-
-        this_cc_editor.scale_to_width()
-        this_piano_roll_editor.scale_to_width()
-        this_pb_editor.scale_to_width()
-
-    def tab_changed(self, a_val=None):
-        this_piano_roll_editor.click_enabled = True
 
     def __init__(self):
         self.enabled = False
@@ -6518,13 +6519,6 @@ class item_list_editor:
         self.widget = QtGui.QWidget()
         self.master_vlayout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.master_vlayout)
-        self.master_hlayout = QtGui.QHBoxLayout()
-        self.master_vlayout.addLayout(self.master_hlayout)
-        self.zoom_combobox = QtGui.QComboBox()
-        self.zoom_combobox.setMaximumWidth(120)
-        self.zoom_combobox.addItems([_("Large"), _("Small")])
-        self.zoom_combobox.currentIndexChanged.connect(self.set_zoom)
-        self.master_hlayout.addWidget(self.zoom_combobox, QtCore.Qt.AlignRight)
 
         self.tab_widget = QtGui.QTabWidget()
         self.tab_widget.currentChanged.connect(self.tab_changed)
@@ -8288,6 +8282,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             _("Restore transport and song editor"))
         self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
         self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
+
+        self.menu_appearance.addSeparator()
+
+        self.midi_zoom_action  = self.menu_appearance.addAction(_("MIDI Zoom"))
+        self.midi_zoom_action.triggered.connect(global_set_midi_zoom)
+        self.midi_zoom_action.setCheckable(True)
+        self.midi_zoom_action.setShortcut(QtGui.QKeySequence("ALT+M"))
 
         self.menu_appearance.addSeparator()
 
