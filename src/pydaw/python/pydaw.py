@@ -6298,7 +6298,7 @@ def global_open_items(a_items=None):
     this_item_editor.open_item_list()
 
     if a_items is not None and f_index == 1:
-        this_item_editor.zoom_combobox.setCurrentIndex(1)
+        this_main_window.midi_zoom_action.setChecked(True)
 
 def global_save_and_reload_items():
     assert(len(this_item_editor.item_names) == len(this_item_editor.items))
