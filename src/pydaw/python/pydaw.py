@@ -5117,8 +5117,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_note_bar.hoverMoveEvent = self.hover_restore_cursor_event
         f_note_bar.setBrush(f_base_brush)
         f_note_bar.setPos(self.piano_width + self.padding,  0.0)
-        for i in range(self.end_octave-self.start_octave,
-                       self.start_octave-self.start_octave, -1):
+        for i in range(self.end_octave - self.start_octave,
+                       self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
                 f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width,
                                                      self.note_height, self.piano)
@@ -5128,7 +5128,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 if f_current_key >= len(f_octave_brushes):
                     f_current_key = 0
                 f_note_bar.setPos(self.piano_width + self.padding,
-                                  self.note_height * (j) + self.octave_height * (i-1))
+                                  self.note_height * (j) + self.octave_height * (i - 1))
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
         f_bar_pen = QtGui.QPen(QtGui.QColor(240, 30, 30), 12.0)
@@ -5206,7 +5206,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_text = QtGui.QGraphicsSimpleTextItem(f_name, self.header)
                 f_text.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_text.setBrush(QtCore.Qt.white)
-                f_text.setPos((f_i * 1000.0) + 24.0, 1.0)
+                f_text.setPos((f_i * 1000.0) + 24.0, 2.0)
         self.setUpdatesEnabled(True)
         self.update()
 
@@ -8274,12 +8274,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_appearance = self.menu_bar.addMenu(_("Appearance"))
 
         self.collapse_splitters_action = self.menu_appearance.addAction(
-            _("Collapse transport and song editor"))
+            _("Collapse Transport and Song Editor"))
         self.collapse_splitters_action.triggered.connect(self.on_collapse_splitters)
         self.collapse_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Up"))
 
         self.restore_splitters_action = self.menu_appearance.addAction(
-            _("Restore transport and song editor"))
+            _("Restore Transport and Song Editor"))
         self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
         self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
 
