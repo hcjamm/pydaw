@@ -467,7 +467,7 @@ class song_editor:
 
 def global_update_hidden_rows(a_val=None):
     this_region_editor.table_widget.setUpdatesEnabled(False)
-    if global_current_region and this_region_settings.hide_checkbox.isChecked():
+    if global_current_region and this_region_settings.hide_inactive:
         f_active = [x.track_num for x in global_current_region.items]
         for f_i in range(this_region_editor.table_widget.rowCount()):
             this_region_editor.table_widget.setRowHidden(f_i, f_i not in f_active)
@@ -513,7 +513,8 @@ class region_settings:
             this_pydaw_project.commit(f_commit_message)
 
     def toggle_hide_inactive(self):
-        self.hide_checkbox.toggle()
+        self.hide_inactive = self.toggle_hide_action.isChecked()
+        global_update_hidden_rows()
 
     def __init__(self):
         self.enabled = False
@@ -536,7 +537,9 @@ class region_settings:
         self.split_action = self.menu.addAction(_("Split Region..."))
         self.split_action.triggered.connect(self.on_split)
         self.menu.addSeparator()
-        self.toggle_hide_action = self.menu.addAction(_("Hide/Unhide Inactive Instruments"))
+        self.hide_inactive = False
+        self.toggle_hide_action = self.menu.addAction(_("Hide Inactive Instruments"))
+        self.toggle_hide_action.setCheckable(True)
         self.toggle_hide_action.triggered.connect(self.toggle_hide_inactive)
         self.toggle_hide_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
         self.menu.addSeparator()
@@ -546,10 +549,6 @@ class region_settings:
         self.unmute_action = self.menu.addAction(_("Un-Mute All"))
         self.unmute_action.triggered.connect(self.unmute_all)
         self.unmute_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+M"))
-
-        self.hide_checkbox = QtGui.QCheckBox(_("Hide Inactive"))
-        self.hlayout0.addWidget(self.hide_checkbox)
-        self.hide_checkbox.stateChanged.connect(global_update_hidden_rows)
 
         self.hlayout0.addItem(QtGui.QSpacerItem(10,10, QtGui.QSizePolicy.Expanding))
         self.hlayout0.addWidget(QtGui.QLabel(_("Region Length:")))
