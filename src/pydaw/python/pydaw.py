@@ -4351,6 +4351,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.resize_start_pos = self.note_item.start
         self.is_copying = False
         self.is_velocity_dragging = False
+        self.is_velocity_curving = False
         if global_selected_piano_note is not None and \
         a_note_item == global_selected_piano_note:
             self.is_resizing = True
@@ -4448,17 +4449,15 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             piano_roll_set_delete_mode(True)
             self.delete_later()
         elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
-            a_event.setAccepted(True)
-            self.setSelected(True)
-            QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.is_velocity_dragging = True
-            self.orig_y = a_event.pos().y()
-            QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
-            for f_item in this_piano_roll_editor.get_selected_items():
-                f_item.orig_value = f_item.note_item.velocity
-                f_item.set_brush()
-            for f_item in this_piano_roll_editor.note_items:
-                f_item.note_text.setText(str(f_item.note_item.velocity))
+        elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
+            self.is_velocity_curving = True
+            f_list = [((x.item_index * 4.0) + x.note_item.start)
+                for x in this_piano_roll_editor.get_selected_items()]
+            f_list.sort()
+            self.vc_start = f_list[0]
+            self.vc_mid = (self.item_index * 4.0) + self.note_item.start
+            self.vc_end = f_list[-1]
         else:
             a_event.setAccepted(True)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
@@ -4476,14 +4475,25 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 self.is_copying = True
                 for f_item in this_piano_roll_editor.get_selected_items():
                     this_piano_roll_editor.draw_note(f_item.note_item, f_item.item_index)
+        if self.is_velocity_curving or self.is_velocity_dragging:
+            a_event.setAccepted(True)
+            self.setSelected(True)
+            QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+            self.orig_y = a_event.pos().y()
+            QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
+            for f_item in this_piano_roll_editor.get_selected_items():
+                f_item.orig_value = f_item.note_item.velocity
+                f_item.set_brush()
+            for f_item in this_piano_roll_editor.note_items:
+                f_item.note_text.setText(str(f_item.note_item.velocity))
         this_piano_roll_editor.click_enabled = True
 
     def mouseMoveEvent(self, a_event):
-        if self.is_velocity_dragging:
+        if self.is_velocity_dragging or self.is_velocity_curving:
             f_pos = a_event.pos()
             f_y = f_pos.y()
             f_diff_y = self.orig_y - f_y
-            f_val = (f_diff_y * 0.5) #+ self.orig_value
+            f_val = (f_diff_y * 0.5)
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
 
@@ -4505,6 +4515,24 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 QtGui.QCursor.setPos(QtGui.QCursor.pos().x(), self.mouse_y_pos)
             elif self.is_velocity_dragging:
                 f_new_vel = pydaw_util.pydaw_clip_value(f_val + f_item.orig_value, 1, 127)
+                f_new_vel = int(f_new_vel)
+                f_item.note_item.velocity = f_new_vel
+                f_item.note_text.setText(str(f_new_vel))
+                f_item.set_brush()
+                f_item.set_vel_line()
+            elif self.is_velocity_curving:
+                f_start = ((f_item.item_index * 4.0) + f_item.note_item.start)
+                if f_start == self.vc_mid:
+                    f_new_vel = f_val + f_item.orig_value
+                else:
+                    if f_start > self.vc_mid:
+                        f_frac =  (f_start - self.vc_mid) / (self.vc_end - self.vc_mid)
+                        f_new_vel = pydaw_util.linear_interpolate(f_val, 0.3 * f_val, f_frac)
+                    else:
+                        f_frac =  (f_start - self.vc_start) / (self.vc_mid - self.vc_start)
+                        f_new_vel = pydaw_util.linear_interpolate(0.3 * f_val, f_val, f_frac)
+                    f_new_vel += f_item.orig_value
+                f_new_vel = pydaw_util.pydaw_clip_value(f_new_vel, 1, 127)
                 f_new_vel = int(f_new_vel)
                 f_item.note_item.velocity = f_new_vel
                 f_item.note_text.setText(str(f_new_vel))
@@ -4553,7 +4581,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 elif f_new_note_length < pydaw_min_note_length:
                     f_new_note_length = pydaw_min_note_length
                 f_item.note_item.set_length(f_new_note_length)
-            elif self.is_velocity_dragging:
+            elif self.is_velocity_dragging or self.is_velocity_curving:
                 pass
             else:
                 f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001
@@ -4596,6 +4624,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_item.is_resizing = False
             f_item.is_copying = False
             f_item.is_velocity_dragging = False
+            f_item.is_velocity_curving = False
         global_save_and_reload_items()
         self.showing_resize_cursor = False
         QtGui.QApplication.restoreOverrideCursor()
@@ -4677,6 +4706,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             "CTRL+click+drag to marquee select multiple items\n"
             "SHIFT+click+drag to delete notes\n"
             "CTRL+ALT+click+drag-up/down to adjust the velocity of selected notes\n"
+            "CTRL+SHIFT+click+drag-up/down to create a velocity curve for the selected notes\n"
             "Press the Delete button on your keyboard to delete selected notes\n"
             "To edit velocity, press the menu button and select the Velocity->Dialog... action\n"
             "Click and drag the note end to change the length of selected notes\n"
