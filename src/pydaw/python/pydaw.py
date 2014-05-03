@@ -6205,6 +6205,7 @@ def global_update_items_label():
     f_items_dict = this_pydaw_project.get_items_dict()
     for f_item_uid in global_open_items_uids:
         this_item_editor.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
+    global_open_items()
 
 def global_check_midi_items():
     """ Return True if OK, otherwise clear the the item editors and return False """
