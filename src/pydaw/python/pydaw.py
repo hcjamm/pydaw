@@ -5201,6 +5201,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     for f_note in f_item.notes:
                         f_note_item = self.draw_note(f_note, f_i, False)
             self.scrollContentsBy(0, 0)
+            for f_name, f_i in zip(this_item_editor.item_names,
+                                   range(len(this_item_editor.item_names))):
+                f_text = QtGui.QGraphicsSimpleTextItem(f_name, self.header)
+                f_text.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+                f_text.setBrush(QtCore.Qt.white)
+                f_text.setPos((f_i * 1000.0) + 24.0, 1.0)
         self.setUpdatesEnabled(True)
         self.update()
 
@@ -6194,16 +6200,11 @@ global_open_item_names = []
 global_last_open_item_names = []
 
 def global_update_items_label():
-    """ Refresh the item tab labels, ie:  when rnemaing items """
     global global_open_items_uids
     this_item_editor.item_names = []
     f_items_dict = this_pydaw_project.get_items_dict()
     for f_item_uid in global_open_items_uids:
         this_item_editor.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
-    f_label_text = ", ".join(this_item_editor.item_names)
-    if len(f_label_text) >= 150:
-        f_label_text = f_label_text[:150] + "..."
-    this_item_editor.item_list_label.setText(f_label_text)
 
 def global_check_midi_items():
     """ Return True if OK, otherwise clear the the item editors and return False """
@@ -6215,7 +6216,6 @@ def global_check_midi_items():
             break
     if f_invalid:
         this_item_editor.clear_new()
-        this_item_editor.item_list_label.setText("")
         return False
     else:
         return True
@@ -6239,10 +6239,6 @@ def global_open_items(a_items=None):
         global_item_editing_count = len(a_items)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         this_item_editor.item_names = a_items
-        f_label_text = ", ".join(a_items)
-        if len(f_label_text) >= 150:
-            f_label_text = f_label_text[:150] + "..."
-        this_item_editor.item_list_label.setText(f_label_text)
         this_item_editor.item_index_enabled = False
         this_item_editor.item_name_combobox.clear()
         this_item_editor.item_name_combobox.clearEditText()
@@ -6524,8 +6520,6 @@ class item_list_editor:
         self.widget.setLayout(self.master_vlayout)
         self.master_hlayout = QtGui.QHBoxLayout()
         self.master_vlayout.addLayout(self.master_hlayout)
-        self.item_list_label = QtGui.QLabel("")
-        self.master_hlayout.addWidget(self.item_list_label,  QtCore.Qt.AlignLeft)
         self.zoom_combobox = QtGui.QComboBox()
         self.zoom_combobox.setMaximumWidth(120)
         self.zoom_combobox.addItems([_("Large"), _("Small")])
