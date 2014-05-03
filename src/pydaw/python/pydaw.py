@@ -5205,8 +5205,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                                    range(len(this_item_editor.item_names))):
                 f_text = QtGui.QGraphicsSimpleTextItem(f_name, self.header)
                 f_text.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-                f_text.setBrush(QtCore.Qt.white)
-                f_text.setPos((f_i * 1000.0) + 24.0, 2.0)
+                f_text.setBrush(QtCore.Qt.yellow)
+                f_text.setPos((f_i * 1000.0) + 48.0, 2.0)
         self.setUpdatesEnabled(True)
         self.update()
 
