@@ -4985,7 +4985,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
         self.header.hoverEnterEvent = self.hover_restore_cursor_event
-        self.header.setBrush(QtGui.QColor.fromRgb(60, 60, 60, 255))
+        self.header.setBrush(global_audio_items_header_gradient)
         self.scene.addItem(self.header)
         self.header.mapToScene(self.piano_width + self.padding, 0.0)
         self.beat_width = self.viewer_width / self.item_length
