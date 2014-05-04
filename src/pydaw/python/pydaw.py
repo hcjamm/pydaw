@@ -878,7 +878,7 @@ class region_list_editor:
         else:
             f_item_name = str(f_item.text())
             if f_item_name != "":
-                global_open_items([f_item_name])
+                global_open_items([f_item_name], a_reset_scrollbar=True)
                 this_main_window.main_tabwidget.setCurrentIndex(1)
             else:
                 self.show_cell_dialog(x, y)
@@ -1259,7 +1259,7 @@ class region_list_editor:
                             return
                     f_result.append(f_result_str)
         if f_result:
-            global_open_items(f_result)
+            global_open_items(f_result, a_reset_scrollbar=True)
             this_main_window.main_tabwidget.setCurrentIndex(1)
             if self.track_type != pydaw_track_type_enum.midi:
                 this_item_editor.tab_widget.setCurrentIndex(1)
@@ -1348,7 +1348,7 @@ class region_list_editor:
                 return
             f_uid = this_pydaw_project.copy_item(str(f_current_item.text()),
                                                  str(f_new_lineedit.text()))
-            global_open_items([f_cell_text])
+            global_open_items([f_cell_text], a_reset_scrollbar=True)
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
             global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
@@ -6234,12 +6234,11 @@ def global_set_midi_zoom(a_is_refresh=False):
     global global_item_zoom_index
     global_item_zoom_index = f_index
 
-    this_cc_editor.scale_to_width()
-    this_piano_roll_editor.scale_to_width()
-    this_pb_editor.scale_to_width()
+    for f_editor in global_midi_editors:
+        f_editor.scale_to_width()
 
 
-def global_open_items(a_items=None):
+def global_open_items(a_items=None, a_reset_scrollbar=False):
     """ a_items is a list of str, which are the names of the items.
         Leave blank to open the existing list
     """
@@ -6262,7 +6261,9 @@ def global_open_items(a_items=None):
         this_item_editor.item_name_combobox.addItems(a_items)
         this_item_editor.item_name_combobox.setCurrentIndex(0)
         this_item_editor.item_index_enabled = True
-        this_piano_roll_editor.horizontalScrollBar().setSliderPosition(0)
+        if a_reset_scrollbar:
+            for f_editor in global_midi_editors:
+                f_editor.horizontalScrollBar().setSliderPosition(0)
         global_set_midi_zoom(a_is_refresh=True)
         global_last_open_item_names = global_open_item_names
         global_open_item_names = a_items[:]
@@ -9445,6 +9446,7 @@ this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_audio_items_viewer = audio_items_viewer()
+global_midi_editors = (this_cc_editor, this_piano_roll_editor, this_pb_editor)
 
 def global_check_device():
     f_device_dialog = pydaw_device_dialog.pydaw_device_dialog(a_is_running=True)
