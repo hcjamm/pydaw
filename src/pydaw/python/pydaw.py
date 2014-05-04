@@ -17,7 +17,6 @@ import sys
 import os
 import operator
 import subprocess
-from time import sleep
 import time
 import random
 import gc
@@ -7079,13 +7078,13 @@ class transport_widget:
         self.region_spinbox.setEnabled(True)
         self.overdub_checkbox.setEnabled(True)
         this_pydaw_project.this_pydaw_osc.pydaw_stop()
-        sleep(0.1)
+        time.sleep(0.1)
         self.set_region_value(self.start_region)
         if self.is_recording:
             self.is_recording = False
             #As the history will be referenced when the recorded items are added to history
             this_pydaw_project.flush_history()
-            sleep(2)  #Give it some time to flush the recorded items to disk...
+            time.sleep(2)  #Give it some time to flush the recorded items to disk...
             self.show_save_items_dialog()
             if global_current_region is not None and this_region_settings.enabled:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
@@ -8493,7 +8492,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     this_piano_roll_editor.prepare_to_quit()
 
                     this_cc_editor.prepare_to_quit()
-                    sleep(0.5)
+                    time.sleep(0.5)
                     global_close_all_plugin_windows()
                     if self.osc_server is not None:
                         self.osc_timer.stop()
@@ -9371,7 +9370,7 @@ def global_open_project(a_project_file, a_wait=True):
     global_close_all()
     global this_pydaw_project
     if a_wait:
-        sleep(3.0)
+        time.sleep(3.0)
     open_pydaw_engine(a_project_file)
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.suppress_updates = True
@@ -9398,7 +9397,7 @@ def global_new_project(a_project_file, a_wait=True):
     global_close_all()
     global this_pydaw_project
     if a_wait:
-        sleep(3.0)
+        time.sleep(3.0)
     open_pydaw_engine(a_project_file)
     this_pydaw_project = pydaw_project(global_pydaw_with_audio)
     this_pydaw_project.new_project(a_project_file)
@@ -9488,7 +9487,7 @@ def close_pydaw_engine():
                 f_exited = True
                 break
             else:
-                sleep(0.3)
+                time.sleep(0.3)
         if not f_exited:
             try:
                 if pydaw_util.global_pydaw_is_sandboxed:
@@ -9542,7 +9541,7 @@ def kill_pydaw_engine():
                     print(f_result)
                 except Exception as ex:
                     print("kill_pydaw_engine : Exception: {}".format(ex))
-            sleep(3.0)
+            time.sleep(3.0)
 
 def open_pydaw_engine(a_project_path):
     if not global_pydaw_with_audio:
@@ -9657,7 +9656,7 @@ def final_gc():
         print("Successfully garbage collected all objects")
         return
     for f_i in range(2, 12):
-        sleep(0.1)
+        time.sleep(0.1)
         f_unreachable = gc.collect()
         if f_unreachable == 0:
             print("Successfully garbage collected all objects "
@@ -9674,7 +9673,7 @@ def flush_events():
     for f_i in range(1, 10):
         if app.hasPendingEvents():
             app.processEvents()
-            sleep(0.1)
+            time.sleep(0.1)
         else:
             print("Successfully processed all pending events in {} iterations".format(f_i))
             return
