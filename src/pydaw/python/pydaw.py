@@ -1122,6 +1122,11 @@ class region_list_editor:
         self.paste_to_orig_action.triggered.connect(self.paste_at_original_pos)
         self.table_widget.addAction(self.paste_to_orig_action)
 
+        self.clear_selection_action = QtGui.QAction(_("Clear Selection"), self.table_widget)
+        self.clear_selection_action.triggered.connect(self.table_widget.clearSelection)
+        self.clear_selection_action.setShortcut(QtGui.QKeySequence.fromString("Esc"))
+        self.table_widget.addAction(self.clear_selection_action)
+
         self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
