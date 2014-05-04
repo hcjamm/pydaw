@@ -3366,6 +3366,11 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.select_all_action = self.action_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.on_select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
+        self.clear_selection_action = self.action_menu.addAction(_("Clear Selection"))
+        self.clear_selection_action.triggered.connect(
+            this_audio_items_viewer.scene.clearSelection)
+        self.clear_selection_action.setShortcut(QtGui.QKeySequence.fromString("Esc"))
+        self.action_menu.addSeparator()
         self.delete_selected_action = self.action_menu.addAction(_("Delete"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
@@ -5333,6 +5338,12 @@ class piano_roll_editor_widget:
         self.select_all_action = self.edit_actions_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
+
+        self.clear_selection_action = self.edit_actions_menu.addAction(_("Clear Selection"))
+        self.clear_selection_action.triggered.connect(this_piano_roll_editor.scene.clearSelection)
+        self.clear_selection_action.setShortcut(QtGui.QKeySequence.fromString("Esc"))
+
+        self.edit_actions_menu.addSeparator()
 
         self.delete_selected_action = self.edit_actions_menu.addAction(_("Delete"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
