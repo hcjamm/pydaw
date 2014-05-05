@@ -3404,6 +3404,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
         self.audio_items_clipboard = []
+        self.hsplitter.setSizes([100, 9999])
 
     def set_tooltips(self, a_on):
         self.folders_widget.setToolTip(_("Use this tab to browse your "

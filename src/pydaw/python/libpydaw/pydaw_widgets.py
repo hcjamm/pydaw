@@ -1039,6 +1039,9 @@ class pydaw_abstract_file_browser_widget():
         self.bookmark_button = QtGui.QPushButton(_("Bookmark"))
         self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
         self.folder_buttons_hlayout.addWidget(self.bookmark_button)
+        self.paste_button = QtGui.QPushButton(_("Paste"))
+        self.paste_button.pressed.connect(self.paste_button_pressed)
+        self.folder_buttons_hlayout.addWidget(self.paste_button)
 
         self.bookmarks_tab = QtGui.QWidget()
         self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
@@ -1241,6 +1244,29 @@ class pydaw_abstract_file_browser_widget():
         f_hlayout2.addWidget(f_cancel_button)
         f_window.exec_()
 
+    def paste_button_pressed(self):
+        f_clipboard = QtGui.QApplication.clipboard()
+        f_text = f_clipboard.text()
+        if f_text is None:
+            QtGui.QMessageBox.warning(self.paste_from_clipboard, _("Error"),
+            _("No file path in the system clipboard."))
+        else:
+            f_text = str(f_text).strip()
+            if os.path.exists(f_text):
+                if os.path.isfile(f_text):
+                    self.open_file_in_browser(f_text)
+                elif os.path.isdir(f_text):
+                    self.set_folder(f_text, True)
+                else:
+                    QtGui.QMessageBox.warning(self.hsplitter, _("Error"),
+                        "'{}' exists, but did not test True for being a file or "
+                        "a folder".format(f_text))
+            else:
+                #Don't show more than 100 chars just in case somebody had an
+                #entire book copied to the clipboard
+                f_str = f_text[100:]
+                QtGui.QMessageBox.warning(self.hsplitter, _("Error"),
+                                          _("'{}' does not exist.").format(f_str))
 
     def bookmark_clicked(self, a_item):
         #test = QtGui.QTreeWidgetItem()
