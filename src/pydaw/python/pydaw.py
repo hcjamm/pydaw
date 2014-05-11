@@ -2267,7 +2267,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
 
     def reverse(self):
-        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        f_list = this_audio_items_viewer.get_selected()
         for f_item in f_list:
             f_item.audio_item.reversed = not f_item.audio_item.reversed
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
@@ -2275,7 +2275,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         global_open_audio_items(True)
 
     def move_to_region_end(self):
-        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        f_list = this_audio_items_viewer.get_selected()
         if f_list:
             f_current_region_length = pydaw_get_current_region_length()
             f_global_tempo = float(this_transport.tempo_spinbox.value())
@@ -2287,7 +2287,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             global_open_audio_items(True)
 
     def reset_fades(self):
-        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        f_list = this_audio_items_viewer.get_selected()
         if f_list:
             for f_item in f_list:
                 f_item.audio_item.fade_in = 0.0
@@ -2297,7 +2297,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             global_open_audio_items(True)
 
     def reset_end(self):
-        f_list = [x for x in this_audio_items_viewer.audio_items if x.isSelected()]
+        f_list = this_audio_items_viewer.get_selected()
         for f_item in f_list:
             f_item.audio_item.sample_end = 1000.0
             self.draw()
@@ -2339,10 +2339,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if f_val is None:
             return
         f_save = False
-        for f_item in this_audio_items_viewer.audio_items:
-            if f_item.isSelected():
-                f_save = True
-                f_item.normalize(f_val)
+        for f_item in this_audio_items_viewer.get_selected():
+            f_save = True
+            f_item.normalize(f_val)
         if f_save:
             this_pydaw_project.save_audio_region(global_current_region.uid,
                                                  global_audio_items)
@@ -2455,24 +2454,23 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             #this_audio_item_editor_widget.open_item(self.audio_item)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.event_pos_orig = a_event.pos().x()
-            for f_item in this_audio_items_viewer.audio_items:
-                if f_item.isSelected():
-                    f_item_pos = f_item.pos().x()
-                    f_item.quantize_offset = f_item_pos - f_item.quantize_all(f_item_pos)
-                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
-                        f_item.is_copying = True
-                        f_item.width_orig = f_item.rect().width()
-                        f_item.per_item_fx = f_per_item_fx_dict.get_row(f_item.track_num)
-                        this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item,
-                                                          f_item.graph_object)
-                    if self.is_fading_out:
-                        f_item.fade_orig_pos = f_item.fade_out_handle.pos().x()
-                    elif self.is_fading_in:
-                        f_item.fade_orig_pos = f_item.fade_in_handle.pos().x()
-                    if self.is_start_resizing:
-                        f_item.width_orig = 0.0
-                    else:
-                        f_item.width_orig = f_item.rect().width()
+            for f_item in this_audio_items_viewer.get_selected():
+                f_item_pos = f_item.pos().x()
+                f_item.quantize_offset = f_item_pos - f_item.quantize_all(f_item_pos)
+                if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                    f_item.is_copying = True
+                    f_item.width_orig = f_item.rect().width()
+                    f_item.per_item_fx = f_per_item_fx_dict.get_row(f_item.track_num)
+                    this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item,
+                                                      f_item.graph_object)
+                if self.is_fading_out:
+                    f_item.fade_orig_pos = f_item.fade_out_handle.pos().x()
+                elif self.is_fading_in:
+                    f_item.fade_orig_pos = f_item.fade_in_handle.pos().x()
+                if self.is_start_resizing:
+                    f_item.width_orig = 0.0
+                else:
+                    f_item.width_orig = f_item.rect().width()
         if self.is_amp_curving or self.is_amp_dragging:
             a_event.setAccepted(True)
             self.setSelected(True)
@@ -2480,7 +2478,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.orig_y = a_event.pos().y()
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
-            for f_item in (x for x in this_audio_items_viewer.audio_items if x.isSelected()):
+            for f_item in this_audio_items_viewer.get_selected():
                 f_item.orig_value = f_item.audio_item.vol
                 f_item.add_vol_line()
 
@@ -2625,14 +2623,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                                                  (global_audio_item_height * 0.5) -
                                                  (global_audio_item_handle_height * 0.5))
         elif self.is_amp_dragging:
-            for f_item in (x for x in this_audio_items_viewer.audio_items if x.isSelected()):
+            for f_item in this_audio_items_viewer.get_selected():
                 f_new_vel = pydaw_util.pydaw_clip_value(f_val + f_item.orig_value, -24, 24)
                 f_new_vel = int(f_new_vel)
                 f_item.audio_item.vol = f_new_vel
                 f_item.set_vol_line()
         elif self.is_amp_curving:
             this_audio_items_viewer.setUpdatesEnabled(False)
-            for f_item in (x for x in this_audio_items_viewer.audio_items if x.isSelected()):
+            for f_item in this_audio_items_viewer.get_selected():
                 f_start = ((f_item.audio_item.start_bar * 4.0) + f_item.audio_item.start_beat)
                 if f_start == self.vc_mid:
                     f_new_vel = f_val + f_item.orig_value
@@ -2689,98 +2687,97 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
         else:
             f_was_copying = False
-        for f_audio_item in this_audio_items_viewer.audio_items:
-            if f_audio_item.isSelected():
-                f_item = f_audio_item.audio_item
-                f_pos_x = f_audio_item.pos().x()
-                if f_audio_item.is_resizing:
-                    f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
-                    f_x = pydaw_clip_value(f_x, global_audio_item_handle_size,
-                                           f_audio_item.length_px_minus_start)
-                    f_x = f_audio_item.quantize(f_x)
-                    f_x -= f_audio_item.quantize_offset
-                    f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
-                    f_item.sample_end = ((f_audio_item.rect().width() + \
-                    f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
-                    f_item.sample_end = \
-                    pydaw_util.pydaw_clip_value(f_item.sample_end, 1.0, 1000.0, True)
-                elif f_audio_item.is_start_resizing:
-                    f_x = f_audio_item.start_handle.scenePos().x()
-                    f_x = pydaw_clip_min(f_x, 0.0)
-                    f_x = self.quantize_all(f_x)
-                    if f_x < f_audio_item.sample_start_offset_px:
-                        f_x = f_audio_item.sample_start_offset_px
-                    f_start_result = self.pos_to_musical_time(f_x)
-                    f_item.start_bar = f_start_result[0]
-                    f_item.start_beat = f_start_result[1]
-                    f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / \
-                    (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) \
-                    * 1000.0
-                    f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
-                elif f_audio_item.is_fading_in:
-                    f_pos = f_audio_item.fade_in_handle.pos().x()
-                    f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
-                    f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0, True)
-                elif f_audio_item.is_fading_out:
-                    f_pos = f_audio_item.fade_out_handle.pos().x()
-                    f_val = \
-                    ((f_pos + global_audio_item_handle_size) / (f_audio_item.rect().width())) \
-                    * 1000.0
-                    f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0, True)
-                elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
-                    f_reset_selection = True
-                    f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
-                    if f_audio_item.audio_item.time_stretch_mode == 2:
-                        f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25,
-                                               f_audio_item.stretch_width_default * 4.0)
-                    elif f_audio_item.audio_item.time_stretch_mode == 6:
-                        f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.5,
-                                               f_audio_item.stretch_width_default * 10.0)
-                    else:
-                        f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1,
-                                               f_audio_item.stretch_width_default * 10.0)
-                    f_x = pydaw_clip_max(f_x, f_audio_item.max_stretch)
-                    f_x = f_audio_item.quantize(f_x)
-                    f_x -= f_audio_item.quantize_offset
-                    f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
-                    f_item.timestretch_amt_end = f_item.timestretch_amt
-                    if f_item.time_stretch_mode >= 3 and f_audio_item.orig_string != str(f_item):
-                        f_was_stretching = True
-                        f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
-                        if f_ts_result is not None:
-                            f_stretched_items.append(f_ts_result)
-                    f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
-                elif self.is_amp_curving or self.is_amp_dragging:
-                    f_did_change = True
+        for f_audio_item in this_audio_items_viewer.get_selected():
+            f_item = f_audio_item.audio_item
+            f_pos_x = f_audio_item.pos().x()
+            if f_audio_item.is_resizing:
+                f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
+                f_x = pydaw_clip_value(f_x, global_audio_item_handle_size,
+                                       f_audio_item.length_px_minus_start)
+                f_x = f_audio_item.quantize(f_x)
+                f_x -= f_audio_item.quantize_offset
+                f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
+                f_item.sample_end = ((f_audio_item.rect().width() + \
+                f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
+                f_item.sample_end = \
+                pydaw_util.pydaw_clip_value(f_item.sample_end, 1.0, 1000.0, True)
+            elif f_audio_item.is_start_resizing:
+                f_x = f_audio_item.start_handle.scenePos().x()
+                f_x = pydaw_clip_min(f_x, 0.0)
+                f_x = self.quantize_all(f_x)
+                if f_x < f_audio_item.sample_start_offset_px:
+                    f_x = f_audio_item.sample_start_offset_px
+                f_start_result = self.pos_to_musical_time(f_x)
+                f_item.start_bar = f_start_result[0]
+                f_item.start_beat = f_start_result[1]
+                f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / \
+                (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) \
+                * 1000.0
+                f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
+            elif f_audio_item.is_fading_in:
+                f_pos = f_audio_item.fade_in_handle.pos().x()
+                f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
+                f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0, True)
+            elif f_audio_item.is_fading_out:
+                f_pos = f_audio_item.fade_out_handle.pos().x()
+                f_val = \
+                ((f_pos + global_audio_item_handle_size) / (f_audio_item.rect().width())) \
+                * 1000.0
+                f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0, True)
+            elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
+                f_reset_selection = True
+                f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
+                if f_audio_item.audio_item.time_stretch_mode == 2:
+                    f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25,
+                                           f_audio_item.stretch_width_default * 4.0)
+                elif f_audio_item.audio_item.time_stretch_mode == 6:
+                    f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.5,
+                                           f_audio_item.stretch_width_default * 10.0)
                 else:
-                    f_pos_y = f_audio_item.pos().y()
-                    if f_audio_item.is_copying:
-                        f_reset_selection = True
-                        f_item_old = f_item.clone()
-                        f_index = f_audio_items.get_next_index()
-                        if f_index == -1:
-                            QtGui.QMessageBox.warning(self, _("Error"),
-                            _("No more available audio item slots, max per region is"
-                            " {}").format(pydaw_max_audio_item_count))
-                            break
-                        else:
-                            f_audio_items.add_item(f_index, f_item_old)
-                            if f_audio_item.per_item_fx is not None:
-                                f_per_item_fx_dict.set_row(f_index, f_audio_item.per_item_fx)
+                    f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1,
+                                           f_audio_item.stretch_width_default * 10.0)
+                f_x = pydaw_clip_max(f_x, f_audio_item.max_stretch)
+                f_x = f_audio_item.quantize(f_x)
+                f_x -= f_audio_item.quantize_offset
+                f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
+                f_item.timestretch_amt_end = f_item.timestretch_amt
+                if f_item.time_stretch_mode >= 3 and f_audio_item.orig_string != str(f_item):
+                    f_was_stretching = True
+                    f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
+                    if f_ts_result is not None:
+                        f_stretched_items.append(f_ts_result)
+                f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
+            elif self.is_amp_curving or self.is_amp_dragging:
+                f_did_change = True
+            else:
+                f_pos_y = f_audio_item.pos().y()
+                if f_audio_item.is_copying:
+                    f_reset_selection = True
+                    f_item_old = f_item.clone()
+                    f_index = f_audio_items.get_next_index()
+                    if f_index == -1:
+                        QtGui.QMessageBox.warning(self, _("Error"),
+                        _("No more available audio item slots, max per region is"
+                        " {}").format(pydaw_max_audio_item_count))
+                        break
                     else:
-                        f_audio_item.set_brush(f_item.lane_num)
-                    f_pos_x = self.quantize_all(f_pos_x)
-                    f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
-                    f_audio_item.setPos(f_pos_x, f_pos_y)
-                    f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
-                    f_item.set_pos(f_start_result[0], f_start_result[1])
-                f_audio_item.clip_at_region_end()
-                f_item_str = str(f_item)
-                if f_item_str != f_audio_item.orig_string:
-                    f_audio_item.orig_string = f_item_str
-                    f_did_change = True
-                    if not f_reset_selection:
-                        f_audio_item.draw()
+                        f_audio_items.add_item(f_index, f_item_old)
+                        if f_audio_item.per_item_fx is not None:
+                            f_per_item_fx_dict.set_row(f_index, f_audio_item.per_item_fx)
+                else:
+                    f_audio_item.set_brush(f_item.lane_num)
+                f_pos_x = self.quantize_all(f_pos_x)
+                f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
+                f_audio_item.setPos(f_pos_x, f_pos_y)
+                f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
+                f_item.set_pos(f_start_result[0], f_start_result[1])
+            f_audio_item.clip_at_region_end()
+            f_item_str = str(f_item)
+            if f_item_str != f_audio_item.orig_string:
+                f_audio_item.orig_string = f_item_str
+                f_did_change = True
+                if not f_reset_selection:
+                    f_audio_item.draw()
             f_audio_item.is_moving = False
             f_audio_item.is_resizing = False
             f_audio_item.is_start_resizing = False
@@ -2861,15 +2858,17 @@ class audio_items_viewer(QtGui.QGraphicsView):
             QtGui.QGraphicsView.keyPressEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
 
+    def get_selected(self):
+        return [x for x in self.audio_items if x.isSelected()]
+
     def delete_selected(self):
         if pydaw_global_current_region_is_none() or self.check_running():
             return
         f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
         f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
-        for f_item in self.audio_items:
-            if f_item.isSelected():
-                f_items.remove_item(f_item.track_num)
-                f_paif.clear_row_if_exists(f_item.track_num)
+        for f_item in self.get_selected():
+            f_items.remove_item(f_item.track_num)
+            f_paif.clear_row_if_exists(f_item.track_num)
         this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid,
                                                          f_paif, False)
@@ -2877,7 +2876,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         global_open_audio_items(True)
 
     def crossfade_selected(self):
-        f_list = [x for x in self.audio_items if x.isSelected()]
+        f_list = self.get_selected()
         if len(f_list) < 2:
             QtGui.QMessageBox.warning(this_main_window, _("Error"),
                                       _("You must have at least 2 items selected to crossfade"))
