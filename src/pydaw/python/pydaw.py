@@ -1760,6 +1760,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.is_stretching = False
         self.set_brush()
         self.waveforms_scaled = False
+        self.is_amp_curving = False
         self.event_pos_orig = None
         self.width_orig = None
         self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
@@ -1866,7 +1867,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 "You can multi-select individual items by CTRL+Alt clicking on them.\n\n"
                 "You can glue together multiple items by selecting items and pressing CTRL+G\n"
                 ", the glued item will retain all of the fades, stretches and per-item fx of "
-                "the original items.\n"))
+                "the original items.\n"
+                "CTRL+SHIFT+Click and drag to create a volume line from the selected items"))
             self.start_handle.setToolTip(_("Use this handle to resize the item "
                                          "by changing the start point."))
             self.length_handle.setToolTip(_("Use this handle to resize the item "
@@ -2433,6 +2435,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     global_current_region.uid)
             this_pydaw_project.commit(_("Split audio item"))
             global_open_audio_items(True)
+        elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
+            self.is_amp_curving = True
+            f_list = [((x.audio_item.start_bar * 4.0) + x.audio_item.start_beat)
+                for x in this_audio_items_viewer.audio_items if x.isSelected()]
+            f_list.sort()
+            self.vc_start = f_list[0]
+            self.vc_mid = (self.audio_item.start_bar * 4.0) + self.audio_item.start_beat
+            self.vc_end = f_list[-1]
         else:
             if a_event.modifiers() == QtCore.Qt.ControlModifier:
                 f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(
@@ -2458,6 +2468,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.width_orig = 0.0
                     else:
                         f_item.width_orig = f_item.rect().width()
+        if self.is_amp_curving:
+            a_event.setAccepted(True)
+            self.setSelected(True)
+            self.event_pos_orig = a_event.pos().x()
+            QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+            self.orig_y = a_event.pos().y()
+            QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
+            for f_item in (x for x in this_audio_items_viewer.audio_items if x.isSelected()):
+                f_item.orig_value = f_item.audio_item.vol
+                f_item.add_vol_line()
 
     def hoverEnterEvent(self, a_event):
         f_item_pos = self.pos().x()
@@ -2522,6 +2542,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.fade_out_handle_line.setLine(f_pos.x() + global_audio_item_handle_size,
                                           0.0, self.rect().width(), global_audio_item_height)
 
+    def add_vol_line(self):
+        self.vol_line = QtGui.QGraphicsLineItem(0.0, 0.0, self.rect().width(), 0.0, self)
+        self.vol_line.setPen(QtGui.QPen(QtCore.Qt.red, 2.0))
+        self.set_vol_line()
+
+    def set_vol_line(self):
+        f_pos = (float(48 - (self.audio_item.vol + 24)) / 48.0) * global_audio_item_height
+        self.vol_line.setPos(0, f_pos)
+
     def mouseMoveEvent(self, a_event):
         if global_transport_is_playing or self.event_pos_orig is None:
             return
@@ -2584,6 +2613,30 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.stretch_handle.setPos(f_x - global_audio_item_handle_size,
                                                  (global_audio_item_height * 0.5) -
                                                  (global_audio_item_handle_height * 0.5))
+        elif self.is_amp_curving:
+            f_pos = a_event.pos()
+            f_y = f_pos.y()
+            f_diff_y = self.orig_y - f_y
+            f_val = (f_diff_y * 0.05)
+            this_audio_items_viewer.setUpdatesEnabled(False)
+            for f_item in (x for x in this_audio_items_viewer.audio_items if x.isSelected()):
+                f_start = ((f_item.audio_item.start_bar * 4.0) + f_item.audio_item.start_beat)
+                if f_start == self.vc_mid:
+                    f_new_vel = f_val + f_item.orig_value
+                else:
+                    if f_start > self.vc_mid:
+                        f_frac =  (f_start - self.vc_mid) / (self.vc_end - self.vc_mid)
+                        f_new_vel = pydaw_util.linear_interpolate(f_val, 0.3 * f_val, f_frac)
+                    else:
+                        f_frac =  (f_start - self.vc_start) / (self.vc_mid - self.vc_start)
+                        f_new_vel = pydaw_util.linear_interpolate(0.3 * f_val, f_val, f_frac)
+                    f_new_vel += f_item.orig_value
+                f_new_vel = pydaw_util.pydaw_clip_value(f_new_vel, -24, 24)
+                f_new_vel = int(f_new_vel)
+                f_item.audio_item.vol = f_new_vel
+                f_item.set_vol_line()
+            this_audio_items_viewer.setUpdatesEnabled(True)
+            this_audio_items_viewer.update()
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
             if global_audio_quantize:
@@ -2684,6 +2737,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         if f_ts_result is not None:
                             f_stretched_items.append(f_ts_result)
                     f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
+                elif self.is_amp_curving:
+                    f_did_change = True
                 else:
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
