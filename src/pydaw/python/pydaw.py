@@ -2318,6 +2318,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def open_in_wave_editor(self):
         f_path = self.get_file_path()
         this_wave_editor_widget.open_file(f_path)
+        this_wave_editor_widget.set_audio_item(self.audio_item)
         this_main_window.main_tabwidget.setCurrentIndex(3)
 
     def edit_properties(self):
@@ -8924,6 +8925,9 @@ class pydaw_wave_editor_widget:
         self.copy_action = self.menu.addAction(_("Copy File to Clipboard"))
         self.copy_action.triggered.connect(self.copy_file_to_clipboard)
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
+        self.copy_item_action = self.menu.addAction(_("Copy as Audio Item"))
+        self.copy_item_action.triggered.connect(self.copy_audio_item)
+        self.copy_item_action.setShortcut(QtGui.QKeySequence.fromString("ALT+C"))
         self.paste_action = self.menu.addAction(_("Paste File from Clipboard"))
         self.paste_action.triggered.connect(self.open_file_from_clipboard)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
@@ -8988,6 +8992,13 @@ class pydaw_wave_editor_widget:
         self.history = []
         self.graph_object = None
         self.current_file = None
+
+    def copy_audio_item(self):
+        if self.graph_object is None:
+            return
+        f_uid = this_pydaw_project.get_wav_uid_by_name(self.current_file)
+        f_item = self.get_audio_item(f_uid)
+        this_audio_items_viewer_widget.audio_items_clipboard = [(str(f_item), None)]
 
     def bookmark_file(self):
         if self.graph_object is None:
@@ -9302,7 +9313,7 @@ class pydaw_wave_editor_widget:
         this_pydaw_project.this_pydaw_osc.pydaw_ab_open(a_file)
         self.marker_callback()
 
-    def marker_callback(self, a_val=None):
+    def get_audio_item(self, a_uid=0):
         f_start = self.sample_graph.start_marker.value
         f_end = self.sample_graph.end_marker.value
         f_diff = f_end - f_start
@@ -9311,10 +9322,27 @@ class pydaw_wave_editor_widget:
         f_fade_out = 1000.0 - \
             (((f_end - self.sample_graph.fade_out_marker.value) / f_diff) * 1000.0)
 
-        f_item = pydaw_audio_item(0, a_sample_start=f_start, a_sample_end=f_end,
-                                  a_vol=self.vol_slider.value(),
-                                  a_fade_in=f_fade_in, a_fade_out=f_fade_out,
-                                  a_fadein_vol=-36, a_fadeout_vol=-36)
+        return pydaw_audio_item(a_uid, a_sample_start=f_start, a_sample_end=f_end,
+                                a_vol=self.vol_slider.value(),
+                                a_fade_in=f_fade_in, a_fade_out=f_fade_out,
+                                a_fadein_vol=-36, a_fadeout_vol=-36)
+
+    def set_audio_item(self, a_item):
+        self.sample_graph.start_marker.set_value(a_item.sample_start)
+        self.sample_graph.end_marker.set_value(a_item.sample_end)
+        f_start = self.sample_graph.start_marker.value
+        f_end = self.sample_graph.end_marker.value
+        f_diff = f_end - f_start
+        f_diff = pydaw_clip_value(f_diff, 0.1, 1000.0)
+        f_fade_in = (f_diff * (a_item.fade_in / 1000.0)) + f_start
+        f_fade_out = (f_diff * (a_item.fade_out / 1000.0)) + f_start
+        self.sample_graph.fade_in_marker.set_value(f_fade_in)
+        self.sample_graph.fade_out_marker.set_value(f_fade_out)
+        self.vol_slider.setValue(a_item.vol)
+
+    def marker_callback(self, a_val=None):
+        f_start = self.sample_graph.start_marker.value
+        f_item = self.get_audio_item()
         this_pydaw_project.this_pydaw_osc.pydaw_we_set("0|{}".format(f_item))
         self.set_time_label(f_start * 0.001, True)
 
