@@ -8992,6 +8992,7 @@ class pydaw_wave_editor_widget:
         self.history = []
         self.graph_object = None
         self.current_file = None
+        self.callbacks_enabled = True
 
     def copy_audio_item(self):
         if self.graph_object is None:
@@ -9328,6 +9329,7 @@ class pydaw_wave_editor_widget:
                                 a_fadein_vol=-36, a_fadeout_vol=-36)
 
     def set_audio_item(self, a_item):
+        self.callbacks_enabled = False
         self.sample_graph.start_marker.set_value(a_item.sample_start)
         self.sample_graph.end_marker.set_value(a_item.sample_end)
         f_start = self.sample_graph.start_marker.value
@@ -9339,12 +9341,15 @@ class pydaw_wave_editor_widget:
         self.sample_graph.fade_in_marker.set_value(f_fade_in)
         self.sample_graph.fade_out_marker.set_value(f_fade_out)
         self.vol_slider.setValue(a_item.vol)
+        self.callbacks_enabled = True
+        self.marker_callback()
 
     def marker_callback(self, a_val=None):
-        f_start = self.sample_graph.start_marker.value
-        f_item = self.get_audio_item()
-        this_pydaw_project.this_pydaw_osc.pydaw_we_set("0|{}".format(f_item))
-        self.set_time_label(f_start * 0.001, True)
+        if self.callbacks_enabled:
+            f_item = self.get_audio_item()
+            this_pydaw_project.this_pydaw_osc.pydaw_we_set("0|{}".format(f_item))
+            f_start = self.sample_graph.start_marker.value
+            self.set_time_label(f_start * 0.001, True)
 
     def set_playback_cursor(self, a_pos):
         if self.playback_cursor is not None:
