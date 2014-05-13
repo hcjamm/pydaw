@@ -2497,13 +2497,13 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         f_val = self.value * 0.001 * self.graph_object.length_in_seconds
         f_val = pydaw_util.pydaw_seconds_to_time_str(f_val)
         if self.marker_type == 0 and self.marker_mode == 0:
-            return "S {}".format(f_val)
+            return "Start {}".format(f_val)
         elif self.marker_type == 1 and self.marker_mode == 0:
-            return "E {}".format(f_val)
+            return "End {}".format(f_val)
         elif self.marker_type == 0 and self.marker_mode == 1:
-            return "LS {}".format(f_val)
+            return "Loop Start {}".format(f_val)
         elif self.marker_type == 1 and self.marker_mode == 1:
-            return "LE {}".format(f_val)
+            return "Loop End {}".format(f_val)
         else:
             assert(False)
 
@@ -2623,9 +2623,9 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         f_val = self.value * 0.001 * self.graph_object.length_in_seconds
         f_val = pydaw_util.pydaw_seconds_to_time_str(f_val)
         if self.marker_type == 0:
-            return "FI {}".format(f_val)
+            return "Fade In {}".format(f_val)
         elif self.marker_type == 1:
-            return "FO {}".format(f_val)
+            return "Fade Out {}".format(f_val)
         else:
             assert(False)
 
@@ -2775,8 +2775,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.update_label()
 
     def update_label(self):
-        f_val = " ".join(map(str, (self.length_str + self.drag_start_markers +
-            self.drag_end_markers)))
+        f_val = "\n".join([str(x) for x in
+            self.length_str + self.drag_start_markers + self.drag_end_markers])
         self.label.setText(f_val)
 
     def tempo_sync_dialog(self):

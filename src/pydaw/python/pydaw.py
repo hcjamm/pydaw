@@ -8978,7 +8978,9 @@ class pydaw_wave_editor_widget:
                                                            self.marker_callback,
                                                            self.marker_callback,
                                                            self.marker_callback)
-        self.gridlayout.addWidget(self.sample_graph.label, 0, 5)
+        self.label_action = QtGui.QWidgetAction(self.menu_button)
+        self.label_action.setDefaultWidget(self.sample_graph.label)
+        self.menu.addAction(self.label_action)
         self.vlayout.addWidget(self.sample_graph)
         self.orig_pos = 0
         self.duration = None
