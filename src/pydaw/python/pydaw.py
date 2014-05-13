@@ -3800,7 +3800,7 @@ class audio_item_editor_widget:
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.fadein_vol_layout = QtGui.QHBoxLayout()
-        self.fadein_vol_checkbox = QtGui.QCheckBox(_("Fade-in:"))
+        self.fadein_vol_checkbox = QtGui.QCheckBox(_("Fade-In:"))
         self.fadein_vol_layout.addWidget(self.fadein_vol_checkbox)
         self.fadein_vol_spinbox = QtGui.QSpinBox()
         self.fadein_vol_spinbox.setRange(-50, -6)
@@ -3810,7 +3810,7 @@ class audio_item_editor_widget:
         self.fadein_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.fadein_vol_layout)
 
-        self.fadeout_vol_checkbox = QtGui.QCheckBox(_("Fade-out:"))
+        self.fadeout_vol_checkbox = QtGui.QCheckBox(_("Fade-Out:"))
         self.fadein_vol_layout.addWidget(self.fadeout_vol_checkbox)
         self.fadeout_vol_spinbox = QtGui.QSpinBox()
         self.fadeout_vol_spinbox.setRange(-50, -6)
@@ -8974,6 +8974,17 @@ class pydaw_wave_editor_widget:
         self.vol_slider.setValue(0)
         self.vol_slider.valueChanged.connect(self.vol_changed)
         self.gridlayout.addWidget(self.vol_slider, 0, 2)
+        self.fade_in_start = QtGui.QSpinBox()
+        self.fade_in_start.setRange(-50, -6)
+        self.fade_in_start.valueChanged.connect(self.marker_callback)
+        self.gridlayout.addWidget(QtGui.QLabel(_("Fade-In")), 0, 9)
+        self.gridlayout.addWidget(self.fade_in_start, 0, 10)
+        self.fade_out_end = QtGui.QSpinBox()
+        self.fade_out_end.setRange(-50, -6)
+        self.fade_out_end.valueChanged.connect(self.marker_callback)
+        self.gridlayout.addWidget(QtGui.QLabel(_("Fade-Out")), 0, 19)
+        self.gridlayout.addWidget(self.fade_out_end, 0, 20)
+
         self.sample_graph = pydaw_audio_item_viewer_widget(self.marker_callback,
                                                            self.marker_callback,
                                                            self.marker_callback,
@@ -9328,7 +9339,8 @@ class pydaw_wave_editor_widget:
         return pydaw_audio_item(a_uid, a_sample_start=f_start, a_sample_end=f_end,
                                 a_vol=self.vol_slider.value(),
                                 a_fade_in=f_fade_in, a_fade_out=f_fade_out,
-                                a_fadein_vol=-36, a_fadeout_vol=-36)
+                                a_fadein_vol=self.fade_in_start.value(),
+                                a_fadeout_vol=self.fade_out_end.value())
 
     def set_audio_item(self, a_item):
         self.callbacks_enabled = False
@@ -9343,6 +9355,8 @@ class pydaw_wave_editor_widget:
         self.sample_graph.fade_in_marker.set_value(f_fade_in)
         self.sample_graph.fade_out_marker.set_value(f_fade_out)
         self.vol_slider.setValue(a_item.vol)
+        self.fade_in_start.setValue(a_item.fadein_vol)
+        self.fade_out_end.setValue(a_item.fadeout_vol)
         self.callbacks_enabled = True
         self.marker_callback()
 
