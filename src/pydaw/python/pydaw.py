@@ -9798,6 +9798,7 @@ def flush_events():
 
 
 app.lastWindowClosed.connect(app.quit)
+app.setStyle(QtGui.QStyleFactory.create("Fusion"))
 app.exec_()
 time.sleep(0.6)
 flush_events()
