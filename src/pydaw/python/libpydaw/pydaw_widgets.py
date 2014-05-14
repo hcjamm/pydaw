@@ -2785,15 +2785,15 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             f_frac = 1.0
             f_switch = (f_beat_frac_combobox.currentIndex())
             f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75,
-                      5 : 1.0, 6 : 2.0, 7 : 4.0}
-            f_frac = f_dict[f_switch]
+                      5 : 1.0, 6 : 2.0, 7 : 4.0, 8 : 0.0}
+            f_frac = f_dict[f_switch] + (f_bar_spinbox.value() * 4.0)
             f_seconds_per_beat = 60 / (f_spinbox.value())
 
             f_result = ((f_seconds_per_beat * f_frac) /
                 self.graph_object.length_in_seconds) * 1000.0
             for f_marker in self.drag_end_markers:
                 f_new = f_marker.other.value + f_result
-                f_new = pydaw_util.pydaw_clip_value(f_new, 1.0, 1000.0)
+                f_new = pydaw_util.pydaw_clip_value(f_new, f_marker.other.value + 1.0, 1000.0)
                 f_marker.set_value(f_new)
             global_last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
@@ -2806,11 +2806,13 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_spinbox.setRange(60, 200)
         f_spinbox.setSingleStep(0.1)
         f_spinbox.setValue(global_tempo)
-        f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16", "1/4", "2/4", "4/4"]
+        f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16", "1/4", "2/4", "4/4", "None"]
         f_beat_frac_combobox =  QtGui.QComboBox()
         f_beat_frac_combobox.setMinimumWidth(75)
         f_beat_frac_combobox.addItems(f_beat_fracs)
         f_beat_frac_combobox.setCurrentIndex(global_last_tempo_combobox_index)
+        f_bar_spinbox = QtGui.QSpinBox()
+        f_bar_spinbox.setRange(0, 64)
         f_sync_button =  QtGui.QPushButton(_("Sync"))
         f_sync_button.pressed.connect(sync_button_pressed)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
@@ -2819,8 +2821,10 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_groupbox_layout.addWidget(f_spinbox, 1, 0)
         f_groupbox_layout.addWidget(QtGui.QLabel("Length"), 0, 1)
         f_groupbox_layout.addWidget(f_beat_frac_combobox, 1, 1)
-        f_groupbox_layout.addWidget(f_cancel_button, 2, 0)
-        f_groupbox_layout.addWidget(f_sync_button, 2, 1)
+        f_groupbox_layout.addWidget(QtGui.QLabel("Bars"), 0, 2)
+        f_groupbox_layout.addWidget(f_bar_spinbox, 1, 2)
+        f_groupbox_layout.addWidget(f_cancel_button, 2, 1)
+        f_groupbox_layout.addWidget(f_sync_button, 2, 2)
         f_dialog.exec_()
 
     def scene_contextMenuEvent(self):
