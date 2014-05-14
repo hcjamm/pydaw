@@ -2757,6 +2757,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.graph_object = None
         self.label = QtGui.QLabel("")
         self.label.setMinimumWidth(420)
+        self.last_ts_bar = 0
+        self.last_tempo_combobox_index = 0
 
     def start_callback(self, a_val):
         self.start_callback_x(a_val)
@@ -2781,13 +2783,13 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def tempo_sync_dialog(self):
         def sync_button_pressed(a_self=None):
-            global global_last_tempo_combobox_index
             f_frac = 1.0
             f_switch = (f_beat_frac_combobox.currentIndex())
             f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75,
                       5 : 1.0, 6 : 2.0, 7 : 4.0, 8 : 0.0}
             f_frac = f_dict[f_switch] + (f_bar_spinbox.value() * 4.0)
-            f_seconds_per_beat = 60 / (f_spinbox.value())
+            self.last_ts_bar = f_bar_spinbox.value()
+            f_seconds_per_beat = 60 / (self.last_ts_bar)
 
             f_result = ((f_seconds_per_beat * f_frac) /
                 self.graph_object.length_in_seconds) * 1000.0
@@ -2795,7 +2797,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                 f_new = f_marker.other.value + f_result
                 f_new = pydaw_util.pydaw_clip_value(f_new, f_marker.other.value + 1.0, 1000.0)
                 f_marker.set_value(f_new)
-            global_last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
+            self.last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
 
         f_dialog = QtGui.QDialog(self)
@@ -2810,9 +2812,10 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_beat_frac_combobox =  QtGui.QComboBox()
         f_beat_frac_combobox.setMinimumWidth(75)
         f_beat_frac_combobox.addItems(f_beat_fracs)
-        f_beat_frac_combobox.setCurrentIndex(global_last_tempo_combobox_index)
+        f_beat_frac_combobox.setCurrentIndex(self.last_tempo_combobox_index)
         f_bar_spinbox = QtGui.QSpinBox()
         f_bar_spinbox.setRange(0, 64)
+        f_bar_spinbox.setValue(self.last_ts_bar)
         f_sync_button =  QtGui.QPushButton(_("Sync"))
         f_sync_button.pressed.connect(sync_button_pressed)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
