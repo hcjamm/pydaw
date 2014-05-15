@@ -22,7 +22,9 @@ cd ..
 
 cd ~/rpmbuild/RPMS/[your arch]
 
-sudo rpm -ivh pydaw*rpm
+sudo rpm -e pydaw4  # You can skip this if PyDAW is not already installed
+
+sudo rpm -ivh pydaw[version number].rpm
 
 #All others:
 
