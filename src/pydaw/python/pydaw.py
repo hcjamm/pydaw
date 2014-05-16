@@ -508,7 +508,8 @@ class region_settings:
                 if f_item.clip_at_region_end():
                     f_resave = True
             if f_resave:
-                this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+                this_pydaw_project.save_audio_region(global_current_region.uid,
+                                                     global_audio_items)
             this_pydaw_project.commit(f_commit_message)
 
     def toggle_hide_inactive(self):
@@ -3573,15 +3574,22 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         this_audio_items_viewer.reselect_on_stop = []
         f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(
             global_current_region.uid)
+        f_current_region_length = pydaw_get_current_region_length()
+        f_global_tempo = float(this_transport.tempo_spinbox.value())
         for f_str, f_list in self.audio_items_clipboard:
             this_audio_items_viewer.reselect_on_stop.append(f_str)
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
                 break
             f_item = pydaw_audio_item.from_str(f_str)
-            global_audio_items.add_item(f_index, f_item)
-            if f_list is not None:
-                f_per_item_fx_dict.set_row(f_index, f_list)
+            f_start = f_item.start_bar + (f_item.start_beat * 0.25)
+            if f_start < f_current_region_length:
+                f_graph = this_pydaw_project.get_sample_graph_by_uid(f_item.uid)
+                f_item.clip_at_region_end(f_current_region_length, f_global_tempo,
+                                          f_graph.length_in_seconds)
+                global_audio_items.add_item(f_index, f_item)
+                if f_list is not None:
+                    f_per_item_fx_dict.set_row(f_index, f_list)
         global_audio_items.deduplicate_items()
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
         this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid,
