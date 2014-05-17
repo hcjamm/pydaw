@@ -2276,7 +2276,7 @@ class pydaw_audio_input_track:
         return "{}|{}|{}\n".format(self.vol, self.output, self.input)
 
 class pydaw_transport:
-    def __init__(self, a_bpm=140):
+    def __init__(self, a_bpm=128):
         self.bpm = a_bpm
 
     def __str__(self):

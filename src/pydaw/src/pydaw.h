@@ -3522,7 +3522,7 @@ t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
 {
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
     f_result->alternate_tempo = 0;
-    f_result->tempo = 140.0f;
+    f_result->tempo = 128.0f;
     f_result->region_length_bars = 0;
     f_result->region_length_beats = 0;
     f_result->bar_length = 0;
@@ -3555,7 +3555,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, int a_uid)
         a_pydaw_data->rec_region_current_uid = (a_pydaw_data->rec_region_current_uid) + 1;
     }
     f_result->alternate_tempo = 0;
-    f_result->tempo = 140.0f;
+    f_result->tempo = 128.0f;
     f_result->region_length_bars = 0;
     f_result->region_length_beats = 0;
     f_result->bar_length = 0;
@@ -4674,8 +4674,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
     }
     else  //No transport file, set default tempo
     {
-        printf("No transport file found, defaulting to 140.0 BPM\n");
-        v_set_tempo(a_pydaw_data, 140.0f);
+        printf("No transport file found, defaulting to 128.0 BPM\n");
+        v_set_tempo(a_pydaw_data, 128.0f);
     }
 
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&

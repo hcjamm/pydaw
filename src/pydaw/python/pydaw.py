@@ -1570,7 +1570,7 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
 global_bus_track_names = [_('Master'), _('Bus1'), _('Bus2'), _('Bus3'), _('Bus4')]
 
 #TODO:  Clean these up...
-global_beats_per_minute = 140.0
+global_beats_per_minute = 128.0
 global_beats_per_second = global_beats_per_minute / 60.0
 global_bars_per_second = global_beats_per_second * 0.25
 
