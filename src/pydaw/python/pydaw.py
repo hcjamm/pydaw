@@ -9034,19 +9034,32 @@ class pydaw_wave_editor_widget:
     def bookmark_file(self):
         if self.graph_object is None:
             return
-        f_list = this_pydaw_project.get_we_bm()
+        f_list = self.get_bookmark_list()
         f_list.append(self.current_file)
         this_pydaw_project.set_we_bm(f_list)
         self.open_project()
 
-    def open_project(self):
+    def get_bookmark_list(self):
         f_list = this_pydaw_project.get_we_bm()
+        f_resave = False
+        for f_item in f_list[:]:
+            if not os.path.isfile(f_item):
+                f_resave = True
+                f_list.remove(f_item)
+                print("os.path.isfile({}) returned False, removing "
+                    "from bookmarks".format(f_item))
+        if f_resave:
+                this_pydaw_project.set_we_bm(f_list)
+        return sorted(f_list)
+
+    def open_project(self):
+        f_list = self.get_bookmark_list()
         if f_list:
             f_menu = QtGui.QMenu(self.widget)
             f_menu.triggered.connect(self.open_file_from_action)
+            self.bookmark_button.setMenu(f_menu)
             for f_item in f_list:
                 f_menu.addAction(f_item)
-            self.bookmark_button.setMenu(f_menu)
         else:
             self.bookmark_button.setMenu(None)
 
