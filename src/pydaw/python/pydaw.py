@@ -9035,9 +9035,10 @@ class pydaw_wave_editor_widget:
         if self.graph_object is None:
             return
         f_list = self.get_bookmark_list()
-        f_list.append(self.current_file)
-        this_pydaw_project.set_we_bm(f_list)
-        self.open_project()
+        if self.current_file not in f_list:
+            f_list.append(self.current_file)
+            this_pydaw_project.set_we_bm(f_list)
+            self.open_project()
 
     def get_bookmark_list(self):
         f_list = this_pydaw_project.get_we_bm()
