@@ -9017,6 +9017,13 @@ class pydaw_wave_editor_widget:
         self.current_file = None
         self.callbacks_enabled = True
 
+        self.controls_to_disable = (
+            self.file_browser.load_button, self.file_browser.preview_button,
+            self.file_browser.stop_preview_button, self.history_button,
+            self.sample_graph, self.vol_slider, self.menu_button,
+            self.enabled_checkbox, self.bookmark_button, self.fade_in_start,
+            self.fade_out_end)
+
     def copy_audio_item(self):
         if self.graph_object is None:
             return
@@ -9391,15 +9398,8 @@ class pydaw_wave_editor_widget:
             self.time_label.setText("{}:{}".format(f_minutes, f_seconds))
 
     def on_play(self):
-        self.file_browser.load_button.setEnabled(False)
-        self.file_browser.preview_button.setEnabled(False)
-        self.file_browser.stop_preview_button.setEnabled(False)
-        self.history_button.setEnabled(False)
-        self.sample_graph.setEnabled(False)
-        self.vol_slider.setEnabled(False)
-        self.menu_button.setEnabled(False)
-        self.enabled_checkbox.setEnabled(False)
-        self.bookmark_button.setEnabled(False)
+        for f_control in self.controls_to_disable:
+            f_control.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             self.time_label_enabled = True
             self.playback_cursor = self.sample_graph.scene.addLine(
@@ -9407,15 +9407,8 @@ class pydaw_wave_editor_widget:
                                             self.sample_graph.start_marker.line.pen())
 
     def on_stop(self):
-        self.file_browser.load_button.setEnabled(True)
-        self.file_browser.preview_button.setEnabled(True)
-        self.file_browser.stop_preview_button.setEnabled(True)
-        self.sample_graph.setEnabled(True)
-        self.vol_slider.setEnabled(True)
-        self.menu_button.setEnabled(True)
-        self.history_button.setEnabled(True)
-        self.enabled_checkbox.setEnabled(True)
-        self.bookmark_button.setEnabled(True)
+        for f_control in self.controls_to_disable:
+            f_control.setEnabled(True)
         if self.playback_cursor is not None:
             #self.sample_graph.scene.removeItem(self.playback_cursor)
             self.playback_cursor = None
