@@ -9049,7 +9049,7 @@ class pydaw_wave_editor_widget:
                 print("os.path.isfile({}) returned False, removing "
                     "from bookmarks".format(f_item))
         if f_resave:
-                this_pydaw_project.set_we_bm(f_list)
+            this_pydaw_project.set_we_bm(f_list)
         return sorted(f_list)
 
     def open_project(self):
