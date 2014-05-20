@@ -3474,6 +3474,15 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.v_zoom = 1.0
         self.audio_items_clipboard = []
         self.hsplitter.setSizes([100, 9999])
+        self.disable_on_play = (self.menu_button, self.snap_combobox)
+
+    def on_play(self):
+        for f_item in self.disable_on_play:
+            f_item.setEnabled(False)
+
+    def on_stop(self):
+        for f_item in self.disable_on_play:
+            f_item.setEnabled(True)
 
     def set_tooltips(self, a_on):
         self.folders_widget.setToolTip(_("Use this tab to browse your "
@@ -7116,6 +7125,7 @@ class transport_widget:
                     this_wave_editor_widget.enabled_checkbox.setChecked(False)
         this_song_editor.table_widget.setEnabled(False)
         this_region_settings.on_play()
+        this_audio_items_viewer_widget.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
         global global_transport_is_playing
@@ -7145,6 +7155,7 @@ class transport_widget:
         global_transport_is_playing = False
         this_song_editor.table_widget.setEnabled(True)
         this_region_settings.on_stop()
+        this_audio_items_viewer_widget.on_stop()
 
         f_we_enabled = this_wave_editor_widget.enabled_checkbox.isChecked()
         f_tab_index = this_main_window.main_tabwidget.currentIndex()
@@ -7226,6 +7237,7 @@ class transport_widget:
         this_song_editor.table_widget.setEnabled(False)
         this_wave_editor_widget.on_play()
         this_region_settings.on_play()
+        this_audio_items_viewer_widget.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
         self.overdub_checkbox.setEnabled(False)
