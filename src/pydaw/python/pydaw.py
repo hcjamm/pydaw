@@ -2819,6 +2819,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.reset_line_lists()
         self.h_zoom = 1.0
         self.scene = QtGui.QGraphicsScene(self)
+        self.scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.scene.dropEvent = self.sceneDropEvent
         self.scene.dragEnterEvent = self.sceneDragEnterEvent
         self.scene.dragMoveEvent = self.sceneDragMoveEvent
@@ -4764,6 +4765,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         QtGui.QGraphicsView.__init__(self)
         self.scene = QtGui.QGraphicsScene(self)
+        self.scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.scene.setBackgroundBrush(QtGui.QColor(100, 100, 100))
         self.scene.mousePressEvent = self.sceneMousePressEvent
         self.scene.mouseReleaseEvent = self.sceneMouseReleaseEvent
@@ -5729,6 +5731,7 @@ class automation_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsView.__init__(self)
         self.setMinimumHeight(370)
         self.scene = QtGui.QGraphicsScene(self)
+        self.scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.scene.setBackgroundBrush(QtGui.QColor(100, 100, 100))
         self.scene.mouseDoubleClickEvent = self.sceneMouseDoubleClickEvent
         self.setAlignment(QtCore.Qt.AlignLeft)
