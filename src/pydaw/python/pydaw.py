@@ -5070,9 +5070,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsView.mouseMoveEvent(self, a_event)
         if global_piano_roll_delete_mode:
-            f_item = self.itemAt(a_event.pos())
-            if isinstance(f_item, piano_roll_note_item):
-                f_item.delete_later()
+            for f_item in self.items(a_event.pos()):
+                if isinstance(f_item, piano_roll_note_item):
+                    f_item.delete_later()
 
     def hover_restore_cursor_event(self, a_event=None):
         QtGui.QApplication.restoreOverrideCursor()
