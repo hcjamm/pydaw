@@ -5991,6 +5991,13 @@ class automation_viewer(QtGui.QGraphicsView):
         if a_select and hash((a_item_index, str(a_cc))) in self.selected_str:
             f_point.setSelected(True)
 
+    def select_all(self):
+        self.setUpdatesEnabled(False)
+        for f_item in self.automation_points:
+            f_item.setSelected(True)
+        self.setUpdatesEnabled(True)
+        self.update()
+
 global_last_ipb_value = 18  #For the 'add point' dialog to remember settings
 
 class automation_viewer_widget:
@@ -6113,8 +6120,7 @@ class automation_viewer_widget:
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
     def select_all(self):
-        for f_item in self.automation_viewer.automation_points:
-            f_item.setSelected(True)
+        self.automation_viewer.select_all()
 
     def clear(self):
         self.automation_viewer.clear_current_item()
