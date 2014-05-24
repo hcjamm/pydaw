@@ -4652,6 +4652,14 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     global_piano_roll_snap_value) *
                     global_piano_roll_snap_value) + global_piano_keys_width
                 f_item.setPos(f_pos_x, f_pos_y)
+                f_new_note = self.y_pos_to_note(f_pos_y)
+                if f_new_note != f_item.note_item.note_num:
+                    f_item.note_item.note_num = f_new_note
+                    f_item.update_note_text()
+
+    def y_pos_to_note(self, a_y):
+        return int(global_piano_roll_note_count -
+            ((a_y - global_piano_roll_header_height) / global_piano_roll_note_height))
 
     def mouseReleaseEvent(self, a_event):
         if global_piano_roll_delete_mode:
@@ -4680,9 +4688,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 pass
             else:
                 f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001
-                f_new_note_num = int(global_piano_roll_note_count - \
-                ((f_pos_y - global_piano_roll_header_height) /
-                global_piano_roll_note_height))
+                f_new_note_num = self.y_pos_to_note(f_pos_y)
                 if self.is_copying:
                     f_item.item_index, f_new_note_start = \
                         pydaw_beats_to_index(f_new_note_start)
