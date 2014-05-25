@@ -5219,22 +5219,25 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_octave_brushes = f_octave_brushes[f_index:] + f_octave_brushes[:f_index]
         self.first_open = False
         f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width,
-                                             self.note_height, self.piano)
+                                             self.note_height)
         f_note_bar.hoverMoveEvent = self.hover_restore_cursor_event
         f_note_bar.setBrush(f_base_brush)
-        f_note_bar.setPos(self.piano_width + self.padding,  0.0)
+        self.scene.addItem(f_note_bar)
+        f_note_bar.setPos(self.piano_width + self.padding,  self.header_height)
         for i in range(self.end_octave - self.start_octave,
                        self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
                 f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width,
-                                                     self.note_height, self.piano)
+                                                     self.note_height)
                 f_note_bar.setZValue(60.0)
+                self.scene.addItem(f_note_bar)
                 f_note_bar.setBrush(f_octave_brushes[f_current_key])
                 f_current_key += 1
                 if f_current_key >= len(f_octave_brushes):
                     f_current_key = 0
-                f_note_bar.setPos(self.piano_width + self.padding,
-                                  self.note_height * (j) + self.octave_height * (i - 1))
+                f_note_bar_y = (self.note_height * j) + (self.octave_height * (i - 1)) + \
+                    self.header_height
+                f_note_bar.setPos(self.piano_width + self.padding, f_note_bar_y)
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
         f_bar_pen = QtGui.QPen(QtGui.QColor(240, 30, 30), 12.0)
