@@ -4361,6 +4361,7 @@ def pydaw_set_piano_roll_quantize(a_index):
     global global_piano_roll_snap_divisor
     global global_piano_roll_snap_divisor_beats
     global global_piano_roll_snap_beats
+    global global_last_resize
 
     if a_index == 0:
         global_piano_roll_snap = False
@@ -4385,6 +4386,7 @@ def pydaw_set_piano_roll_quantize(a_index):
         global_piano_roll_snap_divisor =  4.0
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
+    global_last_resize = pydaw_clip_min(global_last_resize, global_piano_roll_snap_beats)
     this_piano_roll_editor.set_grid_div(global_piano_roll_snap_divisor / 4.0)
     global_piano_roll_snap_divisor *= global_item_editing_count
     global_piano_roll_snap_value = \
