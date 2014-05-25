@@ -4493,9 +4493,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         f_gradient.setColorAt(1.0, QtGui.QColor(*f_vals_m2))
         self.setBrush(f_gradient)
 
-    def update_note_text(self):
-        f_octave = (self.note_item.note_num // 12) - 2
-        f_note = global_piano_roll_note_labels[self.note_item.note_num % 12]
+    def update_note_text(self, a_note_num=None):
+        f_note_num = a_note_num if a_note_num is not None else self.note_item.note_num
+        f_octave = (f_note_num // 12) - 2
+        f_note = global_piano_roll_note_labels[f_note_num % 12]
         self.note_text.setText("{}{}".format(f_note, f_octave))
 
     def mouse_is_at_end(self, a_pos):
@@ -4657,8 +4658,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 f_item.setPos(f_pos_x, f_pos_y)
                 f_new_note = self.y_pos_to_note(f_pos_y)
                 if f_new_note != f_item.note_item.note_num:
-                    f_item.note_item.note_num = f_new_note
-                    f_item.update_note_text()
+                    f_item.update_note_text(f_new_note)
 
     def y_pos_to_note(self, a_y):
         return int(global_piano_roll_note_count -
