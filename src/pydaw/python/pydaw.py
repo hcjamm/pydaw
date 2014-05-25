@@ -3465,6 +3465,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.v_zoom_combobox.currentIndexChanged.connect(self.set_v_zoom)
         self.controls_grid_layout.addWidget(self.v_zoom_combobox, 0, 46)
         self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.h_zoom_slider.setObjectName("zoom_slider")
         self.h_zoom_slider.setRange(0, 100)
         self.h_zoom_slider.setMaximumWidth(600)
         self.h_zoom_slider.setValue(0)

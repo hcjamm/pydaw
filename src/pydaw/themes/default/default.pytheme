@@ -186,6 +186,8 @@ QSpinBox::down-button, QDoubleSpinBox::down-button
 	border-image: url($STYLE_FOLDER/spinbox-down.png);
 }
 
+/*Volume Faders*/
+
 QSlider
 {
 	background:transparent;
@@ -258,6 +260,89 @@ QSlider::handle:vertical
 	margin-right: -7px;
 	border: 2px solid transparent;
 }
+
+/*Zoom Sliders*/
+
+
+QSlider#zoom_slider
+{
+	background:transparent;
+	border: 2px solid transparent;
+}
+
+QSlider#zoom_slider::groove:horizontal
+{
+	border: 1px solid #bbb;
+	background: white;
+	height: 10px;
+	border-radius: 4px;
+}
+
+QSlider#zoom_slider::sub-page:horizontal
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #000000, stop: 1 #ff0000);
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #000000, stop: 1 #ff0000);
+	border: 1px solid #777;
+	height: 10px;
+	border-radius: 4px;
+}
+
+QSlider#zoom_slider::add-page:horizontal
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #666666, stop: 1 #000000);
+	border: 1px solid #777;
+	height: 10px;
+	border-radius: 4px;
+}
+
+QSlider#zoom_slider::handle:horizontal
+{
+        image: none;
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #cccccc, stop: 0.5 #dddddd stop: 1 #cccccc);
+	height: 15px;
+	width: 9px;
+	margin-top: -3px;
+	margin-bottom: -3px;
+	border: 2px solid white;
+}
+
+QSlider#zoom_slider::groove:vertical
+{
+	border: 1px solid #bbb;
+	background: white;
+	width: 10px;
+	border-radius: 4px;
+}
+
+QSlider#zoom_slider::sub-page:vertical
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #000000, stop: 1 #666666);
+	border: 1px solid #777;
+	width: 10px;
+	border-radius: 4px;
+}
+
+QSlider#zoom_slider::add-page:vertical
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #000000, stop: 1 #ff0000);
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ff0000, stop: 1 #000000);
+	border: 1px solid #777;
+	width: 10px;
+	border-radius: 4px;
+}
+
+QSlider#zoom_slider::handle:vertical
+{
+        image: none;
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #cccccc, stop: 0.5 #dddddd stop: 1 #cccccc);
+	height: 9px;
+	width: 15px;
+	margin-top: -3px;
+	margin-bottom: -3px;
+	border: 2px solid white;
+}
+
+
 
 QToolTip
 {
