@@ -6341,12 +6341,14 @@ def global_check_midi_items():
 
 global_draw_last_items = False
 
-def global_set_midi_zoom(a_is_refresh=False):
+def global_set_midi_zoom():
     if not this_item_editor.enabled:
         return
     f_index = 1 if this_main_window.midi_zoom_action.isChecked() else 0
     f_item_count = len(this_item_editor.items)
-    if not a_is_refresh and f_item_count < 2:
+    if f_item_count < 2:
+        if f_index == 1:
+            this_main_window.midi_zoom_action.setChecked(False)
         return
 
     global global_item_zoom_index
@@ -6369,6 +6371,8 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         f_index = 1 if this_main_window.midi_zoom_action.isChecked() else 0
         if f_index == 1:
             this_main_window.midi_zoom_action.setChecked(False)
+            global_set_midi_zoom()
+            this_main_window.midi_zoom_action.setChecked(True)
         global global_item_editing_count
         global_item_editing_count = len(a_items)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
@@ -6382,7 +6386,7 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         if a_reset_scrollbar:
             for f_editor in global_midi_editors:
                 f_editor.horizontalScrollBar().setSliderPosition(0)
-        global_set_midi_zoom(a_is_refresh=True)
+        global_set_midi_zoom()
         global_last_open_item_names = global_open_item_names
         global_open_item_names = a_items[:]
         f_items_dict = this_pydaw_project.get_items_dict()
