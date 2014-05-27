@@ -411,6 +411,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
                         plugin_data->data[f_voice]->osc_unison2,
                         (int)(*plugin_data->osc2type));
 
+                v_svf_reset(plugin_data->data[f_voice]->svf_filter);
+
                 if(f_poly_mode == 0)
                 {
                     v_osc_note_on_sync_phases(
