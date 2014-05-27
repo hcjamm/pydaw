@@ -665,7 +665,7 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port,
                  a_sustain_port, a_release_port, a_label, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None, a_attack_default=10):
+                 a_port_dict=None, a_preset_mgr=None, a_attack_default=10, a_prefx_port=None):
         self.attack_knob = pydaw_knob_control(a_size, _("Attack"), a_attack_port, a_rel_callback,
                                               a_val_callback, 0, 200, a_attack_default,
                                               kc_time_decimal, a_port_dict, a_preset_mgr)
@@ -689,10 +689,15 @@ class pydaw_adsr_widget:
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.layout.setMargin(3)
-        self.attack_knob.add_to_grid_layout(self.layout, 0)
-        self.decay_knob.add_to_grid_layout(self.layout, 1)
-        self.sustain_knob.add_to_grid_layout(self.layout, 2)
-        self.release_knob.add_to_grid_layout(self.layout, 3)
+        self.attack_knob.add_to_grid_layout(self.layout, 2)
+        self.decay_knob.add_to_grid_layout(self.layout, 4)
+        self.sustain_knob.add_to_grid_layout(self.layout, 6)
+        self.release_knob.add_to_grid_layout(self.layout, 8)
+        if a_prefx_port is not None:
+            self.prefx_checkbox = pydaw_checkbox_control("PreFX", a_prefx_port,
+                                                         a_rel_callback, a_val_callback,
+                                                         a_port_dict, a_preset_mgr)
+            self.prefx_checkbox.add_to_grid_layout(self.layout, 10)
 
 class pydaw_filter_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict,
@@ -3861,7 +3866,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                           pydaw_ports.RAYV_SUSTAIN, pydaw_ports.RAYV_RELEASE,
                                           _("ADSR Amp"),
                                           self.plugin_rel_callback, self.plugin_val_callback,
-                                          self.port_dict, self.preset_manager)
+                                          self.port_dict, self.preset_manager,
+                                          a_prefx_port=pydaw_ports.RAYV_ADSR_PREFX)
         self.hlayout1.addWidget(self.adsr_amp.groupbox)
         self.groupbox_distortion =  QtGui.QGroupBox(_("Distortion"))
         self.groupbox_distortion.setObjectName("plugin_groupbox")
@@ -4403,7 +4409,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                 _("ADSR Master"),
                                                 self.plugin_rel_callback,
                                                 self.plugin_val_callback,
-                                                self.port_dict, self.preset_manager)
+                                                self.port_dict, self.preset_manager,
+                                                a_prefx_port=pydaw_ports.WAYV_ADSR_PREFX)
         self.hlayout_master.addWidget(self.adsr_amp_main.groupbox)
 
         self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))

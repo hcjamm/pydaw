@@ -62,10 +62,11 @@ extern "C" {
 #define RAYV_MONO_MODE 39
 #define RAYV_LFO_PHASE 40
 #define RAYV_LFO_PITCH_FINE 41
+#define RAYV_ADSR_PREFX 42
 
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define RAYV_COUNT 42
+#define RAYV_COUNT 43
 
 #define RAYV_POLYPHONY   16
 #define RAYV_POLYPHONY_THRESH 12
@@ -124,6 +125,7 @@ typedef struct {
     PYFX_Data *ramp_curve;
 
     PYFX_Data *sync_hard;
+    PYFX_Data *adsr_prefx;
     PYFX_Data *mono_mode;
 
     t_rayv_poly_voice * data[RAYV_POLYPHONY];

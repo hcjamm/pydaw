@@ -34,7 +34,7 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 
-typedef struct st_rayv_mono_modules
+typedef struct
 {
     t_smoother_linear * filter_smoother;
     t_smoother_linear * pitchbend_smoother;
@@ -43,7 +43,7 @@ typedef struct st_rayv_mono_modules
 }t_rayv_mono_modules;
 
 
-typedef struct st_rayv_poly_voice
+typedef struct
 {
     t_osc_simple_unison * osc_unison1;
     t_osc_simple_unison * osc_unison2;
@@ -94,6 +94,7 @@ typedef struct st_rayv_poly_voice
     int i_voice;  //for the runVoice function to iterate the current block
 
     int hard_sync;
+    int adsr_prefx;
     float unison_spread;
 }t_rayv_poly_voice;
 
@@ -156,6 +157,7 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->i_voice = 0;
 
     f_voice->hard_sync = 0;
+    f_voice->adsr_prefx = 0;
     f_voice->unison_spread = 0.5f;
 
     return f_voice;

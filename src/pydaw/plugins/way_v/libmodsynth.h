@@ -116,6 +116,7 @@ typedef struct
     float velocity_track;
     float keyboard_track;
 
+    int adsr_prefx;
     int perc_env_on;
     t_pnv_perc_env * perc_env;
 }t_wayv_poly_voice;
@@ -174,6 +175,7 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
+    f_voice->adsr_prefx = 0;
 
     f_voice->lfo_amount_output = 0.0f;
     f_voice->lfo_amp_output = 0.0f;

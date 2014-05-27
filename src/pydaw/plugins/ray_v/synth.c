@@ -224,6 +224,9 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
         case RAYV_LFO_PITCH_FINE:
             plugin->lfo_pitch_fine = data;
             break;
+        case RAYV_ADSR_PREFX:
+            plugin->adsr_prefx = data;
+            break;
     }
 }
 
@@ -431,6 +434,9 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
                             plugin_data->data[f_voice]->osc_unison2,
                             *plugin_data->master_uni_voice);
                 }
+
+                plugin_data->data[f_voice]->adsr_prefx =
+                        (int)*plugin_data->adsr_prefx;
 
                 plugin_data->sv_last_note =
                         (plugin_data->data[f_voice]->note_f);
@@ -643,6 +649,11 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
 
     v_adsr_run_db(a_voice->adsr_amp);
 
+    if(a_voice->adsr_prefx)
+    {
+        a_voice->current_sample *= (a_voice->adsr_amp->output);
+    }
+
     v_adsr_run(a_voice->adsr_filter);
 
     v_svf_set_cutoff_base(a_voice->svf_filter,
@@ -663,8 +674,12 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
             f_clp_clip(a_voice->clipper1, (a_voice->filter_output)));
 
     a_voice->current_sample = (a_voice->current_sample) *
-            (a_voice->adsr_amp->output) * (a_voice->amp) *
-            (a_voice->lfo_amp_output);
+            (a_voice->amp) * (a_voice->lfo_amp_output);
+
+    if(!a_voice->adsr_prefx)
+    {
+        a_voice->current_sample *= (a_voice->adsr_amp->output);
+    }
 
     /*Run the envelope and assign to the output buffers*/
     out0[(a_voice->i_voice)] += (a_voice->current_sample);
@@ -898,6 +913,11 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_LFO_PITCH_FINE].DefaultValue = 0.0f;
 	port_range_hints[RAYV_LFO_PITCH_FINE].LowerBound = -100.0f;
 	port_range_hints[RAYV_LFO_PITCH_FINE].UpperBound = 100.0f;
+
+        port_descriptors[RAYV_ADSR_PREFX]= 1;
+	port_range_hints[RAYV_ADSR_PREFX].DefaultValue = 0.0f;
+	port_range_hints[RAYV_ADSR_PREFX].LowerBound = 0.0f;
+	port_range_hints[RAYV_ADSR_PREFX].UpperBound = 1.0f;
 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;

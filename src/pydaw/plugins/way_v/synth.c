@@ -471,6 +471,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
 
         case WAYV_LFO_PHASE: plugin->lfo_phase = data; break;
         case WAYV_LFO_PITCH_FINE: plugin->lfo_pitch_fine = data; break;
+        case WAYV_ADSR_PREFX: plugin->adsr_prefx = data; break;
     }
 }
 
@@ -943,6 +944,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         f_db_to_linear(*(plugin_data->noise_amp),
                         plugin_data->mono_modules->amp_ptr);
 
+                plugin_data->data[f_voice]->adsr_prefx =
+                        (int)*plugin_data->adsr_prefx;
+
                 plugin_data->data[f_voice]->perc_env_on =
                         (int)(*plugin_data->perc_env_on);
 
@@ -1305,6 +1309,11 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     v_adsr_run_db(a_voice->adsr_main);
 
+    if(a_voice->adsr_prefx)
+    {
+        a_voice->current_sample *= (a_voice->adsr_main->output);
+    }
+
     a_voice->current_sample = (a_voice->current_sample) * (a_voice->amp) *
             (a_voice->lfo_amp_output);
 
@@ -1350,10 +1359,15 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     /*Run the envelope and assign to the output buffers*/
     out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) *
-            (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
+            (a_voice->master_vol_lin);
     out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) *
-            (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
+            (a_voice->master_vol_lin);
 
+    if(!a_voice->adsr_prefx)
+    {
+        out0[(a_voice->i_voice)] *= (a_voice->adsr_main->output);
+        out1[(a_voice->i_voice)] *= (a_voice->adsr_main->output);
+    }
 }
 
 
@@ -2418,6 +2432,11 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_LFO_PITCH_FINE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_LFO_PITCH_FINE].LowerBound =  -100.0f;
 	port_range_hints[WAYV_LFO_PITCH_FINE].UpperBound =  100.0;
+
+        port_descriptors[WAYV_ADSR_PREFX] = 1;
+	port_range_hints[WAYV_ADSR_PREFX].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR_PREFX].LowerBound =  0.0f;
+	port_range_hints[WAYV_ADSR_PREFX].UpperBound =  1.0;
 
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
