@@ -5124,8 +5124,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_index += 1
                 f_key.setPos(0, (self.note_height * j) + (self.octave_height * (i - 1)))
 
-                f_key.setToolTip("{}hz".format(
-                        round(pydaw_pitch_to_hz(f_note_num))))
+                f_key.setToolTip("{} - {}hz".format(
+                    pydaw_util.note_num_to_string(f_note_num),
+                    round(pydaw_pitch_to_hz(f_note_num))))
                 f_note_num += 1
                 if j == 12:
                     f_label = QtGui.QGraphicsSimpleTextItem("C{}".format(
