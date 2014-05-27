@@ -7077,30 +7077,31 @@ class transport_widget:
         return self.bar_spinbox.value() - 1
 
     def set_pos_from_cursor(self, a_region, a_bar):
-        if self.follow_checkbox.isChecked() and (self.is_playing or self.is_recording):
+        if self.is_playing or self.is_recording:
             f_region = int(a_region)
             f_bar = int(a_bar)
             if self.get_region_value() != f_region or \
             self.get_bar_value() != f_bar:
-                #print("region: {} bar: {}".format(f_region, f_bar))
                 self.set_region_value(f_region)
                 self.set_bar_value(f_bar)
-                this_audio_items_viewer.set_playback_pos(f_bar)
-                f_bar += 1
-                for f_editor in global_region_editors:
-                    f_editor.table_widget.selectColumn(f_bar)
-                if f_region != self.last_region_num:
-                    self.last_region_num = f_region
-                    f_item = this_song_editor.table_widget.item(0, f_region)
-                    this_song_editor.table_widget.selectColumn(f_region)
-                    if not f_item is None and f_item.text() != "":
-                        this_region_settings.open_region(f_item.text())
-                    else:
-                        this_region_settings.clear_items()
-                        this_audio_items_viewer.clear_drawn_items(a_default_length=True)
-                        this_audio_items_viewer.scale_to_region_size()
-                        for f_region_editor in global_region_editors:
-                            f_region_editor.set_region_length()
+                if self.follow_checkbox.isChecked():
+                    this_audio_items_viewer.set_playback_pos(f_bar)
+                    f_bar += 1
+                    for f_editor in global_region_editors:
+                        f_editor.table_widget.selectColumn(f_bar)
+                    if f_region != self.last_region_num:
+                        self.last_region_num = f_region
+                        f_item = this_song_editor.table_widget.item(0, f_region)
+                        this_song_editor.table_widget.selectColumn(f_region)
+                        if not f_item is None and f_item.text() != "":
+                            this_region_settings.open_region(f_item.text())
+                        else:
+                            this_region_settings.clear_items()
+                            this_audio_items_viewer.clear_drawn_items(
+                                a_default_length=True)
+                            this_audio_items_viewer.scale_to_region_size()
+                            for f_region_editor in global_region_editors:
+                                f_region_editor.set_region_length()
 
     def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked() or \
