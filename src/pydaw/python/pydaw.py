@@ -5289,6 +5289,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def draw_item(self):
         self.has_selected = False #Reset the selected-ness state...
         self.viewer_width = 1000 * global_item_editing_count
+        self.setSceneRect(0.0, 0.0, self.viewer_width + 1200.0,
+                          self.piano_height + self.header_height + 24.0)
         self.item_length = float(4 * global_item_editing_count)
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = \
