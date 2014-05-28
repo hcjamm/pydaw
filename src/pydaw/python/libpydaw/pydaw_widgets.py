@@ -3883,16 +3883,6 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             0, 100, 0, kc_none, self.port_dict,
                                             self.preset_manager)
         self.dist_wet.add_to_grid_layout(self.groupbox_distortion_layout, 1)
-        self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
-        self.groupbox_noise.setObjectName("plugin_groupbox")
-        self.noise_layout = QtGui.QGridLayout(self.groupbox_noise)
-        self.noise_layout.setMargin(3)
-        self.hlayout1.addWidget(self.groupbox_noise)
-        self.noise_amp =  pydaw_knob_control(f_knob_size, _("Vol"), pydaw_ports.RAYV_NOISE_AMP,
-                                             self.plugin_rel_callback, self.plugin_val_callback,
-                                             -60, 0, -30,
-                                             kc_integer, self.port_dict, self.preset_manager)
-        self.noise_amp.add_to_grid_layout(self.noise_layout, 0)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout2)
         self.osc2 =  pydaw_osc_widget(f_knob_size, pydaw_ports.RAYV_OSC2_PITCH,
@@ -3915,6 +3905,16 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
             _("Setting self hard sync's Osc1 to Osc2. Usually you would want to "
             "distort and pitchbend if this is enabled."))
         self.sync_gridlayout.addWidget(self.hard_sync.control, 1, 0, QtCore.Qt.AlignCenter)
+        self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
+        self.groupbox_noise.setObjectName("plugin_groupbox")
+        self.noise_layout = QtGui.QGridLayout(self.groupbox_noise)
+        self.noise_layout.setMargin(3)
+        self.hlayout2.addWidget(self.groupbox_noise)
+        self.noise_amp =  pydaw_knob_control(f_knob_size, _("Vol"), pydaw_ports.RAYV_NOISE_AMP,
+                                             self.plugin_rel_callback, self.plugin_val_callback,
+                                             -60, 0, -30,
+                                             kc_integer, self.port_dict, self.preset_manager)
+        self.noise_amp.add_to_grid_layout(self.noise_layout, 0)
         self.adsr_filter =  pydaw_adsr_widget(f_knob_size, False, pydaw_ports.RAYV_FILTER_ATTACK,
                                               pydaw_ports.RAYV_FILTER_DECAY,
                                               pydaw_ports.RAYV_FILTER_SUSTAIN,
