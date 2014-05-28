@@ -4094,7 +4094,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                           self.plugin_rel_callback,
                                                           self.plugin_val_callback,
                                                           self.port_dict, self.preset_manager)
-        self.adsr_amp1_checkbox.add_to_grid_layout(self.adsr_amp1.layout, 4)
+        self.adsr_amp1_checkbox.add_to_grid_layout(self.adsr_amp1.layout, 15)
 
         self.groupbox_osc1_fm =  QtGui.QGroupBox(_("Osc1 FM"))
         self.groupbox_osc1_fm_layout = QtGui.QGridLayout(self.groupbox_osc1_fm)
@@ -4173,7 +4173,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                           self.plugin_rel_callback,
                                                           self.plugin_val_callback,
                                                           self.port_dict, self.preset_manager)
-        self.adsr_amp2_checkbox.add_to_grid_layout(self.adsr_amp2.layout, 4)
+        self.adsr_amp2_checkbox.add_to_grid_layout(self.adsr_amp2.layout, 15)
 
         self.groupbox_osc2_fm =  QtGui.QGroupBox(_("Osc2 FM"))
         self.groupbox_osc2_fm_layout = QtGui.QGridLayout(self.groupbox_osc2_fm)
@@ -4257,7 +4257,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                           self.plugin_rel_callback,
                                                           self.plugin_val_callback,
                                                           self.port_dict, self.preset_manager)
-        self.adsr_amp3_checkbox.add_to_grid_layout(self.adsr_amp3.layout, 4)
+        self.adsr_amp3_checkbox.add_to_grid_layout(self.adsr_amp3.layout, 15)
 
         self.groupbox_osc3_fm =  QtGui.QGroupBox(_("Osc3 FM"))
         self.groupbox_osc3_fm_layout = QtGui.QGridLayout(self.groupbox_osc3_fm)
@@ -4343,7 +4343,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                           self.plugin_rel_callback,
                                                           self.plugin_val_callback,
                                                           self.port_dict, self.preset_manager)
-        self.adsr_amp4_checkbox.add_to_grid_layout(self.adsr_amp4.layout, 4)
+        self.adsr_amp4_checkbox.add_to_grid_layout(self.adsr_amp4.layout, 15)
 
         self.groupbox_osc4_fm =  QtGui.QGroupBox(_("Osc4 FM"))
         self.groupbox_osc4_fm_layout = QtGui.QGridLayout(self.groupbox_osc4_fm)
