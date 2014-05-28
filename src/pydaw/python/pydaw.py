@@ -57,6 +57,18 @@ def pydaw_get_region_length(a_index):
         else:
             return f_result
 
+global_region_time = [0] * 300  # Fast lookup of song times in seconds
+
+def global_update_region_time():
+    global global_region_time
+    global_region_time = []
+    f_seconds_per_beat = 60.0 / float(this_transport.tempo_spinbox.value())
+    f_total = 0.0
+    for x in range(300):
+        global_region_time.append(f_total)
+        f_total += pydaw_get_region_length(x) * 4.0 * f_seconds_per_beat
+
+
 def pydaw_center_widget_on_screen(a_widget):
     f_desktop_center = QtGui.QApplication.desktop().screen().rect().center()
     f_widget_center = a_widget.rect().center()
@@ -180,6 +192,7 @@ class song_editor:
                 if not f_is_playing:
                     this_transport.set_region_value(y)
                     this_transport.set_bar_value(0)
+                global_update_region_time()
                 f_window.close()
 
             def song_cancel_handler():
@@ -511,6 +524,7 @@ class region_settings:
                 this_pydaw_project.save_audio_region(global_current_region.uid,
                                                      global_audio_items)
             this_pydaw_project.commit(f_commit_message)
+            global_update_region_time()
 
     def toggle_hide_inactive(self):
         self.hide_inactive = self.toggle_hide_action.isChecked()
@@ -592,6 +606,7 @@ class region_settings:
             this_song_editor.open_song()
             self.clear_items()
             this_song_editor.open_first_region()
+            global_update_region_time()
             f_window.close()
 
         def cancel_handler():
@@ -638,6 +653,7 @@ class region_settings:
                 global_current_region_name, f_region_name))
             this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
+            global_update_region_time()
             f_window.close()
         def split_cancel_handler():
             f_window.close()
@@ -719,6 +735,8 @@ class region_settings:
         this_audio_items_viewer.scale_to_region_size()
         global_open_audio_items()
         global_update_hidden_rows()
+        this_transport.set_time(this_transport.get_region_value(),
+                                this_transport.get_bar_value(), 0.0)
 
     def clear_items(self):
         self.region_name_lineedit.setText("")
@@ -7067,6 +7085,16 @@ class seq_track:
                              self.record_radiobutton.isChecked(), self.track_number)
 
 class transport_widget:
+    def set_time(self, a_region, a_bar, a_beat):
+        f_seconds = global_region_time[a_region]
+        f_seconds_per_beat = 60.0 / float(self.tempo_spinbox.value())
+        f_seconds += f_seconds_per_beat * ((4.0 * a_bar) + a_beat)
+        f_minutes = int(f_seconds / 60)
+        f_seconds = str(round(f_seconds % 60, 1))
+        f_seconds, f_frac = f_seconds.split('.', 1)
+        f_text = "{}:{}.{}".format(f_minutes, str(f_seconds).zfill(2), f_frac)
+        self.time_label.setText(f_text)
+
     def set_region_value(self, a_val):
         self.region_spinbox.setValue(int(a_val) + 1)
 
@@ -7079,10 +7107,12 @@ class transport_widget:
     def get_bar_value(self):
         return self.bar_spinbox.value() - 1
 
-    def set_pos_from_cursor(self, a_region, a_bar):
+    def set_pos_from_cursor(self, a_region, a_bar, a_beat):
         if self.is_playing or self.is_recording:
             f_region = int(a_region)
             f_bar = int(a_bar)
+            f_beat = float(a_beat)
+            self.set_time(f_region, f_bar, f_beat)
             if self.get_region_value() != f_region or \
             self.get_bar_value() != f_bar:
                 self.set_region_value(f_region)
@@ -7292,6 +7322,7 @@ class transport_widget:
             this_pydaw_project.this_pydaw_osc.pydaw_set_tempo(a_tempo)
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.commit(_("Set project tempo to {}").format(a_tempo))
+        global_update_region_time()
 
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
@@ -7307,6 +7338,7 @@ class transport_widget:
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
             this_audio_items_viewer.set_playback_pos(self.get_bar_value())
+        self.set_time(self.get_region_value(), self.get_bar_value(), 0.0)
 
     def on_region_changed(self, a_region):
         #self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region - 1))
@@ -7314,6 +7346,7 @@ class transport_widget:
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_audio_items_viewer.set_playback_pos(self.get_bar_value())
+        self.set_time(self.get_region_value(), self.get_bar_value(), 0.0)
 
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
@@ -7387,25 +7420,34 @@ class transport_widget:
         self.hlayout1.addWidget(self.playback_menu_button)
         self.grid_layout1 = QtGui.QGridLayout()
         self.hlayout1.addLayout(self.grid_layout1)
-        self.grid_layout1.addWidget(QtGui.QLabel(_("BPM:")), 0, 0)
+        self.grid_layout1.addWidget(QtGui.QLabel(_("BPM")), 0, 0)
         self.tempo_spinbox = QtGui.QSpinBox()
         self.tempo_spinbox.setKeyboardTracking(False)
         self.tempo_spinbox.setObjectName("large_spinbox")
         self.tempo_spinbox.setRange(50, 200)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
         self.grid_layout1.addWidget(self.tempo_spinbox, 1, 0)
-        self.grid_layout1.addWidget(QtGui.QLabel(_("Region:")), 0, 10)
+        self.grid_layout1.addWidget(QtGui.QLabel(_("Region")), 0, 10)
         self.region_spinbox = QtGui.QSpinBox()
         self.region_spinbox.setObjectName("large_spinbox")
         self.region_spinbox.setRange(1, 300)
         self.region_spinbox.valueChanged.connect(self.on_region_changed)
         self.grid_layout1.addWidget(self.region_spinbox, 1, 10)
-        self.grid_layout1.addWidget(QtGui.QLabel(_("Bar:")), 0, 20)
+        self.grid_layout1.addWidget(QtGui.QLabel(_("Bar")), 0, 20)
         self.bar_spinbox = QtGui.QSpinBox()
         self.bar_spinbox.setObjectName("large_spinbox")
         self.bar_spinbox.setRange(1, 8)
         self.bar_spinbox.valueChanged.connect(self.on_bar_changed)
         self.grid_layout1.addWidget(self.bar_spinbox, 1, 20)
+
+        f_time_label = QtGui.QLabel(_("Time"))
+        f_time_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.grid_layout1.addWidget(f_time_label, 0, 27)
+        self.time_label = QtGui.QLabel(_("0:00"))
+        self.time_label.setMinimumWidth(90)
+        self.time_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.grid_layout1.addWidget(self.time_label, 1, 27)
+
         self.playback_menu = QtGui.QMenu(self.playback_menu_button)
         self.playback_menu_button.setMenu(self.playback_menu)
         self.playback_widget_action = QtGui.QWidgetAction(self.playback_menu)
@@ -8574,7 +8616,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             elif a_key == "cur":
                 if global_transport_is_playing:
                     f_region, f_bar, f_beat = a_val.split("|")
-                    this_transport.set_pos_from_cursor(f_region, f_bar)
+                    this_transport.set_pos_from_cursor(f_region, f_bar, f_beat)
                     this_audio_items_viewer.set_playback_pos(f_bar, f_beat)
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
@@ -9573,6 +9615,7 @@ def global_open_project(a_project_file, a_wait=True):
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
     this_main_window.notes_tab.setText(this_pydaw_project.get_notes())
     this_wave_editor_widget.open_project()
+    global_update_region_time()
 
 def global_new_project(a_project_file, a_wait=True):
     global_close_all()
@@ -9593,6 +9636,7 @@ def global_new_project(a_project_file, a_wait=True):
     this_main_window.last_offline_dir = this_pydaw_project.user_folder
     this_main_window.notes_tab.setText("")
     this_wave_editor_widget.open_project()
+    global_update_region_time()
 
 this_pydaw_project = pydaw_project(global_pydaw_with_audio)
 
