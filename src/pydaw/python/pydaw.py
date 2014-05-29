@@ -6369,16 +6369,12 @@ global_draw_last_items = False
 def global_set_midi_zoom():
     if not this_item_editor.enabled:
         return
-    f_index = 1 if this_main_window.midi_zoom_action.isChecked() else 0
+    global global_item_zoom_index
     f_item_count = len(this_item_editor.items)
     if f_item_count < 2:
-        if f_index == 1:
-            this_main_window.midi_zoom_action.setChecked(False)
-        return
-
-    global global_item_zoom_index
-    global_item_zoom_index = f_index
-
+        if global_item_zoom_index == 1:
+            global_item_zoom_index = 0
+            this_item_editor.zoom_slider.setValue(0)
     for f_editor in global_midi_editors:
         f_editor.scale_to_width()
 
@@ -6389,17 +6385,16 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
     """
     this_item_editor.enabled = True
     global global_open_item_names, global_open_items_uids, \
-           global_last_open_item_uids, global_last_open_item_names
+           global_last_open_item_uids, global_last_open_item_names, \
+           global_item_zoom_index
 
     if a_items is not None:
         this_piano_roll_editor.selected_note_strings = []
-        f_index = 1 if this_main_window.midi_zoom_action.isChecked() else 0
-        if f_index == 1:
-            this_main_window.midi_zoom_action.setChecked(False)
-            global_set_midi_zoom()
-            this_main_window.midi_zoom_action.setChecked(True)
         global global_item_editing_count
         global_item_editing_count = len(a_items)
+        if global_item_zoom_index == 1 and global_item_editing_count == 1:
+            global_item_zoom_index = 0
+            this_item_editor.zoom_slider.setValue(0)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         this_item_editor.item_names = a_items
         this_item_editor.item_index_enabled = False
@@ -6446,8 +6441,8 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
     this_pb_editor.draw_item()
     this_item_editor.open_item_list()
 
-    if a_items is not None and f_index == 1:
-        this_main_window.midi_zoom_action.setChecked(True)
+#    if a_items is not None and f_index == 1:
+#        this_main_window.midi_zoom_action.setChecked(True)
 
 def global_save_and_reload_items():
     assert(len(this_item_editor.item_names) == len(this_item_editor.items))
@@ -6762,6 +6757,12 @@ class item_list_editor:
 
         self.tab_widget.addTab(self.notes_tab, _("List Viewers"))
 
+        self.zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.zoom_slider.setObjectName("zoom_slider")
+        self.zoom_slider.setRange(0, 1)
+        self.zoom_slider.valueChanged.connect(self.midi_zoom)
+        self.tab_widget.setCornerWidget(self.zoom_slider)
+
         self.set_headers()
         self.default_note_start = 0.0
         self.default_note_length = 1.0
@@ -6776,6 +6777,10 @@ class item_list_editor:
         self.default_pb_val = 0
         self.default_pb_quantize = 0
 
+    def midi_zoom(self, a_val):
+        global global_item_zoom_index
+        global_item_zoom_index = a_val
+        global_set_midi_zoom()
 
     def item_index_changed(self, a_index=None):
         if self.item_index_enabled:
@@ -8465,13 +8470,6 @@ class pydaw_main_window(QtGui.QMainWindow):
             _("Restore Transport and Song Editor"))
         self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
         self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
-
-        self.menu_appearance.addSeparator()
-
-        self.midi_zoom_action  = self.menu_appearance.addAction(_("MIDI Zoom"))
-        self.midi_zoom_action.triggered.connect(global_set_midi_zoom)
-        self.midi_zoom_action.setCheckable(True)
-        self.midi_zoom_action.setShortcut(QtGui.QKeySequence("ALT+M"))
 
         self.menu_appearance.addSeparator()
 
