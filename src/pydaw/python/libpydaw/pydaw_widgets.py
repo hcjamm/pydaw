@@ -669,10 +669,27 @@ class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port,
                  a_sustain_port, a_release_port, a_label, a_rel_callback, a_val_callback,
                  a_port_dict=None, a_preset_mgr=None, a_attack_default=10,
-                 a_prefx_port=None, a_knob_type=kc_time_decimal):
+                 a_prefx_port=None, a_knob_type=kc_time_decimal,
+                 a_delay_port=None, a_hold_port=None):
+        self.groupbox = QtGui.QGroupBox(a_label)
+        self.groupbox.setObjectName("plugin_groupbox")
+        self.layout = QtGui.QGridLayout(self.groupbox)
+        self.layout.setMargin(3)
+
+        if a_delay_port is not None:
+            self.delay_knob = pydaw_knob_control(a_size, _("Delay"), a_delay_port,
+                                                  a_rel_callback, a_val_callback, 0, 200,
+                                                  0, kc_time_decimal, a_port_dict,
+                                                  a_preset_mgr)
+            self.delay_knob.add_to_grid_layout(self.layout, 0)
         self.attack_knob = pydaw_knob_control(a_size, _("Attack"), a_attack_port, a_rel_callback,
                                               a_val_callback, 0, 200, a_attack_default,
                                               a_knob_type, a_port_dict, a_preset_mgr)
+        if a_hold_port is not None:
+            self.hold_knob = pydaw_knob_control(a_size, _("Hold"), a_hold_port,
+                                                  a_rel_callback, a_val_callback, 0, 200,
+                                                  0, kc_time_decimal, a_port_dict,
+                                                  a_preset_mgr)
         self.decay_knob = pydaw_knob_control(a_size, _("Decay"), a_decay_port, a_rel_callback,
                                              a_val_callback, 10, 200, 50, a_knob_type,
                                              a_port_dict, a_preset_mgr)
@@ -689,10 +706,6 @@ class pydaw_adsr_widget:
         self.release_knob = pydaw_knob_control(a_size, _("Release"), a_release_port,
                                                a_rel_callback, a_val_callback, 10,
                                                400, 50, a_knob_type, a_port_dict, a_preset_mgr)
-        self.groupbox = QtGui.QGroupBox(a_label)
-        self.groupbox.setObjectName("plugin_groupbox")
-        self.layout = QtGui.QGridLayout(self.groupbox)
-        self.layout.setMargin(3)
         self.attack_knob.add_to_grid_layout(self.layout, 2)
         self.decay_knob.add_to_grid_layout(self.layout, 4)
         self.sustain_knob.add_to_grid_layout(self.layout, 6)
