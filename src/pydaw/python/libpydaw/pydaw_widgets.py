@@ -3871,7 +3871,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                           _("ADSR Amp"),
                                           self.plugin_rel_callback, self.plugin_val_callback,
                                           self.port_dict, self.preset_manager,
-                                          a_prefx_port=pydaw_ports.RAYV_ADSR_PREFX)
+                                          a_prefx_port=pydaw_ports.RAYV_ADSR_PREFX,
+                                          a_knob_type=kc_log_time)
         self.hlayout1.addWidget(self.adsr_amp.groupbox)
         self.groupbox_distortion =  QtGui.QGroupBox(_("Distortion"))
         self.groupbox_distortion.setObjectName("plugin_groupbox")
@@ -3924,7 +3925,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
                                               pydaw_ports.RAYV_FILTER_SUSTAIN,
                                               pydaw_ports.RAYV_FILTER_RELEASE, _("ADSR Filter"),
                                               self.plugin_rel_callback, self.plugin_val_callback,
-                                              self.port_dict, self.preset_manager)
+                                              self.port_dict, self.preset_manager,
+                                              a_knob_type=kc_log_time)
         self.hlayout2.addWidget(self.adsr_filter.groupbox)
         self.filter =  pydaw_filter_widget(f_knob_size,
                                            self.plugin_rel_callback, self.plugin_val_callback,
@@ -5525,7 +5527,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                            self.plugin_rel_callback,
                                            self.plugin_val_callback,
                                            self.port_dict,
-                                           a_attack_default=0)
+                                           a_attack_default=0,
+                                           a_knob_type=kc_log_time)
         #overriding the default for self, because we want a low minimum default that won't click
         self.adsr_amp.release_knob.control.setMinimum(5)
         self.hlayout2.addWidget(self.adsr_amp.groupbox)
@@ -5535,7 +5538,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                                               pydaw_ports.EUPHORIA_FILTER_SUSTAIN,
                                               pydaw_ports.EUPHORIA_FILTER_RELEASE,
                                               _("ADSR 2"), self.plugin_rel_callback,
-                                              self.plugin_val_callback, self.port_dict)
+                                              self.plugin_val_callback, self.port_dict,
+                                              a_knob_type=kc_log_time)
         self.hlayout2.addWidget(self.adsr_filter.groupbox)
         self.pitch_env =  pydaw_ramp_env_widget(f_knob_size, self.plugin_rel_callback,
                                                 self.plugin_val_callback,
