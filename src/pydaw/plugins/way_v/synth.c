@@ -1357,16 +1357,19 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
     }
 
-    /*Run the envelope and assign to the output buffers*/
-    out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) *
-            (a_voice->master_vol_lin);
-    out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) *
-            (a_voice->master_vol_lin);
-
-    if(!a_voice->adsr_prefx)
+    if(a_voice->adsr_prefx)
     {
-        out0[(a_voice->i_voice)] *= (a_voice->adsr_main->output);
-        out1[(a_voice->i_voice)] *= (a_voice->adsr_main->output);
+        out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) *
+            (a_voice->master_vol_lin);
+        out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) *
+            (a_voice->master_vol_lin);
+    }
+    else
+    {
+        out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) *
+            (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
+        out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) *
+            (a_voice->adsr_main->output) * (a_voice->master_vol_lin);
     }
 }
 
