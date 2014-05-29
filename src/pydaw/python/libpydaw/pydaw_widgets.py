@@ -18,6 +18,7 @@ were mostly converted to Python/PyQt from C++/Qt by a script.
 
 import os
 import time
+import math
 from . import pydaw_util, pydaw_ports
 from libpydaw.pydaw_project import pydaw_audio_item_fx
 from libpydaw.translate import _
@@ -266,7 +267,6 @@ class pydaw_abstract_ui_control:
             elif self.val_conversion == kc_log_time:
                 f_dec_value = float(f_value) * 0.01
                 f_dec_value = f_dec_value * f_dec_value
-                f_dec_value = (int(f_dec_value * 100.0)) * 0.01
                 self.value_label.setText(str(round(f_dec_value, 2)))
 
     def add_to_grid_layout(self, a_layout, a_x):
@@ -308,9 +308,11 @@ class pydaw_abstract_ui_control:
             f_frac = f_dict[f_switch]
             f_seconds_per_beat = 60 / (f_spinbox.value())
             if self.val_conversion == kc_time_decimal:
-                f_result = int(f_seconds_per_beat * f_frac * 100)
+                f_result = round(f_seconds_per_beat * f_frac * 100)
             elif self.val_conversion == kc_hz_decimal:
-                f_result = int((1.0 / (f_seconds_per_beat * f_frac)) * 100)
+                f_result = round((1.0 / (f_seconds_per_beat * f_frac)) * 100)
+            elif self.val_conversion == kc_log_time:
+                f_result = round(math.sqrt(f_seconds_per_beat * f_frac) * 100)
             f_result = pydaw_util.pydaw_clip_value(f_result, self.control.minimum(),
                                                    self.control.maximum())
             self.control.setValue(f_result)
@@ -373,7 +375,7 @@ class pydaw_abstract_ui_control:
             if self.ratio_callback:
                 f_int = round(f_value)
                 self.set_value(f_int)
-                f_frac = int((f_value - f_int) * 100)
+                f_frac = round((f_value - f_int) * 100)
                 self.ratio_callback(f_frac)
             else:
                 self.set_value(f_value)
@@ -455,7 +457,8 @@ class pydaw_abstract_ui_control:
         f_menu.addSeparator()
 
         if self.val_conversion == kc_time_decimal or \
-        self.val_conversion == kc_hz_decimal:
+        self.val_conversion == kc_hz_decimal or \
+        self.val_conversion == kc_log_time:
             f_tempo_sync_action = f_menu.addAction(_("Tempo Sync..."))
             f_tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
         if self.val_conversion == kc_pitch:
@@ -665,12 +668,13 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port,
                  a_sustain_port, a_release_port, a_label, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None, a_attack_default=10, a_prefx_port=None):
+                 a_port_dict=None, a_preset_mgr=None, a_attack_default=10,
+                 a_prefx_port=None, a_knob_type=kc_time_decimal):
         self.attack_knob = pydaw_knob_control(a_size, _("Attack"), a_attack_port, a_rel_callback,
                                               a_val_callback, 0, 200, a_attack_default,
-                                              kc_time_decimal, a_port_dict, a_preset_mgr)
+                                              a_knob_type, a_port_dict, a_preset_mgr)
         self.decay_knob = pydaw_knob_control(a_size, _("Decay"), a_decay_port, a_rel_callback,
-                                             a_val_callback, 10, 200, 50, kc_time_decimal,
+                                             a_val_callback, 10, 200, 50, a_knob_type,
                                              a_port_dict, a_preset_mgr)
         if a_sustain_in_db:
             self.sustain_knob = pydaw_knob_control(a_size, _("Sustain"), a_sustain_port,
@@ -684,7 +688,7 @@ class pydaw_adsr_widget:
                                                    a_preset_mgr)
         self.release_knob = pydaw_knob_control(a_size, _("Release"), a_release_port,
                                                a_rel_callback, a_val_callback, 10,
-                                               400, 50, kc_time_decimal, a_port_dict, a_preset_mgr)
+                                               400, 50, a_knob_type, a_port_dict, a_preset_mgr)
         self.groupbox = QtGui.QGroupBox(a_label)
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
@@ -4087,7 +4091,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             pydaw_ports.WAYV_SUSTAIN1, pydaw_ports.WAYV_RELEASE1,
                                             _("ADSR Osc1"),
                                             self.plugin_rel_callback, self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager)
+                                            self.port_dict, self.preset_manager,
+                                            a_knob_type=kc_log_time)
         self.hlayout1.addWidget(self.adsr_amp1.groupbox)
 
         self.adsr_amp1_checkbox =  pydaw_checkbox_control(_("On"), pydaw_ports.WAYV_ADSR1_CHECKBOX,
@@ -4165,7 +4170,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             _("ADSR Osc2"),
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager)
+                                            self.port_dict, self.preset_manager,
+                                            a_knob_type=kc_log_time)
         self.hlayout2.addWidget(self.adsr_amp2.groupbox)
 
         self.adsr_amp2_checkbox =  pydaw_checkbox_control(_("On"),
@@ -4248,7 +4254,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             _("ADSR Osc3"),
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager)
+                                            self.port_dict, self.preset_manager,
+                                            a_knob_type=kc_log_time)
 
         self.hlayout3.addWidget(self.adsr_amp3.groupbox)
 
@@ -4334,7 +4341,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             _("ADSR Osc4"),
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager)
+                                            self.port_dict, self.preset_manager,
+                                            a_knob_type=kc_log_time)
 
         self.hlayout4.addWidget(self.adsr_amp4.groupbox)
 
@@ -4410,7 +4418,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                 self.plugin_rel_callback,
                                                 self.plugin_val_callback,
                                                 self.port_dict, self.preset_manager,
-                                                a_prefx_port=pydaw_ports.WAYV_ADSR_PREFX)
+                                                a_prefx_port=pydaw_ports.WAYV_ADSR_PREFX,
+                                                a_knob_type=kc_log_time)
         self.hlayout_master.addWidget(self.adsr_amp_main.groupbox)
 
         self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
@@ -4616,7 +4625,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            _("ADSR 1"),
                                            self.plugin_rel_callback,
                                            self.plugin_val_callback,
-                                           self.port_dict, self.preset_manager)
+                                           self.port_dict, self.preset_manager,
+                                           a_knob_type=kc_log_time)
 
         self.hlayout7.addWidget(self.adsr_amp.groupbox)
 
@@ -4628,7 +4638,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                               self.plugin_rel_callback,
                                               self.plugin_val_callback,
                                               self.port_dict,
-                                              self.preset_manager)
+                                              self.preset_manager,
+                                              a_knob_type=kc_log_time)
         self.hlayout7.addWidget(self.adsr_filter.groupbox)
 
         self.pitch_env =  pydaw_ramp_env_widget(f_knob_size,
