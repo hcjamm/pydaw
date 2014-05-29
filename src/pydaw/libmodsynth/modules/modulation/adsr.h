@@ -90,7 +90,7 @@ void v_adsr_set_delay_time(t_adsr* a_adsr, float a_time)
     else
     {
         a_adsr->stage = 6;
-        a_adsr->delay_count = (int)(a_time / a_adsr->sr);
+        a_adsr->delay_count = (int)(a_time * a_adsr->sr);
     }
 }
 
@@ -102,7 +102,7 @@ void v_adsr_set_hold_time(t_adsr* a_adsr, float a_time)
     }
     else
     {
-        a_adsr->delay_count = (int)(a_time / a_adsr->sr);
+        a_adsr->hold_count = (int)(a_time * a_adsr->sr);
     }
 }
 

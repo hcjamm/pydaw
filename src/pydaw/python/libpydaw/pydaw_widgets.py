@@ -690,6 +690,7 @@ class pydaw_adsr_widget:
                                                   a_rel_callback, a_val_callback, 0, 200,
                                                   0, kc_time_decimal, a_port_dict,
                                                   a_preset_mgr)
+            self.hold_knob.add_to_grid_layout(self.layout, 3)
         self.decay_knob = pydaw_knob_control(a_size, _("Decay"), a_decay_port, a_rel_callback,
                                              a_val_callback, 10, 200, 50, a_knob_type,
                                              a_port_dict, a_preset_mgr)
@@ -4107,7 +4108,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             _("ADSR Osc1"),
                                             self.plugin_rel_callback, self.plugin_val_callback,
                                             self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time)
+                                            a_knob_type=kc_log_time,
+                                            a_delay_port=pydaw_ports.WAYV_ADSR1_DELAY,
+                                            a_hold_port=pydaw_ports.WAYV_ADSR1_HOLD)
         self.hlayout1.addWidget(self.adsr_amp1.groupbox)
 
         self.adsr_amp1_checkbox =  pydaw_checkbox_control(_("On"), pydaw_ports.WAYV_ADSR1_CHECKBOX,
@@ -4186,7 +4189,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
                                             self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time)
+                                            a_knob_type=kc_log_time,
+                                            a_delay_port=pydaw_ports.WAYV_ADSR2_DELAY,
+                                            a_hold_port=pydaw_ports.WAYV_ADSR2_HOLD)
         self.hlayout2.addWidget(self.adsr_amp2.groupbox)
 
         self.adsr_amp2_checkbox =  pydaw_checkbox_control(_("On"),
@@ -4270,7 +4275,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
                                             self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time)
+                                            a_knob_type=kc_log_time,
+                                            a_delay_port=pydaw_ports.WAYV_ADSR3_DELAY,
+                                            a_hold_port=pydaw_ports.WAYV_ADSR3_HOLD)
 
         self.hlayout3.addWidget(self.adsr_amp3.groupbox)
 
@@ -4357,7 +4364,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                             self.plugin_rel_callback,
                                             self.plugin_val_callback,
                                             self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time)
+                                            a_knob_type=kc_log_time,
+                                            a_delay_port=pydaw_ports.WAYV_ADSR4_DELAY,
+                                            a_hold_port=pydaw_ports.WAYV_ADSR4_HOLD)
 
         self.hlayout4.addWidget(self.adsr_amp4.groupbox)
 

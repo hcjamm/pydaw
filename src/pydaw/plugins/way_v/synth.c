@@ -472,6 +472,16 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_LFO_PHASE: plugin->lfo_phase = data; break;
         case WAYV_LFO_PITCH_FINE: plugin->lfo_pitch_fine = data; break;
         case WAYV_ADSR_PREFX: plugin->adsr_prefx = data; break;
+
+        case WAYV_ADSR1_DELAY: plugin->adsr_fm_delay[0] = data; break;
+        case WAYV_ADSR2_DELAY: plugin->adsr_fm_delay[1] = data; break;
+        case WAYV_ADSR3_DELAY: plugin->adsr_fm_delay[2] = data; break;
+        case WAYV_ADSR4_DELAY: plugin->adsr_fm_delay[3] = data; break;
+
+        case WAYV_ADSR1_HOLD: plugin->adsr_fm_hold[0] = data; break;
+        case WAYV_ADSR2_HOLD: plugin->adsr_fm_hold[1] = data; break;
+        case WAYV_ADSR3_HOLD: plugin->adsr_fm_hold[2] = data; break;
+        case WAYV_ADSR4_HOLD: plugin->adsr_fm_hold[3] = data; break;
     }
 }
 
@@ -691,9 +701,23 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     float f_release4 = *(plugin_data->release4) * .01f;
                     f_release4 = (f_release4) * (f_release4);
 
-                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp_osc[3],
+                    v_adsr_set_adsr_db(
+                        plugin_data->data[f_voice]->adsr_amp_osc[3],
                         (f_attack4), (f_decay4), *(plugin_data->sustain4),
                             (f_release4));
+                }
+
+                f_i = 0;
+
+                while(f_i < 4)
+                {
+                    v_adsr_set_delay_time(
+                        plugin_data->data[f_voice]->adsr_amp_osc[f_i],
+                        (*plugin_data->adsr_fm_delay[f_i]) * 0.01f);
+                    v_adsr_set_hold_time(
+                        plugin_data->data[f_voice]->adsr_amp_osc[f_i],
+                        (*plugin_data->adsr_fm_hold[f_i]) * 0.01f);
+                    f_i++;
                 }
 
                 plugin_data->data[f_voice]->noise_amp =
@@ -2440,6 +2464,20 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_ADSR_PREFX].DefaultValue = 0.0f;
 	port_range_hints[WAYV_ADSR_PREFX].LowerBound =  0.0f;
 	port_range_hints[WAYV_ADSR_PREFX].UpperBound =  1.0;
+
+
+        f_port = WAYV_ADSR1_DELAY;
+
+        // The loop covers the hold and delay ports
+        while(f_port <= WAYV_ADSR4_HOLD)
+        {
+            port_descriptors[f_port] = 1;
+            port_range_hints[f_port].DefaultValue = 0.0f;
+            port_range_hints[f_port].LowerBound =  0.0f;
+            port_range_hints[f_port].UpperBound =  200.0;
+            f_port++;
+        }
+
 
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
