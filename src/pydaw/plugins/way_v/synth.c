@@ -461,6 +461,12 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_ADSR2_HOLD: plugin->adsr_fm_hold[1] = data; break;
         case WAYV_ADSR3_HOLD: plugin->adsr_fm_hold[2] = data; break;
         case WAYV_ADSR4_HOLD: plugin->adsr_fm_hold[3] = data; break;
+
+        case WAYV_PFX_ADSR_DELAY: plugin->pfx_delay = data; break;
+        case WAYV_PFX_ADSR_F_DELAY: plugin->pfx_delay_f = data; break;
+
+        case WAYV_PFX_ADSR_HOLD: plugin->pfx_hold = data; break;
+        case WAYV_PFX_ADSR_F_HOLD: plugin->pfx_hold_f = data; break;
     }
 }
 
@@ -611,6 +617,13 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp_osc[f_i],
                                 (f_attack1), (f_decay1), *(plugin_data->sustain[f_i]),
                                 (f_release1));
+
+                        v_adsr_set_delay_time(
+                            plugin_data->data[f_voice]->adsr_amp_osc[f_i],
+                            (*plugin_data->adsr_fm_delay[f_i]) * 0.01f);
+                        v_adsr_set_hold_time(
+                            plugin_data->data[f_voice]->adsr_amp_osc[f_i],
+                            (*plugin_data->adsr_fm_hold[f_i]) * 0.01f);
                     }
 
 
@@ -638,13 +651,6 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 while(f_i < 4)
                 {
-                    v_adsr_set_delay_time(
-                        plugin_data->data[f_voice]->adsr_amp_osc[f_i],
-                        (*plugin_data->adsr_fm_delay[f_i]) * 0.01f);
-                    v_adsr_set_hold_time(
-                        plugin_data->data[f_voice]->adsr_amp_osc[f_i],
-                        (*plugin_data->adsr_fm_hold[f_i]) * 0.01f);
-
                     int f_osc_type1 = (int)(*plugin_data->osc_type[f_i]) - 1;
 
                     if(f_osc_type1 >= 0)
@@ -794,6 +800,13 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         f_attack_a, f_decay_a, (*(plugin_data->pfx_sustain)),
                         f_release_a);
 
+                v_adsr_set_delay_time(
+                    plugin_data->data[f_voice]->adsr_amp,
+                    (*(plugin_data->pfx_delay) * .01));
+                v_adsr_set_hold_time(
+                    plugin_data->data[f_voice]->adsr_amp,
+                    (*(plugin_data->pfx_hold) * .01));
+
                 float f_attack_f = (*(plugin_data->pfx_attack_f) * .01);
                 f_attack_f *= f_attack_f;
                 float f_decay_f = (*(plugin_data->pfx_decay_f) * .01);
@@ -804,6 +817,13 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter,
                         f_attack_f, f_decay_f,
                         (*(plugin_data->pfx_sustain_f) * .01), f_release_f);
+
+                v_adsr_set_delay_time(
+                    plugin_data->data[f_voice]->adsr_filter,
+                    (*(plugin_data->pfx_delay_f) * .01));
+                v_adsr_set_hold_time(
+                    plugin_data->data[f_voice]->adsr_filter,
+                    (*(plugin_data->pfx_hold_f) * .01));
 
                 /*Retrigger the pitch envelope*/
                 v_rmp_retrigger_curve((plugin_data->data[f_voice]->ramp_env),
@@ -2315,7 +2335,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         f_port = WAYV_ADSR1_DELAY;
 
         // The loop covers the hold and delay ports
-        while(f_port <= WAYV_ADSR4_HOLD)
+        while(f_port <= WAYV_PFX_ADSR_F_HOLD)
         {
             port_descriptors[f_port] = 1;
             port_range_hints[f_port].DefaultValue = 0.0f;

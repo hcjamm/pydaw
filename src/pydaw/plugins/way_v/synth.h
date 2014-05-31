@@ -286,9 +286,15 @@ extern "C" {
 #define WAYV_ADSR3_HOLD 233
 #define WAYV_ADSR4_HOLD 234
 
+#define WAYV_PFX_ADSR_DELAY 235
+#define WAYV_PFX_ADSR_F_DELAY 236
+
+#define WAYV_PFX_ADSR_HOLD 237
+#define WAYV_PFX_ADSR_F_HOLD 238
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 235
+#define WAYV_COUNT 239
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -312,8 +318,6 @@ typedef struct
     PYFX_Data *adsr_fm_delay[4];
     PYFX_Data *adsr_fm_hold[4];
 
-    //PYFX_Data pitch;
-
     PYFX_Data *osc_pitch[4];
     PYFX_Data *osc_tune[4];
     PYFX_Data *osc_vol[4];
@@ -323,12 +327,16 @@ typedef struct
 
     PYFX_Data *master_vol;
 
+    PYFX_Data *pfx_delay;
     PYFX_Data *pfx_attack;
+    PYFX_Data *pfx_hold;
     PYFX_Data *pfx_decay;
     PYFX_Data *pfx_sustain;
     PYFX_Data *pfx_release;
 
+    PYFX_Data *pfx_delay_f;
     PYFX_Data *pfx_attack_f;
+    PYFX_Data *pfx_hold_f;
     PYFX_Data *pfx_decay_f;
     PYFX_Data *pfx_sustain_f;
     PYFX_Data *pfx_release_f;

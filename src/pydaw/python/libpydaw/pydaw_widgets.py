@@ -4398,7 +4398,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         [[f_hlabels.append(_("FX{}\nCtrl{}").format(x, y))
             for y in range(1, 4)] for x in range(4)]
         self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
-        self.mod_matrix.setVerticalHeaderLabels([_("ADSR 1"), _("ADSR 2"), _("Ramp Env"),
+        self.mod_matrix.setVerticalHeaderLabels([_("DAHDSR 1"), _("DAHDSR 2"), _("Ramp Env"),
                                                  _("LFO"), _("Pitch"), _("Velocity")])
 
         f_port_num = pydaw_ports.WAVV_PFXMATRIX_FIRST_PORT
@@ -4442,11 +4442,13 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                            pydaw_ports.WAYV_DECAY_PFX1,
                                            pydaw_ports.WAYV_SUSTAIN_PFX1,
                                            pydaw_ports.WAYV_RELEASE_PFX1,
-                                           _("ADSR 1"),
+                                           _("DAHDSR 1"),
                                            self.plugin_rel_callback,
                                            self.plugin_val_callback,
                                            self.port_dict, self.preset_manager,
-                                           a_knob_type=kc_log_time)
+                                           a_knob_type=kc_log_time,
+                                           a_delay_port=pydaw_ports.WAYV_PFX_ADSR_DELAY,
+                                           a_hold_port=pydaw_ports.WAYV_PFX_ADSR_HOLD)
 
         self.hlayout7.addWidget(self.adsr_amp.groupbox)
 
@@ -4454,12 +4456,14 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                               pydaw_ports.WAYV_ATTACK_PFX2,
                                               pydaw_ports.WAYV_DECAY_PFX2,
                                               pydaw_ports.WAYV_SUSTAIN_PFX2,
-                                              pydaw_ports.WAYV_RELEASE_PFX2, _("ADSR 2"),
+                                              pydaw_ports.WAYV_RELEASE_PFX2, _("DAHDSR 2"),
                                               self.plugin_rel_callback,
                                               self.plugin_val_callback,
                                               self.port_dict,
                                               self.preset_manager,
-                                              a_knob_type=kc_log_time)
+                                              a_knob_type=kc_log_time,
+                                              a_delay_port=pydaw_ports.WAYV_PFX_ADSR_F_DELAY,
+                                              a_hold_port=pydaw_ports.WAYV_PFX_ADSR_F_HOLD)
         self.hlayout7.addWidget(self.adsr_filter.groupbox)
 
         self.pitch_env =  pydaw_ramp_env_widget(f_knob_size,
