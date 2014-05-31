@@ -4116,7 +4116,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                              getattr(pydaw_ports, "WAYV_DECAY{}".format(f_i)),
                                              getattr(pydaw_ports, "WAYV_SUSTAIN{}".format(f_i)),
                                              getattr(pydaw_ports, "WAYV_RELEASE{}".format(f_i)),
-                                             _("ADSR Osc{}".format(f_i)),
+                                             _("DAHDSR Osc{}".format(f_i)),
                                              self.plugin_rel_callback,
                                              self.plugin_val_callback,
                                              self.port_dict, self.preset_manager,
