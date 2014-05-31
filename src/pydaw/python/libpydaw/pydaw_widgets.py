@@ -4342,7 +4342,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_return_macro1_action.triggered.connect(self.return_fm_macro1_end)
         f_return_macro2_action = self.fm_matrix_menu.addAction(_("Return to Macro 2 End"))
         f_return_macro2_action.triggered.connect(self.return_fm_macro2_end)
-
+        self.fm_matrix_menu.addSeparator()
+        f_clear_fm_action = self.fm_matrix_menu.addAction(_("Clear All"))
+        f_clear_fm_action.triggered.connect(self.clear_all)
 
 
         self.fm_mod_macros_hlayout = QtGui.QHBoxLayout()
@@ -4739,6 +4741,11 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             f_value = f_knob.get_value() - f_origin
             f_value = pydaw_util.pydaw_clip_value(f_value, -100, 100)
             f_spinbox.set_value(f_value, True)
+
+    def clear_all(self):
+        for f_control in (self.fm_knobs + self.fm_macro_spinboxes[0] +
+                          self.fm_macro_spinboxes[1]):
+            f_control.set_value(0, True)
 
     def return_fm_macro1_end(self):
         self.return_fm_macro_end(0)
