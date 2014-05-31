@@ -4303,6 +4303,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.fm_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
         self.fm_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.fm_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.fm_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.fm_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
 
         self.fm_matrix_hlayout.addWidget(self.fm_matrix)
 
@@ -4349,22 +4351,15 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.fm_macro_knobs_gridlayout = QtGui.QGridLayout()
         self.fm_mod_macros_hlayout.addLayout(self.fm_macro_knobs_gridlayout)
-        self.fm_mod_matrix = QtGui.QTableWidget()
-        self.fm_mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.fm_mod_matrix.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.fm_vlayout.addWidget(self.fm_mod_matrix)
-        self.fm_mod_matrix.setFixedHeight(114)
-        self.fm_mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.fm_mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.fm_mod_matrix.setRowCount(2)
-        self.fm_mod_matrix.setVerticalHeaderLabels([_("Macro 1"), _("Macro 2")])
-        self.fm_mod_matrix.setColumnCount(4 * 4)
 
-        f_column_labels = []
-        f_port = pydaw_ports.WAYV_FM_MACRO1
-        self.fm_macro_knobs = [ [] for x in range(2) ]
+        self.fm_macro_knobs = []
+        self.osc_amp_mod_matrix_spinboxes = [ [] for x in range(2) ]
+
+        self.fm_macro_matrix_hlayout = QtGui.QHBoxLayout()
+        self.fm_vlayout.addLayout(self.fm_macro_matrix_hlayout)
 
         for f_i in range(2):
+            f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}".format(f_i + 1))
             f_macro = pydaw_knob_control(f_knob_size, _("Macro {}".format(f_i + 1)),
                                          f_port,
                                          self.plugin_rel_callback,
@@ -4373,55 +4368,49 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                          self.port_dict, self.preset_manager)
             f_macro.add_to_grid_layout(self.fm_macro_knobs_gridlayout, f_i)
             self.fm_macro_knobs.append(f_macro)
-            f_port += 1
+
+            self.fm_macro_matrix_hlayout.addWidget(QtGui.QLabel("Macro {}".format(f_i + 1)))
+            f_fm_macro_matrix = QtGui.QTableWidget()
+
+            f_fm_macro_matrix.setRowCount(5)
+            f_fm_macro_matrix.setColumnCount(4)
+            f_fm_macro_matrix.setFixedHeight(201)
+            f_fm_macro_matrix.setFixedWidth(351)
+            f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 5)] + ["Vol"]
+            f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 5)]
+            f_fm_macro_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
+            f_fm_macro_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
+            f_fm_macro_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            f_fm_macro_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            f_fm_macro_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+            f_fm_macro_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+
+            self.fm_macro_matrix_hlayout.addWidget(f_fm_macro_matrix)
 
             for f_i2 in range(4):
                 for f_i3 in range(4):
-                    f_column_labels.append("Osc{}\nFM{}".format(f_i2 + 1, f_i3 + 1))
+                    f_port = getattr(
+                        pydaw_ports, "WAYV_FM_MACRO{}_OSC{}_FM{}".format(
+                            f_i + 1, f_i3 + 1, f_i2 + 1))
                     f_spinbox = pydaw_spinbox_control(None, f_port,
                                                      self.plugin_rel_callback,
                                                      self.plugin_val_callback,
                                                      -100, 100, 0, kc_none,
                                                      self.port_dict, self.preset_manager)
-                    f_port += 1
-                    self.fm_mod_matrix.setCellWidget(f_i, (f_i2 * 4) + f_i3, f_spinbox.control)
+                    f_fm_macro_matrix.setCellWidget(f_i2, f_i3, f_spinbox.control)
                     self.fm_macro_spinboxes[f_i].append(f_spinbox)
 
-        self.fm_mod_matrix.setHorizontalHeaderLabels(f_column_labels)
-        self.fm_mod_matrix.resizeColumnsToContents()
-
-        self.osc_amp_mod_matrix = QtGui.QTableWidget()
-        self.osc_amp_mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.osc_amp_mod_matrix.setHorizontalScrollMode(
-            QtGui.QAbstractItemView.ScrollPerPixel)
-        self.osc_amp_mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.osc_amp_mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.osc_amp_mod_matrix.setRowCount(2)
-        self.osc_amp_mod_matrix.setFixedSize(330, 120)
-        self.osc_amp_mod_matrix.setVerticalHeaderLabels([_("Macro 1"), _("Macro 2")])
-        self.osc_amp_mod_matrix.setColumnCount(4)
-        self.fm_mod_macros_hlayout.addItem(
-            QtGui.QSpacerItem(20, 20))
-        self.fm_mod_macros_hlayout.addWidget(self.osc_amp_mod_matrix)
-
-        f_column_labels = []
-        f_port = pydaw_ports.WAYV_FM_MACRO1_OSC1_VOL
-        self.osc_amp_mod_matrix_spinboxes = [ [] for x in range(2) ]
-
-        for f_i in range(2):
-            for f_i2 in range(4):
-                f_column_labels.append("Osc{}\nVol".format(f_i2 + 1))
+                f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}_OSC1_VOL".format(f_i + 1, f_i2 + 1))
                 f_spinbox = pydaw_spinbox_control(None, f_port,
-                                                  self.plugin_rel_callback,
-                                                  self.plugin_val_callback,
-                                                  -30, 30, 0, kc_none,
-                                                  self.port_dict, self.preset_manager)
-                f_port += 1
-                self.osc_amp_mod_matrix.setCellWidget(f_i, f_i2, f_spinbox.control)
+                                                 self.plugin_rel_callback,
+                                                 self.plugin_val_callback,
+                                                 -100, 100, 0, kc_none,
+                                                 self.port_dict, self.preset_manager)
+                f_fm_macro_matrix.setCellWidget(4, f_i2, f_spinbox.control)
                 self.osc_amp_mod_matrix_spinboxes[f_i].append(f_spinbox)
-
-        self.osc_amp_mod_matrix.setHorizontalHeaderLabels(f_column_labels)
-        self.osc_amp_mod_matrix.resizeColumnsToContents()
+                f_fm_macro_matrix.resizeColumnsToContents()
+        self.fm_macro_matrix_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.fm_mod_macros_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.fm_vlayout.addItem(
@@ -4544,6 +4533,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix.setFixedHeight(222)
         self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         f_hlabels = []
         [[f_hlabels.append(_("FX{}\nCtrl{}").format(x, y))
             for y in range(1, 4)] for x in range(4)]
@@ -4827,6 +4818,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.setAlternatingRowColors(True)
         self.sample_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.sample_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
 
         self.selected_radiobuttons = []
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
