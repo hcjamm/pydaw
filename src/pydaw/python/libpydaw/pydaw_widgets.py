@@ -4305,18 +4305,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.fm_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.fm_matrix_hlayout.addWidget(self.fm_matrix)
-        f_fm_matrix_ports = (
-            (pydaw_ports.WAYV_OSC1_FM1, pydaw_ports.WAYV_OSC2_FM1,
-             pydaw_ports.WAYV_OSC3_FM1, pydaw_ports.WAYV_OSC4_FM1),
-            (pydaw_ports.WAYV_OSC1_FM2, pydaw_ports.WAYV_OSC2_FM2,
-             pydaw_ports.WAYV_OSC3_FM2, pydaw_ports.WAYV_OSC4_FM2),
-            (pydaw_ports.WAYV_OSC1_FM3, pydaw_ports.WAYV_OSC2_FM3,
-             pydaw_ports.WAYV_OSC3_FM3, pydaw_ports.WAYV_OSC4_FM3),
-            (pydaw_ports.WAYV_OSC1_FM4, pydaw_ports.WAYV_OSC2_FM4,
-             pydaw_ports.WAYV_OSC3_FM4, pydaw_ports.WAYV_OSC4_FM4))
 
-        for f_group, f_i in zip(f_fm_matrix_ports, range(len(f_fm_matrix_ports))):
-            for f_port, f_i2 in zip(f_group, range(len(f_group))):
+        for f_i in range(4):
+            for f_i2 in range(4):
+                f_port = getattr(pydaw_ports, "WAYV_OSC{}_FM{}".format(f_i2 + 1, f_i + 1))
                 f_spinbox = pydaw_spinbox_control(None, f_port,
                                                   self.plugin_rel_callback,
                                                   self.plugin_val_callback,
