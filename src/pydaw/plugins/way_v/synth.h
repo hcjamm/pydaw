@@ -302,25 +302,12 @@ typedef struct
     PYFX_Data *sustain_main;
     PYFX_Data *release_main;
 
-    PYFX_Data *attack1;
-    PYFX_Data *decay1;
-    PYFX_Data *sustain1;
-    PYFX_Data *release1;
+    PYFX_Data *attack[4];
+    PYFX_Data *decay[4];
+    PYFX_Data *sustain[4];
+    PYFX_Data *release[4];
 
-    PYFX_Data *attack2;
-    PYFX_Data *decay2;
-    PYFX_Data *sustain2;
-    PYFX_Data *release2;
-
-    PYFX_Data *attack3;
-    PYFX_Data *decay3;
-    PYFX_Data *sustain3;
-    PYFX_Data *release3;
-
-    PYFX_Data *attack4;
-    PYFX_Data *decay4;
-    PYFX_Data *sustain4;
-    PYFX_Data *release4;
+    PYFX_Data * adsr_checked[4];
 
     PYFX_Data *adsr_fm_delay[4];
     PYFX_Data *adsr_fm_hold[4];
@@ -330,12 +317,7 @@ typedef struct
     PYFX_Data *osc_pitch[4];
     PYFX_Data *osc_tune[4];
     PYFX_Data *osc_vol[4];
-
-    PYFX_Data *osc1type;
-    PYFX_Data *osc2type;
-    PYFX_Data *osc3type;
-    PYFX_Data *osc4type;
-
+    PYFX_Data *osc_type[4];
 
     PYFX_Data *osc_fm[4][4];
 
@@ -367,11 +349,6 @@ typedef struct
     PYFX_Data *lfo_freq;
     PYFX_Data *lfo_type;
     PYFX_Data *lfo_phase;
-
-    PYFX_Data * adsr1_checked;
-    PYFX_Data * adsr2_checked;
-    PYFX_Data * adsr3_checked;
-    PYFX_Data * adsr4_checked;
 
     PYFX_Data *lfo_amp;
     PYFX_Data *lfo_pitch;
