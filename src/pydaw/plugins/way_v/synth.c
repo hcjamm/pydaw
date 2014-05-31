@@ -582,7 +582,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 float f_db;
 
-                while(f_i < 4)
+                while(f_i < WAYV_OSC_COUNT)
                 {
                     int f_osc_type = (int)(*plugin_data->osc_type[f_i]) - 1;
 
@@ -616,7 +616,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                         (*plugin_data->osc_uni_spread[f_i]) * 0.01f;
 
                     int f_i2 = 0;
-                    while(f_i2 < 4)
+                    while(f_i2 < WAYV_OSC_COUNT)
                     {
                         plugin_data->data[f_voice]->osc_fm[f_i][f_i2] =
                                 (*plugin_data->osc_fm[f_i][f_i2]) * 0.005f;
@@ -762,7 +762,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 while(f_i < 2)
                 {
                     int f_i2 = 0;
-                    while(f_i2 < 4)
+                    while(f_i2 < WAYV_OSC_COUNT)
                     {
                         plugin_data->data[f_voice]->osc_macro_amp[f_i][f_i2] =
                                 (*plugin_data->amp_macro_values[f_i][f_i2]);
@@ -1078,7 +1078,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
     float f_macro_amp;
     float f_osc_amp;
 
-    while(f_osc_num < 4)
+    while(f_osc_num < WAYV_OSC_COUNT)
     {
         f_macro_amp = 0.0f;
 
@@ -1092,7 +1092,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                     ((*plugin_data->osc_tune[f_osc_num]) * 0.01f) ));
 
             int f_i = 0;
-            while(f_i < 4)
+            while(f_i < WAYV_OSC_COUNT)
             {
                 a_voice->fm_osc_values[f_osc_num][f_i] =
                     a_voice->osc_fm[f_osc_num][f_i];
@@ -1107,7 +1107,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                         > 0.0f)
                 {
                     int f_i2 = 0;
-                    while(f_i2 < 4)
+                    while(f_i2 < WAYV_OSC_COUNT)
                     {
                         a_voice->fm_osc_values[f_osc_num][f_i2] +=
                           ((*plugin_data->fm_macro_values[f_i][f_osc_num][f_i2]
@@ -1130,7 +1130,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 
             f_i = 0;
 
-            while(f_i < 4)
+            while(f_i < WAYV_OSC_COUNT)
             {
                 if(a_voice->fm_osc_values[f_osc_num][f_i] < 0.0f)
                 {

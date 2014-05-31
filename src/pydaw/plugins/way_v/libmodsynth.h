@@ -26,6 +26,8 @@ extern "C" {
 
 #define WAYV_FM_MACRO_COUNT 2
 
+#define WAYV_OSC_COUNT 4
+
 #include "../../libmodsynth/constants.h"
 #include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/pitch_core.h"
@@ -54,23 +56,27 @@ typedef struct
 
 typedef struct
 {
-    t_osc_wav_unison * osc_wavtable[4];
+    t_osc_wav_unison * osc_wavtable[WAYV_OSC_COUNT];
 
-    float osc_uni_spread[4];
+    float osc_uni_spread[WAYV_OSC_COUNT];
 
-    float osc_fm[4][4];
+    float osc_fm[WAYV_OSC_COUNT][WAYV_OSC_COUNT];
 
-    float osc_macro_amp[2][4];
+    float osc_macro_amp[2][WAYV_OSC_COUNT];
 
-    float fm_osc_values[4][4];
+    float fm_osc_values[WAYV_OSC_COUNT][WAYV_OSC_COUNT];
 
-    float fm_last[4];
+    float fm_last[WAYV_OSC_COUNT];
 
     t_white_noise * white_noise1;
     t_adsr * adsr_main;
 
-    t_adsr * adsr_amp_osc[4];
-    int adsr_amp_on[4];
+    t_adsr * adsr_amp_osc[WAYV_OSC_COUNT];
+    int adsr_amp_on[WAYV_OSC_COUNT];
+
+    float osc_linamp[WAYV_OSC_COUNT];
+    int osc_audible[WAYV_OSC_COUNT];
+    int osc_on[WAYV_OSC_COUNT];
 
     float noise_amp;
 
@@ -92,8 +98,7 @@ typedef struct
     float master_vol_lin;
     float note_f;
     int note;
-    float osc_linamp[4];
-    int osc_audible[4];
+
     float noise_linamp;
     int i_voice;  //for the runVoice function to iterate the current block
 
@@ -111,7 +116,7 @@ typedef struct
     float filter_output;
     float noise_sample;
 
-    int osc_on[4];
+
 
     float velocity_track;
     float keyboard_track;
@@ -132,7 +137,7 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 
     int f_i = 0;
 
-    while(f_i < 4)
+    while(f_i < WAYV_OSC_COUNT)
     {
         f_voice->osc_wavtable[f_i] = g_osc_get_osc_wav_unison(a_sr);
         f_voice->osc_uni_spread[f_i] = 0.0f;
@@ -144,7 +149,7 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
         f_voice->osc_audible[f_i] = 1;
 
         int f_i2 = 0;
-        while(f_i2 < 4)
+        while(f_i2 < WAYV_OSC_COUNT)
         {
             f_voice->osc_fm[f_i][f_i2] = 0.0;
             f_i2++;
@@ -182,10 +187,10 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->lfo_pitch_output = 0.0f;
 
     int f_i2 = 0;
-    while(f_i2 < 4)
+    while(f_i2 < WAYV_OSC_COUNT)
     {
         int f_i3 = 0;
-        while(f_i3 < 4)
+        while(f_i3 < WAYV_OSC_COUNT)
         {
             f_voice->fm_osc_values[f_i2][f_i3] = 0.0f;
             f_i3++;
@@ -246,7 +251,7 @@ void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
 
     int f_i = 0;
 
-    while(f_i < 4)
+    while(f_i < WAYV_OSC_COUNT)
     {
         v_adsr_release(a_voice->adsr_amp_osc[f_i]);
         f_i++;

@@ -308,22 +308,22 @@ typedef struct
     PYFX_Data *sustain_main;
     PYFX_Data *release_main;
 
-    PYFX_Data *attack[4];
-    PYFX_Data *decay[4];
-    PYFX_Data *sustain[4];
-    PYFX_Data *release[4];
+    PYFX_Data *attack[WAYV_OSC_COUNT];
+    PYFX_Data *decay[WAYV_OSC_COUNT];
+    PYFX_Data *sustain[WAYV_OSC_COUNT];
+    PYFX_Data *release[WAYV_OSC_COUNT];
 
-    PYFX_Data * adsr_checked[4];
+    PYFX_Data * adsr_checked[WAYV_OSC_COUNT];
 
-    PYFX_Data *adsr_fm_delay[4];
-    PYFX_Data *adsr_fm_hold[4];
+    PYFX_Data *adsr_fm_delay[WAYV_OSC_COUNT];
+    PYFX_Data *adsr_fm_hold[WAYV_OSC_COUNT];
 
-    PYFX_Data *osc_pitch[4];
-    PYFX_Data *osc_tune[4];
-    PYFX_Data *osc_vol[4];
-    PYFX_Data *osc_type[4];
+    PYFX_Data *osc_pitch[WAYV_OSC_COUNT];
+    PYFX_Data *osc_tune[WAYV_OSC_COUNT];
+    PYFX_Data *osc_vol[WAYV_OSC_COUNT];
+    PYFX_Data *osc_type[WAYV_OSC_COUNT];
 
-    PYFX_Data *osc_fm[4][4];
+    PYFX_Data *osc_fm[WAYV_OSC_COUNT][WAYV_OSC_COUNT];
 
     PYFX_Data *master_vol;
 
@@ -344,8 +344,8 @@ typedef struct
     PYFX_Data *noise_amp;
     PYFX_Data *noise_type;
 
-    PYFX_Data *osc_uni_voice[4];
-    PYFX_Data *osc_uni_spread[4];
+    PYFX_Data *osc_uni_voice[WAYV_OSC_COUNT];
+    PYFX_Data *osc_uni_spread[WAYV_OSC_COUNT];
 
     PYFX_Data *master_glide;
     PYFX_Data *master_pb_amt;
@@ -371,8 +371,8 @@ typedef struct
     PYFX_Data *adsr_prefx;
 
     PYFX_Data *fm_macro[2];
-    PYFX_Data *fm_macro_values[2][4][4];
-    PYFX_Data *amp_macro_values[2][4];
+    PYFX_Data *fm_macro_values[2][WAYV_OSC_COUNT][WAYV_OSC_COUNT];
+    PYFX_Data *amp_macro_values[2][WAYV_OSC_COUNT];
 
     PYFX_Data *mono_mode;
 
