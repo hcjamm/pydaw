@@ -2308,7 +2308,7 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.phase_viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
                                                       self.configure_wrapper, self.get_wav)
         self.view_widget = QtGui.QWidget()
-        self.view_widget.setMaximumSize(1200, 600)
+        self.view_widget.setMaximumSize(900, 540)
         self.vlayout2 = QtGui.QVBoxLayout()
         self.hlayout2 = QtGui.QHBoxLayout(self.view_widget)
         self.layout.addWidget(self.view_widget)
