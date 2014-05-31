@@ -4296,24 +4296,24 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.fm_matrix.setRowCount(4)
         self.fm_matrix.setColumnCount(4)
         self.fm_matrix.setFixedHeight(172)
-        self.fm_matrix.setFixedWidth(300)
-        f_fm_src_matrix_labels = ["From\nOsc{}".format(x) for x in range(1, 5)]
-        f_fm_dest_matrix_labels = ["To Osc{}".format(x) for x in range(1, 5)]
-        self.fm_matrix.setHorizontalHeaderLabels(f_fm_src_matrix_labels)
-        self.fm_matrix.setVerticalHeaderLabels(f_fm_dest_matrix_labels)
+        self.fm_matrix.setFixedWidth(330)
+        f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 5)]
+        f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 5)]
+        self.fm_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
+        self.fm_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
         self.fm_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.fm_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.fm_matrix_hlayout.addWidget(self.fm_matrix)
         f_fm_matrix_ports = (
-            (pydaw_ports.WAYV_OSC1_FM1, pydaw_ports.WAYV_OSC1_FM2,
-             pydaw_ports.WAYV_OSC1_FM3, pydaw_ports.WAYV_OSC1_FM4),
-            (pydaw_ports.WAYV_OSC2_FM1, pydaw_ports.WAYV_OSC2_FM2,
-             pydaw_ports.WAYV_OSC2_FM3, pydaw_ports.WAYV_OSC2_FM4),
-            (pydaw_ports.WAYV_OSC3_FM1, pydaw_ports.WAYV_OSC3_FM2,
-             pydaw_ports.WAYV_OSC3_FM3, pydaw_ports.WAYV_OSC3_FM4),
-            (pydaw_ports.WAYV_OSC4_FM1, pydaw_ports.WAYV_OSC4_FM2,
-             pydaw_ports.WAYV_OSC4_FM3, pydaw_ports.WAYV_OSC4_FM4))
+            (pydaw_ports.WAYV_OSC1_FM1, pydaw_ports.WAYV_OSC2_FM1,
+             pydaw_ports.WAYV_OSC3_FM1, pydaw_ports.WAYV_OSC4_FM1),
+            (pydaw_ports.WAYV_OSC1_FM2, pydaw_ports.WAYV_OSC2_FM2,
+             pydaw_ports.WAYV_OSC3_FM2, pydaw_ports.WAYV_OSC4_FM2),
+            (pydaw_ports.WAYV_OSC1_FM3, pydaw_ports.WAYV_OSC2_FM3,
+             pydaw_ports.WAYV_OSC3_FM3, pydaw_ports.WAYV_OSC4_FM3),
+            (pydaw_ports.WAYV_OSC1_FM4, pydaw_ports.WAYV_OSC2_FM4,
+             pydaw_ports.WAYV_OSC3_FM4, pydaw_ports.WAYV_OSC4_FM4))
 
         for f_group, f_i in zip(f_fm_matrix_ports, range(len(f_fm_matrix_ports))):
             for f_port, f_i2 in zip(f_group, range(len(f_group))):
