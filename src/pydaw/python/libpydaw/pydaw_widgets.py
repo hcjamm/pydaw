@@ -4532,7 +4532,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(6)
         self.mod_matrix.setColumnCount(12)
-        self.mod_matrix.setFixedHeight(222)
+        self.mod_matrix.setFixedHeight(240)
         self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
