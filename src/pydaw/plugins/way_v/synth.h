@@ -341,15 +341,15 @@ typedef struct
 
     PYFX_Data *master_vol;
 
-    PYFX_Data *attack;
-    PYFX_Data *decay;
-    PYFX_Data *sustain;
-    PYFX_Data *release;
+    PYFX_Data *pfx_attack;
+    PYFX_Data *pfx_decay;
+    PYFX_Data *pfx_sustain;
+    PYFX_Data *pfx_release;
 
-    PYFX_Data *attack_f;
-    PYFX_Data *decay_f;
-    PYFX_Data *sustain_f;
-    PYFX_Data *release_f;
+    PYFX_Data *pfx_attack_f;
+    PYFX_Data *pfx_decay_f;
+    PYFX_Data *pfx_sustain_f;
+    PYFX_Data *pfx_release_f;
 
     PYFX_Data *noise_amp;
     PYFX_Data *noise_type;

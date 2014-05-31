@@ -225,28 +225,28 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
 
 
         case WAYV_ATTACK_PFX1:
-            plugin->attack = data;
+            plugin->pfx_attack = data;
             break;
         case WAYV_DECAY_PFX1:
-            plugin->decay = data;
+            plugin->pfx_decay = data;
             break;
         case WAYV_SUSTAIN_PFX1:
-            plugin->sustain = data;
+            plugin->pfx_sustain = data;
             break;
         case WAYV_RELEASE_PFX1:
-            plugin->release = data;
+            plugin->pfx_release = data;
             break;
         case WAYV_ATTACK_PFX2:
-            plugin->attack_f = data;
+            plugin->pfx_attack_f = data;
             break;
         case WAYV_DECAY_PFX2:
-            plugin->decay_f = data;
+            plugin->pfx_decay_f = data;
             break;
         case WAYV_SUSTAIN_PFX2:
-            plugin->sustain_f = data;
+            plugin->pfx_sustain_f = data;
             break;
         case WAYV_RELEASE_PFX2:
-            plugin->release_f = data;
+            plugin->pfx_release_f = data;
             break;
         case WAYV_RAMP_ENV_TIME:
             plugin->pitch_env_time = data;
@@ -937,27 +937,27 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                            *plugin_data->lfo_phase * 0.01f,
                            *plugin_data->lfo_type);
 
-                float f_attack_a = (*(plugin_data->attack) * .01);
+                float f_attack_a = (*(plugin_data->pfx_attack) * .01);
                 f_attack_a *= f_attack_a;
-                float f_decay_a = (*(plugin_data->decay) * .01);
+                float f_decay_a = (*(plugin_data->pfx_decay) * .01);
                 f_decay_a *= f_decay_a;
-                float f_release_a = (*(plugin_data->release) * .01);
+                float f_release_a = (*(plugin_data->pfx_release) * .01);
                 f_release_a *= f_release_a;
 
                 v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp,
-                        f_attack_a, f_decay_a, (*(plugin_data->sustain)),
+                        f_attack_a, f_decay_a, (*(plugin_data->pfx_sustain)),
                         f_release_a);
 
-                float f_attack_f = (*(plugin_data->attack_f) * .01);
+                float f_attack_f = (*(plugin_data->pfx_attack_f) * .01);
                 f_attack_f *= f_attack_f;
-                float f_decay_f = (*(plugin_data->decay_f) * .01);
+                float f_decay_f = (*(plugin_data->pfx_decay_f) * .01);
                 f_decay_f *= f_decay_f;
-                float f_release_f = (*(plugin_data->release_f) * .01);
+                float f_release_f = (*(plugin_data->pfx_release_f) * .01);
                 f_release_f *= f_release_f;
 
                 v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter,
                         f_attack_f, f_decay_f,
-                        (*(plugin_data->sustain_f) * .01), f_release_f);
+                        (*(plugin_data->pfx_sustain_f) * .01), f_release_f);
 
                 /*Retrigger the pitch envelope*/
                 v_rmp_retrigger_curve((plugin_data->data[f_voice]->ramp_env),
