@@ -4077,209 +4077,66 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_knob_size = 48
 
-        self.hlayout1 = QtGui.QHBoxLayout()
-        self.oscillator_layout.addLayout(self.hlayout1)
-        self.osc1 =  pydaw_osc_widget(f_knob_size, pydaw_ports.WAYV_OSC1_PITCH,
-                                      pydaw_ports.WAYV_OSC1_TUNE,
-                                      pydaw_ports.WAYV_OSC1_VOLUME,
-                                      pydaw_ports.WAYV_OSC1_TYPE, f_osc_types,
-                                      self.plugin_rel_callback,
-                                      self.plugin_val_callback, _("Oscillator 1"),
-                                      self.port_dict, self.preset_manager, 1)
-        self.osc1.pitch_knob.control.setRange(-72, 72)
-        self.osc1_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
-                                                   pydaw_ports.WAYV_OSC1_UNISON_VOICES,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   1, 7, 4, kc_integer,
-                                                   self.port_dict, self.preset_manager)
-        self.osc1_uni_voices.add_to_grid_layout(self.osc1.grid_layout, 4)
-        self.osc1_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
-                                                   pydaw_ports.WAYV_OSC1_UNISON_SPREAD,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   0, 100, 50, kc_decimal,
-                                                   self.port_dict, self.preset_manager)
-        self.osc1_uni_spread.add_to_grid_layout(self.osc1.grid_layout, 5)
+        for f_i in range(1, 5):
+            f_hlayout1 = QtGui.QHBoxLayout()
+            self.oscillator_layout.addLayout(f_hlayout1)
+            f_osc1 =  pydaw_osc_widget(f_knob_size,
+                                       getattr(pydaw_ports, "WAYV_OSC{}_PITCH".format(f_i)),
+                                       getattr(pydaw_ports, "WAYV_OSC{}_TUNE".format(f_i)),
+                                       getattr(pydaw_ports, "WAYV_OSC{}_VOLUME".format(f_i)),
+                                       getattr(pydaw_ports, "WAYV_OSC{}_TYPE".format(f_i)),
+                                       f_osc_types,
+                                       self.plugin_rel_callback,
+                                       self.plugin_val_callback,
+                                       _("Oscillator {}".format(f_i)),
+                                       self.port_dict, self.preset_manager,
+                                       1 if f_i == 1 else 0)
+            f_osc1.pitch_knob.control.setRange(-72, 72)
+            f_osc1_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
+                                                    getattr(pydaw_ports,
+                                                    "WAYV_OSC{}_UNISON_VOICES".format(f_i)),
+                                                    self.plugin_rel_callback,
+                                                    self.plugin_val_callback,
+                                                    1, 7, 4, kc_integer,
+                                                    self.port_dict, self.preset_manager)
+            f_osc1_uni_voices.add_to_grid_layout(f_osc1.grid_layout, 4)
+            f_osc1_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
+                                                    getattr(pydaw_ports,
+                                                    "WAYV_OSC{}_UNISON_SPREAD".format(f_i)),
+                                                    self.plugin_rel_callback,
+                                                    self.plugin_val_callback,
+                                                    0, 100, 50, kc_decimal,
+                                                    self.port_dict, self.preset_manager)
+            f_osc1_uni_spread.add_to_grid_layout(f_osc1.grid_layout, 5)
 
-        self.hlayout1.addWidget(self.osc1.group_box)
+            f_hlayout1.addWidget(f_osc1.group_box)
 
-        self.adsr_amp1 =  pydaw_adsr_widget(f_knob_size,  True,
-                                            pydaw_ports.WAYV_ATTACK1, pydaw_ports.WAYV_DECAY1,
-                                            pydaw_ports.WAYV_SUSTAIN1, pydaw_ports.WAYV_RELEASE1,
-                                            _("ADSR Osc1"),
-                                            self.plugin_rel_callback, self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time,
-                                            a_delay_port=pydaw_ports.WAYV_ADSR1_DELAY,
-                                            a_hold_port=pydaw_ports.WAYV_ADSR1_HOLD)
-        self.hlayout1.addWidget(self.adsr_amp1.groupbox)
+            f_adsr_amp1 =  pydaw_adsr_widget(f_knob_size,  True,
+                                             getattr(pydaw_ports, "WAYV_ATTACK{}".format(f_i)),
+                                             getattr(pydaw_ports, "WAYV_DECAY{}".format(f_i)),
+                                             getattr(pydaw_ports, "WAYV_SUSTAIN{}".format(f_i)),
+                                             getattr(pydaw_ports, "WAYV_RELEASE{}".format(f_i)),
+                                             _("ADSR Osc{}".format(f_i)),
+                                             self.plugin_rel_callback,
+                                             self.plugin_val_callback,
+                                             self.port_dict, self.preset_manager,
+                                             a_knob_type=kc_log_time,
+                                             a_delay_port=
+                                             getattr(pydaw_ports, "WAYV_ADSR{}_DELAY".format(f_i)),
+                                             a_hold_port=
+                                             getattr(pydaw_ports, "WAYV_ADSR{}_HOLD".format(f_i)))
+            f_hlayout1.addWidget(f_adsr_amp1.groupbox)
 
-        self.adsr_amp1_checkbox =  pydaw_checkbox_control(_("On"), pydaw_ports.WAYV_ADSR1_CHECKBOX,
-                                                          self.plugin_rel_callback,
-                                                          self.plugin_val_callback,
-                                                          self.port_dict, self.preset_manager)
-        self.adsr_amp1_checkbox.add_to_grid_layout(self.adsr_amp1.layout, 15)
+            f_adsr_amp1_checkbox =  pydaw_checkbox_control(_("On"),
+                                                           getattr(pydaw_ports,
+                                                           "WAYV_ADSR{}_CHECKBOX".format(f_i)),
+                                                           self.plugin_rel_callback,
+                                                           self.plugin_val_callback,
+                                                           self.port_dict, self.preset_manager)
+            f_adsr_amp1_checkbox.add_to_grid_layout(f_adsr_amp1.layout, 15)
 
-        self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+            f_hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
-        #Osc2
-        self.hlayout2 = QtGui.QHBoxLayout()
-        self.oscillator_layout.addLayout(self.hlayout2)
-        self.osc2 =  pydaw_osc_widget(f_knob_size, pydaw_ports.WAYV_OSC2_PITCH,
-                                      pydaw_ports.WAYV_OSC2_TUNE, pydaw_ports.WAYV_OSC2_VOLUME,
-                                      pydaw_ports.WAYV_OSC2_TYPE, f_osc_types,
-                                      self.plugin_rel_callback, self.plugin_val_callback,
-                                      _("Oscillator 2"),
-                                      self.port_dict, self.preset_manager)
-        self.osc2.pitch_knob.control.setRange(-72, 72)
-        self.osc2_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
-                                                   pydaw_ports.WAYV_OSC2_UNISON_VOICES,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   1, 7, 4, kc_integer, self.port_dict,
-                                                   self.preset_manager)
-        self.osc2_uni_voices.add_to_grid_layout(self.osc2.grid_layout, 4)
-        self.osc2_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
-                                                   pydaw_ports.WAYV_OSC2_UNISON_SPREAD,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   0, 100, 50, kc_decimal,
-                                                   self.port_dict, self.preset_manager)
-        self.osc2_uni_spread.add_to_grid_layout(self.osc2.grid_layout, 5)
-
-        self.hlayout2.addWidget(self.osc2.group_box)
-
-        self.adsr_amp2 =  pydaw_adsr_widget(f_knob_size,  True,
-                                            pydaw_ports.WAYV_ATTACK2,
-                                            pydaw_ports.WAYV_DECAY2,
-                                            pydaw_ports.WAYV_SUSTAIN2,
-                                            pydaw_ports.WAYV_RELEASE2,
-                                            _("ADSR Osc2"),
-                                            self.plugin_rel_callback,
-                                            self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time,
-                                            a_delay_port=pydaw_ports.WAYV_ADSR2_DELAY,
-                                            a_hold_port=pydaw_ports.WAYV_ADSR2_HOLD)
-        self.hlayout2.addWidget(self.adsr_amp2.groupbox)
-
-        self.adsr_amp2_checkbox =  pydaw_checkbox_control(_("On"),
-                                                          pydaw_ports.WAYV_ADSR2_CHECKBOX,
-                                                          self.plugin_rel_callback,
-                                                          self.plugin_val_callback,
-                                                          self.port_dict, self.preset_manager)
-        self.adsr_amp2_checkbox.add_to_grid_layout(self.adsr_amp2.layout, 15)
-
-        self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-
-        #osc3
-        self.hlayout3 = QtGui.QHBoxLayout()
-        self.oscillator_layout.addLayout(self.hlayout3)
-        self.osc3 =  pydaw_osc_widget(f_knob_size,
-                                      pydaw_ports.WAYV_OSC3_PITCH,
-                                      pydaw_ports.WAYV_OSC3_TUNE,
-                                      pydaw_ports.WAYV_OSC3_VOLUME,
-                                      pydaw_ports.WAYV_OSC3_TYPE,
-                                      f_osc_types,
-                                      self.plugin_rel_callback, self.plugin_val_callback,
-                                      _("Oscillator 3"),
-                                      self.port_dict, self.preset_manager)
-        self.osc3.pitch_knob.control.setRange(-72, 72)
-        self.osc3_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
-                                                   pydaw_ports.WAYV_OSC3_UNISON_VOICES,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   1, 7, 4, kc_integer,
-                                                   self.port_dict, self.preset_manager)
-        self.osc3_uni_voices.add_to_grid_layout(self.osc3.grid_layout, 4)
-        self.osc3_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
-                                                   pydaw_ports.WAYV_OSC3_UNISON_SPREAD,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   0, 100, 50, kc_decimal,
-                                                   self.port_dict, self.preset_manager)
-        self.osc3_uni_spread.add_to_grid_layout(self.osc3.grid_layout, 5)
-
-        self.hlayout3.addWidget(self.osc3.group_box)
-
-        self.adsr_amp3 =  pydaw_adsr_widget(f_knob_size,  True,
-                                            pydaw_ports.WAYV_ATTACK3,
-                                            pydaw_ports.WAYV_DECAY3,
-                                            pydaw_ports.WAYV_SUSTAIN3,
-                                            pydaw_ports.WAYV_RELEASE3,
-                                            _("ADSR Osc3"),
-                                            self.plugin_rel_callback,
-                                            self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time,
-                                            a_delay_port=pydaw_ports.WAYV_ADSR3_DELAY,
-                                            a_hold_port=pydaw_ports.WAYV_ADSR3_HOLD)
-
-        self.hlayout3.addWidget(self.adsr_amp3.groupbox)
-
-        self.adsr_amp3_checkbox =  pydaw_checkbox_control(_("On"),
-                                                          pydaw_ports.WAYV_ADSR3_CHECKBOX,
-                                                          self.plugin_rel_callback,
-                                                          self.plugin_val_callback,
-                                                          self.port_dict, self.preset_manager)
-        self.adsr_amp3_checkbox.add_to_grid_layout(self.adsr_amp3.layout, 15)
-
-        self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-
-        #osc4
-        self.hlayout4 = QtGui.QHBoxLayout()
-        self.oscillator_layout.addLayout(self.hlayout4)
-        self.osc4 =  pydaw_osc_widget(f_knob_size,
-                                      pydaw_ports.WAYV_OSC4_PITCH,
-                                      pydaw_ports.WAYV_OSC4_TUNE,
-                                      pydaw_ports.WAYV_OSC4_VOLUME,
-                                      pydaw_ports.WAYV_OSC4_TYPE,
-                                      f_osc_types,
-                                      self.plugin_rel_callback, self.plugin_val_callback,
-                                      _("Oscillator 4"),
-                                      self.port_dict, self.preset_manager)
-        self.osc4.pitch_knob.control.setRange(-72, 72)
-        self.osc4_uni_voices =  pydaw_knob_control(f_knob_size, _("Unison"),
-                                                   pydaw_ports.WAYV_OSC4_UNISON_VOICES,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   1, 7, 4, kc_integer,
-                                                   self.port_dict, self.preset_manager)
-        self.osc4_uni_voices.add_to_grid_layout(self.osc4.grid_layout, 4)
-        self.osc4_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
-                                                   pydaw_ports.WAYV_OSC4_UNISON_SPREAD,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   0, 100, 50, kc_decimal,
-                                                   self.port_dict, self.preset_manager)
-        self.osc4_uni_spread.add_to_grid_layout(self.osc4.grid_layout, 5)
-
-        self.hlayout4.addWidget(self.osc4.group_box)
-
-        self.adsr_amp4 =  pydaw_adsr_widget(f_knob_size,  True,
-                                            pydaw_ports.WAYV_ATTACK4,
-                                            pydaw_ports.WAYV_DECAY4,
-                                            pydaw_ports.WAYV_SUSTAIN4,
-                                            pydaw_ports.WAYV_RELEASE4,
-                                            _("ADSR Osc4"),
-                                            self.plugin_rel_callback,
-                                            self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager,
-                                            a_knob_type=kc_log_time,
-                                            a_delay_port=pydaw_ports.WAYV_ADSR4_DELAY,
-                                            a_hold_port=pydaw_ports.WAYV_ADSR4_HOLD)
-
-        self.hlayout4.addWidget(self.adsr_amp4.groupbox)
-
-        self.adsr_amp4_checkbox =  pydaw_checkbox_control(_("On"),
-                                                          pydaw_ports.WAYV_ADSR4_CHECKBOX,
-                                                          self.plugin_rel_callback,
-                                                          self.plugin_val_callback,
-                                                          self.port_dict, self.preset_manager)
-        self.adsr_amp4_checkbox.add_to_grid_layout(self.adsr_amp4.layout, 15)
-
-        self.hlayout4.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         ######################
 
