@@ -584,6 +584,45 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
                 while(f_i < 4)
                 {
+                    int f_osc_type = (int)(*plugin_data->osc_type[f_i]) - 1;
+
+                    if(f_osc_type >= 0)
+                    {
+                        plugin_data->data[f_voice]->osc_on[f_i] = 1;
+
+                        if(f_poly_mode == 0)
+                        {
+                            v_osc_wav_note_on_sync_phases(
+                                plugin_data->data[f_voice]->osc_wavtable[f_i]);
+                        }
+                        v_osc_wav_set_waveform(
+                                plugin_data->data[f_voice]->osc_wavtable[f_i],
+                                plugin_data->mono_modules->
+                                wavetables->tables[f_osc_type]->wavetable,
+                                plugin_data->mono_modules->wavetables->
+                                tables[f_osc_type]->length);
+                        v_osc_wav_set_uni_voice_count(
+                                plugin_data->data[f_voice]->osc_wavtable[f_i],
+                                *plugin_data->osc_uni_voice[f_i]);
+                    }
+                    else
+                    {
+                        plugin_data->data[f_voice]->osc_on[f_i] = 0;
+                        f_i++;
+                        continue;
+                    }
+
+                    plugin_data->data[f_voice]->osc_uni_spread[f_i] =
+                        (*plugin_data->osc_uni_spread[f_i]) * 0.01f;
+
+                    int f_i2 = 0;
+                    while(f_i2 < 4)
+                    {
+                        plugin_data->data[f_voice]->osc_fm[f_i][f_i2] =
+                                (*plugin_data->osc_fm[f_i][f_i2]) * 0.005f;
+                        f_i2++;
+                    }
+
                     f_db = (*plugin_data->osc_vol[f_i]);
 
                     v_adsr_retrigger(
@@ -646,40 +685,6 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_main,
                     (f_attack), (f_decay), *(plugin_data->sustain_main),
                         (f_release));
-
-                f_i = 0;
-
-                while(f_i < 4)
-                {
-                    int f_osc_type1 = (int)(*plugin_data->osc_type[f_i]) - 1;
-
-                    if(f_osc_type1 >= 0)
-                    {
-                        plugin_data->data[f_voice]->osc_on[f_i] = 1;
-
-                        if(f_poly_mode == 0)
-                        {
-                            v_osc_wav_note_on_sync_phases(
-                                    plugin_data->data[f_voice]->osc_wavtable[f_i]);
-                        }
-                        v_osc_wav_set_waveform(
-                                plugin_data->data[f_voice]->osc_wavtable[f_i],
-                                plugin_data->mono_modules->
-                                wavetables->tables[f_osc_type1]->wavetable,
-                                plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type1]->length);
-                        v_osc_wav_set_uni_voice_count(
-                                plugin_data->data[f_voice]->osc_wavtable[f_i],
-                                *plugin_data->osc_uni_voice[f_i]);
-                    }
-                    else
-                    {
-                        plugin_data->data[f_voice]->osc_on[f_i] = 0;
-                    }
-
-
-                    f_i++;
-                }
 
                 plugin_data->data[f_voice]->noise_amp =
                     f_db_to_linear(*(plugin_data->noise_amp),
@@ -751,23 +756,6 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 //Get the noise function pointer
                 plugin_data->data[f_voice]->noise_func_ptr =
                         fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
-
-                f_i = 0;
-
-                while(f_i < 4)
-                {
-                    plugin_data->data[f_voice]->osc_uni_spread[f_i] =
-                        (*plugin_data->osc_uni_spread[f_i]) * 0.01f;
-
-                    int f_i2 = 0;
-                    while(f_i2 < 4)
-                    {
-                        plugin_data->data[f_voice]->osc_fm[f_i][f_i2] =
-                                (*plugin_data->osc_fm[f_i][f_i2]) * 0.005f;
-                        f_i2++;
-                    }
-                    f_i++;
-                }
 
                 f_i = 0;
 
