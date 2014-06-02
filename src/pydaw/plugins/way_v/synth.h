@@ -292,9 +292,11 @@ extern "C" {
 #define WAYV_PFX_ADSR_HOLD 237
 #define WAYV_PFX_ADSR_F_HOLD 238
 
+#define WAYV_HOLD_MAIN  239
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 239
+#define WAYV_COUNT 240
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -304,6 +306,7 @@ typedef struct
     PYFX_Data *output0;
     PYFX_Data *output1;
     PYFX_Data *attack_main;
+    PYFX_Data *hold_main;
     PYFX_Data *decay_main;
     PYFX_Data *sustain_main;
     PYFX_Data *release_main;

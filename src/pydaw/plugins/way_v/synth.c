@@ -467,6 +467,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
 
         case WAYV_PFX_ADSR_HOLD: plugin->pfx_hold = data; break;
         case WAYV_PFX_ADSR_F_HOLD: plugin->pfx_hold_f = data; break;
+        case WAYV_HOLD_MAIN: plugin->hold_main = data; break;
     }
 }
 
@@ -685,6 +686,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_main,
                     (f_attack), (f_decay), *(plugin_data->sustain_main),
                         (f_release));
+
+                v_adsr_set_hold_time(plugin_data->data[f_voice]->adsr_main,
+                        (*plugin_data->hold_main) * 0.01f);
 
                 plugin_data->data[f_voice]->noise_amp =
                     f_db_to_linear(*(plugin_data->noise_amp),
@@ -2323,7 +2327,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         f_port = WAYV_ADSR1_DELAY;
 
         // The loop covers the hold and delay ports
-        while(f_port <= WAYV_PFX_ADSR_F_HOLD)
+        while(f_port <= WAYV_HOLD_MAIN)
         {
             port_descriptors[f_port] = 1;
             port_range_hints[f_port].DefaultValue = 0.0f;

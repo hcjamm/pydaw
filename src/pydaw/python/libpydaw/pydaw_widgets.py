@@ -4301,12 +4301,13 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                 pydaw_ports.WAYV_DECAY_MAIN,
                                                 pydaw_ports.WAYV_SUSTAIN_MAIN,
                                                 pydaw_ports.WAYV_RELEASE_MAIN,
-                                                _("ADSR Master"),
+                                                _("AHDSR Master"),
                                                 self.plugin_rel_callback,
                                                 self.plugin_val_callback,
                                                 self.port_dict, self.preset_manager,
                                                 a_prefx_port=pydaw_ports.WAYV_ADSR_PREFX,
-                                                a_knob_type=kc_log_time)
+                                                a_knob_type=kc_log_time,
+                                                a_hold_port=pydaw_ports.WAYV_HOLD_MAIN)
         self.hlayout_master.addWidget(self.adsr_amp_main.groupbox)
 
         self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
