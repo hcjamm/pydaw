@@ -1564,7 +1564,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 
 	port_descriptors[WAYV_SUSTAIN_PFX1] = 1;
 	port_range_hints[WAYV_SUSTAIN_PFX1].DefaultValue = 0.0f;
-	port_range_hints[WAYV_SUSTAIN_PFX1].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN_PFX1].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN_PFX1].UpperBound = 0.0f;
 
 	port_descriptors[WAYV_RELEASE_PFX1] = 1;
