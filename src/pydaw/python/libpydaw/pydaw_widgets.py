@@ -4072,6 +4072,11 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.oscillator_layout =  QtGui.QVBoxLayout(self.osc_tab)
         self.preset_manager =  pydaw_preset_manager_widget("WAYV", self.configure_dict,
                                                            self.reconfigure_plugin)
+        self.preset_hlayout = QtGui.QHBoxLayout()
+        self.preset_hlayout.addWidget(self.preset_manager.group_box)
+        self.preset_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.oscillator_layout.addLayout(self.preset_hlayout)
+
         self.hlayout0 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout0)
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
@@ -4278,11 +4283,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         ############################
 
         self.modulation_vlayout = QtGui.QVBoxLayout(self.modulation_tab)
-
-        self.preset_hlayout = QtGui.QHBoxLayout()
-        self.preset_hlayout.addWidget(self.preset_manager.group_box)
-        self.preset_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.modulation_vlayout.addLayout(self.preset_hlayout)
 
         self.hlayout_master = QtGui.QHBoxLayout()
         self.modulation_vlayout.addLayout(self.hlayout_master)
