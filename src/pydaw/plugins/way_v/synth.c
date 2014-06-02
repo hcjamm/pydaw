@@ -468,6 +468,22 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_PFX_ADSR_HOLD: plugin->pfx_hold = data; break;
         case WAYV_PFX_ADSR_F_HOLD: plugin->pfx_hold_f = data; break;
         case WAYV_HOLD_MAIN: plugin->hold_main = data; break;
+
+        case WAYV_DELAY_NOISE: plugin->noise_delay = data; break;
+        case WAYV_ATTACK_NOISE: plugin->noise_attack = data; break;
+        case WAYV_HOLD_NOISE: plugin->noise_hold = data; break;
+        case WAYV_DECAY_NOISE: plugin->noise_decay = data; break;
+        case WAYV_SUSTAIN_NOISE: plugin->noise_sustain = data; break;
+        case WAYV_RELEASE_NOISE: plugin->noise_release = data; break;
+        case WAYV_ADSR_NOISE_ON: plugin->noise_adsr_on = data; break;
+
+        case WAYV_DELAY_LFO: plugin->lfo_delay = data; break;
+        case WAYV_ATTACK_LFO: plugin->lfo_attack = data; break;
+        case WAYV_HOLD_LFO: plugin->lfo_hold = data; break;
+        case WAYV_DECAY_LFO: plugin->lfo_decay = data; break;
+        case WAYV_SUSTAIN_LFO: plugin->lfo_sustain = data; break;
+        case WAYV_RELEASE_LFO: plugin->lfo_release = data; break;
+        case WAYV_ADSR_LFO_ON: plugin->lfo_adsr_on = data; break;
     }
 }
 
@@ -673,6 +689,52 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->noise_linamp =
                     f_db_to_linear_fast(*(plugin_data->noise_amp),
                         plugin_data->mono_modules->amp_ptr);
+
+                plugin_data->data[f_voice]->adsr_noise_on =
+                        (int)*plugin_data->noise_adsr_on;
+
+                if(plugin_data->data[f_voice]->adsr_noise_on)
+                {
+                    v_adsr_retrigger(plugin_data->data[f_voice]->adsr_noise);
+                    float f_attack = *(plugin_data->noise_attack) * .01f;
+                    f_attack = (f_attack) * (f_attack);
+                    float f_decay = *(plugin_data->noise_decay) * .01f;
+                    f_decay = (f_decay) * (f_decay);
+                    float f_sustain = (*plugin_data->noise_sustain);
+                    float f_release = *(plugin_data->noise_release) * .01f;
+                    f_release = (f_release) * (f_release);
+                    v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_noise,
+                            f_attack, f_decay, f_sustain, f_release);
+                    v_adsr_set_delay_time(
+                            plugin_data->data[f_voice]->adsr_noise,
+                            (*plugin_data->noise_delay) * 0.01f);
+                    v_adsr_set_hold_time(
+                            plugin_data->data[f_voice]->adsr_noise,
+                            (*plugin_data->noise_hold) * 0.01f);
+                }
+
+                plugin_data->data[f_voice]->adsr_lfo_on =
+                        (int)*plugin_data->lfo_adsr_on;
+
+                if(plugin_data->data[f_voice]->adsr_lfo_on)
+                {
+                    v_adsr_retrigger(plugin_data->data[f_voice]->adsr_lfo);
+                    float f_attack = *(plugin_data->lfo_attack) * .01f;
+                    f_attack = (f_attack) * (f_attack);
+                    float f_decay = *(plugin_data->lfo_decay) * .01f;
+                    f_decay = (f_decay) * (f_decay);
+                    float f_sustain = (*plugin_data->lfo_sustain) * 0.01f;
+                    float f_release = *(plugin_data->lfo_release) * .01f;
+                    f_release = (f_release) * (f_release);
+                    v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_lfo,
+                            f_attack, f_decay, f_sustain, f_release);
+                    v_adsr_set_delay_time(
+                            plugin_data->data[f_voice]->adsr_lfo,
+                            (*plugin_data->lfo_delay) * 0.01f);
+                    v_adsr_set_hold_time(
+                            plugin_data->data[f_voice]->adsr_lfo,
+                            (*plugin_data->lfo_hold) * 0.01f);
+                }
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_main);
 
@@ -1053,6 +1115,12 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
     a_voice->lfo_amount_output =
             (a_voice->lfo1->output) * ((*plugin_data->lfo_amount) * 0.01f);
 
+    if(a_voice->adsr_lfo_on)
+    {
+        v_adsr_run(a_voice->adsr_lfo);
+        a_voice->lfo_amount_output *= a_voice->adsr_lfo->output;
+    }
+
     a_voice->lfo_amp_output =
             f_db_to_linear_fast((((*plugin_data->lfo_amp) *
             (a_voice->lfo_amount_output)) -
@@ -1185,9 +1253,19 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         f_osc_num++;
     }
 
-
-    a_voice->current_sample += (a_voice->noise_func_ptr(a_voice->white_noise1) *
-            (a_voice->noise_linamp)); // noise
+    if(a_voice->adsr_noise_on)
+    {
+        v_adsr_run(a_voice->adsr_noise);
+        a_voice->current_sample +=
+                a_voice->noise_func_ptr(a_voice->white_noise1) *
+                (a_voice->noise_linamp) * a_voice->adsr_noise->output;
+    }
+    else
+    {
+        a_voice->current_sample +=
+                (a_voice->noise_func_ptr(a_voice->white_noise1) *
+                (a_voice->noise_linamp));
+    }
 
     v_adsr_run_db(a_voice->adsr_main);
 
@@ -2332,9 +2410,81 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
             port_descriptors[f_port] = 1;
             port_range_hints[f_port].DefaultValue = 0.0f;
             port_range_hints[f_port].LowerBound =  0.0f;
-            port_range_hints[f_port].UpperBound =  200.0;
+            port_range_hints[f_port].UpperBound =  200.0f;
             f_port++;
         }
+
+
+        port_descriptors[WAYV_DELAY_NOISE] = 1;
+        port_range_hints[WAYV_DELAY_NOISE].DefaultValue = 0.0f;
+        port_range_hints[WAYV_DELAY_NOISE].LowerBound =  0.0f;
+        port_range_hints[WAYV_DELAY_NOISE].UpperBound =  200.0;
+
+        port_descriptors[WAYV_ATTACK_NOISE] = 1;
+	port_range_hints[WAYV_ATTACK_NOISE].DefaultValue = 10.0f;
+	port_range_hints[WAYV_ATTACK_NOISE].LowerBound = 0.0f;
+	port_range_hints[WAYV_ATTACK_NOISE].UpperBound = 200.0f;
+
+        port_descriptors[WAYV_HOLD_NOISE] = 1;
+        port_range_hints[WAYV_HOLD_NOISE].DefaultValue = 0.0f;
+        port_range_hints[WAYV_HOLD_NOISE].LowerBound =  0.0f;
+        port_range_hints[WAYV_HOLD_NOISE].UpperBound =  200.0;
+
+	port_descriptors[WAYV_DECAY_NOISE] = 1;
+	port_range_hints[WAYV_DECAY_NOISE].DefaultValue = 50.0f;
+	port_range_hints[WAYV_DECAY_NOISE].LowerBound = 10.0f;
+	port_range_hints[WAYV_DECAY_NOISE].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_SUSTAIN_NOISE] = 1;
+	port_range_hints[WAYV_SUSTAIN_NOISE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_SUSTAIN_NOISE].LowerBound = -30.0f;
+	port_range_hints[WAYV_SUSTAIN_NOISE].UpperBound = 0.0f;
+
+	port_descriptors[WAYV_RELEASE_NOISE] = 1;
+	port_range_hints[WAYV_RELEASE_NOISE].DefaultValue = 50.0f;
+	port_range_hints[WAYV_RELEASE_NOISE].LowerBound = 10.0f;
+	port_range_hints[WAYV_RELEASE_NOISE].UpperBound = 400.0f;
+
+        port_descriptors[WAYV_ADSR_NOISE_ON] = 1;
+        port_range_hints[WAYV_ADSR_NOISE_ON].DefaultValue = 0.0f;
+        port_range_hints[WAYV_ADSR_NOISE_ON].LowerBound =  0.0f;
+        port_range_hints[WAYV_ADSR_NOISE_ON].UpperBound =  1.0f;
+
+
+        port_descriptors[WAYV_DELAY_LFO] = 1;
+        port_range_hints[WAYV_DELAY_LFO].DefaultValue = 0.0f;
+        port_range_hints[WAYV_DELAY_LFO].LowerBound =  0.0f;
+        port_range_hints[WAYV_DELAY_LFO].UpperBound =  200.0;
+
+        port_descriptors[WAYV_ATTACK_LFO] = 1;
+	port_range_hints[WAYV_ATTACK_LFO].DefaultValue = 10.0f;
+	port_range_hints[WAYV_ATTACK_LFO].LowerBound = 0.0f;
+	port_range_hints[WAYV_ATTACK_LFO].UpperBound = 200.0f;
+
+        port_descriptors[WAYV_HOLD_LFO] = 1;
+        port_range_hints[WAYV_HOLD_LFO].DefaultValue = 0.0f;
+        port_range_hints[WAYV_HOLD_LFO].LowerBound =  0.0f;
+        port_range_hints[WAYV_HOLD_LFO].UpperBound =  200.0;
+
+	port_descriptors[WAYV_DECAY_LFO] = 1;
+	port_range_hints[WAYV_DECAY_LFO].DefaultValue = 50.0f;
+	port_range_hints[WAYV_DECAY_LFO].LowerBound = 10.0f;
+	port_range_hints[WAYV_DECAY_LFO].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_SUSTAIN_LFO] = 1;
+	port_range_hints[WAYV_SUSTAIN_LFO].DefaultValue = 100.0f;
+	port_range_hints[WAYV_SUSTAIN_LFO].LowerBound = 0.0f;
+	port_range_hints[WAYV_SUSTAIN_LFO].UpperBound = 100.0f;
+
+	port_descriptors[WAYV_RELEASE_LFO] = 1;
+	port_range_hints[WAYV_RELEASE_LFO].DefaultValue = 50.0f;
+	port_range_hints[WAYV_RELEASE_LFO].LowerBound = 10.0f;
+	port_range_hints[WAYV_RELEASE_LFO].UpperBound = 400.0f;
+
+        port_descriptors[WAYV_ADSR_LFO_ON] = 1;
+        port_range_hints[WAYV_ADSR_LFO_ON].DefaultValue = 0.0f;
+        port_range_hints[WAYV_ADSR_LFO_ON].LowerBound =  0.0f;
+        port_range_hints[WAYV_ADSR_LFO_ON].UpperBound =  1.0f;
 
 
 	LMSLDescriptor->activate = v_wayv_activate;

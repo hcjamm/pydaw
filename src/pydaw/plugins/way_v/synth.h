@@ -294,9 +294,25 @@ extern "C" {
 
 #define WAYV_HOLD_MAIN  239
 
+#define WAYV_DELAY_NOISE  240
+#define WAYV_ATTACK_NOISE  241
+#define WAYV_HOLD_NOISE  242
+#define WAYV_DECAY_NOISE   243
+#define WAYV_SUSTAIN_NOISE 244
+#define WAYV_RELEASE_NOISE 245
+#define WAYV_ADSR_NOISE_ON 246
+
+#define WAYV_DELAY_LFO  247
+#define WAYV_ATTACK_LFO  248
+#define WAYV_HOLD_LFO  249
+#define WAYV_DECAY_LFO   250
+#define WAYV_SUSTAIN_LFO 251
+#define WAYV_RELEASE_LFO 252
+#define WAYV_ADSR_LFO_ON 253
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 240
+#define WAYV_COUNT 254
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -347,6 +363,14 @@ typedef struct
     PYFX_Data *noise_amp;
     PYFX_Data *noise_type;
 
+    PYFX_Data *noise_adsr_on;
+    PYFX_Data *noise_delay;
+    PYFX_Data *noise_attack;
+    PYFX_Data *noise_hold;
+    PYFX_Data *noise_decay;
+    PYFX_Data *noise_sustain;
+    PYFX_Data *noise_release;
+
     PYFX_Data *osc_uni_voice[WAYV_OSC_COUNT];
     PYFX_Data *osc_uni_spread[WAYV_OSC_COUNT];
 
@@ -365,6 +389,14 @@ typedef struct
     PYFX_Data *lfo_pitch;
     PYFX_Data *lfo_pitch_fine;
     PYFX_Data *lfo_amount;
+
+    PYFX_Data *lfo_adsr_on;
+    PYFX_Data *lfo_delay;
+    PYFX_Data *lfo_attack;
+    PYFX_Data *lfo_hold;
+    PYFX_Data *lfo_decay;
+    PYFX_Data *lfo_sustain;
+    PYFX_Data *lfo_release;
 
     PYFX_Data *perc_env_time1;
     PYFX_Data *perc_env_pitch1;

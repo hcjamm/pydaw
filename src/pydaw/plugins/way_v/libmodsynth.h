@@ -111,6 +111,10 @@ typedef struct
     float lfo_amount_output, lfo_amp_output, lfo_pitch_output;
     t_adsr * adsr_filter;
     t_adsr * adsr_amp;
+    t_adsr * adsr_noise;
+    t_adsr * adsr_lfo;
+    int adsr_noise_on;
+    int adsr_lfo_on;
     t_ramp_env * ramp_env;
 
     float filter_output;
@@ -201,6 +205,10 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 
     f_voice->adsr_amp = g_adsr_get_adsr(a_sr);
     f_voice->adsr_filter = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_noise = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_lfo = g_adsr_get_adsr(a_sr);
+    f_voice->adsr_noise_on = 0;
+    f_voice->adsr_lfo_on = 0;
 
     f_voice->noise_amp = 0.0f;
 

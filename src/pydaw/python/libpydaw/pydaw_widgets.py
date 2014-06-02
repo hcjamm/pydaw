@@ -4347,6 +4347,25 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.modulation_vlayout.addLayout(self.hlayout_master2)
         self.hlayout_master2.addWidget(self.perc_env.groupbox)
 
+        self.adsr_noise = pydaw_adsr_widget(f_knob_size, True,
+                                            pydaw_ports.WAYV_ATTACK_NOISE,
+                                            pydaw_ports.WAYV_DECAY_NOISE,
+                                            pydaw_ports.WAYV_SUSTAIN_NOISE,
+                                            pydaw_ports.WAYV_RELEASE_NOISE,
+                                            _("DAHDSR Noise"),
+                                            self.plugin_rel_callback,
+                                            self.plugin_val_callback,
+                                            self.port_dict, self.preset_manager,
+                                            a_knob_type=kc_log_time,
+                                            a_hold_port=pydaw_ports.WAYV_HOLD_NOISE,
+                                            a_delay_port=pydaw_ports.WAYV_DELAY_NOISE)
+        self.hlayout_master2.addWidget(self.adsr_noise.groupbox)
+        self.adsr_noise_on = pydaw_checkbox_control("On", pydaw_ports.WAYV_ADSR_NOISE_ON,
+                                                    self.plugin_rel_callback,
+                                                    self.plugin_val_callback,
+                                                    self.port_dict, self.preset_manager)
+        self.adsr_noise_on.add_to_grid_layout(self.adsr_noise.layout, 21)
+
         self.modulation_vlayout.addItem(
             QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
@@ -4521,6 +4540,25 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                   -100, 100, 0,  kc_decimal,
                                                   self.port_dict, self.preset_manager)
         self.lfo_pitch_fine.add_to_grid_layout(self.lfo.layout, 10)
+
+        self.adsr_lfo = pydaw_adsr_widget(f_knob_size, False,
+                                          pydaw_ports.WAYV_ATTACK_LFO,
+                                          pydaw_ports.WAYV_DECAY_LFO,
+                                          pydaw_ports.WAYV_SUSTAIN_LFO,
+                                          pydaw_ports.WAYV_RELEASE_LFO,
+                                          _("DAHDSR LFO"),
+                                          self.plugin_rel_callback,
+                                          self.plugin_val_callback,
+                                          self.port_dict, self.preset_manager,
+                                          a_knob_type=kc_log_time,
+                                          a_hold_port=pydaw_ports.WAYV_HOLD_LFO,
+                                          a_delay_port=pydaw_ports.WAYV_DELAY_LFO)
+        self.lfo_hlayout.addWidget(self.adsr_lfo.groupbox)
+        self.adsr_lfo_on = pydaw_checkbox_control("On", pydaw_ports.WAYV_ADSR_LFO_ON,
+                                                  self.plugin_rel_callback,
+                                                  self.plugin_val_callback,
+                                                  self.port_dict, self.preset_manager)
+        self.adsr_lfo_on.add_to_grid_layout(self.adsr_lfo.layout, 21)
 
         self.lfo_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
