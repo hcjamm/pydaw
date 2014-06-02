@@ -70,7 +70,7 @@ extern "C" {
 #define WAYV_DECAY_PFX2   33
 #define WAYV_SUSTAIN_PFX2 34
 #define WAYV_RELEASE_PFX2 35
-#define LMS_NOISE_TYPE 36
+#define WAYV_NOISE_TYPE 36
 #define WAYV_RAMP_ENV_TIME 37
 #define WAYV_LFO_FREQ 38
 #define WAYV_LFO_TYPE 39

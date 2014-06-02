@@ -334,7 +334,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAVV_PFXMATRIX_GRP0DST3SRC5CTRL2: plugin->polyfx_mod_matrix[0][3][5][2] = data; break;
 
 
-        case LMS_NOISE_TYPE: plugin->noise_type = data; break;
+        case WAYV_NOISE_TYPE: plugin->noise_type = data; break;
         case WAYV_ADSR1_CHECKBOX: plugin->adsr_checked[0] = data; break;
         case WAYV_ADSR2_CHECKBOX: plugin->adsr_checked[1] = data; break;
 
@@ -1854,10 +1854,10 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100.0f;
         port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100.0f;
 
-        port_descriptors[LMS_NOISE_TYPE] = 1;
-	port_range_hints[LMS_NOISE_TYPE].DefaultValue = 0.0f;
-	port_range_hints[LMS_NOISE_TYPE].LowerBound =  0;
-	port_range_hints[LMS_NOISE_TYPE].UpperBound =  2;
+        port_descriptors[WAYV_NOISE_TYPE] = 1;
+	port_range_hints[WAYV_NOISE_TYPE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_NOISE_TYPE].LowerBound =  0;
+	port_range_hints[WAYV_NOISE_TYPE].UpperBound =  2;
 
         port_descriptors[WAYV_ADSR1_CHECKBOX] = 1;
 	port_range_hints[WAYV_ADSR1_CHECKBOX].DefaultValue = 0.0f;

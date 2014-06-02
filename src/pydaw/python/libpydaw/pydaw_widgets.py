@@ -4322,7 +4322,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                              self.port_dict, self.preset_manager)
         self.noise_amp.add_to_grid_layout(self.groupbox_noise_layout, 0)
 
-        self.noise_type =  pydaw_combobox_control(87, _("Type"), pydaw_ports.LMS_NOISE_TYPE,
+        self.noise_type =  pydaw_combobox_control(87, _("Type"), pydaw_ports.WAYV_NOISE_TYPE,
                                                   self.plugin_rel_callback,
                                                   self.plugin_val_callback,
                                                   [_("Off"), _("White"), _("Pink")],
