@@ -4421,33 +4421,20 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix.setVerticalHeaderLabels([_("DAHDSR 1"), _("DAHDSR 2"), _("Ramp Env"),
                                                  _("LFO"), _("Pitch"), _("Velocity")])
 
-        f_port_num = pydaw_ports.WAVV_PFXMATRIX_FIRST_PORT
-
         for f_i_dst in range(4):
-            for f_i_src in range(4):
+            for f_i_src in range(6):
                 for f_i_ctrl in range(3):
-                    f_ctrl = pydaw_spinbox_control(None, f_port_num, self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   -100, 100, 0, kc_none,
-                                                   self.port_dict, self.preset_manager)
-                    f_x = (f_i_dst * 3) + f_i_ctrl
-                    self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
-                    f_port_num += 1
-
-        #The new pitch and velocity tracking controls
-        f_port_num = pydaw_ports.WAVV_PFXMATRIX_GRP0DST0SRC4CTRL0
-
-        for f_i_src in range(4, 6):
-            for f_i_dst in range(4):
-                for f_i_ctrl in range(3):
-                    f_ctrl = pydaw_spinbox_control(None, f_port_num,
+                    f_ctrl = pydaw_spinbox_control(None,
+                                                   getattr(pydaw_ports,
+                                                   "WAVV_PFXMATRIX_"
+                                                   "GRP0DST{}SRC{}CTRL{}".format(
+                                                   f_i_dst, f_i_src, f_i_ctrl)),
                                                    self.plugin_rel_callback,
                                                    self.plugin_val_callback,
                                                    -100, 100, 0, kc_none,
                                                    self.port_dict, self.preset_manager)
                     f_x = (f_i_dst * 3) + f_i_ctrl
                     self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
-                    f_port_num += 1
 
         self.main_layout.addWidget(self.mod_matrix)
         self.mod_matrix.resizeColumnsToContents()
