@@ -47,34 +47,32 @@ static void v_cleanup_wayv(PYFX_Handle instance)
 static void v_wayv_or_prep(PYFX_Handle instance)
 {
     t_wayv *plugin = (t_wayv *)instance;
+    int f_i = 0;
     int f_i2 = 0;
+    int f_i3 = 0;
 
-    int f_osc1_on = ((int)(*plugin->osc_type[0]) - 1);
-    int f_osc2_on = ((int)(*plugin->osc_type[1]) - 1);
-    int f_osc3_on = ((int)(*plugin->osc_type[2]) - 1);
-    int f_osc4_on = ((int)(*plugin->osc_type[3]) - 1);
+    int f_osc_on[WAYV_OSC_COUNT];
+
+    while(f_i < WAYV_OSC_COUNT)
+    {
+        f_osc_on[f_i] = ((int)(*plugin->osc_type[f_i]) - 1);
+        f_i++;
+    }
 
     while(f_i2 < WAYV_POLYPHONY)
     {
         t_wayv_poly_voice * f_voice = plugin->data[f_i2];
-        int f_i = 0;
+        f_i = 0;
         while(f_i < 1000000)
         {
-            if(f_osc1_on >= 0)
+            f_i3 = 0;
+            while(f_i3 < WAYV_OSC_COUNT)
             {
-                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable[0]);
-            }
-            if(f_osc2_on >= 0)
-            {
-                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable[1]);
-            }
-            if(f_osc3_on >= 0)
-            {
-                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable[2]);
-            }
-            if(f_osc4_on >= 0)
-            {
-                v_osc_wav_run_unison_core_only(f_voice->osc_wavtable[3]);
+                if(f_osc_on[f_i3] >= 0)
+                {
+                    v_osc_wav_run_unison_core_only(f_voice->osc_wavtable[f_i3]);
+                }
+                f_i3++;
             }
 
             f_i++;
