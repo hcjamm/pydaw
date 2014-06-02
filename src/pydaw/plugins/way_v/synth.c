@@ -977,52 +977,31 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
         if(plugin_data->mono_modules->reset_wavetables)
         {
             int f_voice = 0;
+            int f_osc_type[WAYV_OSC_COUNT];
+            int f_i = 0;
 
-            int f_osc_type1 = (int)(*plugin_data->osc_type[0]) - 1;
-            int f_osc_type2 = (int)(*plugin_data->osc_type[1]) - 1;
-            int f_osc_type3 = (int)(*plugin_data->osc_type[2]) - 1;
-            int f_osc_type4 = (int)(*plugin_data->osc_type[3]) - 1;
+            while(f_i < WAYV_OSC_COUNT)
+            {
+                f_osc_type[f_i] = (int)(*plugin_data->osc_type[f_i]) - 1;
+                f_i++;
+            }
 
             while(f_voice < WAYV_POLYPHONY)
             {
-                if(f_osc_type1 >= 0)
-                {
-                    v_osc_wav_set_waveform(
-                            plugin_data->data[f_voice]->osc_wavtable[0],
-                            plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type1]->wavetable,
-                            plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type1]->length);
-                }
+                f_i = 0;
 
-                if(f_osc_type2 >= 0)
+                while(f_i < WAYV_OSC_COUNT)
                 {
-                    v_osc_wav_set_waveform(
-                            plugin_data->data[f_voice]->osc_wavtable[1],
+                    if(f_osc_type[f_i] >= 0)
+                    {
+                        v_osc_wav_set_waveform(
+                            plugin_data->data[f_voice]->osc_wavtable[f_i],
                             plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type2]->wavetable,
+                                tables[f_osc_type[f_i]]->wavetable,
                             plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type2]->length);
-                }
-
-                if(f_osc_type3 >= 0)
-                {
-                    v_osc_wav_set_waveform(
-                            plugin_data->data[f_voice]->osc_wavtable[2],
-                            plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type3]->wavetable,
-                            plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type3]->length);
-                }
-
-                if(f_osc_type4 >= 0)
-                {
-                    v_osc_wav_set_waveform(
-                            plugin_data->data[f_voice]->osc_wavtable[3],
-                            plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type4]->wavetable,
-                            plugin_data->mono_modules->wavetables->
-                                tables[f_osc_type4]->length);
+                                tables[f_osc_type[f_i]]->length);
+                    }
+                    f_i++;
                 }
 
                 f_voice++;
