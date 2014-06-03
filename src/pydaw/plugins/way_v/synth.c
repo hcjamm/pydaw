@@ -482,6 +482,110 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_SUSTAIN_LFO: plugin->lfo_sustain = data; break;
         case WAYV_RELEASE_LFO: plugin->lfo_release = data; break;
         case WAYV_ADSR_LFO_ON: plugin->lfo_adsr_on = data; break;
+
+        case WAYV_OSC5_TYPE: plugin->osc_type[4] = data; break;
+        case WAYV_OSC5_PITCH: plugin->osc_pitch[4] = data; break;
+        case WAYV_OSC5_TUNE: plugin->osc_tune[4] = data; break;
+        case WAYV_OSC5_VOLUME: plugin->osc_vol[4] = data; break;
+        case WAYV_OSC5_UNISON_VOICES: plugin->osc_uni_voice[4] = data; break;
+        case WAYV_OSC5_UNISON_SPREAD: plugin->osc_uni_spread[4] = data; break;
+        case WAYV_OSC1_FM5: plugin->osc_fm[0][4] = data; break;
+        case WAYV_OSC2_FM5: plugin->osc_fm[1][4] = data; break;
+        case WAYV_OSC3_FM5: plugin->osc_fm[2][4] = data; break;
+        case WAYV_OSC4_FM5: plugin->osc_fm[3][4] = data; break;
+        case WAYV_OSC5_FM5: plugin->osc_fm[4][4] = data; break;
+        case WAYV_OSC6_FM5: plugin->osc_fm[5][4] = data; break;
+        case WAYV_ADSR5_DELAY: plugin->adsr_fm_delay[4] = data; break;
+        case WAYV_ATTACK5 : plugin->attack[4] = data; break;
+        case WAYV_ADSR5_HOLD: plugin->adsr_fm_hold[4] = data; break;
+        case WAYV_DECAY5  : plugin->decay[4] = data; break;
+        case WAYV_SUSTAIN5: plugin->sustain[4] = data; break;
+        case WAYV_RELEASE5: plugin->release[4] = data; break;
+        case WAYV_ADSR5_CHECKBOX: plugin->adsr_checked[4] = data; break;
+
+        case WAYV_OSC6_TYPE: plugin->osc_type[5] = data; break;
+        case WAYV_OSC6_PITCH: plugin->osc_pitch[5] = data; break;
+        case WAYV_OSC6_TUNE: plugin->osc_tune[5] = data; break;
+        case WAYV_OSC6_VOLUME: plugin->osc_vol[5] = data; break;
+        case WAYV_OSC6_UNISON_VOICES: plugin->osc_uni_voice[5] = data; break;
+        case WAYV_OSC6_UNISON_SPREAD: plugin->osc_uni_spread[5] = data; break;
+        case WAYV_OSC1_FM6: plugin->osc_fm[0][5] = data; break;
+        case WAYV_OSC2_FM6: plugin->osc_fm[1][5] = data; break;
+        case WAYV_OSC3_FM6: plugin->osc_fm[2][5] = data; break;
+        case WAYV_OSC4_FM6: plugin->osc_fm[3][5] = data; break;
+        case WAYV_OSC5_FM6: plugin->osc_fm[4][5] = data; break;
+        case WAYV_OSC6_FM6: plugin->osc_fm[5][5] = data; break;
+        case WAYV_ADSR6_DELAY: plugin->adsr_fm_delay[5] = data; break;
+        case WAYV_ATTACK6: plugin->attack[5] = data; break;
+        case WAYV_ADSR6_HOLD: plugin->adsr_fm_hold[5] = data; break;
+        case WAYV_DECAY6  : plugin->decay[5] = data; break;
+        case WAYV_SUSTAIN6: plugin->sustain[5] = data; break;
+        case WAYV_RELEASE6: plugin->release[5] = data; break;
+        case WAYV_ADSR6_CHECKBOX: plugin->adsr_checked[5] = data; break;
+
+        case WAYV_FM_MACRO1_OSC1_FM5: plugin->fm_macro_values[0][0][4] = data; break;
+        case WAYV_FM_MACRO1_OSC2_FM5: plugin->fm_macro_values[0][1][4] = data; break;
+        case WAYV_FM_MACRO1_OSC3_FM5: plugin->fm_macro_values[0][2][4] = data; break;
+        case WAYV_FM_MACRO1_OSC4_FM5: plugin->fm_macro_values[0][3][4] = data; break;
+        case WAYV_FM_MACRO1_OSC5_FM5: plugin->fm_macro_values[0][4][4] = data; break;
+        case WAYV_FM_MACRO1_OSC6_FM5: plugin->fm_macro_values[0][5][4] = data; break;
+
+        case WAYV_FM_MACRO1_OSC1_FM6: plugin->fm_macro_values[0][0][5] = data; break;
+        case WAYV_FM_MACRO1_OSC2_FM6: plugin->fm_macro_values[0][1][5] = data; break;
+        case WAYV_FM_MACRO1_OSC3_FM6: plugin->fm_macro_values[0][2][5] = data; break;
+        case WAYV_FM_MACRO1_OSC4_FM6: plugin->fm_macro_values[0][3][5] = data; break;
+        case WAYV_FM_MACRO1_OSC5_FM6: plugin->fm_macro_values[0][4][5] = data; break;
+        case WAYV_FM_MACRO1_OSC6_FM6: plugin->fm_macro_values[0][5][5] = data; break;
+
+        case WAYV_FM_MACRO1_OSC5_FM1: plugin->fm_macro_values[0][4][0] = data; break;
+        case WAYV_FM_MACRO1_OSC5_FM2: plugin->fm_macro_values[0][4][1] = data; break;
+        case WAYV_FM_MACRO1_OSC5_FM3: plugin->fm_macro_values[0][4][2] = data; break;
+        case WAYV_FM_MACRO1_OSC5_FM4: plugin->fm_macro_values[0][4][3] = data; break;
+
+        case WAYV_FM_MACRO1_OSC6_FM1: plugin->fm_macro_values[0][5][0] = data; break;
+        case WAYV_FM_MACRO1_OSC6_FM2: plugin->fm_macro_values[0][5][1] = data; break;
+        case WAYV_FM_MACRO1_OSC6_FM3: plugin->fm_macro_values[0][5][2] = data; break;
+        case WAYV_FM_MACRO1_OSC6_FM4: plugin->fm_macro_values[0][5][3] = data; break;
+
+        case WAYV_FM_MACRO1_OSC5_VOL: plugin->amp_macro_values[0][4] = data; break;
+        case WAYV_FM_MACRO1_OSC6_VOL: plugin->amp_macro_values[0][5] = data; break;
+
+        case WAYV_FM_MACRO2_OSC1_FM5: plugin->fm_macro_values[1][0][4] = data; break;
+        case WAYV_FM_MACRO2_OSC2_FM5: plugin->fm_macro_values[1][1][4] = data; break;
+        case WAYV_FM_MACRO2_OSC3_FM5: plugin->fm_macro_values[1][2][4] = data; break;
+        case WAYV_FM_MACRO2_OSC4_FM5: plugin->fm_macro_values[1][3][4] = data; break;
+        case WAYV_FM_MACRO2_OSC5_FM5: plugin->fm_macro_values[1][4][4] = data; break;
+        case WAYV_FM_MACRO2_OSC6_FM5: plugin->fm_macro_values[1][5][4] = data; break;
+
+        case WAYV_FM_MACRO2_OSC1_FM6: plugin->fm_macro_values[1][0][5] = data; break;
+        case WAYV_FM_MACRO2_OSC2_FM6: plugin->fm_macro_values[1][1][5] = data; break;
+        case WAYV_FM_MACRO2_OSC3_FM6: plugin->fm_macro_values[1][2][5] = data; break;
+        case WAYV_FM_MACRO2_OSC4_FM6: plugin->fm_macro_values[1][3][5] = data; break;
+        case WAYV_FM_MACRO2_OSC5_FM6: plugin->fm_macro_values[1][4][5] = data; break;
+        case WAYV_FM_MACRO2_OSC6_FM6: plugin->fm_macro_values[1][5][5] = data; break;
+
+        case WAYV_FM_MACRO2_OSC5_FM1: plugin->fm_macro_values[1][4][0] = data; break;
+        case WAYV_FM_MACRO2_OSC5_FM2: plugin->fm_macro_values[1][4][1] = data; break;
+        case WAYV_FM_MACRO2_OSC5_FM3: plugin->fm_macro_values[1][4][2] = data; break;
+        case WAYV_FM_MACRO2_OSC5_FM4: plugin->fm_macro_values[1][4][3] = data; break;
+
+        case WAYV_FM_MACRO2_OSC6_FM1: plugin->fm_macro_values[1][5][0] = data; break;
+        case WAYV_FM_MACRO2_OSC6_FM2: plugin->fm_macro_values[1][5][1] = data; break;
+        case WAYV_FM_MACRO2_OSC6_FM3: plugin->fm_macro_values[1][5][2] = data; break;
+        case WAYV_FM_MACRO2_OSC6_FM4: plugin->fm_macro_values[1][5][3] = data; break;
+
+        case WAYV_FM_MACRO2_OSC5_VOL: plugin->amp_macro_values[1][4] = data; break;
+        case WAYV_FM_MACRO2_OSC6_VOL: plugin->amp_macro_values[1][5] = data; break;
+
+        case WAYV_OSC5_FM1: plugin->osc_fm[4][0] = data; break;
+        case WAYV_OSC5_FM2: plugin->osc_fm[4][1] = data; break;
+        case WAYV_OSC5_FM3: plugin->osc_fm[4][2] = data; break;
+        case WAYV_OSC5_FM4: plugin->osc_fm[4][3] = data; break;
+
+        case WAYV_OSC6_FM1: plugin->osc_fm[5][0] = data; break;
+        case WAYV_OSC6_FM2: plugin->osc_fm[5][1] = data; break;
+        case WAYV_OSC6_FM3: plugin->osc_fm[5][2] = data; break;
+        case WAYV_OSC6_FM4: plugin->osc_fm[5][3] = data; break;
     }
 }
 
@@ -2462,6 +2566,227 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         port_range_hints[WAYV_ADSR_LFO_ON].DefaultValue = 0.0f;
         port_range_hints[WAYV_ADSR_LFO_ON].LowerBound =  0.0f;
         port_range_hints[WAYV_ADSR_LFO_ON].UpperBound =  1.0f;
+
+
+        //new
+
+        port_descriptors[WAYV_OSC5_TYPE] = 1;
+	port_range_hints[WAYV_OSC5_TYPE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_TYPE].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
+
+	port_descriptors[WAYV_OSC5_PITCH] = 1;
+	port_range_hints[WAYV_OSC5_PITCH].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_PITCH].LowerBound =  -72.0f;
+	port_range_hints[WAYV_OSC5_PITCH].UpperBound =  72.0f;
+
+	port_descriptors[WAYV_OSC5_TUNE] = 1;
+	port_range_hints[WAYV_OSC5_TUNE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_TUNE].LowerBound = -100.0f;
+	port_range_hints[WAYV_OSC5_TUNE].UpperBound = 100.0f;
+
+	port_descriptors[WAYV_OSC5_VOLUME] = 1;
+	port_range_hints[WAYV_OSC5_VOLUME].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_VOLUME].LowerBound =  -30.0f;
+	port_range_hints[WAYV_OSC5_VOLUME].UpperBound =  0.0f;
+
+        port_descriptors[WAYV_OSC5_UNISON_VOICES] = 1;
+	port_range_hints[WAYV_OSC5_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC5_UNISON_VOICES].LowerBound =  1.0f;
+	port_range_hints[WAYV_OSC5_UNISON_VOICES].UpperBound =  7.0f;
+
+	port_descriptors[WAYV_OSC5_UNISON_SPREAD] = 1;
+	port_range_hints[WAYV_OSC5_UNISON_SPREAD].DefaultValue = 50.0f;
+	port_range_hints[WAYV_OSC5_UNISON_SPREAD].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_UNISON_SPREAD].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC5_FM1] = 1;
+	port_range_hints[WAYV_OSC5_FM1].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_FM1].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_FM1].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC5_FM2] = 1;
+	port_range_hints[WAYV_OSC5_FM2].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_FM2].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_FM2].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC5_FM3] = 1;
+	port_range_hints[WAYV_OSC5_FM3].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_FM3].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_FM3].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC5_FM4] = 1;
+	port_range_hints[WAYV_OSC5_FM4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_FM4].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_FM4].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC5_FM5] = 1;
+	port_range_hints[WAYV_OSC5_FM5].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_FM5].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_FM5].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC5_FM6] = 1;
+	port_range_hints[WAYV_OSC5_FM6].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC5_FM6].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC5_FM6].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_ATTACK5] = 1;
+	port_range_hints[WAYV_ATTACK5].DefaultValue = 10.0f;
+	port_range_hints[WAYV_ATTACK5].LowerBound = 0.0f;
+	port_range_hints[WAYV_ATTACK5].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_DECAY5] = 1;
+	port_range_hints[WAYV_DECAY5].DefaultValue = 50.0f;
+	port_range_hints[WAYV_DECAY5].LowerBound = 10.0f;
+	port_range_hints[WAYV_DECAY5].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_SUSTAIN5] = 1;
+	port_range_hints[WAYV_SUSTAIN5].DefaultValue = 0.0f;
+	port_range_hints[WAYV_SUSTAIN5].LowerBound = -30.0f;
+	port_range_hints[WAYV_SUSTAIN5].UpperBound = 0.0f;
+
+	port_descriptors[WAYV_RELEASE5] = 1;
+	port_range_hints[WAYV_RELEASE5].DefaultValue = 50.0f;
+	port_range_hints[WAYV_RELEASE5].LowerBound = 10.0f;
+	port_range_hints[WAYV_RELEASE5].UpperBound = 400.0f;
+
+        port_descriptors[WAYV_ADSR5_CHECKBOX] = 1;
+	port_range_hints[WAYV_ADSR5_CHECKBOX].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR5_CHECKBOX].LowerBound =  0;
+	port_range_hints[WAYV_ADSR5_CHECKBOX].UpperBound =  1;
+
+        //
+
+        port_descriptors[WAYV_OSC6_TYPE] = 1;
+	port_range_hints[WAYV_OSC6_TYPE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_TYPE].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
+
+	port_descriptors[WAYV_OSC6_PITCH] = 1;
+	port_range_hints[WAYV_OSC6_PITCH].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_PITCH].LowerBound =  -72.0f;
+	port_range_hints[WAYV_OSC6_PITCH].UpperBound =  72.0f;
+
+	port_descriptors[WAYV_OSC6_TUNE] = 1;
+	port_range_hints[WAYV_OSC6_TUNE].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_TUNE].LowerBound = -100.0f;
+	port_range_hints[WAYV_OSC6_TUNE].UpperBound = 100.0f;
+
+	port_descriptors[WAYV_OSC6_VOLUME] = 1;
+	port_range_hints[WAYV_OSC6_VOLUME].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_VOLUME].LowerBound =  -30.0f;
+	port_range_hints[WAYV_OSC6_VOLUME].UpperBound =  0.0f;
+
+        port_descriptors[WAYV_OSC6_UNISON_VOICES] = 1;
+	port_range_hints[WAYV_OSC6_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC6_UNISON_VOICES].LowerBound =  1.0f;
+	port_range_hints[WAYV_OSC6_UNISON_VOICES].UpperBound =  7.0f;
+
+	port_descriptors[WAYV_OSC6_UNISON_SPREAD] = 1;
+	port_range_hints[WAYV_OSC6_UNISON_SPREAD].DefaultValue = 50.0f;
+	port_range_hints[WAYV_OSC6_UNISON_SPREAD].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_UNISON_SPREAD].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC6_FM1] = 1;
+	port_range_hints[WAYV_OSC6_FM1].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_FM1].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_FM1].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC6_FM2] = 1;
+	port_range_hints[WAYV_OSC6_FM2].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_FM2].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_FM2].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC6_FM3] = 1;
+	port_range_hints[WAYV_OSC6_FM3].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_FM3].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_FM3].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC6_FM4] = 1;
+	port_range_hints[WAYV_OSC6_FM4].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_FM4].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_FM4].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC6_FM5] = 1;
+	port_range_hints[WAYV_OSC6_FM5].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_FM5].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_FM5].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_OSC6_FM6] = 1;
+	port_range_hints[WAYV_OSC6_FM6].DefaultValue = 0.0f;
+	port_range_hints[WAYV_OSC6_FM6].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC6_FM6].UpperBound =  100.0f;
+
+        port_descriptors[WAYV_ATTACK6] = 1;
+	port_range_hints[WAYV_ATTACK6].DefaultValue = 10.0f;
+	port_range_hints[WAYV_ATTACK6].LowerBound = 0.0f;
+	port_range_hints[WAYV_ATTACK6].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_DECAY6] = 1;
+	port_range_hints[WAYV_DECAY6].DefaultValue = 50.0f;
+	port_range_hints[WAYV_DECAY6].LowerBound = 10.0f;
+	port_range_hints[WAYV_DECAY6].UpperBound = 200.0f;
+
+	port_descriptors[WAYV_SUSTAIN6] = 1;
+	port_range_hints[WAYV_SUSTAIN6].DefaultValue = 0.0f;
+	port_range_hints[WAYV_SUSTAIN6].LowerBound = -30.0f;
+	port_range_hints[WAYV_SUSTAIN6].UpperBound = 0.0f;
+
+	port_descriptors[WAYV_RELEASE6] = 1;
+	port_range_hints[WAYV_RELEASE6].DefaultValue = 50.0f;
+	port_range_hints[WAYV_RELEASE6].LowerBound = 10.0f;
+	port_range_hints[WAYV_RELEASE6].UpperBound = 400.0f;
+
+        port_descriptors[WAYV_ADSR6_CHECKBOX] = 1;
+	port_range_hints[WAYV_ADSR6_CHECKBOX].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR6_CHECKBOX].LowerBound =  0;
+	port_range_hints[WAYV_ADSR6_CHECKBOX].UpperBound =  1;
+
+        f_port = WAYV_FM_MACRO1_OSC1_FM5;
+
+        while(f_port <= WAYV_FM_MACRO2_OSC6_VOL)
+        {
+            port_descriptors[f_port] = 1;
+            port_range_hints[f_port].DefaultValue = 0.0f;
+            port_range_hints[f_port].LowerBound =  -100.0f;
+            port_range_hints[f_port].UpperBound =  100.0f;
+            f_port++;
+        }
+
+        f_port = WAYV_OSC5_FM1;
+
+        while(f_port <= WAYV_OSC6_FM6)
+        {
+            port_descriptors[f_port] = 1;
+            port_range_hints[f_port].DefaultValue = 0.0f;
+            port_range_hints[f_port].LowerBound =  0.0f;
+            port_range_hints[f_port].UpperBound =  100.0f;
+            f_port++;
+        }
+
+        f_port = WAYV_OSC1_FM5;
+
+        while(f_port <= WAYV_OSC6_FM5)
+        {
+            port_descriptors[f_port] = 1;
+            port_range_hints[f_port].DefaultValue = 0.0f;
+            port_range_hints[f_port].LowerBound =  0.0f;
+            port_range_hints[f_port].UpperBound =  100.0f;
+            f_port++;
+        }
+
+        f_port = WAYV_OSC1_FM6;
+
+        while(f_port <= WAYV_OSC6_FM6)
+        {
+            port_descriptors[f_port] = 1;
+            port_range_hints[f_port].DefaultValue = 0.0f;
+            port_range_hints[f_port].LowerBound =  0.0f;
+            port_range_hints[f_port].UpperBound =  100.0f;
+            f_port++;
+        }
+
+        //end new
 
 
 	LMSLDescriptor->activate = v_wayv_activate;

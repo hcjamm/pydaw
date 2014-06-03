@@ -26,7 +26,7 @@ extern "C" {
 
 #define WAYV_FM_MACRO_COUNT 2
 
-#define WAYV_OSC_COUNT 4
+#define WAYV_OSC_COUNT 6
 
 #include "../../libmodsynth/constants.h"
 #include "../../libmodsynth/lib/osc_core.h"

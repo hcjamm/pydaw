@@ -4061,7 +4061,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.tab_widget =  QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
         self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        self.osc_tab =  QtGui.QWidget()
+        self.osc_tab =  QtGui.QScrollArea()
+        self.osc_tab.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.osc_tab.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.tab_widget.addTab(self.osc_tab, _("Oscillators"))
         self.fm_tab = QtGui.QWidget()
         self.tab_widget.addTab(self.fm_tab, _("FM"))
@@ -4069,7 +4071,11 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.tab_widget.addTab(self.modulation_tab, _("Modulation"))
         self.poly_fx_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.poly_fx_tab, _("PolyFX"))
-        self.oscillator_layout =  QtGui.QVBoxLayout(self.osc_tab)
+        self.osc_tab_widget = QtGui.QWidget()
+        self.osc_tab_widget.setObjectName("plugin_ui")
+        self.osc_tab.setWidget(self.osc_tab_widget)
+        self.osc_tab.setWidgetResizable(True)
+        self.oscillator_layout = QtGui.QVBoxLayout(self.osc_tab_widget)
         self.preset_manager =  pydaw_preset_manager_widget("WAYV", self.configure_dict,
                                                            self.reconfigure_plugin)
         self.preset_hlayout = QtGui.QHBoxLayout()
@@ -4082,7 +4088,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_knob_size = 48
 
-        for f_i in range(1, 5):
+        for f_i in range(1, 7):
             f_hlayout1 = QtGui.QHBoxLayout()
             self.oscillator_layout.addLayout(f_hlayout1)
             f_osc1 =  pydaw_osc_widget(f_knob_size,
@@ -4155,12 +4161,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.fm_matrix_hlayout.addWidget(QtGui.QLabel("FM Matrix"))
         self.fm_matrix = QtGui.QTableWidget()
 
-        self.fm_matrix.setRowCount(4)
-        self.fm_matrix.setColumnCount(4)
-        self.fm_matrix.setFixedHeight(172)
-        self.fm_matrix.setFixedWidth(330)
-        f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 5)]
-        f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 5)]
+        self.fm_matrix.setRowCount(6)
+        self.fm_matrix.setColumnCount(6)
+        self.fm_matrix.setFixedHeight(240)
+        self.fm_matrix.setFixedWidth(460)
+        f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 7)]
+        f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 7)]
         self.fm_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
         self.fm_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
         self.fm_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -4170,8 +4176,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.fm_matrix_hlayout.addWidget(self.fm_matrix)
 
-        for f_i in range(4):
-            for f_i2 in range(4):
+        for f_i in range(6):
+            for f_i2 in range(6):
                 f_port = getattr(pydaw_ports, "WAYV_OSC{}_FM{}".format(f_i2 + 1, f_i + 1))
                 f_spinbox = pydaw_spinbox_control(None, f_port,
                                                   self.plugin_rel_callback,
@@ -4236,12 +4242,12 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             self.fm_macro_matrix_hlayout.addWidget(QtGui.QLabel("Macro {}".format(f_i + 1)))
             f_fm_macro_matrix = QtGui.QTableWidget()
 
-            f_fm_macro_matrix.setRowCount(5)
-            f_fm_macro_matrix.setColumnCount(4)
-            f_fm_macro_matrix.setFixedHeight(201)
-            f_fm_macro_matrix.setFixedWidth(351)
-            f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 5)] + ["Vol"]
-            f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 5)]
+            f_fm_macro_matrix.setRowCount(7)
+            f_fm_macro_matrix.setColumnCount(6)
+            f_fm_macro_matrix.setFixedHeight(270)
+            f_fm_macro_matrix.setFixedWidth(460)
+            f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 7)] + ["Vol"]
+            f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 7)]
             f_fm_macro_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
             f_fm_macro_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
             f_fm_macro_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -4251,8 +4257,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
             self.fm_macro_matrix_hlayout.addWidget(f_fm_macro_matrix)
 
-            for f_i2 in range(4):
-                for f_i3 in range(4):
+            for f_i2 in range(6):
+                for f_i3 in range(6):
                     f_port = getattr(
                         pydaw_ports, "WAYV_FM_MACRO{}_OSC{}_FM{}".format(
                             f_i + 1, f_i3 + 1, f_i2 + 1))
@@ -4264,13 +4270,13 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                     f_fm_macro_matrix.setCellWidget(f_i2, f_i3, f_spinbox.control)
                     self.fm_macro_spinboxes[f_i].append(f_spinbox)
 
-                f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}_OSC1_VOL".format(f_i + 1, f_i2 + 1))
+                f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}_OSC{}_VOL".format(f_i + 1, f_i2 + 1))
                 f_spinbox = pydaw_spinbox_control(None, f_port,
                                                  self.plugin_rel_callback,
                                                  self.plugin_val_callback,
                                                  -100, 100, 0, kc_none,
                                                  self.port_dict, self.preset_manager)
-                f_fm_macro_matrix.setCellWidget(4, f_i2, f_spinbox.control)
+                f_fm_macro_matrix.setCellWidget(6, f_i2, f_spinbox.control)
                 self.osc_amp_mod_matrix_spinboxes[f_i].append(f_spinbox)
                 f_fm_macro_matrix.resizeColumnsToContents()
         self.fm_macro_matrix_hlayout.addItem(
