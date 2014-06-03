@@ -4164,7 +4164,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.fm_matrix.setRowCount(6)
         self.fm_matrix.setColumnCount(6)
         self.fm_matrix.setFixedHeight(240)
-        self.fm_matrix.setFixedWidth(460)
+        self.fm_matrix.setFixedWidth(465)
         f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 7)]
         f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 7)]
         self.fm_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
@@ -4193,7 +4193,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.fm_matrix_hlayout.addWidget(
             self.fm_matrix_button,
             alignment=QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
-        self.fm_matrix_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+
         self.fm_matrix_menu = QtGui.QMenu(self.widget)
         self.fm_matrix_button.setMenu(self.fm_matrix_menu)
         f_origin_action = self.fm_matrix_menu.addAction(_("Set Origin"))
@@ -4214,23 +4214,27 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_clear_fm_action = self.fm_matrix_menu.addAction(_("Clear All"))
         f_clear_fm_action.triggered.connect(self.clear_all)
 
-
-        self.fm_mod_macros_hlayout = QtGui.QHBoxLayout()
-        self.fm_vlayout.addLayout(self.fm_mod_macros_hlayout)
-        self.fm_mod_macros_hlayout.addWidget(QtGui.QLabel(_("FM\nModulation\nMacros")))
+        self.fm_matrix_hlayout.addWidget(QtGui.QLabel(_("FM\nModulation\nMacros")))
 
         self.fm_macro_knobs_gridlayout = QtGui.QGridLayout()
-        self.fm_mod_macros_hlayout.addLayout(self.fm_macro_knobs_gridlayout)
+        self.fm_macro_knobs_gridlayout.addItem(
+            QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding), 10, 0)
+
+        self.fm_matrix_hlayout.addLayout(self.fm_macro_knobs_gridlayout)
+
+        self.fm_matrix_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         self.fm_macro_knobs = []
         self.osc_amp_mod_matrix_spinboxes = [ [] for x in range(2) ]
 
+        self.fm_macro_labels_hlayout = QtGui.QHBoxLayout()
+        self.fm_vlayout.addLayout(self.fm_macro_labels_hlayout)
         self.fm_macro_matrix_hlayout = QtGui.QHBoxLayout()
         self.fm_vlayout.addLayout(self.fm_macro_matrix_hlayout)
 
         for f_i in range(2):
             f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}".format(f_i + 1))
-            f_macro = pydaw_knob_control(f_knob_size, _("Macro {}".format(f_i + 1)),
+            f_macro = pydaw_knob_control(f_knob_size, _("Macro{}".format(f_i + 1)),
                                          f_port,
                                          self.plugin_rel_callback,
                                          self.plugin_val_callback,
@@ -4239,13 +4243,14 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             f_macro.add_to_grid_layout(self.fm_macro_knobs_gridlayout, f_i)
             self.fm_macro_knobs.append(f_macro)
 
-            self.fm_macro_matrix_hlayout.addWidget(QtGui.QLabel("Macro {}".format(f_i + 1)))
             f_fm_macro_matrix = QtGui.QTableWidget()
+            self.fm_macro_labels_hlayout.addWidget(
+                QtGui.QLabel("Macro {}".format(f_i + 1), f_fm_macro_matrix), -1)
 
             f_fm_macro_matrix.setRowCount(7)
             f_fm_macro_matrix.setColumnCount(6)
             f_fm_macro_matrix.setFixedHeight(270)
-            f_fm_macro_matrix.setFixedWidth(460)
+            f_fm_macro_matrix.setFixedWidth(465)
             f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 7)] + ["Vol"]
             f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 7)]
             f_fm_macro_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
@@ -4280,8 +4285,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                 self.osc_amp_mod_matrix_spinboxes[f_i].append(f_spinbox)
                 f_fm_macro_matrix.resizeColumnsToContents()
         self.fm_macro_matrix_hlayout.addItem(
-            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.fm_mod_macros_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.fm_vlayout.addItem(
             QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
