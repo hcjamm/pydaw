@@ -8703,9 +8703,7 @@ def pydaw_load_controller_maps():
     #list(global_cc_names.keys())
     for k, v in f_portmap_dict.items():
         for f_line_arr in v:
-            f_map  = pydaw_controller_map_item(f_line_arr[0], f_line_arr[1],
-                                               f_line_arr[2], f_line_arr[3],
-                                               f_line_arr[4])
+            f_map  = pydaw_controller_map_item(*f_line_arr)
             global_controller_port_name_dict[k][f_line_arr[0]] = f_map
             global_controller_port_num_dict[k][int(f_line_arr[1])] = f_map
             global_cc_names[k].append(f_line_arr[0])
