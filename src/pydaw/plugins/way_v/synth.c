@@ -1614,7 +1614,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_MASTER_VOLUME].UpperBound =  12.0f;
 
 	port_descriptors[WAYV_OSC1_UNISON_VOICES] = 1;
-	port_range_hints[WAYV_OSC1_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC1_UNISON_VOICES].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].UpperBound =  7.0f;
 
@@ -2044,7 +2044,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_PITCH_ENV_AMT].UpperBound =   60.0f;
 
 	port_descriptors[WAYV_OSC2_UNISON_VOICES] = 1;
-	port_range_hints[WAYV_OSC2_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC2_UNISON_VOICES].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].UpperBound =  7.0f;
 
@@ -2079,7 +2079,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC3_VOLUME].UpperBound =  0.0f;
 
         port_descriptors[WAYV_OSC3_UNISON_VOICES] = 1;
-	port_range_hints[WAYV_OSC3_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC3_UNISON_VOICES].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC3_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC3_UNISON_VOICES].UpperBound =  7.0f;
 
@@ -2359,7 +2359,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC4_VOLUME].UpperBound =  0.0f;
 
         port_descriptors[WAYV_OSC4_UNISON_VOICES] = 1;
-	port_range_hints[WAYV_OSC4_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC4_UNISON_VOICES].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC4_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC4_UNISON_VOICES].UpperBound =  7.0f;
 
@@ -2588,7 +2588,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC5_VOLUME].UpperBound =  0.0f;
 
         port_descriptors[WAYV_OSC5_UNISON_VOICES] = 1;
-	port_range_hints[WAYV_OSC5_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC5_UNISON_VOICES].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC5_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC5_UNISON_VOICES].UpperBound =  7.0f;
 
@@ -2685,7 +2685,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC6_VOLUME].UpperBound =  0.0f;
 
         port_descriptors[WAYV_OSC6_UNISON_VOICES] = 1;
-	port_range_hints[WAYV_OSC6_UNISON_VOICES].DefaultValue = 4.0f;
+	port_range_hints[WAYV_OSC6_UNISON_VOICES].DefaultValue = 1.0f;
 	port_range_hints[WAYV_OSC6_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC6_UNISON_VOICES].UpperBound =  7.0f;
 

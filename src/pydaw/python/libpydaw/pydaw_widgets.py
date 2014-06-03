@@ -4108,7 +4108,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                     "WAYV_OSC{}_UNISON_VOICES".format(f_i)),
                                                     self.plugin_rel_callback,
                                                     self.plugin_val_callback,
-                                                    1, 7, 4, kc_integer,
+                                                    1, 7, 1, kc_integer,
                                                     self.port_dict, self.preset_manager)
             f_osc1_uni_voices.add_to_grid_layout(f_osc1.grid_layout, 4)
             f_osc1_uni_spread =  pydaw_knob_control(f_knob_size, _("Spread"),
