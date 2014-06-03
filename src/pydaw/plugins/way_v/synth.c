@@ -2567,9 +2567,6 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         port_range_hints[WAYV_ADSR_LFO_ON].LowerBound =  0.0f;
         port_range_hints[WAYV_ADSR_LFO_ON].UpperBound =  1.0f;
 
-
-        //new
-
         port_descriptors[WAYV_OSC5_TYPE] = 1;
 	port_range_hints[WAYV_OSC5_TYPE].DefaultValue = 0.0f;
 	port_range_hints[WAYV_OSC5_TYPE].LowerBound =  0.0f;
@@ -2630,10 +2627,20 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC5_FM6].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC5_FM6].UpperBound =  100.0f;
 
+        port_descriptors[WAYV_ADSR5_DELAY] = 1;
+	port_range_hints[WAYV_ADSR5_DELAY].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR5_DELAY].LowerBound = 0.0f;
+	port_range_hints[WAYV_ADSR5_DELAY].UpperBound = 200.0f;
+
         port_descriptors[WAYV_ATTACK5] = 1;
 	port_range_hints[WAYV_ATTACK5].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK5].LowerBound = 0.0f;
 	port_range_hints[WAYV_ATTACK5].UpperBound = 200.0f;
+
+        port_descriptors[WAYV_ADSR5_HOLD] = 1;
+	port_range_hints[WAYV_ADSR5_HOLD].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR5_HOLD].LowerBound = 0.0f;
+	port_range_hints[WAYV_ADSR5_HOLD].UpperBound = 200.0f;
 
 	port_descriptors[WAYV_DECAY5] = 1;
 	port_range_hints[WAYV_DECAY5].DefaultValue = 50.0f;
@@ -2717,10 +2724,20 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 	port_range_hints[WAYV_OSC6_FM6].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC6_FM6].UpperBound =  100.0f;
 
+        port_descriptors[WAYV_ADSR6_DELAY] = 1;
+	port_range_hints[WAYV_ADSR6_DELAY].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR6_DELAY].LowerBound = 0.0f;
+	port_range_hints[WAYV_ADSR6_DELAY].UpperBound = 200.0f;
+
         port_descriptors[WAYV_ATTACK6] = 1;
 	port_range_hints[WAYV_ATTACK6].DefaultValue = 10.0f;
 	port_range_hints[WAYV_ATTACK6].LowerBound = 0.0f;
 	port_range_hints[WAYV_ATTACK6].UpperBound = 200.0f;
+
+        port_descriptors[WAYV_ADSR6_HOLD] = 1;
+	port_range_hints[WAYV_ADSR6_HOLD].DefaultValue = 0.0f;
+	port_range_hints[WAYV_ADSR6_HOLD].LowerBound = 0.0f;
+	port_range_hints[WAYV_ADSR6_HOLD].UpperBound = 200.0f;
 
 	port_descriptors[WAYV_DECAY6] = 1;
 	port_range_hints[WAYV_DECAY6].DefaultValue = 50.0f;
@@ -2785,8 +2802,6 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
             port_range_hints[f_port].UpperBound =  100.0f;
             f_port++;
         }
-
-        //end new
 
 
 	LMSLDescriptor->activate = v_wayv_activate;
