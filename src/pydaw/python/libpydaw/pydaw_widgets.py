@@ -665,13 +665,17 @@ class pydaw_combobox_control(pydaw_abstract_ui_control):
     def get_value(self):
         return self.control.currentIndex()
 
+ADSR_CLIPBOARD = {}
+
 class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port,
                  a_sustain_port, a_release_port, a_label, a_rel_callback, a_val_callback,
                  a_port_dict=None, a_preset_mgr=None, a_attack_default=10,
                  a_prefx_port=None, a_knob_type=kc_time_decimal,
                  a_delay_port=None, a_hold_port=None):
+        self.clipboard_dict = {}
         self.groupbox = QtGui.QGroupBox(a_label)
+        self.groupbox.contextMenuEvent = self.context_menu_event
         self.groupbox.setObjectName("plugin_groupbox")
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.layout.setMargin(3)
@@ -682,6 +686,7 @@ class pydaw_adsr_widget:
                                                   0, kc_time_decimal, a_port_dict,
                                                   a_preset_mgr)
             self.delay_knob.add_to_grid_layout(self.layout, 0)
+            self.clipboard_dict["delay"] = self.delay_knob
         self.attack_knob = pydaw_knob_control(a_size, _("Attack"), a_attack_port, a_rel_callback,
                                               a_val_callback, 0, 200, a_attack_default,
                                               a_knob_type, a_port_dict, a_preset_mgr)
@@ -691,6 +696,7 @@ class pydaw_adsr_widget:
                                                   0, kc_time_decimal, a_port_dict,
                                                   a_preset_mgr)
             self.hold_knob.add_to_grid_layout(self.layout, 3)
+            self.clipboard_dict["hold"] = self.hold_knob
         self.decay_knob = pydaw_knob_control(a_size, _("Decay"), a_decay_port, a_rel_callback,
                                              a_val_callback, 10, 200, 50, a_knob_type,
                                              a_port_dict, a_preset_mgr)
@@ -699,11 +705,13 @@ class pydaw_adsr_widget:
                                                    a_rel_callback, a_val_callback,
                                                    -30, 0, 0, kc_integer, a_port_dict,
                                                    a_preset_mgr)
+            self.clipboard_dict["sustain_db"] = self.sustain_knob
         else:
             self.sustain_knob = pydaw_knob_control(a_size, _("Sustain"), a_sustain_port,
                                                    a_rel_callback, a_val_callback,
                                                    0, 100, 100, kc_decimal, a_port_dict,
                                                    a_preset_mgr)
+            self.clipboard_dict["sustain"] = self.sustain_knob
         self.release_knob = pydaw_knob_control(a_size, _("Release"), a_release_port,
                                                a_rel_callback, a_val_callback, 10,
                                                400, 50, a_knob_type, a_port_dict, a_preset_mgr)
@@ -711,11 +719,31 @@ class pydaw_adsr_widget:
         self.decay_knob.add_to_grid_layout(self.layout, 4)
         self.sustain_knob.add_to_grid_layout(self.layout, 6)
         self.release_knob.add_to_grid_layout(self.layout, 8)
+        self.clipboard_dict["attack"] = self.attack_knob
+        self.clipboard_dict["decay"] = self.decay_knob
+        self.clipboard_dict["release"] = self.release_knob
         if a_prefx_port is not None:
             self.prefx_checkbox = pydaw_checkbox_control("PreFX", a_prefx_port,
                                                          a_rel_callback, a_val_callback,
                                                          a_port_dict, a_preset_mgr)
             self.prefx_checkbox.add_to_grid_layout(self.layout, 10)
+
+    def context_menu_event(self, a_event):
+        f_menu = QtGui.QMenu(self.groupbox)
+        f_copy_action = f_menu.addAction(_("Copy"))
+        f_copy_action.triggered.connect(self.copy)
+        f_paste_action = f_menu.addAction(_("Paste"))
+        f_paste_action.triggered.connect(self.paste)
+        f_menu.exec_(QtGui.QCursor.pos())
+
+    def copy(self):
+        global ADSR_CLIPBOARD
+        ADSR_CLIPBOARD = dict([(k, v.get_value()) for k, v in self.clipboard_dict.items()])
+
+    def paste(self):
+        if ADSR_CLIPBOARD:
+            for k, v in self.clipboard_dict.items():
+                v.set_value(ADSR_CLIPBOARD[k], True)
 
 class pydaw_filter_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict,
