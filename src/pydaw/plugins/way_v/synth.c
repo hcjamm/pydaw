@@ -1294,9 +1294,10 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
                     a_voice->fm_osc_values[f_osc_num][f_i] = 0.5f;
                 }
 
-                if(f_i == f_osc_num)
+                if(f_i <= f_osc_num)
                 {
-                    v_osc_wav_apply_fm(a_voice->osc_wavtable[f_osc_num],
+                    v_osc_wav_apply_fm(
+                        a_voice->osc_wavtable[f_osc_num],
                         a_voice->fm_last[f_i],
                         a_voice->fm_osc_values[f_osc_num][f_i]);
                 }
