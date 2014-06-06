@@ -374,11 +374,11 @@ class pydaw_abstract_ui_control:
             f_value = pydaw_util.pydaw_ratio_to_pitch(f_ratio_spinbox.value())
             if self.ratio_callback:
                 f_int = round(f_value)
-                self.set_value(f_int)
+                self.set_value(f_int, True)
                 f_frac = round((f_value - f_int) * 100)
-                self.ratio_callback(f_frac)
+                self.ratio_callback(f_frac, True)
             else:
-                self.set_value(f_value)
+                self.set_value(f_value, True)
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
         f_dialog.setMinimumWidth(210)
@@ -406,7 +406,7 @@ class pydaw_abstract_ui_control:
     def set_octave_dialog(self):
         def ok_button_pressed():
             f_value = f_spinbox.value() * 12
-            self.set_value(f_value)
+            self.set_value(f_value, True)
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
         f_dialog.setMinimumWidth(210)
