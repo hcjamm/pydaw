@@ -3346,7 +3346,7 @@ class pydaw_modulex_single:
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-12.0, -0.1)
             self.knobs[2].val_conversion = kc_127_zero_to_x_int
-            self.knobs[2].set_127_min_max(150.0, 400.0)
+            self.knobs[2].set_127_min_max(50.0, 1500.0)
         elif a_val == 14: #Saturator
             self.knobs[0].name_label.setText(_("InGain"))
             self.knobs[1].name_label.setText(_("Amt"))

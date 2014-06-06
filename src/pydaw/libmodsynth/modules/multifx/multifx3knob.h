@@ -473,7 +473,7 @@ inline void v_mf3_run_limiter(t_mf3_multi*__restrict a_mf3, float a_in0,
     v_mf3_commit_mod(a_mf3);
     a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.236220472f) - 30.0f);
     a_mf3->control_value[1] = (((a_mf3->control[1]) * 0.093700787f) - 11.9f);
-    a_mf3->control_value[2] = (((a_mf3->control[2]) * 1.968503937f) + 150.0f);
+    a_mf3->control_value[2] = (((a_mf3->control[2]) * 11.417322835f) + 50.0f);
 
     v_lim_set(a_mf3->limiter, (a_mf3->control_value[0]),
             (a_mf3->control_value[1]), (a_mf3->control_value[2]));
