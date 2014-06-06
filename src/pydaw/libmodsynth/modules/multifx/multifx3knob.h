@@ -149,6 +149,7 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
 
 void v_mf3_reset_null(t_mf3_multi*);
 void v_mf3_reset_svf(t_mf3_multi*);
+void v_mf3_reset_glitch(t_mf3_multi*);
 
 
 /*A function pointer for switching between effect types*/
@@ -173,7 +174,7 @@ const fp_mf3_reset mf3_reset_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_reset_null, //14
         v_mf3_reset_null, //15
         v_mf3_reset_null, //16
-        v_mf3_reset_null, //17
+        v_mf3_reset_glitch, //17
         v_mf3_reset_null, //18
         v_mf3_reset_null, //19
         v_mf3_reset_null, //20
@@ -199,6 +200,10 @@ void v_mf3_reset_svf(t_mf3_multi* a_mf3)
     v_svf2_reset(a_mf3->svf);
 }
 
+void v_mf3_reset_glitch(t_mf3_multi* a_mf3)
+{
+    v_glc_glitch_retrigger(a_mf3->glitch);
+}
 
 /* void v_mf3_set(t_fx3_multi* a_mf3, int a_fx_index)
  */

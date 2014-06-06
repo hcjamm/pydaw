@@ -112,6 +112,11 @@ void v_glc_glitch_set(t_glc_glitch* a_glc, float a_pitch, float a_repeat,
     }
 }
 
+inline void v_glc_glitch_retrigger(t_glc_glitch* a_glc)
+{
+    a_glc->buffer_ptr = 0;
+}
+
 void v_glc_glitch_run(t_glc_glitch* a_glc, float a_input0, float a_input1)
 {
     a_glc->output0 = f_axf_run_xfade(a_glc->xfade, a_input0,
