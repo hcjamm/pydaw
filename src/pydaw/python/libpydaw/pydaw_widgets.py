@@ -1444,7 +1444,7 @@ class pydaw_preset_manager_widget:
         self.layout.setMargin(3)
         self.program_combobox = QtGui.QComboBox()
         self.program_combobox.setEditable(True)
-        self.program_combobox.setMinimumWidth(190)
+        self.program_combobox.setMinimumWidth(300)
         self.layout.addWidget(self.program_combobox)
         self.save_button = QtGui.QPushButton("Save")
         self.save_button.setToolTip(_("Save the current settings to a preset.  "
