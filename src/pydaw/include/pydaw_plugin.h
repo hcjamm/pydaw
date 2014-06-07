@@ -489,6 +489,7 @@ PYFX_Descriptor * pydaw_get_pyfx_descriptor(int a_uid, char * a_name,
 void pydaw_set_pyfx_port(PYFX_Descriptor * a_desc, int a_port,
         float a_default, float a_min, float a_max)
 {
+    assert(a_port >= 0 && a_port < a_desc->PortCount);
     assert(!a_desc->PortDescriptors[a_port]);
     assert(a_min < a_max);
     assert(a_default >= a_min && a_default <= a_max);
