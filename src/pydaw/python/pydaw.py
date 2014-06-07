@@ -8689,24 +8689,20 @@ global_controller_port_name_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modu
 global_controller_port_num_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
 
 class pydaw_controller_map_item:
-    def __init__(self, a_name, a_port, a_transform_hint, a_min, a_max):
+    def __init__(self, a_name, a_port):
         self.name = str(a_name)
-        self.transform_hint = int(a_transform_hint)
         self.port = int(a_port)
-        self.min = float(a_min)
-        self.max = float(a_max)
 
 def pydaw_load_controller_maps():
     f_portmap_dict = \
     {"Euphoria":pydaw_ports.EUPHORIA_PORT_MAP, "Way-V":pydaw_ports.WAYV_PORT_MAP,
     "Ray-V":pydaw_ports.RAYV_PORT_MAP, "Modulex":pydaw_ports.MODULEX_PORT_MAP}
-    #list(global_cc_names.keys())
     for k, v in f_portmap_dict.items():
-        for f_line_arr in v:
-            f_map  = pydaw_controller_map_item(*f_line_arr)
-            global_controller_port_name_dict[k][f_line_arr[0]] = f_map
-            global_controller_port_num_dict[k][int(f_line_arr[1])] = f_map
-            global_cc_names[k].append(f_line_arr[0])
+        for k2, v2 in v.items():
+            f_map  = pydaw_controller_map_item(k2, v2)
+            global_controller_port_name_dict[k][k2] = f_map
+            global_controller_port_num_dict[k][int(v2)] = f_map
+            global_cc_names[k].append(k2)
         global_cc_names[k].sort()
 
 def pydaw_get_cc_map(a_name):
