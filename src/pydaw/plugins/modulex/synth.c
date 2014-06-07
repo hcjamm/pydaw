@@ -463,364 +463,80 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
 PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 {
-    PYFX_Descriptor *LMSLDescriptor = NULL;
-
-    PYFX_PortDescriptor *port_descriptors;
-    PYFX_PortRangeHint *port_range_hints;
-
-    LMSLDescriptor =
-	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
-    if (LMSLDescriptor)
-    {
-        LMSLDescriptor->UniqueID = 123456;
-	LMSLDescriptor->Name = "Modulex";
-	LMSLDescriptor->Maker = "PyDAW Team";
-	LMSLDescriptor->Copyright = "GNU GPL v3";
-	LMSLDescriptor->PortCount = MODULEX_COUNT;
-
-	port_descriptors = (PYFX_PortDescriptor *)
-				calloc(LMSLDescriptor->PortCount, sizeof
-						(PYFX_PortDescriptor));
-	LMSLDescriptor->PortDescriptors =
-	    (PYFX_PortDescriptor *) port_descriptors;
-
-	port_range_hints = (PYFX_PortRangeHint *)
-				calloc(LMSLDescriptor->PortCount, sizeof
-						(PYFX_PortRangeHint));
-	LMSLDescriptor->PortRangeHints =
-	    (PYFX_PortRangeHint *) port_range_hints;
-
-
-	port_descriptors[MODULEX_FX0_KNOB0] = 1;
-	port_range_hints[MODULEX_FX0_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX0_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX0_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX0_KNOB1] = 1;
-	port_range_hints[MODULEX_FX0_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX0_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX0_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX0_KNOB2] = 1;
-	port_range_hints[MODULEX_FX0_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX0_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX0_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX0_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX0_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX0_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX0_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-	port_descriptors[MODULEX_FX1_KNOB0] = 1;
-	port_range_hints[MODULEX_FX1_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX1_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX1_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX1_KNOB1] = 1;
-	port_range_hints[MODULEX_FX1_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX1_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX1_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX1_KNOB2] = 1;
-	port_range_hints[MODULEX_FX1_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX1_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX1_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX1_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX1_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX1_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX1_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-        port_descriptors[MODULEX_FX2_KNOB0] = 1;
-	port_range_hints[MODULEX_FX2_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX2_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX2_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX2_KNOB1] = 1;
-	port_range_hints[MODULEX_FX2_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX2_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX2_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX2_KNOB2] = 1;
-	port_range_hints[MODULEX_FX2_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX2_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX2_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX2_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX2_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX2_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX2_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-	port_descriptors[MODULEX_FX3_KNOB0] = 1;
-	port_range_hints[MODULEX_FX3_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX3_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX3_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX3_KNOB1] = 1;
-	port_range_hints[MODULEX_FX3_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX3_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX3_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX3_KNOB2] = 1;
-	port_range_hints[MODULEX_FX3_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX3_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX3_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX3_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX3_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX3_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX3_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-	port_descriptors[MODULEX_FX4_KNOB0] = 1;
-	port_range_hints[MODULEX_FX4_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX4_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX4_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX4_KNOB1] = 1;
-	port_range_hints[MODULEX_FX4_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX4_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX4_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX4_KNOB2] = 1;
-	port_range_hints[MODULEX_FX4_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX4_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX4_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX4_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX4_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX4_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX4_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-	port_descriptors[MODULEX_FX5_KNOB0] = 1;
-	port_range_hints[MODULEX_FX5_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX5_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX5_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX5_KNOB1] = 1;
-	port_range_hints[MODULEX_FX5_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX5_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX5_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX5_KNOB2] = 1;
-	port_range_hints[MODULEX_FX5_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX5_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX5_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX5_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX5_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX5_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX5_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-        port_descriptors[MODULEX_FX6_KNOB0] = 1;
-	port_range_hints[MODULEX_FX6_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX6_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX6_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX6_KNOB1] = 1;
-	port_range_hints[MODULEX_FX6_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX6_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX6_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX6_KNOB2] = 1;
-	port_range_hints[MODULEX_FX6_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX6_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX6_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX6_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX6_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX6_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX6_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-	port_descriptors[MODULEX_FX7_KNOB0] = 1;
-	port_range_hints[MODULEX_FX7_KNOB0].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX7_KNOB0].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX7_KNOB0].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX7_KNOB1] = 1;
-	port_range_hints[MODULEX_FX7_KNOB1].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX7_KNOB1].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX7_KNOB1].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX7_KNOB2] = 1;
-	port_range_hints[MODULEX_FX7_KNOB2].DefaultValue = 64.0f;
-	port_range_hints[MODULEX_FX7_KNOB2].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX7_KNOB2].UpperBound =  127.0f;
-
-	port_descriptors[MODULEX_FX7_COMBOBOX] = 1;
-	port_range_hints[MODULEX_FX7_COMBOBOX].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_FX7_COMBOBOX].LowerBound =  0.0f;
-	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =
-                MULTIFX3KNOB_MAX_INDEX;
-
-	port_descriptors[MODULEX_DELAY_TIME] = 1;
-	port_range_hints[MODULEX_DELAY_TIME].DefaultValue = 50.0f;
-	port_range_hints[MODULEX_DELAY_TIME].LowerBound =  10.0f;
-	port_range_hints[MODULEX_DELAY_TIME].UpperBound =  100.0f;
-
-	port_descriptors[MODULEX_FEEDBACK] = 1;
-	port_range_hints[MODULEX_FEEDBACK].DefaultValue = -12.0f;
-	port_range_hints[MODULEX_FEEDBACK].LowerBound =  -15.0f;
-	port_range_hints[MODULEX_FEEDBACK].UpperBound =  0.0f;
-
-	port_descriptors[MODULEX_DRY] = 1;
-	port_range_hints[MODULEX_DRY].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_DRY].LowerBound =  -30.0f;
-	port_range_hints[MODULEX_DRY].UpperBound =  0.0f;
-
-	port_descriptors[MODULEX_WET] = 1;
-	port_range_hints[MODULEX_WET].DefaultValue = -30.0f;
-	port_range_hints[MODULEX_WET].LowerBound =  -30.0f;
-	port_range_hints[MODULEX_WET].UpperBound =  0.0f;
-
-	port_descriptors[MODULEX_DUCK] = 1;
-	port_range_hints[MODULEX_DUCK].DefaultValue = -20.0f;
-	port_range_hints[MODULEX_DUCK].LowerBound =  -40.0f;
-	port_range_hints[MODULEX_DUCK].UpperBound =  0.0f;
-
-	port_descriptors[MODULEX_CUTOFF] = 1;
-	port_range_hints[MODULEX_CUTOFF].DefaultValue = 90.0f;
-	port_range_hints[MODULEX_CUTOFF].LowerBound =  40.0f;
-	port_range_hints[MODULEX_CUTOFF].UpperBound =  118.0f;
-
-        /* Parameters for stereo */
-	port_descriptors[MODULEX_STEREO] = 1;
-	port_range_hints[MODULEX_STEREO].DefaultValue = 100.0f;
-	port_range_hints[MODULEX_STEREO].LowerBound =  0.0f;
-	port_range_hints[MODULEX_STEREO].UpperBound =  100.0f;
-
-        port_descriptors[MODULEX_VOL_SLIDER] = 1;
-	port_range_hints[MODULEX_VOL_SLIDER].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_VOL_SLIDER].LowerBound =  -50.0f;
-	port_range_hints[MODULEX_VOL_SLIDER].UpperBound =  0.0f;
-
-        port_descriptors[MODULEX_REVERB_TIME] = 1;
-	port_range_hints[MODULEX_REVERB_TIME].DefaultValue = 50.0f;
-	port_range_hints[MODULEX_REVERB_TIME].LowerBound =  0.0f;
-	port_range_hints[MODULEX_REVERB_TIME].UpperBound =  100.0f;
-
-        port_descriptors[MODULEX_REVERB_WET] = 1;
-	port_range_hints[MODULEX_REVERB_WET].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_REVERB_WET].LowerBound =  0.0f;
-	port_range_hints[MODULEX_REVERB_WET].UpperBound =  100.0f;
-
-        port_descriptors[MODULEX_REVERB_COLOR] = 1;
-	port_range_hints[MODULEX_REVERB_COLOR].DefaultValue = 50.0f;
-	port_range_hints[MODULEX_REVERB_COLOR].LowerBound =  0.0f;
-	port_range_hints[MODULEX_REVERB_COLOR].UpperBound =  100.0f;
-
-        port_descriptors[MODULEX_EQ_ON] = 1;
-	port_range_hints[MODULEX_EQ_ON].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ_ON].LowerBound =  0.0f;
-	port_range_hints[MODULEX_EQ_ON].UpperBound =  2.0f;
-
-        port_descriptors[MODULEX_EQ1_FREQ] = 1;
-	port_range_hints[MODULEX_EQ1_FREQ].DefaultValue = 24.0f;
-	port_range_hints[MODULEX_EQ1_FREQ].LowerBound =  20.0f;
-	port_range_hints[MODULEX_EQ1_FREQ].UpperBound =  120.0f;
-
-        port_descriptors[MODULEX_EQ2_FREQ] = 1;
-	port_range_hints[MODULEX_EQ2_FREQ].DefaultValue = 42.0f;
-	port_range_hints[MODULEX_EQ2_FREQ].LowerBound =  20.0f;
-	port_range_hints[MODULEX_EQ2_FREQ].UpperBound =  120.0f;
-
-        port_descriptors[MODULEX_EQ3_FREQ] = 1;
-	port_range_hints[MODULEX_EQ3_FREQ].DefaultValue = 60.0f;
-	port_range_hints[MODULEX_EQ3_FREQ].LowerBound =  20.0f;
-	port_range_hints[MODULEX_EQ3_FREQ].UpperBound =  120.0f;
-
-        port_descriptors[MODULEX_EQ4_FREQ] = 1;
-	port_range_hints[MODULEX_EQ4_FREQ].DefaultValue = 78.0f;
-	port_range_hints[MODULEX_EQ4_FREQ].LowerBound =  20.0f;
-	port_range_hints[MODULEX_EQ4_FREQ].UpperBound =  120.0f;
-
-        port_descriptors[MODULEX_EQ5_FREQ] = 1;
-	port_range_hints[MODULEX_EQ5_FREQ].DefaultValue = 96.0f;
-	port_range_hints[MODULEX_EQ5_FREQ].LowerBound =  20.0f;
-	port_range_hints[MODULEX_EQ5_FREQ].UpperBound =  120.0f;
-
-        port_descriptors[MODULEX_EQ6_FREQ] = 1;
-	port_range_hints[MODULEX_EQ6_FREQ].DefaultValue = 114.0f;
-	port_range_hints[MODULEX_EQ6_FREQ].LowerBound =  20.0f;
-	port_range_hints[MODULEX_EQ6_FREQ].UpperBound =  120.0f;
-
-
-        port_descriptors[MODULEX_EQ1_RES] = 1;
-	port_range_hints[MODULEX_EQ1_RES].DefaultValue = 300.0f;
-	port_range_hints[MODULEX_EQ1_RES].LowerBound = 100.0f;
-	port_range_hints[MODULEX_EQ1_RES].UpperBound = 600.0f;
-
-        port_descriptors[MODULEX_EQ2_RES] = 1;
-	port_range_hints[MODULEX_EQ2_RES].DefaultValue = 300.0f;
-	port_range_hints[MODULEX_EQ2_RES].LowerBound = 100.0f;
-	port_range_hints[MODULEX_EQ2_RES].UpperBound = 600.0f;
-
-        port_descriptors[MODULEX_EQ3_RES] = 1;
-	port_range_hints[MODULEX_EQ3_RES].DefaultValue = 300.0f;
-	port_range_hints[MODULEX_EQ3_RES].LowerBound = 100.0f;
-	port_range_hints[MODULEX_EQ3_RES].UpperBound = 600.0f;
-
-        port_descriptors[MODULEX_EQ4_RES] = 1;
-	port_range_hints[MODULEX_EQ4_RES].DefaultValue = 300.0f;
-	port_range_hints[MODULEX_EQ4_RES].LowerBound = 100.0f;
-	port_range_hints[MODULEX_EQ4_RES].UpperBound = 600.0f;
-
-        port_descriptors[MODULEX_EQ5_RES] = 1;
-	port_range_hints[MODULEX_EQ5_RES].DefaultValue = 300.0f;
-	port_range_hints[MODULEX_EQ5_RES].LowerBound = 100.0f;
-	port_range_hints[MODULEX_EQ5_RES].UpperBound = 600.0f;
-
-        port_descriptors[MODULEX_EQ6_RES] = 1;
-	port_range_hints[MODULEX_EQ6_RES].DefaultValue = 300.0f;
-	port_range_hints[MODULEX_EQ6_RES].LowerBound = 100.0f;
-	port_range_hints[MODULEX_EQ6_RES].UpperBound = 600.0f;
-
-
-        port_descriptors[MODULEX_EQ1_GAIN] = 1;
-	port_range_hints[MODULEX_EQ1_GAIN].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ1_GAIN].LowerBound = -24.0f;
-	port_range_hints[MODULEX_EQ1_GAIN].UpperBound = 24.0f;
-
-        port_descriptors[MODULEX_EQ2_GAIN] = 1;
-	port_range_hints[MODULEX_EQ2_GAIN].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ2_GAIN].LowerBound = -24.0f;
-	port_range_hints[MODULEX_EQ2_GAIN].UpperBound = 24.0f;
-
-        port_descriptors[MODULEX_EQ3_GAIN] = 1;
-	port_range_hints[MODULEX_EQ3_GAIN].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ3_GAIN].LowerBound = -24.0f;
-	port_range_hints[MODULEX_EQ3_GAIN].UpperBound = 24.0f;
-
-        port_descriptors[MODULEX_EQ4_GAIN] = 1;
-	port_range_hints[MODULEX_EQ4_GAIN].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ4_GAIN].LowerBound = -24.0f;
-	port_range_hints[MODULEX_EQ4_GAIN].UpperBound = 24.0f;
-
-        port_descriptors[MODULEX_EQ5_GAIN] = 1;
-	port_range_hints[MODULEX_EQ5_GAIN].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ5_GAIN].LowerBound = -24.0f;
-	port_range_hints[MODULEX_EQ5_GAIN].UpperBound = 24.0f;
-
-        port_descriptors[MODULEX_EQ6_GAIN] = 1;
-	port_range_hints[MODULEX_EQ6_GAIN].DefaultValue = 0.0f;
-	port_range_hints[MODULEX_EQ6_GAIN].LowerBound = -24.0f;
-	port_range_hints[MODULEX_EQ6_GAIN].UpperBound = 24.0f;
-
-
-	LMSLDescriptor->activate = v_modulex_activate;
-	LMSLDescriptor->cleanup = v_modulex_cleanup;
-	LMSLDescriptor->connect_port = v_modulex_connect_port;
-        LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;
-	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = g_modulex_instantiate;
-        LMSLDescriptor->panic = v_modulex_panic;
-    }
+    PYFX_Descriptor *LMSLDescriptor =
+            pydaw_get_pyfx_descriptor(123456, "Modulex", MODULEX_COUNT);
+
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_DELAY_TIME, 50.0f, 10.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FEEDBACK, -12.0f, -15.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_DRY, 0.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_WET, -30.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_DUCK, -20.0f, -40.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_CUTOFF, 90.0f, 40.0f, 118.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_STEREO, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_VOL_SLIDER, 0.0f, -50.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_TIME, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_WET, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_COLOR, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ_ON, 0.0f, 0.0f, 2.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ1_FREQ, 24.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ2_FREQ, 42.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ3_FREQ, 60.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_FREQ, 78.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_FREQ, 96.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_FREQ, 114.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ1_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ2_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ3_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ1_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ2_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ3_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_GAIN, 0.0f, -24.0f, 24.0f);
+
+
+    LMSLDescriptor->activate = v_modulex_activate;
+    LMSLDescriptor->cleanup = v_modulex_cleanup;
+    LMSLDescriptor->connect_port = v_modulex_connect_port;
+    LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;
+    LMSLDescriptor->deactivate = NULL;
+    LMSLDescriptor->instantiate = g_modulex_instantiate;
+    LMSLDescriptor->panic = v_modulex_panic;
 
     return LMSLDescriptor;
 }
