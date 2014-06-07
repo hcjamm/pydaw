@@ -38,8 +38,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
 static inline void v_euphoria_slow_index(t_euphoria*);
 
-const PYFX_Descriptor *euphoria_PYFX_descriptor(int index);
-const PYINST_Descriptor *euphoria_PYINST_descriptor(int index);
+PYFX_Descriptor *euphoria_PYFX_descriptor(int index);
+PYINST_Descriptor *euphoria_PYINST_descriptor(int index);
 
 static void cleanupSampler(PYFX_Handle instance)
 {
@@ -434,7 +434,7 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     }
 }
 
-static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
+static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
         int s_rate,
         fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
@@ -1279,7 +1279,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
     //pthread_mutex_unlock(&plugin_data->mutex);
 }
 
-static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths,
+static char *c_euphoria_load_all(t_euphoria *plugin_data, char *paths,
         pthread_mutex_t * a_mutex)
 {
     int f_index = 0;
@@ -1372,8 +1372,8 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths,
     return NULL;
 }
 
-char *c_euphoria_configure(PYFX_Handle instance, const char *key,
-        const char *value, pthread_mutex_t * a_mutex)
+char *c_euphoria_configure(PYFX_Handle instance, char *key,
+        char *value, pthread_mutex_t * a_mutex)
 {
     t_euphoria *plugin_data = (t_euphoria *)instance;
 
@@ -1385,7 +1385,7 @@ char *c_euphoria_configure(PYFX_Handle instance, const char *key,
     return strdup("error: unrecognized configure key");
 }
 
-const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
+PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 {
     PYFX_Descriptor *euphoriaLDescriptor = NULL;
 
@@ -1406,12 +1406,12 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     port_descriptors = (PYFX_PortDescriptor *)
         calloc(desc->PortCount, sizeof(PYFX_PortDescriptor));
     desc->PortDescriptors =
-        (const PYFX_PortDescriptor *) port_descriptors;
+        (PYFX_PortDescriptor *) port_descriptors;
 
     port_range_hints = (PYFX_PortRangeHint *)
         calloc(desc->PortCount, sizeof (PYFX_PortRangeHint));
     desc->PortRangeHints =
-        (const PYFX_PortRangeHint *) port_range_hints;
+        (PYFX_PortRangeHint *) port_range_hints;
 
 
     /* Parameters for selected sample */
@@ -2321,7 +2321,7 @@ const PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     return euphoriaLDescriptor;
 }
 
-const PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
+PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
 {
     PYINST_Descriptor *euphoriaDDescriptor = NULL;
 

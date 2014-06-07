@@ -166,16 +166,16 @@ typedef struct _PYFX_Descriptor {
 
   /* This member points to the null-terminated name of the plugin
      (e.g. "Sine Oscillator"). */
-  const char * Name;
+  char * Name;
 
   /* This member points to the null-terminated string indicating the
      maker of the plugin. This can be an empty string but not NULL. */
-  const char * Maker;
+  char * Maker;
 
   /* This member points to the null-terminated string indicating any
      copyright applying to the plugin. If no Copyright applies the
      string "None" should be used. */
-  const char * Copyright;
+  char * Copyright;
 
   /* This indicates the number of ports (input AND output) present on
      the plugin. */
@@ -183,11 +183,11 @@ typedef struct _PYFX_Descriptor {
 
   /* This member indicates an array of port descriptors. Valid indices
      vary from 0 to PortCount-1. */
-  const PYFX_PortDescriptor * PortDescriptors;
+  PYFX_PortDescriptor * PortDescriptors;
 
   /* This member indicates an array of range hints for each port (see
      above). Valid indices vary from 0 to PortCount-1. */
-  const PYFX_PortRangeHint * PortRangeHints;
+  PYFX_PortRangeHint * PortRangeHints;
 
   /* This member is a function pointer that instantiates a plugin. A
      handle is returned indicating the new plugin instance. The
@@ -198,7 +198,7 @@ typedef struct _PYFX_Descriptor {
 
      Note that instance initialisation should generally occur in
      activate() rather than here. */
-  PYFX_Handle (*instantiate)(const struct _PYFX_Descriptor * Descriptor, int SampleRate,
+  PYFX_Handle (*instantiate)(struct _PYFX_Descriptor * Descriptor, int SampleRate,
           fp_get_wavpool_item_from_host a_host_wavpool_func);
 
   /* This member is a function pointer that connects a port on an
@@ -312,10 +312,10 @@ typedef struct _PYFX_Descriptor {
    returning NULL, so the plugin count can be determined by checking
    for the least index that results in NULL being returned. */
 
-const PYFX_Descriptor * ladspa_descriptor(int Index);
+PYFX_Descriptor * ladspa_descriptor(int Index);
 
 /* Datatype corresponding to the ladspa_descriptor() function. */
-typedef const PYFX_Descriptor *
+typedef PYFX_Descriptor *
 (*PYFX_Descriptor_Function)(int Index);
 
 /**********************************************************************/
@@ -348,7 +348,7 @@ typedef struct _PYINST_Descriptor {
      * pointer.  The returned PYFX_Handle is used as the argument
      * for the DSSI functions below as well as for the LADSPA ones.
      */
-    const PYFX_Descriptor *PYFX_Plugin;
+    PYFX_Descriptor *PYFX_Plugin;
 
     /**
      * configure()
@@ -382,8 +382,8 @@ typedef struct _PYINST_Descriptor {
      * information last obtained from the plugin.
      */
     char *(*configure)(PYFX_Handle Instance,
-		       const char *Key,
-		       const char *Value,
+		       char *Key,
+		       char *Value,
                        pthread_mutex_t * a_mutex);
 
     /**
@@ -458,9 +458,9 @@ typedef struct _PYINST_Descriptor {
  *   of a distinct plugin type.
  */
 
-const PYINST_Descriptor *dssi_descriptor(int Index);
+PYINST_Descriptor *dssi_descriptor(int Index);
 
-typedef const PYINST_Descriptor *(*PYINST_Descriptor_Function)(int Index);
+typedef PYINST_Descriptor *(*PYINST_Descriptor_Function)(int Index);
 
 #ifdef __cplusplus
 }

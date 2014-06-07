@@ -36,7 +36,7 @@ void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *even
 
 
 __attribute__ ((visibility("default")))
-const PYFX_Descriptor *PYFX_descriptor(int index)
+PYFX_Descriptor *PYFX_descriptor(int index)
 {
     switch (index) {
     case 0:
@@ -47,7 +47,7 @@ const PYFX_Descriptor *PYFX_descriptor(int index)
 }
 
 __attribute__ ((visibility("default")))
-const PYINST_Descriptor *PYINST_descriptor(int index)
+PYINST_Descriptor *PYINST_descriptor(int index)
 {
     switch (index) {
     case 0:
@@ -83,7 +83,7 @@ static void v_pydaw_connect_port(PYFX_Handle instance, int port,
     }
 }
 
-static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor,
+static PYFX_Handle g_pydaw_instantiate(PYFX_Descriptor * descriptor,
         int s_rate)
 {
     t_pydaw_engine *plugin_data =
@@ -168,13 +168,13 @@ void v_pydaw_constructor()
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortDescriptor));
 	LMSLDescriptor->PortDescriptors =
-	    (const PYFX_PortDescriptor *) port_descriptors;
+	    (PYFX_PortDescriptor *) port_descriptors;
 
 	port_range_hints = (PYFX_PortRangeHint *)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
-	    (const PYFX_PortRangeHint *) port_range_hints;
+	    (PYFX_PortRangeHint *) port_range_hints;
 
         /* Parameters for input */
         int f_i;

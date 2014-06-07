@@ -35,8 +35,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 static void v_run_wayv_voice(t_wayv *, t_voc_single_voice, t_wayv_poly_voice *,
 		      PYFX_Data *, PYFX_Data *, int, int );
 
-const PYFX_Descriptor *wayv_PYFX_descriptor(int index);
-const PYINST_Descriptor *wayv_PYINST_descriptor(int index);
+PYFX_Descriptor *wayv_PYFX_descriptor(int index);
+PYINST_Descriptor *wayv_PYINST_descriptor(int index);
 
 
 static void v_cleanup_wayv(PYFX_Handle instance)
@@ -589,7 +589,7 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
     }
 }
 
-static PYFX_Handle g_wayv_instantiate(const PYFX_Descriptor * descriptor,
+static PYFX_Handle g_wayv_instantiate(PYFX_Descriptor * descriptor,
                 int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     t_wayv *plugin_data = (t_wayv *) malloc(sizeof(t_wayv));
@@ -1427,7 +1427,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
 }
 
 
-float * f_char_to_wavetable(const char * a_char)
+float * f_char_to_wavetable(char * a_char)
 {
     float * f_result;
 
@@ -1454,8 +1454,8 @@ float * f_char_to_wavetable(const char * a_char)
     return f_result;
 }
 
-char *c_wayv_configure(PYFX_Handle instance, const char *key,
-        const char *value, pthread_mutex_t * a_mutex)
+char *c_wayv_configure(PYFX_Handle instance, char *key,
+        char *value, pthread_mutex_t * a_mutex)
 {
     t_wayv *plugin_data = (t_wayv*)instance;
 
@@ -1486,7 +1486,7 @@ char *c_wayv_configure(PYFX_Handle instance, const char *key,
 }
 
 
-const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
+PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 {
     PYFX_Descriptor *LMSLDescriptor = NULL;
 
@@ -1506,13 +1506,13 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortDescriptor));
 	LMSLDescriptor->PortDescriptors =
-	    (const PYFX_PortDescriptor *) port_descriptors;
+	    (PYFX_PortDescriptor *) port_descriptors;
 
 	port_range_hints = (PYFX_PortRangeHint *)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
-	    (const PYFX_PortRangeHint *) port_range_hints;
+	    (PYFX_PortRangeHint *) port_range_hints;
 
 
 	port_descriptors[WAYV_ATTACK_MAIN] = 1;
@@ -2828,7 +2828,7 @@ const PYFX_Descriptor *wayv_PYFX_descriptor(int index)
     return LMSLDescriptor;
 }
 
-const PYINST_Descriptor *wayv_PYINST_descriptor(int index)
+PYINST_Descriptor *wayv_PYINST_descriptor(int index)
 {
     PYINST_Descriptor *LMSDDescriptor = NULL;
 

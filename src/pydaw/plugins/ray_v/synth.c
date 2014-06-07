@@ -37,8 +37,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice,
         t_rayv_poly_voice *d, PYFX_Data *out0, PYFX_Data *out1, int a_i);
 
-const PYFX_Descriptor *rayv_PYFX_descriptor(int index);
-const PYINST_Descriptor *rayv_PYINST_descriptor(int index);
+PYFX_Descriptor *rayv_PYFX_descriptor(int index);
+PYINST_Descriptor *rayv_PYINST_descriptor(int index);
 
 static void v_cleanup_rayv(PYFX_Handle instance)
 {
@@ -230,7 +230,7 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
     }
 }
 
-static PYFX_Handle g_rayv_instantiate(const PYFX_Descriptor * descriptor,
+static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
                 int a_sr, fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
     t_rayv *plugin_data = (t_rayv*) malloc(sizeof(t_rayv));
@@ -688,7 +688,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
     out1[(a_voice->i_voice)] += (a_voice->current_sample);
 }
 
-const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
+PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 {
     PYFX_Descriptor *LMSLDescriptor = NULL;
     PYFX_PortDescriptor *port_descriptors;
@@ -707,13 +707,13 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortDescriptor));
 	LMSLDescriptor->PortDescriptors =
-	    (const PYFX_PortDescriptor *) port_descriptors;
+	    (PYFX_PortDescriptor *) port_descriptors;
 
 	port_range_hints = (PYFX_PortRangeHint *)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
-	    (const PYFX_PortRangeHint *) port_range_hints;
+	    (PYFX_PortRangeHint *) port_range_hints;
 
 
 	port_descriptors[RAYV_ATTACK] = 1;
@@ -935,7 +935,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 }
 
 
-const PYINST_Descriptor *rayv_PYINST_descriptor(int index)
+PYINST_Descriptor *rayv_PYINST_descriptor(int index)
 {
     PYINST_Descriptor *LMSDDescriptor = NULL;
 

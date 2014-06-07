@@ -167,7 +167,7 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
     }
 }
 
-static PYFX_Handle g_modulex_instantiate(const PYFX_Descriptor * descriptor,
+static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
         int s_rate,
         fp_get_wavpool_item_from_host a_host_wavpool_func)
 {
@@ -482,13 +482,13 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortDescriptor));
 	LMSLDescriptor->PortDescriptors =
-	    (const PYFX_PortDescriptor *) port_descriptors;
+	    (PYFX_PortDescriptor *) port_descriptors;
 
 	port_range_hints = (PYFX_PortRangeHint *)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
-	    (const PYFX_PortRangeHint *) port_range_hints;
+	    (PYFX_PortRangeHint *) port_range_hints;
 
 
 	port_descriptors[MODULEX_FX0_KNOB0] = 1;

@@ -29,7 +29,7 @@ extern "C" {
 #include "../plugins/ray_v/synth.c"
 
 
-PYFX_Data g_pydaw_get_port_default(const PYFX_Descriptor *plugin, int port)
+PYFX_Data g_pydaw_get_port_default(PYFX_Descriptor *plugin, int port)
 {
     PYFX_PortRangeHint hint = plugin->PortRangeHints[port];
     assert(hint.DefaultValue <= hint.UpperBound && hint.DefaultValue >= hint.LowerBound );
@@ -42,13 +42,13 @@ typedef struct st_pydaw_plugin
     PYINST_Descriptor_Function descfn;
     PYFX_Handle PYFX_handle;
 
-    const PYINST_Descriptor *descriptor;
+    PYINST_Descriptor *descriptor;
     float **pluginOutputBuffers;
     float *pluginControlIns;
 }t_pydaw_plugin;
 
 
-int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, const char *key, const char *value, pthread_mutex_t * a_mutex)
+int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, char *key, char *value, pthread_mutex_t * a_mutex)
 {
     char * message = 0;
 
