@@ -898,7 +898,7 @@ class region_list_editor:
             if f_item_name != "":
                 global_open_items([f_item_name], a_reset_scrollbar=True)
                 this_main_window.main_tabwidget.setCurrentIndex(1)
-                self.tracks[x].record_radiobutton.setChecked(True)
+                self.auto_arm(x)
             else:
                 self.show_cell_dialog(x, y)
 
@@ -1289,12 +1289,19 @@ class region_list_editor:
             this_main_window.main_tabwidget.setCurrentIndex(1)
             if self.track_type != pydaw_track_type_enum.midi:
                 this_item_editor.tab_widget.setCurrentIndex(1)
-            print(f_track_nums)
             f_track_nums = list(f_track_nums.keys())
             if len(f_track_nums) == 1:
-                self.tracks[f_track_nums[0]].record_radiobutton.setChecked(True)
+                self.auto_arm(f_track_nums[0])
         else:
             QtGui.QMessageBox.warning(self.table_widget, _("Error"), _("No items selected"))
+
+    def auto_arm(self, a_index):
+        self.tracks[a_index].record_radiobutton.setChecked(True)
+        f_track_index = self.tracks[a_index].instrument_combobox.currentIndex()
+        if f_track_index > 0:
+            f_dict = {0:0, 1:2, 2:1}
+            this_cc_editor_widget.plugin_combobox.setCurrentIndex(
+                f_dict[f_track_index - 1])
 
     def on_rename_items(self):
         f_result = []
