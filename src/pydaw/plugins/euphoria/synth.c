@@ -1387,886 +1387,266 @@ char *c_euphoria_configure(PYFX_Handle instance, char *key,
 
 PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 {
-    PYFX_Descriptor *euphoriaLDescriptor = NULL;
-
-    PYFX_PortDescriptor *port_descriptors;
-    PYFX_PortRangeHint *port_range_hints;
-
-
-    euphoriaLDescriptor = (PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
-
-    PYFX_Descriptor *desc = euphoriaLDescriptor;
-
-    desc->UniqueID = 99883366;
-    desc->Name =  "Euphoria";
-    desc->Maker = "PyDAW Team";
-    desc->Copyright = "GPL";
-    desc->PortCount = EUPHORIA_PORT_COUNT;
-
-    port_descriptors = (PYFX_PortDescriptor *)
-        calloc(desc->PortCount, sizeof(PYFX_PortDescriptor));
-    desc->PortDescriptors =
-        (PYFX_PortDescriptor *) port_descriptors;
-
-    port_range_hints = (PYFX_PortRangeHint *)
-        calloc(desc->PortCount, sizeof (PYFX_PortRangeHint));
-    desc->PortRangeHints =
-        (PYFX_PortRangeHint *) port_range_hints;
-
-
-    /* Parameters for selected sample */
-    port_descriptors[EUPHORIA_SELECTED_SAMPLE] = 1;
-    port_range_hints[EUPHORIA_SELECTED_SAMPLE].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_SELECTED_SAMPLE].LowerBound = 0;
-    port_range_hints[EUPHORIA_SELECTED_SAMPLE].UpperBound =
-            (EUPHORIA_MAX_SAMPLE_COUNT - 1);
-
-    port_descriptors[EUPHORIA_ATTACK] = 1;
-    port_range_hints[EUPHORIA_ATTACK].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_ATTACK].LowerBound = 0.0f;
-    port_range_hints[EUPHORIA_ATTACK].UpperBound = 200.0f;
-
-    port_descriptors[EUPHORIA_DECAY] = 1;
-    port_range_hints[EUPHORIA_DECAY].DefaultValue = 50.0f;
-    port_range_hints[EUPHORIA_DECAY].LowerBound = 10.0f;
-    port_range_hints[EUPHORIA_DECAY].UpperBound = 200.0f;
-
-    port_descriptors[EUPHORIA_SUSTAIN] = 1;
-    port_range_hints[EUPHORIA_SUSTAIN].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_SUSTAIN].LowerBound = -60;
-    port_range_hints[EUPHORIA_SUSTAIN].UpperBound = 0;
-
-    port_descriptors[EUPHORIA_RELEASE] = 1;
-    port_range_hints[EUPHORIA_RELEASE].DefaultValue = 50.0f;
-    port_range_hints[EUPHORIA_RELEASE].LowerBound = 10.0f;
-    port_range_hints[EUPHORIA_RELEASE].UpperBound = 400.0f;
-
-    port_descriptors[EUPHORIA_FILTER_ATTACK] = 1;
-    port_range_hints[EUPHORIA_FILTER_ATTACK].DefaultValue = 10.0f;
-    port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 0.0f;
-    port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 200.0f;
-
-    port_descriptors[EUPHORIA_FILTER_DECAY]= 1;
-    port_range_hints[EUPHORIA_FILTER_DECAY].DefaultValue = 50.0f;
-    port_range_hints[EUPHORIA_FILTER_DECAY].LowerBound = 10.0f;
-    port_range_hints[EUPHORIA_FILTER_DECAY].UpperBound = 200.0f;
-
-    port_descriptors[EUPHORIA_FILTER_SUSTAIN] = 1;
-    port_range_hints[EUPHORIA_FILTER_SUSTAIN].DefaultValue = 100.0f;
-    port_range_hints[EUPHORIA_FILTER_SUSTAIN].LowerBound = 0.0f;
-    port_range_hints[EUPHORIA_FILTER_SUSTAIN].UpperBound = 100.0f;
-
-    port_descriptors[EUPHORIA_FILTER_RELEASE]= 1;
-    port_range_hints[EUPHORIA_FILTER_RELEASE].DefaultValue = 50.0f;
-    port_range_hints[EUPHORIA_FILTER_RELEASE].LowerBound = 10.0f;
-    port_range_hints[EUPHORIA_FILTER_RELEASE].UpperBound = 400.0f;
-
-    port_descriptors[EUPHORIA_MASTER_VOLUME]= 1;
-    port_range_hints[EUPHORIA_MASTER_VOLUME].DefaultValue = -6.0f;
-    port_range_hints[EUPHORIA_MASTER_VOLUME].LowerBound =  -24;
-    port_range_hints[EUPHORIA_MASTER_VOLUME].UpperBound =  24;
-
-    port_descriptors[EUPHORIA_MASTER_GLIDE]= 1;
-    port_range_hints[EUPHORIA_MASTER_GLIDE].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_MASTER_GLIDE].LowerBound =  0.0f;
-    port_range_hints[EUPHORIA_MASTER_GLIDE].UpperBound =  200.0f;
-
-    port_descriptors[EUPHORIA_MASTER_PITCHBEND_AMT]= 1;
-    port_range_hints[EUPHORIA_MASTER_PITCHBEND_AMT].DefaultValue = 18.0f;
-    port_range_hints[EUPHORIA_MASTER_PITCHBEND_AMT].LowerBound =  1;
-    port_range_hints[EUPHORIA_MASTER_PITCHBEND_AMT].UpperBound =  36;
-
-    port_descriptors[EUPHORIA_PITCH_ENV_TIME]= 1;
-    port_range_hints[EUPHORIA_PITCH_ENV_TIME].DefaultValue = 100.0f;
-    port_range_hints[EUPHORIA_PITCH_ENV_TIME].LowerBound = 1.0f;
-    port_range_hints[EUPHORIA_PITCH_ENV_TIME].UpperBound = 600.0f;
-
-    port_descriptors[EUPHORIA_LFO_FREQ]= 1;
-    port_range_hints[EUPHORIA_LFO_FREQ].DefaultValue = 200.0f;
-    port_range_hints[EUPHORIA_LFO_FREQ].LowerBound = 10;
-    port_range_hints[EUPHORIA_LFO_FREQ].UpperBound = 1600;
-
-    port_descriptors[EUPHORIA_LFO_TYPE]= 1;
-    port_range_hints[EUPHORIA_LFO_TYPE].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_LFO_TYPE].LowerBound = 0;
-    port_range_hints[EUPHORIA_LFO_TYPE].UpperBound = 2;
-
-    port_descriptors[EUPHORIA_FX0_KNOB0] = 1;
-    port_range_hints[EUPHORIA_FX0_KNOB0].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX0_KNOB0].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX0_KNOB0].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX0_KNOB1] = 1;
-    port_range_hints[EUPHORIA_FX0_KNOB1].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX0_KNOB1].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX0_KNOB1].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX0_KNOB2] = 1;
-    port_range_hints[EUPHORIA_FX0_KNOB2].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX0_KNOB2].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX0_KNOB2].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX0_COMBOBOX] = 1;
-    port_range_hints[EUPHORIA_FX0_COMBOBOX].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_FX0_COMBOBOX].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-
-    port_descriptors[EUPHORIA_FX1_KNOB0] = 1;
-    port_range_hints[EUPHORIA_FX1_KNOB0].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX1_KNOB0].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX1_KNOB0].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX1_KNOB1] = 1;
-    port_range_hints[EUPHORIA_FX1_KNOB1].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX1_KNOB1].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX1_KNOB1].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX1_KNOB2] = 1;
-    port_range_hints[EUPHORIA_FX1_KNOB2].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX1_KNOB2].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX1_KNOB2].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX1_COMBOBOX] = 1;
-    port_range_hints[EUPHORIA_FX1_COMBOBOX].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_FX1_COMBOBOX].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-
-    port_descriptors[EUPHORIA_FX2_KNOB0] = 1;
-    port_range_hints[EUPHORIA_FX2_KNOB0].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX2_KNOB0].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX2_KNOB0].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX2_KNOB1] = 1;
-    port_range_hints[EUPHORIA_FX2_KNOB1].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX2_KNOB1].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX2_KNOB1].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX2_KNOB2] = 1;
-    port_range_hints[EUPHORIA_FX2_KNOB2].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX2_KNOB2].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX2_KNOB2].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX2_COMBOBOX] = 1;
-    port_range_hints[EUPHORIA_FX2_COMBOBOX].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_FX2_COMBOBOX].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-
-    port_descriptors[EUPHORIA_FX3_KNOB0] = 1;
-    port_range_hints[EUPHORIA_FX3_KNOB0].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX3_KNOB0].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX3_KNOB0].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX3_KNOB1] = 1;
-    port_range_hints[EUPHORIA_FX3_KNOB1].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX3_KNOB1].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX3_KNOB1].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX3_KNOB2] = 1;
-    port_range_hints[EUPHORIA_FX3_KNOB2].DefaultValue = 64.0f;
-    port_range_hints[EUPHORIA_FX3_KNOB2].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX3_KNOB2].UpperBound =  127;
-
-    port_descriptors[EUPHORIA_FX3_COMBOBOX] = 1;
-    port_range_hints[EUPHORIA_FX3_COMBOBOX].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_FX3_COMBOBOX].LowerBound =  0;
-    port_range_hints[EUPHORIA_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100.0f;
-
-
-    /* Keyboard tracking */
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC4CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC4CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC4CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC4CTRL2].UpperBound =  100.0f;
-
-
-    /* Velocity tracking */
-
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST0SRC5CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST1SRC5CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST2SRC5CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL0].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL1].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2] = 1;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2].LowerBound =  -100.0f;
-    port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2].UpperBound =  100.0f;
-
-    port_descriptors[EUPHORIA_LFO_PITCH] = 1;
-    port_range_hints[EUPHORIA_LFO_PITCH].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_LFO_PITCH].LowerBound = -36.0f;
-    port_range_hints[EUPHORIA_LFO_PITCH].UpperBound = 36.0f;
-
-    int f_i = EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN;
+    PYFX_Descriptor *euphoriaLDescriptor =
+        pydaw_get_pyfx_descriptor(99883366, "Euphoria", EUPHORIA_PORT_COUNT);
+
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_SELECTED_SAMPLE, 0.0f, 0, (EUPHORIA_MAX_SAMPLE_COUNT - 1));
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_ATTACK, 0.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_DECAY, 50.0f, 10.0f, 200.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_SUSTAIN, 0.0f, -60, 0);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_RELEASE, 50.0f, 10.0f, 400.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FILTER_ATTACK, 10.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FILTER_DECAY, 50.0f, 10.0f, 200.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FILTER_SUSTAIN, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FILTER_RELEASE, 50.0f, 10.0f, 400.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_MASTER_VOLUME, -6.0f, -24, 24);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_MASTER_GLIDE, 0.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_MASTER_PITCHBEND_AMT, 18.0f, 1, 36);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_PITCH_ENV_TIME, 100.0f, 1.0f, 600.0f);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_LFO_FREQ, 200.0f, 10, 1600);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_LFO_TYPE, 0.0f, 0, 2);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX0_KNOB0, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX0_KNOB1, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX0_KNOB2, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX0_COMBOBOX, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX1_KNOB0, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX1_KNOB1, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX1_KNOB2, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX1_COMBOBOX, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX2_KNOB0, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX2_KNOB1, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX2_KNOB2, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX2_COMBOBOX, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX3_KNOB0, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX3_KNOB1, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX3_KNOB2, 64.0f, 0, 127);
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_FX3_COMBOBOX, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
+
+    int f_i = EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0;
+
+    while(f_i <= EUPHORIA_PFXMATRIX_GRP0DST3SRC5CTRL2)
+    {
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, -100.0f, 100.0f);
+        f_i++;
+    }
+
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_LFO_PITCH, 0.0f, -36.0f, 36.0f);
+
+    f_i = EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN;
 
     while(f_i < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 60.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 120;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 60.0f, 0, 120);
         f_i++;
     }
 
     while(f_i < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 120;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0, 120);
         f_i++;
     }
 
     while(f_i < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 120.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 120;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 120.0f, 0, 120);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -50;
-        port_range_hints[f_i].UpperBound = 36;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, -50, 36);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1000.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0.0f, 1000.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 1000.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1000.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 1000.0f, 0.0f, 1000.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 10.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 20.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 10.0f, 0.0f, 20.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 1.0f;
-        port_range_hints[f_i].LowerBound = 1.0f;
-        port_range_hints[f_i].UpperBound = 127.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 1.0f, 1.0f, 127.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 128.0f;
-        port_range_hints[f_i].LowerBound = 1.0f;
-        port_range_hints[f_i].UpperBound = 128.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 128.0f, 1.0f, 128.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_PITCH_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -36.0f;
-        port_range_hints[f_i].UpperBound = 36.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, -36.0f, 36.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_TUNE_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = -100.0f;
-        port_range_hints[f_i].UpperBound = 100.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, -100.0f, 100.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 1.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 3.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 1.0f, 0.0f, 3.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1000.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0.0f, 1000.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 1000.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1000.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 1000.0f, 0.0f, 1000.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1.0f;
-
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0.0f, 1.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 127.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0.0f, 127.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 64.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = 127;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 64.0f, 0, 127);
         f_i++;
     }
 
     while(f_i < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0, MULTIFX3KNOB_MAX_INDEX);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0;
-        port_range_hints[f_i].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0, (EUPHORIA_MAX_SAMPLE_COUNT - 1));
         f_i++;
     }
 
     while(f_i < EUPHORIA_NOISE_AMP_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = -30.0f;
-        port_range_hints[f_i].LowerBound = -60.0f;
-        port_range_hints[f_i].UpperBound = 0.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, -30.0f, -60.0f, 0.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_NOISE_TYPE_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 2.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0.0f, 2.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_FADE_IN_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 0.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1000.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, 0.0f, 1000.0f);
         f_i++;
     }
 
     while(f_i < EUPHORIA_SAMPLE_FADE_OUT_MAX)
     {
-        port_descriptors[f_i] = 1;
-        port_range_hints[f_i].DefaultValue = 1000.0f;
-        port_range_hints[f_i].LowerBound = 0.0f;
-        port_range_hints[f_i].UpperBound = 1000.0f;
+        pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 1000.0f, 0.0f, 1000.0f);
         f_i++;
     }
 
@@ -2279,22 +1659,13 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
         int f_i3 = 0;
         while(f_i3 < 6)
         {
-            port_descriptors[f_i] = 1;
-            port_range_hints[f_i].DefaultValue = (f_i3 * 18.0f) + 24.0f;
-            port_range_hints[f_i].LowerBound = 20.0f;
-            port_range_hints[f_i].UpperBound = 120.0f;
+            pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, (f_i3 * 18.0f) + 24.0f, 20.0f, 120.0f);
             f_i++;
 
-            port_descriptors[f_i] = 1;
-            port_range_hints[f_i].DefaultValue = 300.0f;
-            port_range_hints[f_i].LowerBound = 100.0f;
-            port_range_hints[f_i].UpperBound = 600.0f;
+            pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 300.0f, 100.0f, 600.0f);
             f_i++;
 
-            port_descriptors[f_i] = 1;
-            port_range_hints[f_i].DefaultValue = 0.0f;
-            port_range_hints[f_i].LowerBound = -24.0f;
-            port_range_hints[f_i].UpperBound = 24.0f;
+            pydaw_set_pyfx_port(euphoriaLDescriptor, f_i, 0.0f, -24.0f, 24.0f);
             f_i++;
 
             f_i3++;
@@ -2303,20 +1674,15 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
         f_i2++;
     }
 
-    port_descriptors[EUPHORIA_LFO_PITCH_FINE] = 1;
-    port_range_hints[EUPHORIA_LFO_PITCH_FINE].DefaultValue = 0.0f;
-    port_range_hints[EUPHORIA_LFO_PITCH_FINE].LowerBound = -100.0f;
-    port_range_hints[EUPHORIA_LFO_PITCH_FINE].UpperBound = 100.0f;
+    pydaw_set_pyfx_port(euphoriaLDescriptor, EUPHORIA_LFO_PITCH_FINE, 0.0f, -100.0f, 100.0f);
 
-
-    desc->activate = v_euphoria_activate;
-    desc->cleanup = cleanupSampler;
-    desc->connect_port = connectPortSampler;
-    desc->connect_buffer = euphoriaConnectBuffer;
-    desc->deactivate = NULL;
-    desc->instantiate = instantiateSampler;
-    desc->panic = euphoriaPanic;
-
+    euphoriaLDescriptor->activate = v_euphoria_activate;
+    euphoriaLDescriptor->cleanup = cleanupSampler;
+    euphoriaLDescriptor->connect_port = connectPortSampler;
+    euphoriaLDescriptor->connect_buffer = euphoriaConnectBuffer;
+    euphoriaLDescriptor->deactivate = NULL;
+    euphoriaLDescriptor->instantiate = instantiateSampler;
+    euphoriaLDescriptor->panic = euphoriaPanic;
 
     return euphoriaLDescriptor;
 }
