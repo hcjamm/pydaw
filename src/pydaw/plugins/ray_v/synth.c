@@ -690,61 +690,60 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
 
 PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 {
-    PYFX_Descriptor *LMSLDescriptor = NULL;
+    PYFX_Descriptor *f_result =
+            pydaw_get_pyfx_descriptor(54546565, "Ray-V", RAYV_COUNT);
 
-    LMSLDescriptor = pydaw_get_pyfx_descriptor(54546565, "Ray-V", RAYV_COUNT);
+    pydaw_set_pyfx_port(f_result, RAYV_ATTACK, 10.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_DECAY, 10.0f, 10.0f, 200.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_SUSTAIN, 0.0f, -60.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_RELEASE, 50.0f, 10.0f, 400.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_TIMBRE, 124.0f, 20.0f, 124.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_RES, -12.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_DIST, 15.0f, 0.0f, 48.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_FILTER_ATTACK, 10.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_FILTER_DECAY, 50.0f, 10.0f, 200.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_FILTER_SUSTAIN, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_FILTER_RELEASE, 50.0f, 10.0f, 400.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_NOISE_AMP, -30.0f, -60.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_FILTER_ENV_AMT, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_DIST_WET, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC1_TYPE, 0.0f, 0.0f, 5.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC1_PITCH, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC1_TUNE, 0.0f, -100.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC1_VOLUME, -6.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC2_TYPE, 4.0f, 0.0f, 4.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC2_PITCH, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC2_TUNE, 0.0f, -100.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC2_VOLUME, -6.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MASTER_VOLUME, -6.0f, -30.0f, 12.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MASTER_UNISON_VOICES, 4.0f, 1.0f, 7.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MASTER_UNISON_SPREAD, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MASTER_GLIDE, 0.0f,  0.0f, 200.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MASTER_PITCHBEND_AMT, 18.0f, 1.0f,  36.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_PITCH_ENV_AMT, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_PITCH_ENV_TIME, 100.0f, 1.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_FREQ, 200.0f, 10.0f, 1600.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_TYPE, 0.0f, 0.0f, 2.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_AMP, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_PITCH, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_FILTER, 0.0f, -48.0f, 48.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_OSC_HARD_SYNC, 0.0f, 0.0f, 1.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_RAMP_CURVE, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_FILTER_KEYTRK, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MONO_MODE, 0.0f, 0.0f, 3.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_PHASE, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_LFO_PITCH_FINE, 0.0f, -100.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_ADSR_PREFX, 0.0f, 0.0f, 1.0f);
 
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_ATTACK, 10.0f, 0.0f, 200.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_DECAY, 10.0f, 10.0f, 200.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_SUSTAIN, 0.0f, -60.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_RELEASE, 50.0f, 10.0f, 400.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_TIMBRE, 124.0f, 20.0f, 124.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_RES, -12.0f, -30.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_DIST, 15.0f, 0.0f, 48.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_ATTACK, 10.0f, 0.0f, 200.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_DECAY, 50.0f, 10.0f, 200.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_SUSTAIN, 100.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_RELEASE, 50.0f, 10.0f, 400.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_NOISE_AMP, -30.0f, -60.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_ENV_AMT, 0.0f, -36.0f, 36.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_DIST_WET, 0.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_TYPE, 0.0f, 0.0f, 5.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_PITCH, 0.0f, -36.0f, 36.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_TUNE, 0.0f, -100.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_VOLUME, -6.0f, -30.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_TYPE, 4.0f, 0.0f, 4.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_PITCH, 0.0f, -36.0f, 36.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_TUNE, 0.0f, -100.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_VOLUME, -6.0f, -30.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_VOLUME, -6.0f, -30.0f, 12.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_UNISON_VOICES, 4.0f, 1.0f, 7.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_UNISON_SPREAD, 50.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_GLIDE, 0.0f,  0.0f, 200.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_PITCHBEND_AMT, 18.0f, 1.0f,  36.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_PITCH_ENV_AMT, 0.0f, -36.0f, 36.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_PITCH_ENV_TIME, 100.0f, 1.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_FREQ, 200.0f, 10.0f, 1600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_TYPE, 0.0f, 0.0f, 2.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_AMP, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_PITCH, 0.0f, -36.0f, 36.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_FILTER, 0.0f, -48.0f, 48.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC_HARD_SYNC, 0.0f, 0.0f, 1.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_RAMP_CURVE, 50.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_KEYTRK, 0.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MONO_MODE, 0.0f, 0.0f, 3.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_PHASE, 0.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_PITCH_FINE, 0.0f, -100.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_ADSR_PREFX, 0.0f, 0.0f, 1.0f);
+    f_result->activate = v_rayv_activate;
+    f_result->cleanup = v_cleanup_rayv;
+    f_result->connect_port = v_rayv_connect_port;
+    f_result->connect_buffer = v_rayv_connect_buffer;
+    f_result->deactivate = NULL;
+    f_result->instantiate = g_rayv_instantiate;
+    f_result->panic = rayvPanic;
 
-    LMSLDescriptor->activate = v_rayv_activate;
-    LMSLDescriptor->cleanup = v_cleanup_rayv;
-    LMSLDescriptor->connect_port = v_rayv_connect_port;
-    LMSLDescriptor->connect_buffer = v_rayv_connect_buffer;
-    LMSLDescriptor->deactivate = NULL;
-    LMSLDescriptor->instantiate = g_rayv_instantiate;
-    LMSLDescriptor->panic = rayvPanic;
-
-    return LMSLDescriptor;
+    return f_result;
 }
 
 
@@ -765,17 +764,3 @@ PYINST_Descriptor *rayv_PYINST_descriptor(int index)
 }
 
 
-/*
-void v_rayv_destructor()
-{
-    if (LMSLDescriptor) {
-	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);
-	free((char **) LMSLDescriptor->PortNames);
-	free((PYFX_PortRangeHint *) LMSLDescriptor->PortRangeHints);
-	free(LMSLDescriptor);
-    }
-    if (LMSDDescriptor) {
-	free(LMSDDescriptor);
-    }
-}
-*/
