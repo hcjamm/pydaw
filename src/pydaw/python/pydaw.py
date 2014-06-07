@@ -898,6 +898,7 @@ class region_list_editor:
             if f_item_name != "":
                 global_open_items([f_item_name], a_reset_scrollbar=True)
                 this_main_window.main_tabwidget.setCurrentIndex(1)
+                self.tracks[x].record_radiobutton.setChecked(True)
             else:
                 self.show_cell_dialog(x, y)
 
@@ -1068,13 +1069,13 @@ class region_list_editor:
     def __init__(self, a_track_type):
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.track_type = a_track_type
-        if a_track_type == 0:
+        if a_track_type == pydaw_track_type_enum.midi:
             self.track_count = pydaw_midi_track_count
             self.track_offset = 0
-        elif a_track_type == 1:
+        elif a_track_type == pydaw_track_type_enum.bus:
             self.track_count = pydaw_bus_count
             self.track_offset = pydaw_midi_track_count
-        elif a_track_type == 2:
+        elif a_track_type == pydaw_track_type_enum.audio:
             self.track_count = pydaw_audio_track_count
             self.track_offset = pydaw_midi_track_count + pydaw_bus_count
 
@@ -1265,11 +1266,13 @@ class region_list_editor:
 
     def edit_group(self, a_unique=False):
         f_result = []
+        f_track_nums = {}
         for i in range(self.track_count):
             for i2 in range(1, self.region_length + 1):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
                     f_result_str = str(f_item.text())
+                    f_track_nums[i] = None
                     if f_result_str in f_result:
                         if a_unique:
                             continue
@@ -1286,6 +1289,10 @@ class region_list_editor:
             this_main_window.main_tabwidget.setCurrentIndex(1)
             if self.track_type != pydaw_track_type_enum.midi:
                 this_item_editor.tab_widget.setCurrentIndex(1)
+            print(f_track_nums)
+            f_track_nums = list(f_track_nums.keys())
+            if len(f_track_nums) == 1:
+                self.tracks[f_track_nums[0]].record_radiobutton.setChecked(True)
         else:
             QtGui.QMessageBox.warning(self.table_widget, _("Error"), _("No items selected"))
 
@@ -6953,7 +6960,8 @@ class seq_track:
     def on_show_ui(self):
         f_index = self.instrument_combobox.currentIndex()
         if f_index == 0:
-            pass
+            return
+        self.record_radiobutton.setChecked(True)
         global_open_inst_ui(self.track_number, f_index,
                             _("MIDI Track: {}").format(self.track_name_lineedit.text()))
 
