@@ -4305,7 +4305,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                     f_fm_macro_matrix.setCellWidget(f_i2, f_i3, f_spinbox.control)
                     self.fm_macro_spinboxes[f_i].append(f_spinbox)
 
-                f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}_OSC{}_VOL".format(f_i + 1, f_i2 + 1))
+                f_port = getattr(
+                    pydaw_ports, "WAYV_FM_MACRO{}_OSC{}_VOL".format(f_i + 1, f_i2 + 1))
                 f_spinbox = pydaw_spinbox_control(None, f_port,
                                                  self.plugin_rel_callback,
                                                  self.plugin_val_callback,
