@@ -691,247 +691,60 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
 PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 {
     PYFX_Descriptor *LMSLDescriptor = NULL;
-    PYFX_PortDescriptor *port_descriptors;
-    PYFX_PortRangeHint *port_range_hints;
 
-    LMSLDescriptor =
-	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
-    if (LMSLDescriptor) {
-        LMSLDescriptor->UniqueID = 54546565;
-	LMSLDescriptor->Name = "Ray-V";
-	LMSLDescriptor->Maker = "PyDAW Team";
-	LMSLDescriptor->Copyright = "GNU GPL v3";
-	LMSLDescriptor->PortCount = RAYV_COUNT;
+    LMSLDescriptor = pydaw_get_pyfx_descriptor(54546565, "Ray-V", RAYV_COUNT);
 
-	port_descriptors = (PYFX_PortDescriptor *)
-				calloc(LMSLDescriptor->PortCount, sizeof
-						(PYFX_PortDescriptor));
-	LMSLDescriptor->PortDescriptors =
-	    (PYFX_PortDescriptor *) port_descriptors;
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_ATTACK, 10.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_DECAY, 10.0f, 10.0f, 200.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_SUSTAIN, 0.0f, -60.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_RELEASE, 50.0f, 10.0f, 400.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_TIMBRE, 124.0f, 20.0f, 124.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_RES, -12.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_DIST, 15.0f, 0.0f, 48.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_ATTACK, 10.0f, 0.0f, 200.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_DECAY, 50.0f, 10.0f, 200.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_SUSTAIN, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_RELEASE, 50.0f, 10.0f, 400.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_NOISE_AMP, -30.0f, -60.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_ENV_AMT, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_DIST_WET, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_TYPE, 0.0f, 0.0f, 5.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_PITCH, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_TUNE, 0.0f, -100.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC1_VOLUME, -6.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_TYPE, 4.0f, 0.0f, 4.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_PITCH, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_TUNE, 0.0f, -100.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC2_VOLUME, -6.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_VOLUME, -6.0f, -30.0f, 12.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_UNISON_VOICES, 4.0f, 1.0f, 7.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_UNISON_SPREAD, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_GLIDE, 0.0f,  0.0f, 200.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MASTER_PITCHBEND_AMT, 18.0f, 1.0f,  36.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_PITCH_ENV_AMT, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_PITCH_ENV_TIME, 100.0f, 1.0f, 600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_FREQ, 200.0f, 10.0f, 1600.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_TYPE, 0.0f, 0.0f, 2.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_AMP, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_PITCH, 0.0f, -36.0f, 36.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_FILTER, 0.0f, -48.0f, 48.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_OSC_HARD_SYNC, 0.0f, 0.0f, 1.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_RAMP_CURVE, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_FILTER_KEYTRK, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_MONO_MODE, 0.0f, 0.0f, 3.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_PHASE, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_LFO_PITCH_FINE, 0.0f, -100.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, RAYV_ADSR_PREFX, 0.0f, 0.0f, 1.0f);
 
-	port_range_hints = (PYFX_PortRangeHint *)
-				calloc(LMSLDescriptor->PortCount, sizeof
-						(PYFX_PortRangeHint));
-	LMSLDescriptor->PortRangeHints =
-	    (PYFX_PortRangeHint *) port_range_hints;
-
-
-	port_descriptors[RAYV_ATTACK] = 1;
-	port_range_hints[RAYV_ATTACK].DefaultValue = 10.0f;
-	port_range_hints[RAYV_ATTACK].LowerBound = 0.0f;
-	port_range_hints[RAYV_ATTACK].UpperBound = 200.0f;
-
-	port_descriptors[RAYV_DECAY] = 1;
-	port_range_hints[RAYV_DECAY].DefaultValue = 10.0f;
-	port_range_hints[RAYV_DECAY].LowerBound = 10.0f;
-	port_range_hints[RAYV_DECAY].UpperBound = 200.0f;
-
-	port_descriptors[RAYV_SUSTAIN] = 1;
-	port_range_hints[RAYV_SUSTAIN].DefaultValue = 0.0f;
-	port_range_hints[RAYV_SUSTAIN].LowerBound = -60.0f;
-	port_range_hints[RAYV_SUSTAIN].UpperBound = 0.0f;
-
-	port_descriptors[RAYV_RELEASE] = 1;
-	port_range_hints[RAYV_RELEASE].DefaultValue = 50.0f;
-	port_range_hints[RAYV_RELEASE].LowerBound = 10.0f;
-	port_range_hints[RAYV_RELEASE].UpperBound = 400.0f;
-
-	port_descriptors[RAYV_TIMBRE]= 1;
-	port_range_hints[RAYV_TIMBRE].DefaultValue = 124.0f;
-	port_range_hints[RAYV_TIMBRE].LowerBound =  20.0f;
-	port_range_hints[RAYV_TIMBRE].UpperBound =  124.0f;
-
-	port_descriptors[RAYV_RES]= 1;
-	port_range_hints[RAYV_RES].DefaultValue = -15.0f;
-	port_range_hints[RAYV_RES].LowerBound =  -30.0f;
-	port_range_hints[RAYV_RES].UpperBound =  0.0f;
-
-	port_descriptors[RAYV_DIST]= 1;
-	port_range_hints[RAYV_DIST].DefaultValue = 15.0f;
-	port_range_hints[RAYV_DIST].LowerBound =  0.0f;
-	port_range_hints[RAYV_DIST].UpperBound =  48.0f;
-
-	port_descriptors[RAYV_FILTER_ATTACK] = 1;
-	port_range_hints[RAYV_FILTER_ATTACK].DefaultValue = 10.0f;
-	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 0.0f;
-	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 200.0f;
-
-	port_descriptors[RAYV_FILTER_DECAY]= 1;
-	port_range_hints[RAYV_FILTER_DECAY].DefaultValue = 50.0f;
-	port_range_hints[RAYV_FILTER_DECAY].LowerBound = 10.0f;
-	port_range_hints[RAYV_FILTER_DECAY].UpperBound = 200.0f;
-
-	port_descriptors[RAYV_FILTER_SUSTAIN] = 1;
-	port_range_hints[RAYV_FILTER_SUSTAIN].DefaultValue = 100.0f;
-	port_range_hints[RAYV_FILTER_SUSTAIN].LowerBound = 0.0f;
-	port_range_hints[RAYV_FILTER_SUSTAIN].UpperBound = 100.0f;
-
-	port_descriptors[RAYV_FILTER_RELEASE]= 1;
-	port_range_hints[RAYV_FILTER_RELEASE].DefaultValue = 50.0f;
-	port_range_hints[RAYV_FILTER_RELEASE].LowerBound = 10.0f;
-	port_range_hints[RAYV_FILTER_RELEASE].UpperBound = 400.0f;
-
-	port_descriptors[RAYV_NOISE_AMP]= 1;
-	port_range_hints[RAYV_NOISE_AMP].DefaultValue = -30.0f;
-	port_range_hints[RAYV_NOISE_AMP].LowerBound =  -60.0f;
-	port_range_hints[RAYV_NOISE_AMP].UpperBound =  0.0f;
-
-	port_descriptors[RAYV_FILTER_ENV_AMT]= 1;
-	port_range_hints[RAYV_FILTER_ENV_AMT].DefaultValue = 0.0f;
-	port_range_hints[RAYV_FILTER_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[RAYV_FILTER_ENV_AMT].UpperBound =  36.0f;
-
-	port_descriptors[RAYV_DIST_WET]= 1;
-	port_range_hints[RAYV_DIST_WET].DefaultValue = 0.0f;
-	port_range_hints[RAYV_DIST_WET].LowerBound =  0.0f;
-	port_range_hints[RAYV_DIST_WET].UpperBound =  100.0f;
-
-	port_descriptors[RAYV_OSC1_TYPE]= 1;
-	port_range_hints[RAYV_OSC1_TYPE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC1_TYPE].LowerBound =  0.0f;
-	port_range_hints[RAYV_OSC1_TYPE].UpperBound =  5.0f;
-
-	port_descriptors[RAYV_OSC1_PITCH]= 1;
-	port_range_hints[RAYV_OSC1_PITCH].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC1_PITCH].LowerBound =  -36.0f;
-	port_range_hints[RAYV_OSC1_PITCH].UpperBound =  36.0f;
-
-	port_descriptors[RAYV_OSC1_TUNE]= 1;
-	port_range_hints[RAYV_OSC1_TUNE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC1_TUNE].LowerBound = -100.0f;
-	port_range_hints[RAYV_OSC1_TUNE].UpperBound =  100.0f;
-
-	port_descriptors[RAYV_OSC1_VOLUME]= 1;
-	port_range_hints[RAYV_OSC1_VOLUME].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC1_VOLUME].LowerBound =  -60.0f;
-	port_range_hints[RAYV_OSC1_VOLUME].UpperBound =  0.0f;
-
-	port_descriptors[RAYV_OSC2_TYPE]= 1;
-	port_range_hints[RAYV_OSC2_TYPE].DefaultValue = 4.0f;
-	port_range_hints[RAYV_OSC2_TYPE].LowerBound =  0.0f;
-	port_range_hints[RAYV_OSC2_TYPE].UpperBound =  4.0f;
-
-	port_descriptors[RAYV_OSC2_PITCH]= 1;
-	port_range_hints[RAYV_OSC2_PITCH].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC2_PITCH].LowerBound =  -36.0f;
-	port_range_hints[RAYV_OSC2_PITCH].UpperBound =  36.0f;
-
-	port_descriptors[RAYV_OSC2_TUNE]= 1;
-	port_range_hints[RAYV_OSC2_TUNE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC2_TUNE].LowerBound = -100.0f;
-	port_range_hints[RAYV_OSC2_TUNE].UpperBound = 100.0f;
-
-	port_descriptors[RAYV_OSC2_VOLUME]= 1;
-	port_range_hints[RAYV_OSC2_VOLUME].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC2_VOLUME].LowerBound =  -60.0f;
-	port_range_hints[RAYV_OSC2_VOLUME].UpperBound =  0.0f;
-
-	port_descriptors[RAYV_MASTER_VOLUME]= 1;
-	port_range_hints[RAYV_MASTER_VOLUME].DefaultValue = -6.0f;
-	port_range_hints[RAYV_MASTER_VOLUME].LowerBound =  -60.0f;
-	port_range_hints[RAYV_MASTER_VOLUME].UpperBound =  12.0f;
-
-	port_descriptors[RAYV_MASTER_UNISON_VOICES]= 1;
-	port_range_hints[RAYV_MASTER_UNISON_VOICES].DefaultValue = 4.0f;
-	port_range_hints[RAYV_MASTER_UNISON_VOICES].LowerBound =  1.0f;
-	port_range_hints[RAYV_MASTER_UNISON_VOICES].UpperBound =  7.0f;
-
-	port_descriptors[RAYV_MASTER_UNISON_SPREAD]= 1;
-	port_range_hints[RAYV_MASTER_UNISON_SPREAD].DefaultValue = 50.0f;
-	port_range_hints[RAYV_MASTER_UNISON_SPREAD].LowerBound =  0.0f;
-	port_range_hints[RAYV_MASTER_UNISON_SPREAD].UpperBound =  100.0f;
-
-	port_descriptors[RAYV_MASTER_GLIDE]= 1;
-	port_range_hints[RAYV_MASTER_GLIDE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_MASTER_GLIDE].LowerBound =  0.0f;
-	port_range_hints[RAYV_MASTER_GLIDE].UpperBound =  200.0f;
-
-	port_descriptors[RAYV_MASTER_PITCHBEND_AMT]= 1;
-	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].DefaultValue = 18.0f;
-	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
-	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
-
-	port_descriptors[RAYV_PITCH_ENV_AMT]= 1;
-	port_range_hints[RAYV_PITCH_ENV_AMT].DefaultValue = 0.0f;
-	port_range_hints[RAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[RAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
-
-	port_descriptors[RAYV_PITCH_ENV_TIME]= 1;
-	port_range_hints[RAYV_PITCH_ENV_TIME].DefaultValue = 100.0f;
-	port_range_hints[RAYV_PITCH_ENV_TIME].LowerBound = 1.0f;
-	port_range_hints[RAYV_PITCH_ENV_TIME].UpperBound = 600.0f;
-
-	port_descriptors[RAYV_LFO_FREQ]= 1;
-	port_range_hints[RAYV_LFO_FREQ].DefaultValue = 200.0f;
-	port_range_hints[RAYV_LFO_FREQ].LowerBound = 10.0f;
-	port_range_hints[RAYV_LFO_FREQ].UpperBound = 1600.0f;
-
-	port_descriptors[RAYV_LFO_TYPE]= 1;
-	port_range_hints[RAYV_LFO_TYPE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_LFO_TYPE].LowerBound = 0.0f;
-	port_range_hints[RAYV_LFO_TYPE].UpperBound = 2.0f;
-
-	port_descriptors[RAYV_LFO_AMP]= 1;
-	port_range_hints[RAYV_LFO_AMP].DefaultValue = 0.0f;
-	port_range_hints[RAYV_LFO_AMP].LowerBound = -24.0f;
-	port_range_hints[RAYV_LFO_AMP].UpperBound = 24.0f;
-
-	port_descriptors[RAYV_LFO_PITCH]= 1;
-	port_range_hints[RAYV_LFO_PITCH].DefaultValue = 0.0f;
-	port_range_hints[RAYV_LFO_PITCH].LowerBound = -36.0f;
-	port_range_hints[RAYV_LFO_PITCH].UpperBound = 36.0f;
-
-	port_descriptors[RAYV_LFO_FILTER]= 1;
-	port_range_hints[RAYV_LFO_FILTER].DefaultValue = 0.0f;
-	port_range_hints[RAYV_LFO_FILTER].LowerBound = -48.0f;
-	port_range_hints[RAYV_LFO_FILTER].UpperBound = 48.0f;
-
-        port_descriptors[RAYV_OSC_HARD_SYNC]= 1;
-	port_range_hints[RAYV_OSC_HARD_SYNC].DefaultValue = 0.0f;
-	port_range_hints[RAYV_OSC_HARD_SYNC].LowerBound = 0.0f;
-	port_range_hints[RAYV_OSC_HARD_SYNC].UpperBound = 1.0f;
-
-        port_descriptors[RAYV_RAMP_CURVE]= 1;
-	port_range_hints[RAYV_RAMP_CURVE].DefaultValue = 50.0f;
-	port_range_hints[RAYV_RAMP_CURVE].LowerBound = 0.0f;
-	port_range_hints[RAYV_RAMP_CURVE].UpperBound = 100.0f;
-
-        port_descriptors[RAYV_FILTER_KEYTRK]= 1;
-	port_range_hints[RAYV_FILTER_KEYTRK].DefaultValue = 0.0f;
-	port_range_hints[RAYV_FILTER_KEYTRK].LowerBound = 0.0f;
-	port_range_hints[RAYV_FILTER_KEYTRK].UpperBound = 100.0f;
-
-        port_descriptors[RAYV_MONO_MODE]= 1;
-	port_range_hints[RAYV_MONO_MODE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_MONO_MODE].LowerBound = 0.0f;
-	port_range_hints[RAYV_MONO_MODE].UpperBound = 3.0f;
-
-        port_descriptors[RAYV_LFO_PHASE]= 1;
-	port_range_hints[RAYV_LFO_PHASE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_LFO_PHASE].LowerBound = 0.0f;
-	port_range_hints[RAYV_LFO_PHASE].UpperBound = 100.0f;
-
-        port_descriptors[RAYV_LFO_PITCH_FINE]= 1;
-	port_range_hints[RAYV_LFO_PITCH_FINE].DefaultValue = 0.0f;
-	port_range_hints[RAYV_LFO_PITCH_FINE].LowerBound = -100.0f;
-	port_range_hints[RAYV_LFO_PITCH_FINE].UpperBound = 100.0f;
-
-        port_descriptors[RAYV_ADSR_PREFX]= 1;
-	port_range_hints[RAYV_ADSR_PREFX].DefaultValue = 0.0f;
-	port_range_hints[RAYV_ADSR_PREFX].LowerBound = 0.0f;
-	port_range_hints[RAYV_ADSR_PREFX].UpperBound = 1.0f;
-
-	LMSLDescriptor->activate = v_rayv_activate;
-	LMSLDescriptor->cleanup = v_cleanup_rayv;
-	LMSLDescriptor->connect_port = v_rayv_connect_port;
-        LMSLDescriptor->connect_buffer = v_rayv_connect_buffer;
-	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = g_rayv_instantiate;
-        LMSLDescriptor->panic = rayvPanic;
-    }
+    LMSLDescriptor->activate = v_rayv_activate;
+    LMSLDescriptor->cleanup = v_cleanup_rayv;
+    LMSLDescriptor->connect_port = v_rayv_connect_port;
+    LMSLDescriptor->connect_buffer = v_rayv_connect_buffer;
+    LMSLDescriptor->deactivate = NULL;
+    LMSLDescriptor->instantiate = g_rayv_instantiate;
+    LMSLDescriptor->panic = rayvPanic;
 
     return LMSLDescriptor;
-
 }
 
 
