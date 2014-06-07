@@ -15,6 +15,7 @@ GNU General Public License for more details.
 #define PYDAW_PLUGIN_HEADER_INCLUDED
 
 #include <pthread.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -461,6 +462,42 @@ typedef struct _PYINST_Descriptor {
 PYINST_Descriptor *dssi_descriptor(int Index);
 
 typedef PYINST_Descriptor *(*PYINST_Descriptor_Function)(int Index);
+
+PYFX_Descriptor * pydaw_get_pyfx_descriptor(int a_uid, char * a_name,
+        int a_port_count)
+{
+    PYFX_Descriptor *f_result =
+            (PYFX_Descriptor*)malloc(sizeof(PYFX_Descriptor));
+
+    f_result->UniqueID = a_uid;
+    f_result->Name = a_name;
+    f_result->Maker = "PyDAW Team";
+    f_result->Copyright = "GNU GPL v3";
+    f_result->PortCount = a_port_count;
+
+    f_result->PortDescriptors =
+        (PYFX_PortDescriptor*)calloc(f_result->PortCount,
+            sizeof(PYFX_PortDescriptor));
+
+    f_result->PortRangeHints =
+        (PYFX_PortRangeHint*)calloc(f_result->PortCount,
+            sizeof(PYFX_PortRangeHint));
+
+    return f_result;
+}
+
+void pydaw_set_pyfx_port(PYFX_Descriptor * a_desc, int a_port,
+        float a_default, float a_min, float a_max)
+{
+    assert(!a_desc->PortDescriptors[a_port]);
+    assert(a_min < a_max);
+    assert(a_default >= a_min && a_default <= a_max);
+
+    a_desc->PortDescriptors[a_port] = 1;
+    a_desc->PortRangeHints[a_port].DefaultValue = a_default;
+    a_desc->PortRangeHints[a_port].LowerBound = a_min;
+    a_desc->PortRangeHints[a_port].UpperBound = a_max;
+}
 
 #ifdef __cplusplus
 }
