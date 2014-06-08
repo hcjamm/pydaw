@@ -1303,9 +1303,8 @@ class region_list_editor:
             f_track_index = self.tracks[a_index].instrument_combobox.currentIndex()
             if f_track_index > 0:
                 if f_current < f_end:
-                    f_dict = {0:0, 1:2, 2:1}
                     this_cc_editor_widget.plugin_combobox.setCurrentIndex(
-                        f_dict[f_track_index - 1])
+                        global_plugin_indexes[f_track_index])
         else:
             this_cc_editor_widget.plugin_combobox.setCurrentIndex(f_end)
             this_item_editor.tab_widget.setCurrentIndex(1)
