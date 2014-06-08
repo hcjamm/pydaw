@@ -1425,6 +1425,84 @@ class pydaw_file_browser_widget(pydaw_abstract_file_browser_widget):
         self.file_hlayout.addWidget(self.load_button)
         self.list_file.setSelectionMode(QtGui.QListWidget.ExtendedSelection)
 
+PYSOUND_FOLDER = "{}/presets".format(pydaw_util.global_pydaw_home)
+
+class pysound_file:
+    """ Pre-production, work in progress... """
+    def __init__(self, **kwargs):
+        self.name = None
+        self.hash = None
+        self.tags = []
+        self.plugin = None
+        self.version = []
+        self.control_dict = {}
+        assert(len(kwargs) == 1)
+        if "a_path" in kwargs:
+            with open(kwargs["a_path"], 'r') as f_file:
+                self.string = f_file.read()
+            self.string_to_data()
+        elif "a_string" in kwargs:
+            self.string = kwargs["a_string"]
+            self.string_to_data()
+
+    def string_to_data(self):
+        for f_line in self.string.split("\n"):
+            if f_line == "\\":
+                break
+            k, v = f_line.split("|")
+            if k == "name":
+                self.name = v
+            elif k == "tag":
+                self.tags.append(v)
+            elif k == "hash":
+                self.hash = v
+            elif k == "plugin":
+                self.plugin = v
+            elif k == "version":
+                self.version.append(v)
+            else:
+                self.control_dict[int(k)] = int(v)
+
+    def data_to_string(self):
+        f_result = ""
+        raise NotImplementedError()
+        return f_result
+
+    def save_to_file(self, a_path):
+        pass
+
+class pysound_index:
+    def __init__(self, a_plugin):
+        pass
+
+class pysound_indices:
+    def __init__(self):
+        self.tag_dict = {}
+
+class pydaw_preset_browser_widget:
+    """ To eventually replace the legacy preset system """
+    def __init__(self, a_plugin_name, a_configure_dict=None, a_reconfigure_callback=None):
+        self.plugin_name = str(a_plugin_name)
+        self.configure_dict = a_configure_dict
+        self.reconfigure_callback = a_reconfigure_callback
+        self.widget = QtGui.QWidget()
+        self.widget.setObjectName("plugin_groupbox")
+        self.main_vlayout = QtGui.QVBoxLayout(self.widget)
+        self.hlayout1 = QtGui.QHBoxLayout()
+        self.menu_button = QtGui.QPushButton(_("Menu"))
+        self.hlayout1.addWidget(self.menu_button)
+        self.menu = QtGui.QMenu(self.menu_button)
+        self.menu_button.setMenu(self.menu)
+        self.reload_action = self.menu.addAction(_("Reload"))
+        self.reload_action.triggered.connect(self.on_reload)
+        self.main_vlayout.addLayout(self.hlayout1)
+        self.hlayout2 = QtGui.QHBoxLayout()
+        self.main_vlayout.addLayout(self.hlayout2)
+        self.tag_list = QtGui.QListWidget()
+        self.hlayout2.addWidget(self.tag_list)
+
+    def on_reload(self):
+        pass
 
 global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
 global_bm_file_dialog_string = 'PyDAW Bookmarks (*.pybm4)'
