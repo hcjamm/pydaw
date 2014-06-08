@@ -588,6 +588,33 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_OSC6_FM4: plugin->osc_fm[5][3] = data; break;
 
         case WAYV_NOISE_PREFX: plugin->noise_prefx = data; break;
+
+        //fm macro 1
+        case WAVV_PFXMATRIX_GRP0DST0SRC6CTRL0: plugin->polyfx_mod_matrix[0][0][6][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC6CTRL1: plugin->polyfx_mod_matrix[0][0][6][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC6CTRL2: plugin->polyfx_mod_matrix[0][0][6][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC6CTRL0: plugin->polyfx_mod_matrix[0][1][6][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC6CTRL1: plugin->polyfx_mod_matrix[0][1][6][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC6CTRL2: plugin->polyfx_mod_matrix[0][1][6][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC6CTRL0: plugin->polyfx_mod_matrix[0][2][6][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC6CTRL1: plugin->polyfx_mod_matrix[0][2][6][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC6CTRL2: plugin->polyfx_mod_matrix[0][2][6][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC6CTRL0: plugin->polyfx_mod_matrix[0][3][6][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC6CTRL1: plugin->polyfx_mod_matrix[0][3][6][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC6CTRL2: plugin->polyfx_mod_matrix[0][3][6][2] = data; break;
+        //fm macro 2
+        case WAVV_PFXMATRIX_GRP0DST0SRC7CTRL0: plugin->polyfx_mod_matrix[0][0][7][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC7CTRL1: plugin->polyfx_mod_matrix[0][0][7][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC7CTRL2: plugin->polyfx_mod_matrix[0][0][7][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC7CTRL0: plugin->polyfx_mod_matrix[0][1][7][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC7CTRL1: plugin->polyfx_mod_matrix[0][1][7][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC7CTRL2: plugin->polyfx_mod_matrix[0][1][7][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC7CTRL0: plugin->polyfx_mod_matrix[0][2][7][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC7CTRL1: plugin->polyfx_mod_matrix[0][2][7][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC7CTRL2: plugin->polyfx_mod_matrix[0][2][7][2] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC7CTRL0: plugin->polyfx_mod_matrix[0][3][7][0] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC7CTRL1: plugin->polyfx_mod_matrix[0][3][7][1] = data; break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC7CTRL2: plugin->polyfx_mod_matrix[0][3][7][2] = data; break;
     }
 }
 
@@ -604,6 +631,7 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
 {
     t_wayv *plugin_data = (t_wayv *) instance;
 
+    plugin_data->mono_modules = v_wayv_mono_init(plugin_data->fs);
     plugin_data->port_table = a_port_table;
 
     int i;
@@ -613,7 +641,8 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
 
     for (i = 0; i < WAYV_POLYPHONY; i++)
     {
-        plugin_data->data[i] = g_wayv_poly_init(plugin_data->fs);
+        plugin_data->data[i] = g_wayv_poly_init(
+                plugin_data->fs, plugin_data->mono_modules);
         plugin_data->data[i]->note_f = i;
     }
     plugin_data->sampleNo = 0;
@@ -621,8 +650,6 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
     //plugin_data->pitch = 1.0f;
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = -1.0f;  //For glide
-
-    plugin_data->mono_modules = v_wayv_mono_init(plugin_data->fs);
 }
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
@@ -1780,6 +1807,14 @@ PYFX_Descriptor *wayv_PYFX_descriptor(int index)
     }
 
     pydaw_set_pyfx_port(f_result, WAYV_NOISE_PREFX, 0.0f, 0, 1);
+
+    f_port = WAVV_PFXMATRIX_GRP0DST0SRC6CTRL0;
+
+    while(f_port <= WAVV_PFXMATRIX_GRP0DST3SRC7CTRL2)
+    {
+        pydaw_set_pyfx_port(f_result, f_port,  0.0f, -100.0f, 100.0f);
+        f_port++;
+    }
 
     f_result->activate = v_wayv_activate;
     f_result->cleanup = v_cleanup_wayv;

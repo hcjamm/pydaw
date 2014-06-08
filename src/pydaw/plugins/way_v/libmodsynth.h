@@ -20,7 +20,7 @@ extern "C" {
 
 /*Total number of LFOs, ADSRs, other envelopes, etc...
  * Used for the PolyFX mod matrix*/
-#define WAYV_MODULATOR_COUNT 6
+#define WAYV_MODULATOR_COUNT 8
 //How many modular PolyFX
 #define WAYV_MODULAR_POLYFX_COUNT 4
 
@@ -131,11 +131,11 @@ typedef struct
     t_pnv_perc_env * perc_env;
 }t_wayv_poly_voice;
 
-t_wayv_poly_voice * g_wayv_poly_init(float a_sr);
+t_wayv_poly_voice * g_wayv_poly_init(float a_sr, t_wayv_mono_modules* a_mono);
 
 /*initialize all of the modules in an instance of poly_voice*/
 
-t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
+t_wayv_poly_voice * g_wayv_poly_init(float a_sr, t_wayv_mono_modules* a_mono)
 {
     t_wayv_poly_voice * f_voice =
             (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
@@ -235,6 +235,8 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->modulator_outputs[3] = &(f_voice->lfo_amount_output);
     f_voice->modulator_outputs[4] = &(f_voice->keyboard_track);
     f_voice->modulator_outputs[5] = &(f_voice->velocity_track);
+    f_voice->modulator_outputs[6] = &(a_mono->fm_macro_smoother[0]->last_value);
+    f_voice->modulator_outputs[7] = &(a_mono->fm_macro_smoother[1]->last_value);
 
     f_voice->noise_func_ptr = f_run_noise_off;
 

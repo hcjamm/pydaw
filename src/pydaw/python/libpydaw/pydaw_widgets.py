@@ -4543,9 +4543,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setCornerButtonEnabled(False)
-        self.mod_matrix.setRowCount(6)
+        self.mod_matrix.setRowCount(8)
         self.mod_matrix.setColumnCount(12)
-        self.mod_matrix.setFixedHeight(240)
+        self.mod_matrix.setFixedHeight(291)
         self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
@@ -4555,10 +4555,11 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             for y in range(1, 4)] for x in range(4)]
         self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
         self.mod_matrix.setVerticalHeaderLabels([_("DAHDSR 1"), _("DAHDSR 2"), _("Ramp Env"),
-                                                 _("LFO"), _("Pitch"), _("Velocity")])
+                                                 _("LFO"), _("Pitch"), _("Velocity"),
+                                                 _("FM Macro 1"), _("FM Macro 2")])
 
         for f_i_dst in range(4):
-            for f_i_src in range(6):
+            for f_i_src in range(8):
                 for f_i_ctrl in range(3):
                     f_ctrl = pydaw_spinbox_control(None,
                                                    getattr(pydaw_ports,
