@@ -595,7 +595,7 @@ class pydaw_checkbox_control(pydaw_abstract_ui_control):
             self.control.setChecked(True)
         self.widget = self.control
         self.control.stateChanged.connect(self.control_value_changed)
-        self.control.stateChanged.connect(self.control_released)
+        #self.control.stateChanged.connect(self.control_released)
         self.value_label = None
         self.suppress_changes = False
 
@@ -603,18 +603,20 @@ class pydaw_checkbox_control(pydaw_abstract_ui_control):
         if not self.suppress_changes:
             self.val_callback(self.port_num, self.get_value())
 
-    def control_released(self, a_val=None):
-        pass
+    def control_released(self):
+        if self.rel_callback is not None:
+            self.rel_callback(self.port_num, self.get_value())
 
     def set_value(self, a_val, a_changed=False):
-        if not a_changed:
-            self.suppress_changes = True
+        self.suppress_changes = True
         f_val = int(a_val)
         if f_val == 0:
             self.control.setChecked(False)
         else:
             self.control.setChecked(True)
         self.suppress_changes = False
+        if a_changed:
+            self.control_value_changed()
 
     def get_value(self):
         if self.control.isChecked():
