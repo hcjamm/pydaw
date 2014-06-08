@@ -586,11 +586,13 @@ class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
 
 class pydaw_checkbox_control(pydaw_abstract_ui_control):
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None):
+                 a_port_dict=None, a_preset_mgr=None, a_default=0):
         pydaw_abstract_ui_control.__init__(self, None, a_port_num, a_rel_callback, a_val_callback,
                                            a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr,
-                                           a_default_value=0)
+                                           a_default_value=a_default)
         self.control = QtGui.QCheckBox(a_label)
+        if a_default:
+            self.control.setChecked(True)
         self.widget = self.control
         self.control.stateChanged.connect(self.control_value_changed)
         self.control.stateChanged.connect(self.control_released)
@@ -4375,6 +4377,14 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                                                   a_preset_mgr=self.preset_manager)
         self.noise_type.control.setMaximumWidth(87)
         self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
+
+        self.noise_prefx = pydaw_checkbox_control("PreFX", pydaw_ports.WAYV_NOISE_PREFX,
+                                                  self.plugin_rel_callback,
+                                                  self.plugin_val_callback,
+                                                  self.port_dict,
+                                                  a_preset_mgr=self.preset_manager,
+                                                  a_default=1)
+        self.noise_prefx.add_to_grid_layout(self.groupbox_noise_layout, 6)
 
         self.perc_env = pydaw_perc_env_widget(f_knob_size,
                                               self.plugin_rel_callback,

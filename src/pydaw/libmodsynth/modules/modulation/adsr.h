@@ -283,7 +283,7 @@ void v_adsr_kill(t_adsr *__restrict a_adsr_ptr)
  */
 void v_adsr_release(t_adsr *__restrict a_adsr_ptr)
 {
-    if(a_adsr_ptr->stage < 3)
+    if(a_adsr_ptr->stage < 3 || a_adsr_ptr->stage > 5)
     {
         a_adsr_ptr->stage = 3;
     }

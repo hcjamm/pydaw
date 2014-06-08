@@ -586,6 +586,8 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAYV_OSC6_FM2: plugin->osc_fm[5][1] = data; break;
         case WAYV_OSC6_FM3: plugin->osc_fm[5][2] = data; break;
         case WAYV_OSC6_FM4: plugin->osc_fm[5][3] = data; break;
+
+        case WAYV_NOISE_PREFX: plugin->noise_prefx = data; break;
     }
 }
 
@@ -795,6 +797,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->adsr_noise_on =
                         (int)*plugin_data->noise_adsr_on;
 
+                plugin_data->data[f_voice]->noise_prefx =
+                        (int)*plugin_data->noise_prefx;
+
                 if(plugin_data->data[f_voice]->adsr_noise_on)
                 {
                     v_adsr_retrigger(plugin_data->data[f_voice]->adsr_noise);
@@ -805,7 +810,7 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
                     float f_sustain = (*plugin_data->noise_sustain);
                     float f_release = *(plugin_data->noise_release) * .01f;
                     f_release = (f_release) * (f_release);
-                    v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_noise,
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_noise,
                             f_attack, f_decay, f_sustain, f_release);
                     v_adsr_set_delay_time(
                             plugin_data->data[f_voice]->adsr_noise,
@@ -1346,18 +1351,21 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
         f_osc_num++;
     }
 
-    if(a_voice->adsr_noise_on)
+    if(a_voice->noise_prefx)
     {
-        v_adsr_run(a_voice->adsr_noise);
-        a_voice->current_sample +=
+        if(a_voice->adsr_noise_on)
+        {
+            v_adsr_run(a_voice->adsr_noise);
+            a_voice->current_sample +=
                 a_voice->noise_func_ptr(a_voice->white_noise1) *
                 (a_voice->noise_linamp) * a_voice->adsr_noise->output;
-    }
-    else
-    {
-        a_voice->current_sample +=
+        }
+        else
+        {
+            a_voice->current_sample +=
                 (a_voice->noise_func_ptr(a_voice->white_noise1) *
                 (a_voice->noise_linamp));
+        }
     }
 
     v_adsr_run_db(a_voice->adsr_main);
@@ -1408,6 +1416,29 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
             a_voice->multieffect[(plugin_data->active_polyfx[a_voice_num]
                 [(plugin_data->i_dst)])]->output1;
 
+    }
+
+    if(!a_voice->noise_prefx)
+    {
+        if(a_voice->adsr_noise_on)
+        {
+            v_adsr_run(a_voice->adsr_noise);
+            float f_noise =
+                a_voice->noise_func_ptr(a_voice->white_noise1) *
+                (a_voice->noise_linamp) * a_voice->adsr_noise->output *
+                a_voice->adsr_main->output;
+            out0[(a_voice->i_voice)] += f_noise;
+            out1[(a_voice->i_voice)] += f_noise;
+        }
+        else
+        {
+            float f_noise =
+                (a_voice->noise_func_ptr(a_voice->white_noise1) *
+                (a_voice->noise_linamp)) *
+                a_voice->adsr_main->output;
+            out0[(a_voice->i_voice)] += f_noise;
+            out1[(a_voice->i_voice)] += f_noise;
+        }
     }
 
     if(a_voice->adsr_prefx)
@@ -1748,6 +1779,7 @@ PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         f_port++;
     }
 
+    pydaw_set_pyfx_port(f_result, WAYV_NOISE_PREFX, 0.0f, 0, 1);
 
     f_result->activate = v_wayv_activate;
     f_result->cleanup = v_cleanup_wayv;

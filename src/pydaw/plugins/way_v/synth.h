@@ -414,10 +414,11 @@ extern "C" {
 #define WAYV_OSC6_FM2 341
 #define WAYV_OSC6_FM3 342
 #define WAYV_OSC6_FM4 343
+#define WAYV_NOISE_PREFX 344
 
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 344
+#define WAYV_COUNT 345
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -469,6 +470,7 @@ typedef struct
     PYFX_Data *noise_type;
 
     PYFX_Data *noise_adsr_on;
+    PYFX_Data *noise_prefx;
     PYFX_Data *noise_delay;
     PYFX_Data *noise_attack;
     PYFX_Data *noise_hold;

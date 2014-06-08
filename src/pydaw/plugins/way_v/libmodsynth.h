@@ -114,6 +114,7 @@ typedef struct
     t_adsr * adsr_noise;
     t_adsr * adsr_lfo;
     int adsr_noise_on;
+    int noise_prefx;
     int adsr_lfo_on;
     t_ramp_env * ramp_env;
 
@@ -256,6 +257,11 @@ void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
     {
         v_adsr_release(a_voice->adsr_main);
     }
+
+    v_adsr_release(a_voice->adsr_lfo);
+    v_adsr_release(a_voice->adsr_noise);
+    v_adsr_release(a_voice->adsr_amp);
+    v_adsr_release(a_voice->adsr_filter);
 
     int f_i = 0;
 
