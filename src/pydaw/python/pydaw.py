@@ -1297,11 +1297,18 @@ class region_list_editor:
 
     def auto_arm(self, a_index):
         self.tracks[a_index].record_radiobutton.setChecked(True)
-        f_track_index = self.tracks[a_index].instrument_combobox.currentIndex()
-        if f_track_index > 0:
-            f_dict = {0:0, 1:2, 2:1}
-            this_cc_editor_widget.plugin_combobox.setCurrentIndex(
-                f_dict[f_track_index - 1])
+        f_current = this_cc_editor_widget.plugin_combobox.currentIndex()
+        f_end = this_cc_editor_widget.plugin_combobox.count() - 1
+        if self.track_type == pydaw_track_type_enum.midi:
+            f_track_index = self.tracks[a_index].instrument_combobox.currentIndex()
+            if f_track_index > 0:
+                if f_current < f_end:
+                    f_dict = {0:0, 1:2, 2:1}
+                    this_cc_editor_widget.plugin_combobox.setCurrentIndex(
+                        f_dict[f_track_index - 1])
+        else:
+            this_cc_editor_widget.plugin_combobox.setCurrentIndex(f_end)
+            this_item_editor.tab_widget.setCurrentIndex(1)
 
     def on_rename_items(self):
         f_result = []
