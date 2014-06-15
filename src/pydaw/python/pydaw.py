@@ -3739,14 +3739,14 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(float(a_val) * 0.1)
-        global_open_audio_items()
+        global_open_audio_items(a_reload=False)
 
     def set_snap(self, a_val=None):
         pydaw_set_audio_snap(a_val)
 
     def set_zoom(self, a_val=None):
         this_audio_items_viewer.set_zoom(float(a_val) * 0.1)
-        global_open_audio_items()
+        global_open_audio_items(a_reload=False)
 
 
 class audio_item_editor_widget:
