@@ -2954,6 +2954,15 @@ class audio_items_viewer(QtGui.QGraphicsView):
             QtGui.QGraphicsView.keyPressEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
 
+    def scrollContentsBy(self, x, y):
+        QtGui.QGraphicsView.scrollContentsBy(self, x, y)
+        f_point = self.get_scene_pos()
+        self.ruler.setPos(0.0, f_point.y())
+
+    def get_scene_pos(self):
+        return QtCore.QPointF(self.horizontalScrollBar().value(),
+                              self.verticalScrollBar().value())
+
     def get_selected(self):
         return [x for x in self.audio_items if x.isSelected()]
 
@@ -3381,10 +3390,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def draw_headers(self, a_cursor_pos=None):
         f_region_length = pydaw_get_current_region_length()
         f_size = global_audio_px_per_bar * f_region_length
-        f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
-        f_ruler.setBrush(global_audio_items_header_gradient)
-        f_ruler.mousePressEvent = self.ruler_click_event
-        self.scene.addItem(f_ruler)
+        self.ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
+        self.ruler.setZValue(1500.0)
+        self.ruler.setBrush(global_audio_items_header_gradient)
+        self.ruler.mousePressEvent = self.ruler_click_event
+        self.scene.addItem(self.ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_beat_pen = QtGui.QPen(QtGui.QColor(210, 210, 210))
         f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
@@ -3397,7 +3407,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_cursor.setZValue(1000.0)
         i3 = 0.0
         for i in range(f_region_length):
-            f_number = QtGui.QGraphicsSimpleTextItem("{}".format(i + 1), f_ruler)
+            f_number = QtGui.QGraphicsSimpleTextItem("{}".format(i + 1), self.ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
             f_number.setZValue(1000.0)
@@ -9700,6 +9710,7 @@ this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_audio_items_viewer = audio_items_viewer()
+
 global_midi_editors = (this_cc_editor, this_piano_roll_editor, this_pb_editor)
 
 def global_check_device():
