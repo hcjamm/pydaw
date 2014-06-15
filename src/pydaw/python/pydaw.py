@@ -8411,6 +8411,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         else:
             self.cc_map_tab.setToolTip("")
 
+    def regions_tab_changed(self, a_val=None):
+        if self.regions_tab_widget.currentIndex() == 3 and \
+        self.first_audio_tab_click:
+            self.first_audio_tab_click = False
+            pydaw_set_audio_seq_zoom(1.0, 1.0)
+            global_open_audio_items(a_reload=False)
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         #self.setMinimumSize(1100, 600)
@@ -8569,6 +8576,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.regions_tab_widget.addTab(this_region_bus_editor.table_widget, _("Busses"))
         self.regions_tab_widget.addTab(this_region_audio_editor.table_widget, _("Audio Tracks"))
         self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, _("Audio Seq"))
+
+        self.first_audio_tab_click = True
+        self.regions_tab_widget.currentChanged.connect(self.regions_tab_changed)
 
         self.main_tabwidget.addTab(this_item_editor.widget, _("MIDI Item"))
 
