@@ -2193,7 +2193,7 @@ class pydaw_audio_item_fx_region:
         if int(a_row_index) in self.fx_list:
             return self.fx_list[int(a_row_index)]
         else:
-            print("Index {} not found in pydaw_audio_item_fx_region".format(a_row_index))
+            #print("Index {} not found in pydaw_audio_item_fx_region".format(a_row_index))
             if a_return_none:
                 return None
             else:

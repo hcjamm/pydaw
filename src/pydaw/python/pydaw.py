@@ -732,7 +732,6 @@ class region_settings:
         for f_editor in global_region_editors:
             f_editor.table_widget.setUpdatesEnabled(True)
             f_editor.table_widget.update()
-        this_audio_items_viewer.scale_to_region_size()
         global_open_audio_items()
         global_update_hidden_rows()
         this_transport.set_time(this_transport.get_region_value(),
@@ -1623,11 +1622,67 @@ def pydaw_seconds_to_bars(a_seconds):
     '''converts seconds to regions'''
     return a_seconds * global_bars_per_second
 
+def pydaw_set_audio_seq_zoom(a_horizontal, a_vertical):
+    global global_audio_px_per_bar, global_audio_px_per_beat, global_audio_px_per_8th, \
+           global_audio_px_per_12th, global_audio_px_per_16th, \
+           global_audio_item_height
+
+    f_width = float(this_audio_items_viewer.rect().width()) - \
+        float(this_audio_items_viewer.verticalScrollBar().width()) - 6.0
+    f_region_length = pydaw_get_current_region_length()
+    f_region_px = f_region_length * 100.0
+    f_region_scale = f_width / f_region_px
+
+    global_audio_px_per_bar = 100.0 * a_horizontal * f_region_scale
+    global_audio_px_per_beat = global_audio_px_per_bar * 0.25 # / 4.0
+    global_audio_px_per_8th = global_audio_px_per_bar * 0.125 # / 8.0
+    global_audio_px_per_12th = global_audio_px_per_bar / 12.0
+    global_audio_px_per_16th = global_audio_px_per_bar * 0.625 # / 16.0
+    pydaw_set_audio_snap(global_audio_snap_val)
+    global_audio_item_height = 75.0 * a_vertical
+
+
+def pydaw_set_audio_snap(a_val):
+    global global_audio_quantize, global_audio_quantize_px, \
+           global_audio_quantize_amt, global_audio_snap_val, \
+           global_audio_lines_enabled, global_audio_snap_range
+    global_audio_snap_val = a_val
+    global_audio_quantize = True
+    global_audio_lines_enabled = True
+    global_audio_snap_range = 8
+    if a_val == 0:
+        global_audio_quantize = False
+        global_audio_quantize_px = global_audio_px_per_beat
+        global_audio_lines_enabled = False
+    elif a_val == 1:
+        global_audio_quantize_px = global_audio_px_per_bar
+        global_audio_lines_enabled = False
+        global_audio_quantize_amt = 0.25
+    elif a_val == 2:
+        global_audio_quantize_px = global_audio_px_per_beat
+        global_audio_lines_enabled = False
+        global_audio_quantize_amt = 1.0
+    elif a_val == 3:
+        global_audio_quantize_px = global_audio_px_per_8th
+        global_audio_snap_range = 8
+        global_audio_quantize_amt = 2.0
+    elif a_val == 4:
+        global_audio_quantize_px = global_audio_px_per_12th
+        global_audio_snap_range = 12
+        global_audio_quantize_amt = 3.0
+    elif a_val == 5:
+        global_audio_quantize_px = global_audio_px_per_16th
+        global_audio_snap_range = 16
+        global_audio_quantize_amt = 4.0
+
+global_audio_lines_enabled = True
+global_audio_snap_range = 8
+global_audio_snap_val = 2
 global_audio_px_per_bar = 100.0
-global_audio_px_per_beat = 100.0 / 4.0
-global_audio_px_per_8th = 100.0 / 8.0
-global_audio_px_per_12th = 100.0 / 12.0
-global_audio_px_per_16th = 100.0 / 16.0
+global_audio_px_per_beat = global_audio_px_per_bar / 4.0
+global_audio_px_per_8th = global_audio_px_per_bar / 8.0
+global_audio_px_per_12th = global_audio_px_per_bar / 12.0
+global_audio_px_per_16th = global_audio_px_per_bar / 16.0
 
 global_audio_quantize = False
 global_audio_quantize_px = None
@@ -2856,6 +2911,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsView.__init__(self)
         self.reset_line_lists()
         self.h_zoom = 1.0
+        self.v_zoom = 1.0
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
         self.scene.dropEvent = self.sceneDropEvent
@@ -2877,7 +2933,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.is_playing = False
-        self.last_x_scale = 1.0
         self.reselect_on_stop = []
         self.playback_cursor = None
         #Somewhat slow on my AMD 5450 using the FOSS driver
@@ -2979,21 +3034,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        self.scale_to_region_size()
-
-    def scale_to_region_size(self):
-        f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
-        if global_current_region is None:
-            f_region_length = 8
-        else:
-            f_region_length = pydaw_get_current_region_length()
-        f_region_px = f_region_length * global_audio_px_per_bar
-        f_new_scale = f_width / f_region_px
-        if self.last_x_scale != f_new_scale:
-            self.scale(1.0 / self.last_x_scale, 1.0)
-            self.last_x_scale = f_new_scale
-            self.scale(self.last_x_scale, 1.0)
-        self.horizontalScrollBar().setSliderPosition(0)
+        pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
 
     def sceneContextMenuEvent(self, a_event):
         if self.check_running():
@@ -3092,7 +3133,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_fadeout_vol_checked = False
                     break
         this_audio_item_editor_widget.fadeout_vol_checkbox.setChecked(f_fadeout_vol_checked)
-
 
         if len(f_selected_items) > 0:
             if f_timestretch_checked:
@@ -3289,18 +3329,17 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 f_item.setSelected(True)
 
     def set_zoom(self, a_scale):
-        self.scale(a_scale, 1.0)
-
-    def set_h_zoom_value(self, a_scale):
         self.h_zoom = a_scale
+        pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
 
     def set_v_zoom(self, a_scale):
-        self.scale(1.0, a_scale)
+        self.v_zoom = a_scale
+        pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
 
-    def set_grid_div(self, a_enabled, a_div, a_range):
-        self.snap_draw_extra_lines = a_enabled
-        self.snap_extra_lines_div = float(a_div)
-        self.snap_extra_lines_range = int(a_range)
+    def set_grid_div(self):
+        self.snap_draw_extra_lines = global_audio_lines_enabled
+        self.snap_extra_lines_div = float(global_audio_quantize_px)
+        self.snap_extra_lines_range = int(global_audio_snap_range)
         self.snap_extra_lines_beat_skip = self.snap_extra_lines_range / 4
         if global_current_region is None:
             self.clear_drawn_items()
@@ -3339,12 +3378,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 f_num.setVisible(True)
 
 
-    def draw_headers(self, a_cursor_pos=None, a_default_length=False):
-        if a_default_length:
-            f_region_length = 8
-        else:
-            f_region_length = pydaw_get_current_region_length()
-
+    def draw_headers(self, a_cursor_pos=None):
+        f_region_length = pydaw_get_current_region_length()
         f_size = global_audio_px_per_bar * f_region_length
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
         f_ruler.setBrush(global_audio_items_header_gradient)
@@ -3388,7 +3423,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.set_playback_pos(a_cursor_pos)
         self.check_line_count()
 
-    def clear_drawn_items(self, a_default_length=False):
+    def clear_drawn_items(self):
         if self.is_playing:
             f_was_playing = True
             self.is_playing = False
@@ -3397,7 +3432,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.reset_line_lists()
         self.audio_items = []
         self.scene.clear()
-        self.draw_headers(a_default_length=a_default_length)
+        self.draw_headers()
         if f_was_playing:
             self.is_playing = True
 
@@ -3504,10 +3539,10 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.controls_grid_layout.addWidget(self.v_zoom_combobox, 0, 46)
         self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.h_zoom_slider.setObjectName("zoom_slider")
-        self.h_zoom_slider.setRange(0, 100)
-        self.h_zoom_slider.setMaximumWidth(600)
-        self.h_zoom_slider.setValue(0)
-        self.last_scale_value = 0
+        self.h_zoom_slider.setRange(10, 200)
+        self.h_zoom_slider.setValue(10)
+        self.h_zoom_slider.setSingleStep(1)
+        self.h_zoom_slider.setMaximumWidth(210)
         self.h_zoom_slider.valueChanged.connect(self.set_zoom)
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("H-Zoom:")), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
@@ -3683,7 +3718,6 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         f_window.exec_()
 
     def set_v_zoom(self, a_val=None):
-        this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
         if self.v_zoom_combobox.currentIndex() == 0:
             self.v_zoom = 1.0
         elif self.v_zoom_combobox.currentIndex() == 1:
@@ -3691,54 +3725,14 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         elif self.v_zoom_combobox.currentIndex() == 2:
             self.v_zoom = 10.0
         this_audio_items_viewer.set_v_zoom(self.v_zoom)
+        global_open_audio_items()
 
     def set_snap(self, a_val=None):
-        global global_audio_quantize, global_audio_quantize_px, global_audio_quantize_amt
-        global_audio_quantize = True
-        f_lines_enabled = True
-        f_snap_range = 8
-        if a_val == 0:
-            global_audio_quantize = False
-            global_audio_quantize_px = global_audio_px_per_beat
-            f_lines_enabled = False
-        elif a_val == 1:
-            global_audio_quantize_px = global_audio_px_per_bar
-            f_lines_enabled = False
-            global_audio_quantize_amt = 0.25
-        elif a_val == 2:
-            global_audio_quantize_px = global_audio_px_per_beat
-            f_lines_enabled = False
-            global_audio_quantize_amt = 1.0
-        elif a_val == 3:
-            global_audio_quantize_px = global_audio_px_per_8th
-            f_snap_range = 8
-            global_audio_quantize_amt = 2.0
-        elif a_val == 4:
-            global_audio_quantize_px = global_audio_px_per_12th
-            f_snap_range = 12
-            global_audio_quantize_amt = 3.0
-        elif a_val == 5:
-            global_audio_quantize_px = global_audio_px_per_16th
-            f_snap_range = 16
-            global_audio_quantize_amt = 4.0
-        this_audio_items_viewer.set_grid_div(f_lines_enabled,
-                                             global_audio_quantize_px, f_snap_range)
+        pydaw_set_audio_snap(a_val)
 
     def set_zoom(self, a_val=None):
-        """ This is a ridiculously convoluted way to do this, but I see no other way
-            in the Qt docs.  When Scaling, 1.0 does not return to it's original scale,
-            and QSlider skips values when moved quickly, making it necessary to
-            interpolate the inbetween values
-        """
-        if self.last_scale_value > self.h_zoom_slider.value():
-            for i in range(self.h_zoom_slider.value(), self.last_scale_value):
-                this_audio_items_viewer.set_zoom(1.0 / 1.03)
-        else:
-            for i in range(self.last_scale_value, self.h_zoom_slider.value()):
-                this_audio_items_viewer.set_zoom(1.03)
-        self.last_scale_value = self.h_zoom_slider.value()
-        this_audio_items_viewer.set_h_zoom_value(self.last_scale_value)
-        this_audio_items_viewer.check_line_count()
+        this_audio_items_viewer.set_zoom(float(a_val) * 0.1)
+        global_open_audio_items()
 
 
 class audio_item_editor_widget:
@@ -4182,9 +4176,14 @@ class audio_item_editor_widget:
 
 global_audio_items = None
 
-def global_open_audio_items(a_update_viewer=True):
+def global_open_audio_items(a_update_viewer=True, a_reload=True):
     global global_audio_items
-    global_audio_items = this_pydaw_project.get_audio_region(global_current_region.uid)
+    if a_reload:
+        if global_current_region:
+            global_audio_items = this_pydaw_project.get_audio_region(
+                global_current_region.uid)
+        else:
+            global_audio_items = None
     if a_update_viewer:
         f_selected_list = []
         for f_item in this_audio_items_viewer.audio_items:
@@ -4192,25 +4191,27 @@ def global_open_audio_items(a_update_viewer=True):
                 f_selected_list.append(str(f_item.audio_item))
         this_audio_items_viewer.setUpdatesEnabled(False)
         this_audio_items_viewer.clear_drawn_items()
-        for k, v in list(global_audio_items.items.items()):
-            try:
-                f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
-                if f_graph is None:
-                    print(_("Error drawing item for {}, could not get "
-                    "sample graph object").format(v.uid))
-                    continue
-                this_audio_items_viewer.draw_item(k, v, f_graph)
-            except:
-                if global_transport_is_playing:
-                    print(_("Exception while loading {}".format(v.uid)))
-                else:
-                    f_path = this_pydaw_project.get_wav_path_by_uid(v.uid)
-                    if os.path.isfile(f_path):
-                        f_error_msg = _("Unknown error loading sample f_path {}, \n\n{}").format(
-                            f_path, locals())
+        if global_audio_items:
+            for k, v in global_audio_items.items.items():
+                try:
+                    f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
+                    if f_graph is None:
+                        print(_("Error drawing item for {}, could not get "
+                        "sample graph object").format(v.uid))
+                        continue
+                    this_audio_items_viewer.draw_item(k, v, f_graph)
+                except:
+                    if global_transport_is_playing:
+                        print(_("Exception while loading {}".format(v.uid)))
                     else:
-                        f_error_msg = _("Error loading '{}', file does not exist.").format(f_path)
-                    QtGui.QMessageBox.warning(this_main_window, _("Error"), f_error_msg)
+                        f_path = this_pydaw_project.get_wav_path_by_uid(v.uid)
+                        if os.path.isfile(f_path):
+                            f_error_msg = _("Unknown error loading sample f_path {}, \n\n{}"
+                                ).format(f_path, locals())
+                        else:
+                            f_error_msg = _("Error loading '{}', file does not exist."
+                                ).format(f_path)
+                        QtGui.QMessageBox.warning(this_main_window, _("Error"), f_error_msg)
         for f_item in this_audio_items_viewer.audio_items:
             if str(f_item.audio_item) in f_selected_list:
                 f_item.setSelected(True)
