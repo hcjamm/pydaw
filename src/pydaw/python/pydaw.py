@@ -1778,7 +1778,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_name_arr = f_file_name.rsplit("/", 1)
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
-        self.label.setPos(10, 28)
+        self.label.setPos(10, (global_audio_item_height * 0.5) -
+            (self.label.boundingRect().height() * 0.5))
         self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
         self.start_handle = QtGui.QGraphicsRectItem(parent=self)
