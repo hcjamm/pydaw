@@ -3342,10 +3342,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def set_zoom(self, a_scale):
         self.h_zoom = a_scale
-        pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
+        self.update_zoom()
 
     def set_v_zoom(self, a_scale):
         self.v_zoom = a_scale
+        self.update_zoom()
+
+    def update_zoom(self):
         pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
 
     def set_grid_div(self):
@@ -9932,7 +9935,6 @@ def flush_events():
             print("Successfully processed all pending events in {} iterations".format(f_i))
             return
     print("Could not process all events")
-
 
 app.lastWindowClosed.connect(app.quit)
 app.setStyle(QtGui.QStyleFactory.create("Fusion"))
