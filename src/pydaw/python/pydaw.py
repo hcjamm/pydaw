@@ -1664,15 +1664,15 @@ def pydaw_set_audio_snap(a_val):
         global_audio_quantize_amt = 1.0
     elif a_val == 3:
         global_audio_quantize_px = global_audio_px_per_8th
-        global_audio_snap_range = 8
+        global_audio_snap_range = 2
         global_audio_quantize_amt = 2.0
     elif a_val == 4:
         global_audio_quantize_px = global_audio_px_per_12th
-        global_audio_snap_range = 12
+        global_audio_snap_range = 3
         global_audio_quantize_amt = 3.0
     elif a_val == 5:
         global_audio_quantize_px = global_audio_px_per_16th
-        global_audio_snap_range = 16
+        global_audio_snap_range = 4
         global_audio_quantize_amt = 4.0
 
 global_audio_lines_enabled = True
@@ -1685,7 +1685,7 @@ global_audio_px_per_12th = global_audio_px_per_bar / 12.0
 global_audio_px_per_16th = global_audio_px_per_bar / 16.0
 
 global_audio_quantize = False
-global_audio_quantize_px = None
+global_audio_quantize_px = 25.0
 global_audio_quantize_amt = 1.0
 
 global_audio_ruler_height = 20.0
@@ -2926,9 +2926,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.track = 0
         self.gradient_index = 0
         self.playback_px = 0.0
-        self.snap_draw_extra_lines = False
-        self.snap_extra_lines_div = global_audio_px_per_8th
-        self.snap_extra_lines_range = 8
         self.draw_headers(0)
         self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
@@ -3351,16 +3348,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def update_zoom(self):
         pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
 
-    def set_grid_div(self):
-        self.snap_draw_extra_lines = global_audio_lines_enabled
-        self.snap_extra_lines_div = float(global_audio_quantize_px)
-        self.snap_extra_lines_range = int(global_audio_snap_range)
-        self.snap_extra_lines_beat_skip = self.snap_extra_lines_range / 4
-        if global_current_region is None:
-            self.clear_drawn_items()
-        else:
-            global_open_audio_items(True)
-
     def ruler_click_event(self, a_event):
         if not global_transport_is_playing:
             f_val = int(a_event.pos().x() / global_audio_px_per_bar)
@@ -3368,6 +3355,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def check_line_count(self):
         """ Check that there are not too many vertical lines on the screen """
+        return
+
         f_num_count = len(self.text_list)
         if f_num_count == 0:
             return
@@ -3420,16 +3409,21 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.text_list.append(f_number)
             self.scene.addLine(i3, 0.0, i3, f_total_height, f_v_pen)
             f_number.setPos(i3 + 3.0, 2)
+            if global_audio_lines_enabled:
+                for f_i4 in range(1, global_audio_snap_range):
+                    f_sub_x = i3 + (global_audio_quantize_px * f_i4)
+                    f_line = self.scene.addLine(f_sub_x, global_audio_ruler_height,
+                                                f_sub_x, f_total_height, f_16th_pen)
+                    self.beat_line_list.append(f_line)
             for f_beat_i in range(1, 4):
                 f_beat_x = i3 + (global_audio_px_per_beat * f_beat_i)
                 f_line = self.scene.addLine(f_beat_x, 0.0, f_beat_x, f_total_height, f_beat_pen)
                 self.beat_line_list.append(f_line)
-            if self.snap_draw_extra_lines:
-                for f_16th_i in range(1, self.snap_extra_lines_range):
-                    if f_16th_i % self.snap_extra_lines_beat_skip != 0:
-                        f_16th_x = i3 + (self.snap_extra_lines_div * f_16th_i)
-                        f_line = self.scene.addLine(f_16th_x, global_audio_ruler_height,
-                                                    f_16th_x, f_total_height, f_16th_pen)
+                if global_audio_lines_enabled:
+                    for f_i4 in range(1, global_audio_snap_range):
+                        f_sub_x = f_beat_x + (global_audio_quantize_px * f_i4)
+                        f_line = self.scene.addLine(f_sub_x, global_audio_ruler_height,
+                                                    f_sub_x, f_total_height, f_16th_pen)
                         self.beat_line_list.append(f_line)
             i3 += global_audio_px_per_bar
         self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_reg_pen)
@@ -3746,6 +3740,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
 
     def set_snap(self, a_val=None):
         pydaw_set_audio_snap(a_val)
+        global_open_audio_items(a_reload=False)
 
     def set_zoom(self, a_val=None):
         this_audio_items_viewer.set_zoom(float(a_val) * 0.1)
