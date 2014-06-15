@@ -2956,6 +2956,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
+        self.set_ruler_y_pos()
+
+    def set_ruler_y_pos(self):
         f_point = self.get_scene_pos()
         self.ruler.setPos(0.0, f_point.y())
 
@@ -3432,6 +3435,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos(a_cursor_pos)
         self.check_line_count()
+        self.set_ruler_y_pos()
 
     def clear_drawn_items(self):
         if self.is_playing:
@@ -3541,12 +3545,16 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.crossfade_action.triggered.connect(this_audio_items_viewer.crossfade_selected)
         self.crossfade_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+F"))
 
+        self.v_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.v_zoom_slider.setObjectName("zoom_slider")
+        self.v_zoom_slider.setRange(10, 100)
+        self.v_zoom_slider.setValue(10)
+        self.v_zoom_slider.setSingleStep(1)
+        self.v_zoom_slider.setMaximumWidth(210)
+        self.v_zoom_slider.valueChanged.connect(self.set_v_zoom)
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("V-Zoom:")), 0, 45)
-        self.v_zoom_combobox = QtGui.QComboBox()
-        self.v_zoom_combobox.addItems([_("Small"), _("Medium"), _("Large")])
-        self.v_zoom_combobox.setFixedWidth(105)
-        self.v_zoom_combobox.currentIndexChanged.connect(self.set_v_zoom)
-        self.controls_grid_layout.addWidget(self.v_zoom_combobox, 0, 46)
+        self.controls_grid_layout.addWidget(self.v_zoom_slider, 0, 46)
+
         self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.h_zoom_slider.setObjectName("zoom_slider")
         self.h_zoom_slider.setRange(10, 200)
@@ -3556,7 +3564,9 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.h_zoom_slider.valueChanged.connect(self.set_zoom)
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("H-Zoom:")), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
-        self.v_zoom = 1.0
+
+
+
         self.audio_items_clipboard = []
         self.hsplitter.setSizes([100, 9999])
         self.disable_on_play = (self.menu_button, self.snap_combobox)
@@ -3728,13 +3738,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         f_window.exec_()
 
     def set_v_zoom(self, a_val=None):
-        if self.v_zoom_combobox.currentIndex() == 0:
-            self.v_zoom = 1.0
-        elif self.v_zoom_combobox.currentIndex() == 1:
-            self.v_zoom = 4.0
-        elif self.v_zoom_combobox.currentIndex() == 2:
-            self.v_zoom = 10.0
-        this_audio_items_viewer.set_v_zoom(self.v_zoom)
+        this_audio_items_viewer.set_v_zoom(float(a_val) * 0.1)
         global_open_audio_items()
 
     def set_snap(self, a_val=None):
