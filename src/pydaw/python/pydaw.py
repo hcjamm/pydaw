@@ -1637,7 +1637,7 @@ def pydaw_set_audio_seq_zoom(a_horizontal, a_vertical):
     global_audio_px_per_beat = global_audio_px_per_bar * 0.25 # / 4.0
     global_audio_px_per_8th = global_audio_px_per_bar * 0.125 # / 8.0
     global_audio_px_per_12th = global_audio_px_per_bar / 12.0
-    global_audio_px_per_16th = global_audio_px_per_bar * 0.625 # / 16.0
+    global_audio_px_per_16th = global_audio_px_per_bar * 0.0625 # / 16.0
     pydaw_set_audio_snap(global_audio_snap_val)
     global_audio_item_height = 75.0 * a_vertical
 
