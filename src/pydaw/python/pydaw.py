@@ -5803,12 +5803,11 @@ class automation_item(QtGui.QGraphicsEllipseItem):
 global_automation_editors = []
 
 class automation_viewer(QtGui.QGraphicsView):
-    def __init__(self, a_item_length=4, a_grid_div=16, a_is_cc=True):
+    def __init__(self, a_is_cc=True):
         self.is_cc = a_is_cc
-        self.item_length = float(a_item_length)
+        self.item_length = 4.0
         self.viewer_width = global_automation_width
         self.viewer_height = global_automation_height
-        self.grid_div = a_grid_div
         self.automation_points = []
         self.clipboard = []
         self.selected_str = []
@@ -5816,7 +5815,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.axis_size = global_automation_ruler_width
 
         self.beat_width = self.viewer_width / self.item_length
-        self.value_width = self.beat_width / self.grid_div
+        self.value_width = self.beat_width / 16.0
         self.lines = []
 
         QtGui.QGraphicsView.__init__(self)
@@ -5991,11 +5990,12 @@ class automation_viewer(QtGui.QGraphicsView):
                 f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
-                for j in range(0, self.grid_div):
+                for j in range(0, 16):
                     f_line = QtGui.QGraphicsLineItem(0, 0, 0, self.viewer_height, self.x_axis)
-                    if float(j) == self.grid_div / 2.0:
+                    if float(j) == 8:
                         f_line.setLine(0, 0, 0, self.viewer_height)
-                        f_line.setPos((self.beat_width*i)+(self.value_width * j), self.axis_size)
+                        f_line.setPos((self.beat_width * i) + (self.value_width * j),
+                                      self.axis_size)
                     else:
                         f_line.setPos((self.beat_width * i) +
                             (self.value_width * j), self.axis_size)
@@ -6038,6 +6038,8 @@ class automation_viewer(QtGui.QGraphicsView):
         self.setUpdatesEnabled(False)
         self.viewer_width = global_automation_width * global_item_editing_count
         self.item_length = 4.0 * global_item_editing_count
+        self.beat_width = self.viewer_width / self.item_length
+        self.value_width = self.beat_width / 16.0
         global global_automation_grid_max_start_time
         global_automation_grid_max_start_time = \
             (global_automation_width * global_item_editing_count) + \
