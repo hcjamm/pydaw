@@ -4387,6 +4387,12 @@ class audio_track:
                                  self.volume_slider.value(), str(self.track_name_lineedit.text()),
                                  self.bus_combobox.currentIndex(), self.track_number)
 
+def global_set_piano_roll_zoom():
+    global global_piano_roll_grid_width
+    global global_midi_scale
+    global_piano_roll_grid_width = 1000.0 * global_midi_scale
+    pydaw_set_piano_roll_quantize(global_piano_roll_quantize_index)
+
 global_item_editing_count = 1
 
 global_piano_roll_snap = False
@@ -4395,12 +4401,13 @@ global_piano_keys_width = 34  #Width of the piano keys in px
 global_piano_roll_grid_max_start_time = 999.0 + global_piano_keys_width
 global_piano_roll_note_height = 15
 global_piano_roll_snap_divisor = 16.0
-global_piano_roll_snap_beats = 4.0/global_piano_roll_snap_divisor
+global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
 global_piano_roll_snap_value = global_piano_roll_grid_width / global_piano_roll_snap_divisor
 global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / 4.0
 global_piano_roll_note_count = 120
 global_piano_roll_header_height = 20
 global_piano_roll_total_height = 1000  #gets updated by the piano roll to it's real value
+global_piano_roll_quantize_index = 4
 
 pydaw_note_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
 pydaw_note_selected_gradient.setColorAt(0, QtGui.QColor(180, 172, 100))
@@ -4415,6 +4422,9 @@ def pydaw_set_piano_roll_quantize(a_index):
     global global_piano_roll_snap_divisor_beats
     global global_piano_roll_snap_beats
     global global_last_resize
+    global global_piano_roll_quantize_index
+
+    global_piano_roll_quantize_index = a_index
 
     if a_index == 0:
         global_piano_roll_snap = False
@@ -4721,6 +4731,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             piano_roll_set_delete_mode(False)
             return
         a_event.setAccepted(True)
+        f_recip = 1.0 / global_piano_roll_grid_width
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         global global_selected_piano_note
         if self.is_copying:
@@ -4730,7 +4741,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_pos_y = f_item.pos().y()
             if self.is_resizing:
                 f_new_note_length = ((f_pos_x + f_item.rect().width() -
-                global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos
+                global_piano_keys_width) * f_recip * 4.0) - f_item.resize_start_pos
                 if global_selected_piano_note is not None and \
                 self.note_item != global_selected_piano_note:
                     f_new_note_length -= (self.item_index * 4.0)
@@ -4742,7 +4753,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             elif self.is_velocity_dragging or self.is_velocity_curving:
                 pass
             else:
-                f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001
+                f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * f_recip
                 f_new_note_num = self.y_pos_to_note(f_pos_y)
                 if self.is_copying:
                     f_item.item_index, f_new_note_start = \
@@ -5097,6 +5108,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_pos_x < global_piano_roll_grid_max_start_time and \
             f_pos_y > global_piano_roll_header_height and \
             f_pos_y < global_piano_roll_total_height:
+                f_recip = 1.0 / global_piano_roll_grid_width
                 if self.vel_rand == 1:
                     pass
                 elif self.vel_rand == 2:
@@ -5106,11 +5118,11 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 if global_piano_roll_snap:
                     f_beat = (int((f_pos_x - global_piano_keys_width) /
                              global_piano_roll_snap_value) * \
-                             global_piano_roll_snap_value) * 0.001 * 4.0
+                             global_piano_roll_snap_value) * f_recip * 4.0
                     f_note_item = pydaw_note(f_beat, global_last_resize, f_note,
                                              self.get_vel(f_beat))
                 else:
-                    f_beat = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
+                    f_beat = (f_pos_x - global_piano_keys_width) * f_recip * 4.0
                     f_note_item = pydaw_note(f_beat, 0.25, f_note, self.get_vel(f_beat))
                 f_note_index = this_item_editor.add_note(f_note_item)
                 global global_selected_piano_note
@@ -5320,17 +5332,18 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.scale_to_width()
 
     def scale_to_width(self):
-        if global_item_zoom_index == 0:
-            self.scale(1.0 / self.last_x_scale, 1.0)
-            self.last_x_scale = 1.0
-        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
-            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
-            f_new_scale = f_width / self.viewer_width
-            if self.last_x_scale != f_new_scale:
-                self.scale(1.0 / self.last_x_scale, 1.0)
-                self.last_x_scale = f_new_scale
-                self.scale(self.last_x_scale, 1.0)
-            self.horizontalScrollBar().setSliderPosition(0)
+        pass
+#        if global_item_zoom_index == 0:
+#            self.scale(1.0 / self.last_x_scale, 1.0)
+#            self.last_x_scale = 1.0
+#        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
+#            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+#            f_new_scale = f_width / self.viewer_width
+#            if self.last_x_scale != f_new_scale:
+#                self.scale(1.0 / self.last_x_scale, 1.0)
+#                self.last_x_scale = f_new_scale
+#                self.scale(self.last_x_scale, 1.0)
+#            self.horizontalScrollBar().setSliderPosition(0)
 
     def clear_drawn_items(self):
         self.note_items = []
@@ -5341,13 +5354,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_item(self):
         self.has_selected = False #Reset the selected-ness state...
-        self.viewer_width = 1000 * global_item_editing_count
-        self.setSceneRect(0.0, 0.0, self.viewer_width + 1200.0,
+        self.viewer_width = global_piano_roll_grid_width * global_item_editing_count
+        self.setSceneRect(0.0, 0.0, self.viewer_width + global_piano_roll_grid_width,
                           self.piano_height + self.header_height + 24.0)
         self.item_length = float(4 * global_item_editing_count)
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = \
-            (999.0 * global_item_editing_count) + global_piano_keys_width
+            ((global_piano_roll_grid_width - 1.0) * \
+            global_item_editing_count) + global_piano_keys_width
         self.setUpdatesEnabled(False)
         self.clear_drawn_items()
         if this_item_editor.enabled:
@@ -5370,7 +5384,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_text = QtGui.QGraphicsSimpleTextItem(f_name, self.header)
                 f_text.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_text.setBrush(QtCore.Qt.yellow)
-                f_text.setPos((f_i * 1000.0) + 48.0, 2.0)
+                f_text.setPos((f_i * global_piano_roll_grid_width) + 48.0, 2.0)
         self.setUpdatesEnabled(True)
         self.update()
 
@@ -5991,17 +6005,18 @@ class automation_viewer(QtGui.QGraphicsView):
         self.scale_to_width()
 
     def scale_to_width(self):
-        if global_item_zoom_index == 0:
-            self.scale(1.0 / self.last_x_scale, 1.0)
-            self.last_x_scale = 1.0
-        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
-            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
-            f_new_scale = f_width / self.viewer_width
-            if self.last_x_scale != f_new_scale:
-                self.scale(1.0 / self.last_x_scale, 1.0)
-                self.last_x_scale = f_new_scale
-                self.scale(self.last_x_scale, 1.0)
-            self.horizontalScrollBar().setSliderPosition(0)
+        pass
+#        if global_item_zoom_index == 0:
+#            self.scale(1.0 / self.last_x_scale, 1.0)
+#            self.last_x_scale = 1.0
+#        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
+#            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+#            f_new_scale = f_width / self.viewer_width
+#            if self.last_x_scale != f_new_scale:
+#                self.scale(1.0 / self.last_x_scale, 1.0)
+#                self.last_x_scale = f_new_scale
+#                self.scale(self.last_x_scale, 1.0)
+#            self.horizontalScrollBar().setSliderPosition(0)
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -6399,18 +6414,12 @@ def global_check_midi_items():
         return True
 
 global_draw_last_items = False
+global_midi_scale = 1.0
 
-def global_set_midi_zoom():
-    if not this_item_editor.enabled:
-        return
-    global global_item_zoom_index
-    f_item_count = len(this_item_editor.items)
-    if f_item_count < 2:
-        if global_item_zoom_index == 1:
-            global_item_zoom_index = 0
-            this_item_editor.zoom_slider.setValue(0)
-    for f_editor in global_midi_editors:
-        f_editor.scale_to_width()
+def global_set_midi_zoom(a_val):
+    global global_midi_scale
+    global_midi_scale = a_val
+    global_set_piano_roll_zoom()
 
 
 def global_open_items(a_items=None, a_reset_scrollbar=False):
@@ -6426,9 +6435,7 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         this_piano_roll_editor.selected_note_strings = []
         global global_item_editing_count
         global_item_editing_count = len(a_items)
-        if global_item_zoom_index == 1 and global_item_editing_count == 1:
-            global_item_zoom_index = 0
-            this_item_editor.zoom_slider.setValue(0)
+        this_item_editor.zoom_slider.setValue(0)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         this_item_editor.item_names = a_items
         this_item_editor.item_index_enabled = False
@@ -6440,7 +6447,6 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         if a_reset_scrollbar:
             for f_editor in global_midi_editors:
                 f_editor.horizontalScrollBar().setSliderPosition(0)
-        global_set_midi_zoom()
         global_last_open_item_names = global_open_item_names
         global_open_item_names = a_items[:]
         f_items_dict = this_pydaw_project.get_items_dict()
@@ -6473,7 +6479,8 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
             this_cc_editor_widget.set_cc_num(f_cc_num)
     this_cc_editor.draw_item()
     this_pb_editor.draw_item()
-    this_item_editor.open_item_list()
+    if this_item_editor.items:
+        this_item_editor.open_item_list()
 
 #    if a_items is not None and f_index == 1:
 #        this_main_window.midi_zoom_action.setChecked(True)
@@ -6793,8 +6800,8 @@ class item_list_editor:
 
         self.zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.zoom_slider.setObjectName("zoom_slider")
-        self.zoom_slider.setRange(0, 1)
-        self.zoom_slider.valueChanged.connect(self.midi_zoom)
+        self.zoom_slider.setRange(10, 100)
+        self.zoom_slider.valueChanged.connect(self.set_midi_zoom)
         self.tab_widget.setCornerWidget(self.zoom_slider)
 
         self.set_headers()
@@ -6811,14 +6818,13 @@ class item_list_editor:
         self.default_pb_val = 0
         self.default_pb_quantize = 0
 
-    def midi_zoom(self, a_val):
-        global global_item_zoom_index
-        global_item_zoom_index = a_val
-        global_set_midi_zoom()
-
     def item_index_changed(self, a_index=None):
         if self.item_index_enabled:
             self.open_item_list()
+
+    def set_midi_zoom(self, a_val):
+         global_set_midi_zoom(a_val * 0.1)
+         global_open_items()
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels([_('Start'), _('Length'), _('Note'),
