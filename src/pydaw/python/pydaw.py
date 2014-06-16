@@ -4569,7 +4569,11 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.note_text.setText("{}{}".format(f_note, f_octave))
 
     def mouse_is_at_end(self, a_pos):
-        return (a_pos.x() > (self.rect().width() * 0.8))
+        f_width = self.rect().width()
+        if f_width >= 30.0:
+            return (a_pos.x() > (f_width - 15.0))
+        else:
+            return (a_pos.x() > (f_width * 0.72))
 
     def hoverMoveEvent(self, a_event):
         #QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
