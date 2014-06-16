@@ -5698,25 +5698,15 @@ global_automation_ruler_width = 24.0
 global_automation_width = 690.0
 global_automation_height = 300.0
 
-global_automation_grid_max_start_time = \
-global_automation_width + global_automation_ruler_width - global_automation_point_radius
-
-global_automation_total_height = \
-global_automation_ruler_width +  global_automation_height - global_automation_point_radius
-
-global_automation_total_width = \
-global_automation_ruler_width + global_automation_width - global_automation_point_radius
-
 global_automation_min_height = global_automation_ruler_width - global_automation_point_radius
 
-global_automation_gradient = QtGui.QLinearGradient(0, 0, global_automation_point_diameter,
-                                                   global_automation_point_diameter)
+global_automation_gradient = QtGui.QLinearGradient(
+    0, 0, global_automation_point_diameter, global_automation_point_diameter)
 global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
-global_automation_selected_gradient = QtGui.QLinearGradient(0, 0,
-                                                            global_automation_point_diameter,
-                                                            global_automation_point_diameter)
+global_automation_selected_gradient = QtGui.QLinearGradient(
+    0, 0, global_automation_point_diameter, global_automation_point_diameter)
 global_automation_selected_gradient.setColorAt(0, QtGui.QColor(255, 255, 255))
 global_automation_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
 
@@ -5729,7 +5719,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setPos(a_time-global_automation_point_radius,
+        self.setPos(a_time - global_automation_point_radius,
                     a_value - global_automation_point_radius)
         self.setBrush(global_automation_gradient)
         f_pen = QtGui.QPen()
@@ -5752,12 +5742,12 @@ class automation_item(QtGui.QGraphicsEllipseItem):
             if f_point.isSelected():
                 if f_point.pos().x() < global_automation_min_height:
                     f_point.setPos(global_automation_min_height, f_point.pos().y())
-                elif f_point.pos().x() > global_automation_grid_max_start_time:
-                    f_point.setPos(global_automation_grid_max_start_time, f_point.pos().y())
+                elif f_point.pos().x() > self.parent_view.grid_max_start_time:
+                    f_point.setPos(self.parent_view.grid_max_start_time, f_point.pos().y())
                 if f_point.pos().y() < global_automation_min_height:
                     f_point.setPos(f_point.pos().x(), global_automation_min_height)
-                elif f_point.pos().y() > global_automation_total_height:
-                    f_point.setPos(f_point.pos().x(), global_automation_total_height)
+                elif f_point.pos().y() > self.parent_view.total_height:
+                    f_point.setPos(f_point.pos().x(), self.parent_view.total_height)
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
@@ -5804,8 +5794,13 @@ global_automation_editors = []
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_is_cc=True):
+        QtGui.QGraphicsView.__init__(self)
         self.is_cc = a_is_cc
         self.item_length = 4.0
+        self.grid_max_start_time = global_automation_width + \
+            global_automation_ruler_width - global_automation_point_radius
+        self.total_height = global_automation_ruler_width + \
+            global_automation_height - global_automation_point_radius
         self.viewer_width = global_automation_width
         self.viewer_height = global_automation_height
         self.automation_points = []
@@ -5818,7 +5813,6 @@ class automation_viewer(QtGui.QGraphicsView):
         self.value_width = self.beat_width / 16.0
         self.lines = []
 
-        QtGui.QGraphicsView.__init__(self)
         self.setMinimumHeight(370)
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
@@ -6012,21 +6006,7 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        self.scale_to_width()
-
-    def scale_to_width(self):
-        pass
-#        if global_item_zoom_index == 0:
-#            self.scale(1.0 / self.last_x_scale, 1.0)
-#            self.last_x_scale = 1.0
-#        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
-#            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
-#            f_new_scale = f_width / self.viewer_width
-#            if self.last_x_scale != f_new_scale:
-#                self.scale(1.0 / self.last_x_scale, 1.0)
-#                self.last_x_scale = f_new_scale
-#                self.scale(self.last_x_scale, 1.0)
-#            self.horizontalScrollBar().setSliderPosition(0)
+        global_open_items()
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -6040,8 +6020,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.item_length = 4.0 * global_item_editing_count
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / 16.0
-        global global_automation_grid_max_start_time
-        global_automation_grid_max_start_time = \
+        self.grid_max_start_time = \
             (global_automation_width * global_item_editing_count) + \
             global_automation_ruler_width - global_automation_point_radius
         self.clear_drawn_items()
