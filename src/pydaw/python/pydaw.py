@@ -5796,6 +5796,7 @@ class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_is_cc=True):
         QtGui.QGraphicsView.__init__(self)
         self.is_cc = a_is_cc
+        self.set_scale()
         self.item_length = 4.0
         self.grid_max_start_time = global_automation_width + \
             global_automation_ruler_width - global_automation_point_radius
@@ -5918,7 +5919,7 @@ class automation_viewer(QtGui.QGraphicsView):
             return
         f_pos_x = a_event.scenePos().x() - global_automation_point_radius
         f_pos_y = a_event.scenePos().y() - global_automation_point_radius
-        f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
+        f_cc_start = ((f_pos_x - global_automation_min_height) / self.item_width) * 4.0
         f_cc_start = pydaw_clip_value(f_cc_start, 0.0,
                                       (4.0  * global_item_editing_count) - 0.01, a_round=True)
         if self.is_cc:
@@ -6006,7 +6007,14 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        global_open_items()
+        self.set_scale()
+
+    def set_scale(self):
+        f_rect = self.rect()
+        f_width = float(f_rect.width()) - self.verticalScrollBar().width() - \
+            6.0 - global_automation_ruler_width
+        self.region_scale = f_width / (global_item_editing_count * 690.0)
+        self.item_width = global_automation_width * self.region_scale
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -6016,12 +6024,12 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def draw_item(self):
         self.setUpdatesEnabled(False)
-        self.viewer_width = global_automation_width * global_item_editing_count
+        self.set_scale()
+        self.viewer_width = global_item_editing_count * self.item_width
         self.item_length = 4.0 * global_item_editing_count
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / 16.0
-        self.grid_max_start_time = \
-            (global_automation_width * global_item_editing_count) + \
+        self.grid_max_start_time = self.viewer_width + \
             global_automation_ruler_width - global_automation_point_radius
         self.clear_drawn_items()
         if not this_item_editor.enabled:
@@ -6032,15 +6040,16 @@ class automation_viewer(QtGui.QGraphicsView):
         for f_item in this_item_editor.items:
             if self.is_cc:
                 for f_cc in f_item.ccs:
-                    if f_cc.cc_num == self.cc_num and f_cc.plugin_index == self.plugin_index:
+                    if f_cc.cc_num == self.cc_num and \
+                    f_cc.plugin_index == self.plugin_index:
                         self.draw_point(f_cc, f_item_index)
             else:
                 for f_pb in f_item.pitchbends:
                     self.draw_point(f_pb, f_item_index)
             for f_note in f_item.notes:
-                f_note_start = (f_item_index * global_automation_width) + (f_note.start * 0.25 *
-                    global_automation_width) + global_automation_ruler_width
-                f_note_end = f_note_start + (f_note.length * global_automation_width * 0.25)
+                f_note_start = (f_item_index * self.item_width) + (f_note.start * 0.25 *
+                    self.item_width) + global_automation_ruler_width
+                f_note_end = f_note_start + (f_note.length * self.item_width * 0.25)
                 f_note_y = \
                     global_automation_ruler_width + ((127.0 - (f_note.note_num)) * f_note_height)
                 f_note_item = QtGui.QGraphicsLineItem(f_note_start, f_note_y,
