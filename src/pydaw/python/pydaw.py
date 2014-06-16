@@ -6441,7 +6441,8 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         this_piano_roll_editor.selected_note_strings = []
         global global_item_editing_count
         global_item_editing_count = len(a_items)
-        this_item_editor.zoom_slider.setValue(0)
+        global_set_piano_roll_zoom()
+        #this_item_editor.zoom_slider.setValue(0)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         this_item_editor.item_names = a_items
         this_item_editor.item_index_enabled = False
