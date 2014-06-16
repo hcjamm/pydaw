@@ -3045,6 +3045,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
         pydaw_set_audio_seq_zoom(self.h_zoom, self.v_zoom)
+        global_open_audio_items(a_reload=False)
 
     def sceneContextMenuEvent(self, a_event):
         if self.check_running():
@@ -5335,21 +5336,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        self.scale_to_width()
-
-    def scale_to_width(self):
-        pass
-#        if global_item_zoom_index == 0:
-#            self.scale(1.0 / self.last_x_scale, 1.0)
-#            self.last_x_scale = 1.0
-#        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
-#            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
-#            f_new_scale = f_width / self.viewer_width
-#            if self.last_x_scale != f_new_scale:
-#                self.scale(1.0 / self.last_x_scale, 1.0)
-#                self.last_x_scale = f_new_scale
-#                self.scale(self.last_x_scale, 1.0)
-#            self.horizontalScrollBar().setSliderPosition(0)
+        this_item_editor.tab_changed()
 
     def clear_drawn_items(self):
         self.note_items = []
@@ -5755,7 +5742,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
             if f_point.isSelected():
                 f_cc_start = \
                 (((f_point.pos().x() - global_automation_min_height) /
-                    global_automation_width) * 4.0)
+                    self.parent_view.item_width) * 4.0)
                 if f_cc_start >= 4.0 * global_item_editing_count:
                     f_cc_start = (4.0 * global_item_editing_count) - 0.01
                 elif f_cc_start < 0.0:
@@ -5799,8 +5786,6 @@ class automation_viewer(QtGui.QGraphicsView):
         self.item_length = 4.0
         self.grid_max_start_time = global_automation_width + \
             global_automation_ruler_width - global_automation_point_radius
-        self.total_height = global_automation_ruler_width + \
-            self.viewer_height - global_automation_point_radius
         self.viewer_width = global_automation_width
         self.automation_points = []
         self.clipboard = []
@@ -6005,16 +5990,18 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        self.set_scale()
+        this_item_editor.tab_changed()
 
     def set_scale(self):
         f_rect = self.rect()
         f_width = float(f_rect.width()) - self.verticalScrollBar().width() - \
-            6.0 - global_automation_ruler_width
+            30.0 - global_automation_ruler_width
         self.region_scale = f_width / (global_item_editing_count * 690.0)
         self.item_width = global_automation_width * self.region_scale
         self.viewer_height = float(f_rect.height()) - self.horizontalScrollBar().height() - \
-            6.0 - global_automation_ruler_width
+            30.0 - global_automation_ruler_width
+        self.total_height = global_automation_ruler_width + \
+            self.viewer_height - global_automation_point_radius
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -6472,20 +6459,15 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
                 f_cc_dict[f_key] = []
             f_cc_dict[f_key] = cc
 
-    this_piano_roll_editor.draw_item()
-
     this_cc_editor_widget.update_ccs_in_use(list(f_cc_dict.keys()))
 
     if a_items is not None:
         for f_cc_num in list(f_cc_dict.keys()):
             this_cc_editor_widget.set_cc_num(f_cc_num)
-    this_cc_editor.draw_item()
-    this_pb_editor.draw_item()
+
+    this_item_editor.tab_changed()
     if this_item_editor.items:
         this_item_editor.open_item_list()
-
-#    if a_items is not None and f_index == 1:
-#        this_main_window.midi_zoom_action.setChecked(True)
 
 def global_save_and_reload_items():
     assert(len(this_item_editor.item_names) == len(this_item_editor.items))
@@ -6690,7 +6672,15 @@ class item_list_editor:
         f_window.exec_()
 
     def tab_changed(self, a_val=None):
+        f_list = [this_piano_roll_editor, this_cc_editor, this_pb_editor]
+        f_index = self.tab_widget.currentIndex()
+        if f_index == 0:
+            global_set_piano_roll_zoom()
+        if f_index < len(f_list):
+            f_list[f_index].draw_item()
         this_piano_roll_editor.click_enabled = True
+        #^^^^huh?
+
 
     def show_not_enabled_warning(self):
         QtGui.QMessageBox.warning(this_main_window, _("Error"),
@@ -8161,8 +8151,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_transport.on_spacebar()
 
     def tab_changed(self):
-        if not global_transport_is_playing and self.main_tabwidget.currentIndex() != 3:
+        f_index = self.main_tabwidget.currentIndex()
+        if not global_transport_is_playing and f_index != 3:
             this_wave_editor_widget.enabled_checkbox.setChecked(False)
+        if f_index == 1:
+            this_item_editor.tab_changed()
 
     def on_collapse_splitters(self):
         self.song_region_splitter.setSizes([0, 9999])
