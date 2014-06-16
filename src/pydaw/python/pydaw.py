@@ -5688,6 +5688,10 @@ class piano_roll_editor_widget:
         else:
             this_piano_roll_editor.clear_drawn_items()
 
+def global_set_automation_zoom():
+    global global_automation_width
+    global_automation_width = 690.0 * global_midi_scale
+
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
 global_automation_ruler_width = 24.0
@@ -6426,6 +6430,7 @@ def global_set_midi_zoom(a_val):
     global global_midi_scale
     global_midi_scale = a_val
     global_set_piano_roll_zoom()
+    global_set_automation_zoom()
 
 
 def global_open_items(a_items=None, a_reset_scrollbar=False):
