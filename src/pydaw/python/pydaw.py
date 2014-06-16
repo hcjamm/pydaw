@@ -4390,7 +4390,13 @@ class audio_track:
 def global_set_piano_roll_zoom():
     global global_piano_roll_grid_width
     global global_midi_scale
-    global_piano_roll_grid_width = 1000.0 * global_midi_scale
+
+    f_width = float(this_piano_roll_editor.rect().width()) - \
+        float(this_piano_roll_editor.verticalScrollBar().width()) - 6.0 - \
+        global_piano_keys_width
+    f_region_scale = f_width / (global_item_editing_count * 1000.0)
+
+    global_piano_roll_grid_width = 1000.0 * global_midi_scale * f_region_scale
     pydaw_set_piano_roll_quantize(global_piano_roll_quantize_index)
 
 global_item_editing_count = 1
