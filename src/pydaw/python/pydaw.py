@@ -5696,7 +5696,6 @@ global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
 global_automation_ruler_width = 24.0
 global_automation_width = 690.0
-global_automation_height = 300.0
 
 global_automation_min_height = global_automation_ruler_width - global_automation_point_radius
 
@@ -5766,7 +5765,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = (127.0 - (((f_point.pos().y() -
-                    global_automation_min_height) / global_automation_height) * 127.0))
+                    global_automation_min_height) / self.parent_view.viewer_height) * 127.0))
 
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
@@ -5780,7 +5779,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     #print("Exception removing {} from list".format(f_point.cc_item))
                     f_point.item_index = f_new_item_index
                     f_cc_val = (1.0 - (((f_point.pos().y() -
-                    global_automation_min_height) / global_automation_height) * 2.0))
+                    global_automation_min_height) / self.parent_view.viewer_height) * 2.0))
 
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
@@ -5801,9 +5800,8 @@ class automation_viewer(QtGui.QGraphicsView):
         self.grid_max_start_time = global_automation_width + \
             global_automation_ruler_width - global_automation_point_radius
         self.total_height = global_automation_ruler_width + \
-            global_automation_height - global_automation_point_radius
+            self.viewer_height - global_automation_point_radius
         self.viewer_width = global_automation_width
-        self.viewer_height = global_automation_height
         self.automation_points = []
         self.clipboard = []
         self.selected_str = []
@@ -5924,13 +5922,13 @@ class automation_viewer(QtGui.QGraphicsView):
                                       (4.0  * global_item_editing_count) - 0.01, a_round=True)
         if self.is_cc:
             f_cc_val = int(127.0 - (((f_pos_y - global_automation_min_height) /
-                global_automation_height) * 127.0))
+                self.viewer_height) * 127.0))
             f_cc_val = pydaw_clip_value(f_cc_val, 0, 127)
             this_item_editor.add_cc(pydaw_cc(f_cc_start, self.plugin_index,
                                              self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) /
-                global_automation_height) * 2.0)
+                self.viewer_height) * 2.0)
             f_cc_val = pydaw_clip_value(f_cc_val, -1.0, 1.0)
             this_item_editor.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
@@ -6015,6 +6013,8 @@ class automation_viewer(QtGui.QGraphicsView):
             6.0 - global_automation_ruler_width
         self.region_scale = f_width / (global_item_editing_count * 690.0)
         self.item_width = global_automation_width * self.region_scale
+        self.viewer_height = float(f_rect.height()) - self.horizontalScrollBar().height() - \
+            6.0 - global_automation_ruler_width
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -6036,7 +6036,7 @@ class automation_viewer(QtGui.QGraphicsView):
             return
         f_item_index = 0
         f_pen = QtGui.QPen(pydaw_note_gradient, 2.0)
-        f_note_height = (global_automation_height / 127.0)
+        f_note_height = (self.viewer_height / 127.0)
         for f_item in this_item_editor.items:
             if self.is_cc:
                 for f_cc in f_item.ccs:
@@ -6772,7 +6772,6 @@ class item_list_editor:
         self.notes_hlayout.addWidget(self.ccs_groupbox)
 
         self.main_vlayout.addWidget(this_cc_editor_widget.widget)
-        self.main_vlayout.addItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
@@ -6795,8 +6794,6 @@ class item_list_editor:
         self.pb_hlayout.addLayout(self.pb_auto_vlayout)
         self.pb_viewer_widget = automation_viewer_widget(this_pb_editor, False)
         self.pb_auto_vlayout.addWidget(self.pb_viewer_widget.widget)
-        self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum,
-                                                       QtGui.QSizePolicy.Expanding))
 
         self.tab_widget.addTab(self.notes_tab, _("List Viewers"))
 
