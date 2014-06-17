@@ -7169,9 +7169,8 @@ class transport_widget:
                             this_region_settings.open_region(f_item.text())
                         else:
                             this_region_settings.clear_items()
-                            this_audio_items_viewer.clear_drawn_items(
-                                a_default_length=True)
-                            this_audio_items_viewer.scale_to_region_size()
+                            this_audio_items_viewer.update_zoom()
+                            this_audio_items_viewer.clear_drawn_items()
                             for f_region_editor in global_region_editors:
                                 f_region_editor.set_region_length()
 
