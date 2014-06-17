@@ -4874,6 +4874,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                             a_pydaw_data->ab_audio_item->sample_read_head,
                             a_pydaw_data->ab_audio_item->sample_start_offset);
                     v_adsr_retrigger(a_pydaw_data->ab_audio_item->adsr);
+                    v_svf_reset(a_pydaw_data->ab_audio_item->lp_filter);
                 }
             }
 
