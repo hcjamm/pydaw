@@ -7168,6 +7168,12 @@ class transport_widget:
                         if not f_item is None and f_item.text() != "":
                             this_region_settings.open_region(f_item.text())
                         else:
+                            global global_current_region_name
+                            global global_audio_items
+                            global global_current_region
+                            global_current_region_name = None
+                            global_current_region = None
+                            global_audio_items = None
                             this_region_settings.clear_items()
                             this_audio_items_viewer.update_zoom()
                             this_audio_items_viewer.clear_drawn_items()
