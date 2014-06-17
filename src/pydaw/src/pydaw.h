@@ -3164,6 +3164,9 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
                             f_current_region]->items[f_i]->sample_start_offset);
                     }
 
+                    v_svf_reset(a_pydaw_data->pysong->audio_items[
+                            f_current_region]->items[f_i]->lp_filter);
+
                     v_adsr_retrigger(a_pydaw_data->pysong->audio_items[
                             f_current_region]->items[f_i]->adsr);
 

@@ -25,6 +25,7 @@ extern "C" {
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../libmodsynth/lib/interpolate-sinc.h"
 #include "../libmodsynth/modules/modulation/adsr.h"
+#include "../libmodsynth/modules/filter/svf.h"
 #include "../include/pydaw_plugin.h"
 #include "pydaw_files.h"
 #include "pydaw.h"
@@ -71,7 +72,8 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
 	else filename = a_wav_pool_item->path;
 
 	if (!file) {
-            printf("error: unable to load sample file '%s'", a_wav_pool_item->path);
+            printf("error: unable to load sample file '%s'",
+                    a_wav_pool_item->path);
 	    return 0;
 	}
     }
@@ -84,7 +86,8 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
 
     if ((int)(info.samplerate) != (int)(a_wav_pool_item->host_sr))
     {
-	double ratio = (double)(info.samplerate)/(double)(a_wav_pool_item->host_sr);
+	double ratio = (double)(info.samplerate) /
+            (double)(a_wav_pool_item->host_sr);
         a_wav_pool_item->ratio_orig = (float)ratio;
     }
     else
@@ -100,14 +103,16 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
 
     int f_actual_array_size = (samples + PYDAW_AUDIO_ITEM_PADDING);
 
-    if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+    if(posix_memalign((void**)(&(tmpSamples[0])), 16,
+            ((f_actual_array_size) * sizeof(float))) != 0)
     {
         printf("Call to posix_memalign failed for tmpSamples[0]\n");
         return 0;
     }
     if(f_adjusted_channel_count > 1)
     {
-        if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+        if(posix_memalign((void**)(&(tmpSamples[1])), 16,
+                ((f_actual_array_size) * sizeof(float))) != 0)
         {
             printf("Call to posix_memalign failed for tmpSamples[1]\n");
             return 0;
@@ -118,13 +123,15 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
 
     //For performing a 5ms fadeout of the sample, for preventing clicks
     float f_fade_out_dec = (1.0f/(float)(info.samplerate))/(0.005);
-    int f_fade_out_start = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2) - ((int)(0.005f * ((float)(info.samplerate))));
+    int f_fade_out_start = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2) -
+        ((int)(0.005f * ((float)(info.samplerate))));
     float f_fade_out_envelope = 1.0f;
     float f_temp_sample = 0.0f;
 
     for(f_i = 0; f_i < f_actual_array_size; f_i++)
     {
-        if((f_i > PYDAW_AUDIO_ITEM_PADDING_DIV2) && (f_i < (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2))) // + Sampler_Sample_Padding)))
+        if((f_i > PYDAW_AUDIO_ITEM_PADDING_DIV2) &&
+                (f_i < (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2)))
         {
             if(f_i >= f_fade_out_start)
             {
@@ -138,7 +145,9 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
 
 	    for (j = 0; j < f_adjusted_channel_count; ++j)
             {
-                f_temp_sample = (tmpFrames[(f_i - PYDAW_AUDIO_ITEM_PADDING_DIV2) * info.channels + j]);
+                f_temp_sample =
+                        (tmpFrames[(f_i - PYDAW_AUDIO_ITEM_PADDING_DIV2) *
+                        info.channels + j]);
 
                 if(f_i >= f_fade_out_start)
                 {
@@ -173,7 +182,8 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
         a_wav_pool_item->samples[1] = 0;
     }
 
-    a_wav_pool_item->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
+    //-20 to ensure we don't read past the end of the array
+    a_wav_pool_item->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);
 
     a_wav_pool_item->sample_rate = info.samplerate;
 
@@ -237,6 +247,7 @@ typedef struct
     t_amp * amp_ptr;
     t_pit_pitch_core * pitch_core_ptr;
     t_pit_ratio * pitch_ratio_ptr;
+    t_state_variable_filter * lp_filter;  //fade smoothing
 
     float pitch_shift_end;
     float timestretch_amt_end;
@@ -380,6 +391,10 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->amp_ptr = g_amp_get();
     f_result->pitch_core_ptr = g_pit_get();
     f_result->pitch_ratio_ptr = g_pit_ratio();
+    f_result->lp_filter = g_svf_get(a_sr);
+    v_svf_set_cutoff_base(f_result->lp_filter, f_pit_hz_to_midi_note(7200.0f));
+    v_svf_set_res(f_result->lp_filter, -15.0f);
+    v_svf_set_cutoff(f_result->lp_filter);
     f_result->vol = 0.0f;
     f_result->vol_linear = 1.0f;
 
@@ -789,6 +804,9 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
             a_audio_item->fade_vol =
                     f_db_to_linear_fast(a_audio_item->fade_vol,
                     a_audio_item->amp_ptr);
+            a_audio_item->fade_vol =
+                    v_svf_run_2_pole_lp(a_audio_item->lp_filter,
+                    a_audio_item->fade_vol);
         }
         else if(a_audio_item->sample_read_head->whole_number >=
                 a_audio_item->sample_fade_out_start &&
@@ -805,6 +823,9 @@ void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
             a_audio_item->fade_vol =
                 f_db_to_linear_fast(a_audio_item->fade_vol,
                     a_audio_item->amp_ptr);
+            a_audio_item->fade_vol =
+                    v_svf_run_2_pole_lp(a_audio_item->lp_filter,
+                    a_audio_item->fade_vol);
         }
         else
         {
