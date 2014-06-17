@@ -6702,7 +6702,6 @@ class item_list_editor:
         self.widget.setLayout(self.master_vlayout)
 
         self.tab_widget = QtGui.QTabWidget()
-        self.tab_widget.currentChanged.connect(self.tab_changed)
         self.piano_roll_tab = QtGui.QGroupBox()
         self.tab_widget.addTab(self.piano_roll_tab, _("Piano Roll"))
         self.notes_tab = QtGui.QGroupBox()
@@ -6796,6 +6795,7 @@ class item_list_editor:
         self.zoom_slider.setRange(10, 100)
         self.zoom_slider.valueChanged.connect(self.set_midi_zoom)
         self.tab_widget.setCornerWidget(self.zoom_slider)
+        self.tab_widget.currentChanged.connect(self.tab_changed)
 
         self.set_headers()
         self.default_note_start = 0.0
