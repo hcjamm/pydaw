@@ -5685,7 +5685,7 @@ def global_set_automation_zoom():
 
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
-global_automation_ruler_width = 24.0
+global_automation_ruler_width = 36.0
 global_automation_width = 690.0
 
 global_automation_min_height = global_automation_ruler_width - global_automation_point_radius
