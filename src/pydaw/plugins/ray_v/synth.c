@@ -529,7 +529,8 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
         plugin_data->i_run_poly_voice = 0;
         while ((plugin_data->i_run_poly_voice) < RAYV_POLYPHONY)
         {
-            if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_amp->stage) != 4)
+            if((plugin_data->data[(plugin_data->i_run_poly_voice)]->
+                    adsr_amp->stage) != ADSR_STAGE_OFF)
             {
                 v_run_rayv_voice(plugin_data,
                         plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
@@ -567,7 +568,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data,
     a_voice->i_voice = a_i;  //0;
 
     if ((plugin_data->sampleNo == a_poly_voice.off) &&
-       ((a_voice->adsr_amp->stage) < 3))
+       ((a_voice->adsr_amp->stage) < ADSR_STAGE_RELEASE))
     {
         if(a_poly_voice.n_state == note_state_killed)
         {

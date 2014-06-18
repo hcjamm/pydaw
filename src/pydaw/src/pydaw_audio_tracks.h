@@ -739,7 +739,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr,
         */
     }
 
-    f_result->adsr->stage = 4;
+    f_result->adsr->stage = ADSR_STAGE_OFF;
 
     return f_result;
 }

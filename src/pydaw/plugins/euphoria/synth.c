@@ -638,7 +638,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
 
     v_adsr_run_db(f_voice->adsr_amp);
 
-    if(f_voice->adsr_amp->stage == 4)
+    if(f_voice->adsr_amp->stage == ADSR_STAGE_OFF)
     {
         plugin_data->voices->voices[n].n_state = note_state_off;
         return;
@@ -1233,7 +1233,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
         for (i2 = 0; i2 < EUPHORIA_POLYPHONY; ++i2)
         {
-            if(((plugin_data->data[i2]->adsr_amp->stage) < 4) &&
+            if(((plugin_data->data[i2]->adsr_amp->stage) != ADSR_STAGE_OFF) &&
                     ((plugin_data->sample_indexes_count[i2]) > 0))
             {
                 add_sample_lms_euphoria(plugin_data, i2);

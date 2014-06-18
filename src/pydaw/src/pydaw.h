@@ -2745,7 +2745,7 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
                     a_pydaw_data->ab_audio_item->ratio);
 
             if(a_pydaw_data->playback_mode != PYDAW_PLAYBACK_MODE_PLAY &&
-                    a_pydaw_data->ab_audio_item->adsr->stage < 3)
+                a_pydaw_data->ab_audio_item->adsr->stage < ADSR_STAGE_RELEASE)
             {
                 v_adsr_release(a_pydaw_data->ab_audio_item->adsr);
             }
@@ -2982,7 +2982,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     v_adsr_release(a_pydaw_data->preview_audio_item->adsr);
                 }
 
-                if(a_pydaw_data->preview_audio_item->adsr->stage == 4)
+                if(a_pydaw_data->preview_audio_item->adsr->stage
+                        == ADSR_STAGE_OFF)
                 {
                     a_pydaw_data->is_previewing = 0;
                     break;
@@ -3105,7 +3106,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
 
             if(a_pydaw_data->suppress_new_audio_items &&
                 ((a_pydaw_data->pysong->audio_items[f_current_region]->
-                    items[f_i]->adsr->stage) == 4))
+                    items[f_i]->adsr->stage) == ADSR_STAGE_OFF))
             {
                 f_i++;
                 continue;
@@ -3119,7 +3120,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
 
             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_OFF &&
                 a_pydaw_data->pysong->audio_items[
-                            f_current_region]->items[f_i]->adsr->stage < 3)
+                f_current_region]->items[f_i]->adsr->stage < ADSR_STAGE_RELEASE)
             {
                 v_adsr_release(a_pydaw_data->pysong->audio_items[
                             f_current_region]->items[f_i]->adsr);
@@ -3191,7 +3192,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
                 }
 
                 if((a_pydaw_data->pysong->audio_items[f_current_region]->
-                        items[f_i]->adsr->stage) != 4)
+                        items[f_i]->adsr->stage) != ADSR_STAGE_OFF)
                 {
                     while((f_i2 < f_adjusted_sample_count) &&
                         (((!a_pydaw_data->pysong->audio_items[
@@ -3344,7 +3345,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
                             if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number
                                     < PYDAW_AUDIO_ITEM_PADDING_DIV2)
                             {
-                                a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage = 4;
+                                a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage = ADSR_STAGE_OFF;
                             }
                         }
                         else
@@ -3355,12 +3356,12 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data,
                             if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->sample_read_head->whole_number >=
                                 a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->wav_pool_item->length - 1)
                             {
-                                a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage = 4;
+                                a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage = ADSR_STAGE_OFF;
                             }
                         }
 
 
-                        if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage == 4)
+                        if(a_pydaw_data->pysong->audio_items[f_current_region]->items[f_i]->adsr->stage == ADSR_STAGE_OFF)
                         {
                             break;
                         }

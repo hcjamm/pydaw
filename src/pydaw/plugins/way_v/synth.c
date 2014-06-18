@@ -1159,7 +1159,8 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
         while ((plugin_data->i_run_poly_voice) < WAYV_POLYPHONY)
         {
             //if (data[voice].state != inactive)
-            if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_main->stage) != 4)
+            if((plugin_data->data[(plugin_data->i_run_poly_voice)]->
+                    adsr_main->stage) != ADSR_STAGE_OFF)
             {
                 v_run_wayv_voice(plugin_data,
                         plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
@@ -1198,7 +1199,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data,
     }
 
     if (((plugin_data->sampleNo) == a_poly_voice.off) &&
-            ((a_voice->adsr_main->stage) < 3))
+            ((a_voice->adsr_main->stage) < ADSR_STAGE_RELEASE))
     {
         if(a_poly_voice.n_state == note_state_killed)
         {
