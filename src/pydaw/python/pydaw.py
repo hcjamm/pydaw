@@ -4920,6 +4920,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
+        self.set_header_and_keys()
+
+    def set_header_and_keys(self):
         f_point = self.get_scene_pos()
         self.piano.setPos(f_point.x(), self.header_height)
         self.header.setPos(self.piano_width + self.padding, f_point.y())
@@ -5168,7 +5171,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.header.hoverEnterEvent = self.hover_restore_cursor_event
         self.header.setBrush(global_audio_items_header_gradient)
         self.scene.addItem(self.header)
-        self.header.mapToScene(self.piano_width + self.padding, 0.0)
+        #self.header.mapToScene(self.piano_width + self.padding, 0.0)
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / self.grid_div
         self.header.setZValue(1003.0)
@@ -5348,6 +5351,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.draw_header()
         self.draw_piano()
         self.draw_grid()
+        self.set_header_and_keys()
 
     def draw_item(self):
         self.has_selected = False #Reset the selected-ness state...
