@@ -345,6 +345,8 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
                 a_adsr_ptr->output = (a_adsr_ptr->output) + (a_adsr_ptr->a_inc);
                 if((a_adsr_ptr->output) >= 1.0f)
                 {
+                    a_adsr_ptr->output = 1.0f;
+
                     if(a_adsr_ptr->hold_count)
                     {
                         a_adsr_ptr->stage = 9;
@@ -360,6 +362,7 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
                         (a_adsr_ptr->output) + (a_adsr_ptr->d_inc);
                 if((a_adsr_ptr->output) <= (a_adsr_ptr->s_value))
                 {
+                    a_adsr_ptr->output = a_adsr_ptr->s_value;
                     a_adsr_ptr->stage = 2;
                 }
                 break;
@@ -415,6 +418,8 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
 
                     if((a_adsr_ptr->output) >= 1.0f)
                     {
+                        a_adsr_ptr->output = 1.0f;
+
                         if(a_adsr_ptr->hold_count)
                         {
                             a_adsr_ptr->stage = 9;
@@ -444,6 +449,7 @@ void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
 
                 if((a_adsr_ptr->output) <= (a_adsr_ptr->s_value))
                 {
+                    a_adsr_ptr->output = a_adsr_ptr->s_value;
                     a_adsr_ptr->stage = 2;
                 }
                 break;
