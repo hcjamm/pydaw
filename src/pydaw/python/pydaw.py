@@ -4513,6 +4513,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.setEnabled(False)
             self.setOpacity(0.3)
         self.note_height = a_note_height
+        self.current_note_text = None
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
         self.resize_start_pos = self.note_item.start
@@ -4566,7 +4567,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         f_note_num = a_note_num if a_note_num is not None else self.note_item.note_num
         f_octave = (f_note_num // 12) - 2
         f_note = global_piano_roll_note_labels[f_note_num % 12]
-        self.note_text.setText("{}{}".format(f_note, f_octave))
+        f_text = "{}{}".format(f_note, f_octave)
+        if f_text != self.current_note_text:
+            self.current_note_text = f_text
+            self.note_text.setText(f_text)
 
     def mouse_is_at_end(self, a_pos):
         f_width = self.rect().width()
@@ -4730,8 +4734,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     global_piano_roll_snap_value) + global_piano_keys_width
                 f_item.setPos(f_pos_x, f_pos_y)
                 f_new_note = self.y_pos_to_note(f_pos_y)
-                if f_new_note != f_item.note_item.note_num:
-                    f_item.update_note_text(f_new_note)
+                f_item.update_note_text(f_new_note)
 
     def y_pos_to_note(self, a_y):
         return int(global_piano_roll_note_count -
