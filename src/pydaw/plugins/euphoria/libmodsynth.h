@@ -38,11 +38,9 @@ extern "C" {
 
 #define EUPHORIA_CHANNEL_COUNT 2
 
-//The number of noise modules to use.  This saves a lot of memory vs. having one per voice, since we don't need 100+ unique noise oscillators
+// The number of noise modules to use.  This saves a lot of memory vs.
+// having one per voice
 #define EUPHORIA_NOISE_COUNT 16
-
-/*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
- of an instrument, you will most likely want to define all of your modules here*/
 
 typedef struct
 {
@@ -51,8 +49,10 @@ typedef struct
     t_sinc_interpolator * sinc_interpolator;
     t_dco_dc_offset_filter * dc_offset_filters[EUPHORIA_CHANNEL_COUNT];
 
-    t_mf3_multi * multieffect[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
-    fp_mf3_run fx_func_ptr[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
+    t_mf3_multi *
+        multieffect[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
+    fp_mf3_run
+        fx_func_ptr[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
 
     t_white_noise * white_noise1[EUPHORIA_NOISE_COUNT];
     int noise_current_index;
@@ -63,8 +63,7 @@ typedef struct
     t_eq6 * eqs[EUPHORIA_MAX_SAMPLE_COUNT];
 }t_euphoria_mono_modules __attribute__((aligned(16)));
 
-/*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
-typedef struct st_euphoria_poly_voice
+typedef struct
 {
     t_adsr * adsr_filter;
 
@@ -74,15 +73,17 @@ typedef struct st_euphoria_poly_voice
 
     t_ramp_env * ramp_env;
 
-    float last_pitch;  //For simplicity, this is used whether glide is turned on or not
-
-    float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations
+    // For glide
+    float last_pitch;
+    float base_pitch;
 
     float target_pitch;
 
     float filter_output;  //For assigning the filter output to
 
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    // This corresponds to the current sample being processed on this voice.
+    // += this to the output buffer when finished.
+    float current_sample;
 
     t_lfs_lfo * lfo1;
 
@@ -123,7 +124,8 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float);
 t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
 {
     t_euphoria_poly_voice * f_voice;
-    if(posix_memalign((void**)&(f_voice), 16, (sizeof(t_euphoria_poly_voice))) != 0)
+    if(posix_memalign((void**)&(f_voice), 16,
+            (sizeof(t_euphoria_poly_voice))) != 0)
     {
         return 0;
     }
@@ -176,9 +178,11 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
 }
 
 
-void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice, int a_fast_release);
+void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice,
+        int a_fast_release);
 
-void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice, int a_fast_release) //, LTS * _instance)
+void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice,
+        int a_fast_release)
 {
     if(a_fast_release)
     {
@@ -194,20 +198,22 @@ void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice, int a_fast_releas
 
 t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr);
 
-
-/*Initialize any modules that will be run monophonically*/
 t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr)
 {
     t_euphoria_mono_modules * a_mono;
 
-    if(posix_memalign((void**)&(a_mono), 16, (sizeof(t_euphoria_mono_modules))) != 0)
+    if(posix_memalign((void**)&(a_mono), 16,
+            sizeof(t_euphoria_mono_modules)) != 0)
     {
         return 0;
     }
 
-    a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
+    a_mono->pitchbend_smoother =
+            g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.2f);
     a_mono->amp_ptr = g_amp_get();
-    a_mono->sinc_interpolator = g_sinc_get(EUPHORIA_SINC_INTERPOLATION_POINTS, 6000, 8000.0f, a_sr, 0.42f);
+    a_mono->sinc_interpolator =
+            g_sinc_get(EUPHORIA_SINC_INTERPOLATION_POINTS, 6000, 8000.0f,
+            a_sr, 0.42f);
     a_mono->noise_current_index = 0;
 
     int f_i;
