@@ -6052,6 +6052,7 @@ class automation_viewer(QtGui.QGraphicsView):
                 f_note_item.setPen(f_pen)
                 self.scene.addItem(f_note_item)
             f_item_index += 1
+        self.setSceneRect(0.0, 0.0, self.grid_max_start_time + 100.0, self.height())
         self.setUpdatesEnabled(True)
         self.update()
 
