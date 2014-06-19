@@ -12,7 +12,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import os, subprocess, sys
+import os
+import subprocess
+import sys
+import platform
 
 f_base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -42,7 +45,8 @@ else:
     print("Did not find GCC 4.6; Early versions of GCC 4.7 and 4.8 may cause "
           "stability issues, please consider installing GCC 4.6")
 
-if "--native" in sys.argv:
+if "--native" in sys.argv or \
+platform.machine().lower().startswith("arm"):
     f_target = "native_src"
 else:
     f_target = "pydaw_src"
