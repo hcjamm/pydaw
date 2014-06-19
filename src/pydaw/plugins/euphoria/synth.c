@@ -660,7 +660,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
             + (f_voice->last_pitch) + ((f_voice->lfo1->output) *
             (*plugin_data->lfo_pitch + (*plugin_data->lfo_pitch_fine * 0.01f)));
 
-    if(plugin_data->voices->voices[n].off == plugin_data->sampleNo)
+    if((plugin_data->voices->voices[n].off == plugin_data->sampleNo) &&
+        (f_voice->adsr_amp->stage < ADSR_STAGE_RELEASE))
     {
         if(plugin_data->voices->voices[n].n_state == note_state_killed)
         {
