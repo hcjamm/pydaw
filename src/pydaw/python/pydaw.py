@@ -3579,21 +3579,32 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
             f_item.setEnabled(True)
 
     def set_tooltips(self, a_on):
-        self.folders_widget.setToolTip(_("Use this tab to browse your "
-        "folders and files.\nDrag and drop one file at a time onto the sequencer.\n.wav files "
-        "are the only supported audio file format.\nClick the 'Bookmark' button to save the "
-        "current folder to your bookmarks located on the 'Bookmarks' tab."
-        "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
-        self.modulex.widget.setToolTip(_("This tab allows you to set "
-        "effects per-item.\nThe tab is only enabled when you have exactly one item selected, "
-        "the copy and paste buttons allow you to copy settings between multipe items."))
+        if a_on:
+            self.folders_widget.setToolTip(_("Use this tab to browse your "
+            "folders and files.\nDrag and drop one file at a time onto "
+            "the sequencer.\n.wav and .aiff files are the only "
+            "supported audio file format."
+            "\nClick the 'Bookmark' button to save the "
+            "current folder to your bookmarks located "
+            "on the 'Bookmarks' tab."
+            "\n\nClick 'Menu->Show Tooltips' in the transport to disable "
+            "these tooltips"))
+            self.modulex.widget.setToolTip(_("This tab allows you to set "
+            "effects per-item.\nThe tab is only enabled when you have "
+            "exactly one item selected, "
+            "the copy and paste buttons allow you to copy "
+            "settings between multipe items."))
+        else:
+            self.folders_widget.setToolTip("")
+            self.modulex.widget.setToolTip("")
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
         global global_audio_items_to_drop
         global_audio_items_to_drop = []
         for f_item in self.list_file.selectedItems():
-            global_audio_items_to_drop.append("{}/{}".format(self.last_open_dir, f_item.text()))
+            global_audio_items_to_drop.append(
+                "{}/{}".format(self.last_open_dir, f_item.text()))
 
     def on_select_all(self):
         if global_current_region is None or global_transport_is_playing:
