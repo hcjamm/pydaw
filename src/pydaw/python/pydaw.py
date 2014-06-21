@@ -20,6 +20,7 @@ import subprocess
 import time
 import random
 import gc
+import datetime
 
 from PyQt4 import QtGui, QtCore
 from libpydaw import *
@@ -9925,21 +9926,37 @@ else:
 if os.path.exists(default_project_file) and \
 not os.access(os.path.dirname(default_project_file), os.W_OK):
     QtGui.QMessageBox.warning(this_wave_editor_widget.widget, _("Error"),
-                              _("You do not have read+write permissions to {}, please correct "
+                              _("You do not have read+write permissions "
+                              "to {}, please correct "
                               "this and restart PyDAW".format(
                               os.path.dirname(default_project_file))))
     exit(999)
 
 if os.path.exists(default_project_file):
-    global_open_project(default_project_file, a_wait=False)
+    try:
+        global_open_project(default_project_file, a_wait=False)
+    except Exception as ex:
+        QtGui.QMessageBox.warning(
+            this_main_window, _("Error"),
+            _("Error opening project: {}\n{}\nCreating a new "
+            "project".format(default_project_file, ex)))
+        f_old_dir = os.path.dirname(default_project_file)
+        f_new_dir = "{}-{}".format(
+            f_old_dir,
+            datetime.datetime.now().strftime("%Y%m%d%H%M"))
+        os.system("mv '{}' '{}'".format(
+            f_old_dir, f_new_dir))
+        default_project_file = "{}/default-project/default.{}".format(
+            global_pydaw_home, global_pydaw_version_string)
+        global_new_project(default_project_file, a_wait=False)
 else:
     global_new_project(default_project_file, a_wait=False)
 
 QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("UTF-8"))
 
 def final_gc():
-    """ Brute-force garbage collect all possible objects to prevent the infamous
-        PyQt SEGFAULT-on-exit...
+    """ Brute-force garbage collect all possible objects to
+        prevent the infamous PyQt SEGFAULT-on-exit...
     """
     f_last_unreachable = gc.collect()
     if not f_last_unreachable:
