@@ -110,23 +110,27 @@ def pydaw_set_tooltips_enabled(a_enabled):
     global global_tooltips_enabled
     global_tooltips_enabled = a_enabled
 
-    f_list = [this_song_editor, this_audio_items_viewer_widget, this_piano_roll_editor,
-              this_main_window, this_wave_editor_widget, this_audio_item_editor_widget,
+    f_list = [this_song_editor, this_audio_items_viewer_widget,
+              this_piano_roll_editor, this_main_window,
+              this_wave_editor_widget, this_audio_item_editor_widget,
               this_audio_items_viewer, this_transport] + \
               list(global_region_editors) + list(global_automation_editors)
     for f_widget in f_list:
         f_widget.set_tooltips(a_enabled)
 
     if a_enabled:
-        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "True")
+        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home),
+                              "True")
     else:
-        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home), "False")
+        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home),
+                              "False")
 
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
         QtGui.QMessageBox.warning(this_main_window, _("Error"),
-        _("You must create or select a region first by clicking in the song editor above."))
+        _("You must create or select a region first by clicking "
+        "in the song editor above."))
         return True
     return False
 
@@ -136,18 +140,22 @@ def pydaw_scale_to_rect(a_to_scale, a_scale_to):
     f_y = (a_scale_to.height() / a_to_scale.height())
     return (f_x, f_y)
 
-def global_plugin_rel_callback(a_is_instrument, a_track_type, a_track_num, a_port, a_val):
+def global_plugin_rel_callback(a_is_instrument, a_track_type,
+                               a_track_num, a_port, a_val):
     pass
 
-def global_plugin_val_callback(a_is_instrument, a_track_type, a_track_num, a_port, a_val):
-    this_pydaw_project.this_pydaw_osc.pydaw_update_plugin_control(a_is_instrument, a_track_type,
-                                                                  a_track_num, a_port, a_val)
+def global_plugin_val_callback(a_is_instrument, a_track_type,
+                               a_track_num, a_port, a_val):
+    this_pydaw_project.this_pydaw_osc.pydaw_update_plugin_control(
+        a_is_instrument, a_track_type, a_track_num, a_port, a_val)
 
 global_current_song_index = None
 
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
-        """ Adds a properly formatted item.  This is not for creating empty items... """
+        """ Adds a properly formatted item.  This is not for
+            creating empty items...
+        """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
         f_qtw_item.setBackground(pydaw_region_gradient)
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
@@ -163,7 +171,8 @@ class song_editor:
         self.song = this_pydaw_project.get_song()
         f_region_dict = this_pydaw_project.get_regions_dict()
         for f_pos, f_region in list(self.song.regions.items()):
-            self.add_qtablewidgetitem(f_region_dict.get_name_by_uid(f_region), f_pos)
+            self.add_qtablewidgetitem(
+            f_region_dict.get_name_by_uid(f_region), f_pos)
         self.table_widget.setUpdatesEnabled(True)
         self.table_widget.update()
         #global_open_audio_items()
@@ -171,7 +180,8 @@ class song_editor:
 
     def cell_clicked(self, x, y):
         f_is_playing = False
-        if global_transport_is_playing and this_transport.follow_checkbox.isChecked():
+        if global_transport_is_playing and \
+        this_transport.follow_checkbox.isChecked():
             f_is_playing = True
             this_transport.follow_checkbox.setChecked(False)
             this_region_editor.table_widget.clearSelection()
@@ -180,14 +190,17 @@ class song_editor:
         if f_cell is None:
             def song_ok_handler():
                 if f_new_radiobutton.isChecked():
-                    f_uid = this_pydaw_project.create_empty_region(str(f_new_lineedit.text()))
-                    f_msg = _("Create empty region '{}' at {}").format(f_new_lineedit.text(), y)
+                    f_uid = this_pydaw_project.create_empty_region(
+                        str(f_new_lineedit.text()))
+                    f_msg = _("Create empty region '{}' at {}").format(
+                        f_new_lineedit.text(), y)
                 elif f_copy_radiobutton.isChecked():
-                    f_uid = this_pydaw_project.copy_region(str(f_copy_combobox.currentText()),
-                                                           str(f_new_lineedit.text()))
-                    f_msg = (_("Create new region '{}' at {} "
-                            "copying from {}")).format(f_new_lineedit.text(), y,
-                                                     f_copy_combobox.currentText())
+                    f_uid = this_pydaw_project.copy_region(
+                        str(f_copy_combobox.currentText()),
+                        str(f_new_lineedit.text()))
+                    f_msg = (_("Create new region '{}' at {} copying from "
+                        "{}")).format(f_new_lineedit.text(), y,
+                        f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                 self.song.add_region_ref_by_uid(y, f_uid)
                 this_region_settings.open_region(f_new_lineedit.text())
@@ -205,7 +218,8 @@ class song_editor:
                 f_window.close()
 
             def on_name_changed():
-                f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+                f_new_lineedit.setText(pydaw_remove_bad_chars(
+                    f_new_lineedit.text()))
 
             def on_current_index_changed(a_index):
                 f_copy_radiobutton.setChecked(True)
@@ -223,7 +237,8 @@ class song_editor:
             f_new_radiobutton.setChecked(True)
             f_layout.addWidget(f_new_radiobutton, 0, 0)
             f_layout.addWidget(QtGui.QLabel(_("New:")), 0, 1)
-            f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
+            f_new_lineedit = QtGui.QLineEdit(
+                this_pydaw_project.get_next_default_region_name())
             f_new_lineedit.setMaxLength(24)
             f_new_lineedit.editingFinished.connect(on_name_changed)
             f_layout.addWidget(f_new_lineedit, 0, 2)
@@ -231,7 +246,8 @@ class song_editor:
             f_layout.addWidget(f_copy_radiobutton, 1, 0)
             f_copy_combobox = QtGui.QComboBox()
             f_copy_combobox.addItems(this_pydaw_project.get_region_list())
-            f_copy_combobox.currentIndexChanged.connect(on_current_index_changed)
+            f_copy_combobox.currentIndexChanged.connect(
+                on_current_index_changed)
             f_layout.addWidget(QtGui.QLabel(_("Copy from:")), 1, 1)
             f_layout.addWidget(f_copy_combobox, 1, 2)
             f_import_midi = QtGui.QPushButton("Import MIDI File")
@@ -264,31 +280,39 @@ class song_editor:
         self.table_widget.setColumnCount(300)
         self.table_widget.setRowCount(1)
         self.table_widget.setFixedHeight(87)
-        self.table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.table_widget.setHorizontalScrollMode(
+            QtGui.QAbstractItemView.ScrollPerPixel)
         self.table_widget.verticalHeader().setVisible(False)
         self.table_widget.setAutoScroll(True)
         self.table_widget.setAutoScrollMargin(1)
         self.table_widget.setRowHeight(0, 50)
-        self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.table_widget.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
+        self.table_widget.verticalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
-        self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.table_widget.setEditTriggers(
+            QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
 
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.rename_action = QtGui.QAction(_("Rename Region"), self.table_widget)
+        self.rename_action = QtGui.QAction(
+            _("Rename Region"), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_region)
         self.table_widget.addAction(self.rename_action)
-        self.delete_action = QtGui.QAction(_("Delete Region(s)"), self.table_widget)
+        self.delete_action = QtGui.QAction(
+            _("Delete Region(s)"), self.table_widget)
         self.delete_action.triggered.connect(self.on_delete)
-        #Too often, this was being triggered by accident, making it a PITA as there
-        #was no easy way to tell which widget had focus...
+        # Too often, this was being triggered by accident,
+        # making it a PITA as there
+        # was no easy way to tell which widget had focus...
         #self.delete_action.setShortcut(QtGui.QKeySequence.Delete)
-        #self.delete_action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        #self.delete_action.setShortcutContext(
+        #    QtCore.Qt.WidgetWithChildrenShortcut)
         self.table_widget.addAction(self.delete_action)
 
     def on_import_midi(self, a_index):
@@ -301,13 +325,14 @@ class song_editor:
                 return
             f_item_name_str = str(f_item_name.text())
             if f_item_name_str == "":
-                QtGui.QMessageBox.warning(f_window, _("Error"), _("File name cannot be empty"))
+                QtGui.QMessageBox.warning(f_window, _("Error"),
+                                          _("File name cannot be empty"))
                 return
             if not self.midi_file.populate_region_from_track_map(
             this_pydaw_project, f_item_name_str, a_index):
                 QtGui.QMessageBox.warning(f_window, _("Error"),
-                _("No available slots for inserting a region, delete an existing "
-                "region from the song editor first"))
+                _("No available slots for inserting a region, delete "
+                "an existing region from the song editor first"))
             else:
                 this_pydaw_project.commit(_("Import MIDI file"))
                 this_song_editor.open_song()
@@ -375,10 +400,13 @@ class song_editor:
         if a_on:
             self.table_widget.setToolTip(
             _("This is the song editor.  A song is a timeline "
-            "consisting of regions,\nclick here to add a region, click and drag to move a "
-            "region, or 'right-click->Delete Region' to delete\nthe selected regions.  "
+            "consisting of regions,\nclick here to add a region, "
+            "click and drag to move a "
+            "region, or 'right-click->Delete Region' to delete\n"
+            "the selected regions.  "
             "Click on a region to edit it in the region editor below.\n\n"
-            "Click 'Menu->Show Tooltips' in the transport to disable these tooltips"))
+            "Click 'Menu->Show Tooltips' in the transport to "
+            "disable these tooltips"))
         else:
             self.table_widget.setToolTip("")
 
@@ -391,7 +419,8 @@ class song_editor:
             if f_item is not None and str(f_item.text()) != "":
                 f_commit_list.append(str(f_index.column()))
                 f_empty = QtGui.QTableWidgetItem()
-                self.table_widget.setItem(f_index.row(), f_index.column(), f_empty)
+                self.table_widget.setItem(
+                    f_index.row(), f_index.column(), f_empty)
         if f_commit_list:
             self.tablewidget_to_song()
             this_region_settings.clear_items()
@@ -399,7 +428,8 @@ class song_editor:
             this_region_settings.enabled = False
             this_region_settings.update_region_length()
             this_pydaw_project.commit(
-                _("Deleted region references at {}").format(", ".join(f_commit_list)))
+                _("Deleted region references at {}").format(
+                ", ".join(f_commit_list)))
 
     def on_rename_region(self):
         f_item = self.table_widget.currentItem()
@@ -430,7 +460,8 @@ class song_editor:
             f_window.close()
 
         def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+            f_new_lineedit.setText(
+                pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Rename region..."))
@@ -457,7 +488,9 @@ class song_editor:
         this_pydaw_project.commit(_("Drag-n-drop song item(s)"))
 
     def tablewidget_to_song(self):
-        """ Flush the edited content of the QTableWidget back to the native song class... """
+        """ Flush the edited content of the QTableWidget back to
+            the native song class...
+        """
         self.song.regions = {}
         f_uid_dict = this_pydaw_project.get_regions_dict()
         global global_current_song_index
@@ -466,7 +499,8 @@ class song_editor:
             f_item = self.table_widget.item(0, f_i)
             if not f_item is None:
                 if str(f_item.text()) != "":
-                    self.song.add_region_ref_by_name(f_i, f_item.text(), f_uid_dict)
+                    self.song.add_region_ref_by_name(
+                        f_i, f_item.text(), f_uid_dict)
                 if str(f_item.text()) == global_current_region_name:
                     global_current_song_index = f_i
                     print((str(f_i)))
@@ -488,7 +522,8 @@ def global_update_hidden_rows(a_val=None):
     if global_current_region and this_region_settings.hide_inactive:
         f_active = [x.track_num for x in global_current_region.items]
         for f_i in range(this_region_editor.table_widget.rowCount()):
-            this_region_editor.table_widget.setRowHidden(f_i, f_i not in f_active)
+            this_region_editor.table_widget.setRowHidden(
+                f_i, f_i not in f_active)
     else:
         for f_i in range(this_region_editor.table_widget.rowCount()):
             this_region_editor.table_widget.setRowHidden(f_i, False)
@@ -510,17 +545,20 @@ class region_settings:
             if self.length_alternate_radiobutton.isChecked():
                 f_region_length = self.length_alternate_spinbox.value()
                 global_current_region.region_length_bars = f_region_length
-                f_commit_message = \
-                _("Set region '{}' length to {}").format(f_region_name,
-                                                      self.length_alternate_spinbox.value())
+                f_commit_message = _(
+                    "Set region '{}' length to {}").format(f_region_name,
+                    self.length_alternate_spinbox.value())
             else:
                 global_current_region.region_length_bars = 0
                 f_region_length = 8
-                f_commit_message = _("Set region '{}' length to default value").format(
+                f_commit_message = _(
+                    "Set region '{}' length to default value").format(
                     f_region_name)
-            this_pydaw_project.save_region(f_region_name, global_current_region)
+            this_pydaw_project.save_region(
+                f_region_name, global_current_region)
             global_audio_items.set_region_length(f_region_length)
-            this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+            this_pydaw_project.save_audio_region(
+                global_current_region.uid, global_audio_items)
             self.open_region(self.region_name_lineedit.text())
             f_resave = False
             for f_item in this_audio_items_viewer.audio_items:
@@ -558,10 +596,12 @@ class region_settings:
         self.split_action.triggered.connect(self.on_split)
         self.menu.addSeparator()
         self.hide_inactive = False
-        self.toggle_hide_action = self.menu.addAction(_("Hide Inactive Instruments"))
+        self.toggle_hide_action = self.menu.addAction(
+            _("Hide Inactive Instruments"))
         self.toggle_hide_action.setCheckable(True)
         self.toggle_hide_action.triggered.connect(self.toggle_hide_inactive)
-        self.toggle_hide_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
+        self.toggle_hide_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+H"))
         self.menu.addSeparator()
         self.unsolo_action = self.menu.addAction(_("Un-Solo All"))
         self.unsolo_action.triggered.connect(self.unsolo_all)
@@ -570,29 +610,35 @@ class region_settings:
         self.unmute_action.triggered.connect(self.unmute_all)
         self.unmute_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+M"))
 
-        self.hlayout0.addItem(QtGui.QSpacerItem(10,10, QtGui.QSizePolicy.Expanding))
+        self.hlayout0.addItem(QtGui.QSpacerItem(
+            10, 10, QtGui.QSizePolicy.Expanding))
         self.hlayout0.addWidget(QtGui.QLabel(_("Region Length:")))
         self.length_default_radiobutton = QtGui.QRadioButton(_("default"))
         self.length_default_radiobutton.setChecked(True)
-        self.length_default_radiobutton.toggled.connect(self.update_region_length)
+        self.length_default_radiobutton.toggled.connect(
+            self.update_region_length)
         self.hlayout0.addWidget(self.length_default_radiobutton)
         self.length_alternate_radiobutton = QtGui.QRadioButton()
-        self.length_alternate_radiobutton.toggled.connect(self.update_region_length)
+        self.length_alternate_radiobutton.toggled.connect(
+            self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_radiobutton)
         self.length_alternate_spinbox = QtGui.QSpinBox()
         self.length_alternate_spinbox.setKeyboardTracking(False)
         self.length_alternate_spinbox.setRange(1, pydaw_max_region_length)
         self.length_alternate_spinbox.setValue(8)
-        self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
+        self.length_alternate_spinbox.valueChanged.connect(
+            self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
 
 
     def unsolo_all(self):
-        for f_track in this_region_editor.tracks + this_region_audio_editor.tracks:
+        for f_track in this_region_editor.tracks + \
+        this_region_audio_editor.tracks:
             f_track.solo_checkbox.setChecked(False)
 
     def unmute_all(self):
-        for f_track in this_region_editor.tracks + this_region_audio_editor.tracks:
+        for f_track in this_region_editor.tracks + \
+        this_region_audio_editor.tracks:
             f_track.mute_checkbox.setChecked(False)
 
 
@@ -648,12 +694,15 @@ class region_settings:
             f_new_uid = this_pydaw_project.create_empty_region(f_region_name)
             f_midi_tuple = global_current_region.split(f_index, f_new_uid)
             f_audio_tuple = global_audio_items.split(f_index)
-            f_current_index = this_song_editor.song.get_index_of_region(global_current_region.uid)
+            f_current_index = this_song_editor.song.get_index_of_region(
+                global_current_region.uid)
             this_song_editor.song.insert_region(f_current_index + 1, f_new_uid)
             this_pydaw_project.save_song(this_song_editor.song)
-            this_pydaw_project.save_region(global_current_region_name, f_midi_tuple[0])
+            this_pydaw_project.save_region(
+                global_current_region_name, f_midi_tuple[0])
             this_pydaw_project.save_region(f_region_name, f_midi_tuple[1])
-            this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_tuple[0])
+            this_pydaw_project.save_audio_region(
+                global_current_region.uid, f_audio_tuple[0])
             this_pydaw_project.save_audio_region(f_new_uid, f_audio_tuple[1])
             this_pydaw_project.commit(_("Split region {} into {}").format(
                 global_current_region_name, f_region_name))
@@ -664,14 +713,16 @@ class region_settings:
         def split_cancel_handler():
             f_window.close()
         def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+            f_new_lineedit.setText(
+                pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Split Region..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_vlayout0 = QtGui.QVBoxLayout()
-        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
+        f_new_lineedit = QtGui.QLineEdit(
+            this_pydaw_project.get_next_default_region_name())
         f_new_lineedit.editingFinished.connect(on_name_changed)
         f_new_lineedit.setMaxLength(24)
         f_layout.addWidget(QtGui.QLabel(_("New Name:")), 0, 1)
@@ -705,12 +756,16 @@ class region_settings:
         global global_current_region_name
         global_current_region_name = str(a_file_name)
         global global_current_region
-        global_current_region = this_pydaw_project.get_region_by_name(a_file_name)
+        global_current_region = this_pydaw_project.get_region_by_name(
+            a_file_name)
         if global_current_region.region_length_bars > 0:
             for f_editor in global_region_editors:
-                f_editor.set_region_length(global_current_region.region_length_bars)
-            self.length_alternate_spinbox.setValue(global_current_region.region_length_bars)
-            this_transport.bar_spinbox.setRange(1, (global_current_region.region_length_bars))
+                f_editor.set_region_length(
+                    global_current_region.region_length_bars)
+            self.length_alternate_spinbox.setValue(
+                global_current_region.region_length_bars)
+            this_transport.bar_spinbox.setRange(
+                1, (global_current_region.region_length_bars))
             self.length_alternate_radiobutton.setChecked(True)
         else:
             for f_editor in global_region_editors:
@@ -727,14 +782,17 @@ class region_settings:
             (global_current_region.region_length_bars == 0 and f_item.bar_num < 8):
                 f_item_name = f_items_dict.get_name_by_uid(f_item.item_uid)
                 if f_item.track_num < pydaw_midi_track_count:
-                    this_region_editor.add_qtablewidgetitem(f_item_name, f_item.track_num,
-                                                            f_item.bar_num, a_is_offset=True)
+                    this_region_editor.add_qtablewidgetitem(
+                        f_item_name, f_item.track_num,
+                        f_item.bar_num, a_is_offset=True)
                 elif f_item.track_num < pydaw_midi_track_count + pydaw_bus_count:
-                    this_region_bus_editor.add_qtablewidgetitem(f_item_name, f_item.track_num,
-                                                                f_item.bar_num, a_is_offset=True)
+                    this_region_bus_editor.add_qtablewidgetitem(
+                        f_item_name, f_item.track_num,
+                        f_item.bar_num, a_is_offset=True)
                 else:
-                    this_region_audio_editor.add_qtablewidgetitem(f_item_name, f_item.track_num,
-                                                                  f_item.bar_num, a_is_offset=True)
+                    this_region_audio_editor.add_qtablewidgetitem(
+                        f_item_name, f_item.track_num,
+                        f_item.bar_num, a_is_offset=True)
         for f_editor in global_region_editors:
             f_editor.table_widget.setUpdatesEnabled(True)
             f_editor.table_widget.update()
@@ -774,9 +832,12 @@ REGION_CLIPBOARD_ROW_OFFSET = 0
 REGION_CLIPBOARD_COL_OFFSET = 0
 
 class region_list_editor:
-    def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False,
+    def add_qtablewidgetitem(self, a_name, a_track_num,
+                             a_bar_num, a_selected=False,
                              a_is_offset=False):
-        """ Adds a properly formatted item.  This is not for creating empty items... """
+        """ Adds a properly formatted item.  This is not for
+            creating empty items...
+        """
         if a_is_offset:
             f_track_num = a_track_num - self.track_offset
         else:
@@ -816,16 +877,19 @@ class region_list_editor:
         self.tracks = []
         for i in range(0, self.track_count):
             if self.track_type == pydaw_track_type_enum.midi:
-                track = seq_track(a_track_num=i, a_track_text=_("track{}").format(i + 1))
+                track = seq_track(a_track_num=i,
+                                  a_track_text=_("track{}").format(i + 1))
             elif self.track_type == pydaw_track_type_enum.bus:
                 if i == 0:
                     track = seq_track(a_track_num=i, a_track_text=_("Master"),
                                       a_instrument=False)
                 else:
-                    track = seq_track(a_track_num=i, a_track_text=_("Bus{}").format(i),
+                    track = seq_track(a_track_num=i,
+                                      a_track_text=_("Bus{}").format(i),
                                       a_instrument=False)
             elif self.track_type == pydaw_track_type_enum.audio:
-                track = audio_track(a_track_num=i, a_track_text=_("track{}").format(i + 1))
+                track = audio_track(a_track_num=i,
+                                    a_track_text=_("track{}").format(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)
         self.table_widget.setColumnWidth(0, 390)
@@ -840,8 +904,10 @@ class region_list_editor:
             f_headers.append(str(i + 1))
         self.table_widget.setHorizontalHeaderLabels(f_headers)
         self.table_widget.resizeRowsToContents()
-        self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.table_widget.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
+        self.table_widget.verticalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
         self.table_width = 0
         for i in range(0, a_length + 1):
             self.table_width += self.table_widget.columnWidth(i)
@@ -876,7 +942,8 @@ class region_list_editor:
 
     def warn_no_region_selected(self):
         QtGui.QMessageBox.warning(this_main_window, _("Error"),
-        _("You must create or select a region first by clicking in the song editor above."))
+        _("You must create or select a region first by clicking "
+        "in the song editor above."))
 
     def cell_clicked(self, x, y):
         if y <= 0 or x < 0:
@@ -915,17 +982,18 @@ class region_list_editor:
                 f_cell_text = str(f_new_lineedit.text())
                 if this_pydaw_project.item_exists(f_cell_text):
                     QtGui.QMessageBox.warning(self.table_widget, _("Error"),
-                    _("An item named '{}' already exists.").format(f_cell_text))
+                        _("An item named '{}' already exists.").format(
+                        f_cell_text))
                     return
                 f_uid = this_pydaw_project.create_empty_item(f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref_by_uid(x + self.track_offset,
-                                                          y - 1, f_uid)
+                global_current_region.add_item_ref_by_uid(
+                    x + self.track_offset, y - 1, f_uid)
                 if f_repeat_checkbox.isChecked():
                     for i in range(y - 1, pydaw_get_current_region_length()):
                         self.add_qtablewidgetitem(f_cell_text, x, i + 1, True)
-                        global_current_region.add_item_ref_by_uid(x + self.track_offset,
-                                                                  i, f_uid)
+                        global_current_region.add_item_ref_by_uid(
+                            x + self.track_offset, i, f_uid)
             elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
                 f_name_suffix = 1
                 f_cell_text = str(f_new_lineedit.text())
@@ -938,8 +1006,8 @@ class region_list_editor:
                     f_uid = this_pydaw_project.create_empty_item(f_item_name)
                     f_list.append((f_uid, f_item_name))
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
-                    global_current_region.add_item_ref_by_uid(x + self.track_offset,
-                                                              y - 1 + i, f_uid)
+                    global_current_region.add_item_ref_by_uid(
+                        x + self.track_offset, y - 1 + i, f_uid)
                 if f_repeat_checkbox.isChecked():
                     f_i = 0
                     for i in range(i + 1, pydaw_get_current_region_length()):
@@ -947,27 +1015,33 @@ class region_list_editor:
                         f_i += 1
                         if f_i >= len(f_list):
                             f_i = 0
-                        self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
-                        global_current_region.add_item_ref_by_uid(x + self.track_offset,
-                                                                  y - 1 + i, f_uid)
+                        self.add_qtablewidgetitem(
+                            f_item_name, x, y - 1 + i, True)
+                        global_current_region.add_item_ref_by_uid(
+                            x + self.track_offset, y - 1 + i, f_uid)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref_by_name(x + self.track_offset, y - 1,
-                                                           f_cell_text,
-                                                           this_pydaw_project.get_items_dict())
+                global_current_region.add_item_ref_by_name(
+                    x + self.track_offset, y - 1, f_cell_text,
+                    this_pydaw_project.get_items_dict())
             elif f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 f_copy_from_text = str(f_copy_combobox.currentText())
                 if this_pydaw_project.item_exists(f_cell_text):
-                    QtGui.QMessageBox.warning(self.table_widget, _("Error"),
-                    _("An item named '{}' already exists.").format(f_cell_text))
+                    QtGui.QMessageBox.warning(
+                        self.table_widget, _("Error"),
+                        _("An item named '{}' already exists.").format(
+                        f_cell_text))
                     return
-                f_uid = this_pydaw_project.copy_item(f_copy_from_text, f_cell_text)
+                f_uid = this_pydaw_project.copy_item(
+                    f_copy_from_text, f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
-            this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()),
-                                           global_current_region)
+                global_current_region.add_item_ref_by_uid(
+                    x + self.track_offset, y - 1, f_uid)
+            this_pydaw_project.save_region(
+                str(this_region_settings.region_name_lineedit.text()),
+                global_current_region)
             this_pydaw_project.commit(_("Add reference(s) to item "
                 "(group) '{}' in region '{}'").format(
                 f_cell_text, this_region_settings.region_name_lineedit.text()))
@@ -990,7 +1064,8 @@ class region_list_editor:
             f_copy_radiobutton.setChecked(True)
 
         def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+            f_new_lineedit.setText(
+                pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         def goto_start():
             f_item_count.setValue(f_item_count.minimum())
@@ -1008,7 +1083,8 @@ class region_list_editor:
         f_new_radiobutton.setChecked(True)
         f_layout.addWidget(f_new_radiobutton, 0, 0)
         f_layout.addWidget(QtGui.QLabel(_("New:")), 0, 1)
-        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
+        f_new_lineedit = QtGui.QLineEdit(
+            this_pydaw_project.get_next_default_item_name())
         f_new_lineedit.editingFinished.connect(on_name_changed)
         f_new_lineedit.setMaxLength(24)
         f_layout.addWidget(f_new_lineedit, 0, 2)
@@ -1020,8 +1096,10 @@ class region_list_editor:
         f_copy_combobox = QtGui.QComboBox()
         f_copy_combobox.addItems(this_pydaw_project.get_item_list())
         if not self.last_item_copied is None:
-            f_copy_combobox.setCurrentIndex(f_copy_combobox.findText(self.last_item_copied))
-        f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
+            f_copy_combobox.setCurrentIndex(
+            f_copy_combobox.findText(self.last_item_copied))
+        f_copy_combobox.currentIndexChanged.connect(
+            copy_combobox_index_changed)
         f_layout.addLayout(f_vlayout1, 1, 1)
         f_vlayout1.addWidget(QtGui.QLabel(_("Copy from:")))
         f_vlayout1.addWidget(QtGui.QLabel(_("Existing:")))
@@ -1072,7 +1150,8 @@ class region_list_editor:
             this_transport.set_bar_value(a_val - 1)
 
     def __init__(self, a_track_type):
-        self.enabled = False #Prevents user from editing a region before one has been selected
+        #Prevents user from editing a region before one has been selected
+        self.enabled = False
         self.track_type = a_track_type
         if a_track_type == pydaw_track_type_enum.midi:
             self.track_count = pydaw_midi_track_count
@@ -1087,33 +1166,40 @@ class region_list_editor:
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setAlternatingRowColors(True)
         self.table_widget.verticalHeader().setVisible(False)
-        self.table_widget.horizontalHeader().sectionClicked.connect(self.column_clicked)
+        self.table_widget.horizontalHeader().sectionClicked.connect(
+            self.column_clicked)
         self.table_widget.setMinimumHeight(150)
         self.table_widget.setAutoScroll(True)
         self.table_widget.setAutoScrollMargin(1)
         self.table_widget.setColumnCount(9)
         self.table_widget.setRowCount(self.track_count)
-        self.table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
-        self.table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.table_widget.cellDoubleClicked.connect(
+            self.cell_double_clicked)
+        self.table_widget.setVerticalScrollMode(
+            QtGui.QAbstractItemView.ScrollPerPixel)
+        self.table_widget.setHorizontalScrollMode(
+            QtGui.QAbstractItemView.ScrollPerPixel)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
-        self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.table_widget.setEditTriggers(
+            QtGui.QAbstractItemView.NoEditTriggers)
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
         self.edit_group_action = QtGui.QAction(_("Edit Selected Item(s)"),
                                                self.table_widget)
         self.edit_group_action.triggered.connect(self.edit_group)
-        self.edit_group_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+E"))
+        self.edit_group_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+E"))
         self.table_widget.addAction(self.edit_group_action)
 
         self.edit_unique_action = QtGui.QAction(_("Edit Unique Item(s)"),
                                                 self.table_widget)
         self.edit_unique_action.triggered.connect(self.edit_unique)
-        self.edit_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+E"))
+        self.edit_unique_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+E"))
         self.table_widget.addAction(self.edit_unique_action)
 
         self.separator_action1 = QtGui.QAction("", self.table_widget)
@@ -1138,17 +1224,21 @@ class region_list_editor:
         self.paste_to_end_action = QtGui.QAction(_("Paste to Region End"),
                                                  self.table_widget)
         self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
-        self.paste_to_end_action.setShortcut(QtGui.QKeySequence.fromString("ALT+V"))
+        self.paste_to_end_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+V"))
         self.table_widget.addAction(self.paste_to_end_action)
 
-        self.paste_to_orig_action = QtGui.QAction(_("Paste to Original Pos"),
-                                                 self.table_widget)
+        self.paste_to_orig_action = QtGui.QAction(
+            _("Paste to Original Pos"), self.table_widget)
         self.paste_to_orig_action.triggered.connect(self.paste_at_original_pos)
         self.table_widget.addAction(self.paste_to_orig_action)
 
-        self.clear_selection_action = QtGui.QAction(_("Clear Selection"), self.table_widget)
-        self.clear_selection_action.triggered.connect(self.table_widget.clearSelection)
-        self.clear_selection_action.setShortcut(QtGui.QKeySequence.fromString("Esc"))
+        self.clear_selection_action = QtGui.QAction(
+            _("Clear Selection"), self.table_widget)
+        self.clear_selection_action.triggered.connect(
+            self.table_widget.clearSelection)
+        self.clear_selection_action.setShortcut(
+            QtGui.QKeySequence.fromString("Esc"))
         self.table_widget.addAction(self.clear_selection_action)
 
         self.delete_action = QtGui.QAction(_("Delete"), self.table_widget)
@@ -1162,8 +1252,10 @@ class region_list_editor:
 
         self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Item(s)"),
                                                     self.table_widget)
-        self.unlink_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+U"))
-        self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
+        self.unlink_selected_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+U"))
+        self.unlink_selected_action.triggered.connect(
+            self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
 
         self.unlink_unique_action = QtGui.QAction(_("Auto-Unlink Unique Item(s)"),
