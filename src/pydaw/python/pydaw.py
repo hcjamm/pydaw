@@ -8428,7 +8428,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         for f_app in (f_avconv, f_lame):
             if pydaw_which(f_app) is None:
                 QtGui.QMessageBox.warning(self, _("Error"),
-                _("Please ensure that avconv(or ffmpeg) and lame are installed, can't "
+                _("Please ensure that avconv(or ffmpeg) and "
+                "lame are installed, can't "
                 "open mp3 converter dialog.\n"
                 "Check your normal sources for packages or visit:\n\n"
                 "http://lame.sourceforge.net/\n"
@@ -8452,7 +8453,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_cmd = [a_dec, "--output", f_output_file, f_input_file]
             else:
                 if a_enc == "oggenc":
-                    f_cmd = [a_enc, "-b", "{}k".format(f_mp3_br_combobox.currentText()),
+                    f_cmd = [a_enc, "-b",
+                         "{}k".format(f_mp3_br_combobox.currentText()),
                          "-o", f_output_file, f_input_file]
                 elif a_enc == "lame":
                     f_cmd = [a_enc, "-b", str(f_mp3_br_combobox.currentText()),
@@ -8472,7 +8474,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 else:
                     f_ext = ".wav"
                 f_ext = f_ext.upper()
-                f_list = [x for x in os.listdir(f_input_file) if x.upper().endswith(f_ext)]
+                f_list = [x for x in os.listdir(f_input_file)
+                    if x.upper().endswith(f_ext)]
                 if not f_list:
                     QtGui.QMessageBox.warning(f_window, _("Error"),
                           _("No {} files in {}".format(f_ext, f_input_file)))
@@ -8525,7 +8528,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_file_name = QtGui.QFileDialog.getOpenFileName(
                         f_window, _("Select a file name to save to..."),
                         self.last_ac_dir,
-                        filter=_("Audio Files {}").format('(*.wav *.{})'.format(a_label)))
+                        filter=_("Audio Files {}").format(
+                        '(*.wav *.{})'.format(a_label)))
                     if not f_file_name is None and str(f_file_name) != "":
                         f_name.setText(str(f_file_name))
                         self.last_ac_dir = os.path.dirname(f_file_name)
@@ -8554,7 +8558,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     self.last_ac_dir = f_dir
                 else:
                     f_file_name = QtGui.QFileDialog.getSaveFileName(
-                        f_window, _("Select a file name to save to..."), self.last_ac_dir)
+                        f_window, _("Select a file name to save to..."),
+                        self.last_ac_dir)
                     if not f_file_name is None and str(f_file_name) != "":
                         f_file_name = str(f_file_name)
                         if not f_file_name.endswith(self.ac_ext):
@@ -8634,9 +8639,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(f_close_checkbox, 9, 1)
 
         f_ok_layout = QtGui.QHBoxLayout()
-        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                              QtGui.QSizePolicy.Expanding,
-                                              QtGui.QSizePolicy.Minimum))
+        f_ok_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.setMinimumWidth(75)
         f_ok.pressed.connect(ok_handler)
@@ -8652,10 +8657,11 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.cc_map_tab.setToolTip(_("Use this tab to create CC maps for your "
+            self.cc_map_tab.setToolTip(
+            _("Use this tab to create CC maps for your "
             "MIDI controller to PyDAW's built-in plugins\n"
-            "Each CC routes to a different control for each instrument, or if the CC is "
-            "'Effects Only', it routes only to Modulex"))
+            "Each CC routes to a different control for each instrument, "
+            "or if the CC is 'Effects Only', it routes only to Modulex"))
         else:
             self.cc_map_tab.setToolTip("")
 
@@ -8686,8 +8692,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.setCentralWidget(self.central_widget)
         self.central_widget.setWidget(self.widget)
         self.central_widget.setWidgetResizable(True)
-        self.central_widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.central_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.central_widget.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAsNeeded)
+        self.central_widget.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAsNeeded)
 
         self.main_layout = QtGui.QVBoxLayout()
         self.main_layout.setMargin(2)
@@ -8698,7 +8706,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.spacebar_action = QtGui.QAction(self)
         self.addAction(self.spacebar_action)
         self.spacebar_action.triggered.connect(self.on_spacebar)
-        self.spacebar_action.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
+        self.spacebar_action.setShortcut(
+            QtGui.QKeySequence(QtCore.Qt.Key_Space))
 
         #The menus
         self.menu_bar = QtGui.QMenu(self)
@@ -8715,16 +8724,20 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.open_action.setShortcut(QtGui.QKeySequence.Open)
 
         self.save_as_action = self.menu_file.addAction(
-            _("Save As...(projects are automatically saved, this creates a copy)"))
+            _("Save As...(projects are automatically saved, "
+            "this creates a copy)"))
         self.save_as_action.triggered.connect(self.on_save_as)
         self.save_as_action.setShortcut(QtGui.QKeySequence.SaveAs)
         self.menu_file.addSeparator()
 
-        self.offline_render_action = self.menu_file.addAction(_("Offline Render..."))
+        self.offline_render_action = self.menu_file.addAction(
+            _("Offline Render..."))
         self.offline_render_action.triggered.connect(self.on_offline_render)
 
-        self.audio_device_action = self.menu_file.addAction(_("Hardware Settings..."))
-        self.audio_device_action.triggered.connect(self.on_change_audio_settings)
+        self.audio_device_action = self.menu_file.addAction(
+            _("Hardware Settings..."))
+        self.audio_device_action.triggered.connect(
+            self.on_change_audio_settings)
         self.menu_file.addSeparator()
 
         self.quit_action = self.menu_file.addAction(_("Quit"))
@@ -8743,27 +8756,34 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.menu_edit.addSeparator()
 
-        self.undo_history_action = self.menu_edit.addAction(_("Undo History..."))
+        self.undo_history_action = self.menu_edit.addAction(
+            _("Undo History..."))
         self.undo_history_action.triggered.connect(self.on_undo_history)
 
-        self.verify_history_action = self.menu_edit.addAction(_("Verify History DB..."))
+        self.verify_history_action = self.menu_edit.addAction(
+            _("Verify History DB..."))
         self.verify_history_action.triggered.connect(self.on_verify_history)
 
         self.menu_appearance = self.menu_bar.addMenu(_("Appearance"))
 
         self.collapse_splitters_action = self.menu_appearance.addAction(
             _("Collapse Transport and Song Editor"))
-        self.collapse_splitters_action.triggered.connect(self.on_collapse_splitters)
-        self.collapse_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Up"))
+        self.collapse_splitters_action.triggered.connect(
+            self.on_collapse_splitters)
+        self.collapse_splitters_action.setShortcut(
+            QtGui.QKeySequence("CTRL+Up"))
 
         self.restore_splitters_action = self.menu_appearance.addAction(
             _("Restore Transport and Song Editor"))
-        self.restore_splitters_action.triggered.connect(self.on_restore_splitters)
-        self.restore_splitters_action.setShortcut(QtGui.QKeySequence("CTRL+Down"))
+        self.restore_splitters_action.triggered.connect(
+            self.on_restore_splitters)
+        self.restore_splitters_action.setShortcut(
+            QtGui.QKeySequence("CTRL+Down"))
 
         self.menu_appearance.addSeparator()
 
-        self.open_theme_action = self.menu_appearance.addAction(_("Open Theme..."))
+        self.open_theme_action = self.menu_appearance.addAction(
+            _("Open Theme..."))
         self.open_theme_action.triggered.connect(self.on_open_theme)
 
         self.menu_tools = self.menu_bar.addMenu(_("Tools"))
@@ -8788,7 +8808,8 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.loop_mode_action = QtGui.QAction(self)
         self.addAction(self.loop_mode_action)
-        self.loop_mode_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+L"))
+        self.loop_mode_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+L"))
         self.loop_mode_action.triggered.connect(TRANSPORT.toggle_loop_mode)
 
         self.panic_action = QtGui.QAction(self)
@@ -8800,9 +8821,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.transport_hlayout = QtGui.QHBoxLayout(self.transport_widget)
         self.transport_hlayout.setMargin(2)
         self.transport_splitter.addWidget(self.transport_widget)
-        self.transport_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.transport_widget.setSizePolicy(
+            QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
 
-        self.transport_hlayout.addWidget(TRANSPORT.group_box, alignment=QtCore.Qt.AlignLeft)
+        self.transport_hlayout.addWidget(
+            TRANSPORT.group_box, alignment=QtCore.Qt.AlignLeft)
         #The tabs
         self.main_tabwidget = QtGui.QTabWidget()
         self.transport_splitter.addWidget(self.main_tabwidget)
@@ -8939,7 +8962,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.setEnabled(False)
             f_reply = QtGui.QMessageBox.question(
                 self, _('Message'), _("Are you sure you want to quit?"),
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.Cancel)
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel,
+                QtGui.QMessageBox.Cancel)
             if f_reply == QtGui.QMessageBox.Cancel:
                 self.setEnabled(True)
                 return
@@ -8967,7 +8991,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_quit_timer.timeout.connect(self.close)
                     f_quit_timer.start(1000)
                 except Exception as ex:
-                    print("Exception thrown while attempting to exit, forcing PyDAW to exit")
+                    print("Exception thrown while attempting to exit, "
+                        "forcing PyDAW to exit")
                     print("Exception:  {}".format(ex))
                     exit(999)
         else:
@@ -8978,8 +9003,10 @@ global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
 global_plugin_numbers = [1, 3, 2, -1]
 global_plugin_indexes = {1:0, 3:1, 2:2, -1:3}
 global_cc_names = {"Euphoria":[], "Way-V":[], "Ray-V":[], "Modulex":[]}
-global_controller_port_name_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
-global_controller_port_num_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
+global_controller_port_name_dict = {"Euphoria":{}, "Way-V":{},
+                                    "Ray-V":{}, "Modulex":{}}
+global_controller_port_num_dict = {"Euphoria":{}, "Way-V":{},
+                                   "Ray-V":{}, "Modulex":{}}
 
 class pydaw_controller_map_item:
     def __init__(self, a_name, a_port):
@@ -8987,9 +9014,10 @@ class pydaw_controller_map_item:
         self.port = int(a_port)
 
 def pydaw_load_controller_maps():
-    f_portmap_dict = \
-    {"Euphoria":pydaw_ports.EUPHORIA_PORT_MAP, "Way-V":pydaw_ports.WAYV_PORT_MAP,
-    "Ray-V":pydaw_ports.RAYV_PORT_MAP, "Modulex":pydaw_ports.MODULEX_PORT_MAP}
+    f_portmap_dict = {"Euphoria":pydaw_ports.EUPHORIA_PORT_MAP,
+    "Way-V":pydaw_ports.WAYV_PORT_MAP,
+    "Ray-V":pydaw_ports.RAYV_PORT_MAP,
+    "Modulex":pydaw_ports.MODULEX_PORT_MAP}
     for k, v in f_portmap_dict.items():
         for k2, v2 in v.items():
             f_map  = pydaw_controller_map_item(k2, v2)
@@ -9003,7 +9031,8 @@ def pydaw_get_cc_map(a_name):
         pydaw_read_file_text("{}/{}".format(global_cc_map_folder, a_name)))
 
 def pydaw_save_cc_map(a_name, a_map):
-    pydaw_write_file_text("{}/{}".format(global_cc_map_folder, a_name), str(a_map))
+    pydaw_write_file_text(
+        "{}/{}".format(global_cc_map_folder, a_name), str(a_map))
 
 class pydaw_cc_map_editor:
     def add_map(self, a_item):
@@ -9103,15 +9132,12 @@ class pydaw_cc_map_editor:
     def on_click(self, x=None, y=None):
         def cc_ok_handler():
             f_map = pydaw_get_cc_map(self.current_map_name)
-            f_map.add_item(self.cc_spinbox.value(), pydaw_cc_map_item(f_effects_cb.isChecked(),
-                           global_controller_port_name_dict["Ray-V"]\
-                                                           [str(f_rayv.currentText())].port,
-                           global_controller_port_name_dict["Way-V"]\
-                                                           [str(f_wayv.currentText())].port,
-                           global_controller_port_name_dict["Euphoria"]\
-                                                           [str(f_euphoria.currentText())].port,
-                           global_controller_port_name_dict["Modulex"]\
-                                                           [str(f_modulex.currentText())].port))
+            f_map.add_item(
+                self.cc_spinbox.value(), pydaw_cc_map_item(f_effects_cb.isChecked(),
+                global_controller_port_name_dict["Ray-V"][str(f_rayv.currentText())].port,
+                global_controller_port_name_dict["Way-V"][str(f_wayv.currentText())].port,
+                global_controller_port_name_dict["Euphoria"][str(f_euphoria.currentText())].port,
+                global_controller_port_name_dict["Modulex"][str(f_modulex.currentText())].port))
             pydaw_save_cc_map(self.current_map_name, f_map)
             self.open_map(self.current_map_name)
             PROJECT.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
@@ -9138,10 +9164,12 @@ class pydaw_cc_map_editor:
         f_window.setMinimumWidth(240)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_layout.addWidget(QtGui.QLabel(_("Move your MIDI controller to set the CC number,\n"
+        f_layout.addWidget(QtGui.QLabel(
+        _("Move your MIDI controller to set the CC number,\n"
         "you must select a MIDI controller and record arm a track first.\n\n"
-        "Checking the 'Effects tracks only?' box will cause the controller to only\n"
-        "modify Modulex and all instrument controls will be ignored.")), 0, 1)
+        "Checking the 'Effects tracks only?' box will cause the controller "
+        "to only\nmodify Modulex and all instrument controls will be "
+        "ignored.")), 0, 1)
         self.cc_spinbox = QtGui.QSpinBox()
         self.cc_spinbox.setRange(1, 127)
         if x is not None:
@@ -9160,7 +9188,8 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(QtGui.QLabel("Euphoria"), 3, 0)
         f_layout.addWidget(f_euphoria, 3, 1)
         if x is not None:
-            f_euphoria.setCurrentIndex(f_euphoria.findText(str(self.cc_table.item(x, 2).text())))
+            f_euphoria.setCurrentIndex(
+                f_euphoria.findText(str(self.cc_table.item(x, 2).text())))
 
         f_modulex = QtGui.QComboBox()
         f_modulex.setMinimumWidth(300)
@@ -9170,7 +9199,8 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(QtGui.QLabel("Modulex"), 4, 0)
         f_layout.addWidget(f_modulex, 4, 1)
         if x is not None:
-            f_modulex.setCurrentIndex(f_modulex.findText(str(self.cc_table.item(x, 3).text())))
+            f_modulex.setCurrentIndex(
+                f_modulex.findText(str(self.cc_table.item(x, 3).text())))
 
         f_rayv = QtGui.QComboBox()
         f_list = list(global_controller_port_name_dict["Ray-V"].keys())
@@ -9179,7 +9209,8 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(QtGui.QLabel("Ray-V"), 5, 0)
         f_layout.addWidget(f_rayv, 5, 1)
         if x is not None:
-            f_rayv.setCurrentIndex(f_rayv.findText( str(self.cc_table.item(x, 4).text()) ))
+            f_rayv.setCurrentIndex(
+                f_rayv.findText( str(self.cc_table.item(x, 4).text()) ))
 
         f_wayv = QtGui.QComboBox()
         f_list = list(global_controller_port_name_dict["Way-V"].keys())
@@ -9188,7 +9219,8 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(QtGui.QLabel("Way-V"), 6, 0)
         f_layout.addWidget(f_wayv, 6, 1)
         if x is not None:
-            f_wayv.setCurrentIndex(f_wayv.findText( str(self.cc_table.item(x, 5).text()) ))
+            f_wayv.setCurrentIndex(
+                f_wayv.findText( str(self.cc_table.item(x, 5).text()) ))
 
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_ok_cancel_layout, 7,1)
@@ -9217,9 +9249,8 @@ class pydaw_cc_map_editor:
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
         f_button_layout = QtGui.QHBoxLayout()
         f_vlayout.addLayout(f_button_layout)
-        f_button_spacer = QtGui.QSpacerItem(10, 10,
-                                            QtGui.QSizePolicy.Expanding,
-                                            QtGui.QSizePolicy.Minimum)
+        f_button_spacer = QtGui.QSpacerItem(
+            10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
         f_new_cc_button = QtGui.QPushButton(_("New CC"))
         f_new_cc_button.pressed.connect(self.on_new_cc)
@@ -9236,11 +9267,12 @@ class pydaw_cc_map_editor:
         f_save_as_button.pressed.connect(self.on_save_as)
         f_button_layout.addWidget(f_save_as_button)
         self.cc_table = QtGui.QTableWidget(0, 6)
-        self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.cc_table.setVerticalScrollMode(
+            QtGui.QAbstractItemView.ScrollPerPixel)
         self.cc_table.verticalHeader().setVisible(False)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.cc_table.setHorizontalHeaderLabels(["CC", "Effects Only?", "Euphoria",
-                                                 "Modulex", "Ray-V", "Way-V"])
+        self.cc_table.setHorizontalHeaderLabels(
+            ["CC", "Effects Only?", "Euphoria", "Modulex", "Ray-V", "Way-V"])
         self.cc_table.cellClicked.connect(self.on_click)
         self.cc_table.setSortingEnabled(True)
         self.cc_table.sortByColumn(0)
@@ -9256,16 +9288,17 @@ class pydaw_cc_map_editor:
         for k, v in list(f_map.map.items()):
             f_num = str(k).zfill(3)
             self.cc_table.setItem(f_row_pos, 0, QtGui.QTableWidgetItem(f_num))
-            self.cc_table.setItem(f_row_pos, 1,
-                                  QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
-            self.cc_table.setItem(f_row_pos, 2,
-                                  QtGui.QTableWidgetItem(
-                                  global_controller_port_num_dict["Euphoria"]\
-                                                                 [v.euphoria_port].name))
-            self.cc_table.setItem(f_row_pos, 3,
-                                  QtGui.QTableWidgetItem(
-                                  global_controller_port_num_dict["Modulex"]\
-                                                                 [v.modulex_port].name))
+            self.cc_table.setItem(
+                f_row_pos, 1,
+                QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
+            self.cc_table.setItem(
+                f_row_pos, 2,
+                QtGui.QTableWidgetItem(
+                global_controller_port_num_dict["Euphoria"][v.euphoria_port].name))
+            self.cc_table.setItem(
+                f_row_pos, 3,
+                QtGui.QTableWidgetItem(
+                global_controller_port_num_dict["Modulex"][v.modulex_port].name))
             self.cc_table.setItem(
                 f_row_pos, 4,
                 QtGui.QTableWidgetItem(
@@ -9288,8 +9321,10 @@ class pydaw_wave_editor_widget:
         self.file_browser = pydaw_widgets.pydaw_file_browser_widget()
         self.file_browser.load_button.pressed.connect(self.on_file_open)
         self.file_browser.preview_button.pressed.connect(self.on_preview)
-        self.file_browser.stop_preview_button.pressed.connect(self.on_stop_preview)
-        self.file_browser.list_file.setSelectionMode(QtGui.QListWidget.SingleSelection)
+        self.file_browser.stop_preview_button.pressed.connect(
+            self.on_stop_preview)
+        self.file_browser.list_file.setSelectionMode(
+            QtGui.QListWidget.SingleSelection)
         self.layout.addWidget(self.file_browser.hsplitter)
         self.file_browser.hsplitter.addWidget(self.right_widget)
         self.file_hlayout = QtGui.QHBoxLayout()
@@ -9309,25 +9344,34 @@ class pydaw_wave_editor_widget:
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
         self.copy_item_action = self.menu.addAction(_("Copy as Audio Item"))
         self.copy_item_action.triggered.connect(self.copy_audio_item)
-        self.copy_item_action.setShortcut(QtGui.QKeySequence.fromString("ALT+C"))
-        self.paste_action = self.menu.addAction(_("Paste File from Clipboard"))
+        self.copy_item_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+C"))
+        self.paste_action = self.menu.addAction(
+            _("Paste File from Clipboard"))
         self.paste_action.triggered.connect(self.open_file_from_clipboard)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
-        self.open_folder_action = self.menu.addAction(_("Open parent folder in browser"))
+        self.open_folder_action = self.menu.addAction(
+            _("Open parent folder in browser"))
         self.open_folder_action.triggered.connect(self.open_item_folder)
         self.menu.addSeparator()
         self.bookmark_action = self.menu.addAction(_("Bookmark File"))
         self.bookmark_action.triggered.connect(self.bookmark_file)
-        self.bookmark_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+D"))
-        self.delete_bookmark_action = self.menu.addAction(_("Delete Bookmark"))
+        self.bookmark_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+D"))
+        self.delete_bookmark_action = self.menu.addAction(
+            _("Delete Bookmark"))
         self.delete_bookmark_action.triggered.connect(self.delete_bookmark)
-        self.delete_bookmark_action.setShortcut(QtGui.QKeySequence.fromString("ALT+D"))
+        self.delete_bookmark_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+D"))
         self.menu.addSeparator()
-        self.reset_markers_action = self.menu.addAction(_("Reset Markers"))
+        self.reset_markers_action = self.menu.addAction(
+            _("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
-        self.normalize_action = self.menu.addAction(_("Normalize (non-destructive)..."))
+        self.normalize_action = self.menu.addAction(
+            _("Normalize (non-destructive)..."))
         self.normalize_action.triggered.connect(self.normalize_dialog)
-        self.stretch_shift_action = self.menu.addAction(_("Time-Stretch/Pitch-Shift..."))
+        self.stretch_shift_action = self.menu.addAction(
+            _("Time-Stretch/Pitch-Shift..."))
         self.stretch_shift_action.triggered.connect(self.stretch_shift_dialog)
 
         self.bookmark_button = QtGui.QPushButton(_("Bookmarks"))
@@ -9369,10 +9413,9 @@ class pydaw_wave_editor_widget:
         self.gridlayout.addWidget(QtGui.QLabel(_("Fade-Out")), 0, 19)
         self.gridlayout.addWidget(self.fade_out_end, 0, 20)
 
-        self.sample_graph = pydaw_audio_item_viewer_widget(self.marker_callback,
-                                                           self.marker_callback,
-                                                           self.marker_callback,
-                                                           self.marker_callback)
+        self.sample_graph = pydaw_audio_item_viewer_widget(
+            self.marker_callback, self.marker_callback,
+            self.marker_callback, self.marker_callback)
         self.label_action = QtGui.QWidgetAction(self.menu_button)
         self.label_action.setDefaultWidget(self.sample_graph.label)
         self.menu.addAction(self.label_action)
@@ -9467,13 +9510,18 @@ class pydaw_wave_editor_widget:
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.sample_graph.setToolTip(_("Load samples here by using the browser on the left "
+            self.sample_graph.setToolTip(
+                _("Load samples here by using the browser on the left "
                 "and clicking the  'Load' button"))
-            self.fx_button.setToolTip(_("This button shows the Modulex effects window.  "
-                "Export the audio (using the menu button) to permanently apply effects."))
-            self.menu_button.setToolTip(_("This menu can export the audio or perform "
+            self.fx_button.setToolTip(
+                _("This button shows the Modulex effects window.  "
+                "Export the audio (using the menu button) to "
+                "permanently apply effects."))
+            self.menu_button.setToolTip(
+                _("This menu can export the audio or perform "
                 "various operations."))
-            self.history_button.setToolTip(_("Use this button to view or open files that "
+            self.history_button.setToolTip(
+                _("Use this button to view or open files that "
                 "were previously opened during this session."))
         else:
             self.sample_graph.setToolTip("")
