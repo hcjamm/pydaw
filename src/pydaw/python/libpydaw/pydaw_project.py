@@ -17,6 +17,9 @@ from time import sleep
 from libpydaw.pydaw_util import *
 
 from libpydaw.pydaw_osc import pydaw_osc
+import wavefile
+import numpy
+import datetime
 
 from PyQt4 import QtGui, QtCore
 from libpydaw import pydaw_history
@@ -852,18 +855,49 @@ class pydaw_project:
             f_path = f_sample_dir_path
         else:
             raise Exception("Cannot create sample graph, the "
-                "following do not exist:\n{}\n{}\n".format(a_path, f_sample_dir_path))
-        self.this_pydaw_osc.pydaw_generate_sample_graph(f_path, f_uid)
-        f_pygraph_file = "{}/{}".format(self.samplegraph_folder, f_uid)
-        for i in range(300):
-            if os.path.isfile(f_pygraph_file):
-                sleep(0.1)
-                return
-            else:
-                sleep(0.1)
+                "following do not exist:\n{}\n{}\n".format(
+                a_path, f_sample_dir_path))
 
-        raise Exception("Could not generate sample graph for {}\n{}\n, "
-                        "the engine did not return a file.".format(a_uid, a_path))
+        # TODO:  This algorithm is somewhat screwed up in the C code,
+        #  and this is a one-to-one port.  The f_peak_count and so on
+        #  are not consistent with length, need to fix it.
+        with wavefile.WaveReader(f_path) as f_reader:
+            f_result = "meta|filename|{}\n".format(f_path)
+            f_ts = int(datetime.datetime.now().strftime("%s"))
+            f_result += "meta|timestamp|{}\n".format(f_ts)
+            f_result += "meta|channels|{}\n".format(f_reader.channels)
+            f_result += "meta|frame_count|{}\n".format(f_reader.frames)
+            f_result += "meta|sample_rate|{}\n".format(
+                int(f_reader.samplerate))
+            f_length = float(f_reader.frames) / float(f_reader.samplerate)
+            f_length = round(f_length, 6)
+            f_result += "meta|length|{}\n".format(f_length)
+            f_peak_count = int(f_length * 32.0)
+            f_points = []
+            f_count = 0
+            if f_count < 1:
+                f_count = 1
+            for f_frame in f_reader.read_iter(size=f_peak_count):
+                for f_i in range(f_frame.shape[0]):
+                    f_high = -1.0
+                    f_low = 1.0
+                    for f_i2 in range(0, f_frame.shape[1], 10):
+                        f_val = f_frame[f_i][f_i2]
+                        if f_val > f_high:
+                            f_high = f_val
+                        elif f_val < f_low:
+                            f_low = f_val
+                    f_high = round(float(f_high), 6)
+                    f_points.append("p|{}|h|{}".format(f_i, f_high))
+                    f_low = round(float(f_low), 6)
+                    f_points.append("p|{}|l|{}".format(f_i, f_low))
+                f_count += 1
+            f_result += "\n".join(f_points)
+            f_result += "\nmeta|count|{}\n\\".format(f_count)
+
+        f_pygraph_file = "{}/{}".format(self.samplegraph_folder, f_uid)
+        with open(f_pygraph_file, "w") as f_handle:
+            f_handle.write(f_result)
 
     def verify_history(self):
         self.flush_history()
