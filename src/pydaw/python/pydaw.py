@@ -101,14 +101,14 @@ def global_get_audio_file_from_clipboard():
                 _("{} is not a valid file").format(f_path))
     return None
 
-global_tooltips_enabled = False
+TOOLTIPS_ENABLED = False
 
 def pydaw_set_tooltips_enabled(a_enabled):
     """ Set extensive tooltips as an alternative to
         maintaining a separate user manual
     """
-    global global_tooltips_enabled
-    global_tooltips_enabled = a_enabled
+    global TOOLTIPS_ENABLED
+    TOOLTIPS_ENABLED = a_enabled
 
     f_list = [this_song_editor, this_audio_items_viewer_widget,
               this_piano_roll_editor, this_main_window,
@@ -855,8 +855,8 @@ class region_list_editor:
         self.clear_items()
         self.reset_tracks()
         self.enabled = False
-        global global_region_clipboard
-        global_region_clipboard = []
+        global REGION_CLIPBOARD
+        REGION_CLIPBOARD = []
 
     def open_tracks(self):
         self.reset_tracks()
@@ -1122,12 +1122,12 @@ class region_list_editor:
         f_repeat_checkbox = QtGui.QCheckBox(_("Repeat to end?"))
         f_layout.addWidget(f_repeat_checkbox, 3, 2)
 
-        if global_region_clipboard:
+        if REGION_CLIPBOARD:
             f_paste_clipboard_button = QtGui.QPushButton(_("Paste Clipboard"))
             f_layout.addWidget(f_paste_clipboard_button, 4, 2)
             f_paste_clipboard_button.pressed.connect(paste_button_pressed)
 
-        if len(global_region_clipboard) == 1:
+        if len(REGION_CLIPBOARD) == 1:
             f_paste_to_end_button = QtGui.QPushButton(_("Paste to End"))
             f_layout.addWidget(f_paste_to_end_button, 7, 2)
             f_paste_to_end_button.pressed.connect(paste_to_end_button_pressed)
@@ -1420,10 +1420,10 @@ class region_list_editor:
             if f_new_name == "":
                 QtGui.QMessageBox.warning(self.group_box, _("Error"), _("Name cannot be blank"))
                 return
-            global global_region_clipboard, global_open_item_names, \
+            global REGION_CLIPBOARD, global_open_item_names, \
                 global_last_open_item_names, global_last_open_item_uids
             #Clear the clipboard, otherwise the names could be invalid
-            global_region_clipboard = []
+            REGION_CLIPBOARD = []
             global_open_item_names = []
             global_last_open_item_names = []
             global_last_open_item_uids = []
@@ -1574,15 +1574,15 @@ class region_list_editor:
         f_selected_cells = self.table_widget.selectedIndexes()
         if len(f_selected_cells) == 0:
             return
-        if len(global_region_clipboard) != 1:
+        if len(REGION_CLIPBOARD) != 1:
             QtGui.QMessageBox.warning(this_main_window, _("Error"), _("Paste to region end only "
                 "works when you have exactly one item copied to the clipboard.\n"
-                "You have {} items copied.").format(len(global_region_clipboard)))
+                "You have {} items copied.").format(len(REGION_CLIPBOARD)))
             return
         f_base_row = f_selected_cells[0].row()
         f_base_column = f_selected_cells[0].column() - 1
         f_region_length = pydaw_get_current_region_length()
-        f_item = global_region_clipboard[0]
+        f_item = REGION_CLIPBOARD[0]
         for f_column in range(f_base_column, f_region_length + 1):
             self.add_qtablewidgetitem(f_item[2], f_base_row, f_column)
         global_tablewidget_to_region()
@@ -1605,7 +1605,7 @@ class region_list_editor:
             f_base_column = f_selected_cells[0].column() - 1
         self.table_widget.clearSelection()
         f_region_length = pydaw_get_current_region_length()
-        for f_item in global_region_clipboard:
+        for f_item in REGION_CLIPBOARD:
             f_column = f_item[1] + f_base_column
             if f_column >= f_region_length or f_column < 0:
                 continue
@@ -1631,21 +1631,22 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-        global global_region_clipboard, REGION_CLIPBOARD_ROW_OFFSET, REGION_CLIPBOARD_COL_OFFSET
-        global_region_clipboard = []  #Clear the clipboard
+        global REGION_CLIPBOARD, REGION_CLIPBOARD_ROW_OFFSET, \
+            REGION_CLIPBOARD_COL_OFFSET
+        REGION_CLIPBOARD = []  #Clear the clipboard
         for f_item in self.table_widget.selectedIndexes():
             f_cell = self.table_widget.item(f_item.row(), f_item.column())
             if not f_cell is None and not str(f_cell.text()) == "":
-                global_region_clipboard.append([int(f_item.row()), int(f_item.column()) - 1,
+                REGION_CLIPBOARD.append([int(f_item.row()), int(f_item.column()) - 1,
                                                 str(f_cell.text())])
-        if len(global_region_clipboard) > 0:
-            global_region_clipboard.sort(key=operator.itemgetter(0))
-            f_row_offset = global_region_clipboard[0][0]
-            for f_item in global_region_clipboard:
+        if len(REGION_CLIPBOARD) > 0:
+            REGION_CLIPBOARD.sort(key=operator.itemgetter(0))
+            f_row_offset = REGION_CLIPBOARD[0][0]
+            for f_item in REGION_CLIPBOARD:
                 f_item[0] -= f_row_offset
-            global_region_clipboard.sort(key=operator.itemgetter(1))
-            f_column_offset = global_region_clipboard[0][1]
-            for f_item in global_region_clipboard:
+            REGION_CLIPBOARD.sort(key=operator.itemgetter(1))
+            f_column_offset = REGION_CLIPBOARD[0][1]
+            for f_item in REGION_CLIPBOARD:
                 f_item[1] -= f_column_offset
             REGION_CLIPBOARD_COL_OFFSET = f_column_offset
             REGION_CLIPBOARD_ROW_OFFSET = f_row_offset
@@ -1672,7 +1673,7 @@ class region_list_editor:
                         f_result.append((i + self.track_offset, i2 - 1, str(f_item.text())))
         return f_result
 
-global_region_clipboard = []
+REGION_CLIPBOARD = []
 
 def global_tablewidget_to_region():
     global global_current_region
@@ -1721,9 +1722,9 @@ def pydaw_seconds_to_bars(a_seconds):
     return a_seconds * global_bars_per_second
 
 def pydaw_set_audio_seq_zoom(a_horizontal, a_vertical):
-    global global_audio_px_per_bar, global_audio_px_per_beat, global_audio_px_per_8th, \
+    global AUDIO_PX_PER_BAR, global_audio_px_per_beat, global_audio_px_per_8th, \
            global_audio_px_per_12th, global_audio_px_per_16th, \
-           global_audio_item_height
+           AUDIO_ITEM_HEIGHT
 
     f_width = float(this_audio_items_viewer.rect().width()) - \
         float(this_audio_items_viewer.verticalScrollBar().width()) - 6.0
@@ -1731,75 +1732,75 @@ def pydaw_set_audio_seq_zoom(a_horizontal, a_vertical):
     f_region_px = f_region_length * 100.0
     f_region_scale = f_width / f_region_px
 
-    global_audio_px_per_bar = 100.0 * a_horizontal * f_region_scale
-    global_audio_px_per_beat = global_audio_px_per_bar * 0.25 # / 4.0
-    global_audio_px_per_8th = global_audio_px_per_bar * 0.125 # / 8.0
-    global_audio_px_per_12th = global_audio_px_per_bar / 12.0
-    global_audio_px_per_16th = global_audio_px_per_bar * 0.0625 # / 16.0
+    AUDIO_PX_PER_BAR = 100.0 * a_horizontal * f_region_scale
+    global_audio_px_per_beat = AUDIO_PX_PER_BAR * 0.25 # / 4.0
+    global_audio_px_per_8th = AUDIO_PX_PER_BAR * 0.125 # / 8.0
+    global_audio_px_per_12th = AUDIO_PX_PER_BAR / 12.0
+    global_audio_px_per_16th = AUDIO_PX_PER_BAR * 0.0625 # / 16.0
     pydaw_set_audio_snap(global_audio_snap_val)
-    global_audio_item_height = 75.0 * a_vertical
+    AUDIO_ITEM_HEIGHT = 75.0 * a_vertical
 
 
 def pydaw_set_audio_snap(a_val):
-    global global_audio_quantize, global_audio_quantize_px, \
-           global_audio_quantize_amt, global_audio_snap_val, \
+    global AUDIO_QUANTIZE, AUDIO_QUANTIZE_PX, \
+           AUDIO_QUANTIZE_AMT, global_audio_snap_val, \
            global_audio_lines_enabled, global_audio_snap_range
     global_audio_snap_val = a_val
-    global_audio_quantize = True
+    AUDIO_QUANTIZE = True
     global_audio_lines_enabled = True
     global_audio_snap_range = 8
     if a_val == 0:
-        global_audio_quantize = False
-        global_audio_quantize_px = global_audio_px_per_beat
+        AUDIO_QUANTIZE = False
+        AUDIO_QUANTIZE_PX = global_audio_px_per_beat
         global_audio_lines_enabled = False
     elif a_val == 1:
-        global_audio_quantize_px = global_audio_px_per_bar
+        AUDIO_QUANTIZE_PX = AUDIO_PX_PER_BAR
         global_audio_lines_enabled = False
-        global_audio_quantize_amt = 0.25
+        AUDIO_QUANTIZE_AMT = 0.25
     elif a_val == 2:
-        global_audio_quantize_px = global_audio_px_per_beat
+        AUDIO_QUANTIZE_PX = global_audio_px_per_beat
         global_audio_lines_enabled = False
-        global_audio_quantize_amt = 1.0
+        AUDIO_QUANTIZE_AMT = 1.0
     elif a_val == 3:
-        global_audio_quantize_px = global_audio_px_per_8th
+        AUDIO_QUANTIZE_PX = global_audio_px_per_8th
         global_audio_snap_range = 2
-        global_audio_quantize_amt = 2.0
+        AUDIO_QUANTIZE_AMT = 2.0
     elif a_val == 4:
-        global_audio_quantize_px = global_audio_px_per_12th
+        AUDIO_QUANTIZE_PX = global_audio_px_per_12th
         global_audio_snap_range = 3
-        global_audio_quantize_amt = 3.0
+        AUDIO_QUANTIZE_AMT = 3.0
     elif a_val == 5:
-        global_audio_quantize_px = global_audio_px_per_16th
+        AUDIO_QUANTIZE_PX = global_audio_px_per_16th
         global_audio_snap_range = 4
-        global_audio_quantize_amt = 4.0
+        AUDIO_QUANTIZE_AMT = 4.0
 
 global_audio_lines_enabled = True
 global_audio_snap_range = 8
 global_audio_snap_val = 2
-global_audio_px_per_bar = 100.0
-global_audio_px_per_beat = global_audio_px_per_bar / 4.0
-global_audio_px_per_8th = global_audio_px_per_bar / 8.0
-global_audio_px_per_12th = global_audio_px_per_bar / 12.0
-global_audio_px_per_16th = global_audio_px_per_bar / 16.0
+AUDIO_PX_PER_BAR = 100.0
+global_audio_px_per_beat = AUDIO_PX_PER_BAR / 4.0
+global_audio_px_per_8th = AUDIO_PX_PER_BAR / 8.0
+global_audio_px_per_12th = AUDIO_PX_PER_BAR / 12.0
+global_audio_px_per_16th = AUDIO_PX_PER_BAR / 16.0
 
-global_audio_quantize = False
-global_audio_quantize_px = 25.0
-global_audio_quantize_amt = 1.0
+AUDIO_QUANTIZE = False
+AUDIO_QUANTIZE_PX = 25.0
+AUDIO_QUANTIZE_AMT = 1.0
 
-global_audio_ruler_height = 20.0
-global_audio_item_height = 75.0
+AUDIO_RULER_HEIGHT = 20.0
+AUDIO_ITEM_HEIGHT = 75.0
 
-global_audio_item_handle_height = 12.0
-global_audio_item_handle_size = 6.25
+AUDIO_ITEM_HANDLE_HEIGHT = 12.0
+AUDIO_ITEM_HANDLE_SIZE = 6.25
 
-global_audio_item_handle_brush = QtGui.QLinearGradient(0.0, 0.0, global_audio_item_handle_size,
-                                                       global_audio_item_handle_height)
-global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
-global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
+AUDIO_ITEM_HANDLE_BRUSH = QtGui.QLinearGradient(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                                                       AUDIO_ITEM_HANDLE_HEIGHT)
+AUDIO_ITEM_HANDLE_BRUSH.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
+AUDIO_ITEM_HANDLE_BRUSH.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
 
 global_audio_item_handle_selected_brush = \
-    QtGui.QLinearGradient(0.0, 0.0, global_audio_item_handle_size,
-                          global_audio_item_handle_height)
+    QtGui.QLinearGradient(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                          AUDIO_ITEM_HANDLE_HEIGHT)
 global_audio_item_handle_selected_brush.setColorAt(0.0, QtGui.QColor.fromRgb(24, 24, 24, 120))
 global_audio_item_handle_selected_brush.setColorAt(0.0, QtGui.QColor.fromRgb(24, 24, 24, 90))
 
@@ -1861,7 +1862,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.track_num = a_track_num
         f_graph = this_pydaw_project.get_sample_graph_by_uid(self.audio_item.uid)
         self.painter_paths = f_graph.create_sample_graph(True)
-        self.y_inc = global_audio_item_height / len(self.painter_paths)
+        self.y_inc = AUDIO_ITEM_HEIGHT / len(self.painter_paths)
         f_y_pos = 0.0
         self.path_items = []
         for f_painter_path in self.painter_paths:
@@ -1876,7 +1877,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_name_arr = f_file_name.rsplit("/", 1)
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
-        self.label.setPos(10, (global_audio_item_height * 0.5) -
+        self.label.setPos(10, (AUDIO_ITEM_HEIGHT * 0.5) -
             (self.label.boundingRect().height() * 0.5))
         self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
@@ -1884,11 +1885,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle.setAcceptHoverEvents(True)
         self.start_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.start_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
-                                                global_audio_item_handle_height))
+        self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                                                AUDIO_ITEM_HANDLE_HEIGHT))
         self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
-        self.start_handle_line = QtGui.QGraphicsLineItem(0.0, global_audio_item_handle_height, 0.0,
-        (global_audio_item_height * -1.0) + global_audio_item_handle_height, self.start_handle)
+        self.start_handle_line = QtGui.QGraphicsLineItem(0.0, AUDIO_ITEM_HANDLE_HEIGHT, 0.0,
+        (AUDIO_ITEM_HEIGHT * -1.0) + AUDIO_ITEM_HANDLE_HEIGHT, self.start_handle)
 
         self.start_handle_line.setPen(global_audio_item_line_pen)
 
@@ -1896,22 +1897,22 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setAcceptHoverEvents(True)
         self.length_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.length_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
-                                                 global_audio_item_handle_height))
+        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                                                 AUDIO_ITEM_HANDLE_HEIGHT))
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
-        self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size,
-                                                  global_audio_item_handle_height,
-                                                  global_audio_item_handle_size,
-                                                  (global_audio_item_height * -1.0) +
-                                                  global_audio_item_handle_height,
+        self.length_handle_line = QtGui.QGraphicsLineItem(AUDIO_ITEM_HANDLE_SIZE,
+                                                  AUDIO_ITEM_HANDLE_HEIGHT,
+                                                  AUDIO_ITEM_HANDLE_SIZE,
+                                                  (AUDIO_ITEM_HEIGHT * -1.0) +
+                                                  AUDIO_ITEM_HANDLE_HEIGHT,
                                                   self.length_handle)
 
         self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_in_handle.setAcceptHoverEvents(True)
         self.fade_in_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.fade_in_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.fade_in_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
-                                                  global_audio_item_handle_height))
+        self.fade_in_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                                                  AUDIO_ITEM_HANDLE_HEIGHT))
         self.fade_in_handle.mousePressEvent = self.fade_in_handle_mouseClickEvent
         self.fade_in_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
 
@@ -1919,8 +1920,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.fade_out_handle.setAcceptHoverEvents(True)
         self.fade_out_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.fade_out_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.fade_out_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
-                                                   global_audio_item_handle_height))
+        self.fade_out_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                                                   AUDIO_ITEM_HANDLE_HEIGHT))
         self.fade_out_handle.mousePressEvent = self.fade_out_handle_mouseClickEvent
         self.fade_out_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
 
@@ -1928,17 +1929,17 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.stretch_handle.setAcceptHoverEvents(True)
         self.stretch_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.stretch_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.stretch_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size,
-                                                  global_audio_item_handle_height))
+        self.stretch_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                                                  AUDIO_ITEM_HANDLE_HEIGHT))
         self.stretch_handle.mousePressEvent = self.stretch_handle_mouseClickEvent
-        self.stretch_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size,
-            (global_audio_item_handle_height * 0.5) - (global_audio_item_height * 0.5),
-            global_audio_item_handle_size,
-            (global_audio_item_height * 0.5) + (global_audio_item_handle_height * 0.5),
+        self.stretch_handle_line = QtGui.QGraphicsLineItem(AUDIO_ITEM_HANDLE_SIZE,
+            (AUDIO_ITEM_HANDLE_HEIGHT * 0.5) - (AUDIO_ITEM_HEIGHT * 0.5),
+            AUDIO_ITEM_HANDLE_SIZE,
+            (AUDIO_ITEM_HEIGHT * 0.5) + (AUDIO_ITEM_HANDLE_HEIGHT * 0.5),
             self.stretch_handle)
         self.stretch_handle.hide()
 
-        self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, global_audio_item_height, self)
+        self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, AUDIO_ITEM_HEIGHT, self)
         self.split_line.mapFromParent(0.0, 0.0)
         self.split_line.hide()
         self.split_line_is_shown = False
@@ -1959,7 +1960,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.width_orig = None
         self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
         self.quantize_offset = 0.0
-        if global_tooltips_enabled:
+        if TOOLTIPS_ENABLED:
             self.set_tooltips(True)
         self.draw()
 
@@ -1980,25 +1981,25 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_temp_seconds *= self.audio_item.timestretch_amt
 
         f_start = float(self.audio_item.start_bar) + (self.audio_item.start_beat * 0.25)
-        f_start *= global_audio_px_per_bar
+        f_start *= AUDIO_PX_PER_BAR
 
-        f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * global_audio_px_per_bar
+        f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * AUDIO_PX_PER_BAR
         self.length_seconds_orig_px = f_length_seconds
-        self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
+        self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, AUDIO_ITEM_HEIGHT)
         self.length_px_start = (self.audio_item.sample_start * 0.001 * f_length_seconds)
         self.length_px_minus_start = f_length_seconds - self.length_px_start
         self.length_px_minus_end = (self.audio_item.sample_end * 0.001 * f_length_seconds)
         f_length = self.length_px_minus_end - self.length_px_start
 
         f_track_num = \
-        global_audio_ruler_height + (global_audio_item_height) * self.audio_item.lane_num
+        AUDIO_RULER_HEIGHT + (AUDIO_ITEM_HEIGHT) * self.audio_item.lane_num
 
         f_fade_in = self.audio_item.fade_in * 0.001
         f_fade_out = self.audio_item.fade_out * 0.001
-        self.setRect(0.0, 0.0, f_length, global_audio_item_height)
+        self.setRect(0.0, 0.0, f_length, AUDIO_ITEM_HEIGHT)
         f_fade_in_handle_pos = (f_length * f_fade_in)
         f_fade_in_handle_pos = pydaw_clip_value(f_fade_in_handle_pos, 0.0, (f_length - 6.0))
-        f_fade_out_handle_pos = (f_length * f_fade_out) - global_audio_item_handle_size
+        f_fade_out_handle_pos = (f_length * f_fade_out) - AUDIO_ITEM_HANDLE_SIZE
         f_fade_out_handle_pos = pydaw_clip_value(f_fade_out_handle_pos,
                                                  (f_fade_in_handle_pos + 6.0), f_length)
         self.fade_in_handle.setPos(f_fade_in_handle_pos, 0.0)
@@ -2024,7 +2025,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_i = f_i_inc
             f_y_inc = 0.0
             if f_channels == 1:  # Kludge to fix the problem, there must be a better way...
-                f_y_offset = (1.0 - self.vol_linear) * (global_audio_item_height * 0.5)
+                f_y_offset = (1.0 - self.vol_linear) * (AUDIO_ITEM_HEIGHT * 0.5)
             else:
                 f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
@@ -2042,16 +2043,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_y_inc += self.y_inc
         self.waveforms_scaled = True
 
-        self.length_handle.setPos(f_length - global_audio_item_handle_size,
-                                  global_audio_item_height - global_audio_item_handle_height)
-        self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_height)
+        self.length_handle.setPos(f_length - AUDIO_ITEM_HANDLE_SIZE,
+                                  AUDIO_ITEM_HEIGHT - AUDIO_ITEM_HANDLE_HEIGHT)
+        self.start_handle.setPos(0.0, AUDIO_ITEM_HEIGHT - AUDIO_ITEM_HANDLE_HEIGHT)
         if self.audio_item.time_stretch_mode >= 2 and \
         (((self.audio_item.time_stretch_mode != 5) and (self.audio_item.time_stretch_mode != 2)) \
         or (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
-            self.stretch_handle.setPos(f_length - global_audio_item_handle_size,
-                                       (global_audio_item_height * 0.5) -
-                                       (global_audio_item_handle_height * 0.5))
+            self.stretch_handle.setPos(f_length - AUDIO_ITEM_HANDLE_SIZE,
+                                       (AUDIO_ITEM_HEIGHT * 0.5) -
+                                       (AUDIO_ITEM_HANDLE_HEIGHT * 0.5))
 
     def set_tooltips(self, a_on):
         if a_on:
@@ -2083,12 +2084,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def clip_at_region_end(self):
         f_current_region_length = pydaw_get_current_region_length()
-        f_max_x = f_current_region_length * global_audio_px_per_bar
+        f_max_x = f_current_region_length * AUDIO_PX_PER_BAR
         f_pos_x = self.pos().x()
         f_end = f_pos_x + self.rect().width()
         if f_end > f_max_x:
             f_end_px = f_max_x - f_pos_x
-            self.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
+            self.setRect(0.0, 0.0, f_end_px, AUDIO_ITEM_HEIGHT)
             self.audio_item.sample_end = \
                 ((self.rect().width() + self.length_px_start) / self.length_seconds_orig_px) \
                 * 1000.0
@@ -2136,19 +2137,20 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.stretch_handle_line.setPen(global_audio_item_line_pen)
 
             self.label.setBrush(QtCore.Qt.white)
-            self.start_handle.setBrush(global_audio_item_handle_brush)
-            self.length_handle.setBrush(global_audio_item_handle_brush)
-            self.fade_in_handle.setBrush(global_audio_item_handle_brush)
-            self.fade_out_handle.setBrush(global_audio_item_handle_brush)
-            self.stretch_handle.setBrush(global_audio_item_handle_brush)
+            self.start_handle.setBrush(AUDIO_ITEM_HANDLE_BRUSH)
+            self.length_handle.setBrush(AUDIO_ITEM_HANDLE_BRUSH)
+            self.fade_in_handle.setBrush(AUDIO_ITEM_HANDLE_BRUSH)
+            self.fade_out_handle.setBrush(AUDIO_ITEM_HANDLE_BRUSH)
+            self.stretch_handle.setBrush(AUDIO_ITEM_HANDLE_BRUSH)
             if a_index is None:
                 self.setBrush(pydaw_track_gradients[
                 self.audio_item.lane_num % len(pydaw_track_gradients)])
             else:
-                self.setBrush(pydaw_track_gradients[a_index % len(pydaw_track_gradients)])
+                self.setBrush(pydaw_track_gradients[
+                    a_index % len(pydaw_track_gradients)])
 
     def pos_to_musical_time(self, a_pos):
-        f_bar_frac = a_pos / global_audio_px_per_bar
+        f_bar_frac = a_pos / AUDIO_PX_PER_BAR
         f_pos_bars = int(f_bar_frac)
         f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
         return(f_pos_bars, f_pos_beats)
@@ -2202,7 +2204,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.check_selected_status()
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.stretch_handle, a_event)
-        f_max_region_pos = global_audio_px_per_bar * pydaw_get_current_region_length()
+        f_max_region_pos = AUDIO_PX_PER_BAR * pydaw_get_current_region_length()
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected() and f_item.audio_item.time_stretch_mode >= 2:
                 f_item.is_stretching = True
@@ -2700,29 +2702,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.split_line.hide()
 
     def y_pos_to_lane_number(self, a_y_pos):
-        f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
+        f_lane_num = int((a_y_pos - AUDIO_RULER_HEIGHT) / AUDIO_ITEM_HEIGHT)
         f_lane_num = pydaw_clip_value(f_lane_num, 0, global_audio_item_max_lane)
-        f_y_pos = (f_lane_num * global_audio_item_height) + global_audio_ruler_height
+        f_y_pos = (f_lane_num * AUDIO_ITEM_HEIGHT) + AUDIO_RULER_HEIGHT
         return f_lane_num, f_y_pos
 
     def quantize_all(self, a_x):
         f_x = a_x
-        if global_audio_quantize:
-            f_x = round(f_x / global_audio_quantize_px) * global_audio_quantize_px
+        if AUDIO_QUANTIZE:
+            f_x = round(f_x / AUDIO_QUANTIZE_PX) * AUDIO_QUANTIZE_PX
         return f_x
 
     def quantize(self, a_x):
         f_x = a_x
         f_x = self.quantize_all(f_x)
-        if global_audio_quantize and f_x < global_audio_quantize_px:
-            f_x = global_audio_quantize_px
+        if AUDIO_QUANTIZE and f_x < AUDIO_QUANTIZE_PX:
+            f_x = AUDIO_QUANTIZE_PX
         return f_x
 
     def quantize_start(self, a_x):
         f_x = a_x
         f_x = self.quantize_all(f_x)
         if f_x >= self.length_handle.pos().x():
-            f_x -= global_audio_quantize_px
+            f_x -= AUDIO_QUANTIZE_PX
         return f_x
 
     def quantize_scene(self, a_x):
@@ -2732,12 +2734,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def update_fade_in_line(self):
         f_pos = self.fade_in_handle.pos()
-        self.fade_in_handle_line.setLine(f_pos.x(), 0.0, 0.0, global_audio_item_height)
+        self.fade_in_handle_line.setLine(f_pos.x(), 0.0, 0.0, AUDIO_ITEM_HEIGHT)
 
     def update_fade_out_line(self):
         f_pos = self.fade_out_handle.pos()
-        self.fade_out_handle_line.setLine(f_pos.x() + global_audio_item_handle_size,
-                                          0.0, self.rect().width(), global_audio_item_height)
+        self.fade_out_handle_line.setLine(f_pos.x() + AUDIO_ITEM_HANDLE_SIZE,
+                                          0.0, self.rect().width(), AUDIO_ITEM_HEIGHT)
 
     def add_vol_line(self):
         self.vol_line = QtGui.QGraphicsLineItem(0.0, 0.0, self.rect().width(), 0.0, self)
@@ -2745,7 +2747,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.set_vol_line()
 
     def set_vol_line(self):
-        f_pos = (float(48 - (self.audio_item.vol + 24)) / 48.0) * global_audio_item_height
+        f_pos = (float(48 - (self.audio_item.vol + 24)) / 48.0) * AUDIO_ITEM_HEIGHT
         self.vol_line.setPos(0, f_pos)
         self.label.setText("{}dB".format(self.audio_item.vol))
 
@@ -2763,13 +2765,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
-                    f_x = pydaw_clip_value(f_x, global_audio_item_handle_size,
+                    f_x = pydaw_clip_value(f_x, AUDIO_ITEM_HANDLE_SIZE,
                                            f_item.length_px_minus_start)
                     f_x = f_item.quantize(f_x)
                     f_x -= f_item.quantize_offset
-                    f_item.length_handle.setPos(f_x - global_audio_item_handle_size,
-                                                global_audio_item_height -
-                                                global_audio_item_handle_height)
+                    f_item.length_handle.setPos(f_x - AUDIO_ITEM_HANDLE_SIZE,
+                                                AUDIO_ITEM_HEIGHT -
+                                                AUDIO_ITEM_HANDLE_HEIGHT)
         elif self.is_start_resizing:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
@@ -2779,8 +2781,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x = pydaw_clip_min(f_x, f_item.min_start)
                     f_x = f_item.quantize_start(f_x)
                     f_x -= f_item.quantize_offset
-                    f_item.start_handle.setPos(f_x, global_audio_item_height -
-                                               global_audio_item_handle_height)
+                    f_item.start_handle.setPos(f_x, AUDIO_ITEM_HEIGHT -
+                                               AUDIO_ITEM_HANDLE_HEIGHT)
         elif self.is_fading_in:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
@@ -2794,7 +2796,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item.isSelected():
                     f_x = f_item.fade_orig_pos + f_event_diff
                     f_x = pydaw_clip_value(f_x, f_item.fade_in_handle.pos().x() + 4.0,
-                                           f_item.width_orig - global_audio_item_handle_size)
+                                           f_item.width_orig - AUDIO_ITEM_HANDLE_SIZE)
                     f_item.fade_out_handle.setPos(f_x, 0.0)
                     f_item.update_fade_out_line()
         elif self.is_stretching:
@@ -2813,9 +2815,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x = pydaw_clip_max(f_x, f_item.max_stretch)
                     f_x = f_item.quantize(f_x)
                     f_x -= f_item.quantize_offset
-                    f_item.stretch_handle.setPos(f_x - global_audio_item_handle_size,
-                                                 (global_audio_item_height * 0.5) -
-                                                 (global_audio_item_handle_height * 0.5))
+                    f_item.stretch_handle.setPos(f_x - AUDIO_ITEM_HANDLE_SIZE,
+                                                 (AUDIO_ITEM_HEIGHT * 0.5) -
+                                                 (AUDIO_ITEM_HANDLE_HEIGHT * 0.5))
         elif self.is_amp_dragging:
             for f_item in this_audio_items_viewer.get_selected():
                 f_new_vel = pydaw_util.pydaw_clip_value(f_val + f_item.orig_value, -24, 24)
@@ -2844,12 +2846,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_audio_items_viewer.update()
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
-            if global_audio_quantize:
-                f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - \
-                           global_audio_quantize_px
+            if AUDIO_QUANTIZE:
+                f_max_x = (pydaw_get_current_region_length() * AUDIO_PX_PER_BAR) - \
+                           AUDIO_QUANTIZE_PX
             else:
-                f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - \
-                           global_audio_item_handle_size
+                f_max_x = (pydaw_get_current_region_length() * AUDIO_PX_PER_BAR) - \
+                           AUDIO_ITEM_HANDLE_SIZE
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_pos_x = f_item.pos().x()
@@ -2886,11 +2888,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_pos_x = f_audio_item.pos().x()
             if f_audio_item.is_resizing:
                 f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
-                f_x = pydaw_clip_value(f_x, global_audio_item_handle_size,
+                f_x = pydaw_clip_value(f_x, AUDIO_ITEM_HANDLE_SIZE,
                                        f_audio_item.length_px_minus_start)
                 f_x = f_audio_item.quantize(f_x)
                 f_x -= f_audio_item.quantize_offset
-                f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
+                f_audio_item.setRect(0.0, 0.0, f_x, AUDIO_ITEM_HEIGHT)
                 f_item.sample_end = ((f_audio_item.rect().width() + \
                 f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
                 f_item.sample_end = \
@@ -2915,7 +2917,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             elif f_audio_item.is_fading_out:
                 f_pos = f_audio_item.fade_out_handle.pos().x()
                 f_val = \
-                ((f_pos + global_audio_item_handle_size) / (f_audio_item.rect().width())) \
+                ((f_pos + AUDIO_ITEM_HANDLE_SIZE) / (f_audio_item.rect().width())) \
                 * 1000.0
                 f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0, True)
             elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
@@ -2940,7 +2942,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
                     if f_ts_result is not None:
                         f_stretched_items.append(f_ts_result)
-                f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
+                f_audio_item.setRect(0.0, 0.0, f_x, AUDIO_ITEM_HEIGHT)
             elif self.is_amp_curving or self.is_amp_dragging:
                 f_did_change = True
             else:
@@ -2998,12 +3000,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.commit(_("Update audio items"))
             global_open_audio_items(f_reset_selection)
 
-global_audio_items_header_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0,
-                                                           global_audio_ruler_height)
-global_audio_items_header_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(61, 61, 61))
-global_audio_items_header_gradient.setColorAt(0.5, QtGui.QColor.fromRgb(50,50, 50))
-global_audio_items_header_gradient.setColorAt(0.6, QtGui.QColor.fromRgb(43, 43, 43))
-global_audio_items_header_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(65, 65, 65))
+AUDIO_ITEMS_HEADER_GRADIENT = QtGui.QLinearGradient(0.0, 0.0, 0.0,
+                                                    AUDIO_RULER_HEIGHT)
+AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(0.0, QtGui.QColor.fromRgb(61, 61, 61))
+AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(0.5, QtGui.QColor.fromRgb(50,50, 50))
+AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(0.6, QtGui.QColor.fromRgb(43, 43, 43))
+AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(1.0, QtGui.QColor.fromRgb(65, 65, 65))
 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
@@ -3295,7 +3297,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def check_running(self):
         if pydaw_global_current_region_is_none() or global_transport_is_playing:
             return True
-        if global_pydaw_subprocess is None:
+        if PYDAW_SUBPROCESS is None:
             QtGui.QMessageBox.warning(this_main_window, _("Error"),
             _("The audio engine is not running, audio items cannot be added.\n"
             "If the audio engine crashed, you will need to restart PyDAW."))
@@ -3317,22 +3319,22 @@ class audio_items_viewer(QtGui.QGraphicsView):
         else:
             f_max_start = global_current_region.region_length_bars - 1
 
-        f_pos_bars = int(f_x / global_audio_px_per_bar)
+        f_pos_bars = int(f_x / AUDIO_PX_PER_BAR)
         f_pos_bars = pydaw_clip_value(f_pos_bars, 0, f_max_start)
 
         if f_pos_bars == f_max_start:
             f_beat_frac = 0.0
         else:
-            f_beat_frac = ((f_x % global_audio_px_per_bar) / global_audio_px_per_bar) * 4.0
+            f_beat_frac = ((f_x % AUDIO_PX_PER_BAR) / AUDIO_PX_PER_BAR) * 4.0
             f_beat_frac = pydaw_clip_value(f_beat_frac, 0.0, 3.99, a_round=True)
         print("{}".format(f_beat_frac))
-        if global_audio_quantize:
+        if AUDIO_QUANTIZE:
             f_beat_frac = \
-                int(f_beat_frac * global_audio_quantize_amt) / global_audio_quantize_amt
+                int(f_beat_frac * AUDIO_QUANTIZE_AMT) / AUDIO_QUANTIZE_AMT
 
         print("{} {}".format(f_pos_bars, f_beat_frac))
 
-        f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
+        f_lane_num = int((f_y - AUDIO_RULER_HEIGHT) / AUDIO_ITEM_HEIGHT)
         f_lane_num = pydaw_clip_value(f_lane_num, 0, global_audio_item_max_lane)
 
         f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
@@ -3414,7 +3416,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         else:
             f_bar = int(a_bar)
         f_beat = float(a_beat)
-        f_pos = (f_bar * global_audio_px_per_bar) + (f_beat * global_audio_px_per_beat)
+        f_pos = (f_bar * AUDIO_PX_PER_BAR) + (f_beat * global_audio_px_per_beat)
         self.playback_cursor.setPos(f_pos, 0.0)
 
     def set_playback_clipboard(self):
@@ -3450,7 +3452,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def ruler_click_event(self, a_event):
         if not global_transport_is_playing:
-            f_val = int(a_event.pos().x() / global_audio_px_per_bar)
+            f_val = int(a_event.pos().x() / AUDIO_PX_PER_BAR)
             this_transport.set_bar_value(f_val)
 
     def check_line_count(self):
@@ -3484,18 +3486,18 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def draw_headers(self, a_cursor_pos=None):
         f_region_length = pydaw_get_current_region_length()
-        f_size = global_audio_px_per_bar * f_region_length
-        self.ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
+        f_size = AUDIO_PX_PER_BAR * f_region_length
+        self.ruler = QtGui.QGraphicsRectItem(0, 0, f_size, AUDIO_RULER_HEIGHT)
         self.ruler.setZValue(1500.0)
-        self.ruler.setBrush(global_audio_items_header_gradient)
+        self.ruler.setBrush(AUDIO_ITEMS_HEADER_GRADIENT)
         self.ruler.mousePressEvent = self.ruler_click_event
         self.scene.addItem(self.ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_beat_pen = QtGui.QPen(QtGui.QColor(210, 210, 210))
         f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
-        f_total_height = (global_audio_item_lane_count * (global_audio_item_height)) + \
-            global_audio_ruler_height
+        f_total_height = (global_audio_item_lane_count * (AUDIO_ITEM_HEIGHT)) + \
+            AUDIO_RULER_HEIGHT
         self.scene.setSceneRect(0.0, 0.0, f_size, f_total_height)
         self.playback_cursor = self.scene.addLine(0.0, 0.0, 0.0, f_total_height,
                                                   QtGui.QPen(QtCore.Qt.red, 2.0))
@@ -3511,8 +3513,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_number.setPos(i3 + 3.0, 2)
             if global_audio_lines_enabled:
                 for f_i4 in range(1, global_audio_snap_range):
-                    f_sub_x = i3 + (global_audio_quantize_px * f_i4)
-                    f_line = self.scene.addLine(f_sub_x, global_audio_ruler_height,
+                    f_sub_x = i3 + (AUDIO_QUANTIZE_PX * f_i4)
+                    f_line = self.scene.addLine(f_sub_x, AUDIO_RULER_HEIGHT,
                                                 f_sub_x, f_total_height, f_16th_pen)
                     self.beat_line_list.append(f_line)
             for f_beat_i in range(1, 4):
@@ -3521,14 +3523,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 self.beat_line_list.append(f_line)
                 if global_audio_lines_enabled:
                     for f_i4 in range(1, global_audio_snap_range):
-                        f_sub_x = f_beat_x + (global_audio_quantize_px * f_i4)
-                        f_line = self.scene.addLine(f_sub_x, global_audio_ruler_height,
+                        f_sub_x = f_beat_x + (AUDIO_QUANTIZE_PX * f_i4)
+                        f_line = self.scene.addLine(f_sub_x, AUDIO_RULER_HEIGHT,
                                                     f_sub_x, f_total_height, f_16th_pen)
                         self.beat_line_list.append(f_line)
-            i3 += global_audio_px_per_bar
-        self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_reg_pen)
+            i3 += AUDIO_PX_PER_BAR
+        self.scene.addLine(i3, AUDIO_RULER_HEIGHT, i3, f_total_height, f_reg_pen)
         for i2 in range(global_audio_item_lane_count):
-            f_y = ((global_audio_item_height) * (i2 + 1)) + global_audio_ruler_height
+            f_y = ((AUDIO_ITEM_HEIGHT) * (i2 + 1)) + AUDIO_RULER_HEIGHT
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos(a_cursor_pos)
         self.check_line_count()
@@ -5281,7 +5283,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
         self.header.hoverEnterEvent = self.hover_restore_cursor_event
-        self.header.setBrush(global_audio_items_header_gradient)
+        self.header.setBrush(AUDIO_ITEMS_HEADER_GRADIENT)
         self.scene.addItem(self.header)
         #self.header.mapToScene(self.piano_width + self.padding, 0.0)
         self.beat_width = self.viewer_width / self.item_length
@@ -8660,7 +8662,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.tooltips_action = self.menu_bar.addAction(_("Show Tooltips"))
         self.tooltips_action.setCheckable(True)
-        self.tooltips_action.setChecked(global_tooltips_enabled)
+        self.tooltips_action.setChecked(TOOLTIPS_ENABLED)
         self.tooltips_action.triggered.connect(self.set_tooltips_enabled)
 
         self.loop_mode_action = QtGui.QAction(self)
@@ -8752,9 +8754,9 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def subprocess_monitor(self):
         try:
-            if global_pydaw_subprocess.poll() != None:
+            if PYDAW_SUBPROCESS.poll() != None:
                 self.subprocess_timer.stop()
-                exitCode = global_pydaw_subprocess.returncode
+                exitCode = PYDAW_SUBPROCESS.returncode
                 if (exitCode != 0):
                     QtGui.QMessageBox.warning(
                         self, _("Error"),
@@ -9876,17 +9878,17 @@ def global_check_device():
 
 global_check_device()
 
-global_pydaw_subprocess = None
+PYDAW_SUBPROCESS = None
 
 def close_pydaw_engine():
     """ Ask the engine to gracefully stop itself, then kill the process if it
     doesn't exit on it's own"""
-    global global_pydaw_subprocess
-    if global_pydaw_subprocess is not None:
+    global PYDAW_SUBPROCESS
+    if PYDAW_SUBPROCESS is not None:
         this_pydaw_project.quit_handler()
         f_exited = False
         for i in range(20):
-            if global_pydaw_subprocess.poll() == None:
+            if PYDAW_SUBPROCESS.poll() == None:
                 f_exited = True
                 break
             else:
@@ -9894,17 +9896,17 @@ def close_pydaw_engine():
         if not f_exited:
             try:
                 if pydaw_util.global_pydaw_is_sandboxed:
-                    print("global_pydaw_subprocess did not exit on it's own, "
+                    print("PYDAW_SUBPROCESS did not exit on it's own, "
                           "sending SIGTERM to helper script...")
-                    global_pydaw_subprocess.terminate()
+                    PYDAW_SUBPROCESS.terminate()
                 else:
-                    print("global_pydaw_subprocess did not exit on it's "
+                    print("PYDAW_SUBPROCESS did not exit on it's "
                         "own, sending SIGKILL...")
-                    global_pydaw_subprocess.kill()
+                    PYDAW_SUBPROCESS.kill()
             except Exception as ex:
                 print("Exception raised while trying to kill process: "
                     "{}".format(ex))
-        global_pydaw_subprocess = None
+        PYDAW_SUBPROCESS = None
 
 def kill_pydaw_engine():
     """ Kill any zombie instances of the engine if they exist. Otherwise, the
@@ -9963,7 +9965,7 @@ def open_pydaw_engine(a_project_path):
     f_project_dir = os.path.dirname(a_project_path)
     f_pid = os.getpid()
     print(_("Starting audio engine with {}").format(a_project_path))
-    global global_pydaw_subprocess
+    global PYDAW_SUBPROCESS
     if pydaw_util.pydaw_which("pasuspender") is not None:
         f_pa_suspend = True
     else:
@@ -10008,16 +10010,16 @@ def open_pydaw_engine(a_project_path):
                 pydaw_util.global_pydaw_install_prefix,
                 f_project_dir, f_pid)
     print(f_cmd)
-    global_pydaw_subprocess = subprocess.Popen([f_cmd], shell=True)
+    PYDAW_SUBPROCESS = subprocess.Popen([f_cmd], shell=True)
 
 this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
 
-global_tooltips_enabled_file = "{}/tooltips.txt".format(global_pydaw_home)
+TOOLTIPS_ENABLED_file = "{}/tooltips.txt".format(global_pydaw_home)
 
-if os.path.isfile(global_tooltips_enabled_file):
-    if pydaw_read_file_text(global_tooltips_enabled_file) == "True":
-        global_tooltips_enabled = True
+if os.path.isfile(TOOLTIPS_ENABLED_file):
+    if pydaw_read_file_text(TOOLTIPS_ENABLED_file) == "True":
+        TOOLTIPS_ENABLED = True
 
 # Must call this after instantiating the other widgets,
 # as it relies on them existing
@@ -10026,8 +10028,8 @@ this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
 this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(4)
 
-if global_tooltips_enabled:
-    pydaw_set_tooltips_enabled(global_tooltips_enabled)
+if TOOLTIPS_ENABLED:
+    pydaw_set_tooltips_enabled(TOOLTIPS_ENABLED)
 
 #Get the plugin/control comboboxes populated
 this_cc_editor_widget.plugin_changed()
