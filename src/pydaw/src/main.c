@@ -91,7 +91,7 @@ GNU General Public License for more details.
 
 #define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
 #define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL "ai"
-#define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg"
+#define PYDAW_CONFIGURE_KEY_ADD_TO_WAV_POOL "wp"
 
 #define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"
 #define PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE "od"
@@ -1516,13 +1516,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         v_paif_region_free(f_old);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH))
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_ADD_TO_WAV_POOL))
     {
         t_key_value_pair * f_kvp = g_kvp_get(a_value);
-        char f_file_name_tmp[256];
-        sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder,
-                f_kvp->key);
-        v_pydaw_generate_sample_graph(f_kvp->value, f_file_name_tmp);
         printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, \"%s\")\n",
                 atoi(f_kvp->key), f_kvp->value);
         v_wav_pool_add_item(a_pydaw_data->wav_pool, atoi(f_kvp->key),

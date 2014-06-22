@@ -894,7 +894,7 @@ class pydaw_project:
                 f_count += 1
             f_result += "\n".join(f_points)
             f_result += "\nmeta|count|{}\n\\".format(f_count)
-
+        self.this_pydaw_osc.pydaw_add_to_wav_pool(f_path, f_uid)
         f_pygraph_file = "{}/{}".format(self.samplegraph_folder, f_uid)
         with open(f_pygraph_file, "w") as f_handle:
             f_handle.write(f_result)

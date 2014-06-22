@@ -158,8 +158,8 @@ class pydaw_osc:
     def pydaw_reload_audio_items(self, a_region_uid):
         self.send_configure("ai", str(a_region_uid))
 
-    def pydaw_generate_sample_graph(self, a_file, a_uid):
-        self.send_configure("sg", "{}|{}".format(a_uid, a_file))
+    def pydaw_add_to_wav_pool(self, a_file, a_uid):
+        self.send_configure("wp", "{}|{}".format(a_uid, a_file))
 
     def pydaw_update_audio_inputs(self):
         self.send_configure("ua", "")

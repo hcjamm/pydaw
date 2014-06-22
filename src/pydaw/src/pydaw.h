@@ -4020,7 +4020,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->audio_tmp_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samples_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->samplegraph_folder = (char*)malloc(sizeof(char) * 256);
     f_result->recorded_items_file = (char*)malloc(sizeof(char) * 256);
     f_result->recorded_regions_file = (char*)malloc(sizeof(char) * 256);
     f_result->wav_pool_file = (char*)malloc(sizeof(char) * 256);
@@ -4608,8 +4607,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
             a_pydaw_data->project_folder);  //No trailing slash on this one
     sprintf(a_pydaw_data->wav_pool->samples_folder, "%s",
             a_pydaw_data->samples_folder);
-    sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/",
-            a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->recorded_items_file, "%srecorded_items",
             a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->recorded_regions_file, "%srecorded_regions",
