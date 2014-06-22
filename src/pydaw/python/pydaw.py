@@ -64,7 +64,7 @@ global_region_time = [0] * 300  # Fast lookup of song times in seconds
 def global_update_region_time():
     global global_region_time
     global_region_time = []
-    f_seconds_per_beat = 60.0 / float(this_transport.tempo_spinbox.value())
+    f_seconds_per_beat = 60.0 / float(TRANSPORT.tempo_spinbox.value())
     f_total = 0.0
     for x in range(300):
         global_region_time.append(f_total)
@@ -81,14 +81,14 @@ def pydaw_center_widget_on_screen(a_widget):
 
 def pydaw_print_generic_exception(a_ex):
     QtGui.QMessageBox.warning(
-        this_main_window, _("Warning"),
+        MAIN_WINDOW, _("Warning"),
         _("The following error happened:\n{}").format(a_ex))
 
 def global_get_audio_file_from_clipboard():
     f_clipboard = QtGui.QApplication.clipboard()
     f_path = f_clipboard.text()
     if f_path is None:
-        QtGui.QMessageBox.warning(this_main_window, _("Error"),
+        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
                                   _("No text in the system clipboard"))
     else:
         f_path = str(f_path)
@@ -97,7 +97,7 @@ def global_get_audio_file_from_clipboard():
         else:
             f_path = f_path[100:]
             QtGui.QMessageBox.warning(
-                this_main_window, _("Error"),
+                MAIN_WINDOW, _("Error"),
                 _("{} is not a valid file").format(f_path))
     return None
 
@@ -110,10 +110,10 @@ def pydaw_set_tooltips_enabled(a_enabled):
     global TOOLTIPS_ENABLED
     TOOLTIPS_ENABLED = a_enabled
 
-    f_list = [this_song_editor, AUDIO_SEQ_WIDGET,
-              this_piano_roll_editor, this_main_window,
-              this_wave_editor_widget, AUDIO_EDITOR_WIDGET,
-              AUDIO_SEQ, this_transport] + \
+    f_list = [SONG_EDITOR, AUDIO_SEQ_WIDGET,
+              PIANO_ROLL_EDITOR, MAIN_WINDOW,
+              WAVE_EDITOR, AUDIO_EDITOR_WIDGET,
+              AUDIO_SEQ, TRANSPORT] + \
               list(global_region_editors) + list(global_automation_editors)
     for f_widget in f_list:
         f_widget.set_tooltips(a_enabled)
@@ -128,7 +128,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
-        QtGui.QMessageBox.warning(this_main_window, _("Error"),
+        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
         _("You must create or select a region first by clicking "
         "in the song editor above."))
         return True
@@ -181,9 +181,9 @@ class song_editor:
     def cell_clicked(self, x, y):
         f_is_playing = False
         if IS_PLAYING and \
-        this_transport.follow_checkbox.isChecked():
+        TRANSPORT.follow_checkbox.isChecked():
             f_is_playing = True
-            this_transport.follow_checkbox.setChecked(False)
+            TRANSPORT.follow_checkbox.setChecked(False)
             this_region_editor.table_widget.clearSelection()
             AUDIO_SEQ.stop_playback(0)
         f_cell = self.table_widget.item(x, y)
@@ -209,8 +209,8 @@ class song_editor:
                 PROJECT.save_song(self.song)
                 PROJECT.commit(f_msg)
                 if not f_is_playing:
-                    this_transport.set_region_value(y)
-                    this_transport.set_bar_value(0)
+                    TRANSPORT.set_region_value(y)
+                    TRANSPORT.set_bar_value(0)
                 global_update_region_time()
                 f_window.close()
 
@@ -228,7 +228,7 @@ class song_editor:
                 f_window.close()
                 self.on_import_midi(y)
 
-            f_window = QtGui.QDialog(this_main_window)
+            f_window = QtGui.QDialog(MAIN_WINDOW)
             f_window.setWindowTitle(_("Add region to song..."))
             f_window.setMinimumWidth(240)
             f_layout = QtGui.QGridLayout()
@@ -269,8 +269,8 @@ class song_editor:
             global_current_song_index = y
             if not f_is_playing:
                 this_region_editor.table_widget.clearSelection()
-                this_transport.set_region_value(y)
-                this_transport.set_bar_value(0)
+                TRANSPORT.set_region_value(y)
+                TRANSPORT.set_bar_value(0)
 
     def __init__(self):
         self.song = pydaw_song()
@@ -335,7 +335,7 @@ class song_editor:
                 "an existing region from the song editor first"))
             else:
                 PROJECT.commit(_("Import MIDI file"))
-                this_song_editor.open_song()
+                SONG_EDITOR.open_song()
             f_window.close()
 
         def cancel_handler():
@@ -360,7 +360,7 @@ class song_editor:
         def item_name_changed(a_val=None):
             f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Import MIDI File..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -451,9 +451,9 @@ class song_editor:
                 return
             PROJECT.rename_region(f_item_text, f_new_name)
             PROJECT.commit(_("Rename region"))
-            this_song_editor.open_song()
+            SONG_EDITOR.open_song()
             this_region_settings.open_region(f_new_name)
-            this_song_editor.table_widget.setCurrentCell(0, f_index)
+            SONG_EDITOR.table_widget.setCurrentCell(0, f_index)
             f_window.close()
 
         def cancel_handler():
@@ -463,7 +463,7 @@ class song_editor:
             f_new_lineedit.setText(
                 pydaw_remove_bad_chars(f_new_lineedit.text()))
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Rename region..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -512,7 +512,7 @@ class song_editor:
             f_item = self.table_widget.item(0, f_i)
             if f_item is not None and str(f_item.text()) != "":
                 this_region_settings.open_region(str(f_item.text()))
-                this_transport.set_region_value(f_i)
+                TRANSPORT.set_region_value(f_i)
                 f_item.setSelected(True)
                 break
 
@@ -655,16 +655,16 @@ class region_settings:
             PROJECT.save_song(f_song)
             PROJECT.commit("Shift song by {}".format(f_amt))
 
-            this_song_editor.open_song()
+            SONG_EDITOR.open_song()
             self.clear_items()
-            this_song_editor.open_first_region()
+            SONG_EDITOR.open_first_region()
             global_update_region_time()
             f_window.close()
 
         def cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Shift song..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -694,10 +694,10 @@ class region_settings:
             f_new_uid = PROJECT.create_empty_region(f_region_name)
             f_midi_tuple = global_current_region.split(f_index, f_new_uid)
             f_audio_tuple = global_audio_items.split(f_index)
-            f_current_index = this_song_editor.song.get_index_of_region(
+            f_current_index = SONG_EDITOR.song.get_index_of_region(
                 global_current_region.uid)
-            this_song_editor.song.insert_region(f_current_index + 1, f_new_uid)
-            PROJECT.save_song(this_song_editor.song)
+            SONG_EDITOR.song.insert_region(f_current_index + 1, f_new_uid)
+            PROJECT.save_song(SONG_EDITOR.song)
             PROJECT.save_region(
                 global_current_region_name, f_midi_tuple[0])
             PROJECT.save_region(f_region_name, f_midi_tuple[1])
@@ -707,7 +707,7 @@ class region_settings:
             PROJECT.commit(_("Split region {} into {}").format(
                 global_current_region_name, f_region_name))
             this_region_settings.open_region_by_uid(global_current_region.uid)
-            this_song_editor.open_song()
+            SONG_EDITOR.open_song()
             global_update_region_time()
             f_window.close()
         def split_cancel_handler():
@@ -716,7 +716,7 @@ class region_settings:
             f_new_lineedit.setText(
                 pydaw_remove_bad_chars(f_new_lineedit.text()))
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Split Region..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -764,14 +764,14 @@ class region_settings:
                     global_current_region.region_length_bars)
             self.length_alternate_spinbox.setValue(
                 global_current_region.region_length_bars)
-            this_transport.bar_spinbox.setRange(
+            TRANSPORT.bar_spinbox.setRange(
                 1, (global_current_region.region_length_bars))
             self.length_alternate_radiobutton.setChecked(True)
         else:
             for f_editor in global_region_editors:
                 f_editor.set_region_length()
             self.length_alternate_spinbox.setValue(8)
-            this_transport.bar_spinbox.setRange(1, 8)
+            TRANSPORT.bar_spinbox.setRange(1, 8)
             self.length_default_radiobutton.setChecked(True)
         self.enabled = True
         for f_editor in global_region_editors:
@@ -798,8 +798,8 @@ class region_settings:
             f_editor.table_widget.update()
         global_open_audio_items()
         global_update_hidden_rows()
-        this_transport.set_time(this_transport.get_region_value(),
-                                this_transport.get_bar_value(), 0.0)
+        TRANSPORT.set_time(TRANSPORT.get_region_value(),
+                                TRANSPORT.get_bar_value(), 0.0)
 
     def clear_items(self):
         self.region_name_lineedit.setText("")
@@ -941,7 +941,7 @@ class region_list_editor:
         return f_result
 
     def warn_no_region_selected(self):
-        QtGui.QMessageBox.warning(this_main_window, _("Error"),
+        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
         _("You must create or select a region first by clicking "
         "in the song editor above."))
 
@@ -952,8 +952,8 @@ class region_list_editor:
             self.warn_no_region_selected()
             return
         if IS_PLAYING and \
-        this_transport.follow_checkbox.isChecked():
-            this_transport.follow_checkbox.setChecked(False)
+        TRANSPORT.follow_checkbox.isChecked():
+            TRANSPORT.follow_checkbox.setChecked(False)
         f_item = self.table_widget.item(x, y)
         if f_item is None or f_item.text() == "":
             self.show_cell_dialog(x, y)
@@ -969,7 +969,7 @@ class region_list_editor:
             f_item_name = str(f_item.text())
             if f_item_name != "":
                 global_open_items([f_item_name], a_reset_scrollbar=True)
-                this_main_window.main_tabwidget.setCurrentIndex(1)
+                MAIN_WINDOW.main_tabwidget.setCurrentIndex(1)
                 self.auto_arm(x)
             else:
                 self.show_cell_dialog(x, y)
@@ -1073,7 +1073,7 @@ class region_list_editor:
         def goto_end():
             f_item_count.setValue(f_item_count.maximum())
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Add item reference to region..."))
         f_layout = QtGui.QGridLayout()
         f_vlayout0 = QtGui.QVBoxLayout()
@@ -1147,7 +1147,7 @@ class region_list_editor:
         if IS_PLAYING:
             return
         if a_val > 0:
-            this_transport.set_bar_value(a_val - 1)
+            TRANSPORT.set_bar_value(a_val - 1)
 
     def __init__(self, a_track_type):
         #Prevents user from editing a region before one has been selected
@@ -1316,7 +1316,7 @@ class region_list_editor:
 
         f_item_list = self.get_selected_items()
         if len(f_item_list) == 0:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
                                       _("No items selected"))
             return
 
@@ -1336,7 +1336,7 @@ class region_list_editor:
         def transpose_cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Transpose"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1396,7 +1396,7 @@ class region_list_editor:
                     f_result.append(f_result_str)
         if f_result:
             global_open_items(f_result, a_reset_scrollbar=True)
-            this_main_window.main_tabwidget.setCurrentIndex(1)
+            MAIN_WINDOW.main_tabwidget.setCurrentIndex(1)
             if self.track_type != pydaw_track_type_enum.midi:
                 this_item_editor.tab_widget.setCurrentIndex(1)
             f_track_nums = list(f_track_nums.keys())
@@ -1459,7 +1459,7 @@ class region_list_editor:
             f_new_lineedit.setText(
                 pydaw_remove_bad_chars(f_new_lineedit.text()))
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Rename selected items..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1528,7 +1528,7 @@ class region_list_editor:
             f_new_lineedit.setText(
                 pydaw_remove_bad_chars(f_new_lineedit.text()))
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Copy and unlink item..."))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1599,7 +1599,7 @@ class region_list_editor:
         if len(f_selected_cells) == 0:
             return
         if len(REGION_CLIPBOARD) != 1:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"), _("Paste to region end only "
+            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"), _("Paste to region end only "
                 "works when you have exactly one item copied to the clipboard.\n"
                 "You have {} items copied.").format(len(REGION_CLIPBOARD)))
             return
@@ -1853,7 +1853,7 @@ def normalize_dialog():
     def on_cancel():
         f_window.close()
 
-    f_window = QtGui.QDialog(this_main_window)
+    f_window = QtGui.QDialog(MAIN_WINDOW)
     f_window.f_result = None
     f_window.setWindowTitle(_("Normalize"))
     f_window.setFixedSize(150, 90)
@@ -2284,7 +2284,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         global global_current_audio_item_index
         f_global_current_audio_item_index = global_current_audio_item_index
         global_current_audio_item_index = self.track_num
-        f_menu = QtGui.QMenu(this_main_window)
+        f_menu = QtGui.QMenu(MAIN_WINDOW)
 
         f_file_menu = f_menu.addMenu(_("File"))
         f_save_a_copy_action = f_file_menu.addAction(_("Save a Copy..."))
@@ -2423,7 +2423,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         def vol_changed(a_val=None):
             f_vol_label.setText("{}dB".format(f_vol_slider.value()))
 
-        f_dialog = QtGui.QDialog(this_main_window)
+        f_dialog = QtGui.QDialog(MAIN_WINDOW)
         f_layout = QtGui.QGridLayout(f_dialog)
         f_layout.setAlignment(QtCore.Qt.AlignCenter)
         f_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
@@ -2458,7 +2458,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_start = f_start_pitch.value()
             f_end = f_end_pitch.value()
             f_stretched_items = []
-            f_tempo = this_transport.tempo_spinbox.value()
+            f_tempo = TRANSPORT.tempo_spinbox.value()
             f_list = [(x.audio_item, x.graph_object.length_in_seconds) for x in
                 AUDIO_SEQ.audio_items if x.isSelected()]
             f_start_beat = 999999999.0
@@ -2517,7 +2517,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         def cancel_handler():
             f_dialog.close()
 
-        f_dialog = QtGui.QDialog(this_main_window)
+        f_dialog = QtGui.QDialog(MAIN_WINDOW)
         f_layout = QtGui.QGridLayout(f_dialog)
         f_layout.setAlignment(QtCore.Qt.AlignCenter)
         f_layout.addWidget(QtGui.QLabel("Start:"), 1, 0)
@@ -2550,7 +2550,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_list = AUDIO_SEQ.get_selected()
         if f_list:
             f_current_region_length = pydaw_get_current_region_length()
-            f_global_tempo = float(this_transport.tempo_spinbox.value())
+            f_global_tempo = float(TRANSPORT.tempo_spinbox.value())
             for f_item in f_list:
                 f_item.audio_item.clip_at_region_end(
                     f_current_region_length, f_global_tempo,
@@ -2594,9 +2594,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def open_in_wave_editor(self):
         f_path = self.get_file_path()
-        this_wave_editor_widget.open_file(f_path)
-        this_wave_editor_widget.set_audio_item(self.audio_item)
-        this_main_window.main_tabwidget.setCurrentIndex(3)
+        WAVE_EDITOR.open_file(f_path)
+        WAVE_EDITOR.set_audio_item(self.audio_item)
+        MAIN_WINDOW.main_tabwidget.setCurrentIndex(3)
 
     def edit_properties(self):
         AUDIO_SEQ.scene.clearSelection()
@@ -3187,11 +3187,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def crossfade_selected(self):
         f_list = self.get_selected()
         if len(f_list) < 2:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
                                       _("You must have at least 2 items selected to crossfade"))
             return
 
-        f_tempo = float(this_transport.tempo_spinbox.value())
+        f_tempo = float(TRANSPORT.tempo_spinbox.value())
         f_changed = False
 
         for f_item in f_list:
@@ -3255,7 +3255,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             return
         QtGui.QGraphicsScene.contextMenuEvent(self.scene, a_event)
         self.context_menu_pos = a_event.scenePos()
-        f_menu = QtGui.QMenu(this_main_window)
+        f_menu = QtGui.QMenu(MAIN_WINDOW)
         f_paste_action = QtGui.QAction(
             _("Paste file path from clipboard"), self)
         f_paste_action.triggered.connect(self.on_scene_paste_paths)
@@ -3403,7 +3403,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         if pydaw_global_current_region_is_none() or IS_PLAYING:
             return True
         if PYDAW_SUBPROCESS is None:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
             _("The audio engine is not running, audio items cannot be added.\n"
             "If the audio engine crashed, you will need to restart PyDAW."))
             return True
@@ -3521,7 +3521,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def set_playback_pos(self, a_bar=None, a_beat=0.0):
         if a_bar is None:
-            f_bar = this_transport.get_bar_value()
+            f_bar = TRANSPORT.get_bar_value()
         else:
             f_bar = int(a_bar)
         f_beat = float(a_beat)
@@ -3562,7 +3562,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def ruler_click_event(self, a_event):
         if not IS_PLAYING:
             f_val = int(a_event.pos().x() / AUDIO_PX_PER_BAR)
-            this_transport.set_bar_value(f_val)
+            TRANSPORT.set_bar_value(f_val)
 
     def check_line_count(self):
         """ Check that there are not too many vertical lines on the screen """
@@ -3898,7 +3898,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         f_per_item_fx_dict = PROJECT.get_audio_per_item_fx_region(
             global_current_region.uid)
         f_current_region_length = pydaw_get_current_region_length()
-        f_global_tempo = float(this_transport.tempo_spinbox.value())
+        f_global_tempo = float(TRANSPORT.tempo_spinbox.value())
         for f_str, f_list in self.audio_items_clipboard:
             AUDIO_SEQ.reselect_on_stop.append(f_str)
             f_index = global_audio_items.get_next_index()
@@ -3936,7 +3936,7 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         def cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Clone audio from region..."))
         f_window.setMinimumWidth(270)
         f_layout = QtGui.QGridLayout()
@@ -4391,7 +4391,7 @@ class audio_item_editor_widget:
         else:
             if f_was_stretching:
                 f_current_region_length = pydaw_get_current_region_length()
-                f_global_tempo = float(this_transport.tempo_spinbox.value())
+                f_global_tempo = float(TRANSPORT.tempo_spinbox.value())
                 PROJECT.save_stretch_dicts()
                 for f_stretch_item, f_audio_item in f_stretched_items:
                     f_stretch_item[2].wait()
@@ -4445,7 +4445,7 @@ def global_open_audio_items(a_update_viewer=True, a_reload=True):
                         else:
                             f_error_msg = _("Error loading '{}', file does not exist."
                                 ).format(f_path)
-                        QtGui.QMessageBox.warning(this_main_window, _("Error"), f_error_msg)
+                        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"), f_error_msg)
         for f_item in AUDIO_SEQ.audio_items:
             if str(f_item.audio_item) in f_selected_list:
                 f_item.setSelected(True)
@@ -4612,8 +4612,8 @@ def global_set_piano_roll_zoom():
     global global_piano_roll_grid_width
     global global_midi_scale
 
-    f_width = float(this_piano_roll_editor.rect().width()) - \
-        float(this_piano_roll_editor.verticalScrollBar().width()) - 6.0 - \
+    f_width = float(PIANO_ROLL_EDITOR.rect().width()) - \
+        float(PIANO_ROLL_EDITOR.verticalScrollBar().width()) - 6.0 - \
         global_piano_keys_width
     f_region_scale = f_width / (global_item_editing_count * 1000.0)
 
@@ -4677,7 +4677,7 @@ def pydaw_set_piano_roll_quantize(a_index):
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
     global_last_resize = pydaw_clip_min(global_last_resize, global_piano_roll_snap_beats)
-    this_piano_roll_editor.set_grid_div(global_piano_roll_snap_divisor / 4.0)
+    PIANO_ROLL_EDITOR.set_grid_div(global_piano_roll_snap_divisor / 4.0)
     global_piano_roll_snap_divisor *= global_item_editing_count
     global_piano_roll_snap_value = \
     (global_piano_roll_grid_width * global_item_editing_count) / \
@@ -4703,17 +4703,17 @@ global_last_resize = 0.25
 def piano_roll_set_delete_mode(a_enabled):
     global PIANO_ROLL_DELETE_MODE, PIANO_ROLL_DELETED_NOTES
     if a_enabled:
-        this_piano_roll_editor.setDragMode(QtGui.QGraphicsView.NoDrag)
+        PIANO_ROLL_EDITOR.setDragMode(QtGui.QGraphicsView.NoDrag)
         PIANO_ROLL_DELETED_NOTES = []
         PIANO_ROLL_DELETE_MODE = True
         QtGui.QApplication.setOverrideCursor(
             QtGui.QCursor(QtCore.Qt.ForbiddenCursor))
     else:
-        this_piano_roll_editor.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        PIANO_ROLL_EDITOR.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         PIANO_ROLL_DELETE_MODE = False
         for f_item in PIANO_ROLL_DELETED_NOTES:
             f_item.delete()
-        this_piano_roll_editor.selected_note_strings = []
+        PIANO_ROLL_EDITOR.selected_note_strings = []
         global_save_and_reload_items()
         QtGui.QApplication.restoreOverrideCursor()
 
@@ -4743,7 +4743,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         if global_selected_piano_note is not None and \
         a_note_item == global_selected_piano_note:
             self.is_resizing = True
-            this_piano_roll_editor.click_enabled = True
+            PIANO_ROLL_EDITOR.click_enabled = True
         else:
             self.is_resizing = False
         self.showing_resize_cursor = False
@@ -4802,7 +4802,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def hoverMoveEvent(self, a_event):
         #QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
         if not self.is_resizing:
-            this_piano_roll_editor.click_enabled = False
+            PIANO_ROLL_EDITOR.click_enabled = False
             self.show_resize_cursor(a_event)
 
     def delete_later(self):
@@ -4829,11 +4829,11 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
     def hoverEnterEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverEnterEvent(self, a_event)
-        this_piano_roll_editor.click_enabled = False
+        PIANO_ROLL_EDITOR.click_enabled = False
 
     def hoverLeaveEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverLeaveEvent(self, a_event)
-        this_piano_roll_editor.click_enabled = True
+        PIANO_ROLL_EDITOR.click_enabled = True
         QtGui.QApplication.restoreOverrideCursor()
         self.showing_resize_cursor = False
 
@@ -4850,7 +4850,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
             self.is_velocity_curving = True
             f_list = [((x.item_index * 4.0) + x.note_item.start)
-                for x in this_piano_roll_editor.get_selected_items()]
+                for x in PIANO_ROLL_EDITOR.get_selected_items()]
             f_list.sort()
             self.vc_start = f_list[0]
             self.vc_mid = (self.item_index * 4.0) + self.note_item.start
@@ -4864,26 +4864,26 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 self.is_resizing = True
                 self.mouse_y_pos = QtGui.QCursor.pos().y()
                 self.resize_last_mouse_pos = a_event.pos().x()
-                for f_item in this_piano_roll_editor.get_selected_items():
+                for f_item in PIANO_ROLL_EDITOR.get_selected_items():
                     f_item.resize_start_pos = f_item.note_item.start + (4.0 * f_item.item_index)
                     f_item.resize_pos = f_item.pos()
                     f_item.resize_rect = f_item.rect()
             elif a_event.modifiers() == QtCore.Qt.ControlModifier:
                 self.is_copying = True
-                for f_item in this_piano_roll_editor.get_selected_items():
-                    this_piano_roll_editor.draw_note(f_item.note_item, f_item.item_index)
+                for f_item in PIANO_ROLL_EDITOR.get_selected_items():
+                    PIANO_ROLL_EDITOR.draw_note(f_item.note_item, f_item.item_index)
         if self.is_velocity_curving or self.is_velocity_dragging:
             a_event.setAccepted(True)
             self.setSelected(True)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.orig_y = a_event.pos().y()
             QtGui.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
-            for f_item in this_piano_roll_editor.get_selected_items():
+            for f_item in PIANO_ROLL_EDITOR.get_selected_items():
                 f_item.orig_value = f_item.note_item.velocity
                 f_item.set_brush()
-            for f_item in this_piano_roll_editor.note_items:
+            for f_item in PIANO_ROLL_EDITOR.note_items:
                 f_item.note_text.setText(str(f_item.note_item.velocity))
-        this_piano_roll_editor.click_enabled = True
+        PIANO_ROLL_EDITOR.click_enabled = True
 
     def mouseMoveEvent(self, a_event):
         if self.is_velocity_dragging or self.is_velocity_curving:
@@ -4897,7 +4897,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         if self.is_resizing:
             f_pos_x = a_event.pos().x()
             self.resize_last_mouse_pos = a_event.pos().x()
-        for f_item in this_piano_roll_editor.get_selected_items():
+        for f_item in PIANO_ROLL_EDITOR.get_selected_items():
             if self.is_resizing:
                 if global_piano_roll_snap:
                     f_adjusted_width = \
@@ -4971,7 +4971,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         global global_selected_piano_note
         if self.is_copying:
             f_new_selection = []
-        for f_item in this_piano_roll_editor.get_selected_items():
+        for f_item in PIANO_ROLL_EDITOR.get_selected_items():
             f_pos_x = f_item.pos().x()
             f_pos_y = f_item.pos().y()
             if self.is_resizing:
@@ -5013,16 +5013,16 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
         global_selected_piano_note = None
-        this_piano_roll_editor.selected_note_strings = []
+        PIANO_ROLL_EDITOR.selected_note_strings = []
         if self.is_copying:
             for f_new_item in f_new_selection:
-                this_piano_roll_editor.selected_note_strings.append(
+                PIANO_ROLL_EDITOR.selected_note_strings.append(
                     f_new_item.get_selected_string())
         else:
-            for f_item in this_piano_roll_editor.get_selected_items():
-                this_piano_roll_editor.selected_note_strings.append(
+            for f_item in PIANO_ROLL_EDITOR.get_selected_items():
+                PIANO_ROLL_EDITOR.selected_note_strings.append(
                     f_item.get_selected_string())
-        for f_item in this_piano_roll_editor.note_items:
+        for f_item in PIANO_ROLL_EDITOR.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
             f_item.is_velocity_dragging = False
@@ -5030,7 +5030,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         global_save_and_reload_items()
         self.showing_resize_cursor = False
         QtGui.QApplication.restoreOverrideCursor()
-        this_piano_roll_editor.click_enabled = True
+        PIANO_ROLL_EDITOR.click_enabled = True
 
 class piano_key_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_piano_width, a_note_height, a_parent):
@@ -5450,67 +5450,67 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 90))
         f_base_brush = QtGui.QBrush(QtGui.QColor(255, 255, 255, 120))
         if self.first_open or \
-        this_piano_roll_editor_widget.scale_combobox.currentIndex() == 0: #Major
+        PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 0: #Major
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 1: #Melodic Minor
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 1: #Melodic Minor
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_white_key_brush, f_black_key_brush , f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 2: #Harmonic Minor
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 2: #Harmonic Minor
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
             f_white_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 3: #Natural Minor
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 3: #Natural Minor
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 4: #Pentatonic Major
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 4: #Pentatonic Major
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 5: #Pentatonic Minor
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 5: #Pentatonic Minor
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 6: #Dorian
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 6: #Dorian
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 7: #Phrygian
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 7: #Phrygian
             f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 8: #Lydian
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 8: #Lydian
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 9: #Mixolydian
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 9: #Mixolydian
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 10: #Locrian
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 10: #Locrian
             f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush,
             f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 11: #Phrygian Dominant
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 11: #Phrygian Dominant
             f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
             f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
             f_black_key_brush]
-        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 12: #Double Harmonic
+        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 12: #Double Harmonic
             f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
             f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
             f_white_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
@@ -5518,7 +5518,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         f_current_key = 0
         if not self.first_open:
-            f_index = 12 - this_piano_roll_editor_widget.scale_key_combobox.currentIndex()
+            f_index = 12 - PIANO_ROLL_EDITOR_WIDGET.scale_key_combobox.currentIndex()
             f_octave_brushes = f_octave_brushes[f_index:] + f_octave_brushes[:f_index]
         self.first_open = False
         f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width,
@@ -5660,19 +5660,19 @@ class piano_roll_editor_widget:
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        this_item_editor.quantize_dialog(this_piano_roll_editor.has_selected)
+        this_item_editor.quantize_dialog(PIANO_ROLL_EDITOR.has_selected)
 
     def transpose_dialog(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        this_item_editor.transpose_dialog(this_piano_roll_editor.has_selected)
+        this_item_editor.transpose_dialog(PIANO_ROLL_EDITOR.has_selected)
 
     def velocity_dialog(self):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        this_item_editor.velocity_dialog(this_piano_roll_editor.has_selected)
+        this_item_editor.velocity_dialog(PIANO_ROLL_EDITOR.has_selected)
 
     def clear_notes(self):
         if not this_item_editor.enabled:
@@ -5684,7 +5684,7 @@ class piano_roll_editor_widget:
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        for f_note in this_piano_roll_editor.note_items:
+        for f_note in PIANO_ROLL_EDITOR.note_items:
             f_note.setSelected(True)
 
     def __init__(self):
@@ -5724,7 +5724,7 @@ class piano_roll_editor_widget:
 
         self.copy_action = self.edit_actions_menu.addAction(_("Copy"))
         self.copy_action.triggered.connect(
-            this_piano_roll_editor.copy_selected)
+            PIANO_ROLL_EDITOR.copy_selected)
         self.copy_action.setShortcut(QtGui.QKeySequence.Copy)
 
         self.cut_action = self.edit_actions_menu.addAction(_("Cut"))
@@ -5732,7 +5732,7 @@ class piano_roll_editor_widget:
         self.cut_action.setShortcut(QtGui.QKeySequence.Cut)
 
         self.paste_action = self.edit_actions_menu.addAction(_("Paste"))
-        self.paste_action.triggered.connect(this_piano_roll_editor.paste)
+        self.paste_action.triggered.connect(PIANO_ROLL_EDITOR.paste)
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
 
         self.select_all_action = self.edit_actions_menu.addAction(
@@ -5743,7 +5743,7 @@ class piano_roll_editor_widget:
         self.clear_selection_action = self.edit_actions_menu.addAction(
             _("Clear Selection"))
         self.clear_selection_action.triggered.connect(
-            this_piano_roll_editor.scene.clearSelection)
+            PIANO_ROLL_EDITOR.scene.clearSelection)
         self.clear_selection_action.setShortcut(
             QtGui.QKeySequence.fromString("Esc"))
 
@@ -5822,11 +5822,11 @@ class piano_roll_editor_widget:
         self.edit_menu.addSeparator()
 
         self.glue_selected_action = self.edit_menu.addAction(_("Glue Selected"))
-        self.glue_selected_action.triggered.connect(this_piano_roll_editor.glue_selected)
+        self.glue_selected_action.triggered.connect(PIANO_ROLL_EDITOR.glue_selected)
         self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
 
         self.half_selected_action = self.edit_menu.addAction(_("Split Selected in Half"))
-        self.half_selected_action.triggered.connect(this_piano_roll_editor.half_selected)
+        self.half_selected_action.triggered.connect(PIANO_ROLL_EDITOR.half_selected)
         self.half_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
 
 
@@ -5851,7 +5851,7 @@ class piano_roll_editor_widget:
             QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 31)
 
         self.vlayout.addLayout(self.controls_grid_layout)
-        self.vlayout.addWidget(this_piano_roll_editor)
+        self.vlayout.addWidget(PIANO_ROLL_EDITOR)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setMinimumWidth(90)
         self.snap_combobox.addItems([_("None"), "1/4", "1/8", "1/12", "1/16",
@@ -5879,44 +5879,44 @@ class piano_roll_editor_widget:
         self.set_vel_rand()
 
     def transpose_up_semitone(self):
-        this_piano_roll_editor.transpose_selected(1)
+        PIANO_ROLL_EDITOR.transpose_selected(1)
 
     def transpose_down_semitone(self):
-        this_piano_roll_editor.transpose_selected(-1)
+        PIANO_ROLL_EDITOR.transpose_selected(-1)
 
     def transpose_up_octave(self):
-        this_piano_roll_editor.transpose_selected(12)
+        PIANO_ROLL_EDITOR.transpose_selected(12)
 
     def transpose_down_octave(self):
-        this_piano_roll_editor.transpose_selected(-12)
+        PIANO_ROLL_EDITOR.transpose_selected(-12)
 
     def set_vel_rand(self, a_val=None):
-        this_piano_roll_editor.set_vel_rand(self.vel_random_index, self.vel_emphasis_index)
+        PIANO_ROLL_EDITOR.set_vel_rand(self.vel_random_index, self.vel_emphasis_index)
 
     def on_delete_selected(self):
-        this_piano_roll_editor.delete_selected()
+        PIANO_ROLL_EDITOR.delete_selected()
 
     def on_cut(self):
-        if this_piano_roll_editor.copy_selected():
+        if PIANO_ROLL_EDITOR.copy_selected():
             self.on_delete_selected()
 
     def set_snap(self, a_val=None):
         f_index = self.snap_combobox.currentIndex()
         pydaw_set_piano_roll_quantize(f_index)
         if global_open_items_uids:
-            this_piano_roll_editor.set_selected_strings()
+            PIANO_ROLL_EDITOR.set_selected_strings()
             global_open_items()
         else:
-            this_piano_roll_editor.clear_drawn_items()
+            PIANO_ROLL_EDITOR.clear_drawn_items()
 
     def reload_handler(self, a_val=None):
         PROJECT.set_midi_scale(self.scale_key_combobox.currentIndex(),
                                           self.scale_combobox.currentIndex())
         if global_open_items_uids:
-            this_piano_roll_editor.set_selected_strings()
+            PIANO_ROLL_EDITOR.set_selected_strings()
             global_open_items()
         else:
-            this_piano_roll_editor.clear_drawn_items()
+            PIANO_ROLL_EDITOR.clear_drawn_items()
 
 def global_set_automation_zoom():
     global global_automation_width
@@ -6477,7 +6477,7 @@ class automation_viewer_widget:
         def cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Add automation point"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -6560,7 +6560,7 @@ class automation_viewer_widget:
             f_bar_spinbox.setValue(f_bar_spinbox.maximum())
             f_pos_spinbox.setValue(f_pos_spinbox.maximum())
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Add automation point"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -6664,13 +6664,13 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
            global_item_zoom_index
 
     if a_items is not None:
-        this_piano_roll_editor.selected_note_strings = []
+        PIANO_ROLL_EDITOR.selected_note_strings = []
         global global_item_editing_count
         global_item_editing_count = len(a_items)
         global_set_piano_roll_zoom()
         this_item_editor.zoom_slider.setMaximum(100 * global_item_editing_count)
         this_item_editor.zoom_slider.setSingleStep(global_item_editing_count)
-        pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
+        pydaw_set_piano_roll_quantize(PIANO_ROLL_EDITOR_WIDGET.snap_combobox.currentIndex())
         this_item_editor.item_names = a_items
         this_item_editor.item_index_enabled = False
         this_item_editor.item_name_combobox.clear()
@@ -6730,7 +6730,7 @@ class item_list_editor:
         self.ccs_table_widget.clearContents()
         self.notes_table_widget.clearContents()
         self.pitchbend_table_widget.clearContents()
-        this_piano_roll_editor.clear_drawn_items()
+        PIANO_ROLL_EDITOR.clear_drawn_items()
         self.item = None
         self.items = []
 
@@ -6750,9 +6750,9 @@ class item_list_editor:
                 PROJECT.save_item(self.item_names[f_i], self.items[f_i])
 
             if f_selected_only.isChecked():
-                this_piano_roll_editor.selected_note_strings = f_clip
+                PIANO_ROLL_EDITOR.selected_note_strings = f_clip
             else:
-                this_piano_roll_editor.selected_note_strings = []
+                PIANO_ROLL_EDITOR.selected_note_strings = []
 
             global_open_items()
             PROJECT.commit(_("Quantize item(s)"))
@@ -6761,7 +6761,7 @@ class item_list_editor:
         def quantize_cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Quantize"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -6805,11 +6805,11 @@ class item_list_editor:
                                         f_add_values.isChecked(),
                                         a_selected_only=f_selected_only.isChecked())
             print(f_clip)
-            print(this_piano_roll_editor.selected_note_strings)
+            print(PIANO_ROLL_EDITOR.selected_note_strings)
             if f_selected_only.isChecked():
-                this_piano_roll_editor.selected_note_strings = f_clip
+                PIANO_ROLL_EDITOR.selected_note_strings = f_clip
             else:
-                this_piano_roll_editor.selected_note_strings = []
+                PIANO_ROLL_EDITOR.selected_note_strings = []
             for f_i in range(global_item_editing_count):
                 PROJECT.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
@@ -6822,7 +6822,7 @@ class item_list_editor:
         def end_value_changed(a_val=None):
             f_draw_line.setChecked(True)
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Velocity Mod"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -6875,9 +6875,9 @@ class item_list_editor:
                 PROJECT.save_item(self.item_names[f_i], self.items[f_i])
 
             if f_selected_only.isChecked():
-                this_piano_roll_editor.selected_note_strings = f_clip
+                PIANO_ROLL_EDITOR.selected_note_strings = f_clip
             else:
-                this_piano_roll_editor.selected_note_strings = []
+                PIANO_ROLL_EDITOR.selected_note_strings = []
 
             global_open_items()
             PROJECT.commit(_("Transpose item(s)"))
@@ -6886,7 +6886,7 @@ class item_list_editor:
         def transpose_cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Transpose"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -6917,18 +6917,18 @@ class item_list_editor:
         f_window.exec_()
 
     def tab_changed(self, a_val=None):
-        f_list = [this_piano_roll_editor, this_cc_editor, this_pb_editor]
+        f_list = [PIANO_ROLL_EDITOR, this_cc_editor, this_pb_editor]
         f_index = self.tab_widget.currentIndex()
         if f_index == 0:
             global_set_piano_roll_zoom()
         if f_index < len(f_list):
             f_list[f_index].draw_item()
-        this_piano_roll_editor.click_enabled = True
+        PIANO_ROLL_EDITOR.click_enabled = True
         #^^^^huh?
 
 
     def show_not_enabled_warning(self):
-        QtGui.QMessageBox.warning(this_main_window, _("Error"),
+        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
                                   _("You must open an item first by double-clicking on one in "
                                   "the region editor on the 'Song/Region' tab."))
 
@@ -6988,7 +6988,7 @@ class item_list_editor:
 
         self.piano_roll_hlayout = QtGui.QHBoxLayout(self.piano_roll_tab)
         self.piano_roll_hlayout.setMargin(2)
-        self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
+        self.piano_roll_hlayout.addWidget(PIANO_ROLL_EDITOR_WIDGET.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox(_("CCs"))
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
@@ -7404,8 +7404,8 @@ class transport_widget:
                         f_editor.table_widget.selectColumn(f_bar)
                     if f_region != self.last_region_num:
                         self.last_region_num = f_region
-                        f_item = this_song_editor.table_widget.item(0, f_region)
-                        this_song_editor.table_widget.selectColumn(f_region)
+                        f_item = SONG_EDITOR.table_widget.item(0, f_region)
+                        SONG_EDITOR.table_widget.selectColumn(f_region)
                         if not f_item is None and f_item.text() != "":
                             this_region_settings.open_region(f_item.text())
                         else:
@@ -7423,11 +7423,11 @@ class transport_widget:
 
     def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked() or \
-        this_wave_editor_widget.enabled_checkbox.isChecked():
+        WAVE_EDITOR.enabled_checkbox.isChecked():
             return
-        if this_song_editor.table_widget.item(0, self.get_region_value()) is not None:
+        if SONG_EDITOR.table_widget.item(0, self.get_region_value()) is not None:
             f_region_name = \
-                str(this_song_editor.table_widget.item(0, self.get_region_value()).text())
+                str(SONG_EDITOR.table_widget.item(0, self.get_region_value()).text())
             if not a_start or (global_current_region_name is not None and \
             f_region_name != global_current_region_name) or global_current_region is None:
                 this_region_settings.open_region(f_region_name)
@@ -7444,7 +7444,7 @@ class transport_widget:
             this_region_editor.table_widget.clearSelection()
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
-        this_song_editor.table_widget.selectColumn(self.get_region_value())
+        SONG_EDITOR.table_widget.selectColumn(self.get_region_value())
 
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
@@ -7460,14 +7460,14 @@ class transport_widget:
             self.set_region_value(self.start_region)
             self.set_bar_value(self.last_bar)
         else:
-            f_we_enabled = this_wave_editor_widget.enabled_checkbox.isChecked()
-            f_tab_index = this_main_window.main_tabwidget.currentIndex()
-            if this_wave_editor_widget.history:
+            f_we_enabled = WAVE_EDITOR.enabled_checkbox.isChecked()
+            f_tab_index = MAIN_WINDOW.main_tabwidget.currentIndex()
+            if WAVE_EDITOR.history:
                 if f_tab_index == 3 and not f_we_enabled:
-                    this_wave_editor_widget.enabled_checkbox.setChecked(True)
+                    WAVE_EDITOR.enabled_checkbox.setChecked(True)
                 elif f_tab_index != 3 and f_we_enabled:
-                    this_wave_editor_widget.enabled_checkbox.setChecked(False)
-        this_song_editor.table_widget.setEnabled(False)
+                    WAVE_EDITOR.enabled_checkbox.setChecked(False)
+        SONG_EDITOR.table_widget.setEnabled(False)
         this_region_settings.on_play()
         AUDIO_SEQ_WIDGET.on_play()
         self.bar_spinbox.setEnabled(False)
@@ -7480,7 +7480,7 @@ class transport_widget:
         self.start_region = self.get_region_value()
         self.last_bar = self.get_bar_value()
         self.trigger_audio_playback()
-        this_wave_editor_widget.on_play()
+        WAVE_EDITOR.on_play()
         self.menu_button.setEnabled(False)
         AUDIO_SEQ.set_playback_clipboard()
         PROJECT.this_pydaw_osc.pydaw_play(a_region_num=self.get_region_value(),
@@ -7497,14 +7497,14 @@ class transport_widget:
             return
         global IS_PLAYING
         IS_PLAYING = False
-        this_song_editor.table_widget.setEnabled(True)
+        SONG_EDITOR.table_widget.setEnabled(True)
         this_region_settings.on_stop()
         AUDIO_SEQ_WIDGET.on_stop()
 
-        f_we_enabled = this_wave_editor_widget.enabled_checkbox.isChecked()
-        f_tab_index = this_main_window.main_tabwidget.currentIndex()
+        f_we_enabled = WAVE_EDITOR.enabled_checkbox.isChecked()
+        f_tab_index = MAIN_WINDOW.main_tabwidget.currentIndex()
         if f_tab_index != 3 and f_we_enabled:
-            this_wave_editor_widget.enabled_checkbox.setChecked(False)
+            WAVE_EDITOR.enabled_checkbox.setChecked(False)
 
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
@@ -7520,18 +7520,18 @@ class transport_widget:
             self.show_save_items_dialog()
             if global_current_region is not None and this_region_settings.enabled:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
-            this_song_editor.open_song()
+            SONG_EDITOR.open_song()
             PROJECT.commit(_("Recording"))
         self.init_playback_cursor(a_start=False)
         self.is_playing = False
         self.set_bar_value(self.last_bar)
-        f_song_table_item = this_song_editor.table_widget.item(0, self.get_region_value())
+        f_song_table_item = SONG_EDITOR.table_widget.item(0, self.get_region_value())
         if f_song_table_item is not None and str(f_song_table_item.text()) != None:
             f_song_table_item_str = str(f_song_table_item.text())
             this_region_settings.open_region(f_song_table_item_str)
         else:
             this_region_settings.clear_items()
-        this_wave_editor_widget.on_stop()
+        WAVE_EDITOR.on_stop()
         self.menu_button.setEnabled(True)
         AUDIO_SEQ.stop_playback(self.last_bar)
 
@@ -7548,7 +7548,7 @@ class transport_widget:
         def text_edit_handler(a_val=None):
             f_file.setText(pydaw_remove_bad_chars(f_file.text()))
 
-        f_window = QtGui.QDialog(this_main_window,
+        f_window = QtGui.QDialog(MAIN_WINDOW,
                                  QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
         f_window.setMinimumWidth(330)
         f_layout = QtGui.QGridLayout()
@@ -7573,13 +7573,13 @@ class transport_widget:
                                       _("Cannot use overdub mode with loop mode to record"))
             self.stop_button.setChecked(True)
             return
-        if this_wave_editor_widget.enabled_checkbox.isChecked():
+        if WAVE_EDITOR.enabled_checkbox.isChecked():
             QtGui.QMessageBox.warning(self.group_box, _("Error"),
                                       _("The wave editor does not yet support recording."))
             self.stop_button.setChecked(True)
             return
-        this_song_editor.table_widget.setEnabled(False)
-        this_wave_editor_widget.on_play()
+        SONG_EDITOR.table_widget.setEnabled(False)
+        WAVE_EDITOR.on_play()
         this_region_settings.on_play()
         AUDIO_SEQ_WIDGET.on_play()
         self.bar_spinbox.setEnabled(False)
@@ -7635,14 +7635,14 @@ class transport_widget:
 
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
-            f_item = this_song_editor.table_widget.item(0, self.get_region_value())
+            f_item = SONG_EDITOR.table_widget.item(0, self.get_region_value())
             if not f_item is None and f_item.text() != "":
                 this_region_settings.open_region(f_item.text())
             else:
                 this_region_editor.clear_items()
                 this_region_audio_editor.clear_items()
                 this_region_bus_editor.clear_items()
-            this_song_editor.table_widget.selectColumn(self.get_region_value())
+            SONG_EDITOR.table_widget.selectColumn(self.get_region_value())
             this_region_editor.table_widget.selectColumn(self.get_bar_value())
             this_region_audio_editor.table_widget.selectColumn(self.get_bar_value())
             this_region_bus_editor.table_widget.selectColumn(self.get_bar_value())
@@ -7809,7 +7809,7 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
                                                           a_track_num,
                                                           PROJECT, a_folder,
                                                           a_track_type,
-                                                          a_title, this_main_window.styleSheet(),
+                                                          a_title, MAIN_WINDOW.styleSheet(),
                                                           global_fx_closed_callback,
                                                           global_configure_plugin_callback)
 
@@ -7832,7 +7832,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
                                                               f_track_num, PROJECT,
                                                               pydaw_folder_instruments, 0,
                                                               a_title,
-                                                              this_main_window.styleSheet(),
+                                                              MAIN_WINDOW.styleSheet(),
                                                               global_inst_closed_callback,
                                                               global_configure_plugin_callback)
         elif a_plugin_type == 2:
@@ -7841,7 +7841,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
                                                           f_track_num, PROJECT,
                                                           pydaw_folder_instruments,
                                                           0, a_title,
-                                                          this_main_window.styleSheet(),
+                                                          MAIN_WINDOW.styleSheet(),
                                                           global_inst_closed_callback,
                                                           global_configure_plugin_callback)
         elif a_plugin_type == 3:
@@ -7850,7 +7850,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
                                                           f_track_num, PROJECT,
                                                           pydaw_folder_instruments,
                                                           0, a_title,
-                                                          this_main_window.styleSheet(),
+                                                          MAIN_WINDOW.styleSheet(),
                                                           global_inst_closed_callback,
                                                           global_configure_plugin_callback)
         else:
@@ -8032,7 +8032,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
 
         f_start_time = time.time()
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Rendering to .wav, please wait"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -8093,7 +8093,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_proc = subprocess.Popen(a_cmd_list,
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         f_start_time = time.time()
-        f_window = QtGui.QDialog(this_main_window,
+        f_window = QtGui.QDialog(MAIN_WINDOW,
                                  QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
         f_window.setWindowTitle(_("Rendering to .wav, please wait"))
         f_window.setMinimumSize(420, 210)
@@ -8206,13 +8206,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.end_bar = 2
 
             for i in range(300):
-                f_item = this_song_editor.table_widget.item(0, i)
+                f_item = SONG_EDITOR.table_widget.item(0, i)
                 if not f_item is None and f_item.text() != "":
                     self.start_reg = i + 1
                     break
 
             for i in range(self.start_reg, 300):
-                f_item = this_song_editor.table_widget.item(0, i)
+                f_item = SONG_EDITOR.table_widget.item(0, i)
                 if f_item is None or f_item.text() == "":
                     self.end_reg = i + 1
                     break
@@ -8225,7 +8225,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_max = pydaw_get_region_length(f_end_region.value() - 1)
             f_end_bar.setMaximum(f_max)
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Offline Render"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -8333,7 +8333,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         if IS_PLAYING:
             return
         PROJECT.flush_history()
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Undo history"))
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
@@ -8348,7 +8348,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         if IS_PLAYING:
             return
         f_str = PROJECT.verify_history()
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Verify Project History Database"))
         f_window.setFixedSize(800, 600)
         f_layout = QtGui.QVBoxLayout()
@@ -8374,7 +8374,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_dir = os.path.dirname(f_file)
                 f_style = pydaw_escape_stylesheet(f_style, f_dir)
                 pydaw_write_file_text(global_user_style_file, f_file)
-                QtGui.QMessageBox.warning(this_main_window, _("Theme Applied..."),
+                QtGui.QMessageBox.warning(MAIN_WINDOW, _("Theme Applied..."),
                                           _("Please restart PyDAW to update the UI"))
         except Exception as ex:
             pydaw_print_generic_exception(ex)
@@ -8382,7 +8382,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_version(self):
         def on_ok():
             f_window.close()
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Version Info"))
         f_window.setFixedSize(420, 150)
         f_layout = QtGui.QVBoxLayout()
@@ -8398,12 +8398,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_spacebar(self):
-        this_transport.on_spacebar()
+        TRANSPORT.on_spacebar()
 
     def tab_changed(self):
         f_index = self.main_tabwidget.currentIndex()
         if not IS_PLAYING and f_index != 3:
-            this_wave_editor_widget.enabled_checkbox.setChecked(False)
+            WAVE_EDITOR.enabled_checkbox.setChecked(False)
         if f_index == 1:
             this_item_editor.tab_changed()
 
@@ -8580,7 +8580,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_output_name.setText("")
 
         self.ac_ext = ".wav"
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
 
         f_window.setWindowTitle(_("{} Converter".format(a_label)))
         f_layout = QtGui.QGridLayout()
@@ -8703,7 +8703,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         #The menus
         self.menu_bar = QtGui.QMenu(self)
         # Dirty hack, rather than moving the methods to the transport
-        this_transport.menu_button.setMenu(self.menu_bar)
+        TRANSPORT.menu_button.setMenu(self.menu_bar)
         self.menu_file = self.menu_bar.addMenu(_("File"))
 
         self.new_action = self.menu_file.addAction(_("New..."))
@@ -8789,12 +8789,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.loop_mode_action = QtGui.QAction(self)
         self.addAction(self.loop_mode_action)
         self.loop_mode_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+L"))
-        self.loop_mode_action.triggered.connect(this_transport.toggle_loop_mode)
+        self.loop_mode_action.triggered.connect(TRANSPORT.toggle_loop_mode)
 
         self.panic_action = QtGui.QAction(self)
         self.addAction(self.panic_action)
         self.panic_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+P"))
-        self.panic_action.triggered.connect(this_transport.on_panic)
+        self.panic_action.triggered.connect(TRANSPORT.on_panic)
 
         self.transport_widget = QtGui.QWidget()
         self.transport_hlayout = QtGui.QHBoxLayout(self.transport_widget)
@@ -8802,7 +8802,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.transport_splitter.addWidget(self.transport_widget)
         self.transport_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
 
-        self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
+        self.transport_hlayout.addWidget(TRANSPORT.group_box, alignment=QtCore.Qt.AlignLeft)
         #The tabs
         self.main_tabwidget = QtGui.QTabWidget()
         self.transport_splitter.addWidget(self.main_tabwidget)
@@ -8816,7 +8816,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_splitter.addWidget(self.song_region_tab)
         self.main_tabwidget.addTab(self.song_region_splitter, _("Song/Region"))
 
-        self.song_region_vlayout.addWidget(this_song_editor.table_widget)
+        self.song_region_vlayout.addWidget(SONG_EDITOR.table_widget)
         self.song_region_vlayout.addLayout(this_region_settings.hlayout0)
 
         self.song_region_splitter.addWidget(self.regions_tab_widget)
@@ -8841,7 +8841,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                                                    QtGui.QSizePolicy.Expanding,
                                                    QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, _("CC Maps"))
-        self.main_tabwidget.addTab(this_wave_editor_widget.widget, _("Wave Editor"))
+        self.main_tabwidget.addTab(WAVE_EDITOR.widget, _("Wave Editor"))
 
         self.notes_tab = QtGui.QTextEdit(self)
         self.notes_tab.setAcceptRichText(False)
@@ -8907,17 +8907,17 @@ class pydaw_main_window(QtGui.QMainWindow):
             elif a_key == "cur":
                 if IS_PLAYING:
                     f_region, f_bar, f_beat = a_val.split("|")
-                    this_transport.set_pos_from_cursor(f_region, f_bar, f_beat)
+                    TRANSPORT.set_pos_from_cursor(f_region, f_bar, f_beat)
                     AUDIO_SEQ.set_playback_pos(f_bar, f_beat)
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
-                this_piano_roll_editor.highlight_keys(f_state, f_note)
+                PIANO_ROLL_EDITOR.highlight_keys(f_state, f_note)
             elif a_key == "ml":
                 if self.cc_map_table.cc_spinbox is not None:
                     self.cc_map_table.cc_spinbox.setValue(int(a_val))
             elif a_key == "wec":
                 if IS_PLAYING:
-                    this_wave_editor_widget.set_playback_cursor(float(a_val))
+                    WAVE_EDITOR.set_playback_cursor(float(a_val))
         #This prevents multiple events from moving the same control, only the last goes through
         for k, f_val in f_pc_dict.items():
             f_track_type, f_is_inst, f_track_num, f_port = k
@@ -8946,7 +8946,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             else:
                 try:
                     AUDIO_SEQ.prepare_to_quit()
-                    this_piano_roll_editor.prepare_to_quit()
+                    PIANO_ROLL_EDITOR.prepare_to_quit()
 
                     this_cc_editor.prepare_to_quit()
                     time.sleep(0.5)
@@ -9030,7 +9030,7 @@ class pydaw_cc_map_editor:
         def cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Save CC Map"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -9068,7 +9068,7 @@ class pydaw_cc_map_editor:
         def cancel_handler():
             f_window.close()
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("New CC Map"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -9132,7 +9132,7 @@ class pydaw_cc_map_editor:
         def window_close_event(a_val=None):
             PROJECT.this_pydaw_osc.pydaw_midi_learn(False)
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.closeEvent = window_close_event
         f_window.setWindowTitle(_("Map CC to Control(s)"))
         f_window.setMinimumWidth(240)
@@ -9601,7 +9601,7 @@ class pydaw_wave_editor_widget:
             self.last_offline_dir = os.path.dirname(f_file_name)
             self.open_exported = f_open_exported.isChecked()
             f_window.close()
-            this_main_window.show_offline_rendering_wait_window(f_file_name)
+            MAIN_WINDOW.show_offline_rendering_wait_window(f_file_name)
             if self.open_exported:
                 self.open_file(f_file_name)
 
@@ -9628,7 +9628,7 @@ class pydaw_wave_editor_widget:
         def on_overwrite(a_val=None):
             f_name.setText(self.file_lineedit.text())
 
-        f_window = QtGui.QDialog(this_main_window)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Offline Render"))
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -9844,13 +9844,13 @@ def global_close_all():
     global_close_all_plugin_windows()
     this_region_settings.clear_new()
     this_item_editor.clear_new()
-    this_song_editor.table_widget.clearContents()
+    SONG_EDITOR.table_widget.clearContents()
     AUDIO_SEQ.clear_drawn_items()
     this_pb_editor.clear_drawn_items()
     this_cc_editor.clear_drawn_items()
     this_cc_editor_widget.update_ccs_in_use([])
-    this_wave_editor_widget.clear()
-    this_transport.reset()
+    WAVE_EDITOR.clear()
+    TRANSPORT.reset()
     global_open_items_uids = []
     AUDIO_ITEMS_TO_DROP = []
 
@@ -9872,14 +9872,14 @@ def global_ui_refresh_callback(a_restore_all=False):
         global_current_region = None
     if this_item_editor.enabled and global_check_midi_items():
         global_open_items()
-    this_song_editor.open_song()
-    this_transport.open_transport()
+    SONG_EDITOR.open_song()
+    TRANSPORT.open_transport()
     PROJECT.this_pydaw_osc.pydaw_open_song(
         PROJECT.project_folder, a_restore_all)
     global_set_record_armed_track()
 
 def set_window_title():
-    this_main_window.setWindowTitle('PyDAW4 - {}/{}.{}'.format(
+    MAIN_WINDOW.setWindowTitle('PyDAW4 - {}/{}.{}'.format(
         PROJECT.project_folder, PROJECT.project_file,
         global_pydaw_version_string))
 
@@ -9893,23 +9893,23 @@ def global_open_project(a_project_file, a_wait=True):
     PROJECT = pydaw_project(global_pydaw_with_audio)
     PROJECT.suppress_updates = True
     PROJECT.open_project(a_project_file, False)
-    this_wave_editor_widget.last_offline_dir = PROJECT.user_folder
-    this_song_editor.open_song()
+    WAVE_EDITOR.last_offline_dir = PROJECT.user_folder
+    SONG_EDITOR.open_song()
     for f_editor in global_region_editors:
         f_editor.open_tracks()
-    this_transport.open_transport()
+    TRANSPORT.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
     set_window_title()
     PROJECT.suppress_updates = False
     f_scale = PROJECT.get_midi_scale()
     if f_scale is not None:
-        this_piano_roll_editor_widget.scale_key_combobox.setCurrentIndex(f_scale[0])
-        this_piano_roll_editor_widget.scale_combobox.setCurrentIndex(f_scale[1])
-    this_song_editor.open_first_region()
-    this_main_window.last_offline_dir = PROJECT.user_folder
-    this_main_window.notes_tab.setText(PROJECT.get_notes())
-    this_wave_editor_widget.open_project()
+        PIANO_ROLL_EDITOR_WIDGET.scale_key_combobox.setCurrentIndex(f_scale[0])
+        PIANO_ROLL_EDITOR_WIDGET.scale_combobox.setCurrentIndex(f_scale[1])
+    SONG_EDITOR.open_first_region()
+    MAIN_WINDOW.last_offline_dir = PROJECT.user_folder
+    MAIN_WINDOW.notes_tab.setText(PROJECT.get_notes())
+    WAVE_EDITOR.open_project()
     global_update_region_time()
 
 def global_new_project(a_project_file, a_wait=True):
@@ -9920,17 +9920,17 @@ def global_new_project(a_project_file, a_wait=True):
     open_pydaw_engine(a_project_file)
     PROJECT = pydaw_project(global_pydaw_with_audio)
     PROJECT.new_project(a_project_file)
-    PROJECT.save_transport(this_transport.transport)
-    this_wave_editor_widget.last_offline_dir = PROJECT.user_folder
-    this_song_editor.open_song()
-    PROJECT.save_song(this_song_editor.song)
-    this_transport.open_transport()
+    PROJECT.save_transport(TRANSPORT.transport)
+    WAVE_EDITOR.last_offline_dir = PROJECT.user_folder
+    SONG_EDITOR.open_song()
+    PROJECT.save_song(SONG_EDITOR.song)
+    TRANSPORT.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
     set_window_title()
-    this_main_window.last_offline_dir = PROJECT.user_folder
-    this_main_window.notes_tab.setText("")
-    this_wave_editor_widget.open_project()
+    MAIN_WINDOW.last_offline_dir = PROJECT.user_folder
+    MAIN_WINDOW.notes_tab.setText("")
+    WAVE_EDITOR.open_project()
     global_update_region_time()
 
 PROJECT = pydaw_project(global_pydaw_with_audio)
@@ -9962,16 +9962,16 @@ this_pb_editor = automation_viewer(a_is_cc=False)
 this_cc_editor = automation_viewer()
 this_cc_editor_widget = automation_viewer_widget(this_cc_editor)
 
-this_wave_editor_widget = pydaw_wave_editor_widget()
+WAVE_EDITOR = pydaw_wave_editor_widget()
 
 if not os.access(global_pydaw_home, os.W_OK):
     QtGui.QMessageBox.warning(
-        this_wave_editor_widget.widget, _("Error"),
+        WAVE_EDITOR.widget, _("Error"),
         _("You do not have read+write permissions to {}, please correct "
         "this and restart PyDAW".format(global_pydaw_home)))
     exit(999)
 
-this_song_editor = song_editor()
+SONG_EDITOR = song_editor()
 this_region_settings = region_settings()
 this_region_editor = region_list_editor(pydaw_track_type_enum.midi)
 this_region_bus_editor = region_list_editor(pydaw_track_type_enum.bus)
@@ -9980,12 +9980,12 @@ global_region_editors = (this_region_editor, this_region_bus_editor,
                          this_region_audio_editor)
 
 AUDIO_EDITOR_WIDGET = audio_item_editor_widget()
-this_piano_roll_editor = piano_roll_editor()
-this_piano_roll_editor_widget = piano_roll_editor_widget()
+PIANO_ROLL_EDITOR = piano_roll_editor()
+PIANO_ROLL_EDITOR_WIDGET = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 AUDIO_SEQ = audio_items_viewer()
 
-global_midi_editors = (this_cc_editor, this_piano_roll_editor, this_pb_editor)
+global_midi_editors = (this_cc_editor, PIANO_ROLL_EDITOR, this_pb_editor)
 
 def global_check_device():
     f_device_dialog = pydaw_device_dialog.pydaw_device_dialog(
@@ -10133,7 +10133,7 @@ def open_pydaw_engine(a_project_path):
     print(f_cmd)
     PYDAW_SUBPROCESS = subprocess.Popen([f_cmd], shell=True)
 
-this_transport = transport_widget()
+TRANSPORT = transport_widget()
 AUDIO_SEQ_WIDGET = audio_items_viewer_widget()
 
 TOOLTIPS_ENABLED_file = "{}/tooltips.txt".format(global_pydaw_home)
@@ -10144,10 +10144,10 @@ if os.path.isfile(TOOLTIPS_ENABLED_file):
 
 # Must call this after instantiating the other widgets,
 # as it relies on them existing
-this_main_window = pydaw_main_window()
-this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
-this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
-this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(4)
+MAIN_WINDOW = pydaw_main_window()
+MAIN_WINDOW.setWindowState(QtCore.Qt.WindowMaximized)
+PIANO_ROLL_EDITOR.verticalScrollBar().setSliderPosition(700)
+PIANO_ROLL_EDITOR_WIDGET.snap_combobox.setCurrentIndex(4)
 
 if TOOLTIPS_ENABLED:
     pydaw_set_tooltips_enabled(TOOLTIPS_ENABLED)
@@ -10172,7 +10172,7 @@ else:
 
 if os.path.exists(default_project_file) and \
 not os.access(os.path.dirname(default_project_file), os.W_OK):
-    QtGui.QMessageBox.warning(this_wave_editor_widget.widget, _("Error"),
+    QtGui.QMessageBox.warning(WAVE_EDITOR.widget, _("Error"),
                               _("You do not have read+write permissions "
                               "to {}, please correct "
                               "this and restart PyDAW".format(
@@ -10184,7 +10184,7 @@ if os.path.exists(default_project_file):
         global_open_project(default_project_file, a_wait=False)
     except Exception as ex:
         QtGui.QMessageBox.warning(
-            this_main_window, _("Error"),
+            MAIN_WINDOW, _("Error"),
             _("Error opening project: {}\n{}\nCreating a new "
             "project".format(default_project_file, ex)))
         f_old_dir = os.path.dirname(default_project_file)
