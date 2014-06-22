@@ -1258,22 +1258,26 @@ class region_list_editor:
             self.on_auto_unlink_selected)
         self.table_widget.addAction(self.unlink_selected_action)
 
-        self.unlink_unique_action = QtGui.QAction(_("Auto-Unlink Unique Item(s)"),
-                                                    self.table_widget)
-        self.unlink_unique_action.setShortcut(QtGui.QKeySequence.fromString("ALT+U"))
+        self.unlink_unique_action = QtGui.QAction(
+            _("Auto-Unlink Unique Item(s)"), self.table_widget)
+        self.unlink_unique_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+U"))
         self.unlink_unique_action.triggered.connect(self.on_auto_unlink_unique)
         self.table_widget.addAction(self.unlink_unique_action)
 
-        self.rename_action = QtGui.QAction(_("Rename Selected Item(s)..."), self.table_widget)
+        self.rename_action = QtGui.QAction(
+            _("Rename Selected Item(s)..."), self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_items)
         self.table_widget.addAction(self.rename_action)
 
-        self.unlink_action = QtGui.QAction(_("Unlink Single Item..."), self.table_widget)
+        self.unlink_action = QtGui.QAction(
+            _("Unlink Single Item..."), self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
         self.table_widget.addAction(self.unlink_action)
 
         if a_track_type == pydaw_track_type_enum.midi:
-            self.transpose_action = QtGui.QAction(_("Transpose..."), self.table_widget)
+            self.transpose_action = QtGui.QAction(
+                _("Transpose..."), self.table_widget)
             self.transpose_action.triggered.connect(self.transpose_dialog)
             self.table_widget.addAction(self.transpose_action)
 
@@ -1312,14 +1316,17 @@ class region_list_editor:
 
         f_item_list = self.get_selected_items()
         if len(f_item_list) == 0:
-            QtGui.QMessageBox.warning(this_main_window, _("Error"), _("No items selected"))
+            QtGui.QMessageBox.warning(this_main_window, _("Error"),
+                                      _("No items selected"))
             return
 
         def transpose_ok_handler():
             for f_item_name in f_item_list:
                 f_item = this_pydaw_project.get_item_by_name(f_item_name)
-                f_item.transpose(f_semitone.value(), f_octave.value(), a_selected_only=False,
-                                 a_duplicate=f_duplicate_notes.isChecked())
+                f_item.transpose(
+                    f_semitone.value(), f_octave.value(),
+                    a_selected_only=False,
+                    a_duplicate=f_duplicate_notes.isChecked())
                 this_pydaw_project.save_item(f_item_name, f_item)
             this_pydaw_project.commit(_("Transpose item(s)"))
             if len(global_open_items_uids) > 0:
@@ -1343,8 +1350,9 @@ class region_list_editor:
         f_layout.addWidget(QtGui.QLabel(_("Octaves")), 1, 0)
         f_layout.addWidget(f_octave, 1, 1)
         f_duplicate_notes = QtGui.QCheckBox(_("Duplicate notes?"))
-        f_duplicate_notes.setToolTip(_("Checking this box causes the transposed "
-                                     "notes to be added rather than moving the existing notes."))
+        f_duplicate_notes.setToolTip(
+            _("Checking this box causes the transposed "
+            "notes to be added rather than moving the existing notes."))
         f_layout.addWidget(f_duplicate_notes, 2, 1)
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(transpose_ok_handler)
@@ -1367,18 +1375,23 @@ class region_list_editor:
         for i in range(self.track_count):
             for i2 in range(1, self.region_length + 1):
                 f_item = self.table_widget.item(i, i2)
-                if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
+                if not f_item is None and \
+                not str(f_item.text()) == "" \
+                and f_item.isSelected():
                     f_result_str = str(f_item.text())
                     f_track_nums[i] = None
                     if f_result_str in f_result:
                         if a_unique:
                             continue
                         else:
-                            QtGui.QMessageBox.warning(self.table_widget, _("Error"),
-                            _("You cannot open multiple instances of the same item as a group.\n"
-                            "You should unlink all duplicate instances of {} into their own "
-                            "individual item names before editing as a group.").format(
-                                f_result_str))
+                            QtGui.QMessageBox.warning(
+                            self.table_widget, _("Error"),
+                            _("You cannot open multiple instances of "
+                            "the same item as a group.\n"
+                            "You should unlink all duplicate instances "
+                            "of {} into their own "
+                            "individual item names before editing as "
+                            "a group.").format(f_result_str))
                             return
                     f_result.append(f_result_str)
         if f_result:
@@ -1390,14 +1403,16 @@ class region_list_editor:
             if len(f_track_nums) == 1:
                 self.auto_arm(f_track_nums[0])
         else:
-            QtGui.QMessageBox.warning(self.table_widget, _("Error"), _("No items selected"))
+            QtGui.QMessageBox.warning(
+                self.table_widget, _("Error"), _("No items selected"))
 
     def auto_arm(self, a_index):
         self.tracks[a_index].record_radiobutton.setChecked(True)
         f_current = this_cc_editor_widget.plugin_combobox.currentIndex()
         f_end = this_cc_editor_widget.plugin_combobox.count() - 1
         if self.track_type == pydaw_track_type_enum.midi:
-            f_track_index = self.tracks[a_index].instrument_combobox.currentIndex()
+            f_track_index = \
+                self.tracks[a_index].instrument_combobox.currentIndex()
             if f_track_index > 0:
                 if f_current < f_end:
                     this_cc_editor_widget.plugin_combobox.setCurrentIndex(
@@ -1418,7 +1433,8 @@ class region_list_editor:
         def ok_handler():
             f_new_name = str(f_new_lineedit.text())
             if f_new_name == "":
-                QtGui.QMessageBox.warning(self.group_box, _("Error"), _("Name cannot be blank"))
+                QtGui.QMessageBox.warning(
+                    self.group_box, _("Error"), _("Name cannot be blank"))
                 return
             global REGION_CLIPBOARD, global_open_item_names, \
                 global_last_open_item_names, global_last_open_item_uids
@@ -1440,7 +1456,8 @@ class region_list_editor:
             f_window.close()
 
         def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+            f_new_lineedit.setText(
+                pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Rename selected items..."))
@@ -1469,7 +1486,9 @@ class region_list_editor:
         x = self.table_widget.currentRow()
         y = self.table_widget.currentColumn()
 
-        if f_current_item is None or str(f_current_item.text()) == "" or x < 0 or y < 1:
+        if f_current_item is None or \
+        str(f_current_item.text()) == "" or \
+        x < 0 or y < 1:
             return
 
         f_current_item_text = str(f_current_item.text())
@@ -1483,26 +1502,31 @@ class region_list_editor:
                 _("You must choose a different name than the original item"))
                 return
             if this_pydaw_project.item_exists(f_cell_text):
-                QtGui.QMessageBox.warning(self.group_box, _("Error"),
-                                          _("An item with this name already exists."))
+                QtGui.QMessageBox.warning(
+                    self.group_box, _("Error"),
+                    _("An item with this name already exists."))
                 return
             f_uid = this_pydaw_project.copy_item(str(f_current_item.text()),
                                                  str(f_new_lineedit.text()))
             global_open_items([f_cell_text], a_reset_scrollbar=True)
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
-            global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
-            this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()),
-                                           global_current_region)
-            this_pydaw_project.commit(_("Unlink item '{}' as '{}'").format(f_current_item_text,
-                                                                        f_cell_text))
+            global_current_region.add_item_ref_by_uid(
+                x + self.track_offset, y - 1, f_uid)
+            this_pydaw_project.save_region(
+                str(this_region_settings.region_name_lineedit.text()),
+                global_current_region)
+            this_pydaw_project.commit(
+                _("Unlink item '{}' as '{}'").format(
+                f_current_item_text, f_cell_text))
             f_window.close()
 
         def note_cancel_handler():
             f_window.close()
 
         def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+            f_new_lineedit.setText(
+                pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(_("Copy and unlink item..."))
@@ -1793,22 +1817,27 @@ AUDIO_ITEM_HEIGHT = 75.0
 AUDIO_ITEM_HANDLE_HEIGHT = 12.0
 AUDIO_ITEM_HANDLE_SIZE = 6.25
 
-AUDIO_ITEM_HANDLE_BRUSH = QtGui.QLinearGradient(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                                                       AUDIO_ITEM_HANDLE_HEIGHT)
-AUDIO_ITEM_HANDLE_BRUSH.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
-AUDIO_ITEM_HANDLE_BRUSH.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
+AUDIO_ITEM_HANDLE_BRUSH = QtGui.QLinearGradient(
+    0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE, AUDIO_ITEM_HANDLE_HEIGHT)
+AUDIO_ITEM_HANDLE_BRUSH.setColorAt(
+    0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
+AUDIO_ITEM_HANDLE_BRUSH.setColorAt(
+    0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
 
-global_audio_item_handle_selected_brush = \
-    QtGui.QLinearGradient(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                          AUDIO_ITEM_HANDLE_HEIGHT)
-global_audio_item_handle_selected_brush.setColorAt(0.0, QtGui.QColor.fromRgb(24, 24, 24, 120))
-global_audio_item_handle_selected_brush.setColorAt(0.0, QtGui.QColor.fromRgb(24, 24, 24, 90))
+global_audio_item_handle_selected_brush = QtGui.QLinearGradient(
+    0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE, AUDIO_ITEM_HANDLE_HEIGHT)
+global_audio_item_handle_selected_brush.setColorAt(
+    0.0, QtGui.QColor.fromRgb(24, 24, 24, 120))
+global_audio_item_handle_selected_brush.setColorAt(
+    0.0, QtGui.QColor.fromRgb(24, 24, 24, 90))
 
 
 global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 global_audio_item_line_pen = QtGui.QPen(QtCore.Qt.white, 2.0)
-global_audio_item_handle_selected_pen = QtGui.QPen(QtGui.QColor.fromRgb(24, 24, 24))
-global_audio_item_line_selected_pen = QtGui.QPen(QtGui.QColor.fromRgb(24, 24, 24), 2.0)
+global_audio_item_handle_selected_pen = QtGui.QPen(
+    QtGui.QColor.fromRgb(24, 24, 24))
+global_audio_item_line_selected_pen = QtGui.QPen(
+    QtGui.QColor.fromRgb(24, 24, 24), 2.0)
 
 global_audio_item_max_lane = 23
 global_audio_item_lane_count = 24
@@ -1860,7 +1889,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.audio_item = a_audio_item
         self.orig_string = str(a_audio_item)
         self.track_num = a_track_num
-        f_graph = this_pydaw_project.get_sample_graph_by_uid(self.audio_item.uid)
+        f_graph = this_pydaw_project.get_sample_graph_by_uid(
+            self.audio_item.uid)
         self.painter_paths = f_graph.create_sample_graph(True)
         self.y_inc = AUDIO_ITEM_HEIGHT / len(self.painter_paths)
         f_y_pos = 0.0
@@ -1872,8 +1902,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.mapToParent(0.0, 0.0)
             self.path_items.append(f_path_item)
             f_y_pos += self.y_inc
-        f_file_name = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
-        f_file_name = this_pydaw_project.timestretch_lookup_orig_path(f_file_name)
+        f_file_name = this_pydaw_project.get_wav_name_by_uid(
+            self.audio_item.uid)
+        f_file_name = this_pydaw_project.timestretch_lookup_orig_path(
+            f_file_name)
         f_name_arr = f_file_name.rsplit("/", 1)
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
@@ -1885,11 +1917,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle.setAcceptHoverEvents(True)
         self.start_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.start_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                                                AUDIO_ITEM_HANDLE_HEIGHT))
+        self.start_handle.setRect(
+            QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                          AUDIO_ITEM_HANDLE_HEIGHT))
         self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
-        self.start_handle_line = QtGui.QGraphicsLineItem(0.0, AUDIO_ITEM_HANDLE_HEIGHT, 0.0,
-        (AUDIO_ITEM_HEIGHT * -1.0) + AUDIO_ITEM_HANDLE_HEIGHT, self.start_handle)
+        self.start_handle_line = QtGui.QGraphicsLineItem(
+            0.0, AUDIO_ITEM_HANDLE_HEIGHT, 0.0,
+            (AUDIO_ITEM_HEIGHT * -1.0) + AUDIO_ITEM_HANDLE_HEIGHT,
+            self.start_handle)
 
         self.start_handle_line.setPen(global_audio_item_line_pen)
 
@@ -1897,49 +1932,59 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setAcceptHoverEvents(True)
         self.length_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.length_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                                                 AUDIO_ITEM_HANDLE_HEIGHT))
+        self.length_handle.setRect(
+            QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                          AUDIO_ITEM_HANDLE_HEIGHT))
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
-        self.length_handle_line = QtGui.QGraphicsLineItem(AUDIO_ITEM_HANDLE_SIZE,
-                                                  AUDIO_ITEM_HANDLE_HEIGHT,
-                                                  AUDIO_ITEM_HANDLE_SIZE,
-                                                  (AUDIO_ITEM_HEIGHT * -1.0) +
-                                                  AUDIO_ITEM_HANDLE_HEIGHT,
-                                                  self.length_handle)
+        self.length_handle_line = QtGui.QGraphicsLineItem(
+            AUDIO_ITEM_HANDLE_SIZE, AUDIO_ITEM_HANDLE_HEIGHT,
+            AUDIO_ITEM_HANDLE_SIZE,
+            (AUDIO_ITEM_HEIGHT * -1.0) + AUDIO_ITEM_HANDLE_HEIGHT,
+            self.length_handle)
 
         self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_in_handle.setAcceptHoverEvents(True)
         self.fade_in_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.fade_in_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.fade_in_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                                                  AUDIO_ITEM_HANDLE_HEIGHT))
-        self.fade_in_handle.mousePressEvent = self.fade_in_handle_mouseClickEvent
-        self.fade_in_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
+        self.fade_in_handle.setRect(
+            QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                          AUDIO_ITEM_HANDLE_HEIGHT))
+        self.fade_in_handle.mousePressEvent = \
+            self.fade_in_handle_mouseClickEvent
+        self.fade_in_handle_line = QtGui.QGraphicsLineItem(
+            0.0, 0.0, 0.0, 0.0, self)
 
         self.fade_out_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_out_handle.setAcceptHoverEvents(True)
         self.fade_out_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.fade_out_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.fade_out_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                                                   AUDIO_ITEM_HANDLE_HEIGHT))
-        self.fade_out_handle.mousePressEvent = self.fade_out_handle_mouseClickEvent
-        self.fade_out_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
+        self.fade_out_handle.setRect(
+            QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                          AUDIO_ITEM_HANDLE_HEIGHT))
+        self.fade_out_handle.mousePressEvent = \
+            self.fade_out_handle_mouseClickEvent
+        self.fade_out_handle_line = QtGui.QGraphicsLineItem(
+            0.0, 0.0, 0.0, 0.0, self)
 
         self.stretch_handle = QtGui.QGraphicsRectItem(parent=self)
         self.stretch_handle.setAcceptHoverEvents(True)
         self.stretch_handle.hoverEnterEvent = self.generic_hoverEnterEvent
         self.stretch_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
-        self.stretch_handle.setRect(QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
-                                                  AUDIO_ITEM_HANDLE_HEIGHT))
-        self.stretch_handle.mousePressEvent = self.stretch_handle_mouseClickEvent
-        self.stretch_handle_line = QtGui.QGraphicsLineItem(AUDIO_ITEM_HANDLE_SIZE,
+        self.stretch_handle.setRect(
+            QtCore.QRectF(0.0, 0.0, AUDIO_ITEM_HANDLE_SIZE,
+                          AUDIO_ITEM_HANDLE_HEIGHT))
+        self.stretch_handle.mousePressEvent = \
+            self.stretch_handle_mouseClickEvent
+        self.stretch_handle_line = QtGui.QGraphicsLineItem(
+            AUDIO_ITEM_HANDLE_SIZE,
             (AUDIO_ITEM_HANDLE_HEIGHT * 0.5) - (AUDIO_ITEM_HEIGHT * 0.5),
             AUDIO_ITEM_HANDLE_SIZE,
             (AUDIO_ITEM_HEIGHT * 0.5) + (AUDIO_ITEM_HANDLE_HEIGHT * 0.5),
             self.stretch_handle)
         self.stretch_handle.hide()
 
-        self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, AUDIO_ITEM_HEIGHT, self)
+        self.split_line = QtGui.QGraphicsLineItem(
+            0.0, 0.0, 0.0, AUDIO_ITEM_HEIGHT, self)
         self.split_line.mapFromParent(0.0, 0.0)
         self.split_line.hide()
         self.split_line_is_shown = False
@@ -1965,7 +2010,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.draw()
 
     def generic_hoverEnterEvent(self, a_event):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
+        QtGui.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.SizeHorCursor))
 
     def generic_hoverLeaveEvent(self, a_event):
         QtGui.QApplication.restoreOverrideCursor()
@@ -1998,10 +2044,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_fade_out = self.audio_item.fade_out * 0.001
         self.setRect(0.0, 0.0, f_length, AUDIO_ITEM_HEIGHT)
         f_fade_in_handle_pos = (f_length * f_fade_in)
-        f_fade_in_handle_pos = pydaw_clip_value(f_fade_in_handle_pos, 0.0, (f_length - 6.0))
+        f_fade_in_handle_pos = pydaw_clip_value(
+            f_fade_in_handle_pos, 0.0, (f_length - 6.0))
         f_fade_out_handle_pos = (f_length * f_fade_out) - AUDIO_ITEM_HANDLE_SIZE
-        f_fade_out_handle_pos = pydaw_clip_value(f_fade_out_handle_pos,
-                                                 (f_fade_in_handle_pos + 6.0), f_length)
+        f_fade_out_handle_pos = pydaw_clip_value(
+            f_fade_out_handle_pos, (f_fade_in_handle_pos + 6.0), f_length)
         self.fade_in_handle.setPos(f_fade_in_handle_pos, 0.0)
         self.fade_out_handle.setPos(f_fade_out_handle_pos, 0.0)
         self.update_fade_in_line()
@@ -2030,11 +2077,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
                 if self.audio_item.reversed:
-                    f_path_item.setPos(self.sample_start_offset_px + self.length_seconds_orig_px,
-                                       self.y_inc + (f_y_offset * -1.0) + (f_y_inc * f_i))
+                    f_path_item.setPos(
+                        self.sample_start_offset_px + self.length_seconds_orig_px,
+                        self.y_inc + (f_y_offset * -1.0) + (f_y_inc * f_i))
                     f_path_item.rotate(-180.0)
                 else:
-                    f_path_item.setPos(self.sample_start_offset_px, f_y_offset + (f_y_inc * f_i))
+                    f_path_item.setPos(
+                        self.sample_start_offset_px,
+                        f_y_offset + (f_y_inc * f_i))
                 f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect,
                                                            self.rect_orig)
                 f_y_scale *= self.vol_linear
