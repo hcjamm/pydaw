@@ -102,7 +102,6 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_WE_SET "we"
 #define PYDAW_CONFIGURE_KEY_WE_EXPORT "wex"
 #define PYDAW_CONFIGURE_KEY_PANIC "panic"
-#define PYDAW_CONFIGURE_KEY_CONV32F "conv32f"
 #define PYDAW_CONFIGURE_KEY_PITCH_ENV "penv"
 #define PYDAW_CONFIGURE_KEY_RATE_ENV "renv"
 //Update a single control for a per-audio-item-fx
@@ -1748,22 +1747,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         v_pydaw_panic(a_pydaw_data);
 
         pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CONV32F))
-    {
-        t_2d_char_array * f_arr = g_get_2d_array(PYDAW_SMALL_STRING);
-        char f_tmp_char[PYDAW_SMALL_STRING];
-        sprintf(f_tmp_char, "%s", a_value);
-        f_arr->array = f_tmp_char;
-        char * f_in_file = c_iterate_2d_char_array(f_arr);
-        char * f_out_file = c_iterate_2d_char_array(f_arr);
-
-        v_pydaw_convert_wav_to_32_bit_float(f_in_file, f_out_file);
-
-        free(f_in_file);
-        free(f_out_file);
-        f_arr->array = 0;
-        g_free_2d_char_array(f_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RATE_ENV))
     {

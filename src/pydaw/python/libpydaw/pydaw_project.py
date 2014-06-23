@@ -610,16 +610,15 @@ class pydaw_project:
                          str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             elif a_audio_item.time_stretch_mode == 6:
-                f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
-                self.this_pydaw_osc.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
                 if a_audio_item.pitch_shift != 0.0:
                     f_cmd = [pydaw_paulstretch_util,
-                         "-s", str(a_audio_item.timestretch_amt), "-p",
-                         str(a_audio_item.pitch_shift), "-d",
-                         f_tmp_file, f_dest_path ]
+                             "-s", str(a_audio_item.timestretch_amt), "-p",
+                             str(a_audio_item.pitch_shift), "-d",
+                             f_src_path, f_dest_path ]
                 else:
                     f_cmd = [pydaw_paulstretch_util,
-                         "-s", str(a_audio_item.timestretch_amt), "-d", f_tmp_file, f_dest_path ]
+                             "-s", str(a_audio_item.timestretch_amt), "-d",
+                             f_src_path, f_dest_path ]
 
             self.timestretch_cache[f_key] = f_uid
             self.timestretch_reverse_lookup[f_dest_path] = f_src_path

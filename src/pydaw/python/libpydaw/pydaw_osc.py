@@ -189,11 +189,6 @@ class pydaw_osc:
     def pydaw_panic(self):
         self.send_configure("panic", "")
 
-    def pydaw_convert_wav_to_32_bit(self, a_in_file, a_out_file):
-        f_wait_file = pydaw_get_wait_file_path(a_out_file)
-        self.send_configure("conv32f", "{}\n{}".format(a_in_file, a_out_file))
-        pydaw_wait_for_finished_file(f_wait_file)
-
     def pydaw_rate_env(self, a_in_file, a_out_file, a_start, a_end):
         f_wait_file = pydaw_get_wait_file_path(a_out_file)
         self.send_configure("renv", "{}\n{}\n{}|{}".format(a_in_file, a_out_file,
