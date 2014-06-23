@@ -69,10 +69,10 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
         print("Error loading wav file")
         return
 
-    smp = wavefile.WaveReader(file_path)
-    samplerate = smp.samplerate
+    f_reader = wavefile.WaveReader(file_path)
+    samplerate = f_reader.samplerate
 
-    nchannels = smp.channels
+    nchannels = f_reader.channels
 
     outfile = wavefile.WaveWriter(outfilename, channels=nchannels,
                                   samplerate=samplerate)
@@ -85,20 +85,24 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
     windowsize = int(windowsize / 2) * 2
     half_windowsize = int(windowsize / 2)
 
-    #correct the end of the smp
-    #nsamples = smp.frames
-    #end_size = int(samplerate * 0.05)
-    #if end_size < 16:
-    #    end_size = 16
+    nsamples = f_reader.frames
+    smp = numpy.zeros((nchannels, nsamples), numpy.float32, order='F')
+    f_reader.read(smp)
 
-    #smp[:,nsamples-end_size:nsamples] *= numpy.linspace(1,0,end_size)
+    #correct the end of the smp
+
+    end_size = int(samplerate * 0.05)
+    if end_size < 16:
+        end_size = 16
+
+    smp[:,nsamples-end_size:nsamples] *= numpy.linspace(1.0, 0.0, end_size)
 
     #compute the displacement inside the input file
     start_pos = 0.0
     displace_pos = windowsize * 0.5
 
     #create Hann window
-    window = 0.5 - numpy.cos(numpy.arange(windowsize,dtype='double') * \
+    window = 0.5 - numpy.cos(numpy.arange(windowsize, dtype='double') * \
         2.0 * numpy.pi / (windowsize - 1)) * 0.5
 
     old_windowed_buf = numpy.zeros((2,windowsize))
@@ -120,19 +124,15 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
         displace_tick_increase = 1.0
     extra_onset_time_credit = 0.0
     get_next_buf = True
-    buf_gen = smp.read_iter(windowsize)
+
     while True:
         if get_next_buf:
             old_freqs = freqs
             old_freqs_scaled = freqs_scaled
 
             #get the windowed buffer
-            #istart_pos = int(numpy.floor(start_pos))
-            try:
-                buf = next(buf_gen)
-            except StopIteration:
-                break
-            # smp[:,istart_pos:istart_pos + windowsize]
+            istart_pos = int(numpy.floor(start_pos))
+            buf = smp[:,istart_pos:istart_pos + windowsize]
             if buf.shape[1] < windowsize:
                 buf = numpy.append(
                     buf, numpy.zeros((2, windowsize - buf.shape[1])), 1)
@@ -194,7 +194,10 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
         if get_next_buf:
             start_pos += displace_pos
 
-        get_next_buf=False
+        get_next_buf = False
+
+        if start_pos >= nsamples:
+            break
 
         if extra_onset_time_credit <= 0.0:
             displace_tick += displace_tick_increase
