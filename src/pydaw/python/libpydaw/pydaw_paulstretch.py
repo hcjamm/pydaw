@@ -53,8 +53,7 @@ def optimize_windowsize(n):
 
 
 def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
-                outfilename, a_start_pitch,
-                a_end_pitch, a_in_file, a_delete=False):
+                outfilename, a_start_pitch, a_end_pitch, a_in_file):
     if not os.path.exists(file_path):
         print("Error loading wav file")
         return
@@ -203,10 +202,6 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
 
     outfile.close()
 
-    if a_delete:
-        print("Deleting source file {}".format(a_in_file))
-        os.remove(a_in_file)
-
     if a_start_pitch is not None:
         print("Pitch shifting file")
         f_dest_path = outfilename
@@ -248,9 +243,7 @@ parser.add_option("-p", "--start-pitch", dest="start_pitch",
 parser.add_option("-e", "--end-pitch", dest="end_pitch",
                   help="end pitch (36.0=max, -36.0=min)",
                   type="float", default=None)
-parser.add_option("-d", "--delete", dest="delete",
-                  help="Delete source file after stretching",
-                  action="store_true", default=False)
+
 (options, args) = parser.parse_args()
 
 if (len(args) < 2) or \
@@ -268,4 +261,4 @@ paulstretch(args[0], numpy.double(options.stretch),
             numpy.double(options.window_size),
             numpy.double(options.onset),
             args[1], options.start_pitch,
-            options.end_pitch, args[0], options.delete)
+            options.end_pitch, args[0])

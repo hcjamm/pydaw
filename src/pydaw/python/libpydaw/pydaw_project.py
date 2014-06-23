@@ -613,11 +613,11 @@ class pydaw_project:
                 if a_audio_item.pitch_shift != 0.0:
                     f_cmd = [pydaw_paulstretch_util,
                              "-s", str(a_audio_item.timestretch_amt), "-p",
-                             str(a_audio_item.pitch_shift), "-d",
+                             str(a_audio_item.pitch_shift),
                              f_src_path, f_dest_path ]
                 else:
                     f_cmd = [pydaw_paulstretch_util,
-                             "-s", str(a_audio_item.timestretch_amt), "-d",
+                             "-s", str(a_audio_item.timestretch_amt),
                              f_src_path, f_dest_path ]
 
             self.timestretch_cache[f_key] = f_uid
