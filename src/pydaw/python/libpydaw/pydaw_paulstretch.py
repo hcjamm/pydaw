@@ -51,16 +51,6 @@ def optimize_windowsize(n):
         orig_n += 1
     return orig_n
 
-def normalize(output):
-    f_max = output.max()
-    f_min = abs(output.min())
-    if f_min > f_max:
-        f_max = f_min
-    if f_max > 0.5:
-        f_normalize = 0.5 / f_max
-        return output * f_normalize
-    else:
-        return output
 
 def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
                 outfilename, a_start_pitch,
@@ -186,8 +176,6 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
 
         #remove the resulted amplitude modulation
         output *= hinv_buf
-
-        #output = normalize(output)
 
         outfile.write(output)
 
