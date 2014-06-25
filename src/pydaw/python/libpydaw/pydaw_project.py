@@ -12,13 +12,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import os, random, traceback, subprocess
-from time import sleep
+import os
+import random
+import traceback
+import subprocess
+
 from libpydaw.pydaw_util import *
 
 from libpydaw.pydaw_osc import pydaw_osc
 import wavefile
-import numpy
 import datetime
 
 from PyQt4 import QtGui, QtCore
