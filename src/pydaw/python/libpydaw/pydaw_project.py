@@ -878,21 +878,26 @@ class pydaw_project:
             f_count = 0
             if f_count < 1:
                 f_count = 1
-            for f_frame in f_reader.read_iter(size=f_peak_count):
-                for f_i in range(f_frame.shape[0]):
-                    f_high = -1.0
-                    f_low = 1.0
-                    for f_i2 in range(0, f_frame.shape[1], 10):
-                        f_val = f_frame[f_i][f_i2]
-                        if f_val > f_high:
-                            f_high = f_val
-                        elif f_val < f_low:
-                            f_low = f_val
-                    f_high = round(float(f_high), 6)
-                    f_points.append("p|{}|h|{}".format(f_i, f_high))
-                    f_low = round(float(f_low), 6)
-                    f_points.append("p|{}|l|{}".format(f_i, f_low))
-                f_count += 1
+            for f_chunk in f_reader.read_iter(size=f_peak_count * 50):
+                for f_i2 in range(50):
+                    f_pos = f_i2 * f_peak_count
+                    for f_i in range(f_chunk.shape[0]):
+                        f_frame = f_chunk[f_i][f_pos:f_pos+f_peak_count]
+                        if not len(f_frame):
+                            break
+                        f_high = -1.0
+                        f_low = 1.0
+                        for f_i2 in range(0, f_frame.shape[0], 10):
+                            f_val = f_frame[f_i2]
+                            if f_val > f_high:
+                                f_high = f_val
+                            elif f_val < f_low:
+                                f_low = f_val
+                        f_high = round(float(f_high), 6)
+                        f_points.append("p|{}|h|{}".format(f_i, f_high))
+                        f_low = round(float(f_low), 6)
+                        f_points.append("p|{}|l|{}".format(f_i, f_low))
+                    f_count += 1
             f_result += "\n".join(f_points)
             f_result += "\nmeta|count|{}\n\\".format(f_count)
         self.this_pydaw_osc.pydaw_add_to_wav_pool(f_path, f_uid)
