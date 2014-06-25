@@ -2312,12 +2312,17 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_properties_menu.addSeparator()
         f_output_menu = f_properties_menu.addMenu("Audio Track")
         f_output_menu.triggered.connect(self.output_menu_triggered)
-        for f_track_name, f_index in zip(global_audio_track_names,
-                                         range(len(global_audio_track_names))):
+        for f_track_name, f_index in zip(
+        global_audio_track_names, range(len(global_audio_track_names))):
             f_action = f_output_menu.addAction(f_track_name)
             if f_index == self.audio_item.output_track:
                 f_action.setCheckable(True)
                 f_action.setChecked(True)
+
+        f_ts_mode_menu = f_properties_menu.addMenu("Timestretch Mode")
+        f_ts_mode_menu.triggered.connect(self.ts_mode_menu_triggered)
+        for f_ts_mode in global_timestretch_modes:
+            f_action = f_ts_mode_menu.addAction(f_ts_mode)
 
         f_normalize_action = f_properties_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
@@ -2377,6 +2382,37 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         PROJECT.save_audio_region(
             global_current_region.uid, global_audio_items)
         PROJECT.commit(_("Change output track for audio item(s)"))
+        global_open_audio_items()
+
+    def ts_mode_menu_triggered(self, a_action):
+        f_index = global_timestretch_modes.index(str(a_action.text()))
+        f_list = [x.audio_item for x in AUDIO_SEQ.audio_items
+            if x.isSelected()]
+        f_stretched_items = []
+        for f_item in f_list:
+            f_item.time_stretch_mode = f_index
+            if f_item.time_stretch_mode >= 3:
+                f_ts_result = PROJECT.timestretch_audio_item(f_item)
+                if f_ts_result is not None:
+                    f_stretched_items.append(f_ts_result)
+
+        PROJECT.save_stretch_dicts()
+
+        for f_stretch_item in f_stretched_items:
+            f_stretch_item[2].wait()
+            PROJECT.get_wav_uid_by_name(
+                f_stretch_item[0], a_uid=f_stretch_item[1])
+        for f_audio_item in AUDIO_SEQ.get_selected():
+            f_new_graph = PROJECT.get_sample_graph_by_uid(
+                f_audio_item.audio_item.uid)
+            f_audio_item.audio_item.clip_at_region_end(
+                pydaw_get_current_region_length(),
+                TRANSPORT.tempo_spinbox.value(),
+                f_new_graph.length_in_seconds)
+
+        PROJECT.save_audio_region(
+            global_current_region.uid, global_audio_items)
+        PROJECT.commit(_("Change timestretch mode for audio item(s)"))
         global_open_audio_items()
 
     def select_file_instance(self):
