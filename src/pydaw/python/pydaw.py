@@ -114,7 +114,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
               PIANO_ROLL_EDITOR, MAIN_WINDOW,
               WAVE_EDITOR, AUDIO_EDITOR_WIDGET,
               AUDIO_SEQ, TRANSPORT] + \
-              list(global_region_editors) + list(global_automation_editors)
+              list(REGION_EDITORS) + list(global_automation_editors)
     for f_widget in f_list:
         f_widget.set_tooltips(a_enabled)
 
@@ -748,7 +748,7 @@ class region_settings:
 
     def open_region(self, a_file_name):
         self.enabled = False
-        for f_editor in global_region_editors:
+        for f_editor in REGION_EDITORS:
             f_editor.enabled = False
             f_editor.table_widget.setUpdatesEnabled(True)
         self.clear_items()
@@ -759,7 +759,7 @@ class region_settings:
         global_current_region = PROJECT.get_region_by_name(
             a_file_name)
         if global_current_region.region_length_bars > 0:
-            for f_editor in global_region_editors:
+            for f_editor in REGION_EDITORS:
                 f_editor.set_region_length(
                     global_current_region.region_length_bars)
             self.length_alternate_spinbox.setValue(
@@ -768,13 +768,13 @@ class region_settings:
                 1, (global_current_region.region_length_bars))
             self.length_alternate_radiobutton.setChecked(True)
         else:
-            for f_editor in global_region_editors:
+            for f_editor in REGION_EDITORS:
                 f_editor.set_region_length()
             self.length_alternate_spinbox.setValue(8)
             TRANSPORT.bar_spinbox.setRange(1, 8)
             self.length_default_radiobutton.setChecked(True)
         self.enabled = True
-        for f_editor in global_region_editors:
+        for f_editor in REGION_EDITORS:
             f_editor.enabled = True
         f_items_dict = PROJECT.get_items_dict()
         for f_item in global_current_region.items:
@@ -793,7 +793,7 @@ class region_settings:
                     this_region_audio_editor.add_qtablewidgetitem(
                         f_item_name, f_item.track_num,
                         f_item.bar_num, a_is_offset=True)
-        for f_editor in global_region_editors:
+        for f_editor in REGION_EDITORS:
             f_editor.table_widget.setUpdatesEnabled(True)
             f_editor.table_widget.update()
         global_open_audio_items()
@@ -805,7 +805,7 @@ class region_settings:
         self.region_name_lineedit.setText("")
         self.length_alternate_spinbox.setValue(8)
         self.length_default_radiobutton.setChecked(True)
-        for f_editor in global_region_editors:
+        for f_editor in REGION_EDITORS:
             f_editor.clear_items()
         AUDIO_SEQ.clear_drawn_items()
         global global_current_region
@@ -815,7 +815,7 @@ class region_settings:
         self.region_name_lineedit.setText("")
         global global_current_region
         global_current_region = None
-        for f_editor in global_region_editors:
+        for f_editor in REGION_EDITORS:
             f_editor.clear_new()
 
     def on_play(self):
@@ -1398,7 +1398,7 @@ class region_list_editor:
             global_open_items(f_result, a_reset_scrollbar=True)
             MAIN_WINDOW.main_tabwidget.setCurrentIndex(1)
             if self.track_type != pydaw_track_type_enum.midi:
-                this_item_editor.tab_widget.setCurrentIndex(1)
+                ITEM_EDITOR.tab_widget.setCurrentIndex(1)
             f_track_nums = list(f_track_nums.keys())
             if len(f_track_nums) == 1:
                 self.auto_arm(f_track_nums[0])
@@ -1408,18 +1408,18 @@ class region_list_editor:
 
     def auto_arm(self, a_index):
         self.tracks[a_index].record_radiobutton.setChecked(True)
-        f_current = this_cc_editor_widget.plugin_combobox.currentIndex()
-        f_end = this_cc_editor_widget.plugin_combobox.count() - 1
+        f_current = CC_EDITOR_WIDGET.plugin_combobox.currentIndex()
+        f_end = CC_EDITOR_WIDGET.plugin_combobox.count() - 1
         if self.track_type == pydaw_track_type_enum.midi:
             f_track_index = \
                 self.tracks[a_index].instrument_combobox.currentIndex()
             if f_track_index > 0:
                 if f_current < f_end:
-                    this_cc_editor_widget.plugin_combobox.setCurrentIndex(
+                    CC_EDITOR_WIDGET.plugin_combobox.setCurrentIndex(
                         global_plugin_indexes[f_track_index])
         else:
-            this_cc_editor_widget.plugin_combobox.setCurrentIndex(f_end)
-            this_item_editor.tab_widget.setCurrentIndex(1)
+            CC_EDITOR_WIDGET.plugin_combobox.setCurrentIndex(f_end)
+            ITEM_EDITOR.tab_widget.setCurrentIndex(1)
 
     def on_rename_items(self):
         f_result = []
@@ -1449,7 +1449,7 @@ class region_list_editor:
             global_update_items_label()
             if global_draw_last_items:
                 global_open_items()
-                global_open_item_names = this_item_editor.item_names[:]
+                global_open_item_names = ITEM_EDITOR.item_names[:]
             f_window.close()
 
         def cancel_handler():
@@ -1704,7 +1704,7 @@ def global_tablewidget_to_region():
     global_current_region.items = []
     f_uid_dict = PROJECT.get_items_dict()
     f_result = []
-    for f_editor in global_region_editors:
+    for f_editor in REGION_EDITORS:
         f_result += f_editor.tablewidget_to_list()
     for f_tuple in f_result:
         global_current_region.add_item_ref_by_name(f_tuple[0], f_tuple[1], f_tuple[2], f_uid_dict)
@@ -4860,7 +4860,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.hide()
 
     def delete(self):
-        this_item_editor.items[self.item_index].remove_note(self.note_item)
+        ITEM_EDITOR.items[self.item_index].remove_note(self.note_item)
 
     def show_resize_cursor(self, a_event):
         f_is_at_end = self.mouse_is_at_end(a_event.pos())
@@ -5043,22 +5043,22 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         pydaw_beats_to_index(f_new_note_start)
                     f_new_note = pydaw_note(f_new_note_start, f_item.note_item.length,
                                             f_new_note_num, f_item.note_item.velocity)
-                    this_item_editor.items[f_item.item_index].add_note(f_new_note, False)
+                    ITEM_EDITOR.items[f_item.item_index].add_note(f_new_note, False)
                     #pass a ref instead of a str in case fix_overlaps() modifies it.
                     f_item.note_item = f_new_note
                     f_new_selection.append(f_item)
                 else:
-                    this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
+                    ITEM_EDITOR.items[f_item.item_index].notes.remove(f_item.note_item)
                     f_item.item_index, f_new_note_start = \
                         pydaw_beats_to_index(f_new_note_start)
                     f_item.note_item.set_start(f_new_note_start)
                     f_item.note_item.note_num = f_new_note_num
-                    this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
-                    this_item_editor.items[f_item.item_index].notes.sort()
+                    ITEM_EDITOR.items[f_item.item_index].notes.append(f_item.note_item)
+                    ITEM_EDITOR.items[f_item.item_index].notes.sort()
         if self.is_resizing:
             global global_last_resize
             global_last_resize = self.note_item.length
-        for f_item in this_item_editor.items:
+        for f_item in ITEM_EDITOR.items:
             f_item.fix_overlaps()
         global_selected_piano_note = None
         PIANO_ROLL_EDITOR.selected_note_strings = []
@@ -5223,8 +5223,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         QtGui.QApplication.restoreOverrideCursor()
 
     def half_selected(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
 
         self.selected_note_strings = []
@@ -5253,14 +5253,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     continue
                 f_new_start = f_new_start % 4.0
             f_new_note_item = pydaw_note(f_new_start, f_half, f_note_num, f_velocity)
-            this_item_editor.items[f_index].add_note(f_new_note_item, False)
+            ITEM_EDITOR.items[f_index].add_note(f_new_note_item, False)
             self.selected_note_strings.append("{}|{}".format(f_index, f_new_note_item))
 
         global_save_and_reload_items()
 
     def glue_selected(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
 
         f_selected = [x for x in self.note_items if x.isSelected()]
@@ -5310,29 +5310,29 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         self.delete_selected(False)
         for f_index, f_new_note in f_result:
-            this_item_editor.items[f_index].add_note(f_new_note, False)
+            ITEM_EDITOR.items[f_index].add_note(f_new_note, False)
         global_save_and_reload_items()
 
 
     def copy_selected(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return 0
         self.clipboard = [(str(x.note_item), x.item_index)
                           for x in self.note_items if x.isSelected()]
         return len(self.clipboard)
 
     def paste(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
         if not self.clipboard:
             QtGui.QMessageBox.warning(self, _("Error"), _("Nothing copied to the clipboard"))
             return
-        f_item_count = len(this_item_editor.items)
+        f_item_count = len(ITEM_EDITOR.items)
         for f_item, f_index in self.clipboard:
             if f_index < f_item_count:
-                this_item_editor.items[f_index].add_note(pydaw_note.from_str(f_item))
+                ITEM_EDITOR.items[f_index].add_note(pydaw_note.from_str(f_item))
         global_save_and_reload_items()
         self.scene.clearSelection()
         for f_item in self.note_items:
@@ -5341,18 +5341,18 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_item.setSelected(True)
 
     def delete_selected(self, a_save_and_reload=True):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
         self.selected_note_strings = []
         for f_item in self.get_selected_items():
-            this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
+            ITEM_EDITOR.items[f_item.item_index].remove_note(f_item.note_item)
         if a_save_and_reload:
             global_save_and_reload_items()
 
     def transpose_selected(self, a_amt):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
 
         f_list = [x for x in self.note_items if x.isSelected()]
@@ -5377,8 +5377,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.click_enabled = True
 
     def sceneMousePressEvent(self, a_event):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
         elif a_event.button() == QtCore.Qt.RightButton:
             return
         elif a_event.modifiers() == QtCore.Qt.ControlModifier:
@@ -5386,7 +5386,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         elif a_event.modifiers() == QtCore.Qt.ShiftModifier:
             piano_roll_set_delete_mode(True)
             return
-        elif self.click_enabled and this_item_editor.enabled:
+        elif self.click_enabled and ITEM_EDITOR.enabled:
             self.scene.clearSelection()
             f_pos_x = a_event.scenePos().x()
             f_pos_y = a_event.scenePos().y()
@@ -5410,7 +5410,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 else:
                     f_beat = (f_pos_x - global_piano_keys_width) * f_recip * 4.0
                     f_note_item = pydaw_note(f_beat, 0.25, f_note, self.get_vel(f_beat))
-                f_note_index = this_item_editor.add_note(f_note_item)
+                f_note_index = ITEM_EDITOR.add_note(f_note_item)
                 global global_selected_piano_note
                 global_selected_piano_note = f_note_item
                 f_drawn_note = self.draw_note(f_note_item, f_note_index)
@@ -5615,7 +5615,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        this_item_editor.tab_changed()
+        ITEM_EDITOR.tab_changed()
 
     def clear_drawn_items(self):
         self.note_items = []
@@ -5637,9 +5637,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
             global_item_editing_count) + global_piano_keys_width
         self.setUpdatesEnabled(False)
         self.clear_drawn_items()
-        if this_item_editor.enabled:
-            f_item_count = len(this_item_editor.items)
-            for f_i, f_item in zip(range(f_item_count), this_item_editor.items):
+        if ITEM_EDITOR.enabled:
+            f_item_count = len(ITEM_EDITOR.items)
+            for f_i, f_item in zip(range(f_item_count), ITEM_EDITOR.items):
                 for f_note in f_item.notes:
                     f_note_item = self.draw_note(f_note, f_i)
                     f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
@@ -5652,8 +5652,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     for f_note in f_item.notes:
                         f_note_item = self.draw_note(f_note, f_i, False)
             self.scrollContentsBy(0, 0)
-            for f_name, f_i in zip(this_item_editor.item_names,
-                                   range(len(this_item_editor.item_names))):
+            for f_name, f_i in zip(ITEM_EDITOR.item_names,
+                                   range(len(ITEM_EDITOR.item_names))):
                 f_text = QtGui.QGraphicsSimpleTextItem(f_name, self.header)
                 f_text.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_text.setBrush(QtCore.Qt.yellow)
@@ -5705,32 +5705,32 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
 class piano_roll_editor_widget:
     def quantize_dialog(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
-        this_item_editor.quantize_dialog(PIANO_ROLL_EDITOR.has_selected)
+        ITEM_EDITOR.quantize_dialog(PIANO_ROLL_EDITOR.has_selected)
 
     def transpose_dialog(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
-        this_item_editor.transpose_dialog(PIANO_ROLL_EDITOR.has_selected)
+        ITEM_EDITOR.transpose_dialog(PIANO_ROLL_EDITOR.has_selected)
 
     def velocity_dialog(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
-        this_item_editor.velocity_dialog(PIANO_ROLL_EDITOR.has_selected)
+        ITEM_EDITOR.velocity_dialog(PIANO_ROLL_EDITOR.has_selected)
 
     def clear_notes(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
-        this_item_editor.clear_notes(False)
+        ITEM_EDITOR.clear_notes(False)
 
     def select_all(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
         for f_note in PIANO_ROLL_EDITOR.note_items:
             f_note.setSelected(True)
@@ -6040,18 +6040,18 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_cc_start = 0.0
                 f_new_item_index, f_cc_start = pydaw_beats_to_index(f_cc_start)
                 if self.is_cc:
-                    this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
+                    ITEM_EDITOR.items[f_point.item_index].ccs.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = (127.0 - (((f_point.pos().y() -
                     global_automation_min_height) / self.parent_view.viewer_height) * 127.0))
 
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
-                    this_item_editor.items[f_point.item_index].ccs.append(f_point.cc_item)
-                    this_item_editor.items[f_point.item_index].ccs.sort()
+                    ITEM_EDITOR.items[f_point.item_index].ccs.append(f_point.cc_item)
+                    ITEM_EDITOR.items[f_point.item_index].ccs.sort()
                 else:
                     #try:
-                    this_item_editor.items[f_point.item_index].pitchbends.\
+                    ITEM_EDITOR.items[f_point.item_index].pitchbends.\
                         remove(f_point.cc_item)
                     #except ValueError:
                     #print("Exception removing {} from list".format(f_point.cc_item))
@@ -6061,8 +6061,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
 
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
-                    this_item_editor.items[f_point.item_index].pitchbends.append(f_point.cc_item)
-                    this_item_editor.items[f_point.item_index].pitchbends.sort()
+                    ITEM_EDITOR.items[f_point.item_index].pitchbends.append(f_point.cc_item)
+                    ITEM_EDITOR.items[f_point.item_index].pitchbends.sort()
                 self.parent_view.selected_str.append(hash((int(f_point.item_index),
                                                      str(f_point.cc_item))))
         global_save_and_reload_items()
@@ -6134,7 +6134,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.scene.clear()
 
     def copy_selected(self):
-        if not this_item_editor.enabled:
+        if not ITEM_EDITOR.enabled:
             return
         self.clipboard = [(x.cc_item.clone(), x.item_index)
             for x in self.automation_points if x.isSelected()]
@@ -6144,7 +6144,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.delete_selected()
 
     def paste(self):
-        if not this_item_editor.enabled:
+        if not ITEM_EDITOR.enabled:
             return
         self.selected_str = []
         if self.clipboard:
@@ -6153,22 +6153,22 @@ class automation_viewer(QtGui.QGraphicsView):
                     f_item2 = f_item.clone()
                     if self.is_cc:
                         f_item2.cc_num = self.cc_num
-                        this_item_editor.items[f_index].add_cc(f_item2)
+                        ITEM_EDITOR.items[f_index].add_cc(f_item2)
                     else:
-                        this_item_editor.items[f_index].add_pb(f_item2)
+                        ITEM_EDITOR.items[f_index].add_pb(f_item2)
                     self.selected_str.append(hash((f_index, str(f_item2))))
             global_save_and_reload_items()
 
     def delete_selected(self):
-        if not this_item_editor.enabled:
+        if not ITEM_EDITOR.enabled:
             return
         self.selection_enabled = False
         for f_point in self.automation_points:
             if f_point.isSelected():
                 if self.is_cc:
-                    this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
+                    ITEM_EDITOR.items[f_point.item_index].remove_cc(f_point.cc_item)
                 else:
-                    this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
+                    ITEM_EDITOR.items[f_point.item_index].remove_pb(f_point.cc_item)
         self.selected_str = []
         global_save_and_reload_items()
         self.selection_enabled = True
@@ -6180,16 +6180,16 @@ class automation_viewer(QtGui.QGraphicsView):
             return
         for f_point in self.automation_points:
             if self.is_cc:
-                this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
+                ITEM_EDITOR.items[f_point.item_index].remove_cc(f_point.cc_item)
             else:
-                this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
+                ITEM_EDITOR.items[f_point.item_index].remove_pb(f_point.cc_item)
         self.selected_str = []
         global_save_and_reload_items()
         self.selection_enabled = True
 
     def sceneMouseDoubleClickEvent(self, a_event):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:
+            ITEM_EDITOR.show_not_enabled_warning()
             return
         f_pos_x = a_event.scenePos().x() - global_automation_point_radius
         f_pos_y = a_event.scenePos().y() - global_automation_point_radius
@@ -6200,13 +6200,13 @@ class automation_viewer(QtGui.QGraphicsView):
             f_cc_val = int(127.0 - (((f_pos_y - global_automation_min_height) /
                 self.viewer_height) * 127.0))
             f_cc_val = pydaw_clip_value(f_cc_val, 0, 127)
-            this_item_editor.add_cc(pydaw_cc(f_cc_start, self.plugin_index,
+            ITEM_EDITOR.add_cc(pydaw_cc(f_cc_start, self.plugin_index,
                                              self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) /
                 self.viewer_height) * 2.0)
             f_cc_val = pydaw_clip_value(f_cc_val, -1.0, 1.0)
-            this_item_editor.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
+            ITEM_EDITOR.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         self.selected_str = []
         global_save_and_reload_items()
@@ -6281,7 +6281,7 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
-        this_item_editor.tab_changed()
+        ITEM_EDITOR.tab_changed()
 
     def set_scale(self):
         f_rect = self.rect()
@@ -6310,12 +6310,12 @@ class automation_viewer(QtGui.QGraphicsView):
         self.grid_max_start_time = self.viewer_width + \
             global_automation_ruler_width - global_automation_point_radius
         self.clear_drawn_items()
-        if not this_item_editor.enabled:
+        if not ITEM_EDITOR.enabled:
             return
         f_item_index = 0
         f_pen = QtGui.QPen(pydaw_note_gradient, 2.0)
         f_note_height = (self.viewer_height / 127.0)
-        for f_item in this_item_editor.items:
+        for f_item in ITEM_EDITOR.items:
             if self.is_cc:
                 for f_cc in f_item.ccs:
                     if f_cc.cc_num == self.cc_num and \
@@ -6402,10 +6402,10 @@ class automation_viewer_widget:
             f_map = global_controller_port_name_dict[str(self.plugin_combobox.currentText())]\
                 [str(self.control_combobox.currentText())]
             pydaw_smooth_automation_points(
-                this_item_editor.items, self.is_cc,
+                ITEM_EDITOR.items, self.is_cc,
                 global_plugin_numbers[self.plugin_combobox.currentIndex()], f_map.port)
         else:
-            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
+            pydaw_smooth_automation_points(ITEM_EDITOR.items, self.is_cc)
         self.automation_viewer.selected_str = []
         global_save_and_reload_items()
 
@@ -6495,13 +6495,13 @@ class automation_viewer_widget:
         self.add_cc_point(pydaw_widgets.global_cc_clipboard)
 
     def add_cc_point(self, a_value=None):
-        if not this_item_editor.enabled:  #TODO:  Make this global...
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:  #TODO:  Make this global...
+            ITEM_EDITOR.show_not_enabled_warning()
             return
 
         def ok_handler():
             f_bar = f_bar_spinbox.value() - 1
-            f_item = this_item_editor.items[f_bar]
+            f_item = ITEM_EDITOR.items[f_bar]
 
             f_cc = pydaw_cc(f_pos_spinbox.value() - 1.0,
                             self.automation_viewer.plugin_index,
@@ -6509,8 +6509,8 @@ class automation_viewer_widget:
                             f_value_spinbox.value())
             f_item.add_cc(f_cc)
 
-            PROJECT.save_item(this_item_editor.item_names[f_bar],
-                                         this_item_editor.items[f_bar])
+            PROJECT.save_item(ITEM_EDITOR.item_names[f_bar],
+                                         ITEM_EDITOR.items[f_bar])
             global_open_items()
             PROJECT.commit(_("Add automation point"))
 
@@ -6573,13 +6573,13 @@ class automation_viewer_widget:
 
 
     def add_pb_point(self):
-        if not this_item_editor.enabled:  #TODO:  Make this global...
-            this_item_editor.show_not_enabled_warning()
+        if not ITEM_EDITOR.enabled:  #TODO:  Make this global...
+            ITEM_EDITOR.show_not_enabled_warning()
             return
 
         def ok_handler():
             f_bar = f_bar_spinbox.value() - 1
-            f_item = this_item_editor.items[f_bar]
+            f_item = ITEM_EDITOR.items[f_bar]
 
             f_value = pydaw_clip_value(f_epb_spinbox.value() / f_ipb_spinbox.value(),
                                        -1.0, 1.0, a_round=True)
@@ -6589,8 +6589,8 @@ class automation_viewer_widget:
             global global_last_ipb_value
             global_last_ipb_value = f_ipb_spinbox.value()
 
-            PROJECT.save_item(this_item_editor.item_names[f_bar],
-                                         this_item_editor.items[f_bar])
+            PROJECT.save_item(ITEM_EDITOR.item_names[f_bar],
+                                         ITEM_EDITOR.items[f_bar])
             global_open_items()
             PROJECT.commit(_("Add pitchbend automation point"))
 
@@ -6672,10 +6672,10 @@ global_last_open_item_names = []
 
 def global_update_items_label():
     global global_open_items_uids
-    this_item_editor.item_names = []
+    ITEM_EDITOR.item_names = []
     f_items_dict = PROJECT.get_items_dict()
     for f_item_uid in global_open_items_uids:
-        this_item_editor.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
+        ITEM_EDITOR.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
     global_open_items()
 
 def global_check_midi_items():
@@ -6687,7 +6687,7 @@ def global_check_midi_items():
             f_invalid = True
             break
     if f_invalid:
-        this_item_editor.clear_new()
+        ITEM_EDITOR.clear_new()
         return False
     else:
         return True
@@ -6706,7 +6706,7 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
     """ a_items is a list of str, which are the names of the items.
         Leave blank to open the existing list
     """
-    this_item_editor.enabled = True
+    ITEM_EDITOR.enabled = True
     global global_open_item_names, global_open_items_uids, \
            global_last_open_item_uids, global_last_open_item_names, \
            global_item_zoom_index
@@ -6716,16 +6716,16 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         global global_item_editing_count
         global_item_editing_count = len(a_items)
         global_set_piano_roll_zoom()
-        this_item_editor.zoom_slider.setMaximum(100 * global_item_editing_count)
-        this_item_editor.zoom_slider.setSingleStep(global_item_editing_count)
+        ITEM_EDITOR.zoom_slider.setMaximum(100 * global_item_editing_count)
+        ITEM_EDITOR.zoom_slider.setSingleStep(global_item_editing_count)
         pydaw_set_piano_roll_quantize(PIANO_ROLL_EDITOR_WIDGET.snap_combobox.currentIndex())
-        this_item_editor.item_names = a_items
-        this_item_editor.item_index_enabled = False
-        this_item_editor.item_name_combobox.clear()
-        this_item_editor.item_name_combobox.clearEditText()
-        this_item_editor.item_name_combobox.addItems(a_items)
-        this_item_editor.item_name_combobox.setCurrentIndex(0)
-        this_item_editor.item_index_enabled = True
+        ITEM_EDITOR.item_names = a_items
+        ITEM_EDITOR.item_index_enabled = False
+        ITEM_EDITOR.item_name_combobox.clear()
+        ITEM_EDITOR.item_name_combobox.clearEditText()
+        ITEM_EDITOR.item_name_combobox.addItems(a_items)
+        ITEM_EDITOR.item_name_combobox.setCurrentIndex(0)
+        ITEM_EDITOR.item_index_enabled = True
         if a_reset_scrollbar:
             for f_editor in global_midi_editors:
                 f_editor.horizontalScrollBar().setSliderPosition(0)
@@ -6737,36 +6737,36 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
         for f_item_name in a_items:
             global_open_items_uids.append(f_items_dict.get_uid_by_name(f_item_name))
 
-    this_cc_editor.clear_drawn_items()
-    this_pb_editor.clear_drawn_items()
+    CC_EDITOR.clear_drawn_items()
+    PB_EDITOR.clear_drawn_items()
 
-    this_item_editor.items = []
+    ITEM_EDITOR.items = []
     f_cc_dict = {}
 
     for f_item_uid in global_open_items_uids:
         f_item = PROJECT.get_item_by_uid(f_item_uid)
-        this_item_editor.items.append(f_item)
+        ITEM_EDITOR.items.append(f_item)
         for cc in f_item.ccs:
             f_key = "{}|{}".format(cc.plugin_index, cc.cc_num)
             if not f_key in f_cc_dict:
                 f_cc_dict[f_key] = []
             f_cc_dict[f_key] = cc
 
-    this_cc_editor_widget.update_ccs_in_use(list(f_cc_dict.keys()))
+    CC_EDITOR_WIDGET.update_ccs_in_use(list(f_cc_dict.keys()))
 
     if a_items is not None:
         for f_cc_num in list(f_cc_dict.keys()):
-            this_cc_editor_widget.set_cc_num(f_cc_num)
+            CC_EDITOR_WIDGET.set_cc_num(f_cc_num)
 
-    this_item_editor.tab_changed()
-    if this_item_editor.items:
-        this_item_editor.open_item_list()
+    ITEM_EDITOR.tab_changed()
+    if ITEM_EDITOR.items:
+        ITEM_EDITOR.open_item_list()
 
 def global_save_and_reload_items():
-    assert(len(this_item_editor.item_names) == len(this_item_editor.items))
-    for f_i in range(len(this_item_editor.item_names)):
+    assert(len(ITEM_EDITOR.item_names) == len(ITEM_EDITOR.items))
+    for f_i in range(len(ITEM_EDITOR.item_names)):
         PROJECT.save_item(
-            this_item_editor.item_names[f_i], this_item_editor.items[f_i])
+            ITEM_EDITOR.item_names[f_i], ITEM_EDITOR.items[f_i])
     global_open_items()
     PROJECT.commit(_("Edit item(s)"))
 
@@ -6965,7 +6965,7 @@ class item_list_editor:
         f_window.exec_()
 
     def tab_changed(self, a_val=None):
-        f_list = [PIANO_ROLL_EDITOR, this_cc_editor, this_pb_editor]
+        f_list = [PIANO_ROLL_EDITOR, CC_EDITOR, PB_EDITOR]
         f_index = self.tab_widget.currentIndex()
         if f_index == 0:
             global_set_piano_roll_zoom()
@@ -7053,7 +7053,7 @@ class item_list_editor:
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         self.notes_hlayout.addWidget(self.ccs_groupbox)
 
-        self.main_vlayout.addWidget(this_cc_editor_widget.widget)
+        self.main_vlayout.addWidget(CC_EDITOR_WIDGET.widget)
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
@@ -7074,7 +7074,7 @@ class item_list_editor:
         self.notes_hlayout.addWidget(self.pb_groupbox)
         self.pb_auto_vlayout = QtGui.QVBoxLayout()
         self.pb_hlayout.addLayout(self.pb_auto_vlayout)
-        self.pb_viewer_widget = automation_viewer_widget(this_pb_editor, False)
+        self.pb_viewer_widget = automation_viewer_widget(PB_EDITOR, False)
         self.pb_auto_vlayout.addWidget(self.pb_viewer_widget.widget)
 
         self.tab_widget.addTab(self.notes_tab, _("List Viewers"))
@@ -7448,7 +7448,7 @@ class transport_widget:
                 if self.follow_checkbox.isChecked():
                     AUDIO_SEQ.set_playback_pos(f_bar)
                     f_bar += 1
-                    for f_editor in global_region_editors:
+                    for f_editor in REGION_EDITORS:
                         f_editor.table_widget.selectColumn(f_bar)
                     if f_region != self.last_region_num:
                         self.last_region_num = f_region
@@ -7466,7 +7466,7 @@ class transport_widget:
                             this_region_settings.clear_items()
                             AUDIO_SEQ.update_zoom()
                             AUDIO_SEQ.clear_drawn_items()
-                            for f_region_editor in global_region_editors:
+                            for f_region_editor in REGION_EDITORS:
                                 f_region_editor.set_region_length()
 
     def init_playback_cursor(self, a_start=True):
@@ -8453,7 +8453,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         if not IS_PLAYING and f_index != 3:
             WAVE_EDITOR.enabled_checkbox.setChecked(False)
         if f_index == 1:
-            this_item_editor.tab_changed()
+            ITEM_EDITOR.tab_changed()
 
     def on_collapse_splitters(self):
         self.song_region_splitter.setSizes([0, 9999])
@@ -8899,7 +8899,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.first_audio_tab_click = True
         self.regions_tab_widget.currentChanged.connect(self.regions_tab_changed)
 
-        self.main_tabwidget.addTab(this_item_editor.widget, _("MIDI Item"))
+        self.main_tabwidget.addTab(ITEM_EDITOR.widget, _("MIDI Item"))
 
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
@@ -9020,7 +9020,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     AUDIO_SEQ.prepare_to_quit()
                     PIANO_ROLL_EDITOR.prepare_to_quit()
 
-                    this_cc_editor.prepare_to_quit()
+                    CC_EDITOR.prepare_to_quit()
                     time.sleep(0.5)
                     global_close_all_plugin_windows()
                     if self.osc_server is not None:
@@ -9939,12 +9939,12 @@ def global_close_all():
     close_pydaw_engine()
     global_close_all_plugin_windows()
     this_region_settings.clear_new()
-    this_item_editor.clear_new()
+    ITEM_EDITOR.clear_new()
     SONG_EDITOR.table_widget.clearContents()
     AUDIO_SEQ.clear_drawn_items()
-    this_pb_editor.clear_drawn_items()
-    this_cc_editor.clear_drawn_items()
-    this_cc_editor_widget.update_ccs_in_use([])
+    PB_EDITOR.clear_drawn_items()
+    CC_EDITOR.clear_drawn_items()
+    CC_EDITOR_WIDGET.update_ccs_in_use([])
     WAVE_EDITOR.clear()
     TRANSPORT.reset()
     global_open_items_uids = []
@@ -9954,7 +9954,7 @@ def global_ui_refresh_callback(a_restore_all=False):
     """ Use this to re-open all existing items/regions/song in
         their editors when the files have been changed externally
     """
-    for f_editor in global_region_editors:
+    for f_editor in REGION_EDITORS:
         f_editor.open_tracks()
     f_regions_dict = PROJECT.get_regions_dict()
     global global_current_region
@@ -9966,7 +9966,7 @@ def global_ui_refresh_callback(a_restore_all=False):
     else:
         this_region_settings.clear_new()
         global_current_region = None
-    if this_item_editor.enabled and global_check_midi_items():
+    if ITEM_EDITOR.enabled and global_check_midi_items():
         global_open_items()
     SONG_EDITOR.open_song()
     TRANSPORT.open_transport()
@@ -9991,7 +9991,7 @@ def global_open_project(a_project_file, a_wait=True):
     PROJECT.open_project(a_project_file, False)
     WAVE_EDITOR.last_offline_dir = PROJECT.user_folder
     SONG_EDITOR.open_song()
-    for f_editor in global_region_editors:
+    for f_editor in REGION_EDITORS:
         f_editor.open_tracks()
     TRANSPORT.open_transport()
     set_default_project(a_project_file)
@@ -10054,9 +10054,9 @@ app.setWindowIcon(QtGui.QIcon("{}/share/pixmaps/{}.png".format(
                   pydaw_util.global_pydaw_install_prefix,
                   global_pydaw_version_string)))
 
-this_pb_editor = automation_viewer(a_is_cc=False)
-this_cc_editor = automation_viewer()
-this_cc_editor_widget = automation_viewer_widget(this_cc_editor)
+PB_EDITOR = automation_viewer(a_is_cc=False)
+CC_EDITOR = automation_viewer()
+CC_EDITOR_WIDGET = automation_viewer_widget(CC_EDITOR)
 
 WAVE_EDITOR = pydaw_wave_editor_widget()
 
@@ -10072,16 +10072,16 @@ this_region_settings = region_settings()
 this_region_editor = region_list_editor(pydaw_track_type_enum.midi)
 this_region_bus_editor = region_list_editor(pydaw_track_type_enum.bus)
 this_region_audio_editor = region_list_editor(pydaw_track_type_enum.audio)
-global_region_editors = (this_region_editor, this_region_bus_editor,
+REGION_EDITORS = (this_region_editor, this_region_bus_editor,
                          this_region_audio_editor)
 
 AUDIO_EDITOR_WIDGET = audio_item_editor_widget()
 PIANO_ROLL_EDITOR = piano_roll_editor()
 PIANO_ROLL_EDITOR_WIDGET = piano_roll_editor_widget()
-this_item_editor = item_list_editor()
+ITEM_EDITOR = item_list_editor()
 AUDIO_SEQ = audio_items_viewer()
 
-global_midi_editors = (this_cc_editor, PIANO_ROLL_EDITOR, this_pb_editor)
+global_midi_editors = (CC_EDITOR, PIANO_ROLL_EDITOR, PB_EDITOR)
 
 def global_check_device():
     f_device_dialog = pydaw_device_dialog.pydaw_device_dialog(
@@ -10249,7 +10249,7 @@ if TOOLTIPS_ENABLED:
     pydaw_set_tooltips_enabled(TOOLTIPS_ENABLED)
 
 #Get the plugin/control comboboxes populated
-this_cc_editor_widget.plugin_changed()
+CC_EDITOR_WIDGET.plugin_changed()
 
 # ^^TODO:  Move the CC maps out of the main window class
 # and instantiate earlier
