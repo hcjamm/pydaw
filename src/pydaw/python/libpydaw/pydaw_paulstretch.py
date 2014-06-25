@@ -55,8 +55,29 @@ def optimize_windowsize(n):
 def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
                 outfilename, a_start_pitch, a_end_pitch, a_in_file):
     if not os.path.exists(file_path):
-        print("Error loading wav file")
+        print("Error: {} does not exist.".format(file_path))
         return
+
+    if a_start_pitch is not None:
+        print("Pitch shifting file")
+        f_src_path = file_path
+        f_dest_path = outfilename.replace(".wav", "-tmp.wav")
+        if a_end_pitch is not None:
+            f_cmd = ["{}/lib/{}/sbsms/bin/sbsms".format(
+                        global_pydaw_install_prefix,
+                        global_pydaw_version_string),
+                     f_src_path, f_dest_path, "1.0", "1.0",
+                     str(a_start_pitch), str(a_end_pitch)]
+        else:
+            f_cmd = ["{}/lib/{}/rubberband/bin/rubberband".format(
+                        global_pydaw_install_prefix,
+                        global_pydaw_version_string),
+                        "-p", str(a_start_pitch), "-R",
+                     "--pitch-hq", f_src_path, f_dest_path]
+        print("Running {}".format(" ".join(f_cmd)))
+        f_proc = subprocess.Popen(f_cmd)
+        f_proc.wait()
+        file_path = f_dest_path
 
     f_reader = wavefile.WaveReader(file_path)
     samplerate = f_reader.samplerate
@@ -203,24 +224,9 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
     outfile.close()
 
     if a_start_pitch is not None:
-        print("Pitch shifting file")
-        f_dest_path = outfilename
-        f_src_path = outfilename.replace(".wav", "-OLD.wav")
-        print((f_src_path, "\n", f_dest_path))
-        os.rename(f_dest_path, f_src_path)
-        if a_end_pitch is not None:
-            f_cmd = ["{}/lib/{}/sbsms/bin/sbsms".format(
-                        global_pydaw_install_prefix,
-                        global_pydaw_version_string),
-                     f_src_path, f_dest_path, "1.0", "1.0",
-                     str(a_start_pitch), str(a_end_pitch)]
-        else:
-            f_cmd = ["rubberband", "-p", str(a_start_pitch), "-R",
-                     "--pitch-hq", f_src_path, f_dest_path]
-        print("Running {}".format(" ".join(f_cmd)))
-        f_proc = subprocess.Popen(f_cmd)
-        f_proc.wait()
-        os.remove(f_src_path)
+        print("Deleting temp file {}".format(file_path))
+        os.remove(file_path)
+
 
 
 ########################################
