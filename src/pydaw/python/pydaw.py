@@ -2840,7 +2840,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.set_vol_line()
 
     def set_vol_line(self):
-        f_pos = (float(48 - (self.audio_item.vol + 24)) / 48.0) * AUDIO_ITEM_HEIGHT
+        f_pos = (float(48 - (self.audio_item.vol + 24))
+            * 0.020833333) * AUDIO_ITEM_HEIGHT # 1.0 / 48.0
         self.vol_line.setPos(0, f_pos)
         self.label.setText("{}dB".format(self.audio_item.vol))
 
@@ -2857,23 +2858,27 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if self.is_resizing:
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected():
-                    f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
+                    f_x = f_item.width_orig + f_event_diff + \
+                        f_item.quantize_offset
                     f_x = pydaw_clip_value(f_x, AUDIO_ITEM_HANDLE_SIZE,
                                            f_item.length_px_minus_start)
-                    f_x = f_item.quantize(f_x)
-                    f_x -= f_item.quantize_offset
+                    if f_x < f_item.length_px_minus_start:
+                        f_x = f_item.quantize(f_x)
+                        f_x -= f_item.quantize_offset
                     f_item.length_handle.setPos(f_x - AUDIO_ITEM_HANDLE_SIZE,
                                                 AUDIO_ITEM_HEIGHT -
                                                 AUDIO_ITEM_HANDLE_HEIGHT)
         elif self.is_start_resizing:
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected():
-                    f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
+                    f_x = f_item.width_orig + f_event_diff + \
+                        f_item.quantize_offset
                     f_x = pydaw_clip_value(f_x, f_item.sample_start_offset_px,
                                            f_item.length_handle.pos().x())
                     f_x = pydaw_clip_min(f_x, f_item.min_start)
-                    f_x = f_item.quantize_start(f_x)
-                    f_x -= f_item.quantize_offset
+                    if f_x > f_item.min_start:
+                        f_x = f_item.quantize_start(f_x)
+                        f_x -= f_item.quantize_offset
                     f_item.start_handle.setPos(f_x, AUDIO_ITEM_HEIGHT -
                                                AUDIO_ITEM_HANDLE_HEIGHT)
         elif self.is_fading_in:
