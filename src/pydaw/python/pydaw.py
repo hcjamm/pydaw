@@ -3101,6 +3101,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_stretch_item[2].wait()
                     PROJECT.get_wav_uid_by_name(
                         f_stretch_item[0], a_uid=f_stretch_item[1])
+                for f_audio_item in AUDIO_SEQ.get_selected():
+                    f_new_graph = PROJECT.get_sample_graph_by_uid(
+                        f_audio_item.audio_item.uid)
+                    f_audio_item.audio_item.clip_at_region_end(
+                        pydaw_get_current_region_length(),
+                        TRANSPORT.tempo_spinbox.value(),
+                        f_new_graph.length_in_seconds)
             PROJECT.save_audio_region(
                 global_current_region.uid, f_audio_items)
             PROJECT.commit(_("Update audio items"))
