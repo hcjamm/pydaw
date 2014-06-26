@@ -81,6 +81,13 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
 
     f_reader = wavefile.WaveReader(file_path)
     samplerate = f_reader.samplerate
+    nsamples = f_reader.frames
+
+    # Set max window size to 1/8th the size of the sample
+    max_window_size = (float(nsamples) / float(samplerate)) * 0.125
+
+    if windowsize_seconds > max_window_size:
+        windowsize_seconds = max_window_size
 
     nchannels = f_reader.channels
 
@@ -95,7 +102,6 @@ def paulstretch(file_path, stretch, windowsize_seconds, onset_level,
     windowsize = int(windowsize / 2) * 2
     half_windowsize = int(windowsize / 2)
 
-    nsamples = f_reader.frames
     smp = numpy.zeros((nchannels, nsamples), numpy.float32, order='F')
     f_reader.read(smp)
 
