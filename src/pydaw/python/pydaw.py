@@ -2023,18 +2023,24 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         (self.audio_item.pitch_shift_end == self.audio_item.pitch_shift):
             f_temp_seconds /= pydaw_pitch_to_ratio(self.audio_item.pitch_shift)
         elif self.audio_item.time_stretch_mode == 2 and \
-        (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt):
+        (self.audio_item.timestretch_amt_end ==
+        self.audio_item.timestretch_amt):
             f_temp_seconds *= self.audio_item.timestretch_amt
 
-        f_start = float(self.audio_item.start_bar) + (self.audio_item.start_beat * 0.25)
+        f_start = float(self.audio_item.start_bar) + \
+            (self.audio_item.start_beat * 0.25)
         f_start *= AUDIO_PX_PER_BAR
 
-        f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * AUDIO_PX_PER_BAR
+        f_length_seconds = \
+            pydaw_seconds_to_bars(f_temp_seconds) * AUDIO_PX_PER_BAR
         self.length_seconds_orig_px = f_length_seconds
-        self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, AUDIO_ITEM_HEIGHT)
-        self.length_px_start = (self.audio_item.sample_start * 0.001 * f_length_seconds)
+        self.rect_orig = QtCore.QRectF(
+            0.0, 0.0, f_length_seconds, AUDIO_ITEM_HEIGHT)
+        self.length_px_start = \
+            (self.audio_item.sample_start * 0.001 * f_length_seconds)
         self.length_px_minus_start = f_length_seconds - self.length_px_start
-        self.length_px_minus_end = (self.audio_item.sample_end * 0.001 * f_length_seconds)
+        self.length_px_minus_end = \
+            (self.audio_item.sample_end * 0.001 * f_length_seconds)
         f_length = self.length_px_minus_end - self.length_px_start
 
         f_track_num = \
@@ -2046,7 +2052,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_fade_in_handle_pos = (f_length * f_fade_in)
         f_fade_in_handle_pos = pydaw_clip_value(
             f_fade_in_handle_pos, 0.0, (f_length - 6.0))
-        f_fade_out_handle_pos = (f_length * f_fade_out) - AUDIO_ITEM_HANDLE_SIZE
+        f_fade_out_handle_pos = \
+            (f_length * f_fade_out) - AUDIO_ITEM_HANDLE_SIZE
         f_fade_out_handle_pos = pydaw_clip_value(
             f_fade_out_handle_pos, (f_fade_in_handle_pos + 6.0), f_length)
         self.fade_in_handle.setPos(f_fade_in_handle_pos, 0.0)
@@ -2057,28 +2064,34 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.is_moving = False
         if self.audio_item.time_stretch_mode >= 3 or \
         (self.audio_item.time_stretch_mode == 2 and \
-        (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
-            self.stretch_width_default = f_length / self.audio_item.timestretch_amt
+        (self.audio_item.timestretch_amt_end ==
+        self.audio_item.timestretch_amt)):
+            self.stretch_width_default = \
+                f_length / self.audio_item.timestretch_amt
 
         self.sample_start_offset_px = \
         self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
 
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
-        self.start_handle_scene_max = self.start_handle_scene_min + self.length_seconds_orig_px
+        self.start_handle_scene_max = \
+            self.start_handle_scene_min + self.length_seconds_orig_px
 
         if not self.waveforms_scaled:
             f_channels = len(self.painter_paths)
             f_i_inc = 1.0 / f_channels
             f_i = f_i_inc
             f_y_inc = 0.0
-            if f_channels == 1:  # Kludge to fix the problem, there must be a better way...
-                f_y_offset = (1.0 - self.vol_linear) * (AUDIO_ITEM_HEIGHT * 0.5)
+            # Kludge to fix the problem, there must be a better way...
+            if f_channels == 1:
+                f_y_offset = \
+                    (1.0 - self.vol_linear) * (AUDIO_ITEM_HEIGHT * 0.5)
             else:
                 f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
                 if self.audio_item.reversed:
                     f_path_item.setPos(
-                        self.sample_start_offset_px + self.length_seconds_orig_px,
+                        self.sample_start_offset_px +
+                        self.length_seconds_orig_px,
                         self.y_inc + (f_y_offset * -1.0) + (f_y_inc * f_i))
                     f_path_item.rotate(-180.0)
                 else:
@@ -2101,7 +2114,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if self.audio_item.time_stretch_mode >= 2 and \
         (((self.audio_item.time_stretch_mode != 5) and \
         (self.audio_item.time_stretch_mode != 2)) \
-        or (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
+        or (self.audio_item.timestretch_amt_end ==
+        self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
             self.stretch_handle.setPos(f_length - AUDIO_ITEM_HANDLE_SIZE,
                                        (AUDIO_ITEM_HEIGHT * 0.5) -
@@ -2109,24 +2123,36 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip(_("Right click on an audio item to see the various tools "
+            self.setToolTip(
+                _("Right click on an audio item to see the various tools "
                 "and actions available\n"
                 "\nClick and drag selected to move.\n"
-                "SHIFT+Click to split items\nCTRL+drag to copy selected items\n"
-                "CTRL+ALT+Click and drag to adjust the volume of selected items\n"
-                "CTRL+SHIFT+Click and drag to create a volume line from the selected items\n"
-                "You can multi-select individual items by SHIFT+ALT+clicking on them.\n\n"
-                "You can glue together multiple items by selecting items and pressing CTRL+G\n"
-                ", the glued item will retain all of the fades, stretches and per-item fx of "
+                "SHIFT+Click to split items\nCTRL+drag to copy "
+                "selected items\n"
+                "CTRL+ALT+Click and drag to adjust the volume of "
+                "selected items\n"
+                "CTRL+SHIFT+Click and drag to create a volume line "
+                "from the selected items\n"
+                "You can multi-select individual items by "
+                "SHIFT+ALT+clicking on them.\n\n"
+                "You can glue together multiple items by selecting "
+                "items and pressing CTRL+G\n"
+                ", the glued item will retain all of the fades, "
+                "stretches and per-item fx of "
                 "the original items.\n"))
-            self.start_handle.setToolTip(_("Use this handle to resize the item "
-                                         "by changing the start point."))
-            self.length_handle.setToolTip(_("Use this handle to resize the item "
-                                          "by changing the end point."))
-            self.fade_in_handle.setToolTip(_("Use this handle to change the fade in."))
-            self.fade_out_handle.setToolTip(_("Use this handle to change the fade out."))
-            self.stretch_handle.setToolTip(_("Use this handle to resize the item by "
-                                           "time-stretching it."))
+            self.start_handle.setToolTip(
+                _("Use this handle to resize the item by changing "
+                "the start point."))
+            self.length_handle.setToolTip(
+                _("Use this handle to resize the item by "
+                "changing the end point."))
+            self.fade_in_handle.setToolTip(
+                _("Use this handle to change the fade in."))
+            self.fade_out_handle.setToolTip(
+                _("Use this handle to change the fade out."))
+            self.stretch_handle.setToolTip(
+                _("Use this handle to resize the item by "
+                "time-stretching it."))
         else:
             self.setToolTip("")
             self.start_handle.setToolTip("")
@@ -2165,16 +2191,23 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
             self.start_handle_line.setPen(global_audio_item_line_selected_pen)
             self.length_handle_line.setPen(global_audio_item_line_selected_pen)
-            self.fade_in_handle_line.setPen(global_audio_item_line_selected_pen)
-            self.fade_out_handle_line.setPen(global_audio_item_line_selected_pen)
-            self.stretch_handle_line.setPen(global_audio_item_line_selected_pen)
+            self.fade_in_handle_line.setPen(
+                global_audio_item_line_selected_pen)
+            self.fade_out_handle_line.setPen(
+                global_audio_item_line_selected_pen)
+            self.stretch_handle_line.setPen(
+                global_audio_item_line_selected_pen)
 
             self.label.setBrush(QtCore.Qt.darkGray)
             self.start_handle.setBrush(global_audio_item_handle_selected_brush)
-            self.length_handle.setBrush(global_audio_item_handle_selected_brush)
-            self.fade_in_handle.setBrush(global_audio_item_handle_selected_brush)
-            self.fade_out_handle.setBrush(global_audio_item_handle_selected_brush)
-            self.stretch_handle.setBrush(global_audio_item_handle_selected_brush)
+            self.length_handle.setBrush(
+                global_audio_item_handle_selected_brush)
+            self.fade_in_handle.setBrush(
+                global_audio_item_handle_selected_brush)
+            self.fade_out_handle.setBrush(
+                global_audio_item_handle_selected_brush)
+            self.stretch_handle.setBrush(
+                global_audio_item_handle_selected_brush)
         else:
             self.start_handle.setPen(global_audio_item_handle_pen)
             self.length_handle.setPen(global_audio_item_handle_pen)
@@ -2742,7 +2775,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_musical_pos = self.pos_to_musical_time(f_scene_pos)
             f_sample_shown = f_item.sample_end - f_item.sample_start
             f_sample_rect_pos = f_pos / self.rect().width()
-            f_item.sample_start = (f_sample_rect_pos * f_sample_shown) + f_item.sample_start
+            f_item.sample_start = \
+                (f_sample_rect_pos * f_sample_shown) + f_item.sample_start
             f_item.sample_start = pydaw_clip_value(
                 f_item.sample_start, 0.0, 999.0, True)
             f_item.start_bar = f_musical_pos[0]
@@ -2757,15 +2791,19 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     CURRENT_REGION.uid)
             PROJECT.commit(_("Split audio item"))
             global_open_audio_items(True)
-        elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
+        elif a_event.modifiers() == \
+        QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
             self.is_amp_dragging = True
-        elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
+        elif a_event.modifiers() == \
+        QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
             self.is_amp_curving = True
-            f_list = [((x.audio_item.start_bar * 4.0) + x.audio_item.start_beat)
+            f_list = [((x.audio_item.start_bar * 4.0) +
+                x.audio_item.start_beat)
                 for x in AUDIO_SEQ.audio_items if x.isSelected()]
             f_list.sort()
             self.vc_start = f_list[0]
-            self.vc_mid = (self.audio_item.start_bar * 4.0) + self.audio_item.start_beat
+            self.vc_mid = (self.audio_item.start_bar *
+                4.0) + self.audio_item.start_beat
             self.vc_end = f_list[-1]
         else:
             if a_event.modifiers() == QtCore.Qt.ControlModifier:
@@ -2776,11 +2814,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.event_pos_orig = a_event.pos().x()
             for f_item in AUDIO_SEQ.get_selected():
                 f_item_pos = f_item.pos().x()
-                f_item.quantize_offset = f_item_pos - f_item.quantize_all(f_item_pos)
+                f_item.quantize_offset = \
+                    f_item_pos - f_item.quantize_all(f_item_pos)
                 if a_event.modifiers() == QtCore.Qt.ControlModifier:
                     f_item.is_copying = True
                     f_item.width_orig = f_item.rect().width()
-                    f_item.per_item_fx = f_per_item_fx_dict.get_row(f_item.track_num)
+                    f_item.per_item_fx = \
+                        f_per_item_fx_dict.get_row(f_item.track_num)
                     AUDIO_SEQ.draw_item(
                         f_item.track_num, f_item.audio_item,
                         f_item.graph_object)
@@ -2970,7 +3010,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         elif self.is_amp_curving:
             AUDIO_SEQ.setUpdatesEnabled(False)
             for f_item in AUDIO_SEQ.get_selected():
-                f_start = ((f_item.audio_item.start_bar * 4.0) + f_item.audio_item.start_beat)
+                f_start = ((f_item.audio_item.start_bar * 4.0) +
+                    f_item.audio_item.start_beat)
                 if f_start == self.vc_mid:
                     f_new_vel = f_val + f_item.orig_value
                 else:
@@ -2990,11 +3031,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
             if AUDIO_QUANTIZE:
-                f_max_x = (pydaw_get_current_region_length() * AUDIO_PX_PER_BAR) - \
-                           AUDIO_QUANTIZE_PX
+                f_max_x = (pydaw_get_current_region_length() *
+                    AUDIO_PX_PER_BAR) - AUDIO_QUANTIZE_PX
             else:
-                f_max_x = (pydaw_get_current_region_length() * AUDIO_PX_PER_BAR) - \
-                           AUDIO_ITEM_HANDLE_SIZE
+                f_max_x = (pydaw_get_current_region_length() *
+                    AUDIO_PX_PER_BAR) - AUDIO_ITEM_HANDLE_SIZE
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected():
                     f_pos_x = f_item.pos().x()
@@ -3004,7 +3045,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_pos_x = f_item.quantize_scene(f_pos_x)
                     f_item.setPos(f_pos_x, f_pos_y)
                     if not f_item.is_moving:
-                        f_item.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
+                        f_item.setGraphicsEffect(
+                            QtGui.QGraphicsOpacityEffect())
                         f_item.is_moving = True
 
     def mouseReleaseEvent(self, a_event):
@@ -3249,28 +3291,31 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def crossfade_selected(self):
         f_list = self.get_selected()
         if len(f_list) < 2:
-            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
-                                      _("You must have at least 2 items selected to crossfade"))
+            QtGui.QMessageBox.warning(
+                MAIN_WINDOW, _("Error"),
+                _("You must have at least 2 items selected to crossfade"))
             return
 
         f_tempo = float(TRANSPORT.tempo_spinbox.value())
         f_changed = False
 
         for f_item in f_list:
-            f_start_sec = pydaw_util.musical_time_to_seconds(f_tempo,
-                                                             f_item.audio_item.start_bar,
-                                                             f_item.audio_item.start_beat)
-            f_time_frac = f_item.audio_item.sample_end - f_item.audio_item.sample_start
+            f_start_sec = pydaw_util.musical_time_to_seconds(
+                f_tempo, f_item.audio_item.start_bar,
+                f_item.audio_item.start_beat)
+            f_time_frac = f_item.audio_item.sample_end - \
+                f_item.audio_item.sample_start
             f_time_frac *= 0.001
             f_time = f_item.graph_object.length_in_seconds * f_time_frac
             f_end_sec = f_start_sec + f_time
             f_list2 = [x for x in f_list if x.audio_item != f_item.audio_item]
 
             for f_item2 in f_list2:
-                f_start_sec2 = pydaw_util.musical_time_to_seconds(f_tempo,
-                                                                  f_item2.audio_item.start_bar,
-                                                                  f_item2.audio_item.start_beat)
-                f_time_frac2 = f_item2.audio_item.sample_end - f_item2.audio_item.sample_start
+                f_start_sec2 = pydaw_util.musical_time_to_seconds(
+                    f_tempo, f_item2.audio_item.start_bar,
+                    f_item2.audio_item.start_beat)
+                f_time_frac2 = f_item2.audio_item.sample_end - \
+                    f_item2.audio_item.sample_start
                 f_time_frac2 *= 0.001
                 f_time2 = f_item2.graph_object.length_in_seconds * f_time_frac2
                 f_end_sec2 = f_start_sec2 + f_time2
@@ -3298,10 +3343,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.setToolTip(_("Drag .wav files from the file browser onto here.  "
+            self.setToolTip(
+            _("Drag .wav files from the file browser onto here.  "
             "You can edit item properties with the\n"
-            "'Edit' tab to the left, or by clicking and dragging the item handles."
-            "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
+            "'Edit' tab to the left, or by clicking and dragging "
+            "the item handles."
+            "\n\nClick 'Menu->Show Tooltips' in the transport "
+            "to disable these tooltips"))
         else:
             self.setToolTip("")
         for f_item in self.audio_items:
