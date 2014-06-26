@@ -2939,26 +2939,31 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected() and \
                 f_item.audio_item.time_stretch_mode >= 2:
-                    f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
+                    f_x = f_item.width_orig + f_event_diff + \
+                        f_item.quantize_offset
                     if f_item.audio_item.time_stretch_mode == 2:
                         f_x = pydaw_clip_value(
                             f_x, f_item.stretch_width_default * 0.25,
                             f_item.stretch_width_default * 4.0)
                     elif f_item.audio_item.time_stretch_mode == 6:
-                        f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.5,
-                                               f_item.stretch_width_default * 10.0)
+                        f_x = pydaw_clip_value(
+                            f_x, f_item.stretch_width_default * 0.5,
+                            f_item.stretch_width_default * 200.0)
                     else:
-                        f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.1,
-                                               f_item.stretch_width_default * 10.0)
+                        f_x = pydaw_clip_value(
+                            f_x, f_item.stretch_width_default * 0.1,
+                            f_item.stretch_width_default * 10.0)
                     f_x = pydaw_clip_max(f_x, f_item.max_stretch)
                     f_x = f_item.quantize(f_x)
                     f_x -= f_item.quantize_offset
-                    f_item.stretch_handle.setPos(f_x - AUDIO_ITEM_HANDLE_SIZE,
-                                                 (AUDIO_ITEM_HEIGHT * 0.5) -
-                                                 (AUDIO_ITEM_HANDLE_HEIGHT * 0.5))
+                    f_item.stretch_handle.setPos(
+                        f_x - AUDIO_ITEM_HANDLE_SIZE,
+                        (AUDIO_ITEM_HEIGHT * 0.5) -
+                        (AUDIO_ITEM_HANDLE_HEIGHT * 0.5))
         elif self.is_amp_dragging:
             for f_item in AUDIO_SEQ.get_selected():
-                f_new_vel = pydaw_util.pydaw_clip_value(f_val + f_item.orig_value, -24, 24)
+                f_new_vel = pydaw_util.pydaw_clip_value(
+                    f_val + f_item.orig_value, -24, 24)
                 f_new_vel = int(f_new_vel)
                 f_item.audio_item.vol = f_new_vel
                 f_item.set_vol_line()
@@ -3026,14 +3031,17 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item = f_audio_item.audio_item
             f_pos_x = f_audio_item.pos().x()
             if f_audio_item.is_resizing:
-                f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
-                f_x = pydaw_clip_value(f_x, AUDIO_ITEM_HANDLE_SIZE,
-                                       f_audio_item.length_px_minus_start)
+                f_x = f_audio_item.width_orig + f_event_diff + \
+                    f_audio_item.quantize_offset
+                f_x = pydaw_clip_value(
+                    f_x, AUDIO_ITEM_HANDLE_SIZE,
+                    f_audio_item.length_px_minus_start)
                 f_x = f_audio_item.quantize(f_x)
                 f_x -= f_audio_item.quantize_offset
                 f_audio_item.setRect(0.0, 0.0, f_x, AUDIO_ITEM_HEIGHT)
-                f_item.sample_end = ((f_audio_item.rect().width() + \
-                f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
+                f_item.sample_end = ((f_audio_item.rect().width() +
+                    f_audio_item.length_px_start) /
+                    f_audio_item.length_seconds_orig_px) * 1000.0
                 f_item.sample_end = pydaw_util.pydaw_clip_value(
                     f_item.sample_end, 1.0, 1000.0, True)
             elif f_audio_item.is_start_resizing:
@@ -3045,36 +3053,42 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_start_result = self.pos_to_musical_time(f_x)
                 f_item.start_bar = f_start_result[0]
                 f_item.start_beat = f_start_result[1]
-                f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / \
-                (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) \
-                * 1000.0
-                f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
+                f_item.sample_start = ((f_x -
+                    f_audio_item.start_handle_scene_min) /
+                    (f_audio_item.start_handle_scene_max -
+                    f_audio_item.start_handle_scene_min)) * 1000.0
+                f_item.sample_start = pydaw_clip_value(
+                    f_item.sample_start, 0.0, 999.0, True)
             elif f_audio_item.is_fading_in:
                 f_pos = f_audio_item.fade_in_handle.pos().x()
                 f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
                 f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0, True)
             elif f_audio_item.is_fading_out:
                 f_pos = f_audio_item.fade_out_handle.pos().x()
-                f_val = \
-                ((f_pos + AUDIO_ITEM_HANDLE_SIZE) / (f_audio_item.rect().width())) \
-                * 1000.0
+                f_val = ((f_pos + AUDIO_ITEM_HANDLE_SIZE) /
+                    (f_audio_item.rect().width())) * 1000.0
                 f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0, True)
             elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
                 f_reset_selection = True
-                f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
+                f_x = f_audio_item.width_orig + f_event_diff + \
+                    f_audio_item.quantize_offset
                 if f_audio_item.audio_item.time_stretch_mode == 2:
-                    f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25,
-                                           f_audio_item.stretch_width_default * 4.0)
+                    f_x = pydaw_clip_value(
+                        f_x, f_audio_item.stretch_width_default * 0.25,
+                        f_audio_item.stretch_width_default * 4.0)
                 elif f_audio_item.audio_item.time_stretch_mode == 6:
-                    f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.5,
-                                           f_audio_item.stretch_width_default * 10.0)
+                    f_x = pydaw_clip_value(
+                        f_x, f_audio_item.stretch_width_default * 0.5,
+                        f_audio_item.stretch_width_default * 200.0)
                 else:
-                    f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1,
-                                           f_audio_item.stretch_width_default * 10.0)
+                    f_x = pydaw_clip_value(
+                        f_x, f_audio_item.stretch_width_default * 0.1,
+                        f_audio_item.stretch_width_default * 10.0)
                 f_x = pydaw_clip_max(f_x, f_audio_item.max_stretch)
                 f_x = f_audio_item.quantize(f_x)
                 f_x -= f_audio_item.quantize_offset
-                f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
+                f_item.timestretch_amt = \
+                    f_x / f_audio_item.stretch_width_default
                 f_item.timestretch_amt_end = f_item.timestretch_amt
                 if f_item.time_stretch_mode >= 3 and \
                 f_audio_item.orig_string != str(f_item):
@@ -4317,8 +4331,8 @@ class audio_item_editor_widget:
             self.timestretch_amt.setEnabled(True)
             self.timestretch_amt_end.setEnabled(False)
             self.pitch_shift_end.setEnabled(False)
-            self.timestretch_amt.setRange(0.5, 10.0)
-            self.timestretch_amt_end.setRange(0.5, 10.0)
+            self.timestretch_amt.setRange(0.5, 200.0)
+            self.timestretch_amt_end.setRange(0.5, 200.0)
             self.timestretch_amt_end_checkbox.setEnabled(False)
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
