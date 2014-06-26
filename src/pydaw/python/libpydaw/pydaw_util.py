@@ -315,6 +315,23 @@ def seconds_to_beats(a_tempo, a_seconds):
 def linear_interpolate(a_point1, a_point2, a_frac):
     return ((a_point2 - a_point1) * a_frac) + a_point1
 
+def cubic_interpolate(a_arr, a_pos):
+    f_int_pos = pydaw_clip_value(int(a_pos), 0, a_arr.shape[0] - 1)
+    f_mu = a_pos - float(f_int_pos)
+    f_mu2 = f_mu * f_mu
+    f_int_pos_plus1 = pydaw_clip_value(f_int_pos + 1, 0, a_arr.shape[0] - 1)
+    f_int_pos_minus1 = pydaw_clip_value(f_int_pos - 1, 0, a_arr.shape[0] - 1)
+    f_int_pos_minus2 = pydaw_clip_value(f_int_pos - 2, 0, a_arr.shape[0] - 1)
+
+    f_a0 = (a_arr[f_int_pos_plus1] - a_arr[f_int_pos] -
+        a_arr[f_int_pos_minus2] + a_arr[f_int_pos_minus1])
+    f_a1 = a_arr[f_int_pos_minus2] - a_arr[f_int_pos_minus1] - f_a0
+    f_a2 = a_arr[f_int_pos] - a_arr[f_int_pos_minus2]
+    f_a3 = a_arr[f_int_pos_minus1]
+
+    return (f_a0 * f_mu * f_mu2 + f_a1 * f_mu2 + f_a2 * f_mu + f_a3)
+
+
 def pydaw_wait_for_finished_file(a_file):
     """ Wait until a_file exists, then delete it and return.  It should
     already have the .finished extension"""
