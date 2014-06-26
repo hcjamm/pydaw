@@ -3512,11 +3512,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def check_running(self):
         if pydaw_CURRENT_REGION_is_none() or IS_PLAYING:
             return True
-        if PYDAW_SUBPROCESS is None:
-            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
-            _("The audio engine is not running, audio items cannot be added.\n"
-            "If the audio engine crashed, you will need to restart PyDAW."))
-            return True
         return False
 
     def sceneDropEvent(self, a_event):
