@@ -2382,6 +2382,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_action.setCheckable(True)
                         f_action.setChecked(True)
 
+        f_volume_action = f_properties_menu.addAction(_("Volume..."))
+        f_volume_action.triggered.connect(self.volume_dialog)
         f_normalize_action = f_properties_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
         f_pitchbend_action = f_properties_menu.addAction(_("Pitchbend..."))
@@ -2716,6 +2718,49 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def normalize(self, a_value):
         f_val = self.graph_object.normalize(a_value)
         self.audio_item.vol = f_val
+
+    def volume_dialog(self):
+        def on_ok():
+            f_val = f_db_spinbox.value()
+            for f_item in AUDIO_SEQ.get_selected():
+                f_item.audio_item.vol = f_val
+            PROJECT.save_audio_region(CURRENT_REGION.uid,
+                                      global_audio_items)
+            PROJECT.commit(_("Normalize audio items"))
+            global_open_audio_items(True)
+            f_window.close()
+
+        def on_cancel():
+            f_window.close()
+
+        f_window = QtGui.QDialog(MAIN_WINDOW)
+        f_window.f_result = None
+        f_window.setWindowTitle(_("Volume"))
+        f_window.setFixedSize(150, 90)
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_hlayout)
+        f_hlayout.addWidget(QtGui.QLabel("dB"))
+        f_db_spinbox = QtGui.QSpinBox()
+        f_hlayout.addWidget(f_db_spinbox)
+        f_db_spinbox.setRange(-24, 24)
+        f_vols = {x.audio_item.vol for x in AUDIO_SEQ.get_selected()}
+        if len(f_vols) == 1:
+            f_db_spinbox.setValue(f_vols.pop())
+        else:
+            f_db_spinbox.setValue(0)
+        f_ok_button = QtGui.QPushButton(_("OK"))
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout)
+        f_ok_cancel_layout.addWidget(f_ok_button)
+        f_ok_button.pressed.connect(on_ok)
+        f_cancel_button = QtGui.QPushButton(_("Cancel"))
+        f_ok_cancel_layout.addWidget(f_cancel_button)
+        f_cancel_button.pressed.connect(on_cancel)
+        f_window.exec_()
+        return f_window.f_result
+
 
     def normalize_dialog(self):
         f_val = normalize_dialog()
