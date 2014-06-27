@@ -167,13 +167,10 @@ rm -rf $RPM_BUILD_ROOT
 #/usr/share/locale/pt_PT/LC_MESSAGES/pydaw4.mo
 #/usr/share/locale/de/LC_MESSAGES/pydaw4.mo
 #/usr/share/locale/fr/LC_MESSAGES/pydaw4.mo
+/usr/lib/pydaw4/pydaw/python/wavefile/__init__.py
+/usr/lib/pydaw4/pydaw/python/wavefile/libsndfile.py
+/usr/lib/pydaw4/pydaw/python/wavefile/wavefile.py
 
-
-#These seem like undesirable files to package, but it seems that rpmbuild
-#creates them even when I go to great lengths to ensure they're not in the
-#source tarball?  I guess that makes sense from a load-time perspective
-#to have the bytecode cache files, since only root would be able to create them
-#once installed.
 
 /usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyc
 /usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyo
@@ -207,6 +204,13 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/pydaw4/pydaw/python/pydaw.pyo
 /usr/lib/pydaw4/pydaw/python/libpydaw/translate.pyc
 /usr/lib/pydaw4/pydaw/python/libpydaw/translate.pyo
+/usr/lib/pydaw4/pydaw/python/wavefile/__init__.pyc
+/usr/lib/pydaw4/pydaw/python/wavefile/__init__.pyo
+/usr/lib/pydaw4/pydaw/python/wavefile/libsndfile.pyc
+/usr/lib/pydaw4/pydaw/python/wavefile/libsndfile.pyo
+/usr/lib/pydaw4/pydaw/python/wavefile/wavefile.pyc
+/usr/lib/pydaw4/pydaw/python/wavefile/wavefile.pyo
+
 
 %doc
 
