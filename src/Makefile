@@ -23,6 +23,9 @@ native_src:
 	make -C pydaw PREFIX=$(PREFIX) CFLAGS+=" -O2 " PLAT_FLAGS=" -march=native "
 	make -C pydaw_render PLAT_FLAGS=" -march=native "
 
+rpm:
+	../rpm.py
+
 # --------------------------------------------------------------
 
 deps:
