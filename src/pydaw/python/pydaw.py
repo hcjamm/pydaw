@@ -2354,8 +2354,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_ts_mode_menu = f_properties_menu.addMenu("Timestretch Mode")
         f_ts_mode_menu.triggered.connect(self.ts_mode_menu_triggered)
-        for f_ts_mode in TIMESTRETCH_MODES:
+
+        f_ts_modes = {x.audio_item.time_stretch_mode
+            for x in AUDIO_SEQ.get_selected()}
+
+        for f_ts_mode, f_index in zip(
+        TIMESTRETCH_MODES, range(len(TIMESTRETCH_MODES))):
             f_action = f_ts_mode_menu.addAction(f_ts_mode)
+            if len(f_ts_modes) == 1 and f_index in f_ts_modes:
+                f_action.setCheckable(True)
+                f_action.setChecked(True)
 
         f_normalize_action = f_properties_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
