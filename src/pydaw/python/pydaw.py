@@ -2369,6 +2369,19 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_action.setCheckable(True)
                 f_action.setChecked(True)
 
+        if len(f_ts_modes) == 1 and [x for x in (3, 4) if x in f_ts_modes]:
+            f_crisp_menu = f_properties_menu.addMenu("Crispness")
+            f_crisp_menu.triggered.connect(self.crisp_menu_triggered)
+            f_crisp_settings = {x.audio_item.crispness
+                for x in AUDIO_SEQ.get_selected()}
+            for f_crisp_mode, f_index in zip(
+                CRISPNESS_SETTINGS, range(len(CRISPNESS_SETTINGS))):
+                    f_action = f_crisp_menu.addAction(f_crisp_mode)
+                    if len(f_crisp_settings) == 1 and \
+                    f_index in f_crisp_settings:
+                        f_action.setCheckable(True)
+                        f_action.setChecked(True)
+
         f_normalize_action = f_properties_menu.addAction(_("Normalize..."))
         f_normalize_action.triggered.connect(self.normalize_dialog)
         f_pitchbend_action = f_properties_menu.addAction(_("Pitchbend..."))
@@ -2429,13 +2442,24 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         PROJECT.commit(_("Change output track for audio item(s)"))
         global_open_audio_items()
 
+    def crisp_menu_triggered(self, a_action):
+        f_index = CRISPNESS_SETTINGS.index(str(a_action.text()))
+        f_list = [x.audio_item for x in AUDIO_SEQ.get_selected() if
+            x.audio_item.time_stretch_mode in (3, 4)]
+        for f_item in f_list:
+            f_item.crispness = f_index
+        self.timestretch_items(f_list)
+
     def ts_mode_menu_triggered(self, a_action):
         f_index = TIMESTRETCH_MODES.index(str(a_action.text()))
-        f_list = [x.audio_item for x in AUDIO_SEQ.audio_items
-            if x.isSelected()]
-        f_stretched_items = []
+        f_list = [x.audio_item for x in AUDIO_SEQ.get_selected()]
         for f_item in f_list:
             f_item.time_stretch_mode = f_index
+        self.timestretch_items(f_list)
+
+    def timestretch_items(self, a_list):
+        f_stretched_items = []
+        for f_item in a_list:
             if f_item.time_stretch_mode >= 3:
                 f_ts_result = PROJECT.timestretch_audio_item(f_item)
                 if f_ts_result is not None:
@@ -4123,8 +4147,7 @@ class audio_item_editor_widget:
         self.vlayout2.addLayout(self.crispness_layout)
         self.crispness_layout.addWidget(QtGui.QLabel(_("Crispness")))
         self.crispness_combobox = QtGui.QComboBox()
-        self.crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
-                                          "4", "5 (normal)", _("6 (sharp, drums)")])
+        self.crispness_combobox.addItems(CRISPNESS_SETTINGS)
         self.crispness_combobox.setCurrentIndex(5)
         self.crispness_layout.addWidget(self.crispness_combobox)
 
@@ -10048,6 +10071,9 @@ pydaw_load_controller_maps()
 TIMESTRETCH_MODES = [_("None"), _("Pitch(affecting time)"),
                      _("Time(affecting pitch)"), "Rubberband",
                      "Rubberband(formants)", "SBSMS", "Paulstretch"]
+
+CRISPNESS_SETTINGS = [_("0 (smeared)"), _("1 (piano)"), "2", "3",
+                      "4", "5 (normal)", _("6 (sharp, drums)")]
 
 AUDIO_TRACK_NAMES = ["track{}".format(x + 1) for x in
     range(pydaw_audio_track_count)]
