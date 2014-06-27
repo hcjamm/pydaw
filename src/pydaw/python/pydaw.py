@@ -2345,10 +2345,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_properties_menu.addSeparator()
         f_output_menu = f_properties_menu.addMenu("Audio Track")
         f_output_menu.triggered.connect(self.output_menu_triggered)
+
+        f_output_tracks = {x.audio_item.output_track
+            for x in AUDIO_SEQ.get_selected()}
+
         for f_track_name, f_index in zip(
         AUDIO_TRACK_NAMES, range(len(AUDIO_TRACK_NAMES))):
             f_action = f_output_menu.addAction(f_track_name)
-            if f_index == self.audio_item.output_track:
+            if len(f_output_tracks) == 1 and f_index in f_output_tracks:
                 f_action.setCheckable(True)
                 f_action.setChecked(True)
 
