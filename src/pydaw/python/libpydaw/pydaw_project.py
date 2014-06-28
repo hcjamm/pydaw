@@ -2580,6 +2580,9 @@ class pydaw_sample_graph:
         f_result = []
         f_arr = numpy.array(f_list)
         f_arr = scipy.signal.resample(f_arr, f_point_count)
+        f_max = numpy.amax(f_arr)
+        if f_max > 0.0:
+            f_arr *= (1.0 / f_max)
         for f_point, f_pos in zip(f_arr, range(f_arr.shape[0])):
             f_start = (float(f_pos) / float(f_arr.shape[0])) * \
                 f_length_beats
@@ -2592,6 +2595,46 @@ class pydaw_sample_graph:
                 f_val = pydaw_clip_value(f_point, 0.0, 1.0)
                 f_result.append((pydaw_pitchbend(f_start, f_val), f_index))
         return f_result
+
+    def envelope_to_notes(self, a_tempo):
+        " In the piano roll clipboard format "
+        f_list = [(x if x > y else y) for x, y in
+            zip([abs(x) for x in self.high_peaks[0]],
+                [abs(x) for x in reversed(self.low_peaks[0])])]
+        f_seconds_per_beat = 60.0 / float(a_tempo)
+        f_length_beats = self.length_in_seconds / f_seconds_per_beat
+        f_point_count = int(f_length_beats * 16.0)  # 64th note resolution
+        print("Resampling {} to {}".format(len(f_list), f_point_count))
+        f_result = []
+        f_arr = numpy.array(f_list)
+        f_arr = scipy.signal.resample(f_arr, f_point_count)
+        f_current_note = None
+        f_max = numpy.amax(f_arr)
+        if f_max > 0.0:
+            f_arr *= (1.0 / f_max)
+        f_thresh = pydaw_db_to_lin(-24.0)
+        for f_point, f_pos in zip(f_arr, range(f_arr.shape[0])):
+            f_start = (float(f_pos) / float(f_arr.shape[0])) * \
+                f_length_beats
+            if f_point > f_thresh:
+                if not f_current_note:
+                    f_current_note = [f_start, 0.25, f_point]
+                else:
+                    if f_point > f_current_note[2]:
+                        f_current_note[2] = f_point
+            else:
+                if f_current_note:
+                    f_current_note[1] = f_start - f_current_note[0]
+                    f_result.append(f_current_note)
+                    f_current_note = None
+        f_result2 = []
+        for f_pair in f_result:
+            f_index = int(f_pair[0] / 4.0)
+            f_start = f_pair[0] % 4.0
+            f_vel = pydaw_clip_value(f_pair[2] * 100.0, 1.0, 127.0)
+            f_result2.append(
+                (str(pydaw_note(f_start, f_pair[1], 60, f_vel)), f_index))
+        return f_result2
 
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time
