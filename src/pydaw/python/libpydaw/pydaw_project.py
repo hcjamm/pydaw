@@ -2579,6 +2579,8 @@ class pydaw_sample_graph:
         print("Resampling {} to {}".format(len(f_list), f_point_count))
         f_result = []
         f_arr = numpy.array(f_list)
+        #  Smooth the array by sampling smaller and then larger
+        f_arr = scipy.signal.resample(f_arr, int(f_length_beats * 4.0))
         f_arr = scipy.signal.resample(f_arr, f_point_count)
         f_max = numpy.amax(f_arr)
         if f_max > 0.0:
