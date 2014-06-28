@@ -6211,6 +6211,7 @@ class automation_viewer(QtGui.QGraphicsView):
             return
         self.clipboard = [(x.cc_item.clone(), x.item_index)
             for x in self.automation_points if x.isSelected()]
+        self.clipboard.sort(key=lambda x: (x[1], x[0].start))
 
     def cut(self):
         self.copy_selected()
@@ -6221,6 +6222,9 @@ class automation_viewer(QtGui.QGraphicsView):
             return
         self.selected_str = []
         if self.clipboard:
+            self.clear_range(
+                self.clipboard[0][1], self.clipboard[0][0].start,
+                self.clipboard[-1][1], self.clipboard[-1][0].start)
             for f_item, f_index in self.clipboard:
                 if f_index < global_item_editing_count:
                     f_item2 = f_item.clone()
@@ -6231,6 +6235,23 @@ class automation_viewer(QtGui.QGraphicsView):
                     else:
                         ITEM_EDITOR.items[f_index].add_pb(f_item2)
                     self.selected_str.append(hash((f_index, str(f_item2))))
+            global_save_and_reload_items()
+
+    def clear_range(self, a_start_index, a_start_beat,
+                    a_end_index, a_end_beat, a_save=False):
+        f_start_tuple = (a_start_index, a_start_beat)
+        f_end_tuple = (a_end_index, a_end_beat)
+        for f_point in self.automation_points:
+            f_tuple = (f_point.item_index, f_point.cc_item.start)
+            if f_tuple >= f_start_tuple and f_tuple <= f_end_tuple:
+                if self.is_cc:
+                    ITEM_EDITOR.items[f_point.item_index].remove_cc(
+                        f_point.cc_item)
+                else:
+                    ITEM_EDITOR.items[f_point.item_index].remove_pb(
+                        f_point.cc_item)
+        if a_save:
+            self.selected_str = []
             global_save_and_reload_items()
 
     def delete_selected(self):
