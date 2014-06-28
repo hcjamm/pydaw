@@ -2613,15 +2613,27 @@ class pydaw_sample_graph:
         if f_max > 0.0:
             f_arr *= (1.0 / f_max)
         f_thresh = pydaw_db_to_lin(-24.0)
+        f_has_been_less = False
+
         for f_point, f_pos in zip(f_arr, range(f_arr.shape[0])):
             f_start = (float(f_pos) / float(f_arr.shape[0])) * \
                 f_length_beats
             if f_point > f_thresh:
                 if not f_current_note:
-                    f_current_note = [f_start, 0.25, f_point]
+                    f_has_been_less = False
+                    f_current_note = [f_start, 0.25, f_point, f_point]
                 else:
                     if f_point > f_current_note[2]:
                         f_current_note[2] = f_point
+                    else:
+                        f_has_been_less = True
+                    if f_point < f_current_note[3]:
+                        f_current_note[3] = f_point
+                    if f_has_been_less and \
+                    f_point >= f_current_note[3] * 2.0:
+                        f_current_note[1] = f_start - f_current_note[0]
+                        f_result.append(f_current_note)
+                        f_current_note = [f_start, 0.25, f_point, f_point]
             else:
                 if f_current_note:
                     f_current_note[1] = f_start - f_current_note[0]
