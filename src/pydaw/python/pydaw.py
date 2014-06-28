@@ -6225,6 +6225,7 @@ class automation_viewer(QtGui.QGraphicsView):
                 if f_index < global_item_editing_count:
                     f_item2 = f_item.clone()
                     if self.is_cc:
+                        f_item2.plugin_index = self.plugin_index
                         f_item2.cc_num = self.cc_num
                         ITEM_EDITOR.items[f_index].add_cc(f_item2)
                     else:
