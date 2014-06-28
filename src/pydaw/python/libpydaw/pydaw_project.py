@@ -2643,7 +2643,7 @@ class pydaw_sample_graph:
         for f_pair in f_result:
             f_index = int(f_pair[0] / 4.0)
             f_start = f_pair[0] % 4.0
-            f_vel = pydaw_clip_value(f_pair[2] * 100.0, 1.0, 127.0)
+            f_vel = pydaw_clip_value((f_pair[2] * 70.0) + 40.0, 1.0, 127.0)
             f_result2.append(
                 (str(pydaw_note(f_start, f_pair[1], 60, f_vel)), f_index))
         return f_result2
