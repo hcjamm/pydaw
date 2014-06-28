@@ -23,6 +23,10 @@ from libpydaw.pydaw_osc import pydaw_osc
 import wavefile
 import datetime
 
+import numpy
+import scipy
+import scipy.signal
+
 from PyQt4 import QtGui, QtCore
 from libpydaw import pydaw_history
 
@@ -2563,6 +2567,31 @@ class pydaw_sample_graph:
                     f_paths.append(f_result)
                 self.sample_graph_cache = f_paths
         return self.sample_graph_cache
+
+    def envelope_to_automation(self, a_is_cc, a_tempo):
+        " In the automation viewer clipboard format "
+        f_list = [(x if x > y else y) for x, y in
+            zip([abs(x) for x in self.high_peaks[0]],
+                [abs(x) for x in reversed(self.low_peaks[0])])]
+        f_seconds_per_beat = 60.0 / float(a_tempo)
+        f_length_beats = self.length_in_seconds / f_seconds_per_beat
+        f_point_count = int(f_length_beats * 16.0)
+        print("Resampling {} to {}".format(len(f_list), f_point_count))
+        f_result = []
+        f_arr = numpy.array(f_list)
+        f_arr = scipy.signal.resample(f_arr, f_point_count)
+        for f_point, f_pos in zip(f_arr, range(f_arr.shape[0])):
+            f_start = (float(f_pos) / float(f_arr.shape[0])) * \
+                f_length_beats
+            f_index = int(f_start / 4.0)
+            f_start = f_start % 4.0
+            if a_is_cc:
+                f_val = pydaw_clip_value(f_point * 127.0, 0.0, 127.0)
+                f_result.append((pydaw_cc(f_start, 0, 0, f_val), f_index))
+            else:
+                f_val = pydaw_clip_value(f_point, 0.0, 1.0)
+                f_result.append((pydaw_pitchbend(f_start, f_val), f_index))
+        return f_result
 
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time

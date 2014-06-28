@@ -2337,6 +2337,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_replace_action = f_file_menu.addAction(
             _("Replace with Path in Clipboard"))
         f_replace_action.triggered.connect(self.replace_with_path_in_clipboard)
+        f_file_menu.addSeparator()
+        f_copy_as_cc_action = f_file_menu.addAction(
+            _("Copy Volume Envelope as CC automation"))
+        f_copy_as_cc_action.triggered.connect(
+            self.copy_as_cc_automation)
+        f_copy_as_pb_action = f_file_menu.addAction(
+            _("Copy Volume Envelope as Pitchbend automation"))
+        f_copy_as_pb_action.triggered.connect(
+            self.copy_as_pb_automation)
 
         f_properties_menu = f_menu.addMenu(_("Properties"))
         f_edit_properties_action = f_properties_menu.addAction(
@@ -2432,6 +2441,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_menu.exec_(QtGui.QCursor.pos())
         global_current_audio_item_index = f_global_current_audio_item_index
+
+    def copy_as_cc_automation(self):
+        CC_EDITOR.clipboard = self.graph_object.envelope_to_automation(
+            True, TRANSPORT.tempo_spinbox.value())
+
+    def copy_as_pb_automation(self):
+        PB_EDITOR.clipboard = self.graph_object.envelope_to_automation(
+            False, TRANSPORT.tempo_spinbox.value())
 
     def output_menu_triggered(self, a_action):
         f_index = AUDIO_TRACK_NAMES.index(str(a_action.text()))
