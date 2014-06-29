@@ -785,7 +785,8 @@ class region_settings:
                     this_region_editor.add_qtablewidgetitem(
                         f_item_name, f_item.track_num,
                         f_item.bar_num, a_is_offset=True)
-                elif f_item.track_num < pydaw_midi_track_count + pydaw_bus_count:
+                elif f_item.track_num < (pydaw_midi_track_count +
+                pydaw_bus_count):
                     this_region_bus_editor.add_qtablewidgetitem(
                         f_item_name, f_item.track_num,
                         f_item.bar_num, a_is_offset=True)
@@ -1287,18 +1288,26 @@ class region_list_editor:
 
     def set_tooltips(self, a_on):
         if a_on:
-            self.table_widget.setToolTip(_("This is a region editor, it consists of "
-            "items and tracks.\nA track is either a plugin instrument, audio track or bus track.\n"
-            "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add "
-            "a new item\nDouble click an item to open it in the piano-roll-editor or select "
+            self.table_widget.setToolTip(
+            _("This is a region editor, it consists of "
+            "items and tracks.\nA track is either a plugin instrument, "
+            "audio track or bus track.\n"
+            "An item is one bar of MIDI notes or plugin automation.  "
+            "Click an empty cell to add "
+            "a new item\nDouble click an item to open it in the "
+            "piano-roll-editor or select "
             "multiple and right-click->'Edit Selected Items'\n\n"
-            "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted "
+            "The selected items can be copied by pressing CTRL+C, "
+            "cut with CTRL+X, pasted "
             "with CTRL+V, and deleted by pressing 'Delete'\n\n"
-            "Additional functions can be found by right-clicking on the items, the term "
+            "Additional functions can be found by right-clicking on "
+            "the items, the term "
             "'unlink' means to create a new copy of the item that\n"
-            "does not change it's parent item when edited (by default all items are "
+            "does not change it's parent item when edited "
+            "(by default all items are "
             "'ghost items' that update all items with the same name)\n\n"
-            "Click 'Menu->Show Tooltips' in the transport to disable these tooltips"))
+            "Click 'Menu->Show Tooltips' in the transport "
+            "to disable these tooltips"))
         else:
             self.table_widget.setToolTip("")
 
@@ -1573,15 +1582,17 @@ class region_list_editor:
         for i in range(self.track_count):
             for i2 in range(1, self.region_length + 1):
                 f_item = self.table_widget.item(i, i2)
-                if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
+                if not f_item is None and \
+                not str(f_item.text()) == "" and \
+                f_item.isSelected():
                     f_result[(i, i2)] = str(f_item.text())
 
         old_new_map = {}
 
         for f_item_name in set(f_result.values()):
             f_name_suffix = 1
-            while PROJECT.item_exists("{}-{}".format(f_item_name,
-                                                                f_name_suffix)):
+            while PROJECT.item_exists(
+            "{}-{}".format(f_item_name, f_name_suffix)):
                 f_name_suffix += 1
             f_cell_text = "{}-{}".format(f_item_name, f_name_suffix)
             f_uid = PROJECT.copy_item(f_item_name, f_cell_text)
@@ -1589,10 +1600,11 @@ class region_list_editor:
 
         for k, v in f_result.items():
             self.add_qtablewidgetitem(old_new_map[v][0], k[0], k[1] - 1)
-            CURRENT_REGION.add_item_ref_by_uid(k[0] + self.track_offset, k[1] - 1,
-                                                      old_new_map[v][1])
-        PROJECT.save_region(str(this_region_settings.region_name_lineedit.text()),
-                                       CURRENT_REGION)
+            CURRENT_REGION.add_item_ref_by_uid(
+                k[0] + self.track_offset, k[1] - 1, old_new_map[v][1])
+        PROJECT.save_region(
+            str(this_region_settings.region_name_lineedit.text()),
+            CURRENT_REGION)
         PROJECT.commit(_("Auto-Unlink unique items"))
 
     def paste_to_region_end(self):
@@ -1603,8 +1615,10 @@ class region_list_editor:
         if len(f_selected_cells) == 0:
             return
         if len(REGION_CLIPBOARD) != 1:
-            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"), _("Paste to region end only "
-                "works when you have exactly one item copied to the clipboard.\n"
+            QtGui.QMessageBox.warning(
+                MAIN_WINDOW, _("Error"), _("Paste to region end only "
+                "works when you have exactly one item copied to the "
+                "clipboard.\n"
                 "You have {} items copied.").format(len(REGION_CLIPBOARD)))
             return
         f_base_row = f_selected_cells[0].row()
@@ -1640,7 +1654,8 @@ class region_list_editor:
             f_row = f_item[0] + f_base_row
             if f_row >= self.track_count or f_row < 0:
                 continue
-            self.add_qtablewidgetitem(f_item[2], f_row, f_column, a_selected=True)
+            self.add_qtablewidgetitem(
+                f_item[2], f_row, f_column, a_selected=True)
         global_tablewidget_to_region()
         global_update_hidden_rows()
 
@@ -1665,8 +1680,9 @@ class region_list_editor:
         for f_item in self.table_widget.selectedIndexes():
             f_cell = self.table_widget.item(f_item.row(), f_item.column())
             if not f_cell is None and not str(f_cell.text()) == "":
-                REGION_CLIPBOARD.append([int(f_item.row()), int(f_item.column()) - 1,
-                                                str(f_cell.text())])
+                REGION_CLIPBOARD.append(
+                    [int(f_item.row()), int(f_item.column()) - 1,
+                     str(f_cell.text())])
         if len(REGION_CLIPBOARD) > 0:
             REGION_CLIPBOARD.sort(key=operator.itemgetter(0))
             f_row_offset = REGION_CLIPBOARD[0][0]
@@ -1691,14 +1707,18 @@ class region_list_editor:
         self.table_widget.clearSelection()
 
     def tablewidget_to_list(self):
-        """ Convert an edited QTableWidget to a list of tuples for a region ref """
+        """ Convert an edited QTableWidget to a list of tuples
+            for a region ref
+        """
         f_result = []
         for i in range(0, self.track_count):
             for i2 in range(1, self.table_widget.columnCount()):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None:
                     if f_item.text() != "":
-                        f_result.append((i + self.track_offset, i2 - 1, str(f_item.text())))
+                        f_result.append(
+                            (i + self.track_offset, i2 - 1,
+                             str(f_item.text())))
         return f_result
 
 REGION_CLIPBOARD = []
@@ -1711,9 +1731,11 @@ def global_tablewidget_to_region():
     for f_editor in REGION_EDITORS:
         f_result += f_editor.tablewidget_to_list()
     for f_tuple in f_result:
-        CURRENT_REGION.add_item_ref_by_name(f_tuple[0], f_tuple[1], f_tuple[2], f_uid_dict)
-    PROJECT.save_region(str(this_region_settings.region_name_lineedit.text()),
-                                   CURRENT_REGION)
+        CURRENT_REGION.add_item_ref_by_name(
+            f_tuple[0], f_tuple[1], f_tuple[2], f_uid_dict)
+    PROJECT.save_region(
+        str(this_region_settings.region_name_lineedit.text()),
+        CURRENT_REGION)
     PROJECT.commit(_("Edit region"))
 
 
@@ -1731,7 +1753,8 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
 
     global_suppress_audio_track_combobox_changes = False
 
-global_bus_track_names = [_('Master'), _('Bus1'), _('Bus2'), _('Bus3'), _('Bus4')]
+global_bus_track_names = [
+    _('Master'), _('Bus1'), _('Bus2'), _('Bus3'), _('Bus4')]
 
 #TODO:  Clean these up...
 global_beats_per_minute = 128.0
@@ -1739,7 +1762,8 @@ global_beats_per_second = global_beats_per_minute / 60.0
 global_bars_per_second = global_beats_per_second * 0.25
 
 def pydaw_set_bpm(a_bpm):
-    global global_beats_per_minute, global_beats_per_second,  global_bars_per_second
+    global global_beats_per_minute, global_beats_per_second, \
+        global_bars_per_second
     global_beats_per_minute = a_bpm
     global_beats_per_second = a_bpm / 60.0
     global_bars_per_second = global_beats_per_second * 0.25
@@ -1750,9 +1774,9 @@ def pydaw_seconds_to_bars(a_seconds):
     return a_seconds * global_bars_per_second
 
 def pydaw_set_audio_seq_zoom(a_horizontal, a_vertical):
-    global AUDIO_PX_PER_BAR, global_audio_px_per_beat, global_audio_px_per_8th, \
-           global_audio_px_per_12th, global_audio_px_per_16th, \
-           AUDIO_ITEM_HEIGHT
+    global AUDIO_PX_PER_BAR, global_audio_px_per_beat, \
+           global_audio_px_per_8th, global_audio_px_per_12th, \
+           global_audio_px_per_16th, AUDIO_ITEM_HEIGHT
 
     f_width = float(AUDIO_SEQ.rect().width()) - \
         float(AUDIO_SEQ.verticalScrollBar().width()) - 6.0
@@ -3088,18 +3112,22 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected() and \
                 f_item.audio_item.time_stretch_mode >= 2:
-                    f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
-                    f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.1,
-                                           f_item.stretch_width_default * 200.0)
+                    f_x = f_item.width_orig + f_event_diff + \
+                        f_item.quantize_offset
+                    f_x = pydaw_clip_value(
+                        f_x, f_item.stretch_width_default * 0.1,
+                        f_item.stretch_width_default * 200.0)
                     f_x = pydaw_clip_max(f_x, f_item.max_stretch)
                     f_x = f_item.quantize(f_x)
                     f_x -= f_item.quantize_offset
-                    f_item.stretch_handle.setPos(f_x - AUDIO_ITEM_HANDLE_SIZE,
-                                                 (AUDIO_ITEM_HEIGHT * 0.5) -
-                                                 (AUDIO_ITEM_HANDLE_HEIGHT * 0.5))
+                    f_item.stretch_handle.setPos(
+                        f_x - AUDIO_ITEM_HANDLE_SIZE,
+                        (AUDIO_ITEM_HEIGHT * 0.5) -
+                        (AUDIO_ITEM_HANDLE_HEIGHT * 0.5))
         elif self.is_amp_dragging:
             for f_item in AUDIO_SEQ.get_selected():
-                f_new_vel = pydaw_util.pydaw_clip_value(f_val + f_item.orig_value, -24, 24)
+                f_new_vel = pydaw_util.pydaw_clip_value(
+                    f_val + f_item.orig_value, -24, 24)
                 f_new_vel = int(f_new_vel)
                 f_item.audio_item.vol = f_new_vel
                 f_item.set_vol_line()
@@ -3112,11 +3140,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_new_vel = f_val + f_item.orig_value
                 else:
                     if f_start > self.vc_mid:
-                        f_frac =  (f_start - self.vc_mid) / (self.vc_end - self.vc_mid)
-                        f_new_vel = pydaw_util.linear_interpolate(f_val, 0.3 * f_val, f_frac)
+                        f_frac =  (f_start - self.vc_mid) / \
+                            (self.vc_end - self.vc_mid)
+                        f_new_vel = pydaw_util.linear_interpolate(
+                            f_val, 0.3 * f_val, f_frac)
                     else:
-                        f_frac =  (f_start - self.vc_start) / (self.vc_mid - self.vc_start)
-                        f_new_vel = pydaw_util.linear_interpolate(0.3 * f_val, f_val, f_frac)
+                        f_frac =  (f_start - self.vc_start) / \
+                            (self.vc_mid - self.vc_start)
+                        f_new_vel = pydaw_util.linear_interpolate(
+                            0.3 * f_val, f_val, f_frac)
                     f_new_vel += f_item.orig_value
                 f_new_vel = pydaw_util.pydaw_clip_value(f_new_vel, -24, 24)
                 f_new_vel = int(f_new_vel)
@@ -3169,14 +3201,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item = f_audio_item.audio_item
             f_pos_x = f_audio_item.pos().x()
             if f_audio_item.is_resizing:
-                f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
+                f_x = f_audio_item.width_orig + f_event_diff + \
+                    f_audio_item.quantize_offset
                 f_x = pydaw_clip_value(f_x, AUDIO_ITEM_HANDLE_SIZE,
                                        f_audio_item.length_px_minus_start)
                 f_x = f_audio_item.quantize(f_x)
                 f_x -= f_audio_item.quantize_offset
                 f_audio_item.setRect(0.0, 0.0, f_x, AUDIO_ITEM_HEIGHT)
-                f_item.sample_end = ((f_audio_item.rect().width() + \
-                f_audio_item.length_px_start) / f_audio_item.length_seconds_orig_px) * 1000.0
+                f_item.sample_end = ((f_audio_item.rect().width() +
+                f_audio_item.length_px_start) /
+                f_audio_item.length_seconds_orig_px) * 1000.0
                 f_item.sample_end = pydaw_util.pydaw_clip_value(
                     f_item.sample_end, 1.0, 1000.0, True)
             elif f_audio_item.is_start_resizing:
@@ -3188,29 +3222,33 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_start_result = self.pos_to_musical_time(f_x)
                 f_item.start_bar = f_start_result[0]
                 f_item.start_beat = f_start_result[1]
-                f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / \
-                (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) \
-                * 1000.0
-                f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0, True)
+                f_item.sample_start = ((f_x -
+                    f_audio_item.start_handle_scene_min) /
+                    (f_audio_item.start_handle_scene_max -
+                    f_audio_item.start_handle_scene_min)) * 1000.0
+                f_item.sample_start = pydaw_clip_value(
+                    f_item.sample_start, 0.0, 999.0, True)
             elif f_audio_item.is_fading_in:
                 f_pos = f_audio_item.fade_in_handle.pos().x()
                 f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
                 f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0, True)
             elif f_audio_item.is_fading_out:
                 f_pos = f_audio_item.fade_out_handle.pos().x()
-                f_val = \
-                ((f_pos + AUDIO_ITEM_HANDLE_SIZE) / (f_audio_item.rect().width())) \
-                * 1000.0
+                f_val = ((f_pos + AUDIO_ITEM_HANDLE_SIZE) /
+                    (f_audio_item.rect().width())) * 1000.0
                 f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0, True)
             elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
                 f_reset_selection = True
-                f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
-                f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1,
-                                       f_audio_item.stretch_width_default * 200.0)
+                f_x = f_audio_item.width_orig + f_event_diff + \
+                    f_audio_item.quantize_offset
+                f_x = pydaw_clip_value(
+                    f_x, f_audio_item.stretch_width_default * 0.1,
+                    f_audio_item.stretch_width_default * 200.0)
                 f_x = pydaw_clip_max(f_x, f_audio_item.max_stretch)
                 f_x = f_audio_item.quantize(f_x)
                 f_x -= f_audio_item.quantize_offset
-                f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
+                f_item.timestretch_amt = \
+                    f_x / f_audio_item.stretch_width_default
                 f_item.timestretch_amt_end = f_item.timestretch_amt
                 if f_item.time_stretch_mode >= 3 and \
                 f_audio_item.orig_string != str(f_item):
@@ -3479,10 +3517,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
         f_timestretch_checked = True
         if len( f_selected_items) > 1:
-            f_time_stretch_mode_val = f_selected_items[0].audio_item.time_stretch_mode
-            f_time_stretch_amt_val = f_selected_items[0].audio_item.timestretch_amt
+            f_time_stretch_mode_val = \
+                f_selected_items[0].audio_item.time_stretch_mode
+            f_time_stretch_amt_val = \
+                f_selected_items[0].audio_item.timestretch_amt
             f_pitch_val = f_selected_items[0].audio_item.pitch_shift
-            f_time_stretch_amt_end_val = f_selected_items[0].audio_item.timestretch_amt_end
+            f_time_stretch_amt_end_val = \
+                f_selected_items[0].audio_item.timestretch_amt_end
             f_pitch_end_val = f_selected_items[0].audio_item.pitch_shift_end
             f_crispness_val = f_selected_items[0].audio_item.crispness
             for f_item in f_selected_items[1:]:
@@ -3845,7 +3886,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def draw_item(self, a_audio_item_index, a_audio_item, a_graph):
         """a_start in seconds, a_length in seconds"""
-        f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_graph)
+        f_audio_item = audio_viewer_item(
+            a_audio_item_index, a_audio_item, a_graph)
         self.audio_items.append(f_audio_item)
         self.scene.addItem(f_audio_item)
         return f_audio_item
@@ -3855,13 +3897,15 @@ AUDIO_ITEMS_TO_DROP = []
 global_current_audio_item_index = None
 
 def global_paif_val_callback(a_port, a_val):
-    if CURRENT_REGION is not None and global_current_audio_item_index is not None:
-        PROJECT.this_pydaw_osc.pydaw_audio_per_item_fx(CURRENT_REGION.uid,
-                                                                  global_current_audio_item_index,
-                                                                  a_port, a_val)
+    if CURRENT_REGION is not None and \
+    global_current_audio_item_index is not None:
+        PROJECT.this_pydaw_osc.pydaw_audio_per_item_fx(
+            CURRENT_REGION.uid, global_current_audio_item_index,
+            a_port, a_val)
 
 def global_paif_rel_callback(a_port, a_val):
-    if CURRENT_REGION is not None and global_current_audio_item_index is not None:
+    if CURRENT_REGION is not None and \
+    global_current_audio_item_index is not None:
         f_paif = PROJECT.get_audio_per_item_fx_region(CURRENT_REGION.uid)
         f_index_list = AUDIO_SEQ_WIDGET.modulex.get_list()
         f_paif.set_row(global_current_audio_item_index, f_index_list)
@@ -3877,8 +3921,8 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.stop_preview_button.pressed.connect(self.on_stop_preview)
         self.folders_tab_widget.addTab(AUDIO_EDITOR_WIDGET.widget, _("Edit"))
 
-        self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback,
-                                                                    global_paif_val_callback)
+        self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(
+            global_paif_rel_callback, global_paif_val_callback)
 
         self.modulex_widget = QtGui.QWidget()
         self.modulex_widget.setObjectName("plugin_ui")
@@ -3892,13 +3936,14 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.vlayout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.vlayout)
         self.controls_grid_layout = QtGui.QGridLayout()
-        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                                            QtGui.QSizePolicy.Expanding), 0, 30)
+        self.controls_grid_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
         self.vlayout.addLayout(self.controls_grid_layout)
         self.vlayout.addWidget(AUDIO_SEQ)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setFixedWidth(105)
-        self.snap_combobox.addItems([_("None"), _("Bar"), _("Beat"), "1/8th", "1/12th", "1/16th"])
+        self.snap_combobox.addItems(
+            [_("None"), _("Bar"), _("Beat"), "1/8th", "1/12th", "1/16th"])
         self.controls_grid_layout.addWidget(QtGui.QLabel(_("Snap:")), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
@@ -3920,23 +3965,30 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         self.select_all_action = self.action_menu.addAction(_("Select All"))
         self.select_all_action.triggered.connect(self.on_select_all)
         self.select_all_action.setShortcut(QtGui.QKeySequence.SelectAll)
-        self.clear_selection_action = self.action_menu.addAction(_("Clear Selection"))
+        self.clear_selection_action = self.action_menu.addAction(
+            _("Clear Selection"))
         self.clear_selection_action.triggered.connect(
             AUDIO_SEQ.scene.clearSelection)
-        self.clear_selection_action.setShortcut(QtGui.QKeySequence.fromString("Esc"))
+        self.clear_selection_action.setShortcut(
+            QtGui.QKeySequence.fromString("Esc"))
         self.action_menu.addSeparator()
         self.delete_selected_action = self.action_menu.addAction(_("Delete"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
         self.action_menu.addSeparator()
-        self.clone_action = self.action_menu.addAction(_("Clone from Region..."))
+        self.clone_action = self.action_menu.addAction(
+            _("Clone from Region..."))
         self.clone_action.triggered.connect(self.on_clone)
-        self.glue_selected_action = self.action_menu.addAction(_("Glue Selected"))
+        self.glue_selected_action = self.action_menu.addAction(
+            _("Glue Selected"))
         self.glue_selected_action.triggered.connect(self.on_glue_selected)
-        self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
-        self.crossfade_action = self.action_menu.addAction(_("Crossfade Selected"))
+        self.glue_selected_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+G"))
+        self.crossfade_action = self.action_menu.addAction(
+            _("Crossfade Selected"))
         self.crossfade_action.triggered.connect(AUDIO_SEQ.crossfade_selected)
-        self.crossfade_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+F"))
+        self.crossfade_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+F"))
 
         self.v_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.v_zoom_slider.setObjectName("zoom_slider")
@@ -4062,11 +4114,12 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
         for f_item in AUDIO_SEQ.audio_items:
             if f_item.isSelected():
                 f_count = True
-                self.audio_items_clipboard.append((str(f_item.audio_item),
-                                                   f_per_item_fx_dict.get_row(f_item.track_num,
-                                                                              True)))
+                self.audio_items_clipboard.append(
+                    (str(f_item.audio_item),
+                     f_per_item_fx_dict.get_row(f_item.track_num, True)))
         if not f_count:
-            QtGui.QMessageBox.warning(self.widget, _("Error"), _("Nothing selected."))
+            QtGui.QMessageBox.warning(
+                self.widget, _("Error"), _("Nothing selected."))
         return f_count
 
     def on_cut(self):
@@ -4458,8 +4511,9 @@ class audio_item_editor_widget:
 
     def ok_handler(self):
         if IS_PLAYING:
-            QtGui.QMessageBox.warning(self.widget, _("Error"),
-                                      _("Cannot edit audio items during playback"))
+            QtGui.QMessageBox.warning(
+                self.widget, _("Error"),
+                _("Cannot edit audio items during playback"))
             return
 
         self.end_mode = 0
@@ -4537,7 +4591,8 @@ class audio_item_editor_widget:
                 f_item.draw()
                 f_selected_count += 1
         if f_selected_count == 0:
-            QtGui.QMessageBox.warning(self.widget, _("Error"), _("No items selected"))
+            QtGui.QMessageBox.warning(
+                self.widget, _("Error"), _("No items selected"))
         else:
             if f_was_stretching:
                 f_current_region_length = pydaw_get_current_region_length()
@@ -4545,11 +4600,12 @@ class audio_item_editor_widget:
                 PROJECT.save_stretch_dicts()
                 for f_stretch_item, f_audio_item in f_stretched_items:
                     f_stretch_item[2].wait()
-                    f_new_uid = PROJECT.get_wav_uid_by_name(f_stretch_item[0],
-                                                                       a_uid=f_stretch_item[1])
+                    f_new_uid = PROJECT.get_wav_uid_by_name(
+                        f_stretch_item[0], a_uid=f_stretch_item[1])
                     f_graph = PROJECT.get_sample_graph_by_uid(f_new_uid)
-                    f_audio_item.clip_at_region_end(f_current_region_length, f_global_tempo,
-                                                    f_graph.length_in_seconds)
+                    f_audio_item.clip_at_region_end(
+                        f_current_region_length, f_global_tempo,
+                        f_graph.length_in_seconds)
             PROJECT.save_audio_region(CURRENT_REGION.uid, global_audio_items)
             global_open_audio_items(True)
             PROJECT.commit(_("Update audio items"))
@@ -7793,7 +7849,9 @@ class transport_widget:
 
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
-        if not self.suppress_osc and not self.is_playing and not self.is_recording:
+        if not self.suppress_osc and \
+        not self.is_playing and \
+        not self.is_recording:
             AUDIO_SEQ.set_playback_pos(self.get_bar_value())
         self.set_time(self.get_region_value(), self.get_bar_value(), 0.0)
 
@@ -7816,8 +7874,10 @@ class transport_widget:
                 this_region_bus_editor.clear_items()
             SONG_EDITOR.table_widget.selectColumn(self.get_region_value())
             this_region_editor.table_widget.selectColumn(self.get_bar_value())
-            this_region_audio_editor.table_widget.selectColumn(self.get_bar_value())
-            this_region_bus_editor.table_widget.selectColumn(self.get_bar_value())
+            this_region_audio_editor.table_widget.selectColumn(
+                self.get_bar_value())
+            this_region_bus_editor.table_widget.selectColumn(
+                self.get_bar_value())
             if self.is_playing or self.is_recording:
                 self.trigger_audio_playback()
         else:
@@ -7976,14 +8036,11 @@ global_open_inst_ui_dict = {}
 def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
     global global_open_fx_ui_dicts
     if not a_track_num in global_open_fx_ui_dicts[a_track_type]:
-        f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(global_plugin_rel_callback,
-                                                          global_plugin_val_callback,
-                                                          a_track_num,
-                                                          PROJECT, a_folder,
-                                                          a_track_type,
-                                                          a_title, MAIN_WINDOW.styleSheet(),
-                                                          global_fx_closed_callback,
-                                                          global_configure_plugin_callback)
+        f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(
+            global_plugin_rel_callback, global_plugin_val_callback,
+            a_track_num, PROJECT, a_folder, a_track_type,
+            a_title, MAIN_WINDOW.styleSheet(), global_fx_closed_callback,
+            global_configure_plugin_callback)
 
         pydaw_center_widget_on_screen(f_modulex.widget)
         f_modulex.show_widget()
@@ -7999,32 +8056,23 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     f_track_num = int(a_track_num)
     if not f_track_num in global_open_inst_ui_dict:
         if a_plugin_type == 1:
-            f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(global_plugin_rel_callback,
-                                                              global_plugin_val_callback,
-                                                              f_track_num, PROJECT,
-                                                              pydaw_folder_instruments, 0,
-                                                              a_title,
-                                                              MAIN_WINDOW.styleSheet(),
-                                                              global_inst_closed_callback,
-                                                              global_configure_plugin_callback)
+            f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(
+                global_plugin_rel_callback, global_plugin_val_callback,
+                f_track_num, PROJECT, pydaw_folder_instruments, 0,
+                a_title, MAIN_WINDOW.styleSheet(),
+                global_inst_closed_callback, global_configure_plugin_callback)
         elif a_plugin_type == 2:
-            f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback,
-                                                          global_plugin_val_callback,
-                                                          f_track_num, PROJECT,
-                                                          pydaw_folder_instruments,
-                                                          0, a_title,
-                                                          MAIN_WINDOW.styleSheet(),
-                                                          global_inst_closed_callback,
-                                                          global_configure_plugin_callback)
+            f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(
+                global_plugin_rel_callback, global_plugin_val_callback,
+                f_track_num, PROJECT, pydaw_folder_instruments,
+                0, a_title, MAIN_WINDOW.styleSheet(),
+                global_inst_closed_callback, global_configure_plugin_callback)
         elif a_plugin_type == 3:
-            f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(global_plugin_rel_callback,
-                                                          global_plugin_val_callback,
-                                                          f_track_num, PROJECT,
-                                                          pydaw_folder_instruments,
-                                                          0, a_title,
-                                                          MAIN_WINDOW.styleSheet(),
-                                                          global_inst_closed_callback,
-                                                          global_configure_plugin_callback)
+            f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(
+                global_plugin_rel_callback, global_plugin_val_callback,
+                f_track_num, PROJECT, pydaw_folder_instruments,
+                0, a_title, MAIN_WINDOW.styleSheet(),
+                global_inst_closed_callback, global_configure_plugin_callback)
         else:
             return
 
@@ -8069,11 +8117,10 @@ def global_inst_closed_callback(a_track_num, a_track_type=None):
     #global global_open_inst_ui_dict
     #global_open_inst_ui_dict.pop(a_track_num)  #Not doing anymore, just hiding
 
-def global_configure_plugin_callback(a_is_instrument, a_track_type, a_track_num,
-                                     a_key, a_message):
-    PROJECT.this_pydaw_osc.pydaw_configure_plugin(a_is_instrument,
-                                                             a_track_type, a_track_num,
-                                                             a_key, a_message)
+def global_configure_plugin_callback(a_is_instrument, a_track_type,
+                                     a_track_num, a_key, a_message):
+    PROJECT.this_pydaw_osc.pydaw_configure_plugin(
+        a_is_instrument, a_track_type, a_track_num, a_key, a_message)
 
 def global_close_all_plugin_windows():
     global global_open_fx_ui_dicts, global_open_inst_ui_dict
@@ -8111,9 +8158,10 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def check_for_rw_perms(self, a_file):
         if not os.access(os.path.dirname(str(a_file)), os.W_OK):
-            QtGui.QMessageBox.warning(self, _("Error"),
-                                      _("You do not have read+write permissions to "
-                                      "{}".format(global_pydaw_home)))
+            QtGui.QMessageBox.warning(
+                self, _("Error"),
+                _("You do not have read+write permissions to "
+                "{}".format(global_pydaw_home)))
             return False
         else:
             return True
@@ -8126,7 +8174,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             while True:
                 f_file = QtGui.QFileDialog.getSaveFileName(
                     parent=self, caption=_('New Project'),
-                    directory="{}/default.{}".format(global_home, global_pydaw_version_string),
+                    directory="{}/default.{}".format(
+                        global_home, global_pydaw_version_string),
                     filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
                     f_file = str(f_file)
@@ -8144,9 +8193,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         if IS_PLAYING:
             return
         try:
-            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption=_('Open Project'),
-                                                       directory=global_default_project_folder,
-                                                       filter=global_pydaw_file_type_string)
+            f_file = QtGui.QFileDialog.getOpenFileName(
+                parent=self ,caption=_('Open Project'),
+                directory=global_default_project_folder,
+                filter=global_pydaw_file_type_string)
             if f_file is None:
                 return
             f_file_str = str(f_file)
@@ -8163,17 +8213,17 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         try:
             while True:
-                f_new_file = QtGui.QFileDialog.getSaveFileName(self, _("Save project as..."),
-                                                               directory="{}/{}.{}".format(
-                                                               global_default_project_folder,
-                                                               PROJECT.project_file,
-                                                               global_pydaw_version_string))
+                f_new_file = QtGui.QFileDialog.getSaveFileName(
+                    self, _("Save project as..."),
+                    directory="{}/{}.{}".format(global_default_project_folder,
+                    PROJECT.project_file, global_pydaw_version_string))
                 if not f_new_file is None and not str(f_new_file) == "":
                     f_new_file = str(f_new_file)
                     if not self.check_for_empty_directory(f_new_file) or \
                     not self.check_for_rw_perms(f_new_file):
                         continue
-                    if not f_new_file.endswith(".{}".format(global_pydaw_version_string)):
+                    if not f_new_file.endswith(
+                    ".{}".format(global_pydaw_version_string)):
                         f_new_file += ".{}".format(global_pydaw_version_string)
                     global_close_all_plugin_windows()
                     PROJECT.save_project_as(f_new_file)
@@ -8197,7 +8247,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             if os.path.isfile(f_file_name):
                 f_ok.setEnabled(True)
                 f_timer.stop()
-                f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
+                f_time_label.setText(
+                    _("Finished in {}").format(f_time_label.text()))
                 os.system("rm -f '{}'".format(f_file_name))
             else:
                 f_elapsed_time = time.time() - f_start_time
@@ -8247,7 +8298,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_timer.stop()
                 f_ok.setEnabled(True)
                 f_cancel.setEnabled(False)
-                f_time_label.setText(_("Finished in {}").format(f_time_label.text()))
+                f_time_label.setText(
+                    _("Finished in {}").format(f_time_label.text()))
                 os.system("rm -f '{}'".format(f_file_name))
                 f_proc.communicate()[0]
                 #f_output = f_proc.communicate()[0]
@@ -8255,18 +8307,20 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_exitCode = f_proc.returncode
                 if f_exitCode != 0:
                     f_window.close()
-                    QtGui.QMessageBox.warning(self, _("Error"),
-                                              _("Offline render exited abnormally with exit "
-                                              "code {}").format(f_exitCode))
+                    QtGui.QMessageBox.warning(
+                        self, _("Error"),
+                        _("Offline render exited abnormally with exit "
+                        "code {}").format(f_exitCode))
             else:
                 f_elapsed_time = time.time() - f_start_time
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
 
-        f_proc = subprocess.Popen(a_cmd_list,
-                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        f_proc = subprocess.Popen(
+            a_cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         f_start_time = time.time()
-        f_window = QtGui.QDialog(MAIN_WINDOW,
-                                 QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
+        f_window = QtGui.QDialog(
+            MAIN_WINDOW,
+            QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
         f_window.setWindowTitle(_("Rendering to .wav, please wait"))
         f_window.setMinimumSize(420, 210)
         f_layout = QtGui.QGridLayout()
@@ -8278,7 +8332,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_timer.timeout.connect(timeout_handler)
 
         f_ok_cancel_layout = QtGui.QHBoxLayout()
-        f_ok_cancel_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        f_ok_cancel_layout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_layout.addLayout(f_ok_cancel_layout, 2, 1)
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.setMinimumWidth(75)
@@ -8295,7 +8350,8 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_offline_render(self):
         def ok_handler():
             if str(f_name.text()) == "":
-                QtGui.QMessageBox.warning(f_window, _("Error"), _("Name cannot be empty"))
+                QtGui.QMessageBox.warning(
+                    f_window, _("Error"), _("Name cannot be empty"))
                 return
             if (f_end_region.value() < f_start_region.value()) or \
             ((f_end_region.value() == f_start_region.value()) and \
@@ -8340,16 +8396,18 @@ class pydaw_main_window(QtGui.QMainWindow):
             if f_debug_checkbox.isChecked():
                 f_cmd = "x-terminal-emulator -e bash -c " \
                 "'gdb {}-dbg'".format(pydaw_util.global_pydaw_render_bin_path)
-                f_run_cmd = [str(x) for x in ("run", "'{}'".format(f_dir),
-                             "'{}'".format(f_out_file), f_sr, f_sb,
-                             f_er, f_eb, f_samp_rate, f_buff_size, f_thread_count)]
+                f_run_cmd = [str(x) for x in
+                    ("run", "'{}'".format(f_dir),
+                     "'{}'".format(f_out_file), f_sr, f_sb,
+                     f_er, f_eb, f_samp_rate, f_buff_size, f_thread_count)]
                 f_clipboard = QtGui.QApplication.clipboard()
                 f_clipboard.setText(" ".join(f_run_cmd))
                 subprocess.Popen(f_cmd, shell=True)
             else:
-                f_cmd = [str(x) for x in (pydaw_util.global_pydaw_render_bin_path,
-                                          f_dir, f_out_file, f_sr, f_sb, f_er, f_eb,
-                                          f_samp_rate, f_buff_size, f_thread_count)]
+                f_cmd = [str(x) for x in
+                    (pydaw_util.global_pydaw_render_bin_path,
+                     f_dir, f_out_file, f_sr, f_sb, f_er, f_eb,
+                     f_samp_rate, f_buff_size, f_thread_count)]
                 self.show_offline_rendering_wait_window_v2(f_cmd, f_out_file)
 
         def cancel_handler():
@@ -8360,7 +8418,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getSaveFileName(
-                    f_window,  _("Select a file name to save to..."), self.last_offline_dir))
+                    f_window,  _("Select a file name to save to..."),
+                    self.last_offline_dir))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(".wav"):
                         f_file_name += ".wav"
@@ -8458,11 +8517,14 @@ class pydaw_main_window(QtGui.QMainWindow):
             pass
 
         f_sample_rate_hlayout.addWidget(f_sample_rate)
-        f_sample_rate_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        f_sample_rate_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         f_layout.addWidget(QtGui.QLabel(
-        _("File is exported to 32 bit .wav at the selected sample rate. "
-        "\nYou can convert the format using Menu->Tools->MP3/Ogg Converter")), 6, 1)
+            _("File is exported to 32 bit .wav at the selected sample rate. "
+            "\nYou can convert the format using "
+            "Menu->Tools->MP3/Ogg Converter")),
+            6, 1)
         f_copy_to_clipboard_checkbox = QtGui.QCheckBox(
         _("Copy export path to clipboard? (useful for right-click pasting "
         "back into the audio sequencer)"))
@@ -8513,7 +8575,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                                             global_ui_refresh_callback)
         f_widget.populate_table()
         f_layout.addWidget(f_widget)
-        f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
+        f_window.setGeometry(
+            QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
         f_window.exec_()
 
     def on_verify_history(self):
@@ -8538,7 +8601,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(self,
                     _("Open a theme file"), "{}/lib/{}/themes".format(
-                        pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string),
+                        pydaw_util.global_pydaw_install_prefix,
+                        global_pydaw_version_string),
                     "PyDAW Style(*.pytheme)")
             if f_file is not None and str(f_file) != "":
                 f_file = str(f_file)
@@ -8546,8 +8610,9 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_dir = os.path.dirname(f_file)
                 f_style = pydaw_escape_stylesheet(f_style, f_dir)
                 pydaw_write_file_text(global_user_style_file, f_file)
-                QtGui.QMessageBox.warning(MAIN_WINDOW, _("Theme Applied..."),
-                                          _("Please restart PyDAW to update the UI"))
+                QtGui.QMessageBox.warning(
+                    MAIN_WINDOW, _("Theme Applied..."),
+                    _("Please restart PyDAW to update the UI"))
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
@@ -8559,9 +8624,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setFixedSize(420, 150)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_minor_version = pydaw_read_file_text("{}/lib/{}/minor-version.txt".format(
-            pydaw_util.global_pydaw_install_prefix, global_pydaw_version_string))
-        f_version = QtGui.QLabel("{}-{}".format(global_pydaw_version_string, f_minor_version))
+        f_minor_version = pydaw_read_file_text(
+            "{}/lib/{}/minor-version.txt".format(
+                pydaw_util.global_pydaw_install_prefix,
+                global_pydaw_version_string))
+        f_version = QtGui.QLabel(
+            "{}-{}".format(global_pydaw_version_string, f_minor_version))
         f_version.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         f_layout.addWidget(f_version)
         f_ok_button = QtGui.QPushButton(_("OK"))
@@ -9015,13 +9083,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_vlayout.addLayout(this_region_settings.hlayout0)
 
         self.song_region_splitter.addWidget(self.regions_tab_widget)
-        self.regions_tab_widget.addTab(this_region_editor.table_widget, _("Instruments"))
-        self.regions_tab_widget.addTab(this_region_bus_editor.table_widget, _("Busses"))
-        self.regions_tab_widget.addTab(this_region_audio_editor.table_widget, _("Audio Tracks"))
-        self.regions_tab_widget.addTab(AUDIO_SEQ_WIDGET.hsplitter, _("Audio Seq"))
+        self.regions_tab_widget.addTab(
+            this_region_editor.table_widget, _("Instruments"))
+        self.regions_tab_widget.addTab(
+            this_region_bus_editor.table_widget, _("Busses"))
+        self.regions_tab_widget.addTab(
+            this_region_audio_editor.table_widget, _("Audio Tracks"))
+        self.regions_tab_widget.addTab(
+            AUDIO_SEQ_WIDGET.hsplitter, _("Audio Seq"))
 
         self.first_audio_tab_click = True
-        self.regions_tab_widget.currentChanged.connect(self.regions_tab_changed)
+        self.regions_tab_widget.currentChanged.connect(
+            self.regions_tab_changed)
 
         self.main_tabwidget.addTab(ITEM_EDITOR.widget, _("MIDI Item"))
 
@@ -9032,9 +9105,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_main_vlayout.addLayout(f_cc_map_hlayout)
         self.cc_map_table = pydaw_cc_map_editor()
         f_cc_map_hlayout.addWidget(self.cc_map_table.groupbox)
-        f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10,
-                                                   QtGui.QSizePolicy.Expanding,
-                                                   QtGui.QSizePolicy.Minimum))
+        f_cc_map_hlayout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
+                              QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, _("CC Maps"))
         self.main_tabwidget.addTab(WAVE_EDITOR.widget, _("Wave Editor"))
 
@@ -9051,7 +9124,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.osc_server = None
         if self.osc_server is not None:
             print(self.osc_server.get_url())
-            self.osc_server.add_method("pydaw/ui_configure", 's', self.configure_callback)
+            self.osc_server.add_method(
+                "pydaw/ui_configure", 's', self.configure_callback)
             self.osc_server.add_method(None, None, self.osc_fallback)
             self.osc_timer = QtCore.QTimer(self)
             self.osc_timer.setSingleShot(False)
@@ -9097,7 +9171,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             a_key, a_val = f_line.split("|", 1)
             if a_key == "pc":
                 f_is_inst, f_track_num, f_port, f_val = a_val.split("|")
-                f_track_type, f_track_num = track_all_to_type_and_index(f_track_num)
+                f_track_type, f_track_num = track_all_to_type_and_index(
+                    f_track_num)
                 f_pc_dict[(f_track_type, f_is_inst, f_track_num, f_port)] = f_val
             elif a_key == "cur":
                 if IS_PLAYING:
@@ -9113,7 +9188,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             elif a_key == "wec":
                 if IS_PLAYING:
                     WAVE_EDITOR.set_playback_cursor(float(a_val))
-        #This prevents multiple events from moving the same control, only the last goes through
+        #This prevents multiple events from moving the same control,
+        #only the last goes through
         for k, f_val in f_pc_dict.items():
             f_track_type, f_is_inst, f_track_num, f_port = k
             if int_to_bool(f_is_inst):
@@ -9280,9 +9356,9 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(f_name, 0, 1)
 
         f_ok_layout = QtGui.QHBoxLayout()
-        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                              QtGui.QSizePolicy.Expanding,
-                                              QtGui.QSizePolicy.Minimum))
+        f_ok_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
+            QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
@@ -9305,11 +9381,16 @@ class pydaw_cc_map_editor:
         def cc_ok_handler():
             f_map = pydaw_get_cc_map(self.current_map_name)
             f_map.add_item(
-                self.cc_spinbox.value(), pydaw_cc_map_item(f_effects_cb.isChecked(),
-                global_controller_port_name_dict["Ray-V"][str(f_rayv.currentText())].port,
-                global_controller_port_name_dict["Way-V"][str(f_wayv.currentText())].port,
-                global_controller_port_name_dict["Euphoria"][str(f_euphoria.currentText())].port,
-                global_controller_port_name_dict["Modulex"][str(f_modulex.currentText())].port))
+                self.cc_spinbox.value(),
+                pydaw_cc_map_item(f_effects_cb.isChecked(),
+                global_controller_port_name_dict[
+                    "Ray-V"][str(f_rayv.currentText())].port,
+                global_controller_port_name_dict[
+                    "Way-V"][str(f_wayv.currentText())].port,
+                global_controller_port_name_dict[
+                    "Euphoria"][str(f_euphoria.currentText())].port,
+                global_controller_port_name_dict[
+                    "Modulex"][str(f_modulex.currentText())].port))
             pydaw_save_cc_map(self.current_map_name, f_map)
             self.open_map(self.current_map_name)
             PROJECT.this_pydaw_osc.pydaw_load_cc_map(self.current_map_name)
@@ -9465,20 +9546,23 @@ class pydaw_cc_map_editor:
                 QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
             self.cc_table.setItem(
                 f_row_pos, 2,
-                QtGui.QTableWidgetItem(
-                global_controller_port_num_dict["Euphoria"][v.euphoria_port].name))
+                QtGui.QTableWidgetItem(global_controller_port_num_dict[
+                    "Euphoria"][v.euphoria_port].name))
             self.cc_table.setItem(
                 f_row_pos, 3,
                 QtGui.QTableWidgetItem(
-                global_controller_port_num_dict["Modulex"][v.modulex_port].name))
+                global_controller_port_num_dict[
+                    "Modulex"][v.modulex_port].name))
             self.cc_table.setItem(
                 f_row_pos, 4,
                 QtGui.QTableWidgetItem(
-                    global_controller_port_num_dict["Ray-V"][v.rayv_port].name))
+                    global_controller_port_num_dict[
+                        "Ray-V"][v.rayv_port].name))
             self.cc_table.setItem(
                 f_row_pos, 5,
                 QtGui.QTableWidgetItem(
-                    global_controller_port_num_dict["Way-V"][v.wayv_port].name))
+                    global_controller_port_num_dict[
+                        "Way-V"][v.wayv_port].name))
             f_row_pos += 1
         self.cc_table.setSortingEnabled(True)
         self.cc_table.resizeColumnsToContents()
@@ -9779,8 +9863,7 @@ class pydaw_wave_editor_widget:
         f_groupbox_layout = QtGui.QGridLayout(f_groupbox)
         f_groupbox_layout.addWidget(QtGui.QLabel(_("Crispness")), 12, 0)
         f_crispness_combobox = QtGui.QComboBox()
-        f_crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
-                                          "4", "5 (normal)", _("6 (sharp, drums)")])
+        f_crispness_combobox.addItems(CRISPNESS_SETTINGS)
         f_crispness_combobox.setCurrentIndex(5)
         f_groupbox_layout.addWidget(f_crispness_combobox, 12, 1)
         f_preserve_formants_checkbox = QtGui.QCheckBox("Preserve formants?")
@@ -9947,7 +10030,8 @@ class pydaw_wave_editor_widget:
         self.current_file = f_file
         self.file_lineedit.setText(f_file)
         self.set_sample_graph(f_file)
-        self.duration = self.graph_object.frame_count / self.graph_object.sample_rate
+        self.duration = self.graph_object.frame_count / \
+            self.graph_object.sample_rate
         if f_file in self.history:
             self.history.remove(f_file)
         self.history.append(f_file)
@@ -9964,11 +10048,13 @@ class pydaw_wave_editor_widget:
         f_end = self.sample_graph.end_marker.value
         f_diff = f_end - f_start
         f_diff = pydaw_clip_value(f_diff, 0.1, 1000.0)
-        f_fade_in = ((self.sample_graph.fade_in_marker.value - f_start) / f_diff) * 1000.0
-        f_fade_out = 1000.0 - \
-            (((f_end - self.sample_graph.fade_out_marker.value) / f_diff) * 1000.0)
+        f_fade_in = ((self.sample_graph.fade_in_marker.value - f_start) /
+            f_diff) * 1000.0
+        f_fade_out = 1000.0 - (((f_end -
+            self.sample_graph.fade_out_marker.value) / f_diff) * 1000.0)
 
-        return pydaw_audio_item(a_uid, a_sample_start=f_start, a_sample_end=f_end,
+        return pydaw_audio_item(a_uid, a_sample_start=f_start,
+                                a_sample_end=f_end,
                                 a_vol=self.vol_slider.value(),
                                 a_fade_in=f_fade_in, a_fade_out=f_fade_out,
                                 a_fadein_vol=self.fade_in_start.value(),
