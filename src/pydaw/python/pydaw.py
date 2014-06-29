@@ -9492,6 +9492,8 @@ class pydaw_wave_editor_widget:
         self.vlayout = QtGui.QVBoxLayout(self.right_widget)
         self.file_browser = pydaw_widgets.pydaw_file_browser_widget()
         self.file_browser.load_button.pressed.connect(self.on_file_open)
+        self.file_browser.list_file.itemDoubleClicked.connect(
+            self.on_file_open)
         self.file_browser.preview_button.pressed.connect(self.on_preview)
         self.file_browser.stop_preview_button.pressed.connect(
             self.on_stop_preview)

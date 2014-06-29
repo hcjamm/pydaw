@@ -5226,8 +5226,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_eq_list.append(f_gain)
 
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
-        self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.sample_table.verticalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
+        self.sample_table.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
         self.sample_table.resizeRowsToContents()
 
         self.file_selector = pydaw_file_select_widget(self.load_files)
@@ -5243,16 +5245,23 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.file_browser =  pydaw_file_browser_widget()
         self.sample_tab_layout.addWidget(self.file_browser.hsplitter)
 
-        self.file_browser.load_button.pressed.connect(self.file_browser_load_button_pressed)
-        self.file_browser.preview_button.pressed.connect(self.file_browser_preview_button_pressed)
-        self.file_browser.stop_preview_button.pressed.connect(self.file_browser_stop_preview)
+        self.file_browser.load_button.pressed.connect(
+            self.file_browser_load_button_pressed)
+        self.file_browser.list_file.itemDoubleClicked.connect(
+            self.file_browser_load_button_pressed)
+        self.file_browser.preview_button.pressed.connect(
+            self.file_browser_preview_button_pressed)
+        self.file_browser.stop_preview_button.pressed.connect(
+            self.file_browser_stop_preview)
 
         self.smp_tab_main_widget = QtGui.QWidget()
         self.smp_tab_main_widget.setMinimumWidth(420)
-        self.smp_tab_main_verticalLayout = QtGui.QVBoxLayout(self.smp_tab_main_widget)
+        self.smp_tab_main_verticalLayout = QtGui.QVBoxLayout(
+            self.smp_tab_main_widget)
         self.file_browser.hsplitter.addWidget(self.smp_tab_main_widget)
 
-        self.smp_tab_main_verticalLayout.addWidget(self.sample_table, QtCore.Qt.AlignCenter)
+        self.smp_tab_main_verticalLayout.addWidget(
+            self.sample_table, QtCore.Qt.AlignCenter)
 
         menubar =  QtGui.QPushButton(_("Menu"))
         self.menubar_layout = QtGui.QHBoxLayout()
@@ -5262,23 +5271,31 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.main_bottom_layout.addLayout(self.menubar_layout)
         self.main_bottom_layout.addLayout(self.file_selector.layout)
         self.menubar_layout.addWidget(menubar)
-        self.menubar_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.menubar_layout.addItem(QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Expanding))
         self.smp_tab_main_verticalLayout.addLayout(self.main_bottom_hlayout)
 
         f_logo_label =  QtGui.QLabel()
-        f_pixmap = QtGui.QPixmap("{}/lib/{}/themes/default/euphoria.png".format(
-        pydaw_util.global_pydaw_install_prefix, pydaw_util.global_pydaw_version_string)).scaled(
+        f_pixmap = QtGui.QPixmap(
+            "{}/lib/{}/themes/default/euphoria.png".format(
+            pydaw_util.global_pydaw_install_prefix,
+            pydaw_util.global_pydaw_version_string)).scaled(
             80, 80, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setPixmap(f_pixmap)
         f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
-        f_logo_label.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
-        self.main_bottom_hlayout.addWidget(f_logo_label, alignment=QtCore.Qt.AlignRight)
+        f_logo_label.setSizePolicy(
+            QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.main_bottom_hlayout.addWidget(
+            f_logo_label, alignment=QtCore.Qt.AlignRight)
 
         menuFile =  QtGui.QMenu("Menu", menubar)
-        action_open_in_browser = menuFile.addAction(_("Open Selected Sample in Browser"))
+        action_open_in_browser = menuFile.addAction(
+            _("Open Selected Sample in Browser"))
         menuFile.addSeparator()
-        actionSave_instrument_to_file =  menuFile.addAction(_("Save Instrument to File..."))
-        actionOpen_instrument_from_file = menuFile.addAction(_("Open Instrument from File..."))
+        actionSave_instrument_to_file = menuFile.addAction(
+            _("Save Instrument to File..."))
+        actionOpen_instrument_from_file = menuFile.addAction(
+            _("Open Instrument from File..."))
         menuFile.addSeparator()
         action_copy_instrument = menuFile.addAction(_("Copy Instrument"))
         action_paste_instrument = menuFile.addAction(_("Paste Instrument"))
