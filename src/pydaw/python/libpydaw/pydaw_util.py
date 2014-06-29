@@ -19,6 +19,7 @@ import subprocess
 import time
 from math import log, pow
 from multiprocessing import cpu_count
+import numpy
 
 global_pydaw_version_string = "pydaw4"
 global_pydaw_file_type_string = 'PyDAW4 Project (*.pydaw4)'
@@ -331,6 +332,10 @@ def cubic_interpolate(a_arr, a_pos):
 
     return (f_a0 * f_mu * f_mu2 + f_a1 * f_mu2 + f_a2 * f_mu + f_a3)
 
+def window_rms(a_arr, a_window_size):
+  a2 = numpy.power(a_arr, 2)
+  window = numpy.ones(a_window_size) / float(a_window_size)
+  return numpy.sqrt(numpy.convolve(a2, window, 'valid'))
 
 def rate_env(a_audio_item, a_src_path, a_dest_path):
     f_rate_diff = float(a_audio_item.timestretch_amt_end -
