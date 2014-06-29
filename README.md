@@ -14,7 +14,7 @@ cd pydaw-build
 
 sudo dpkg -i pydaw[your_version].deb
 
- #Fedora based distros:
+#Fedora based distros:
 
 cd [pydaw src dir]/src
 
