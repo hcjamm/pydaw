@@ -25,7 +25,8 @@ with open("src/minor-version.txt") as f_file:
     global_pydaw_version_num = f_file.read().strip()
 
 global_version_fedora = global_pydaw_version_num.replace("-", ".")
-global_pydaw_package_name = "{}-{}".format(global_pydaw_version_string, global_version_fedora)
+global_pydaw_package_name = "{}-{}".format(
+    global_pydaw_version_string, global_version_fedora)
 
 global_home = os.path.expanduser("~")
 
@@ -35,9 +36,10 @@ if not os.path.isdir("{}/rpmbuild".format(global_home)):
 global_specs_dir = "{}/rpmbuild/SPECS/".format(global_home)
 global_sources_dir = "{}/rpmbuild/SOURCES/".format(global_home)
 
-global_tarball_name = "{}-source-code.tar.gz" .format(global_pydaw_package_name,)
-global_tarball_url = "http://sourceforge.net/projects/libmodsynth/files/{}/linux/{}".format(
-    global_pydaw_version_string, global_tarball_name)
+global_tarball_name = "{}-source-code.tar.gz" .format(
+    global_pydaw_package_name)
+global_tarball_url = ("http://sourceforge.net/projects/libmodsynth/files"
+    "/{}/linux/{}".format(global_pydaw_version_string, global_tarball_name))
 
 os.system('cp "{}" "{}"'.format(global_tarball_name, global_sources_dir))
 
@@ -64,15 +66,15 @@ else:
 
 f_spec_template = \
 """
-Name:           {}
-Version:        {}
+Name:           {0}
+Version:        {1}
 
 Release:        1%{{?dist}}
 Summary:        A digital audio workstation with a full suite of instrument and effects plugins.
 
 License:        GPLv3
 URL:            http://sourceforge.net/projects/libmodsynth/
-Source0:        {}
+Source0:        {2}
 
 Requires:      python3-PyQt4 gcc alsa-lib-devel liblo-devel \
 libsndfile-devel gcc-c++ git python3-numpy python3-scipy \
@@ -86,7 +88,7 @@ instrument and effects plugins.
 %setup -q
 
 %build
-make {}
+make {3}
 
 %install
 export DONT_STRIP=1
@@ -218,7 +220,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc
 
-""".format(global_pydaw_version_string, global_version_fedora, global_tarball_url, f_native)
+""".format(global_pydaw_version_string, global_version_fedora, 
+    global_tarball_url, f_native)
 
 f_spec_file = open(global_spec_file, "w")
 f_spec_file.write(f_spec_template)
