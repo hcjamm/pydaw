@@ -14,7 +14,7 @@ cd pydaw-build
 
 sudo dpkg -i pydaw[your_version].deb
 
-#Fedora based distros:
+ #Fedora based distros:
 
 cd [pydaw src dir]/src
 
@@ -30,13 +30,13 @@ sudo yum localinstall pydaw[version number].rpm
 
 #All others:
 
-# [figure out the dependencies based on the Fedora or Ubuntu dependencies]
+ # [figure out the dependencies based on the Fedora or Ubuntu dependencies]
 
 cd [pydaw src dir]/src
 
 make
 
-# You can specify DESTDIR or PREFIX if packaging, the result is fully relocatable
+ # You can specify DESTDIR or PREFIX if packaging, the result is fully relocatable
 
 make install
 
