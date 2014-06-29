@@ -15,10 +15,14 @@ GNU General Public License for more details.
 import os
 import sys
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.system("./src.sh")
 
-global_pydaw_version_string = open("src/major-version.txt").read().strip()
-global_pydaw_version_num = open("src/minor-version.txt").read().strip()
+with open("src/major-version.txt") as f_file:
+    global_pydaw_version_string = f_file.read().strip()
+
+with open("src/minor-version.txt") as f_file:
+    global_pydaw_version_num = f_file.read().strip()
 
 global_version_fedora = global_pydaw_version_num.replace("-", ".")
 global_pydaw_package_name = "{}-{}".format(global_pydaw_version_string, global_version_fedora)
