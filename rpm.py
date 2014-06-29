@@ -96,120 +96,120 @@ rm -rf $RPM_BUILD_ROOT
 
 %defattr(644, root, root)
 
-%attr(4755, root, root) /usr/bin/pydaw4-engine
+%attr(4755, root, root) /usr/bin/{0}-engine
 
-%attr(755, root, root) /usr/bin/pydaw4
-%attr(755, root, root) /usr/bin/pydaw4_render
-%attr(755, root, root) /usr/bin/pydaw4_render-dbg
-%attr(755, root, root) /usr/bin/pydaw4-engine-dbg
-%attr(755, root, root) /usr/bin/pydaw4-engine-no-hw
-%attr(755, root, root) /usr/bin/pydaw4-engine-no-root
-%attr(755, root, root) /usr/bin/pydaw4-project-recover
-%attr(755, root, root) /usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.py
-%attr(755, root, root) /usr/lib/pydaw4/pydaw/python/pydaw.py
-%attr(755, root, root) /usr/lib/pydaw4/rubberband/bin/rubberband
-%attr(755, root, root) /usr/lib/pydaw4/sbsms/bin/sbsms
+%attr(755, root, root) /usr/bin/{0}
+%attr(755, root, root) /usr/bin/{0}_render
+%attr(755, root, root) /usr/bin/{0}_render-dbg
+%attr(755, root, root) /usr/bin/{0}-engine-dbg
+%attr(755, root, root) /usr/bin/{0}-engine-no-hw
+%attr(755, root, root) /usr/bin/{0}-engine-no-root
+%attr(755, root, root) /usr/bin/{0}-project-recover
+%attr(755, root, root) /usr/lib/{0}/pydaw/python/libpydaw/pydaw_paulstretch.py
+%attr(755, root, root) /usr/lib/{0}/pydaw/python/pydaw.py
+%attr(755, root, root) /usr/lib/{0}/rubberband/bin/rubberband
+%attr(755, root, root) /usr/lib/{0}/sbsms/bin/sbsms
 
-/usr/lib/pydaw4/presets/MODULEX.pypresets
-/usr/lib/pydaw4/presets/RAYV.pypresets
-/usr/lib/pydaw4/presets/WAYV.pypresets
-/usr/lib/pydaw4/pydaw/python/libpydaw/__init__.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/liblo.cpython-33m.so
-/usr/lib/pydaw4/pydaw/python/libpydaw/libportaudio.so
-/usr/lib/pydaw4/pydaw/python/libpydaw/midicomp
-/usr/lib/pydaw4/pydaw/python/libpydaw/portaudio.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/portmidi.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_device_dialog.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_gradients.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_history.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_osc.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_ports.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/staging.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.py
-/usr/lib/pydaw4/pydaw/python/libpydaw/translate.py
-/usr/lib/pydaw4/major-version.txt
-/usr/lib/pydaw4/minor-version.txt
-/usr/lib/pydaw4/rubberband/include/rubberband/RubberBandStretcher.h
-/usr/lib/pydaw4/rubberband/include/rubberband/rubberband-c.h
-/usr/lib/pydaw4/rubberband/lib/librubberband.a
-/usr/lib/pydaw4/rubberband/lib/librubberband.so
-/usr/lib/pydaw4/rubberband/lib/librubberband.so.2
-/usr/lib/pydaw4/rubberband/lib/librubberband.so.2.1.0
-/usr/lib/pydaw4/rubberband/lib/pkgconfig/rubberband.pc
-/usr/lib/pydaw4/themes/default/drop-down.png
-/usr/lib/pydaw4/themes/default/euphoria.png
-/usr/lib/pydaw4/themes/default/h-fader.png
-/usr/lib/pydaw4/themes/default/mute-off.png
-/usr/lib/pydaw4/themes/default/mute-on.png
-/usr/lib/pydaw4/themes/default/play-off.png
-/usr/lib/pydaw4/themes/default/play-on.png
-/usr/lib/pydaw4/themes/default/pydaw-knob.png
-/usr/lib/pydaw4/themes/default/rayv.png
-/usr/lib/pydaw4/themes/default/rec-off.png
-/usr/lib/pydaw4/themes/default/rec-on.png
-/usr/lib/pydaw4/themes/default/record-off.png
-/usr/lib/pydaw4/themes/default/record-on.png
-/usr/lib/pydaw4/themes/default/solo-off.png
-/usr/lib/pydaw4/themes/default/solo-on.png
-/usr/lib/pydaw4/themes/default/spinbox-down.png
-/usr/lib/pydaw4/themes/default/spinbox-up.png
-/usr/lib/pydaw4/themes/default/stop-off.png
-/usr/lib/pydaw4/themes/default/stop-on.png
-/usr/lib/pydaw4/themes/default/default.pytheme
-/usr/lib/pydaw4/themes/default/v-fader.png
-/usr/share/applications/pydaw4.desktop
-/usr/share/doc/pydaw4/copyright
-/usr/share/doc/pydaw4/readme.txt
-/usr/share/pixmaps/pydaw4.png
-#/usr/share/locale/pt_PT/LC_MESSAGES/pydaw4.mo
-#/usr/share/locale/de/LC_MESSAGES/pydaw4.mo
-#/usr/share/locale/fr/LC_MESSAGES/pydaw4.mo
-/usr/lib/pydaw4/pydaw/python/wavefile/__init__.py
-/usr/lib/pydaw4/pydaw/python/wavefile/libsndfile.py
-/usr/lib/pydaw4/pydaw/python/wavefile/wavefile.py
+/usr/lib/{0}/presets/MODULEX.pypresets
+/usr/lib/{0}/presets/RAYV.pypresets
+/usr/lib/{0}/presets/WAYV.pypresets
+/usr/lib/{0}/pydaw/python/libpydaw/__init__.py
+/usr/lib/{0}/pydaw/python/libpydaw/liblo.cpython-33m.so
+/usr/lib/{0}/pydaw/python/libpydaw/libportaudio.so
+/usr/lib/{0}/pydaw/python/libpydaw/midicomp
+/usr/lib/{0}/pydaw/python/libpydaw/portaudio.py
+/usr/lib/{0}/pydaw/python/libpydaw/portmidi.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_device_dialog.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_gradients.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_history.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_osc.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_ports.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_project.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_util.py
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_widgets.py
+/usr/lib/{0}/pydaw/python/libpydaw/staging.py
+/usr/lib/{0}/pydaw/python/libpydaw/super_formant_maker.py
+/usr/lib/{0}/pydaw/python/libpydaw/translate.py
+/usr/lib/{0}/major-version.txt
+/usr/lib/{0}/minor-version.txt
+/usr/lib/{0}/rubberband/include/rubberband/RubberBandStretcher.h
+/usr/lib/{0}/rubberband/include/rubberband/rubberband-c.h
+/usr/lib/{0}/rubberband/lib/librubberband.a
+/usr/lib/{0}/rubberband/lib/librubberband.so
+/usr/lib/{0}/rubberband/lib/librubberband.so.2
+/usr/lib/{0}/rubberband/lib/librubberband.so.2.1.0
+/usr/lib/{0}/rubberband/lib/pkgconfig/rubberband.pc
+/usr/lib/{0}/themes/default/drop-down.png
+/usr/lib/{0}/themes/default/euphoria.png
+/usr/lib/{0}/themes/default/h-fader.png
+/usr/lib/{0}/themes/default/mute-off.png
+/usr/lib/{0}/themes/default/mute-on.png
+/usr/lib/{0}/themes/default/play-off.png
+/usr/lib/{0}/themes/default/play-on.png
+/usr/lib/{0}/themes/default/pydaw-knob.png
+/usr/lib/{0}/themes/default/rayv.png
+/usr/lib/{0}/themes/default/rec-off.png
+/usr/lib/{0}/themes/default/rec-on.png
+/usr/lib/{0}/themes/default/record-off.png
+/usr/lib/{0}/themes/default/record-on.png
+/usr/lib/{0}/themes/default/solo-off.png
+/usr/lib/{0}/themes/default/solo-on.png
+/usr/lib/{0}/themes/default/spinbox-down.png
+/usr/lib/{0}/themes/default/spinbox-up.png
+/usr/lib/{0}/themes/default/stop-off.png
+/usr/lib/{0}/themes/default/stop-on.png
+/usr/lib/{0}/themes/default/default.pytheme
+/usr/lib/{0}/themes/default/v-fader.png
+/usr/share/applications/{0}.desktop
+/usr/share/doc/{0}/copyright
+/usr/share/doc/{0}/readme.txt
+/usr/share/pixmaps/{0}.png
+#/usr/share/locale/pt_PT/LC_MESSAGES/{0}.mo
+#/usr/share/locale/de/LC_MESSAGES/{0}.mo
+#/usr/share/locale/fr/LC_MESSAGES/{0}.mo
+/usr/lib/{0}/pydaw/python/wavefile/__init__.py
+/usr/lib/{0}/pydaw/python/wavefile/libsndfile.py
+/usr/lib/{0}/pydaw/python/wavefile/wavefile.py
 
 
-/usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/__init__.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/portaudio.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/portaudio.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/portmidi.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/portmidi.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_device_dialog.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_device_dialog.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_gradients.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_gradients.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_history.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_history.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_osc.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_osc.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_paulstretch.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_ports.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_ports.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_project.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_util.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/pydaw_widgets.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/staging.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/staging.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/super_formant_maker.pyo
-/usr/lib/pydaw4/pydaw/python/pydaw.pyc
-/usr/lib/pydaw4/pydaw/python/pydaw.pyo
-/usr/lib/pydaw4/pydaw/python/libpydaw/translate.pyc
-/usr/lib/pydaw4/pydaw/python/libpydaw/translate.pyo
-/usr/lib/pydaw4/pydaw/python/wavefile/__init__.pyc
-/usr/lib/pydaw4/pydaw/python/wavefile/__init__.pyo
-/usr/lib/pydaw4/pydaw/python/wavefile/libsndfile.pyc
-/usr/lib/pydaw4/pydaw/python/wavefile/libsndfile.pyo
-/usr/lib/pydaw4/pydaw/python/wavefile/wavefile.pyc
-/usr/lib/pydaw4/pydaw/python/wavefile/wavefile.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/__init__.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/__init__.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/portaudio.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/portaudio.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/portmidi.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/portmidi.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_device_dialog.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_device_dialog.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_gradients.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_gradients.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_history.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_history.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_osc.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_osc.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_paulstretch.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_paulstretch.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_ports.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_ports.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_project.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_project.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_util.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_util.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_widgets.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/pydaw_widgets.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/staging.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/staging.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/super_formant_maker.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/super_formant_maker.pyo
+/usr/lib/{0}/pydaw/python/pydaw.pyc
+/usr/lib/{0}/pydaw/python/pydaw.pyo
+/usr/lib/{0}/pydaw/python/libpydaw/translate.pyc
+/usr/lib/{0}/pydaw/python/libpydaw/translate.pyo
+/usr/lib/{0}/pydaw/python/wavefile/__init__.pyc
+/usr/lib/{0}/pydaw/python/wavefile/__init__.pyo
+/usr/lib/{0}/pydaw/python/wavefile/libsndfile.pyc
+/usr/lib/{0}/pydaw/python/wavefile/libsndfile.pyo
+/usr/lib/{0}/pydaw/python/wavefile/wavefile.pyc
+/usr/lib/{0}/pydaw/python/wavefile/wavefile.pyo
 
 
 %doc
