@@ -1546,22 +1546,26 @@ class region_list_editor:
         f_window.exec_()
 
     def on_auto_unlink_selected(self):
-        """ Currently adds an automatic -N suffix, but this behavior may be changed later"""
+        """ Adds an automatic -N suffix """
         for i in range(self.track_count):
             for i2 in range(1, self.region_length + 1):
                 f_item = self.table_widget.item(i, i2)
-                if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
+                if not f_item is None and \
+                not str(f_item.text()) == "" and \
+                f_item.isSelected():
                     f_item_name = str(f_item.text())
                     f_name_suffix = 1
-                    while PROJECT.item_exists("{}-{}".format(f_item_name,
-                                                                        f_name_suffix)):
+                    while PROJECT.item_exists(
+                    "{}-{}".format(f_item_name, f_name_suffix)):
                         f_name_suffix += 1
                     f_cell_text = "{}-{}".format(f_item_name, f_name_suffix)
                     f_uid = PROJECT.copy_item(f_item_name, f_cell_text)
                     self.add_qtablewidgetitem(f_cell_text, i, i2 - 1)
-                    CURRENT_REGION.add_item_ref_by_uid(i + self.track_offset, i2 - 1, f_uid)
-        PROJECT.save_region(str(this_region_settings.region_name_lineedit.text()),
-                                       CURRENT_REGION)
+                    CURRENT_REGION.add_item_ref_by_uid(
+                        i + self.track_offset, i2 - 1, f_uid)
+        PROJECT.save_region(
+            str(this_region_settings.region_name_lineedit.text()),
+            CURRENT_REGION)
         PROJECT.commit(_("Auto-Unlink items"))
 
     def on_auto_unlink_unique(self):
