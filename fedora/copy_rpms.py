@@ -19,4 +19,4 @@ os.system("git pull")
 
 rpm_dir = "'{}'/rpmbuild/RPMS/*/pydaw*rpm".format(os.path.expanduser("~"))
 
-os.system("cp {} ..".format(rpm_dir))
+os.system("cp '{}' ..".format(rpm_dir))

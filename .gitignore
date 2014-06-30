@@ -1,3 +1,4 @@
+*.rpm
 src/pydaw-build/pydaw_os/*zip
 src/pydaw-build/pydaw_os/VirtualBox*
 src/pydaw/locale/goo/
@@ -5,8 +6,8 @@ src/pydaw/locale/goo.tranz
 src/pydaw/locale/bin/
 main.su
 src/pydaw-build/*.rpm
-src/pydaw-build/fedora/*.ks
-src/pydaw-build/fedora/cache/
+fedora/*.ks
+fedora/cache/
 *.spec
 src/pydaw_sbsms/Makefile
 src/pydaw_sbsms/cli/sbsms
