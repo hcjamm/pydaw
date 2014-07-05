@@ -486,6 +486,20 @@ class song_editor:
         self.tablewidget_to_song()
         self.table_widget.clearSelection()
         PROJECT.commit(_("Drag-n-drop song item(s)"))
+        self.select_current_region()
+
+    def select_current_region(self):
+        if not CURRENT_REGION_NAME:
+            return
+        for f_i in range(0, 300):
+            f_item = self.table_widget.item(0, f_i)
+            if f_item and str(f_item.text()) == CURRENT_REGION_NAME:
+                f_item.setSelected(True)
+                global global_current_song_index
+                global_current_song_index = f_i
+                TRANSPORT.set_region_value(f_i)
+                TRANSPORT.set_bar_value(0)
+                global_update_region_time()
 
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to
@@ -497,7 +511,7 @@ class song_editor:
         global_current_song_index = None
         for f_i in range(0, 300):
             f_item = self.table_widget.item(0, f_i)
-            if not f_item is None:
+            if f_item:
                 if str(f_item.text()) != "":
                     self.song.add_region_ref_by_name(
                         f_i, f_item.text(), f_uid_dict)
