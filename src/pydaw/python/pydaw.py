@@ -4735,8 +4735,8 @@ class audio_track:
         _("Audio Track: {}").format(self.track_name_lineedit.text()))
 
     def on_bus_changed(self, a_value=0):
-        PROJECT.this_pydaw_osc.pydaw_set_bus(self.track_number,
-                                                        self.bus_combobox.currentIndex(), 2)
+        PROJECT.this_pydaw_osc.pydaw_set_bus(
+            self.track_number, self.bus_combobox.currentIndex(), 2)
         f_tracks = PROJECT.get_audio_tracks()
         f_tracks.tracks[self.track_number].bus_num = self.bus_combobox.currentIndex()
         PROJECT.save_audio_tracks(f_tracks)
@@ -4768,7 +4768,8 @@ class audio_track:
         self.volume_slider.sliderReleased.connect(self.on_vol_released)
         self.hlayout2.addWidget(self.volume_slider)
         self.volume_label = QtGui.QLabel()
-        self.volume_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.volume_label.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.volume_label.setMargin(3)
         self.volume_label.setMinimumWidth(54)
         self.volume_label.setText("0 dB")
@@ -4782,8 +4783,9 @@ class audio_track:
         self.track_name_lineedit.setMinimumWidth(90)
         self.track_name_lineedit.editingFinished.connect(self.on_name_changed)
         self.hlayout3.addWidget(self.track_name_lineedit)
-        self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
-                                                QtGui.QSizePolicy.Minimum))
+        self.hlayout3.addItem(
+            QtGui.QSpacerItem(
+            10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.fx_button = QtGui.QPushButton("FX")
         self.fx_button.pressed.connect(self.on_show_fx)
         self.fx_button.setObjectName("fxbutton")
@@ -4824,9 +4826,10 @@ class audio_track:
         self.suppress_osc = False
 
     def get_track(self):
-        return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(),
-                                 self.volume_slider.value(), str(self.track_name_lineedit.text()),
-                                 self.bus_combobox.currentIndex(), self.track_number)
+        return pydaw_audio_track(
+            self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(),
+            self.volume_slider.value(), str(self.track_name_lineedit.text()),
+            self.bus_combobox.currentIndex(), self.track_number)
 
 def global_set_piano_roll_zoom():
     global global_piano_roll_grid_width
@@ -4849,14 +4852,17 @@ global_piano_roll_grid_max_start_time = 999.0 + global_piano_keys_width
 global_piano_roll_note_height = 15
 global_piano_roll_snap_divisor = 16.0
 global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
-global_piano_roll_snap_value = global_piano_roll_grid_width / global_piano_roll_snap_divisor
+global_piano_roll_snap_value = \
+    global_piano_roll_grid_width / global_piano_roll_snap_divisor
 global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / 4.0
 global_piano_roll_note_count = 120
 global_piano_roll_header_height = 20
-global_piano_roll_total_height = 1000  #gets updated by the piano roll to it's real value
+#gets updated by the piano roll to it's real value:
+global_piano_roll_total_height = 1000
 global_piano_roll_quantize_index = 4
 
-pydaw_note_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
+pydaw_note_selected_gradient = QtGui.QLinearGradient(
+    QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
 pydaw_note_selected_gradient.setColorAt(0, QtGui.QColor(180, 172, 100))
 pydaw_note_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
 
@@ -4879,7 +4885,7 @@ def pydaw_set_piano_roll_quantize(a_index):
         global_piano_roll_snap = True
 
     if a_index == 0:
-        global_piano_roll_snap_divisor = 16.0  #For grid lines in the piano roll
+        global_piano_roll_snap_divisor = 16.0
     elif a_index == 7:
         global_piano_roll_snap_divisor = 128.0
     elif a_index == 6:
@@ -4896,7 +4902,8 @@ def pydaw_set_piano_roll_quantize(a_index):
         global_piano_roll_snap_divisor =  4.0
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
-    global_last_resize = pydaw_clip_min(global_last_resize, global_piano_roll_snap_beats)
+    global_last_resize = pydaw_clip_min(
+        global_last_resize, global_piano_roll_snap_beats)
     PIANO_ROLL_EDITOR.set_grid_div(global_piano_roll_snap_divisor / 4.0)
     global_piano_roll_snap_divisor *= global_item_editing_count
     global_piano_roll_snap_value = \
@@ -5004,7 +5011,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setBrush(f_gradient)
 
     def update_note_text(self, a_note_num=None):
-        f_note_num = a_note_num if a_note_num is not None else self.note_item.note_num
+        f_note_num = a_note_num if a_note_num is not None \
+            else self.note_item.note_num
         f_octave = (f_note_num // 12) - 2
         f_note = global_piano_roll_note_labels[f_note_num % 12]
         f_text = "{}{}".format(f_note, f_octave)
@@ -5065,9 +5073,11 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
             piano_roll_set_delete_mode(True)
             self.delete_later()
-        elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
+        elif a_event.modifiers() == \
+        QtCore.Qt.ControlModifier | QtCore.Qt.AltModifier:
             self.is_velocity_dragging = True
-        elif a_event.modifiers() == QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
+        elif a_event.modifiers() == \
+        QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier:
             self.is_velocity_curving = True
             f_list = [((x.item_index * 4.0) + x.note_item.start)
                 for x in PIANO_ROLL_EDITOR.get_selected_items()]
@@ -5085,13 +5095,15 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 self.mouse_y_pos = QtGui.QCursor.pos().y()
                 self.resize_last_mouse_pos = a_event.pos().x()
                 for f_item in PIANO_ROLL_EDITOR.get_selected_items():
-                    f_item.resize_start_pos = f_item.note_item.start + (4.0 * f_item.item_index)
+                    f_item.resize_start_pos = f_item.note_item.start + (
+                        4.0 * f_item.item_index)
                     f_item.resize_pos = f_item.pos()
                     f_item.resize_rect = f_item.rect()
             elif a_event.modifiers() == QtCore.Qt.ControlModifier:
                 self.is_copying = True
                 for f_item in PIANO_ROLL_EDITOR.get_selected_items():
-                    PIANO_ROLL_EDITOR.draw_note(f_item.note_item, f_item.item_index)
+                    PIANO_ROLL_EDITOR.draw_note(
+                        f_item.note_item, f_item.item_index)
         if self.is_velocity_curving or self.is_velocity_dragging:
             a_event.setAccepted(True)
             self.setSelected(True)
@@ -5120,18 +5132,21 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         for f_item in PIANO_ROLL_EDITOR.get_selected_items():
             if self.is_resizing:
                 if global_piano_roll_snap:
-                    f_adjusted_width = \
-                    round(f_pos_x / global_piano_roll_snap_value) * global_piano_roll_snap_value
+                    f_adjusted_width = round(
+                        f_pos_x / global_piano_roll_snap_value) * \
+                        global_piano_roll_snap_value
                     if f_adjusted_width == 0.0:
                         f_adjusted_width = global_piano_roll_snap_value
                 else:
-                    f_adjusted_width = pydaw_clip_min(f_pos_x, global_piano_roll_min_note_length)
+                    f_adjusted_width = pydaw_clip_min(
+                        f_pos_x, global_piano_roll_min_note_length)
                 f_item.resize_rect.setWidth(f_adjusted_width)
                 f_item.setRect(f_item.resize_rect)
                 f_item.setPos(f_item.resize_pos.x(), f_item.resize_pos.y())
                 QtGui.QCursor.setPos(QtGui.QCursor.pos().x(), self.mouse_y_pos)
             elif self.is_velocity_dragging:
-                f_new_vel = pydaw_util.pydaw_clip_value(f_val + f_item.orig_value, 1, 127)
+                f_new_vel = pydaw_util.pydaw_clip_value(
+                    f_val + f_item.orig_value, 1, 127)
                 f_new_vel = int(f_new_vel)
                 f_item.note_item.velocity = f_new_vel
                 f_item.note_text.setText(str(f_new_vel))
@@ -5143,11 +5158,15 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_new_vel = f_val + f_item.orig_value
                 else:
                     if f_start > self.vc_mid:
-                        f_frac =  (f_start - self.vc_mid) / (self.vc_end - self.vc_mid)
-                        f_new_vel = pydaw_util.linear_interpolate(f_val, 0.3 * f_val, f_frac)
+                        f_frac =  (f_start -
+                            self.vc_mid) / (self.vc_end - self.vc_mid)
+                        f_new_vel = pydaw_util.linear_interpolate(
+                            f_val, 0.3 * f_val, f_frac)
                     else:
-                        f_frac =  (f_start - self.vc_start) / (self.vc_mid - self.vc_start)
-                        f_new_vel = pydaw_util.linear_interpolate(0.3 * f_val, f_val, f_frac)
+                        f_frac =  (f_start -
+                            self.vc_start) / (self.vc_mid - self.vc_start)
+                        f_new_vel = pydaw_util.linear_interpolate(
+                            0.3 * f_val, f_val, f_frac)
                     f_new_vel += f_item.orig_value
                 f_new_vel = pydaw_util.pydaw_clip_value(f_new_vel, 1, 127)
                 f_new_vel = int(f_new_vel)
@@ -5179,7 +5198,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
     def y_pos_to_note(self, a_y):
         return int(global_piano_roll_note_count -
-            ((a_y - global_piano_roll_header_height) / global_piano_roll_note_height))
+            ((a_y - global_piano_roll_header_height) /
+            global_piano_roll_note_height))
 
     def mouseReleaseEvent(self, a_event):
         if PIANO_ROLL_DELETE_MODE:
@@ -5196,11 +5216,13 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_pos_y = f_item.pos().y()
             if self.is_resizing:
                 f_new_note_length = ((f_pos_x + f_item.rect().width() -
-                global_piano_keys_width) * f_recip * 4.0) - f_item.resize_start_pos
+                    global_piano_keys_width) * f_recip *
+                    4.0) - f_item.resize_start_pos
                 if global_selected_piano_note is not None and \
                 self.note_item != global_selected_piano_note:
                     f_new_note_length -= (self.item_index * 4.0)
-                if global_piano_roll_snap and f_new_note_length < global_piano_roll_snap_beats:
+                if global_piano_roll_snap and \
+                f_new_note_length < global_piano_roll_snap_beats:
                     f_new_note_length = global_piano_roll_snap_beats
                 elif f_new_note_length < pydaw_min_note_length:
                     f_new_note_length = pydaw_min_note_length
@@ -5208,24 +5230,30 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             elif self.is_velocity_dragging or self.is_velocity_curving:
                 pass
             else:
-                f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * f_recip
+                f_new_note_start = (f_pos_x -
+                    global_piano_keys_width) * 4.0 * f_recip
                 f_new_note_num = self.y_pos_to_note(f_pos_y)
                 if self.is_copying:
                     f_item.item_index, f_new_note_start = \
                         pydaw_beats_to_index(f_new_note_start)
-                    f_new_note = pydaw_note(f_new_note_start, f_item.note_item.length,
-                                            f_new_note_num, f_item.note_item.velocity)
-                    ITEM_EDITOR.items[f_item.item_index].add_note(f_new_note, False)
-                    #pass a ref instead of a str in case fix_overlaps() modifies it.
+                    f_new_note = pydaw_note(
+                        f_new_note_start, f_item.note_item.length,
+                        f_new_note_num, f_item.note_item.velocity)
+                    ITEM_EDITOR.items[f_item.item_index].add_note(
+                        f_new_note, False)
+                    # pass a ref instead of a str in case
+                    # fix_overlaps() modifies it.
                     f_item.note_item = f_new_note
                     f_new_selection.append(f_item)
                 else:
-                    ITEM_EDITOR.items[f_item.item_index].notes.remove(f_item.note_item)
+                    ITEM_EDITOR.items[f_item.item_index].notes.remove(
+                        f_item.note_item)
                     f_item.item_index, f_new_note_start = \
                         pydaw_beats_to_index(f_new_note_start)
                     f_item.note_item.set_start(f_new_note_start)
                     f_item.note_item.note_num = f_new_note_num
-                    ITEM_EDITOR.items[f_item.item_index].notes.append(f_item.note_item)
+                    ITEM_EDITOR.items[f_item.item_index].notes.append(
+                        f_item.note_item)
                     ITEM_EDITOR.items[f_item.item_index].notes.sort()
         if self.is_resizing:
             global global_last_resize
@@ -5254,7 +5282,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
 class piano_key_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_piano_width, a_note_height, a_parent):
-        QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_piano_width, a_note_height, a_parent)
+        QtGui.QGraphicsRectItem.__init__(
+            self, 0, 0, a_piano_width, a_note_height, a_parent)
         self.setAcceptHoverEvents(True)
         self.hover_brush = QtGui.QColor(200,200,200)
 
@@ -5288,7 +5317,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.padding = 2
         self.piano_height = self.note_height * self.total_notes
         global global_piano_roll_total_height
-        global_piano_roll_total_height = self.piano_height + global_piano_roll_header_height
+        global_piano_roll_total_height = \
+            self.piano_height + global_piano_roll_header_height
 
         QtGui.QGraphicsView.__init__(self)
         self.scene = QtGui.QGraphicsScene(self)
@@ -5353,7 +5383,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 if self.piano_keys[f_note].is_black:
                     self.piano_keys[f_note].setBrush(QtGui.QColor(0, 0, 0))
                 else:
-                    self.piano_keys[f_note].setBrush(QtGui.QColor(255, 255, 255))
+                    self.piano_keys[f_note].setBrush(
+                        QtGui.QColor(255, 255, 255))
             elif f_state == 1:
                 self.piano_keys[f_note].setBrush(QtGui.QColor(237, 150, 150))
             else:
@@ -5387,8 +5418,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_item.set_brush()
 
     def set_selected_strings(self):
-        self.selected_note_strings = \
-            [x.get_selected_string() for x in self.note_items if x.isSelected()]
+        self.selected_note_strings = [x.get_selected_string()
+            for x in self.note_items if x.isSelected()]
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
@@ -5417,16 +5448,19 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_index = f_note.item_index
             f_note_num = f_note.note_item.note_num
             f_velocity = f_note.note_item.velocity
-            self.selected_note_strings.append("{}|{}".format(f_index, f_note.note_item))
+            self.selected_note_strings.append(
+                "{}|{}".format(f_index, f_note.note_item))
             if f_new_start >= 4.0:
                 f_index += int(f_new_start // 4)
                 if f_index >= len(global_open_items_uids):
                     print("Item start exceeded item index length")
                     continue
                 f_new_start = f_new_start % 4.0
-            f_new_note_item = pydaw_note(f_new_start, f_half, f_note_num, f_velocity)
+            f_new_note_item = pydaw_note(
+                f_new_start, f_half, f_note_num, f_velocity)
             ITEM_EDITOR.items[f_index].add_note(f_new_note_item, False)
-            self.selected_note_strings.append("{}|{}".format(f_index, f_new_note_item))
+            self.selected_note_strings.append(
+                "{}|{}".format(f_index, f_new_note_item))
 
         global_save_and_reload_items()
 
@@ -5499,12 +5533,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
             ITEM_EDITOR.show_not_enabled_warning()
             return
         if not self.clipboard:
-            QtGui.QMessageBox.warning(self, _("Error"), _("Nothing copied to the clipboard"))
+            QtGui.QMessageBox.warning(
+                self, _("Error"), _("Nothing copied to the clipboard"))
             return
         f_item_count = len(ITEM_EDITOR.items)
         for f_item, f_index in self.clipboard:
             if f_index < f_item_count:
-                ITEM_EDITOR.items[f_index].add_note(pydaw_note.from_str(f_item))
+                ITEM_EDITOR.items[f_index].add_note(
+                    pydaw_note.from_str(f_item))
         global_save_and_reload_items()
         self.scene.clearSelection()
         for f_item in self.note_items:
@@ -5571,17 +5607,21 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     pass
                 elif self.vel_rand == 2:
                     pass
-                f_note = int(self.total_notes - ((f_pos_y -
-                             global_piano_roll_header_height) / self.note_height)) + 1
+                f_note = int(
+                    self.total_notes - ((f_pos_y -
+                    global_piano_roll_header_height) / self.note_height)) + 1
                 if global_piano_roll_snap:
                     f_beat = (int((f_pos_x - global_piano_keys_width) /
                              global_piano_roll_snap_value) * \
                              global_piano_roll_snap_value) * f_recip * 4.0
-                    f_note_item = pydaw_note(f_beat, global_last_resize, f_note,
-                                             self.get_vel(f_beat))
+                    f_note_item = pydaw_note(
+                        f_beat, global_last_resize, f_note,
+                        self.get_vel(f_beat))
                 else:
-                    f_beat = (f_pos_x - global_piano_keys_width) * f_recip * 4.0
-                    f_note_item = pydaw_note(f_beat, 0.25, f_note, self.get_vel(f_beat))
+                    f_beat = (f_pos_x -
+                        global_piano_keys_width) * f_recip * 4.0
+                    f_note_item = pydaw_note(
+                        f_beat, 0.25, f_note, self.get_vel(f_beat))
                 f_note_index = ITEM_EDITOR.add_note(f_note_item)
                 global global_selected_piano_note
                 global_selected_piano_note = f_note_item
@@ -5611,7 +5651,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         QtGui.QApplication.restoreOverrideCursor()
 
     def draw_header(self):
-        self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
+        self.header = QtGui.QGraphicsRectItem(
+            0, 0, self.viewer_width, self.header_height)
         self.header.hoverEnterEvent = self.hover_restore_cursor_event
         self.header.setBrush(AUDIO_ITEMS_HEADER_GRADIENT)
         self.scene.addItem(self.header)
@@ -5625,7 +5666,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_black_notes = [2, 4, 6, 9, 11]
         f_piano_label = QtGui.QFont()
         f_piano_label.setPointSize(8)
-        self.piano = QtGui.QGraphicsRectItem(0, 0, self.piano_width, self.piano_height)
+        self.piano = QtGui.QGraphicsRectItem(
+            0, 0, self.piano_width, self.piano_height)
         self.scene.addItem(self.piano)
         self.piano.mapToScene(0.0, self.header_height)
         f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
@@ -5641,10 +5683,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
         for i in range(self.end_octave - self.start_octave,
                        self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
-                f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
+                f_key = piano_key_item(
+                    self.piano_width, self.note_height, self.piano)
                 self.piano_keys[f_note_index] = f_key
                 f_note_index += 1
-                f_key.setPos(0, (self.note_height * j) + (self.octave_height * (i - 1)))
+                f_key.setPos(
+                    0, (self.note_height * j) + (self.octave_height * (i - 1)))
 
                 f_key.setToolTip("{} - {}hz".format(
                     pydaw_util.note_num_to_string(f_note_num),
@@ -5653,7 +5697,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 if j == 12:
                     f_label = QtGui.QGraphicsSimpleTextItem("C{}".format(
                         self.end_octave - i), f_key)
-                    f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+                    f_label.setFlag(
+                        QtGui.QGraphicsItem.ItemIgnoresTransformations)
                     f_label.setPos(4, 0)
                     f_label.setFont(f_piano_label)
                     f_label.setPen(QtCore.Qt.black)
@@ -5738,8 +5783,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         f_current_key = 0
         if not self.first_open:
-            f_index = 12 - PIANO_ROLL_EDITOR_WIDGET.scale_key_combobox.currentIndex()
-            f_octave_brushes = f_octave_brushes[f_index:] + f_octave_brushes[:f_index]
+            f_index = \
+                12 - PIANO_ROLL_EDITOR_WIDGET.scale_key_combobox.currentIndex()
+            f_octave_brushes = \
+                f_octave_brushes[f_index:] + f_octave_brushes[:f_index]
         self.first_open = False
         f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width,
                                              self.note_height)
@@ -5750,17 +5797,18 @@ class piano_roll_editor(QtGui.QGraphicsView):
         for i in range(self.end_octave - self.start_octave,
                        self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
-                f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width,
-                                                     self.note_height)
+                f_note_bar = QtGui.QGraphicsRectItem(
+                    0, 0, self.viewer_width, self.note_height)
                 f_note_bar.setZValue(60.0)
                 self.scene.addItem(f_note_bar)
                 f_note_bar.setBrush(f_octave_brushes[f_current_key])
                 f_current_key += 1
                 if f_current_key >= len(f_octave_brushes):
                     f_current_key = 0
-                f_note_bar_y = (self.note_height * j) + (self.octave_height * (i - 1)) + \
-                    self.header_height
-                f_note_bar.setPos(self.piano_width + self.padding, f_note_bar_y)
+                f_note_bar_y = (self.note_height * j) + (self.octave_height *
+                    (i - 1)) + self.header_height
+                f_note_bar.setPos(
+                    self.piano_width + self.padding, f_note_bar_y)
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
         f_bar_pen = QtGui.QPen(QtGui.QColor(240, 30, 30), 12.0)
@@ -5775,13 +5823,17 @@ class piano_roll_editor(QtGui.QGraphicsView):
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
-                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number + 1), self.header)
-                f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+                f_number = QtGui.QGraphicsSimpleTextItem(
+                    str(f_beat_number + 1), self.header)
+                f_number.setFlag(
+                    QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
-                    f_x = (self.beat_width * i) + (self.value_width * j) + self.piano_width
-                    f_line = self.scene.addLine(f_x, self.header_height, f_x, f_beat_y)
+                    f_x = (self.beat_width * i) + (self.value_width *
+                        j) + self.piano_width
+                    f_line = self.scene.addLine(
+                        f_x, self.header_height, f_x, f_beat_y)
                     if float(j) != self.grid_div * 0.5:
                         f_line.setPen(f_line_pen)
 
@@ -5799,9 +5851,11 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_item(self):
         self.has_selected = False #Reset the selected-ness state...
-        self.viewer_width = global_piano_roll_grid_width * global_item_editing_count
-        self.setSceneRect(0.0, 0.0, self.viewer_width + global_piano_roll_grid_width,
-                          self.piano_height + self.header_height + 24.0)
+        self.viewer_width = \
+            global_piano_roll_grid_width * global_item_editing_count
+        self.setSceneRect(
+            0.0, 0.0, self.viewer_width + global_piano_roll_grid_width,
+            self.piano_height + self.header_height + 24.0)
         self.item_length = float(4 * global_item_editing_count)
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = \
@@ -5814,12 +5868,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
             for f_i, f_item in zip(range(f_item_count), ITEM_EDITOR.items):
                 for f_note in f_item.notes:
                     f_note_item = self.draw_note(f_note, f_i)
-                    f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
+                    f_note_item.resize_last_mouse_pos = \
+                        f_note_item.scenePos().x()
                     f_note_item.resize_pos = f_note_item.scenePos()
-                    if f_note_item.get_selected_string() in self.selected_note_strings:
+                    if f_note_item.get_selected_string() in \
+                    self.selected_note_strings:
                         f_note_item.setSelected(True)
             if global_draw_last_items:
-                for f_i, f_uid in zip(range(f_item_count), global_last_open_item_uids):
+                for f_i, f_uid in zip(
+                range(f_item_count), global_last_open_item_uids):
                     f_item = PROJECT.get_item_by_uid(f_uid)
                     for f_note in f_item.notes:
                         f_note_item = self.draw_note(f_note, f_i, False)
@@ -5835,12 +5892,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_note(self, a_note, a_item_index, a_enabled=True):
         """ a_note is an instance of the pydaw_note class"""
-        f_start = self.piano_width + self.padding + self.beat_width * (a_note.start +
-            (float(a_item_index) * 4.0))
+        f_start = self.piano_width + self.padding + self.beat_width * \
+            (a_note.start + (float(a_item_index) * 4.0))
         f_length = self.beat_width * a_note.length
-        f_note = self.header_height + self.note_height * (self.total_notes - a_note.note_num)
-        f_note_item = piano_roll_note_item(f_length, self.note_height,
-                                           a_note.note_num, a_note, a_item_index, a_enabled)
+        f_note = self.header_height + self.note_height * \
+            (self.total_notes - a_note.note_num)
+        f_note_item = piano_roll_note_item(
+            f_length, self.note_height, a_note.note_num,
+            a_note, a_item_index, a_enabled)
         f_note_item.setPos(f_start, f_note)
         self.scene.addItem(f_note_item)
         if a_enabled:
@@ -5917,7 +5976,8 @@ class piano_roll_editor_widget:
         self.scale_key_combobox.setMinimumWidth(60)
         self.scale_key_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#",
                                           "G", "G#", "A", "A#", "B"])
-        self.scale_key_combobox.currentIndexChanged.connect(self.reload_handler)
+        self.scale_key_combobox.currentIndexChanged.connect(
+            self.reload_handler)
         self.controls_grid_layout.addWidget(QtGui.QLabel("Key:"), 0, 3)
         self.controls_grid_layout.addWidget(self.scale_key_combobox, 0, 4)
         self.scale_combobox = QtGui.QComboBox()
@@ -5969,7 +6029,8 @@ class piano_roll_editor_widget:
 
         self.edit_actions_menu.addSeparator()
 
-        self.delete_selected_action = self.edit_actions_menu.addAction(_("Delete"))
+        self.delete_selected_action = self.edit_actions_menu.addAction(
+            _("Delete"))
         self.delete_selected_action.triggered.connect(self.on_delete_selected)
         self.delete_selected_action.setShortcut(QtGui.QKeySequence.Delete)
 
@@ -5998,11 +6059,14 @@ class piano_roll_editor_widget:
 
         self.up_octave_action = self.transpose_menu.addAction(_("Up Octave"))
         self.up_octave_action.triggered.connect(self.transpose_up_octave)
-        self.up_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+UP"))
+        self.up_octave_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+UP"))
 
-        self.down_octave_action = self.transpose_menu.addAction(_("Down Octave"))
+        self.down_octave_action = self.transpose_menu.addAction(
+            _("Down Octave"))
         self.down_octave_action.triggered.connect(self.transpose_down_octave)
-        self.down_octave_action.setShortcut(QtGui.QKeySequence.fromString("ALT+DOWN"))
+        self.down_octave_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+DOWN"))
 
         self.velocity_menu = self.edit_menu.addMenu(_("Velocity"))
 
@@ -6014,7 +6078,8 @@ class piano_roll_editor_widget:
         self.vel_random_index = 0
         self.velocity_random_menu = self.velocity_menu.addMenu(_("Randomness"))
         self.random_types = [_("None"), _("Tight"), _("Loose")]
-        self.vel_rand_action_group = QtGui.QActionGroup(self.velocity_random_menu)
+        self.vel_rand_action_group = QtGui.QActionGroup(
+            self.velocity_random_menu)
         self.velocity_random_menu.triggered.connect(self.vel_rand_triggered)
 
         for f_i, f_type in zip(range(len(self.random_types)), self.random_types):
@@ -6028,10 +6093,13 @@ class piano_roll_editor_widget:
         self.vel_emphasis_index = 0
         self.velocity_emphasis_menu = self.velocity_menu.addMenu(_("Emphasis"))
         self.emphasis_types = [_("None"), _("On-beat"), _("Off-beat")]
-        self.vel_emphasis_action_group = QtGui.QActionGroup(self.velocity_random_menu)
-        self.velocity_emphasis_menu.triggered.connect(self.vel_emphasis_triggered)
+        self.vel_emphasis_action_group = QtGui.QActionGroup(
+            self.velocity_random_menu)
+        self.velocity_emphasis_menu.triggered.connect(
+            self.vel_emphasis_triggered)
 
-        for f_i, f_type in zip(range(len(self.emphasis_types)), self.emphasis_types):
+        for f_i, f_type in zip(
+        range(len(self.emphasis_types)), self.emphasis_types):
             f_action = self.velocity_emphasis_menu.addAction(f_type)
             f_action.setActionGroup(self.vel_emphasis_action_group)
             f_action.setCheckable(True)
@@ -6041,25 +6109,35 @@ class piano_roll_editor_widget:
 
         self.edit_menu.addSeparator()
 
-        self.glue_selected_action = self.edit_menu.addAction(_("Glue Selected"))
-        self.glue_selected_action.triggered.connect(PIANO_ROLL_EDITOR.glue_selected)
-        self.glue_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+G"))
+        self.glue_selected_action = self.edit_menu.addAction(
+            _("Glue Selected"))
+        self.glue_selected_action.triggered.connect(
+            PIANO_ROLL_EDITOR.glue_selected)
+        self.glue_selected_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+G"))
 
-        self.half_selected_action = self.edit_menu.addAction(_("Split Selected in Half"))
-        self.half_selected_action.triggered.connect(PIANO_ROLL_EDITOR.half_selected)
-        self.half_selected_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+H"))
+        self.half_selected_action = self.edit_menu.addAction(
+            _("Split Selected in Half"))
+        self.half_selected_action.triggered.connect(
+            PIANO_ROLL_EDITOR.half_selected)
+        self.half_selected_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+H"))
 
 
         self.edit_menu.addSeparator()
 
-        self.draw_last_action = self.edit_menu.addAction(_("Draw Last Item(s)"))
+        self.draw_last_action = self.edit_menu.addAction(
+            _("Draw Last Item(s)"))
         self.draw_last_action.triggered.connect(self.draw_last)
         self.draw_last_action.setCheckable(True)
-        self.draw_last_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+F"))
+        self.draw_last_action.setShortcut(
+            QtGui.QKeySequence.fromString("CTRL+F"))
 
-        self.open_last_action = self.edit_menu.addAction(_("Open Last Item(s)"))
+        self.open_last_action = self.edit_menu.addAction(
+            _("Open Last Item(s)"))
         self.open_last_action.triggered.connect(self.open_last)
-        self.open_last_action.setShortcut(QtGui.QKeySequence.fromString("ALT+F"))
+        self.open_last_action.setShortcut(
+            QtGui.QKeySequence.fromString("ALT+F"))
 
         self.edit_menu.addSeparator()
 
@@ -6111,7 +6189,8 @@ class piano_roll_editor_widget:
         PIANO_ROLL_EDITOR.transpose_selected(-12)
 
     def set_vel_rand(self, a_val=None):
-        PIANO_ROLL_EDITOR.set_vel_rand(self.vel_random_index, self.vel_emphasis_index)
+        PIANO_ROLL_EDITOR.set_vel_rand(
+            self.vel_random_index, self.vel_emphasis_index)
 
     def on_delete_selected(self):
         PIANO_ROLL_EDITOR.delete_selected()
@@ -6130,8 +6209,9 @@ class piano_roll_editor_widget:
             PIANO_ROLL_EDITOR.clear_drawn_items()
 
     def reload_handler(self, a_val=None):
-        PROJECT.set_midi_scale(self.scale_key_combobox.currentIndex(),
-                                          self.scale_combobox.currentIndex())
+        PROJECT.set_midi_scale(
+            self.scale_key_combobox.currentIndex(),
+            self.scale_combobox.currentIndex())
         if global_open_items_uids:
             PIANO_ROLL_EDITOR.set_selected_strings()
             global_open_items()
@@ -6147,7 +6227,8 @@ global_automation_point_radius = global_automation_point_diameter * 0.5
 global_automation_ruler_width = 36.0
 global_automation_width = 690.0
 
-global_automation_min_height = global_automation_ruler_width - global_automation_point_radius
+global_automation_min_height = \
+    global_automation_ruler_width - global_automation_point_radius
 
 global_automation_gradient = QtGui.QLinearGradient(
     0, 0, global_automation_point_diameter, global_automation_point_diameter)
