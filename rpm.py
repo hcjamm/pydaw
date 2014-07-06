@@ -72,7 +72,7 @@ Release:        1%{{?dist}}
 Summary:        A digital audio workstation with a full suite of instrument and effects plugins.
 
 License:        GPLv3
-URL:            http://sourceforge.net/projects/libmodsynth/
+URL:            http://github.com/j3ffhubb/pydaw/
 Source0:        {2}
 
 Requires:      python3-PyQt4 gcc alsa-lib-devel liblo-devel \
