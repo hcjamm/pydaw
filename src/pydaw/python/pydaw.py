@@ -579,8 +579,8 @@ class region_settings:
                 if f_item.clip_at_region_end():
                     f_resave = True
             if f_resave:
-                PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                                     global_audio_items)
+                PROJECT.save_audio_region(
+                    CURRENT_REGION.uid, global_audio_items)
             PROJECT.commit(f_commit_message)
             global_update_region_time()
 
@@ -1408,13 +1408,13 @@ class region_list_editor:
                             continue
                         else:
                             QtGui.QMessageBox.warning(
-                            self.table_widget, _("Error"),
-                            _("You cannot open multiple instances of "
-                            "the same item as a group.\n"
-                            "You should unlink all duplicate instances "
-                            "of {} into their own "
-                            "individual item names before editing as "
-                            "a group.").format(f_result_str))
+                                self.table_widget, _("Error"),
+                                _("You cannot open multiple instances of "
+                                "the same item as a group.\n"
+                                "You should unlink all duplicate instances "
+                                "of {} into their own "
+                                "individual item names before editing as "
+                                "a group.").format(f_result_str))
                             return
                     f_result.append(f_result_str)
         if f_result:
@@ -3085,27 +3085,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item.isSelected():
                     f_x = f_item.width_orig + f_event_diff + \
                         f_item.quantize_offset
-                    f_x = pydaw_clip_value(f_x, AUDIO_ITEM_HANDLE_SIZE,
-                                           f_item.length_px_minus_start)
+                    f_x = pydaw_clip_value(
+                        f_x, AUDIO_ITEM_HANDLE_SIZE,
+                        f_item.length_px_minus_start)
                     if f_x < f_item.length_px_minus_start:
                         f_x = f_item.quantize(f_x)
                         f_x -= f_item.quantize_offset
-                    f_item.length_handle.setPos(f_x - AUDIO_ITEM_HANDLE_SIZE,
-                                                AUDIO_ITEM_HEIGHT -
-                                                AUDIO_ITEM_HANDLE_HEIGHT)
+                    f_item.length_handle.setPos(
+                        f_x - AUDIO_ITEM_HANDLE_SIZE,
+                        AUDIO_ITEM_HEIGHT - AUDIO_ITEM_HANDLE_HEIGHT)
         elif self.is_start_resizing:
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected():
                     f_x = f_item.width_orig + f_event_diff + \
                         f_item.quantize_offset
-                    f_x = pydaw_clip_value(f_x, f_item.sample_start_offset_px,
-                                           f_item.length_handle.pos().x())
+                    f_x = pydaw_clip_value(
+                        f_x, f_item.sample_start_offset_px,
+                        f_item.length_handle.pos().x())
                     f_x = pydaw_clip_min(f_x, f_item.min_start)
                     if f_x > f_item.min_start:
                         f_x = f_item.quantize_start(f_x)
                         f_x -= f_item.quantize_offset
-                    f_item.start_handle.setPos(f_x, AUDIO_ITEM_HEIGHT -
-                                               AUDIO_ITEM_HANDLE_HEIGHT)
+                    f_item.start_handle.setPos(
+                        f_x, AUDIO_ITEM_HEIGHT - AUDIO_ITEM_HANDLE_HEIGHT)
         elif self.is_fading_in:
             for f_item in AUDIO_SEQ.audio_items:
                 if f_item.isSelected():
@@ -3543,12 +3545,15 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_pitch_end_val = f_selected_items[0].audio_item.pitch_shift_end
             f_crispness_val = f_selected_items[0].audio_item.crispness
             for f_item in f_selected_items[1:]:
-                if f_item.audio_item.time_stretch_mode != f_time_stretch_mode_val or \
-                f_item.audio_item.timestretch_amt != f_time_stretch_amt_val or \
-                f_item.audio_item.pitch_shift != f_pitch_val or \
-                f_item.audio_item.pitch_shift_end != f_pitch_end_val or \
-                f_item.audio_item.timestretch_amt_end != f_time_stretch_amt_end_val or \
-                f_item.audio_item.crispness != f_crispness_val:
+                if (f_item.audio_item.time_stretch_mode !=
+                    f_time_stretch_mode_val) or \
+                (f_item.audio_item.timestretch_amt !=
+                    f_time_stretch_amt_val) or \
+                (f_item.audio_item.pitch_shift != f_pitch_val) or \
+                (f_item.audio_item.pitch_shift_end != f_pitch_end_val) or \
+                (f_item.audio_item.timestretch_amt_end !=
+                    f_time_stretch_amt_end_val) or \
+                (f_item.audio_item.crispness != f_crispness_val):
                     f_timestretch_checked = False
                     break
         AUDIO_EDITOR_WIDGET.timestretch_checkbox.setChecked(
@@ -3607,15 +3612,19 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
                 if f_selected_items[0].audio_item.timestretch_amt_end != \
                 f_selected_items[0].audio_item.timestretch_amt:
-                    AUDIO_EDITOR_WIDGET.timestretch_amt_end_checkbox.setChecked(True)
+                    AUDIO_EDITOR_WIDGET.timestretch_amt_end_checkbox.\
+                        setChecked(True)
                 else:
-                    AUDIO_EDITOR_WIDGET.timestretch_amt_end_checkbox.setChecked(False)
+                    AUDIO_EDITOR_WIDGET.timestretch_amt_end_checkbox.\
+                        setChecked(False)
 
-                if f_selected_items[0].audio_item.pitch_shift_end != \
-                f_selected_items[0].audio_item.pitch_shift:
-                    AUDIO_EDITOR_WIDGET.pitch_shift_end_checkbox.setChecked(True)
+                if (f_selected_items[0].audio_item.pitch_shift_end !=
+                f_selected_items[0].audio_item.pitch_shift):
+                    AUDIO_EDITOR_WIDGET.pitch_shift_end_checkbox.\
+                        setChecked(True)
                 else:
-                    AUDIO_EDITOR_WIDGET.pitch_shift_end_checkbox.setChecked(False)
+                    AUDIO_EDITOR_WIDGET.pitch_shift_end_checkbox.\
+                        setChecked(False)
 
                 AUDIO_EDITOR_WIDGET.pitch_shift.setValue(
                     f_selected_items[0].audio_item.pitch_shift)
@@ -3702,13 +3711,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     break
                 else:
                     f_uid = PROJECT.get_wav_uid_by_name(f_file_name_str)
-                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars,
-                                              a_start_beat=f_beat_frac,
-                                              a_lane_num=f_lane_num)
+                    f_item = pydaw_audio_item(
+                        f_uid, a_start_bar=f_pos_bars,
+                        a_start_beat=f_beat_frac, a_lane_num=f_lane_num)
                     f_items.add_item(f_index, f_item)
                     f_graph = PROJECT.get_sample_graph_by_uid(f_uid)
-                    f_audio_item = AUDIO_SEQ.draw_item(f_index, f_item,
-                                                                     f_graph)
+                    f_audio_item = AUDIO_SEQ.draw_item(
+                        f_index, f_item, f_graph)
                     f_audio_item.clip_at_region_end()
         PROJECT.save_audio_region(CURRENT_REGION.uid, f_items)
         PROJECT.commit(
@@ -3813,13 +3822,16 @@ class audio_items_viewer(QtGui.QGraphicsView):
             TRANSPORT.set_bar_value(f_val)
 
     def check_line_count(self):
-        """ Check that there are not too many vertical lines on the screen """
+        """ Check that there are not too many vertical
+            lines on the screen
+        """
         return
 
         f_num_count = len(self.text_list)
         if f_num_count == 0:
             return
-        f_num_visible_count = int(f_num_count / pydaw_clip_min(self.h_zoom, 1))
+        f_num_visible_count = int(f_num_count /
+            pydaw_clip_min(self.h_zoom, 1))
 
         if f_num_visible_count > 24:
             for f_line in self.beat_line_list:
@@ -3884,11 +3896,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 if global_audio_lines_enabled:
                     for f_i4 in range(1, global_audio_snap_range):
                         f_sub_x = f_beat_x + (AUDIO_QUANTIZE_PX * f_i4)
-                        f_line = self.scene.addLine(f_sub_x, AUDIO_RULER_HEIGHT,
-                                                    f_sub_x, f_total_height, f_16th_pen)
+                        f_line = self.scene.addLine(
+                            f_sub_x, AUDIO_RULER_HEIGHT,
+                            f_sub_x, f_total_height, f_16th_pen)
                         self.beat_line_list.append(f_line)
             i3 += AUDIO_PX_PER_BAR
-        self.scene.addLine(i3, AUDIO_RULER_HEIGHT, i3, f_total_height, f_reg_pen)
+        self.scene.addLine(
+            i3, AUDIO_RULER_HEIGHT, i3, f_total_height, f_reg_pen)
         for i2 in range(global_audio_item_lane_count):
             f_y = ((AUDIO_ITEM_HEIGHT) * (i2 + 1)) + AUDIO_RULER_HEIGHT
             self.scene.addLine(0, f_y, f_size, f_y)
@@ -3936,7 +3950,8 @@ def global_paif_rel_callback(a_port, a_val):
         f_paif.set_row(global_current_audio_item_index, f_index_list)
         PROJECT.save_audio_per_item_fx_region(CURRENT_REGION.uid, f_paif)
 
-class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget):
+class audio_items_viewer_widget(
+pydaw_widgets.pydaw_abstract_file_browser_widget):
     def __init__(self):
         pydaw_widgets.pydaw_abstract_file_browser_widget.__init__(self)
 
@@ -4173,15 +4188,16 @@ class audio_items_viewer_widget(pydaw_widgets.pydaw_abstract_file_browser_widget
             f_start = f_item.start_bar + (f_item.start_beat * 0.25)
             if f_start < f_current_region_length:
                 f_graph = PROJECT.get_sample_graph_by_uid(f_item.uid)
-                f_item.clip_at_region_end(f_current_region_length, f_global_tempo,
-                                          f_graph.length_in_seconds)
+                f_item.clip_at_region_end(
+                    f_current_region_length, f_global_tempo,
+                    f_graph.length_in_seconds)
                 global_audio_items.add_item(f_index, f_item)
                 if f_list is not None:
                     f_per_item_fx_dict.set_row(f_index, f_list)
         global_audio_items.deduplicate_items()
         PROJECT.save_audio_region(CURRENT_REGION.uid, global_audio_items)
-        PROJECT.save_audio_per_item_fx_region(CURRENT_REGION.uid,
-                                                         f_per_item_fx_dict, False)
+        PROJECT.save_audio_per_item_fx_region(
+            CURRENT_REGION.uid, f_per_item_fx_dict, False)
         PROJECT.this_pydaw_osc.pydaw_audio_per_item_fx_region(
             CURRENT_REGION.uid)
         PROJECT.commit(_("Paste audio items"))
@@ -4272,7 +4288,8 @@ class audio_item_editor_widget:
         self.timestretch_mode.setMinimumWidth(240)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(TIMESTRETCH_MODES)
-        self.timestretch_mode.currentIndexChanged.connect(self.timestretch_mode_changed)
+        self.timestretch_mode.currentIndexChanged.connect(
+            self.timestretch_mode_changed)
         self.time_pitch_gridlayout.addWidget(QtGui.QLabel(_("Pitch:")), 0, 0)
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
@@ -4281,8 +4298,10 @@ class audio_item_editor_widget:
         self.time_pitch_gridlayout.addWidget(self.pitch_shift, 0, 1)
 
         self.pitch_shift_end_checkbox = QtGui.QCheckBox(_("End:"))
-        self.pitch_shift_end_checkbox.toggled.connect(self.pitch_end_mode_changed)
-        self.time_pitch_gridlayout.addWidget(self.pitch_shift_end_checkbox, 0, 2)
+        self.pitch_shift_end_checkbox.toggled.connect(
+            self.pitch_end_mode_changed)
+        self.time_pitch_gridlayout.addWidget(
+            self.pitch_shift_end_checkbox, 0, 2)
         self.pitch_shift_end = QtGui.QDoubleSpinBox()
         self.pitch_shift_end.setRange(-36, 36)
         self.pitch_shift_end.setValue(0.0)
@@ -4306,8 +4325,10 @@ class audio_item_editor_widget:
         self.crispness_layout.addWidget(self.crispness_combobox)
 
         self.timestretch_amt_end_checkbox = QtGui.QCheckBox(_("End:"))
-        self.timestretch_amt_end_checkbox.toggled.connect(self.timestretch_end_mode_changed)
-        self.time_pitch_gridlayout.addWidget(self.timestretch_amt_end_checkbox, 1, 2)
+        self.timestretch_amt_end_checkbox.toggled.connect(
+            self.timestretch_end_mode_changed)
+        self.time_pitch_gridlayout.addWidget(
+            self.timestretch_amt_end_checkbox, 1, 2)
         self.timestretch_amt_end = QtGui.QDoubleSpinBox()
         self.timestretch_amt_end.setRange(0.2, 4.0)
         self.timestretch_amt_end.setDecimals(6)
@@ -4317,12 +4338,14 @@ class audio_item_editor_widget:
 
         self.timestretch_mode_changed(0)
 
-        self.timestretch_mode.currentIndexChanged.connect(self.timestretch_changed)
+        self.timestretch_mode.currentIndexChanged.connect(
+            self.timestretch_changed)
         self.pitch_shift.valueChanged.connect(self.timestretch_changed)
         self.pitch_shift_end.valueChanged.connect(self.timestretch_changed)
         self.timestretch_amt.valueChanged.connect(self.timestretch_changed)
         self.timestretch_amt_end.valueChanged.connect(self.timestretch_changed)
-        self.crispness_combobox.currentIndexChanged.connect(self.timestretch_changed)
+        self.crispness_combobox.currentIndexChanged.connect(
+            self.timestretch_changed)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
         self.output_hlayout = QtGui.QHBoxLayout()
@@ -4344,7 +4367,8 @@ class audio_item_editor_widget:
         self.is_reversed_checkbox = QtGui.QCheckBox(_("Reverse"))
         self.is_reversed_checkbox.clicked.connect(self.reverse_changed)
         self.reversed_layout.addWidget(self.is_reversed_checkbox)
-        self.reversed_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
+        self.reversed_layout.addItem(
+            QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.reversed_layout)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 10))
@@ -4356,7 +4380,8 @@ class audio_item_editor_widget:
         self.fadein_vol_spinbox.setValue(-40)
         self.fadein_vol_spinbox.valueChanged.connect(self.fadein_vol_changed)
         self.fadein_vol_layout.addWidget(self.fadein_vol_spinbox)
-        self.fadein_vol_layout.addItem(QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
+        self.fadein_vol_layout.addItem(
+            QtGui.QSpacerItem(5, 5, QtGui.QSizePolicy.Expanding))
         self.vlayout2.addLayout(self.fadein_vol_layout)
 
         self.fadeout_vol_checkbox = QtGui.QCheckBox(_("Fade-Out:"))
@@ -4367,7 +4392,8 @@ class audio_item_editor_widget:
         self.fadeout_vol_spinbox.valueChanged.connect(self.fadeout_vol_changed)
         self.fadein_vol_layout.addWidget(self.fadeout_vol_spinbox)
 
-        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
+        self.vlayout2.addSpacerItem(
+            QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
         self.ok_layout = QtGui.QHBoxLayout()
         self.ok = QtGui.QPushButton(_("Save Changes"))
         self.ok.pressed.connect(self.ok_handler)
@@ -4379,51 +4405,71 @@ class audio_item_editor_widget:
 
     def set_tooltips(self, a_on):
         if a_on:
-            f_sbsms_tooltip = _("This control is only valid for the SBSMS and {} modes,\n"
-            "the start/end values are for the full sample length, not the edited "
-            "start/end points\n"
-            "setting the start/end time to different values will cause the timestretch "
-            "handle to disappear on the audio item.")
+            f_sbsms_tooltip = _(
+                "This control is only valid for the SBSMS and {} modes,\n"
+                "the start/end values are for the full sample length, "
+                "not the edited start/end points\n"
+                "setting the start/end time to different values will cause "
+                "the timestretch handle to disappear on the audio item.")
             self.timestretch_amt_end.setToolTip(f_sbsms_tooltip.format(
                 _("Time(affecting pitch)")))
-            self.pitch_shift_end.setToolTip(f_sbsms_tooltip.format(_("Pitch(affecting time)")))
-            self.ok.setToolTip(_("Changes are not saved until you push this button"))
-            self.widget.setToolTip(_("To edit the properties of one or more audio item(s),\n"
-            "click or marquee select items, then change their properties and click "
-            "'Save Changes'\n"
-            "Only the control section(s) whose checkbox is checked will be updated.\n\n"
-            "Click 'Menu->Show Tooltips' in the transport to disable these tooltips"))
-            self.crispness_combobox.setToolTip(_("Affects the sharpness of transients, only "
-            "for modes using Rubberband"))
-            self.timestretch_mode.setToolTip(_("Modes:\n\nNone:  No stretching or "
-            "pitch adjustment\n"
-            "Pitch affecting time:  Repitch the item, it will become shorter at higher "
-            "pitches, and longer at "
-            "lower pitches\n"
-            "Time affecting pitch:  Stretch the item to the desired length, it will have "
-            "lower pitch at longer "
-            "lengths, and higher pitch at shorter lengths\n"
-            "Rubberband:  Adjust pitch and time independently\nRubberband (formants): "
-            "Same as Rubberband, but preserves formants\n"
-            "SBSMS:  Adjust pitch and time independently, also with the ability to "
-            "set start/end pitch/time differently\n"
-            "Paulstretch:  Mostly for stretching items very long, creates a very smeared, "
-            "atmospheric sound"))
-            self.output_combobox.setToolTip(_("Use this combobox to select the output "
-            "audio track on the 'Audio Tracks' tab\n"
-            "where you can apply effects and automation.  Please note that if you use a "
-            "lot of audio sequencing in your projects,\n"
-            "you must assign audio items to multiple tracks to take advantage of "
-            "multiple CPU cores, otherwise all items will be \n"
-            "processed on a single core"))
-            self.sample_vol_slider.setToolTip(_("Use this to set the sample volume. "
-            "If you need to automate volume changes, either\n"
-            "use the fade-in/fade-out handles, or automate the volume on the audio "
-            "track specified in the Output: combobox."))
-            self.is_reversed_checkbox.setToolTip(_("Checking this causes the sample to "
-                                                 "play backwards"))
-            self.fadein_vol_spinbox.setToolTip(_("Sets the initial volume in dB when fading in."))
-            self.fadeout_vol_spinbox.setToolTip(_("Sets the end volume in dB when fading out."))
+            self.pitch_shift_end.setToolTip(f_sbsms_tooltip.format(
+                _("Pitch(affecting time)")))
+            self.ok.setToolTip(
+                _("Changes are not saved until you push this button"))
+            self.widget.setToolTip(
+                _("To edit the properties of one or more audio item(s),\n"
+                "click or marquee select items, then change their "
+                "properties and click 'Save Changes'\n"
+                "Only the control section(s) whose checkbox is checked "
+                "will be updated.\n\n"
+                "Click 'Menu->Show Tooltips' in the transport to "
+                "disable these tooltips"))
+            self.crispness_combobox.setToolTip(
+                _("Affects the sharpness of transients, only "
+                "for modes using Rubberband"))
+            self.timestretch_mode.setToolTip(
+                _("Modes:\n\nNone:  No stretching or "
+                "pitch adjustment\n"
+                "Pitch affecting time:  Repitch the item, it will become "
+                "shorter at higher "
+                "pitches, and longer at "
+                "lower pitches\n"
+                "Time affecting pitch:  Stretch the item to the "
+                "desired length, it will have "
+                "lower pitch at longer "
+                "lengths, and higher pitch at shorter lengths\n"
+                "Rubberband:  Adjust pitch and time independently\n"
+                "Rubberband (formants): "
+                "Same as Rubberband, but preserves formants\n"
+                "SBSMS:  Adjust pitch and time independently, also "
+                "with the ability to "
+                "set start/end pitch/time differently\n"
+                "Paulstretch:  Mostly for stretching items very long, "
+                "creates a very smeared, "
+                "atmospheric sound"))
+            self.output_combobox.setToolTip(
+                _("Use this combobox to select the output "
+                "audio track on the 'Audio Tracks' tab\n"
+                "where you can apply effects and automation.  "
+                "Please note that if you use a "
+                "lot of audio sequencing in your projects,\n"
+                "you must assign audio items to multiple tracks "
+                "to take advantage of "
+                "multiple CPU cores, otherwise all items will be \n"
+                "processed on a single core"))
+            self.sample_vol_slider.setToolTip(
+                _("Use this to set the sample volume. "
+                "If you need to automate volume changes, either\n"
+                "use the fade-in/fade-out handles, or automate "
+                "the volume on the audio "
+                "track specified in the Output: combobox."))
+            self.is_reversed_checkbox.setToolTip(
+                _("Checking this causes the sample to play backwards"))
+            self.fadein_vol_spinbox.setToolTip(
+                _("Sets the initial volume in dB when fading in."))
+            self.fadeout_vol_spinbox.setToolTip(
+                _("Sets the end volume in dB when fading out."))
         else:
             self.timestretch_amt_end.setToolTip("")
             self.pitch_shift_end.setToolTip("")
@@ -4580,15 +4626,17 @@ class audio_item_editor_widget:
 
                     if ((f_item.audio_item.time_stretch_mode >= 3) or
                     (f_item.audio_item.time_stretch_mode == 1 and \
-                    f_item.audio_item.pitch_shift_end != f_item.audio_item.pitch_shift) or \
+                    (f_item.audio_item.pitch_shift_end !=
+                        f_item.audio_item.pitch_shift)) or \
                     (f_item.audio_item.time_stretch_mode == 2 and \
-                    f_item.audio_item.timestretch_amt_end != f_item.audio_item.timestretch_amt)) \
-                    and \
+                    (f_item.audio_item.timestretch_amt_end !=
+                        f_item.audio_item.timestretch_amt))) and \
                     ((f_new_ts_mode == 0) or \
                     (f_new_ts_mode == 1 and f_new_ps == f_new_ps_end) or \
                     (f_new_ts_mode == 2 and f_new_ts == f_new_ts_end)):
                         f_item.audio_item.uid = \
-                        PROJECT.timestretch_get_orig_file_uid(f_item.audio_item.uid)
+                            PROJECT.timestretch_get_orig_file_uid(
+                                f_item.audio_item.uid)
 
                     f_item.audio_item.time_stretch_mode = f_new_ts_mode
                     f_item.audio_item.pitch_shift = f_new_ps
@@ -5222,8 +5270,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 elif f_pos_y > global_piano_roll_total_height:
                     f_pos_y = global_piano_roll_total_height
                 f_pos_y = \
-                (int((f_pos_y - global_piano_roll_header_height) /
-                self.note_height) * self.note_height) + global_piano_roll_header_height
+                    (int((f_pos_y - global_piano_roll_header_height) /
+                    self.note_height) * self.note_height) + \
+                    global_piano_roll_header_height
                 if global_piano_roll_snap:
                     f_pos_x = (int((f_pos_x - global_piano_keys_width) /
                     global_piano_roll_snap_value) *
@@ -5394,16 +5443,25 @@ class piano_roll_editor(QtGui.QGraphicsView):
             self.setToolTip(_("Click+drag to draw notes\n"
             "CTRL+click+drag to marquee select multiple items\n"
             "SHIFT+click+drag to delete notes\n"
-            "CTRL+ALT+click+drag-up/down to adjust the velocity of selected notes\n"
-            "CTRL+SHIFT+click+drag-up/down to create a velocity curve for the selected notes\n"
-            "Press the Delete button on your keyboard to delete selected notes\n"
-            "To edit velocity, press the menu button and select the Velocity->Dialog... action\n"
-            "Click and drag the note end to change the length of selected notes\n"
-            "To edit multiple items as one logical item, select multiple items in the region "
+            "CTRL+ALT+click+drag-up/down to adjust the "
+            "velocity of selected notes\n"
+            "CTRL+SHIFT+click+drag-up/down to create a velocity "
+            "curve for the selected notes\n"
+            "Press the Delete button on your keyboard to "
+            "delete selected notes\n"
+            "To edit velocity, press the menu button and select "
+            "the Velocity->Dialog... action\n"
+            "Click and drag the note end to change the length "
+            "of selected notes\n"
+            "To edit multiple items as one logical item, select "
+            "multiple items in the region "
             "editor and right-click + 'Edit Selected Items as Group'\n"
-            "The Quantize, Transpose and Velocity actions in the menu button open dialogs \n"
-            "to manipulate the selected notes (or all notes if none are selected)"
-            "\n\nClick 'Menu->Show Tooltips' in the transport to disable these tooltips"))
+            "The Quantize, Transpose and Velocity actions in "
+            "the menu button open dialogs \n"
+            "to manipulate the selected notes (or all notes "
+            "if none are selected)"
+            "\n\nClick 'Menu->Show Tooltips' in the transport "
+            "to disable these tooltips"))
         else:
             self.setToolTip("")
 
@@ -5664,13 +5722,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_drawn_note = self.draw_note(f_note_item, f_note_index)
                 f_drawn_note.setSelected(True)
                 f_drawn_note.resize_start_pos = \
-                    f_drawn_note.note_item.start + (4.0 * f_drawn_note.item_index)
+                    f_drawn_note.note_item.start + (4.0 *
+                    f_drawn_note.item_index)
                 f_drawn_note.resize_pos = f_drawn_note.pos()
                 f_drawn_note.resize_rect = f_drawn_note.rect()
                 f_drawn_note.is_resizing = True
                 f_cursor_pos = QtGui.QCursor.pos()
                 f_drawn_note.mouse_y_pos = f_cursor_pos.y()
-                f_drawn_note.resize_last_mouse_pos = f_pos_x - f_drawn_note.pos().x()
+                f_drawn_note.resize_last_mouse_pos = \
+                    f_pos_x - f_drawn_note.pos().x()
 
         a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
@@ -5750,72 +5810,88 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_black_key_brush = QtGui.QBrush(QtGui.QColor(30, 30, 30, 90))
         f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 90))
         f_base_brush = QtGui.QBrush(QtGui.QColor(255, 255, 255, 120))
-        if self.first_open or \
-        PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 0: #Major
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 1: #Melodic Minor
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_white_key_brush, f_black_key_brush , f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 2: #Harmonic Minor
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
-            f_white_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 3: #Natural Minor
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 4: #Pentatonic Major
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 5: #Pentatonic Minor
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 6: #Dorian
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 7: #Phrygian
-            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 8: #Lydian
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 9: #Mixolydian
-            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 10: #Locrian
-            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush,
-            f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 11: #Phrygian Dominant
-            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
-            f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush,
-            f_black_key_brush]
-        elif PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex() == 12: #Double Harmonic
-            f_octave_brushes = [f_base_brush, f_white_key_brush, f_black_key_brush,
-            f_black_key_brush, f_white_key_brush, f_white_key_brush, f_black_key_brush,
-            f_white_key_brush, f_white_key_brush, f_black_key_brush, f_black_key_brush,
-            f_white_key_brush]
+        try:
+            f_index = PIANO_ROLL_EDITOR_WIDGET.scale_combobox.currentIndex()
+        except NameError:
+            f_index = 0
+        if self.first_open or f_index == 0: #Major
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush , f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        elif f_index == 1: #Melodic Minor
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_white_key_brush, f_black_key_brush , f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        elif f_index == 2: #Harmonic Minor
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_black_key_brush, f_white_key_brush]
+        elif f_index == 3: #Natural Minor
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 4: #Pentatonic Major
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_black_key_brush]
+        elif f_index == 5: #Pentatonic Minor
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush,f_white_key_brush, f_black_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 6: #Dorian
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 7: #Phrygian
+            f_octave_brushes = [
+                f_base_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 8: #Lydian
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        elif f_index == 9: #Mixolydian
+            f_octave_brushes = [
+                f_base_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 10: #Locrian
+            f_octave_brushes = [
+                f_base_brush, f_white_key_brush, f_black_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 11: #Phrygian Dominant
+            f_octave_brushes = [
+                f_base_brush, f_white_key_brush, f_black_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush]
+        elif f_index == 12: #Double Harmonic
+            f_octave_brushes = [
+                f_base_brush, f_white_key_brush, f_black_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_black_key_brush, f_white_key_brush]
 
         f_current_key = 0
         if not self.first_open:
@@ -6118,7 +6194,8 @@ class piano_roll_editor_widget:
             self.velocity_random_menu)
         self.velocity_random_menu.triggered.connect(self.vel_rand_triggered)
 
-        for f_i, f_type in zip(range(len(self.random_types)), self.random_types):
+        for f_i, f_type in zip(
+        range(len(self.random_types)), self.random_types):
             f_action = self.velocity_random_menu.addAction(f_type)
             f_action.setActionGroup(self.vel_rand_action_group)
             f_action.setCheckable(True)
@@ -6423,9 +6500,12 @@ class automation_viewer(QtGui.QGraphicsView):
             else:
                 f_start = ""
             self.setToolTip(
-                _("{}Draw points by double-clicking, then click the 'smooth' button to "
-                "draw extra points between them.\nClick+drag to select points\n"
-                "Press the 'delete' button to delete selected points.").format(f_start))
+                _("{}Draw points by double-clicking, then click "
+                "the 'smooth' button to "
+                "draw extra points between them.\nClick+drag "
+                "to select points\n"
+                "Press the 'delete' button to delete selected "
+                "points.").format(f_start))
         else:
             self.setToolTip("")
 
@@ -8931,7 +9011,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         PROJECT.write_notes(self.notes_tab.toPlainText())
 
     def mp3_converter_dialog(self):
-        if pydaw_which("avconv") is None and pydaw_which("ffmpeg") is not None:
+        if pydaw_which("avconv") is None and \
+        pydaw_which("ffmpeg") is not None:
             f_avconv = "ffmpeg"
         else:
             f_avconv = "avconv"
@@ -8949,7 +9030,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.audio_converter_dialog("lame", "avconv", "mp3")
 
     def ogg_converter_dialog(self):
-        if pydaw_which("oggenc") is None or pydaw_which("oggdec") is None:
+        if pydaw_which("oggenc") is None or \
+        pydaw_which("oggdec") is None:
             QtGui.QMessageBox.warning(self, _("Error"),
                 _("Error, vorbis-tools are not installed"))
             return
@@ -9444,7 +9526,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_is_inst, f_track_num, f_port, f_val = a_val.split("|")
                 f_track_type, f_track_num = track_all_to_type_and_index(
                     f_track_num)
-                f_pc_dict[(f_track_type, f_is_inst, f_track_num, f_port)] = f_val
+                f_pc_dict[
+                    (f_track_type, f_is_inst, f_track_num, f_port)] = f_val
             elif a_key == "cur":
                 if IS_PLAYING:
                     f_region, f_bar, f_beat = a_val.split("|")
