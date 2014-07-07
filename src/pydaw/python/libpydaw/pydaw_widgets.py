@@ -1424,7 +1424,8 @@ class pydaw_abstract_file_browser_widget():
                 "{}/{}".format(self.last_open_dir, a_folder))
         self.last_open_dir = self.last_open_dir.replace("//", "/")
         if self.last_open_dir != self.history[-1]:
-            if self.last_open_dir in self.history:  #don't keep more than one copy in history
+            #don't keep more than one copy in history
+            if self.last_open_dir in self.history:
                 self.history.remove(self.last_open_dir)
             self.history.append(self.last_open_dir)
         self.folder_path_lineedit.setText(self.last_open_dir)
@@ -1435,7 +1436,8 @@ class pydaw_abstract_file_browser_widget():
             if  not f_file.startswith("."):
                 if os.path.isdir(f_full_path):
                     self.list_folder.addItem(f_file)
-                elif pydaw_util.is_audio_file(f_file) and os.path.isfile(f_full_path):
+                elif pydaw_util.is_audio_file(f_file) and \
+                os.path.isfile(f_full_path):
                     if not pydaw_util.pydaw_str_has_bad_chars(f_full_path):
                         self.list_file.addItem(f_file)
                     else:
@@ -1651,7 +1653,8 @@ class pydaw_preset_manager_widget:
     def on_paste(self):
         if not self.plugin_name in global_plugin_settings_clipboard:
             QtGui.QMessageBox.warning(self.group_box, _("Error"),
-                _("Nothing copied to clipboard for {}").format(self.plugin_name))
+                _("Nothing copied to clipboard for {}").format(
+                self.plugin_name))
             return
         f_dict = global_plugin_settings_clipboard[self.plugin_name]
         for k, v in f_dict.items():
@@ -1767,7 +1770,8 @@ class pydaw_preset_manager_widget:
             for k in self.configure_dict.keys():
                 v = self.configure_dict[k]
                 f_result_values.append("c:{}:{}".format(k, v.replace("|", ":")))
-        self.presets_delimited[(self.program_combobox.currentIndex())] = f_result_values
+        self.presets_delimited[
+            (self.program_combobox.currentIndex())] = f_result_values
         f_result = "{}\n".format(self.plugin_name)
         for f_list in self.presets_delimited:
             f_result += "{}\n".format("|".join(f_list))
@@ -1778,7 +1782,8 @@ class pydaw_preset_manager_widget:
         if str(self.program_combobox.currentText()) == "empty":
             print("empty")
         else:
-            f_preset = self.presets_delimited[self.program_combobox.currentIndex()]
+            f_preset = self.presets_delimited[
+                self.program_combobox.currentIndex()]
             f_preset_dict = {}
             f_configure_dict = {}
             for f_i in range(1, len(f_preset)):
@@ -2084,17 +2089,26 @@ class eq_widget:
 EQ6_CLIPBOARD = None
 
 EQ6_FORMANTS = {
-    "soprano a":((800, 1150, 2900, 3900, 4950), (0, -6, -32, -20, -50),  (80, 90, 120, 130, 140)),
+    "soprano a":((800, 1150, 2900, 3900, 4950), (0, -6, -32, -20, -50),
+                 (80, 90, 120, 130, 140)),
     "soprano e":((350, 2000, 2800, 3600, 4950), (0, -20, -15, -40, -56),
                  (60, 100, 120, 150, 200)),
-    "soprano i":((270, 2140, 2950, 3900, 4950), (0, -12, -26, -26, -44), (60, 90, 100, 120, 120)),
-    "soprano o":((450, 800, 2830, 3800, 4950), (0, -11, -22, -22, -50), (70, 80, 100, 130, 135)),
-    "soprano u":((325, 700, 2700, 3800, 4950), (0, -16, -35, -40, -60), (50, 60, 170, 180, 200)),
-    "alto a":((800, 1150, 2800, 3500, 4950), (0, -4, -20, -36, -60), (80, 90, 120, 130, 140)),
-    "alto e":((400, 1600, 2700, 3300, 4950), (0, -24, -30, -35, -60), (60, 80, 120, 150, 200)),
-    "alto i":((350, 1700, 2700, 3700, 4950), (0, -20, -30, -36, -60), (50, 100, 120, 150, 200)),
-    "alto o":((450, 800, 2830, 3500, 4950), (0, -9, -16, -28, -55), (70, 80, 100, 130, 135)),
-    "alto u":((325, 700, 2530, 3500, 4950), (0, -12, -30, -40, -64), (50, 60, 170, 180, 200)),
+    "soprano i":((270, 2140, 2950, 3900, 4950), (0, -12, -26, -26, -44),
+                 (60, 90, 100, 120, 120)),
+    "soprano o":((450, 800, 2830, 3800, 4950), (0, -11, -22, -22, -50),
+                 (70, 80, 100, 130, 135)),
+    "soprano u":((325, 700, 2700, 3800, 4950), (0, -16, -35, -40, -60),
+                 (50, 60, 170, 180, 200)),
+    "alto a":((800, 1150, 2800, 3500, 4950), (0, -4, -20, -36, -60),
+              (80, 90, 120, 130, 140)),
+    "alto e":((400, 1600, 2700, 3300, 4950), (0, -24, -30, -35, -60),
+              (60, 80, 120, 150, 200)),
+    "alto i":((350, 1700, 2700, 3700, 4950), (0, -20, -30, -36, -60),
+              (50, 100, 120, 150, 200)),
+    "alto o":((450, 800, 2830, 3500, 4950), (0, -9, -16, -28, -55),
+              (70, 80, 100, 130, 135)),
+    "alto u":((325, 700, 2530, 3500, 4950), (0, -12, -30, -40, -64),
+              (50, 60, 170, 180, 200)),
     "countertenor a":((660, 1120, 2750, 3000, 3350), (0, -6, -23, -24, -38),
                       (80, 90, 120, 130, 140)),
     "countertenor e":((440, 1800, 2700, 3000, 3300), (0, -14, -18, -20, -20),
@@ -2109,14 +2123,22 @@ EQ6_FORMANTS = {
                (80, 90, 120, 130, 140)),
     "tenor e":((400, 1700, 2600, 3200, 3580), (0, -14, -12, -14, -20),
                (70, 80, 100, 120, 120)),
-    "tenor i":((290, 1870, 2800, 3250, 3540), (0, -15, -18, -20, -30), (40, 90, 100, 120, 120)),
-    "tenor o":((400, 800, 2600, 2800, 3000), (0, -10, -12, -12, -26), (40, 80, 100, 120, 120)),
-    "tenor u":((350, 600, 2700, 2900, 3300), (0, -20, -17, -14, -26), (40, 60, 100, 120, 120)),
-    "bass a":((600, 1040, 2250, 2450, 2750), (0, -7, -9, -9, -20), (60, 70, 110, 120, 130)),
-    "bass e":((400, 1620, 2400, 2800, 3100), (0, -12, -9, -12, -18), (40, 80, 100, 120, 120)),
-    "bass i":((250, 1750, 2600, 3050, 3340), (0, -30, -16, -22, -28), (60, 90, 100, 120, 120)),
-    "bass o":((400, 750, 2400, 2600, 2900), (0, -11, -21, -20, -40), (40, 80, 100, 120, 120)),
-    "bass u":((350, 600, 2400, 2675, 2950), (0, -20, -32, -28, -36), (40, 80, 100, 120, 120))
+    "tenor i":((290, 1870, 2800, 3250, 3540), (0, -15, -18, -20, -30),
+               (40, 90, 100, 120, 120)),
+    "tenor o":((400, 800, 2600, 2800, 3000), (0, -10, -12, -12, -26),
+               (40, 80, 100, 120, 120)),
+    "tenor u":((350, 600, 2700, 2900, 3300), (0, -20, -17, -14, -26),
+               (40, 60, 100, 120, 120)),
+    "bass a":((600, 1040, 2250, 2450, 2750), (0, -7, -9, -9, -20),
+              (60, 70, 110, 120, 130)),
+    "bass e":((400, 1620, 2400, 2800, 3100), (0, -12, -9, -12, -18),
+              (40, 80, 100, 120, 120)),
+    "bass i":((250, 1750, 2600, 3050, 3340), (0, -30, -16, -22, -28),
+              (60, 90, 100, 120, 120)),
+    "bass o":((400, 750, 2400, 2600, 2900), (0, -11, -21, -20, -40),
+              (40, 80, 100, 120, 120)),
+    "bass u":((350, 600, 2400, 2675, 2950), (0, -20, -32, -28, -36),
+              (40, 80, 100, 120, 120))
 }
 
 
@@ -2151,7 +2173,8 @@ class eq6_widget:
             self.hlayout.addLayout(self.vlayout)
             self.hlayout.addLayout(self.grid_layout)
 
-        self.combobox_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.combobox_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         self.menu_button = QtGui.QPushButton(_("Menu"))
         self.menu = QtGui.QMenu(self.menu_button)
@@ -2181,9 +2204,10 @@ class eq6_widget:
         f_y = 0
 
         for f_i in range(1, 7):
-            f_eq = eq_widget(f_i, f_port, f_port + 1, f_port + 2,
-                             a_rel_callback, self.knob_callback,
-                             f_default_value, a_port_dict, a_preset_mgr, a_size)
+            f_eq = eq_widget(
+                f_i, f_port, f_port + 1, f_port + 2,
+                a_rel_callback, self.knob_callback,
+                f_default_value, a_port_dict, a_preset_mgr, a_size)
             self.eqs.append(f_eq)
             self.grid_layout.addWidget(f_eq.groupbox, f_y, f_x)
 
@@ -2198,7 +2222,8 @@ class eq6_widget:
     def set_formant(self, a_action):
         f_key = str(a_action.text())
         f_hz_list, f_db_list, f_bw_list = EQ6_FORMANTS[f_key]
-        for f_eq, f_hz, f_db, f_bw in zip(self.eqs, f_hz_list, f_db_list, f_bw_list):
+        for f_eq, f_hz, f_db, f_bw in zip(
+        self.eqs, f_hz_list, f_db_list, f_bw_list):
             f_pitch = pydaw_util.pydaw_hz_to_pitch(f_hz)
             f_eq.freq_knob.set_value(f_pitch, True)
             f_bw_adjusted = f_bw + 60
@@ -2275,15 +2300,18 @@ class pydaw_abstract_custom_oscillator:
 
 global_additive_osc_height = 310
 global_additive_osc_inc = 10
-global_additive_max_y_pos = global_additive_osc_height - global_additive_osc_inc
+global_additive_max_y_pos = \
+    global_additive_osc_height - global_additive_osc_inc
 global_additive_osc_harmonic_count = 32
 global_additive_osc_bar_width = 10
-global_additive_osc_width = global_additive_osc_harmonic_count * global_additive_osc_bar_width
-global_additive_wavetable_size = 1024 #pow(2, global_additive_osc_harmonic_count)
+global_additive_osc_width = \
+    global_additive_osc_harmonic_count * global_additive_osc_bar_width
+global_additive_wavetable_size = 1024
 #global_additive_osc_height_div2 = global_additive_osc_height * 0.5
 
 
-global_add_osc_fill = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_additive_osc_height)
+global_add_osc_fill = QtGui.QLinearGradient(
+    0.0, 0.0, 0.0, global_additive_osc_height)
 
 global_add_osc_fill.setColorAt(0.0, QtGui.QColor(255, 0, 0, 90)) #red
 global_add_osc_fill.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 90)) #orange
@@ -2293,7 +2321,8 @@ global_add_osc_fill.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 90)) #blue
 global_add_osc_fill.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 90)) #indigo
 global_add_osc_fill.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 90)) #violet
 
-global_add_osc_background = QtGui.QLinearGradient(0.0, 0.0, 10.0, global_additive_osc_height)
+global_add_osc_background = QtGui.QLinearGradient(
+    0.0, 0.0, 10.0, global_additive_osc_height)
 global_add_osc_background.setColorAt(0.0, QtGui.QColor(40, 40, 40))
 global_add_osc_background.setColorAt(0.2, QtGui.QColor(20, 20, 20))
 global_add_osc_background.setColorAt(0.7, QtGui.QColor(30, 30, 30))
@@ -2320,8 +2349,10 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
         self.setBrush(global_add_osc_fill)
         self.setPen(QtGui.QPen(QtCore.Qt.white))
         self.x_pos = a_x_pos
-        self.setPos(a_x_pos, global_additive_osc_height - global_additive_osc_inc)
-        self.setRect(0.0, 0.0, global_additive_osc_bar_width, global_additive_osc_inc)
+        self.setPos(
+            a_x_pos, global_additive_osc_height - global_additive_osc_inc)
+        self.setRect(
+            0.0, 0.0, global_additive_osc_bar_width, global_additive_osc_inc)
         self.value = -30
         self.extend_to_bottom()
 
@@ -2362,14 +2393,16 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
 
     def draw_array(self, a_np_array):
         self.setUpdatesEnabled(False)
-        f_path = QtGui.QPainterPath(QtCore.QPointF(0.0, global_additive_osc_height * 0.5))
+        f_path = QtGui.QPainterPath(QtCore.QPointF(
+            0.0, global_additive_osc_height * 0.5))
         f_x = 1.0
         f_half = global_additive_osc_height * 0.5
         for f_point in a_np_array:
             f_path.lineTo(f_x, (f_point * f_half) + f_half)
             f_x += 1.0
         self.scene.clear()
-        f_path_item = self.scene.addPath(f_path, QtGui.QPen(QtCore.Qt.white, 1.0))
+        f_path_item = self.scene.addPath(
+            f_path, QtGui.QPen(QtCore.Qt.white, 1.0))
         f_path_item.setBrush(global_add_osc_fill)
         self.setUpdatesEnabled(True)
         self.update()
@@ -2394,7 +2427,8 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         self.last_y_scale = 1.0
         self.is_drawing = False
         self.edit_mode = 0
-        self.setMinimumSize(global_additive_osc_width, global_additive_osc_height)
+        self.setMinimumSize(
+            global_additive_osc_width, global_additive_osc_height)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scene = QtGui.QGraphicsScene()
@@ -2403,9 +2437,11 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         self.scene.mouseReleaseEvent = self.scene_mouseReleaseEvent
         self.scene.mouseMoveEvent = self.scene_mouseMoveEvent
         self.scene.setBackgroundBrush(global_add_osc_background)
-        self.setSceneRect(0.0, 0.0, global_additive_osc_width, global_additive_osc_height)
+        self.setSceneRect(
+            0.0, 0.0, global_additive_osc_width, global_additive_osc_height)
         self.bars = []
-        for f_i in range(0, global_additive_osc_width, int(global_additive_osc_bar_width)):
+        for f_i in range(
+        0, global_additive_osc_width, int(global_additive_osc_bar_width)):
             f_bar = pydaw_additive_osc_amp_bar(f_i)
             self.bars.append(f_bar)
             self.scene.addItem(f_bar)
@@ -2480,7 +2516,8 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.hlayout.addWidget(self.osc_num_combobox)
         for f_i in range(1, a_osc_count + 1):
             self.osc_num_combobox.addItem(str(f_i))
-        self.osc_num_combobox.currentIndexChanged.connect(self.osc_index_changed)
+        self.osc_num_combobox.currentIndexChanged.connect(
+            self.osc_index_changed)
         self.hlayout.addWidget(QtGui.QLabel(_("Edit Mode:")))
         self.edit_mode_combobox = QtGui.QComboBox()
         self.edit_mode_combobox.setMinimumWidth(90)
@@ -2493,7 +2530,8 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.tools_menu = QtGui.QMenu(self.tools_button)
         self.tools_button.setMenu(self.tools_menu)
 
-        self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.hlayout.addWidget(
             QtGui.QLabel(_("Select (Additive [n]) as your osc type to use")))
         self.wav_viewer = pydaw_additive_wav_viewer()
@@ -2573,8 +2611,10 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
                 f_phase_list.append("{}".format(f_phase))
             f_phase = (f_phase + 30.0) / 15.0
             if f_db > -29:
-                f_sin = global_get_sine(f_size, f_phase) * pydaw_util.pydaw_db_to_lin(f_db)
-                for f_i2 in range(int(global_additive_wavetable_size / f_size)):
+                f_sin = global_get_sine(
+                    f_size, f_phase) * pydaw_util.pydaw_db_to_lin(f_db)
+                for f_i2 in range(
+                int(global_additive_wavetable_size / f_size)):
                     f_start = (f_i2) * f_size
                     f_end = f_start + f_size
                     f_result[f_start:f_end] += f_sin
@@ -2589,11 +2629,13 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
                 f_engine_list.append("{}".format(round(f_float, 6)))
             f_engine_str = "{}|{}".format(global_additive_wavetable_size,
                 "|".join(f_engine_list))
-            self.configure_wrapper("wayv_add_eng{}".format(self.osc_num), f_engine_str)
-            self.configure_wrapper("wayv_add_ui{}".format(self.osc_num),
-                                    "|".join(f_recall_list))
-            self.configure_wrapper("wayv_add_phase{}".format(self.osc_num),
-                                    "|".join(f_phase_list))
+            self.configure_wrapper(
+                "wayv_add_eng{}".format(self.osc_num), f_engine_str)
+            self.configure_wrapper(
+                "wayv_add_ui{}".format(self.osc_num), "|".join(f_recall_list))
+            self.configure_wrapper(
+                "wayv_add_phase{}".format(self.osc_num),
+                "|".join(f_phase_list))
 
     def set_saw(self):
         for f_i in range(len(self.viewer.bars)):
@@ -2649,11 +2691,13 @@ pydaw_audio_item_scene_width_recip = 1.0 / pydaw_audio_item_scene_width
 pydaw_audio_item_max_marker_val = 1000.0
 pydaw_audio_item_end_marker_min_val = 6.0
 pydaw_audio_item_start_marker_max_val = 994.0
-pydaw_audio_item_val_to_px = pydaw_audio_item_scene_width / pydaw_audio_item_max_marker_val
-pydaw_audio_item_px_to_val = pydaw_audio_item_max_marker_val / pydaw_audio_item_scene_width
+pydaw_audio_item_val_to_px = \
+    pydaw_audio_item_scene_width / pydaw_audio_item_max_marker_val
+pydaw_audio_item_px_to_val = \
+    pydaw_audio_item_max_marker_val / pydaw_audio_item_scene_width
 
-pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width,
-                                            pydaw_audio_item_scene_height)
+pydaw_audio_item_scene_rect = QtCore.QRectF(
+    0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
 
 pydaw_start_end_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
 pydaw_start_end_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 30, 30))
@@ -2680,18 +2724,21 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
                  a_marker_mode, a_offset=0, a_callback=None):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         self.audio_item_marker_height = 66.0
-        QtGui.QGraphicsRectItem.__init__(self, 0, 0, self.audio_item_marker_height,
-                                         self.audio_item_marker_height)
+        QtGui.QGraphicsRectItem.__init__(
+            self, 0, 0, self.audio_item_marker_height,
+            self.audio_item_marker_height)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.callback = a_callback
         self.graph_object = a_graph_object
-        self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
+        self.line = QtGui.QGraphicsLineItem(
+            0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
         self.line.setParentItem(self)
         self.line.setPen(a_pen)
         self.marker_type = a_type
         self.marker_mode = a_marker_mode
         self.pos_x = 0.0
-        self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
+        self.max_x = \
+            pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
         self.other = None
         self.fade_marker = None
@@ -2702,7 +2749,9 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.line.setPos(0.0, self.y_pos * -1.0)
         elif a_type == 1:
             self.min_x = 66.0
-            self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - \
+            self.y_pos = \
+                pydaw_audio_item_scene_height - \
+                self.audio_item_marker_height - \
                 (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
         self.setPen(a_pen)
@@ -2737,8 +2786,10 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         if self.marker_type == 0:
             f_new_val = self.value * pydaw_audio_item_val_to_px
         elif self.marker_type == 1:
-            f_new_val = (self.value * pydaw_audio_item_val_to_px) - self.audio_item_marker_height
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
+            f_new_val = (self.value *
+                pydaw_audio_item_val_to_px) - self.audio_item_marker_height
+        f_new_val = pydaw_util.pydaw_clip_value(
+            f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
 
     def set_value(self, a_value):
@@ -2754,16 +2805,20 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         self.pos_x = a_event.scenePos().x()
-        self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
+        self.pos_x = pydaw_util.pydaw_clip_value(
+            self.pos_x, self.min_x, self.max_x)
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
             f_new_val = self.pos_x * pydaw_audio_item_px_to_val
-            if self.fade_marker is not None and self.fade_marker.pos().x() < self.pos_x:
+            if self.fade_marker is not None and \
+            self.fade_marker.pos().x() < self.pos_x:
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
         elif self.marker_type == 1:
-            f_new_val = (self.pos_x + self.audio_item_marker_height) * pydaw_audio_item_px_to_val
-            if self.fade_marker is not None and self.fade_marker.pos().x() > self.pos_x:
+            f_new_val = (self.pos_x +
+                self.audio_item_marker_height) * pydaw_audio_item_px_to_val
+            if self.fade_marker is not None and \
+            self.fade_marker.pos().x() > self.pos_x:
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
         f_new_val = pydaw_util.pydaw_clip_value(f_new_val, 0.0, 994.0)
@@ -2802,16 +2857,19 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
                  a_offset=0, a_callback=None):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         self.audio_item_marker_height = 66.0
-        QtGui.QGraphicsRectItem.__init__(self, 0, 0, self.audio_item_marker_height,
-                                         self.audio_item_marker_height)
+        QtGui.QGraphicsRectItem.__init__(
+            self, 0, 0, self.audio_item_marker_height,
+            self.audio_item_marker_height)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.callback = a_callback
-        self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
+        self.line = QtGui.QGraphicsLineItem(
+            0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
         self.line.setParentItem(self)
         self.line.setPen(a_pen)
         self.marker_type = a_type
         self.pos_x = 0.0
-        self.max_x = pydaw_audio_item_scene_width - self.audio_item_marker_height
+        self.max_x = \
+            pydaw_audio_item_scene_width - self.audio_item_marker_height
         self.value = a_val
         self.other = None
         self.start_end_marker = None
@@ -2821,8 +2879,9 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
             self.line.setPos(0.0, self.y_pos * -1.0)
         elif a_type == 1:
             self.min_x = 66.0
-            self.y_pos = pydaw_audio_item_scene_height - self.audio_item_marker_height - \
-            (a_offset * self.audio_item_marker_height)
+            self.y_pos = pydaw_audio_item_scene_height - \
+                self.audio_item_marker_height - \
+                (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
         self.setPen(a_pen)
         self.setBrush(a_brush)
@@ -2864,15 +2923,19 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         f_y_pos = 0
         f_x_inc = 0
         if self.marker_type == 0:
-            f_x_list = [self.scenePos().x(), self.start_end_marker.scenePos().x()]
+            f_x_list = [self.scenePos().x(),
+                        self.start_end_marker.scenePos().x()]
         elif self.marker_type == 1:
             f_x_list = [self.scenePos().x() + self.audio_item_marker_height,
-                        self.start_end_marker.scenePos().x() + self.audio_item_marker_height]
+                        self.start_end_marker.scenePos().x() +
+                        self.audio_item_marker_height]
         for f_line in self.amp_lines:
             if f_x_inc == 0:
-                f_line.setLine(f_x_list[0], f_y_pos, f_x_list[1], f_y_pos + f_inc)
+                f_line.setLine(
+                    f_x_list[0], f_y_pos, f_x_list[1], f_y_pos + f_inc)
             else:
-                f_line.setLine(f_x_list[1], f_y_pos, f_x_list[0], f_y_pos + f_inc)
+                f_line.setLine(
+                    f_x_list[1], f_y_pos, f_x_list[0], f_y_pos + f_inc)
             f_y_pos += f_inc
             f_x_inc += 1
             if f_x_inc > 1:
@@ -2882,8 +2945,10 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         if self.marker_type == 0:
             f_new_val = self.value * pydaw_audio_item_val_to_px
         elif self.marker_type == 1:
-            f_new_val = (self.value * pydaw_audio_item_val_to_px) - self.audio_item_marker_height
-        f_new_val = pydaw_util.pydaw_clip_value(f_new_val, self.min_x, self.max_x)
+            f_new_val = (self.value *
+                pydaw_audio_item_val_to_px) - self.audio_item_marker_height
+        f_new_val = pydaw_util.pydaw_clip_value(
+            f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
         self.draw_lines()
 
@@ -2895,11 +2960,14 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         self.pos_x = a_event.scenePos().x()
-        self.pos_x = pydaw_util.pydaw_clip_value(self.pos_x, self.min_x, self.max_x)
+        self.pos_x = pydaw_util.pydaw_clip_value(
+            self.pos_x, self.min_x, self.max_x)
         if self.marker_type == 0:
-            self.pos_x = pydaw_util.pydaw_clip_max(self.pos_x, self.other.scenePos().x())
+            self.pos_x = pydaw_util.pydaw_clip_max(
+                self.pos_x, self.other.scenePos().x())
         elif self.marker_type == 1:
-            self.pos_x = pydaw_util.pydaw_clip_min(self.pos_x, self.other.scenePos().x())
+            self.pos_x = pydaw_util.pydaw_clip_min(
+                self.pos_x, self.other.scenePos().x())
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
             f_new_val = self.pos_x * pydaw_audio_item_px_to_val
@@ -2907,7 +2975,8 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
                 self.start_end_marker.value = f_new_val
                 self.start_end_marker.set_pos()
         elif self.marker_type == 1:
-            f_new_val = (self.pos_x + self.audio_item_marker_height) * pydaw_audio_item_px_to_val
+            f_new_val = (self.pos_x +
+                self.audio_item_marker_height) * pydaw_audio_item_px_to_val
             if self.pos_x > self.start_end_marker.scenePos().x():
                 self.start_end_marker.value = f_new_val
                 self.start_end_marker.set_pos()
@@ -2925,7 +2994,8 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
 
 global_audio_markers_clipboard = None
 
-def global_set_audio_markers_clipboard(a_s, a_e, a_fi, a_fo, a_ls=0.0, a_le=1000.0):
+def global_set_audio_markers_clipboard(a_s, a_e, a_fi, a_fo,
+                                       a_ls=0.0, a_le=1000.0):
     global global_audio_markers_clipboard
     global_audio_markers_clipboard = (a_s, a_e, a_fi, a_fo, a_ls, a_le)
 
@@ -2946,23 +3016,29 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.scene.mouseMoveEvent = self.scene_mouseMoveEvent
         self.scene.mouseReleaseEvent = self.scene_mouseReleaseEvent
         self.scene_context_menu = QtGui.QMenu(self)
-        self.reset_markers_action = self.scene_context_menu.addAction(_("Reset Markers"))
+        self.reset_markers_action = self.scene_context_menu.addAction(
+            _("Reset Markers"))
         self.reset_markers_action.triggered.connect(self.reset_markers)
-        self.copy_markers_action = self.scene_context_menu.addAction(_("Copy Markers"))
+        self.copy_markers_action = self.scene_context_menu.addAction(
+            _("Copy Markers"))
         self.copy_markers_action.triggered.connect(self.copy_markers)
-        self.paste_markers_action = self.scene_context_menu.addAction(_("Paste Markers"))
+        self.paste_markers_action = self.scene_context_menu.addAction(
+            _("Paste Markers"))
         self.paste_markers_action.triggered.connect(self.paste_markers)
-        self.tempo_sync_action = self.scene_context_menu.addAction(_("Tempo Sync"))
+        self.tempo_sync_action = self.scene_context_menu.addAction(
+            _("Tempo Sync"))
         self.tempo_sync_action.triggered.connect(self.tempo_sync_dialog)
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.setSizePolicy(
+            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.scroll_bar_height = self.horizontalScrollBar().height()
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
-        self.waveform_brush = QtGui.QLinearGradient(0.0, 0.0, pydaw_audio_item_scene_height,
-                                                    pydaw_audio_item_scene_width)
+        self.waveform_brush = QtGui.QLinearGradient(
+            0.0, 0.0, pydaw_audio_item_scene_height,
+            pydaw_audio_item_scene_width)
         self.waveform_brush.setColorAt(0.0, QtGui.QColor(140, 140, 240))
         self.waveform_brush.setColorAt(0.5, QtGui.QColor(240, 190, 140))
         self.waveform_brush.setColorAt(1.0, QtGui.QColor(140, 140, 240))
@@ -3015,7 +3091,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                 f_new = pydaw_util.pydaw_clip_value(
                     f_new, f_marker.other.value + 1.0, 1000.0)
                 f_marker.set_value(f_new)
-            self.last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
+            self.last_tempo_combobox_index = \
+                f_beat_frac_combobox.currentIndex()
             f_dialog.close()
 
         f_dialog = QtGui.QDialog(self)
@@ -3063,7 +3140,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                 self.fade_in_marker.value, self.fade_out_marker.value)
 
     def paste_markers(self):
-        if self.graph_object is not None and global_audio_markers_clipboard is not None:
+        if self.graph_object is not None and \
+        global_audio_markers_clipboard is not None:
             f_markers = (self.start_marker, self.end_marker,
                          self.fade_in_marker, self.fade_out_marker)
             for f_i in range(4):
@@ -3134,7 +3212,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def draw_item(self, a_graph_object, a_start, a_end, a_fade_in, a_fade_out):
         self.graph_object = a_graph_object
-        self.length_str = ["Length: {}".format(pydaw_util.pydaw_seconds_to_time_str(
+        self.length_str = ["Length: {}".format(
+            pydaw_util.pydaw_seconds_to_time_str(
             self.graph_object.length_in_seconds))]
         self.path_list = a_graph_object.create_sample_graph(True)
         self.path_count = len(self.path_list)
@@ -3224,15 +3303,17 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
         self.loop_start_callback_x = a_loop_start_callback
         self.loop_end_callback_x = a_loop_end_callback
         self.scene_context_menu.addSeparator()
-        self.loop_copy_action = self.scene_context_menu.addAction("Copy Loop Markers")
+        self.loop_copy_action = self.scene_context_menu.addAction(
+            _("Copy Loop Markers"))
         self.loop_copy_action.triggered.connect(self.copy_loop)
-        self.loop_paste_action = self.scene_context_menu.addAction("Paste Loop Markers")
+        self.loop_paste_action = self.scene_context_menu.addAction(
+            _("Paste Loop Markers"))
         self.loop_paste_action.triggered.connect(self.paste_loop)
 
     def copy_loop(self):
         if self.graph_object is not None:
-            global_set_audio_loop_clipboard(self.loop_start_marker.value,
-                                            self.loop_end_marker.value)
+            global_set_audio_loop_clipboard(
+                self.loop_start_marker.value, self.loop_end_marker.value)
 
     def paste_loop(self):
         if self.graph_object is not None and \
@@ -3306,7 +3387,8 @@ class pydaw_modulex_single:
                 a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr,
                 a_default_index=0)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
-        self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
+        self.combobox.control.currentIndexChanged.connect(
+            self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
 
     def wheel_event(self, a_event=None):
@@ -3744,8 +3826,8 @@ class pydaw_abstract_plugin_ui:
         self.is_quitting = False
 
     def set_default_size(self):
-        """ Override this for plugins that can't properly resize automatically and
-            can be resized
+        """ Override this for plugins that can't properly resize
+            automatically and can be resized
         """
         pass
 
@@ -3765,13 +3847,17 @@ class pydaw_abstract_plugin_ui:
         f_x > f_desktop_size.width() - 40 or \
         f_y > f_desktop_size.height() - 40:
             f_y += 21
-            f_x = pydaw_util.pydaw_clip_value(f_x, 400, f_desktop_size.width())
-            f_y = pydaw_util.pydaw_clip_value(f_y, 400, f_desktop_size.height())
+            f_x = pydaw_util.pydaw_clip_value(
+                f_x, 400, f_desktop_size.width())
+            f_y = pydaw_util.pydaw_clip_value(
+                f_y, 400, f_desktop_size.height())
             self.widget.resize(f_x, f_y)
             self.set_default_size()
         else:
-            self.widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-            self.widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            self.widget.setHorizontalScrollBarPolicy(
+                QtCore.Qt.ScrollBarAlwaysOff)
+            self.widget.setVerticalScrollBarPolicy(
+                QtCore.Qt.ScrollBarAlwaysOff)
             self.widget.setFixedSize(f_x, f_y)
         self.widget.show()
 
@@ -3791,9 +3877,11 @@ class pydaw_abstract_plugin_ui:
 
     def save_plugin_file(self):
         if self.folder is not None:
-            f_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
+            f_file = pydaw_plugin_file.from_dict(
+                self.port_dict, self.configure_dict)
             self.pydaw_project.save_file(self.folder, self.file, str(f_file))
-            self.pydaw_project.commit(_("Update controls for {}").format(self.track_name))
+            self.pydaw_project.commit(
+                _("Update controls for {}").format(self.track_name))
             self.pydaw_project.flush_history()
 
     def widget_close_event(self, a_event):
@@ -3830,7 +3918,9 @@ class pydaw_abstract_plugin_ui:
         pass
 
     def set_configure(self, a_key, a_message):
-        """ Override this function to configure the plugin from the state file """
+        """ Override this function to configure the
+            plugin from the state file
+        """
         pass
 
     def reconfigure_plugin(self, a_dict):
@@ -4028,7 +4118,8 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
     def bpmSyncPressed(self):
         f_frac = 1.0
         f_switch = (self.beat_frac_combobox.currentIndex())
-        f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75, 5 : 1.0}
+        f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666,
+                  4 : 0.75, 5 : 1.0}
         f_frac = f_dict[f_switch]
         f_seconds_per_beat = 60/(self.bpm_spinbox.value())
         f_result = int(f_seconds_per_beat * f_frac * 100)
@@ -4095,7 +4186,8 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout1.addWidget(self.adsr_amp.groupbox)
         self.groupbox_distortion =  QtGui.QGroupBox(_("Distortion"))
         self.groupbox_distortion.setObjectName("plugin_groupbox")
-        self.groupbox_distortion_layout = QtGui.QGridLayout(self.groupbox_distortion)
+        self.groupbox_distortion_layout = QtGui.QGridLayout(
+            self.groupbox_distortion)
         self.hlayout1.addWidget(self.groupbox_distortion)
         self.dist =  pydaw_knob_control(
             f_knob_size, _("Gain"), pydaw_ports.RAYV_DIST,
@@ -4126,9 +4218,10 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             self.port_dict, self.preset_manager)
         self.hard_sync.control.setToolTip(
-            _("Setting self hard sync's Osc1 to Osc2. Usually you would want to "
-            "distort and pitchbend if this is enabled."))
-        self.sync_gridlayout.addWidget(self.hard_sync.control, 1, 0, QtCore.Qt.AlignCenter)
+            _("Setting self hard sync's Osc1 to Osc2. Usually you "
+            "would want to distort and pitchbend if this is enabled."))
+        self.sync_gridlayout.addWidget(
+            self.hard_sync.control, 1, 0, QtCore.Qt.AlignCenter)
         self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
         self.groupbox_noise.setObjectName("plugin_groupbox")
         self.noise_layout = QtGui.QGridLayout(self.groupbox_noise)
@@ -4254,8 +4347,10 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc_tab = QtGui.QWidget()
         self.osc_tab_vlayout = QtGui.QVBoxLayout(self.osc_tab)
         self.osc_scrollarea =  QtGui.QScrollArea()
-        self.osc_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.osc_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.osc_scrollarea.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.osc_scrollarea.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOn)
         self.tab_widget.addTab(self.osc_tab, _("Oscillators"))
         self.fm_tab = QtGui.QWidget()
         self.tab_widget.addTab(self.fm_tab, _("FM"))
@@ -4272,13 +4367,15 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             "WAYV", self.configure_dict, self.reconfigure_plugin)
         self.preset_hlayout = QtGui.QHBoxLayout()
         self.preset_hlayout.addWidget(self.preset_manager.group_box)
-        self.preset_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.preset_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.osc_tab_vlayout.addLayout(self.preset_hlayout)
         self.osc_tab_vlayout.addWidget(self.osc_scrollarea)
 
         self.hlayout0 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout0)
-        self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout0.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_knob_size = 48
 
         for f_i in range(1, 7):
@@ -4335,7 +4432,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                 self.port_dict, self.preset_manager)
             f_adsr_amp1_checkbox.add_to_grid_layout(f_adsr_amp1.layout, 15)
 
-            f_hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+            f_hlayout1.addItem(
+                QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
 
         ######################
@@ -4359,16 +4457,19 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 7)]
         self.fm_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
         self.fm_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
-        self.fm_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.fm_matrix.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
         self.fm_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.fm_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.fm_matrix.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
         self.fm_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
 
         self.fm_matrix_hlayout.addWidget(self.fm_matrix)
 
         for f_i in range(6):
             for f_i2 in range(6):
-                f_port = getattr(pydaw_ports, "WAYV_OSC{}_FM{}".format(f_i2 + 1, f_i + 1))
+                f_port = getattr(
+                    pydaw_ports, "WAYV_OSC{}_FM{}".format(f_i2 + 1, f_i + 1))
                 f_spinbox = pydaw_spinbox_control(
                     None, f_port,
                     self.plugin_rel_callback, self.plugin_val_callback,
@@ -4395,23 +4496,28 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_macro2_action = self.fm_matrix_menu.addAction(_("Set Macro 2 End"))
         f_macro2_action.triggered.connect(self.set_fm_macro2_end)
         self.fm_matrix_menu.addSeparator()
-        f_return_macro1_action = self.fm_matrix_menu.addAction(_("Return to Macro 1 End"))
+        f_return_macro1_action = self.fm_matrix_menu.addAction(
+            _("Return to Macro 1 End"))
         f_return_macro1_action.triggered.connect(self.return_fm_macro1_end)
-        f_return_macro2_action = self.fm_matrix_menu.addAction(_("Return to Macro 2 End"))
+        f_return_macro2_action = self.fm_matrix_menu.addAction(
+            _("Return to Macro 2 End"))
         f_return_macro2_action.triggered.connect(self.return_fm_macro2_end)
         self.fm_matrix_menu.addSeparator()
         f_clear_fm_action = self.fm_matrix_menu.addAction(_("Clear All"))
         f_clear_fm_action.triggered.connect(self.clear_all)
 
-        self.fm_matrix_hlayout.addWidget(QtGui.QLabel(_("FM\nModulation\nMacros")))
+        self.fm_matrix_hlayout.addWidget(
+            QtGui.QLabel(_("FM\nModulation\nMacros")))
 
         self.fm_macro_knobs_gridlayout = QtGui.QGridLayout()
         self.fm_macro_knobs_gridlayout.addItem(
-            QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding), 10, 0)
+            QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding),
+            10, 0)
 
         self.fm_matrix_hlayout.addLayout(self.fm_macro_knobs_gridlayout)
 
-        self.fm_matrix_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.fm_matrix_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         self.fm_macro_knobs = []
         self.osc_amp_mod_matrix_spinboxes = [ [] for x in range(2) ]
@@ -4423,32 +4529,38 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         for f_i in range(2):
             f_port = getattr(pydaw_ports, "WAYV_FM_MACRO{}".format(f_i + 1))
-            f_macro = pydaw_knob_control(f_knob_size, _("Macro{}".format(f_i + 1)),
-                                         f_port,
-                                         self.plugin_rel_callback,
-                                         self.plugin_val_callback,
-                                         0, 100, 0, kc_decimal,
-                                         self.port_dict, self.preset_manager)
+            f_macro = pydaw_knob_control(
+                f_knob_size, _("Macro{}".format(f_i + 1)), f_port,
+                self.plugin_rel_callback, self.plugin_val_callback,
+                0, 100, 0, kc_decimal, self.port_dict, self.preset_manager)
             f_macro.add_to_grid_layout(self.fm_macro_knobs_gridlayout, f_i)
             self.fm_macro_knobs.append(f_macro)
 
             f_fm_macro_matrix = QtGui.QTableWidget()
             self.fm_macro_labels_hlayout.addWidget(
-                QtGui.QLabel("Macro {}".format(f_i + 1), f_fm_macro_matrix), -1)
+                QtGui.QLabel("Macro {}".format(f_i + 1),
+                f_fm_macro_matrix), -1)
 
             f_fm_macro_matrix.setCornerButtonEnabled(False)
             f_fm_macro_matrix.setRowCount(7)
             f_fm_macro_matrix.setColumnCount(6)
             f_fm_macro_matrix.setFixedHeight(264)
             f_fm_macro_matrix.setFixedWidth(465)
-            f_fm_src_matrix_labels = ["From Osc{}".format(x) for x in range(1, 7)] + ["Vol"]
-            f_fm_dest_matrix_labels = ["To\nOsc{}".format(x) for x in range(1, 7)]
-            f_fm_macro_matrix.setHorizontalHeaderLabels(f_fm_dest_matrix_labels)
+            f_fm_src_matrix_labels = ["From Osc{}".format(x)
+                for x in range(1, 7)] + ["Vol"]
+            f_fm_dest_matrix_labels = ["To\nOsc{}".format(x)
+                for x in range(1, 7)]
+            f_fm_macro_matrix.setHorizontalHeaderLabels(
+                f_fm_dest_matrix_labels)
             f_fm_macro_matrix.setVerticalHeaderLabels(f_fm_src_matrix_labels)
-            f_fm_macro_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-            f_fm_macro_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-            f_fm_macro_matrix.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-            f_fm_macro_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+            f_fm_macro_matrix.setHorizontalScrollBarPolicy(
+                QtCore.Qt.ScrollBarAlwaysOff)
+            f_fm_macro_matrix.setVerticalScrollBarPolicy(
+                QtCore.Qt.ScrollBarAlwaysOff)
+            f_fm_macro_matrix.horizontalHeader().setResizeMode(
+                QtGui.QHeaderView.Fixed)
+            f_fm_macro_matrix.verticalHeader().setResizeMode(
+                QtGui.QHeaderView.Fixed)
 
             self.fm_macro_matrix_hlayout.addWidget(f_fm_macro_matrix)
 
@@ -4462,7 +4574,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
                         self.plugin_rel_callback, self.plugin_val_callback,
                         -100, 100, 0, kc_none, self.port_dict,
                         self.preset_manager)
-                    f_fm_macro_matrix.setCellWidget(f_i2, f_i3, f_spinbox.control)
+                    f_fm_macro_matrix.setCellWidget(
+                        f_i2, f_i3, f_spinbox.control)
                     self.fm_macro_spinboxes[f_i].append(f_spinbox)
 
                 f_port = getattr(
@@ -4760,7 +4873,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         # Clear existing sample tables
         f_ui_config_keys = ["wayv_add_ui0", "wayv_add_ui1", "wayv_add_ui2"]
         f_eng_config_keys = ["wayv_add_eng0", "wayv_add_eng1", "wayv_add_eng2"]
-        f_ui_phase_keys = ["wayv_add_phase0", "wayv_add_phase1", "wayv_add_phase2"]
+        f_ui_phase_keys = ["wayv_add_phase0", "wayv_add_phase1",
+                           "wayv_add_phase2"]
         f_empty_ui_val = "|".join(["-30"] * global_additive_osc_harmonic_count)
         f_empty_eng_val = "{}|{}".format(global_additive_wavetable_size,
             "|".join(["0.0"] * global_additive_wavetable_size))
@@ -4802,15 +4916,16 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.set_fm_macro_end(1)
 
     def set_fm_macro_end(self, a_index):
-        for f_spinbox, f_knob, f_origin in zip(self.fm_macro_spinboxes[a_index],
-                                               self.fm_knobs, self.fm_origin):
+        for f_spinbox, f_knob, f_origin in zip(
+        self.fm_macro_spinboxes[a_index], self.fm_knobs, self.fm_origin):
             f_value = f_knob.get_value() - f_origin
             f_value = pydaw_util.pydaw_clip_value(f_value, -100, 100)
             f_spinbox.set_value(f_value, True)
 
     def clear_all(self):
-        for f_control in (self.fm_knobs + self.fm_macro_spinboxes[0] +
-                          self.fm_macro_spinboxes[1]):
+        for f_control in (
+        self.fm_knobs + self.fm_macro_spinboxes[0] +
+        self.fm_macro_spinboxes[1]):
             f_control.set_value(0, True)
 
     def return_fm_macro1_end(self):
@@ -4820,8 +4935,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.return_fm_macro_end(1)
 
     def return_fm_macro_end(self, a_index):
-        for f_spinbox, f_knob, f_origin in zip(self.fm_macro_spinboxes[a_index],
-                                               self.fm_knobs, self.fm_origin):
+        for f_spinbox, f_knob, f_origin in zip(
+        self.fm_macro_spinboxes[a_index], self.fm_knobs, self.fm_origin):
             f_value = f_spinbox.get_value() + f_origin
             f_value = pydaw_util.pydaw_clip_value(f_value, 0, 100)
             f_knob.set_value(f_value, True)
@@ -4889,13 +5004,17 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             0, self.port_dict)
 
-        self.sample_table = QtGui.QTableWidget(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT,
-                                               len(f_sample_table_columns))
+        self.sample_table = QtGui.QTableWidget(
+            pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT, len(f_sample_table_columns))
         self.sample_table.setAlternatingRowColors(True)
-        self.sample_table.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.sample_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.sample_table.setHorizontalScrollMode(
+            QtGui.QAbstractItemView.ScrollPerPixel)
+        self.sample_table.setVerticalScrollMode(
+            QtGui.QAbstractItemView.ScrollPerPixel)
+        self.sample_table.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
+        self.sample_table.verticalHeader().setResizeMode(
+            QtGui.QHeaderView.Fixed)
 
         self.selected_radiobuttons = []
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
@@ -4995,7 +5114,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_tunes.append(f_sample_tune)
 
         self.sample_modes = []
-        f_port_start = pydaw_ports.EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN
+        f_port_start = \
+            pydaw_ports.EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_sample_mode = pydaw_combobox_control(
                 120, None, f_port_start + f_i,
@@ -5059,190 +5179,171 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.loop_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_loop_end = pydaw_null_control(f_port_start + f_i,
-                                            self.plugin_rel_callback,
-                                            self.plugin_val_callback, 1000,
-                                            self.port_dict)
+            f_loop_end = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 1000, self.port_dict)
             self.loop_ends.append(f_loop_end)
 
         self.fade_in_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_FADE_IN_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_fade_in = pydaw_null_control(f_port_start + f_i,
-                                           self.plugin_rel_callback,
-                                           self.plugin_val_callback, 0,
-                                           self.port_dict)
+            f_fade_in = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 0, self.port_dict)
             self.fade_in_ends.append(f_fade_in)
 
         self.fade_out_starts = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_FADE_OUT_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_fade_out = pydaw_null_control(f_port_start + f_i,
-                                            self.plugin_rel_callback,
-                                            self.plugin_val_callback, 1000,
-                                            self.port_dict)
+            f_fade_out = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 1000, self.port_dict)
             self.fade_out_starts.append(f_fade_out)
 
         #MonoFX0
         self.monofx0knob0_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx0knob0_ctrls.append(f_ctrl)
 
         self.monofx0knob1_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx0knob1_ctrls.append(f_ctrl)
 
         self.monofx0knob2_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx0knob2_ctrls.append(f_ctrl)
 
         self.monofx0comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 0,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 0, self.port_dict)
             self.monofx0comboboxes.append(f_ctrl)
         #MonoFX1
         self.monofx1knob0_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx1knob0_ctrls.append(f_ctrl)
 
         self.monofx1knob1_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx1knob1_ctrls.append(f_ctrl)
 
         self.monofx1knob2_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx1knob2_ctrls.append(f_ctrl)
 
         self.monofx1comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 0,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 0, self.port_dict)
             self.monofx1comboboxes.append(f_ctrl)
         #MonoFX2
         self.monofx2knob0_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx2knob0_ctrls.append(f_ctrl)
 
         self.monofx2knob1_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx2knob1_ctrls.append(f_ctrl)
 
         self.monofx2knob2_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx2knob2_ctrls.append(f_ctrl)
 
         self.monofx2comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 0,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 0, self.port_dict)
             self.monofx2comboboxes.append(f_ctrl)
         #MonoFX3
         self.monofx3knob0_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx3knob0_ctrls.append(f_ctrl)
 
         self.monofx3knob1_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx3knob1_ctrls.append(f_ctrl)
 
         self.monofx3knob2_ctrls = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 64,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 64, self.port_dict)
             self.monofx3knob2_ctrls.append(f_ctrl)
 
         self.monofx3comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i,
-                                        self.plugin_rel_callback,
-                                        self.plugin_val_callback, 0,
-                                        self.port_dict)
+            f_ctrl = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 0, self.port_dict)
             self.monofx3comboboxes.append(f_ctrl)
 
         self.monofx_groups = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_monofx_group = pydaw_null_control(f_port_start + f_i,
-                                                self.plugin_rel_callback,
-                                                self.plugin_val_callback, 0,
-                                                self.port_dict)
+            f_monofx_group = pydaw_null_control(
+                f_port_start + f_i, self.plugin_rel_callback,
+                self.plugin_val_callback, 0, self.port_dict)
             self.monofx_groups.append(f_monofx_group)
 
-        self.monofx_null_controls_tuple = (self.monofx0knob0_ctrls, self.monofx0knob1_ctrls,
-                                           self.monofx0knob2_ctrls, self.monofx1knob0_ctrls,
-                                           self.monofx1knob1_ctrls, self.monofx1knob2_ctrls,
-                                           self.monofx2knob0_ctrls, self.monofx2knob1_ctrls,
-                                           self.monofx2knob2_ctrls, self.monofx3knob0_ctrls,
-                                           self.monofx3knob1_ctrls, self.monofx3knob2_ctrls)
+        self.monofx_null_controls_tuple = (
+            self.monofx0knob0_ctrls, self.monofx0knob1_ctrls,
+            self.monofx0knob2_ctrls, self.monofx1knob0_ctrls,
+            self.monofx1knob1_ctrls, self.monofx1knob2_ctrls,
+            self.monofx2knob0_ctrls, self.monofx2knob1_ctrls,
+            self.monofx2knob2_ctrls, self.monofx3knob0_ctrls,
+            self.monofx3knob1_ctrls, self.monofx3knob2_ctrls)
 
         self.eq_ports = []
         f_port_start = pydaw_ports.EUPHORIA_FIRST_EQ_PORT
@@ -5253,15 +5354,17 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_eq_list = []
                 f_group_list.append(f_eq_list)
                 f_eq_port = f_port_start + (f_i * 18) + (f_i2 * 3)
-                f_freq = pydaw_null_control(f_eq_port, self.plugin_rel_callback,
-                                            self.plugin_val_callback, (f_i2 * 18) + 24,
-                                            self.port_dict)
+                f_freq = pydaw_null_control(
+                    f_eq_port, self.plugin_rel_callback,
+                    self.plugin_val_callback, (f_i2 * 18) + 24, self.port_dict)
                 f_eq_port += 1
-                f_bw = pydaw_null_control(f_eq_port, self.plugin_rel_callback,
-                                          self.plugin_val_callback, 300, self.port_dict)
+                f_bw = pydaw_null_control(
+                    f_eq_port, self.plugin_rel_callback,
+                    self.plugin_val_callback, 300, self.port_dict)
                 f_eq_port += 1
-                f_gain = pydaw_null_control(f_eq_port, self.plugin_rel_callback,
-                                            self.plugin_val_callback, 0, self.port_dict)
+                f_gain = pydaw_null_control(
+                    f_eq_port, self.plugin_rel_callback,
+                    self.plugin_val_callback, 0, self.port_dict)
                 f_eq_list.append(f_freq)
                 f_eq_list.append(f_bw)
                 f_eq_list.append(f_gain)
@@ -5341,15 +5444,21 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         action_copy_instrument = menuFile.addAction(_("Copy Instrument"))
         action_paste_instrument = menuFile.addAction(_("Paste Instrument"))
         menuFile.addSeparator()
-        actionMapToWhiteKeys =  menuFile.addAction(_("Map All Samples to 1 White Key"))
-        actionMapToMonoFX =  menuFile.addAction(_("Map All Samples to Own MonoFX Group"))
-        f_map_octaves_action = menuFile.addAction(_("Map to 2 octaves per sample"))
+        actionMapToWhiteKeys =  menuFile.addAction(
+            _("Map All Samples to 1 White Key"))
+        actionMapToMonoFX =  menuFile.addAction(
+            _("Map All Samples to Own MonoFX Group"))
+        f_map_octaves_action = menuFile.addAction(
+            _("Map to 2 octaves per sample"))
         menuFile.addSeparator()
-        actionClearAllSamples =  menuFile.addAction(_("Clear All Samples"))
+        actionClearAllSamples =  menuFile.addAction(
+            _("Clear All Samples"))
         menuFile.addSeparator()
-        actionImportSfz = menuFile.addAction(_("Import SFZ..."))
+        actionImportSfz = menuFile.addAction(
+            _("Import SFZ..."))
         menuFile.addSeparator()
-        actionTsPs = menuFile.addAction(_("Time-Stretch/Pitch-Shift..."))
+        actionTsPs = menuFile.addAction(
+            _("Time-Stretch/Pitch-Shift..."))
 
         menubar.setMenu(menuFile)
         menuFile.addSeparator()
@@ -5402,18 +5511,18 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         #m_view_sample_tab
         self.view_sample_tab =  QtGui.QWidget()
         self.main_tab.addTab(self.view_sample_tab, _("View"))
-        self.view_sample_tab_main_vlayout =  QtGui.QVBoxLayout(self.view_sample_tab)
+        self.view_sample_tab_main_vlayout = QtGui.QVBoxLayout(
+            self.view_sample_tab)
         self.view_sample_tab_main_vlayout.setContentsMargins(0, 0, 0, 0)
 
         #Sample Graph
-        self.sample_graph = pydaw_sample_viewer_widget(self.sample_start_callback,
-                                                       self.sample_end_callback,
-                                                       self.loop_start_callback,
-                                                       self.loop_end_callback,
-                                                       self.fade_in_callback,
-                                                       self.fade_out_callback)
+        self.sample_graph = pydaw_sample_viewer_widget(
+            self.sample_start_callback, self.sample_end_callback,
+            self.loop_start_callback, self.loop_end_callback,
+            self.fade_in_callback, self.fade_out_callback)
         self.sample_graph.scene_context_menu.addSeparator()
-        self.marker_all_action = self.sample_graph.scene_context_menu.addAction(
+        self.marker_all_action = \
+            self.sample_graph.scene_context_menu.addAction(
             _("Apply Start/End/Fade Markers to All Samples"))
         self.marker_all_action.triggered.connect(self.on_marker_all)
         self.loop_all_action = self.sample_graph.scene_context_menu.addAction(
@@ -5428,14 +5537,17 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
         #self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(
         #    40, 20, QtGui.QSizePolicy.Expanding))
-        self.sample_view_select_sample_hlayout.addWidget(self.sample_graph.label)
+        self.sample_view_select_sample_hlayout.addWidget(
+            self.sample_graph.label)
         self.sample_view_extra_controls_gridview =  QtGui.QGridLayout()
         self.selected_sample_index_combobox =  QtGui.QComboBox()
-        sizePolicy1 = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy1 = QtGui.QSizePolicy(
+            QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(
-            self.selected_sample_index_combobox.sizePolicy().hasHeightForWidth())
+            self.selected_sample_index_combobox.sizePolicy().
+            hasHeightForWidth())
         self.selected_sample_index_combobox.setSizePolicy(sizePolicy1)
         self.selected_sample_index_combobox.setMinimumWidth(320)
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
@@ -5447,34 +5559,46 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.selected_sample_index_label =  QtGui.QLabel(_("Selected Sample"))
         self.sample_view_extra_controls_gridview.addWidget(
             self.selected_sample_index_label, 0, 0, 1, 1)
-        self.sample_view_select_sample_hlayout.addItem(QtGui.QSpacerItem(30, 1))
+        self.sample_view_select_sample_hlayout.addItem(
+            QtGui.QSpacerItem(30, 1))
         self.sample_view_select_sample_hlayout.addLayout(
             self.sample_view_extra_controls_gridview)
         self.sample_view_select_sample_hlayout.addItem(
             QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding))
-        self.view_sample_tab_main_vlayout.addWidget(self.sample_view_select_sample_widget)
+        self.view_sample_tab_main_vlayout.addWidget(
+            self.sample_view_select_sample_widget)
         #The loop mode combobox
         self.loop_mode_combobox =  QtGui.QComboBox(self.view_sample_tab)
         self.loop_mode_combobox.addItems([_("Off"), _("On")])
-        self.loop_mode_combobox.currentIndexChanged.connect(self.loopModeChanged)
-        self.loop_tune_note_selector = pydaw_note_selector_widget(0, None, None)
+        self.loop_mode_combobox.currentIndexChanged.connect(
+            self.loopModeChanged)
+        self.loop_tune_note_selector = pydaw_note_selector_widget(
+            0, None, None)
         self.loop_tune_button = QtGui.QPushButton(_("Tune"))
         self.loop_tune_button.pressed.connect(self.on_loop_tune)
-        self.sample_view_extra_controls_gridview.addWidget(QtGui.QLabel(_("Loop Mode")), 0, 1)
-        self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1)
-        self.sample_view_extra_controls_gridview.addItem(QtGui.QSpacerItem(30, 1), 1, 2)
-        self.sample_view_extra_controls_gridview.addWidget(QtGui.QLabel(_("Loop Tune")), 0, 3)
+        self.sample_view_extra_controls_gridview.addWidget(
+            QtGui.QLabel(_("Loop Mode")), 0, 1)
+        self.sample_view_extra_controls_gridview.addWidget(
+            self.loop_mode_combobox, 1, 1)
+        self.sample_view_extra_controls_gridview.addItem(
+            QtGui.QSpacerItem(30, 1), 1, 2)
+        self.sample_view_extra_controls_gridview.addWidget(
+            QtGui.QLabel(_("Loop Tune")), 0, 3)
         self.sample_view_extra_controls_gridview.addWidget(
             self.loop_tune_note_selector.widget, 1, 3)
-        self.sample_view_extra_controls_gridview.addWidget(self.loop_tune_button, 2, 3)
+        self.sample_view_extra_controls_gridview.addWidget(
+            self.loop_tune_button, 2, 3)
 
         #The file select on the 'view' tab
         self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
         self.view_file_selector =  pydaw_file_select_widget(self.load_files)
         self.view_file_selector.clear_button.pressed.connect(self.clearFile)
-        self.view_file_selector.reload_button.pressed.connect(self.reloadSample)
-        self.sample_view_file_select_hlayout.addLayout(self.view_file_selector.layout)
-        self.view_sample_tab_main_vlayout.addLayout(self.sample_view_file_select_hlayout)
+        self.view_file_selector.reload_button.pressed.connect(
+            self.reloadSample)
+        self.sample_view_file_select_hlayout.addLayout(
+            self.view_file_selector.layout)
+        self.view_sample_tab_main_vlayout.addLayout(
+            self.sample_view_file_select_hlayout)
 
         f_lfo_types = [_("Off"), _("Sine"), _("Triangle")]
 
@@ -5483,55 +5607,62 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.polyfx_tab_layout = QtGui.QVBoxLayout(self.poly_fx_tab)
         self.polyfx_tab_layout.setMargin(0)
         self.polyfx_tab_widget = QtGui.QWidget()
-        self.polyfx_tab_layout.addWidget(self.polyfx_tab_widget,
-                                         alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.polyfx_tab_layout.addWidget(
+            self.polyfx_tab_widget,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         self.main_layout =  QtGui.QVBoxLayout(self.polyfx_tab_widget)
 
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout0)
-        self.fx0 =  pydaw_modulex_single(_("FX0"), pydaw_ports.EUPHORIA_FX0_KNOB0,
-                                         self.plugin_rel_callback,
-                                         self.plugin_val_callback, self.port_dict,
-                                         a_knob_size=f_knob_size)
+        self.fx0 =  pydaw_modulex_single(
+            _("FX0"), pydaw_ports.EUPHORIA_FX0_KNOB0,
+            self.plugin_rel_callback, self.plugin_val_callback, self.port_dict,
+            a_knob_size=f_knob_size)
         self.hlayout0.addWidget(self.fx0.group_box)
-        self.fx1 =  pydaw_modulex_single(_("FX1"), pydaw_ports.EUPHORIA_FX1_KNOB0,
-                                         self.plugin_rel_callback, self.plugin_val_callback,
-                                         self.port_dict, a_knob_size=f_knob_size)
+        self.fx1 =  pydaw_modulex_single(
+            _("FX1"), pydaw_ports.EUPHORIA_FX1_KNOB0,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, a_knob_size=f_knob_size)
         self.hlayout0.addWidget(self.fx1.group_box)
         self.hlayout1 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout1)
-        self.fx2 =  pydaw_modulex_single(_("FX2"), pydaw_ports.EUPHORIA_FX2_KNOB0,
-                                         self.plugin_rel_callback,
-                                         self.plugin_val_callback, self.port_dict,
-                                         a_knob_size=f_knob_size)
+        self.fx2 =  pydaw_modulex_single(
+            _("FX2"), pydaw_ports.EUPHORIA_FX2_KNOB0,
+            self.plugin_rel_callback, self.plugin_val_callback, self.port_dict,
+            a_knob_size=f_knob_size)
         self.hlayout1.addWidget(self.fx2.group_box)
-        self.fx3 =  pydaw_modulex_single(_("FX3"), pydaw_ports.EUPHORIA_FX3_KNOB0,
-                                         self.plugin_rel_callback,
-                                         self.plugin_val_callback, self.port_dict,
-                                         a_knob_size=f_knob_size)
+        self.fx3 =  pydaw_modulex_single(
+            _("FX3"), pydaw_ports.EUPHORIA_FX3_KNOB0,
+            self.plugin_rel_callback, self.plugin_val_callback, self.port_dict,
+            a_knob_size=f_knob_size)
         self.hlayout1.addWidget(self.fx3.group_box)
 
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(6)
         self.mod_matrix.setColumnCount(12)
         self.mod_matrix.setFixedHeight(222)
-        self.mod_matrix.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.mod_matrix.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.mod_matrix.setHorizontalHeaderLabels([_("FX0\nCtrl1"), _("FX0\nCtrl2"),
-            _("FX0\nCtrl3"), _("FX1\nCtrl1"), _("FX1\nCtrl2"), _("FX1\nCtrl3"), _("FX2\nCtrl1"),
-            _("FX2\nCtrl2"), _("FX2\nCtrl3"), _("FX3\nCtrl1"), _("FX3\nCtrl2"), _("FX3\nCtrl3")])
-        self.mod_matrix.setVerticalHeaderLabels([_("ADSR 1"), _("ADSR 2"), _("Ramp Env"),
-                                                 _("LFO"), _("Pitch"), _("Velocity")])
+        self.mod_matrix.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.mod_matrix.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.mod_matrix.setHorizontalHeaderLabels(
+            [_("FX0\nCtrl1"), _("FX0\nCtrl2"),
+            _("FX0\nCtrl3"), _("FX1\nCtrl1"), _("FX1\nCtrl2"),
+            _("FX1\nCtrl3"), _("FX2\nCtrl1"),
+            _("FX2\nCtrl2"), _("FX2\nCtrl3"), _("FX3\nCtrl1"),
+            _("FX3\nCtrl2"), _("FX3\nCtrl3")])
+        self.mod_matrix.setVerticalHeaderLabels(
+            [_("ADSR 1"), _("ADSR 2"), _("Ramp Env"),
+             _("LFO"), _("Pitch"), _("Velocity")])
         f_port_num = pydaw_ports.EUPHORIA_PFXMATRIX_FIRST_PORT
 
         for f_i_dst in range(4):
             for f_i_src in range(4):
                 for f_i_ctrl in range(3):
-                    f_ctrl = pydaw_spinbox_control(None, f_port_num,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   -100, 100, 0,
-                                                   kc_none, self.port_dict)
+                    f_ctrl = pydaw_spinbox_control(
+                        None, f_port_num,
+                        self.plugin_rel_callback, self.plugin_val_callback,
+                        -100, 100, 0, kc_none, self.port_dict)
                     f_x = (f_i_dst * 3) + f_i_ctrl
                     self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
                     f_port_num += 1
@@ -5542,11 +5673,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i_src in range(4, 6):
             for f_i_dst in range(4):
                 for f_i_ctrl in range(3):
-                    f_ctrl = pydaw_spinbox_control(None, f_port_num,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   -100, 100, 0,
-                                                   kc_none, self.port_dict)
+                    f_ctrl = pydaw_spinbox_control(
+                        None, f_port_num,
+                        self.plugin_rel_callback, self.plugin_val_callback,
+                        -100, 100, 0, kc_none, self.port_dict)
                     f_x = (f_i_dst * 3) + f_i_ctrl
                     self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
                     f_port_num += 1
@@ -5557,54 +5687,49 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout2)
 
-        self.adsr_amp =  pydaw_adsr_widget(f_knob_size, True,
-                                           pydaw_ports.EUPHORIA_ATTACK,
-                                           pydaw_ports.EUPHORIA_DECAY,
-                                           pydaw_ports.EUPHORIA_SUSTAIN,
-                                           pydaw_ports.EUPHORIA_RELEASE, _("ADSR Amp"),
-                                           self.plugin_rel_callback,
-                                           self.plugin_val_callback,
-                                           self.port_dict,
-                                           a_attack_default=0,
-                                           a_knob_type=kc_log_time)
-        #overriding the default for self, because we want a low minimum default that won't click
+        self.adsr_amp =  pydaw_adsr_widget(
+            f_knob_size, True, pydaw_ports.EUPHORIA_ATTACK,
+            pydaw_ports.EUPHORIA_DECAY, pydaw_ports.EUPHORIA_SUSTAIN,
+            pydaw_ports.EUPHORIA_RELEASE, _("ADSR Amp"),
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, a_attack_default=0, a_knob_type=kc_log_time)
+        #overriding the default for self, because we want a
+        #low minimum default that won't click
         self.adsr_amp.release_knob.control.setMinimum(5)
         self.hlayout2.addWidget(self.adsr_amp.groupbox)
-        self.adsr_filter =  pydaw_adsr_widget(f_knob_size, False,
-                                              pydaw_ports.EUPHORIA_FILTER_ATTACK,
-                                              pydaw_ports.EUPHORIA_FILTER_DECAY,
-                                              pydaw_ports.EUPHORIA_FILTER_SUSTAIN,
-                                              pydaw_ports.EUPHORIA_FILTER_RELEASE,
-                                              _("ADSR 2"), self.plugin_rel_callback,
-                                              self.plugin_val_callback, self.port_dict,
-                                              a_knob_type=kc_log_time)
+        self.adsr_filter =  pydaw_adsr_widget(
+            f_knob_size, False, pydaw_ports.EUPHORIA_FILTER_ATTACK,
+            pydaw_ports.EUPHORIA_FILTER_DECAY,
+            pydaw_ports.EUPHORIA_FILTER_SUSTAIN,
+            pydaw_ports.EUPHORIA_FILTER_RELEASE,
+            _("ADSR 2"), self.plugin_rel_callback,
+            self.plugin_val_callback, self.port_dict, a_knob_type=kc_log_time)
         self.hlayout2.addWidget(self.adsr_filter.groupbox)
-        self.pitch_env =  pydaw_ramp_env_widget(f_knob_size, self.plugin_rel_callback,
-                                                self.plugin_val_callback,
-                                                self.port_dict,
-                                                pydaw_ports.EUPHORIA_PITCH_ENV_TIME,
-                                                None, _("Ramp Env"))
+        self.pitch_env =  pydaw_ramp_env_widget(
+            f_knob_size, self.plugin_rel_callback,
+            self.plugin_val_callback, self.port_dict,
+            pydaw_ports.EUPHORIA_PITCH_ENV_TIME, None, _("Ramp Env"))
 
         self.hlayout2.addWidget(self.pitch_env.groupbox)
 
-        self.lfo =  pydaw_lfo_widget(f_knob_size, self.plugin_rel_callback,
-                                     self.plugin_val_callback,  self.port_dict,
-                                     pydaw_ports.EUPHORIA_LFO_FREQ,
-                                     pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types,
-                                     _("LFO"))
+        self.lfo =  pydaw_lfo_widget(
+            f_knob_size, self.plugin_rel_callback,
+            self.plugin_val_callback,  self.port_dict,
+            pydaw_ports.EUPHORIA_LFO_FREQ,
+            pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types, _("LFO"))
         self.hlayout2.addWidget(self.lfo.groupbox)
 
-        self.lfo_pitch =  pydaw_knob_control(f_knob_size, _("Pitch"),
-                                             pydaw_ports.EUPHORIA_LFO_PITCH,
-                                             self.plugin_rel_callback, self.plugin_val_callback,
-                                             -36, 36, 0, kc_integer, self.port_dict)
+        self.lfo_pitch =  pydaw_knob_control(
+            f_knob_size, _("Pitch"), pydaw_ports.EUPHORIA_LFO_PITCH,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -36, 36, 0, kc_integer, self.port_dict)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 7)
 
-        self.lfo_pitch_fine =  pydaw_knob_control(f_knob_size, _("Fine"),
-                                                  pydaw_ports.EUPHORIA_LFO_PITCH_FINE,
-                                                  self.plugin_rel_callback,
-                                                  self.plugin_val_callback,
-                                                  -100, 100, 0, kc_decimal, self.port_dict)
+        self.lfo_pitch_fine =  pydaw_knob_control(
+            f_knob_size, _("Fine"),
+            pydaw_ports.EUPHORIA_LFO_PITCH_FINE,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -100, 100, 0, kc_decimal, self.port_dict)
         self.lfo_pitch_fine.add_to_grid_layout(self.lfo.layout, 8)
 
         #MonoFX Tab
@@ -5622,59 +5747,74 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_sample.currentIndexChanged.connect(
             self.monoFXSampleSelectedIndexChanged)
         self.mono_fx_tab_selected_group.setMinimumWidth(75)
-        self.mono_fx_tab_selected_hlayout.addWidget(QtGui.QLabel(_("Selected Sample:")))
-        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample)
-        self.mono_fx_tab_selected_hlayout.addWidget(QtGui.QLabel(_("FX Group:")))
-        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group)
+        self.mono_fx_tab_selected_hlayout.addWidget(
+            QtGui.QLabel(_("Selected Sample:")))
+        self.mono_fx_tab_selected_hlayout.addWidget(
+            self.mono_fx_tab_selected_sample)
+        self.mono_fx_tab_selected_hlayout.addWidget(
+            QtGui.QLabel(_("FX Group:")))
+        self.mono_fx_tab_selected_hlayout.addWidget(
+            self.mono_fx_tab_selected_group)
         self.mono_fx_tab_selected_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.mono_fx_tab_main_layout.addLayout(self.mono_fx_tab_selected_hlayout)
+        self.mono_fx_tab_main_layout.addLayout(
+            self.mono_fx_tab_selected_hlayout)
 
         self.monofx_sub_tab = QtGui.QTabWidget()
         self.mono_fx_tab_main_layout.addWidget(self.monofx_sub_tab)
 
         self.monofx_sub_tab_fx = QtGui.QWidget()
         self.monofx_sub_tab.addTab(self.monofx_sub_tab_fx, _("Effects"))
-        self.monofx_sub_tab_fx_main_layout = QtGui.QVBoxLayout(self.monofx_sub_tab_fx)
+        self.monofx_sub_tab_fx_main_layout = QtGui.QVBoxLayout(
+            self.monofx_sub_tab_fx)
         self.monofx_sub_tab_fx_widget = QtGui.QWidget()
-        self.monofx_sub_tab_fx_layout = QtGui.QVBoxLayout(self.monofx_sub_tab_fx_widget)
+        self.monofx_sub_tab_fx_layout = QtGui.QVBoxLayout(
+            self.monofx_sub_tab_fx_widget)
         self.monofx_sub_tab_fx_main_layout.addWidget(
-            self.monofx_sub_tab_fx_widget, alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+            self.monofx_sub_tab_fx_widget,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
         self.hlayout11 = QtGui.QHBoxLayout()
         self.monofx_sub_tab_fx_layout.addLayout(self.hlayout11)
-        self.mono_fx0 =  pydaw_modulex_single(_("FX0"), 0, None, self.monofx0_callback)
+        self.mono_fx0 =  pydaw_modulex_single(
+            _("FX0"), 0, None, self.monofx0_callback)
         self.hlayout11.addWidget(self.mono_fx0.group_box)
-        self.mono_fx1 =  pydaw_modulex_single(_("FX1"), 0, None, self.monofx1_callback)
+        self.mono_fx1 =  pydaw_modulex_single(
+            _("FX1"), 0, None, self.monofx1_callback)
         self.hlayout11.addWidget(self.mono_fx1.group_box)
         self.hlayout12 = QtGui.QHBoxLayout()
         self.monofx_sub_tab_fx_layout.addLayout(self.hlayout12)
-        self.mono_fx2 =  pydaw_modulex_single(_("FX2"), 0, None, self.monofx2_callback)
+        self.mono_fx2 =  pydaw_modulex_single(
+            _("FX2"), 0, None, self.monofx2_callback)
         self.hlayout12.addWidget(self.mono_fx2.group_box)
-        self.mono_fx3 =  pydaw_modulex_single(_("FX3"), 0, None, self.monofx3_callback)
+        self.mono_fx3 =  pydaw_modulex_single(
+            _("FX3"), 0, None, self.monofx3_callback)
         self.hlayout12.addWidget(self.mono_fx3.group_box)
 
-        self.monofx_knob_tuple = tuple(self.mono_fx0.knobs + self.mono_fx1.knobs +
-                                       self.mono_fx2.knobs + self.mono_fx3.knobs)
+        self.monofx_knob_tuple = tuple(
+            self.mono_fx0.knobs + self.mono_fx1.knobs +
+            self.mono_fx2.knobs + self.mono_fx3.knobs)
 
         self.last_monofx_group = None
         self.set_monofx_knob_callbacks(0)
 
-        self.master =  pydaw_master_widget(f_knob_size,
-                                           self.plugin_rel_callback, self.plugin_val_callback,
-                                           pydaw_ports.EUPHORIA_MASTER_VOLUME,
-                                           pydaw_ports.EUPHORIA_MASTER_GLIDE,
-                                           pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT,
-                                           self.port_dict, _("Master"))
+        self.master =  pydaw_master_widget(
+            f_knob_size, self.plugin_rel_callback, self.plugin_val_callback,
+            pydaw_ports.EUPHORIA_MASTER_VOLUME,
+            pydaw_ports.EUPHORIA_MASTER_GLIDE,
+            pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT,
+            self.port_dict, _("Master"))
         self.monofx_sub_tab_fx_layout.addWidget(self.master.group_box)
         self.master.vol_knob.control.setRange(-24, 24)
 
-        self.eq6 = eq6_widget(0, self.eq6_rel_callback, self.eq6_val_callback, a_vlayout=False)
+        self.eq6 = eq6_widget(
+            0, self.eq6_rel_callback, self.eq6_val_callback, a_vlayout=False)
         self.eq6_tab = QtGui.QWidget()
         self.monofx_sub_tab.addTab(self.eq6_tab, _("EQ"))
         self.eq6_layout = QtGui.QVBoxLayout(self.eq6_tab)
-        self.eq6_layout.addWidget(self.eq6.widget,
-                                  alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.eq6_layout.addWidget(
+            self.eq6.widget,
+            alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
         self.open_plugin_file()
 
@@ -5690,9 +5830,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def update_eq6(self, a_value):
         for f_i in range(6):
-            self.eq6.eqs[f_i].freq_knob.set_value(self.eq_ports[a_value][f_i][0].get_value())
-            self.eq6.eqs[f_i].res_knob.set_value(self.eq_ports[a_value][f_i][1].get_value())
-            self.eq6.eqs[f_i].gain_knob.set_value(self.eq_ports[a_value][f_i][2].get_value())
+            self.eq6.eqs[f_i].freq_knob.set_value(
+                self.eq_ports[a_value][f_i][0].get_value())
+            self.eq6.eqs[f_i].res_knob.set_value(
+                self.eq_ports[a_value][f_i][1].get_value())
+            self.eq6.eqs[f_i].gain_knob.set_value(
+                self.eq_ports[a_value][f_i][2].get_value())
 
         self.eq6.update_viewer()
 
@@ -5700,20 +5843,24 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.widget.resize(1100, 690)
 
     def monofx0_callback(self, a_port, a_val):
-        self.monofx_all_callback(a_port, a_val, [self.monofx0knob0_ctrls, self.monofx0knob1_ctrls,
-                                                 self.monofx0knob2_ctrls, self.monofx0comboboxes])
+        self.monofx_all_callback(
+            a_port, a_val, [self.monofx0knob0_ctrls, self.monofx0knob1_ctrls,
+                            self.monofx0knob2_ctrls, self.monofx0comboboxes])
 
     def monofx1_callback(self, a_port, a_val):
-        self.monofx_all_callback(a_port, a_val, [self.monofx1knob0_ctrls, self.monofx1knob1_ctrls,
-                                                 self.monofx1knob2_ctrls, self.monofx1comboboxes])
+        self.monofx_all_callback(
+            a_port, a_val, [self.monofx1knob0_ctrls, self.monofx1knob1_ctrls,
+                            self.monofx1knob2_ctrls, self.monofx1comboboxes])
 
     def monofx2_callback(self, a_port, a_val):
-        self.monofx_all_callback(a_port, a_val, [self.monofx2knob0_ctrls, self.monofx2knob1_ctrls,
-                                                 self.monofx2knob2_ctrls, self.monofx2comboboxes])
+        self.monofx_all_callback(
+            a_port, a_val, [self.monofx2knob0_ctrls, self.monofx2knob1_ctrls,
+                            self.monofx2knob2_ctrls, self.monofx2comboboxes])
 
     def monofx3_callback(self, a_port, a_val):
-        self.monofx_all_callback(a_port, a_val, [self.monofx3knob0_ctrls, self.monofx3knob1_ctrls,
-                                                 self.monofx3knob2_ctrls, self.monofx3comboboxes])
+        self.monofx_all_callback(
+            a_port, a_val, [self.monofx3knob0_ctrls, self.monofx3knob1_ctrls,
+                            self.monofx3knob2_ctrls, self.monofx3comboboxes])
 
     def monofx_all_callback(self, a_port, a_val, a_list):
         f_index = self.mono_fx_tab_selected_group.currentIndex()
@@ -5745,9 +5892,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.fade_out_starts[f_index].set_value(a_val, True)
 
     def on_marker_all(self):
-        f_vals = (self.sample_graph.start_marker.value, self.sample_graph.end_marker.value,
-                  self.sample_graph.fade_in_marker.value, self.sample_graph.fade_out_marker.value)
-        f_lists = (self.sample_starts, self.sample_ends, self.fade_in_ends, self.fade_out_starts)
+        f_vals = (
+            self.sample_graph.start_marker.value,
+            self.sample_graph.end_marker.value,
+            self.sample_graph.fade_in_marker.value,
+            self.sample_graph.fade_out_marker.value)
+        f_lists = (
+            self.sample_starts, self.sample_ends,
+            self.fade_in_ends, self.fade_out_starts)
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             for f_i2 in range(len(f_vals)):
                 f_lists[f_i2][f_i].set_value(f_vals[f_i2], True)
@@ -5763,32 +5915,40 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def on_loop_tune(self):
         self.find_selected_radio_button()
-        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
+        if self.sample_table.item(
+        self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
             f_file_name = str(self.sample_table.item(
                 self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
             if f_file_name != "":
-                f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
+                f_graph = self.pydaw_project.get_sample_graph_by_name(
+                    f_file_name)
                 f_note = self.loop_tune_note_selector.get_value()
                 f_hz = pydaw_util.pydaw_pitch_to_hz(f_note)
                 f_time = 1.0 / f_hz
                 f_loop_length = (f_time / f_graph.length_in_seconds) * 1000.0
                 f_loop_end_value = \
-                    self.loop_starts[self.selected_row_index].get_value() + f_loop_length
+                    self.loop_starts[
+                    self.selected_row_index].get_value() + f_loop_length
                 f_loop_end_value = pydaw_util.pydaw_clip_value(
                     f_loop_end_value,
-                    self.loop_starts[self.selected_row_index].get_value() + pydaw_marker_min_diff,
+                    self.loop_starts[self.selected_row_index].get_value() +
+                    pydaw_marker_min_diff,
                     1000.0, a_round=True)
-                self.loop_ends[self.selected_row_index].set_value(f_loop_end_value, True)
+                self.loop_ends[self.selected_row_index].set_value(
+                    f_loop_end_value, True)
                 self.set_sample_graph()
                 self.loop_mode_combobox.setCurrentIndex(1)
 
     def set_sample_graph(self):
         self.find_selected_radio_button()
-        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
-            f_file_name = str(self.sample_table.item(self.selected_row_index,
-                                                     SMP_TB_FILE_PATH_INDEX).text())
+        if self.sample_table.item(
+        self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is not None:
+            f_file_name = str(
+                self.sample_table.item(self.selected_row_index,
+                                       SMP_TB_FILE_PATH_INDEX).text())
             if f_file_name != "":
-                f_graph = self.pydaw_project.get_sample_graph_by_name(f_file_name)
+                f_graph = self.pydaw_project.get_sample_graph_by_name(
+                    f_file_name)
                 self.sample_graph.draw_item(
                     f_graph,
                     self.sample_starts[self.selected_row_index].get_value(),
@@ -5804,11 +5964,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def get_selected_sample(self):
         self.find_selected_radio_button()
-        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
+        if self.sample_table.item(
+        self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
             return ""
         else:
-            return str(self.sample_table.item(self.selected_row_index,
-                                              SMP_TB_FILE_PATH_INDEX).text())
+            return str(
+                self.sample_table.item(self.selected_row_index,
+                                       SMP_TB_FILE_PATH_INDEX).text())
 
     def open_file_in_browser(self):
         f_path = self.get_selected_sample()
@@ -5834,7 +5996,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Euphoria - {}".format(self.track_name))
+        self.widget.setWindowTitle(
+            "PyDAW Euphoria - {}".format(self.track_name))
 
     def configure_plugin(self, a_key, a_message):
         self.configure_dict[a_key] = a_message
@@ -5852,55 +6015,74 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 else:
                     f_path = self.pydaw_project.get_wav_path_by_uid(f_arr[f_i])
                 f_table_item = QtGui.QTableWidgetItem(f_path)
-                self.sample_table.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
+                self.sample_table.setItem(
+                    f_i, SMP_TB_FILE_PATH_INDEX, f_table_item)
         else:
             print("Unknown configure message '{}'".format(a_key))
 
     def set_all_base_pitches(self):
         f_widget = pydaw_note_selector_widget(0, None, None)
-        self.set_all_dialog(f_widget, self.sample_base_pitches, _("Set all base pitches"))
+        self.set_all_dialog(
+            f_widget, self.sample_base_pitches, _("Set all base pitches"))
 
     def set_all_low_notes(self):
         f_widget = pydaw_note_selector_widget(0, None, None)
-        self.set_all_dialog(f_widget, self.sample_low_notes, _("Set all low notes"))
+        self.set_all_dialog(
+            f_widget, self.sample_low_notes, _("Set all low notes"))
 
     def set_all_high_notes(self):
         f_widget = pydaw_note_selector_widget(0, None, None)
-        self.set_all_dialog(f_widget, self.sample_high_notes, _("Set all high notes"))
+        self.set_all_dialog(
+            f_widget, self.sample_high_notes, _("Set all high notes"))
 
     def set_all_volumes(self):
-        f_widget = pydaw_spinbox_control(_("Low Velocity"), 0, None, None, -60, 36, 0)
+        f_widget = pydaw_spinbox_control(
+            _("Low Velocity"), 0, None, None, -60, 36, 0)
         self.set_all_dialog(f_widget, self.sample_vols, _("Set all volumes"))
 
     def set_all_vel_sens(self):
-        f_widget = pydaw_spinbox_control(_("Velocity Sensitivity"), 0, None, None, 0, 20, 0)
-        self.set_all_dialog(f_widget, self.sample_vel_sens, _("Set all velocity sensitivity"))
+        f_widget = pydaw_spinbox_control(
+            _("Velocity Sensitivity"), 0, None, None, 0, 20, 0)
+        self.set_all_dialog(
+            f_widget, self.sample_vel_sens, _("Set all velocity sensitivity"))
 
     def set_all_low_vels(self):
-        f_widget = pydaw_spinbox_control(_("Low Velocity"), 0, None, None, 0, 127, 0)
-        self.set_all_dialog(f_widget, self.sample_low_vels, _("Set all low velocities"))
+        f_widget = pydaw_spinbox_control(
+            _("Low Velocity"), 0, None, None, 0, 127, 0)
+        self.set_all_dialog(
+            f_widget, self.sample_low_vels, _("Set all low velocities"))
 
     def set_all_high_vels(self):
-        f_widget = pydaw_spinbox_control(_("High Velocity"), 0, None, None, 0, 127, 127)
-        self.set_all_dialog(f_widget, self.sample_high_vels, _("Set all high velocities"))
+        f_widget = pydaw_spinbox_control(
+            _("High Velocity"), 0, None, None, 0, 127, 127)
+        self.set_all_dialog(
+            f_widget, self.sample_high_vels, _("Set all high velocities"))
 
     def set_all_pitches(self):
         f_widget = pydaw_spinbox_control(_("Pitch"), 0, None, None, -36, 36, 0)
-        self.set_all_dialog(f_widget, self.sample_pitches, _("Set all sample pitches"))
+        self.set_all_dialog(
+            f_widget, self.sample_pitches, _("Set all sample pitches"))
 
     def set_all_tunes(self):
-        f_widget = pydaw_spinbox_control(_("Tune"), 0, None, None, -100, 100, 0)
-        self.set_all_dialog(f_widget, self.sample_tunes, _("Set all sample tunes"))
+        f_widget = pydaw_spinbox_control(
+            _("Tune"), 0, None, None, -100, 100, 0)
+        self.set_all_dialog(
+            f_widget, self.sample_tunes, _("Set all sample tunes"))
 
     def set_all_interpolation_modes(self):
-        f_widget = pydaw_combobox_control(120, _("Mode"), 0, None, None,
-                                          self.interpolation_modes_list)
-        self.set_all_dialog(f_widget, self.sample_modes, _("Set all sample interpolation modes"))
+        f_widget = pydaw_combobox_control(
+            120, _("Mode"), 0, None, None,
+            self.interpolation_modes_list)
+        self.set_all_dialog(
+            f_widget, self.sample_modes,
+            _("Set all sample interpolation modes"))
 
     def set_all_noise_types(self):
-        f_widget = pydaw_combobox_control(120, _("Noise Type"), 0, None, None,
-                                          self.noise_types_list)
-        self.set_all_dialog(f_widget, self.noise_types, _("Set all sample interpolation modes"))
+        f_widget = pydaw_combobox_control(
+            120, _("Noise Type"), 0, None, None, self.noise_types_list)
+        self.set_all_dialog(
+            f_widget, self.noise_types,
+            _("Set all sample interpolation modes"))
 
     def set_all_noise_amps(self):
         f_widget = pydaw_spinbox_control(_("Tune"), 0, None, None, -60, 0, -30)
@@ -5981,7 +6163,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.suppress_selected_sample_changed = True
         self.selected_radiobuttons[a_index].setChecked(True)
         self.mono_fx_tab_selected_sample.setCurrentIndex(a_index)
-        self.mono_fx_tab_selected_group.setCurrentIndex(self.monofx_groups[a_index].get_value())
+        self.mono_fx_tab_selected_group.setCurrentIndex(
+            self.monofx_groups[a_index].get_value())
         self.suppress_selected_sample_changed = False
         self.set_sample_graph()
 
@@ -5991,7 +6174,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.suppress_selected_sample_changed = True
         self.selected_radiobuttons[a_index].setChecked(True)
         self.selected_sample_index_combobox.setCurrentIndex(a_index)
-        self.mono_fx_tab_selected_group.setCurrentIndex(self.monofx_groups[a_index].get_value())
+        self.mono_fx_tab_selected_group.setCurrentIndex(
+            self.monofx_groups[a_index].get_value())
         self.suppress_selected_sample_changed = False
         self.set_sample_graph()
 
@@ -6024,19 +6208,23 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 path = str(paths[i])
                 if path != "":
                     if not os.path.isfile(path):
-                        QtGui.QMessageBox.warning(self, _("Error"),
-                                                  _("File '{}' cannot be read.").format(path))
+                        QtGui.QMessageBox.warning(
+                            self, _("Error"),
+                            _("File '{}' cannot be read.").format(path))
                         continue
                     self.pydaw_project.get_wav_uid_by_name(path)
-                    self.set_selected_sample_combobox_item(f_sample_index_to_load,
-                                                           path.rsplit("/", 1)[1])
+                    self.set_selected_sample_combobox_item(
+                        f_sample_index_to_load, path.rsplit("/", 1)[1])
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(path)
-                    f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-                    self.sample_table.setItem(f_sample_index_to_load,
-                                              SMP_TB_FILE_PATH_INDEX, f_item)
+                    f_item.setFlags(
+                        QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+                    self.sample_table.setItem(
+                        f_sample_index_to_load,
+                        SMP_TB_FILE_PATH_INDEX, f_item)
                     f_sample_index_to_load += 1
-                    if(f_sample_index_to_load >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+                    if(f_sample_index_to_load >=
+                    pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
                         break
 
             self.generate_files_string()
@@ -6049,10 +6237,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_item = self.sample_table.item(f_i, SMP_TB_FILE_PATH_INDEX)
             if f_item is not None and str(f_item.text()).strip() != "":
-                f_uid = self.pydaw_project.get_wav_uid_by_name(str(f_item.text()))
+                f_uid = self.pydaw_project.get_wav_uid_by_name(
+                    str(f_item.text()))
                 self.files_string += str(f_uid)
             if f_i < pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT - 1:
-                self.files_string += pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER
+                self.files_string += \
+                    pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER
 
     def clearFile(self):
         self.find_selected_radio_button()
@@ -6061,7 +6251,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_item =  QtGui.QTableWidgetItem()
         f_item.setText((""))
         f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-        self.sample_table.setItem((self.selected_row_index), SMP_TB_FILE_PATH_INDEX, f_item)
+        self.sample_table.setItem(
+            (self.selected_row_index), SMP_TB_FILE_PATH_INDEX, f_item)
         self.file_selector.clear_button_pressed()
         self.view_file_selector.clear_button_pressed()
         self.generate_files_string()
@@ -6080,16 +6271,21 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             return
         self.suppress_selected_sample_changed = True
         self.find_selected_radio_button()
-        self.selected_sample_index_combobox.setCurrentIndex(self.selected_row_index)
-        self.mono_fx_tab_selected_sample.setCurrentIndex(self.selected_row_index)
+        self.selected_sample_index_combobox.setCurrentIndex(
+            self.selected_row_index)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(
+            self.selected_row_index)
         self.setSelectedMonoFX()
         self.suppress_selected_sample_changed = False
-        self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
-        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
+        self.selected_sample_index_combobox.setCurrentIndex(
+            (self.selected_row_index))
+        if self.sample_table.item(
+        self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
             f_file_path = ""
         else:
-            f_file_path = str(self.sample_table.item(self.selected_row_index,
-                                                     SMP_TB_FILE_PATH_INDEX).text())
+            f_file_path = str(
+                self.sample_table.item(self.selected_row_index,
+                                       SMP_TB_FILE_PATH_INDEX).text())
         self.file_selector.set_file(f_file_path)
         self.view_file_selector.set_file(f_file_path)
         self.set_sample_graph()
@@ -6109,31 +6305,49 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.pydaw_project.this_pydaw_osc.pydaw_stop_preview()
 
     def sample_selected_monofx_groupChanged(self, a_value):
-        self.mono_fx0.knobs[0].set_value(self.monofx0knob0_ctrls[a_value].get_value())
-        self.mono_fx0.knobs[1].set_value(self.monofx0knob1_ctrls[a_value].get_value())
-        self.mono_fx0.knobs[2].set_value(self.monofx0knob2_ctrls[a_value].get_value())
-        self.mono_fx0.combobox.set_value(self.monofx0comboboxes[a_value].get_value())
-        self.mono_fx1.knobs[0].set_value(self.monofx1knob0_ctrls[a_value].get_value())
-        self.mono_fx1.knobs[1].set_value(self.monofx1knob1_ctrls[a_value].get_value())
-        self.mono_fx1.knobs[2].set_value(self.monofx1knob2_ctrls[a_value].get_value())
-        self.mono_fx1.combobox.set_value(self.monofx1comboboxes[a_value].get_value())
-        self.mono_fx2.knobs[0].set_value(self.monofx2knob0_ctrls[a_value].get_value())
-        self.mono_fx2.knobs[1].set_value(self.monofx2knob1_ctrls[a_value].get_value())
-        self.mono_fx2.knobs[2].set_value(self.monofx2knob2_ctrls[a_value].get_value())
-        self.mono_fx2.combobox.set_value(self.monofx2comboboxes[a_value].get_value())
-        self.mono_fx3.knobs[0].set_value(self.monofx3knob0_ctrls[a_value].get_value())
-        self.mono_fx3.knobs[1].set_value(self.monofx3knob1_ctrls[a_value].get_value())
-        self.mono_fx3.knobs[2].set_value(self.monofx3knob2_ctrls[a_value].get_value())
-        self.mono_fx3.combobox.set_value(self.monofx3comboboxes[a_value].get_value())
+        self.mono_fx0.knobs[0].set_value(
+            self.monofx0knob0_ctrls[a_value].get_value())
+        self.mono_fx0.knobs[1].set_value(
+            self.monofx0knob1_ctrls[a_value].get_value())
+        self.mono_fx0.knobs[2].set_value(
+            self.monofx0knob2_ctrls[a_value].get_value())
+        self.mono_fx0.combobox.set_value(
+            self.monofx0comboboxes[a_value].get_value())
+        self.mono_fx1.knobs[0].set_value(
+            self.monofx1knob0_ctrls[a_value].get_value())
+        self.mono_fx1.knobs[1].set_value(
+            self.monofx1knob1_ctrls[a_value].get_value())
+        self.mono_fx1.knobs[2].set_value(
+            self.monofx1knob2_ctrls[a_value].get_value())
+        self.mono_fx1.combobox.set_value(
+            self.monofx1comboboxes[a_value].get_value())
+        self.mono_fx2.knobs[0].set_value(
+            self.monofx2knob0_ctrls[a_value].get_value())
+        self.mono_fx2.knobs[1].set_value(
+            self.monofx2knob1_ctrls[a_value].get_value())
+        self.mono_fx2.knobs[2].set_value(
+            self.monofx2knob2_ctrls[a_value].get_value())
+        self.mono_fx2.combobox.set_value(
+            self.monofx2comboboxes[a_value].get_value())
+        self.mono_fx3.knobs[0].set_value(
+            self.monofx3knob0_ctrls[a_value].get_value())
+        self.mono_fx3.knobs[1].set_value(
+            self.monofx3knob1_ctrls[a_value].get_value())
+        self.mono_fx3.knobs[2].set_value(
+            self.monofx3knob2_ctrls[a_value].get_value())
+        self.mono_fx3.combobox.set_value(
+            self.monofx3comboboxes[a_value].get_value())
 
         self.update_eq6(a_value)
 
         if not self.suppress_selected_sample_changed:
-            self.monofx_groups[self.selected_row_index].set_value(a_value, True)
+            self.monofx_groups[self.selected_row_index].set_value(
+                a_value, True)
         self.set_monofx_knob_callbacks(a_value)
 
     def set_monofx_knob_callbacks(self, a_value):
-        for f_knob, f_nc in zip(self.monofx_knob_tuple, self.monofx_null_controls_tuple):
+        for f_knob, f_nc in zip(
+        self.monofx_knob_tuple, self.monofx_null_controls_tuple):
             if self.last_monofx_group is not None:
                 f_nc[self.last_monofx_group].set_control_callback()
             f_nc[a_value].set_control_callback(f_knob)
@@ -6148,7 +6362,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def stretch_shift_dialog(self):
         f_path = str(self.file_selector.file_path.text()).strip()
         if f_path == "":
-            QtGui.QMessageBox.warning(self.widget, _("Error"), _("No sample selected"))
+            QtGui.QMessageBox.warning(
+                self.widget, _("Error"), _("No sample selected"))
             return
 
         f_base_file_name = f_path.rsplit("/", 1)[1]
@@ -6185,20 +6400,26 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_new_note = f_i + f_base_note
                 f_note_str = pydaw_util.note_num_to_string(f_new_note)
                 if f_new_note < 0 or f_new_note > 90:
-                    print("Skipping note {}, out of permissible range".format(f_note_str))
+                    print("Skipping note {}, out of permissible "
+                        "range".format(f_note_str))
                     continue
                 if not f_is_single:
-                    self.sample_base_pitches[f_selected_index].set_value(f_new_note, True)
-                    self.sample_low_notes[f_selected_index].set_value(f_new_note, True)
-                    self.sample_high_notes[f_selected_index].set_value(f_new_note + f_step_m1,
-                                                                       True)
+                    self.sample_base_pitches[f_selected_index].set_value(
+                        f_new_note, True)
+                    self.sample_low_notes[f_selected_index].set_value(
+                        f_new_note, True)
+                    self.sample_high_notes[f_selected_index].set_value(
+                        f_new_note + f_step_m1, True)
                     f_selected_index += 1
-                f_file = "{}/{}-{}-{}.wav".format(f_dir, f_uid, f_base_file_name, f_note_str)
+                f_file = "{}/{}-{}-{}.wav".format(
+                    f_dir, f_uid, f_base_file_name, f_note_str)
                 if f_algo == 0:
-                    f_proc = pydaw_util.pydaw_rubberband(f_path, f_file, f_stretch, f_i,
-                                                         f_crispness, f_preserve_formants)
+                    f_proc = pydaw_util.pydaw_rubberband(
+                        f_path, f_file, f_stretch, f_i,
+                        f_crispness, f_preserve_formants)
                 elif f_algo == 1:
-                    f_proc = pydaw_util.pydaw_sbsms(f_path, f_file, f_stretch, f_i)
+                    f_proc = pydaw_util.pydaw_sbsms(
+                        f_path, f_file, f_stretch, f_i)
                 f_file_list.append(f_file)
                 f_proc_list.append(f_proc)
                 f_status_lineedit.setText("Starting {}".format(f_file))
@@ -6250,12 +6471,15 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_time_gridlayout.addWidget(QtGui.QLabel(_("Crispness")), 12, 0)
         f_crispness_combobox = QtGui.QComboBox()
         f_crispness_combobox.setToolTip(_("Only valid for Rubberband mode."))
-        f_crispness_combobox.addItems([_("0 (smeared)"), _("1 (piano)"), "2", "3",
-                                          "4", "5 (normal)", _("6 (sharp, drums)")])
+        f_crispness_combobox.addItems(
+            [_("0 (smeared)"), _("1 (piano)"), "2", "3",
+             "4", "5 (normal)", _("6 (sharp, drums)")])
         f_crispness_combobox.setCurrentIndex(5)
         f_time_gridlayout.addWidget(f_crispness_combobox, 12, 1)
-        f_preserve_formants_checkbox = QtGui.QCheckBox("Preserve formants?")
-        f_preserve_formants_checkbox.setToolTip(_("Only valid for Rubberband mode."))
+        f_preserve_formants_checkbox = QtGui.QCheckBox(
+            _("Preserve formants?"))
+        f_preserve_formants_checkbox.setToolTip(
+            _("Only valid for Rubberband mode."))
         f_preserve_formants_checkbox.setChecked(True)
         f_time_gridlayout.addWidget(f_preserve_formants_checkbox, 18, 1)
 
@@ -6276,7 +6500,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_layout.addWidget(f_multi_rb, alignment=QtCore.Qt.AlignLeft)
         f_multi_gridlayout = QtGui.QGridLayout()
         f_layout.addLayout(f_multi_gridlayout)
-        f_multi_gridlayout.addWidget(QtGui.QLabel(_("Step Size(semitones)")), 0, 0)
+        f_multi_gridlayout.addWidget(
+            QtGui.QLabel(_("Step Size(semitones)")), 0, 0)
         f_step_spinbox = QtGui.QSpinBox()
         f_step_spinbox.setRange(1, 3)
         f_multi_gridlayout.addWidget(f_step_spinbox, 0, 1)
@@ -6311,15 +6536,16 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_result = ""
         self.find_selected_radio_button()
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_current_file_path = self.sample_table.item(i, SMP_TB_FILE_PATH_INDEX)
+            f_current_file_path = self.sample_table.item(
+                i, SMP_TB_FILE_PATH_INDEX)
             if f_current_file_path is None:
                 continue
             f_current_file_path = str(f_current_file_path.text()).strip()
             if f_current_file_path == "":
                 continue
             if not os.path.exists(f_current_file_path):
-                f_current_file_path = "{}/{}".format(self.pydaw_project.samples_folder,
-                                                     f_current_file_path)
+                f_current_file_path = "{}/{}".format(
+                    self.pydaw_project.samples_folder, f_current_file_path)
                 if not os.path.exists(f_current_file_path):
                     print("File no longer exists on disk or"
                     " in cache, skipping {}".format(f_current_file_path))
@@ -6328,15 +6554,18 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_new_file_path = "{}/{}".format(f_dir, f_file_name)
             if f_current_file_path == f_new_file_path:
                 print("Source and destination are the same, "
-                    "not copying:\n{}\n{}".format(f_current_file_path, f_new_file_path))
+                    "not copying:\n{}\n{}".format(
+                    f_current_file_path, f_new_file_path))
             else:
-                os.system("cp -f '{}' '{}'".format(f_current_file_path, f_new_file_path))
+                os.system("cp -f '{}' '{}'".format(
+                    f_current_file_path, f_new_file_path))
                 f_result += "sample|{}|{}\n".format(i, f_file_name)
         return f_result
 
     def copy_instrument(self):
         global EUPHORIA_INSTRUMENT_CLIPBOARD
-        f_plugin_file = pydaw_plugin_file.from_dict(self.port_dict, self.configure_dict)
+        f_plugin_file = pydaw_plugin_file.from_dict(
+            self.port_dict, self.configure_dict)
         EUPHORIA_INSTRUMENT_CLIPBOARD = str(f_plugin_file)
 
     def paste_instrument(self):
@@ -6355,21 +6584,25 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
 
     def saveToFile(self, a_copy=False):
         while True:
-            f_selected_path = QtGui.QFileDialog.getSaveFileName(self.widget,
-            _("Select a directory to copy the samples to..."), pydaw_util.global_home,
-            filter=pydaw_util.global_euphoria_file_type_string)
+            f_selected_path = QtGui.QFileDialog.getSaveFileName(
+                self.widget, _("Select a directory to copy the samples to..."),
+                pydaw_util.global_home,
+                filter=pydaw_util.global_euphoria_file_type_string)
             if f_selected_path is not None:
                 f_selected_path = str(f_selected_path)
                 if f_selected_path == "":
                     break
-                if not f_selected_path.endswith(pydaw_util.global_euphoria_file_type_ext):
+                if not f_selected_path.endswith(
+                pydaw_util.global_euphoria_file_type_ext):
                     f_selected_path += pydaw_util.global_euphoria_file_type_ext
                 f_dir = os.path.dirname(f_selected_path)
                 if len(os.listdir(f_dir)) > 0:
-                    f_answer = QtGui.QMessageBox.warning(self.widget, _("Warning"),
-                    _("{} is not an empty directory, are you "
-                    "sure you want to save here?").format(f_dir),
-                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+                    f_answer = QtGui.QMessageBox.warning(
+                        self.widget, _("Warning"),
+                        _("{} is not an empty directory, are you "
+                        "sure you want to save here?").format(f_dir),
+                        QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+                        QtGui.QMessageBox.No)
                     if f_answer == QtGui.QMessageBox.No:
                         continue
                 f_sample_str = self.copySamplesToSingleDirectory(f_dir)
@@ -6380,9 +6613,11 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 break
 
     def openFromFile(self):
-        f_selected_path = QtGui.QFileDialog.getOpenFileName(self.widget,
-        _("Select a directory to move the samples to..."), pydaw_util.global_home,
-        filter=pydaw_util.global_euphoria_file_type_string)
+        f_selected_path = QtGui.QFileDialog.getOpenFileName(
+            self.widget,
+            _("Select a directory to move the samples to..."),
+            pydaw_util.global_home,
+            filter=pydaw_util.global_euphoria_file_type_string)
         if f_selected_path is not None:
             f_selected_path = str(f_selected_path)
             if f_selected_path == "":
@@ -6400,10 +6635,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     f_new_file_path = "{}/{}".format(f_dir, f_line_arr[2])
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(f_new_file_path)
-                    f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
-                    self.sample_table.setItem(f_index, SMP_TB_FILE_PATH_INDEX, f_item)
+                    f_item.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    self.sample_table.setItem(
+                        f_index, SMP_TB_FILE_PATH_INDEX, f_item)
                     f_path_sections = f_new_file_path.split(("/"))
-                    self.set_selected_sample_combobox_item(f_index, f_path_sections[-1])
+                    self.set_selected_sample_combobox_item(
+                        f_index, f_path_sections[-1])
                 else:
                     f_port = int(f_line_arr[0])
                     f_value = int(f_line_arr[1])
@@ -6428,8 +6666,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                     pydaw_util.sfz_file(f_selected_path)
                     f_file_lineedit.setText(f_selected_path)
                 except Exception as ex:
-                    QtGui.QMessageBox.warning(self.widget, _("Error"),
-                          _("Error importing {}\n{}").format(f_selected_path, ex))
+                    QtGui.QMessageBox.warning(
+                        self.widget, _("Error"),
+                        _("Error importing {}\n{}").format(
+                        f_selected_path, ex))
                     return
 
         def on_ok(a_val=None):
@@ -6455,11 +6695,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_open_file_button.pressed.connect(on_file_open)
         f_hlayout0.addWidget(f_open_file_button)
         f_layout.addLayout(f_hlayout0)
-        f_layout.addWidget(QtGui.QLabel(_("Euphoria only supports basic SFZ parameters such as "
+        f_layout.addWidget(QtGui.QLabel(
+            _("Euphoria only supports basic SFZ parameters such as "
             "key and velocity mapping.\nAny effects such as filters, etc... "
             "should be set manually after import.")))
         f_hlayout1 = QtGui.QHBoxLayout()
-        f_layout.addItem(QtGui.QSpacerItem(10, 10, vPolicy=QtGui.QSizePolicy.Expanding))
+        f_layout.addItem(
+            QtGui.QSpacerItem(10, 10, vPolicy=QtGui.QSizePolicy.Expanding))
         f_layout.addLayout(f_hlayout1)
         f_status_label = QtGui.QLabel()
         f_hlayout1.addWidget(f_status_label)
@@ -6480,39 +6722,50 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             f_sfz_dir = os.path.dirname(f_sfz_path)
             self.clearAllSamples()
 
-            for f_index, f_sample in zip(range(len(f_sfz.samples)), f_sfz.samples):
+            for f_index, f_sample in zip(
+            range(len(f_sfz.samples)), f_sfz.samples):
                 if f_index >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT:
-                    QtGui.QMessageBox.warning(self.widget, _("Error"),
-                    _("Sample count {} exceeds maximum of {}, not loading all samples").format(
-                    len(f_sfz.samples), pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT))
+                    QtGui.QMessageBox.warning(
+                        self.widget, _("Error"),
+                        _("Sample count {} exceeds maximum of {}, not "
+                        "loading all samples").format(
+                        len(f_sfz.samples),
+                        pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT))
                     return
                 if "sample" in f_sample.dict:
                     f_sample_file = f_sample.dict["sample"].replace("\\", "/")
                     f_new_file_path = "{}/{}".format(f_sfz_dir, f_sample_file)
-                    f_new_file_path = pydaw_util.case_insensitive_path(f_new_file_path)
+                    f_new_file_path = pydaw_util.case_insensitive_path(
+                        f_new_file_path)
                     f_new_file_path = f_new_file_path.replace("//", "/")
 
                     yield f_new_file_path
 
                     f_item =  QtGui.QTableWidgetItem()
                     f_item.setText(f_new_file_path)
-                    f_item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
-                    self.sample_table.setItem(f_index, SMP_TB_FILE_PATH_INDEX, f_item)
+                    f_item.setFlags(
+                        QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    self.sample_table.setItem(
+                        f_index, SMP_TB_FILE_PATH_INDEX, f_item)
                     f_path_sections = f_new_file_path.split(("/"))
-                    self.set_selected_sample_combobox_item(f_index, f_path_sections[-1])
+                    self.set_selected_sample_combobox_item(
+                        f_index, f_path_sections[-1])
 
-                    f_graph = self.pydaw_project.get_sample_graph_by_name(f_new_file_path)
+                    f_graph = self.pydaw_project.get_sample_graph_by_name(
+                        f_new_file_path)
                     f_frame_count = float(f_graph.frame_count)
 
                     if "key" in f_sample.dict:
                         f_val = int(float(f_sample.dict["key"]))
-                        self.sample_base_pitches[f_index].set_value(f_val, True)
+                        self.sample_base_pitches[f_index].set_value(
+                            f_val, True)
                         self.sample_high_notes[f_index].set_value(f_val, True)
                         self.sample_low_notes[f_index].set_value(f_val, True)
 
                     if "pitch_keycenter" in f_sample.dict:
                         f_val = int(float(f_sample.dict["pitch_keycenter"]))
-                        self.sample_base_pitches[f_index].set_value(f_val, True)
+                        self.sample_base_pitches[f_index].set_value(
+                            f_val, True)
 
                     if "lokey" in f_sample.dict:
                         f_val = int(float(f_sample.dict["lokey"]))
@@ -6523,7 +6776,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         self.sample_high_notes[f_index].set_value(f_val, True)
 
                     if "offset" in f_sample.dict:
-                        f_val = (float(f_sample.dict["offset"]) / f_frame_count) * 1000.0
+                        f_val = (float(f_sample.dict["offset"]) /
+                            f_frame_count) * 1000.0
                         f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 998.0)
                         self.sample_starts[f_index].set_value(f_val)
                     else:
@@ -6533,7 +6787,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         self.sample_starts[f_index].get_value())
 
                     if "end" in f_sample.dict:
-                        f_val = (float(f_sample.dict["end"]) / f_frame_count) * 1000.0
+                        f_val = (float(f_sample.dict["end"]) /
+                            f_frame_count) * 1000.0
                         f_val = pydaw_util.pydaw_clip_value(f_val, 1.0, 999.0)
                         self.sample_ends[f_index].set_value(f_val)
                     else:
@@ -6543,7 +6798,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         self.sample_starts[f_index].get_value())
 
                     if "loop_mode" in f_sample.dict:
-                        if f_sample.dict["loop_mode"].strip() == "loop_continuous":
+                        if (f_sample.dict["loop_mode"].strip() ==
+                        "loop_continuous"):
                             self.loop_modes[f_index].set_value(1)
                         else:
                             self.loop_modes[f_index].set_value(0)
@@ -6554,7 +6810,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         self.loop_modes[f_index].get_value())
 
                     if "loop_start" in f_sample.dict:
-                        f_val = (float(f_sample.dict["loop_start"]) / f_frame_count) * 1000.0
+                        f_val = (float(f_sample.dict["loop_start"]) /
+                            f_frame_count) * 1000.0
                         f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 1000.0)
                         self.loop_starts[f_index].set_value(f_val)
                     else:
@@ -6564,7 +6821,8 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                         self.loop_starts[f_index].get_value())
 
                     if "loop_end" in f_sample.dict:
-                        f_val = (float(f_sample.dict["loop_end"]) / f_frame_count) * 1000.0
+                        f_val = (float(f_sample.dict["loop_end"]) /
+                            f_frame_count) * 1000.0
                         f_val = pydaw_util.pydaw_clip_value(f_val, 0.0, 1000.0)
                         self.loop_ends[f_index].set_value(f_val)
                     else:
