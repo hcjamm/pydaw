@@ -65,14 +65,6 @@ def pydaw_which(a_file):
             return f_file_path
     return None
 
-# hack for the XFCE live USB/DVD and that panel thing that takes
-# up 2 inches of vertical space at the bottom
-if os.path.isdir("/home/liveuser") and pydaw_which("xfconf-query") is not None:
-    try:
-        os.system("xfconf-query -c xfce4-panel -p "
-                  "/panels/panel-2/autohide -s true --create -t bool")
-    except Exception as ex:
-        print("Exception while trying to set autohide for XFCE-Panel:\n{}".format(ex))
 
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
@@ -81,12 +73,14 @@ def pydaw_remove_bad_chars(a_str):
         f_str = f_str.replace(f_char, "")
     return f_str
 
+
 def pydaw_str_has_bad_chars(a_str):
     f_str = str(a_str)
     for f_char in pydaw_bad_chars:
         if f_char in f_str:
             return False
     return True
+
 
 def case_insensitive_path(a_path, a_assert=True):
     f_path = os.path.abspath(str(a_path))
