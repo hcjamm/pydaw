@@ -36,9 +36,9 @@ if not os.path.isdir("{}/rpmbuild".format(global_home)):
 global_specs_dir = "{}/rpmbuild/SPECS/".format(global_home)
 global_sources_dir = "{}/rpmbuild/SOURCES/".format(global_home)
 
-global_tarball_name = "{}.tar.gz" .format(global_pydaw_package_name)
+global_tarball_name = "{}.tar.gz".format(global_pydaw_package_name)
 global_tarball_url = ("https://github.com/j3ffhubb/pydaw/archive"
-    "/".format(global_tarball_name))
+    "/{}".format(global_tarball_name))
 
 os.system('cp "{}" "{}"'.format(global_tarball_name, global_sources_dir))
 

@@ -34,7 +34,7 @@ src/pydaw_rubberband/bin
 src/pydaw-build/pydaw_os/pydaw*.ova
 src/pydaw/pydaw*-engine*
 src/pydaw/dir_debug
-*-source-code.tar.gz
+*.tar.gz
 src/pydaw-build/pydaw_os/edit
 src/pydaw-build/pydaw_os/extract-cd
 src/pydaw-build/pydaw_os/mnt
