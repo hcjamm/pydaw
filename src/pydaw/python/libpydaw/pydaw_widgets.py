@@ -841,9 +841,9 @@ class pydaw_perc_env_widget:
             a_val_callback, 33, 63, 48, kc_pitch, a_port_dict, a_preset_mgr)
         self.pitch2_knob.add_to_grid_layout(self.layout, 3)
 
-        self.on_switch = pydaw_checkbox_control(_("On"), a_on_port,
-                                                a_rel_callback, a_val_callback,
-                                                a_port_dict, a_preset_mgr)
+        self.on_switch = pydaw_checkbox_control(
+            _("On"), a_on_port, a_rel_callback, a_val_callback,
+            a_port_dict, a_preset_mgr)
         self.on_switch.add_to_grid_layout(self.layout, 4)
 
 
@@ -2122,7 +2122,8 @@ EQ6_FORMANTS = {
 
 class eq6_widget:
     def __init__(self, a_first_port, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None, a_size=48, a_vlayout=True):
+                 a_port_dict=None, a_preset_mgr=None,
+                 a_size=48, a_vlayout=True):
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
         self.widget = QtGui.QWidget()
@@ -2136,10 +2137,10 @@ class eq6_widget:
         self.vlayout.addLayout(self.combobox_hlayout)
         self.vlayout.addWidget(self.eq_viewer)
         if a_vlayout:
-            self.combobox = pydaw_combobox_control(120, None, a_first_port, a_rel_callback,
-                                                   a_val_callback,
-                                                   [_("Off"), _("Pre-FX"), _("Post-FX")],
-                                                   a_port_dict, 0, a_preset_mgr)
+            self.combobox = pydaw_combobox_control(
+                120, None, a_first_port, a_rel_callback, a_val_callback,
+                [_("Off"), _("Pre-FX"), _("Post-FX")],
+                 a_port_dict, 0, a_preset_mgr)
             self.combobox_hlayout.addWidget(self.combobox.control)
             f_col_width = 3
             self.widget.setLayout(self.vlayout)
@@ -2238,12 +2239,14 @@ class eq6_widget:
 
 class morph_eq(eq6_widget):
     def __init__(self, a_first_port, a_rel_callback, a_val_callback,
-                 a_port_dict=None, a_preset_mgr=None, a_size=48, a_vlayout=True):
+                 a_port_dict=None, a_preset_mgr=None, a_size=48,
+                 a_vlayout=True):
         raise NotImplementedError()
         self.rel_callback_orig = a_rel_callback
         self.val_callback_orig = a_val_callback
-        eq6_widget.__init__(self, a_first_port, self.rel_callback_wrapper, a_val_callback,
-                            a_port_dict, a_preset_mgr, a_size, a_vlayout)
+        eq6_widget.__init__(
+            self, a_first_port, self.rel_callback_wrapper, a_val_callback,
+            a_port_dict, a_preset_mgr, a_size, a_vlayout)
         self.eq_num_spinbox = QtGui.QSpinBox()
         self.eq_num_spinbox.setRange(1, 2)
         self.eq_num_spinbox.valueChanged.connect(self.eq_num_changed)
@@ -2491,13 +2494,14 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
         self.tools_button.setMenu(self.tools_menu)
 
         self.hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.hlayout.addWidget(QtGui.QLabel(_("Select (Additive [n]) as your osc type to use")))
+        self.hlayout.addWidget(
+            QtGui.QLabel(_("Select (Additive [n]) as your osc type to use")))
         self.wav_viewer = pydaw_additive_wav_viewer()
         self.draw_callback = self.wav_viewer.draw_array
-        self.viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
-                                                self.configure_wrapper, self.get_wav)
-        self.phase_viewer = pydaw_additive_osc_viewer(self.wav_viewer.draw_array,
-                                                      self.configure_wrapper, self.get_wav)
+        self.viewer = pydaw_additive_osc_viewer(
+            self.wav_viewer.draw_array, self.configure_wrapper, self.get_wav)
+        self.phase_viewer = pydaw_additive_osc_viewer(
+            self.wav_viewer.draw_array, self.configure_wrapper, self.get_wav)
         self.view_widget = QtGui.QWidget()
         self.view_widget.setMaximumSize(900, 540)
         self.vlayout2 = QtGui.QVBoxLayout()
@@ -2768,17 +2772,16 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             if self.marker_type == 0:
                 if self.value > self.other.value - pydaw_marker_min_diff:
                     self.other.value = self.value + pydaw_marker_min_diff
-                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value,
-                                                                   pydaw_marker_min_diff,
-                                                                   1000.0, a_round=True)
+                    self.other.value = pydaw_util.pydaw_clip_value(
+                        self.other.value, pydaw_marker_min_diff,
+                        1000.0, a_round=True)
                     self.other.set_pos()
             elif self.marker_type == 1:
                 if self.other.value > self.value - pydaw_marker_min_diff:
                     self.other.value = self.value - pydaw_marker_min_diff
-                    self.other.value = pydaw_util.pydaw_clip_value(self.other.value,
-                                                                   0.0,
-                                                                   1000.0 - pydaw_marker_min_diff,
-                                                                   a_round=True)
+                    self.other.value = pydaw_util.pydaw_clip_value(
+                        self.other.value, 0.0,
+                        1000.0 - pydaw_marker_min_diff, a_round=True)
                     self.other.set_pos()
         if self.fade_marker is not None:
             self.fade_marker.draw_lines()
@@ -3009,7 +3012,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                 self.graph_object.length_in_seconds) * 1000.0
             for f_marker in self.drag_end_markers:
                 f_new = f_marker.other.value + f_result
-                f_new = pydaw_util.pydaw_clip_value(f_new, f_marker.other.value + 1.0, 1000.0)
+                f_new = pydaw_util.pydaw_clip_value(
+                    f_new, f_marker.other.value + 1.0, 1000.0)
                 f_marker.set_value(f_new)
             self.last_tempo_combobox_index = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
@@ -3022,7 +3026,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_spinbox.setRange(60, 200)
         f_spinbox.setSingleStep(0.1)
         f_spinbox.setValue(global_tempo)
-        f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16", "1/4", "2/4", "4/4", "None"]
+        f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16",
+                        "1/4", "2/4", "4/4", "None"]
         f_beat_frac_combobox =  QtGui.QComboBox()
         f_beat_frac_combobox.setMinimumWidth(75)
         f_beat_frac_combobox.addItems(f_beat_fracs)
@@ -3053,10 +3058,9 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def copy_markers(self):
         if self.graph_object is not None:
-            global_set_audio_markers_clipboard(self.start_marker.value,
-                                               self.end_marker.value,
-                                               self.fade_in_marker.value,
-                                               self.fade_out_marker.value)
+            global_set_audio_markers_clipboard(
+                self.start_marker.value, self.end_marker.value,
+                self.fade_in_marker.value, self.fade_out_marker.value)
 
     def paste_markers(self):
         if self.graph_object is not None and global_audio_markers_clipboard is not None:
@@ -3072,7 +3076,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def pos_to_marker_val(self, a_pos_x):
         f_result = pydaw_audio_item_scene_width_recip * a_pos_x * 1000.0
-        f_result = pydaw_util.pydaw_clip_value(f_result, 0.0, pydaw_audio_item_max_marker_val)
+        f_result = pydaw_util.pydaw_clip_value(
+            f_result, 0.0, pydaw_audio_item_max_marker_val)
         return f_result
 
     def scene_mousePressEvent(self, a_event):
@@ -3147,37 +3152,35 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             f_painter = QtGui.QPainter(f_pixmap)
             f_painter.setPen(self.waveform_pen)
             f_painter.setBrush(self.waveform_brush)
-            f_painter.fillRect(0, 0, pydaw_audio_item_scene_width, f_path_inc, QtCore.Qt.darkGray)
+            f_painter.fillRect(
+                0, 0, pydaw_audio_item_scene_width, f_path_inc,
+                QtCore.Qt.darkGray)
             f_painter.drawPath(f_path)
             f_painter.end()
             f_path_item = QtGui.QGraphicsPixmapItem(f_pixmap)
             self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
-        self.start_marker = pydaw_audio_marker_widget(0, a_start, pydaw_start_end_pen,
-                                                      pydaw_start_end_gradient,
-                                                      "S", self.graph_object,
-                                                      pydaw_audio_marker_widget.mode_start_end,
-                                                      1, self.start_callback)
+        self.start_marker = pydaw_audio_marker_widget(
+            0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient,
+            "S", self.graph_object, pydaw_audio_marker_widget.mode_start_end,
+            1, self.start_callback)
         self.scene.addItem(self.start_marker)
-        self.end_marker = pydaw_audio_marker_widget(1, a_end, pydaw_start_end_pen,
-                                                    pydaw_start_end_gradient, "E",
-                                                    self.graph_object,
-                                                    pydaw_audio_marker_widget.mode_start_end,
-                                                    1, self.end_callback)
+        self.end_marker = pydaw_audio_marker_widget(
+            1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, "E",
+            self.graph_object, pydaw_audio_marker_widget.mode_start_end,
+            1, self.end_callback)
         self.scene.addItem(self.end_marker)
 
-        self.fade_in_marker = pydaw_audio_fade_marker_widget(0, a_fade_in, pydaw_start_end_pen,
-                                                             pydaw_start_end_gradient,
-                                                             "I", self.graph_object, 0,
-                                                             self.fade_in_callback)
+        self.fade_in_marker = pydaw_audio_fade_marker_widget(
+            0, a_fade_in, pydaw_start_end_pen, pydaw_start_end_gradient,
+            "I", self.graph_object, 0, self.fade_in_callback)
         self.scene.addItem(self.fade_in_marker)
         for f_line in self.fade_in_marker.amp_lines:
             self.scene.addItem(f_line)
-        self.fade_out_marker = pydaw_audio_fade_marker_widget(1, a_fade_out, pydaw_start_end_pen,
-                                                              pydaw_start_end_gradient, "O",
-                                                              self.graph_object, 0,
-                                                              self.fade_out_callback)
+        self.fade_out_marker = pydaw_audio_fade_marker_widget(
+            1, a_fade_out, pydaw_start_end_pen, pydaw_start_end_gradient, "O",
+            self.graph_object, 0, self.fade_out_callback)
         self.scene.addItem(self.fade_out_marker)
         for f_line in self.fade_out_marker.amp_lines:
             self.scene.addItem(f_line)
@@ -3215,8 +3218,9 @@ def global_set_audio_loop_clipboard(a_ls, a_le):
 class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
     def __init__(self, a_start_callback, a_end_callback, a_loop_start_callback,
                  a_loop_end_callback, a_fade_in_callback, a_fade_out_callback):
-        pydaw_audio_item_viewer_widget.__init__(self, a_start_callback, a_end_callback,
-                                                a_fade_in_callback, a_fade_out_callback)
+        pydaw_audio_item_viewer_widget.__init__(
+            self, a_start_callback, a_end_callback,
+            a_fade_in_callback, a_fade_out_callback)
         self.loop_start_callback_x = a_loop_start_callback
         self.loop_end_callback_x = a_loop_end_callback
         self.scene_context_menu.addSeparator()
@@ -3231,7 +3235,8 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
                                             self.loop_end_marker.value)
 
     def paste_loop(self):
-        if self.graph_object is not None and global_audio_loop_clipboard is not None:
+        if self.graph_object is not None and \
+        global_audio_loop_clipboard is not None:
             self.loop_start_marker.set_value(global_audio_loop_clipboard[0])
             self.loop_end_marker.set_value(global_audio_loop_clipboard[1])
 
@@ -3245,19 +3250,17 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
 
     def draw_item(self, a_path_list, a_start, a_end, a_loop_start, a_loop_end,
                   a_fade_in, a_fade_out):
-        pydaw_audio_item_viewer_widget.draw_item(self, a_path_list, a_start, a_end,
-                                                 a_fade_in, a_fade_out)
-        self.loop_start_marker = pydaw_audio_marker_widget(0, a_loop_start, pydaw_loop_pen,
-                                                           pydaw_loop_gradient, "L",
-                                                           self.graph_object,
-                                                           pydaw_audio_marker_widget.mode_loop,
-                                                           2, self.loop_start_callback)
+        pydaw_audio_item_viewer_widget.draw_item(
+            self, a_path_list, a_start, a_end, a_fade_in, a_fade_out)
+        self.loop_start_marker = pydaw_audio_marker_widget(
+            0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, "L",
+            self.graph_object, pydaw_audio_marker_widget.mode_loop,
+            2, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
-        self.loop_end_marker = pydaw_audio_marker_widget(1, a_loop_end, pydaw_loop_pen,
-                                                         pydaw_loop_gradient, "L",
-                                                         self.graph_object,
-                                                         pydaw_audio_marker_widget.mode_loop,
-                                                         2, self.loop_end_callback)
+        self.loop_end_marker = pydaw_audio_marker_widget(
+            1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, "L",
+            self.graph_object, pydaw_audio_marker_widget.mode_loop,
+            2, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
 
         self.loop_start_marker.set_other(self.loop_end_marker)
@@ -3286,9 +3289,10 @@ class pydaw_modulex_single:
         self.group_box.setLayout(self.layout)
         self.knobs = []
         for f_i in range(3):
-            f_knob = pydaw_knob_control(a_knob_size, "", a_port_k1 + f_i,
-                                        a_rel_callback, a_val_callback, 0, 127, 64,
-                                        a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
+            f_knob = pydaw_knob_control(
+                a_knob_size, "", a_port_k1 + f_i,
+                a_rel_callback, a_val_callback, 0, 127, 64,
+                a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr)
             f_knob.add_to_grid_layout(self.layout, f_i)
             self.knobs.append(f_knob)
         self.combobox = pydaw_combobox_control(
@@ -3299,7 +3303,8 @@ class pydaw_modulex_single:
                "RingMod", "LoFi", "S/H", "LP-D/W" , "HP-D/W",
                "Monofier", "LP<-->HP", "Growl Filter",
                 "Screech LP", "Metal Comb", "Notch-D/W"],
-                a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr, a_default_index=0)
+                a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr,
+                a_default_index=0)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
@@ -3308,8 +3313,8 @@ class pydaw_modulex_single:
         pass
 
     def disable_mousewheel(self):
-        """ Mousewheel events cause problems with per-audio-item-fx because they rely
-            on the mouse release event.
+        """ Mousewheel events cause problems with
+            per-audio-item-fx because they rely on the mouse release event.
         """
         for knob in self.knobs:
             knob.control.wheelEvent = self.wheel_event
@@ -3335,7 +3340,9 @@ class pydaw_modulex_single:
         global_modulex_clipboard = self.get_class()
 
     def paste_and_copy(self):
-        """ Copy the existing setting and then paste, for rearranging effects """
+        """ Copy the existing setting and then paste,
+            for rearranging effects
+        """
         self.paste_settings(True)
 
     def paste_settings(self, a_copy=False):
@@ -3372,10 +3379,11 @@ class pydaw_modulex_single:
 
     def get_class(self):
         """ return a pydaw_audio_item_fx instance """
-        return pydaw_audio_item_fx(self.knobs[0].control.value(),
-                                   self.knobs[1].control.value(),
-                                   self.knobs[2].control.value(),
-                                   self.combobox.control.currentIndex())
+        return pydaw_audio_item_fx(
+            self.knobs[0].control.value(),
+            self.knobs[1].control.value(),
+            self.knobs[2].control.value(),
+            self.combobox.control.currentIndex())
 
     def type_combobox_changed(self, a_val):
         if a_val == 0: #Off
@@ -3800,10 +3808,12 @@ class pydaw_abstract_plugin_ui:
         #QtGui.QWidget.closeEvent(self.widget, a_event)
 
     def plugin_rel_callback(self, a_port, a_val):
-        self.rel_callback(self.is_instrument, self.track_type, self.track_num, a_port, a_val)
+        self.rel_callback(
+            self.is_instrument, self.track_type, self.track_num, a_port, a_val)
 
     def plugin_val_callback(self, a_port, a_val):
-        self.val_callback(self.is_instrument, self.track_type, self.track_num, a_port, a_val)
+        self.val_callback(
+            self.is_instrument, self.track_type, self.track_num, a_port, a_val)
 
     def set_control_val(self, a_port, a_val):
         f_port = int(a_port)
@@ -3838,10 +3848,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                  a_folder, a_track_type, a_track_name, a_stylesheet,
                  a_close_callback, a_configure_callback):
-        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback,
-                                          a_track_num, a_project, a_track_type,
-                                          a_stylesheet, a_close_callback,
-                                          a_configure_callback)
+        pydaw_abstract_plugin_ui.__init__(
+            self, a_rel_callback, a_val_callback,
+            a_track_num, a_project, a_track_type,
+            a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = a_folder
         self.file =  "{}.pyfx".format(self.track_num)
         self.set_window_title(a_track_name)
@@ -3850,7 +3860,8 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.preset_manager =  pydaw_preset_manager_widget("MODULEX")
         self.presets_hlayout = QtGui.QHBoxLayout()
         self.presets_hlayout.addWidget(self.preset_manager.group_box)
-        self.presets_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.presets_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.layout.addLayout(self.presets_hlayout)
         self.tab_widget = QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
@@ -3875,11 +3886,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         f_column = 0
         f_row = 0
         for f_i in range(8):
-            f_effect = pydaw_modulex_single("FX{}".format(f_i), f_port,
-                                            self.plugin_rel_callback,
-                                            self.plugin_val_callback,
-                                            self.port_dict, self.preset_manager,
-                                            a_knob_size=f_knob_size)
+            f_effect = pydaw_modulex_single(
+                "FX{}".format(f_i), f_port,
+                self.plugin_rel_callback, self.plugin_val_callback,
+                self.port_dict, self.preset_manager, a_knob_size=f_knob_size)
             self.effects.append(f_effect)
             self.fx_layout.addWidget(f_effect.group_box, f_row, f_column)
             f_column += 1
@@ -3890,12 +3900,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.volume_gridlayout = QtGui.QGridLayout()
         self.fx_hlayout.addLayout(self.volume_gridlayout)
-        self.volume_slider = pydaw_slider_control(QtCore.Qt.Vertical, "Vol",
-                                                  pydaw_ports.MODULEX_VOL_SLIDER,
-                                                  self.plugin_rel_callback,
-                                                  self.plugin_val_callback,
-                                                  -50, 0, 0,
-                                                  kc_integer, self.port_dict)
+        self.volume_slider = pydaw_slider_control(
+            QtCore.Qt.Vertical, "Vol", pydaw_ports.MODULEX_VOL_SLIDER,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -50, 0, 0, kc_integer, self.port_dict)
         self.volume_slider.add_to_grid_layout(self.volume_gridlayout, 0)
 
         delay_groupbox =  QtGui.QGroupBox(_("Delay"))
@@ -3903,49 +3911,46 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_hlayout.addWidget(delay_groupbox)
         delay_gridlayout = QtGui.QGridLayout(delay_groupbox)
         self.delay_hlayout.addWidget(delay_groupbox)
-        self.delay_time_knob =  pydaw_knob_control(f_knob_size, _("Time"),
-                                                   pydaw_ports.MODULEX_DELAY_TIME,
-                                                   self.plugin_rel_callback,
-                                                   self.plugin_val_callback,
-                                                   10, 100, 50,
-                                                   kc_time_decimal, self.port_dict,
-                                                   self.preset_manager)
+        self.delay_time_knob =  pydaw_knob_control(
+            f_knob_size, _("Time"), pydaw_ports.MODULEX_DELAY_TIME,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            10, 100, 50, kc_time_decimal, self.port_dict, self.preset_manager)
         self.delay_time_knob.add_to_grid_layout(delay_gridlayout, 0)
-        m_feedback =  pydaw_knob_control(f_knob_size, _("Fdbk"), pydaw_ports.MODULEX_FEEDBACK,
-                                         self.plugin_rel_callback, self.plugin_val_callback,
-                                         -20, 0, -12, kc_integer,
-                                         self.port_dict, self.preset_manager)
+        m_feedback =  pydaw_knob_control(
+            f_knob_size, _("Fdbk"), pydaw_ports.MODULEX_FEEDBACK,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -20, 0, -12, kc_integer, self.port_dict, self.preset_manager)
         m_feedback.add_to_grid_layout(delay_gridlayout, 1)
-        m_dry =  pydaw_knob_control(f_knob_size, _("Dry"), pydaw_ports.MODULEX_DRY,
-                                    self.plugin_rel_callback, self.plugin_val_callback,
-                                    -30, 0, 0, kc_integer, self.port_dict,
-                                    self.preset_manager)
+        m_dry =  pydaw_knob_control(
+            f_knob_size, _("Dry"), pydaw_ports.MODULEX_DRY,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -30, 0, 0, kc_integer, self.port_dict, self.preset_manager)
         m_dry.add_to_grid_layout(delay_gridlayout, 2)
-        m_wet =  pydaw_knob_control(f_knob_size, _("Wet"), pydaw_ports.MODULEX_WET,
-                                    self.plugin_rel_callback,
-                                    self.plugin_val_callback, -30, 0, -30,
-                                    kc_integer, self.port_dict,
-                                    self.preset_manager)
+        m_wet =  pydaw_knob_control(
+            f_knob_size, _("Wet"), pydaw_ports.MODULEX_WET,
+            self.plugin_rel_callback, self.plugin_val_callback, -30, 0, -30,
+            kc_integer, self.port_dict, self.preset_manager)
         m_wet.add_to_grid_layout(delay_gridlayout, 3)
-        m_duck =  pydaw_knob_control(f_knob_size, _("Duck"), pydaw_ports.MODULEX_DUCK,
-                                     self.plugin_rel_callback, self.plugin_val_callback,
-                                     -40, 0, 0, kc_integer, self.port_dict,
-                                     self.preset_manager)
+        m_duck =  pydaw_knob_control(
+            f_knob_size, _("Duck"), pydaw_ports.MODULEX_DUCK,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -40, 0, 0, kc_integer, self.port_dict, self.preset_manager)
         m_duck.add_to_grid_layout(delay_gridlayout, 4)
-        m_cutoff =  pydaw_knob_control(f_knob_size, _("Cutoff"), pydaw_ports.MODULEX_CUTOFF,
-                                       self.plugin_rel_callback, self.plugin_val_callback,
-                                       40, 118, 90, kc_pitch, self.port_dict,
-                                       self.preset_manager)
+        m_cutoff =  pydaw_knob_control(
+            f_knob_size, _("Cutoff"), pydaw_ports.MODULEX_CUTOFF,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            40, 118, 90, kc_pitch, self.port_dict, self.preset_manager)
         m_cutoff.add_to_grid_layout(delay_gridlayout, 5)
-        m_stereo =  pydaw_knob_control(f_knob_size, _("Stereo"), pydaw_ports.MODULEX_STEREO,
-                                       self.plugin_rel_callback, self.plugin_val_callback,
-                                       0, 100, 100, kc_decimal, self.port_dict,
-                                       self.preset_manager)
+        m_stereo =  pydaw_knob_control(
+            f_knob_size, _("Stereo"), pydaw_ports.MODULEX_STEREO,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
         m_stereo.add_to_grid_layout(delay_gridlayout, 6)
         self.bpm_groupbox =  QtGui.QGroupBox()
         self.bpm_groupbox.setObjectName("plugin_groupbox")
         self.delay_hlayout.addWidget(self.bpm_groupbox)
-        self.delay_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.delay_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.bpm_groupbox.setGeometry(0, 0, 10, 10)
         self.bpm_groupbox.setTitle(_("Tempo Sync"))
         self.bpm_groupbox_layout =  QtGui.QGridLayout(self.bpm_groupbox)
@@ -3968,44 +3973,49 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         f_bpm_label.setMinimumWidth(60)
         f_beat_label =  QtGui.QLabel(_("Beats"))
         f_beat_label.setMinimumWidth(60)
-        self.bpm_groupbox_layout.addWidget(f_bpm_label, 0, 0, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(self.bpm_spinbox, 1, 0, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(f_beat_label, 0, 1, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(self.beat_frac_combobox, 1, 1, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(self.bpm_sync_button, 2, 1, QtCore.Qt.AlignCenter)
+        self.bpm_groupbox_layout.addWidget(
+            f_bpm_label, 0, 0, QtCore.Qt.AlignCenter)
+        self.bpm_groupbox_layout.addWidget(
+            self.bpm_spinbox, 1, 0, QtCore.Qt.AlignCenter)
+        self.bpm_groupbox_layout.addWidget(
+            f_beat_label, 0, 1, QtCore.Qt.AlignCenter)
+        self.bpm_groupbox_layout.addWidget(
+            self.beat_frac_combobox, 1, 1, QtCore.Qt.AlignCenter)
+        self.bpm_groupbox_layout.addWidget(
+            self.bpm_sync_button, 2, 1, QtCore.Qt.AlignCenter)
         reverb_groupbox =  QtGui.QGroupBox(_("Reverb"))
         reverb_groupbox.setObjectName("plugin_groupbox")
         self.reverb_groupbox_gridlayout = QtGui.QGridLayout(reverb_groupbox)
         self.reverb_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.reverb_hlayout)
         self.reverb_hlayout.addWidget(reverb_groupbox)
-        self.reverb_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        m_reverb_time =  pydaw_knob_control(f_knob_size, _("Time"),
-                                            pydaw_ports.MODULEX_REVERB_TIME,
-                                            self.plugin_rel_callback, self.plugin_val_callback,
-                                            0, 100, 50,
-                                            kc_decimal, self.port_dict, self.preset_manager)
+        self.reverb_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        m_reverb_time =  pydaw_knob_control(
+            f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_time.add_to_grid_layout(self.reverb_groupbox_gridlayout, 0)
-        m_reverb_wet =  pydaw_knob_control(f_knob_size, _("Wet"), pydaw_ports.MODULEX_REVERB_WET,
-                                           self.plugin_rel_callback, self.plugin_val_callback,
-                                           0, 100, 0, kc_decimal,
-                                           self.port_dict, self.preset_manager)
+        m_reverb_wet =  pydaw_knob_control(
+            f_knob_size, _("Wet"), pydaw_ports.MODULEX_REVERB_WET,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 0, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_wet.add_to_grid_layout(self.reverb_groupbox_gridlayout, 1)
-        m_reverb_color =  pydaw_knob_control(f_knob_size, _("Color"),
-                                             pydaw_ports.MODULEX_REVERB_COLOR,
-                                             self.plugin_rel_callback, self.plugin_val_callback,
-                                             0, 100, 50,
-                                             kc_decimal, self.port_dict, self.preset_manager)
+        m_reverb_color =  pydaw_knob_control(
+            f_knob_size, _("Color"), pydaw_ports.MODULEX_REVERB_COLOR,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_color.add_to_grid_layout(self.reverb_groupbox_gridlayout, 2)
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
         self.delay_spacer_layout.addItem(
             QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
-        self.eq6 = eq6_widget(pydaw_ports.MODULEX_EQ_ON,
-                              self.plugin_rel_callback, self.plugin_val_callback,
-                              self.port_dict, a_preset_mgr=self.preset_manager,
-                              a_size=f_knob_size)
+        self.eq6 = eq6_widget(
+            pydaw_ports.MODULEX_EQ_ON,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, a_preset_mgr=self.preset_manager,
+            a_size=f_knob_size)
 
         self.tab_widget.addTab(self.eq6.widget, _("EQ"))
 
@@ -4026,21 +4036,24 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
     def set_window_title(self, a_track_name):
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Modulex - {}".format(self.track_name))
+        self.widget.setWindowTitle(
+            "PyDAW Modulex - {}".format(self.track_name))
 
 
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                  a_folder, a_track_type, a_track_name,
                  a_stylesheet, a_close_callback, a_configure_callback):
-        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback,
-                                          a_track_num, a_project, a_track_type,
-                                          a_stylesheet, a_close_callback, a_configure_callback)
+        pydaw_abstract_plugin_ui.__init__(
+            self, a_rel_callback, a_val_callback,
+            a_track_num, a_project, a_track_type,
+            a_stylesheet, a_close_callback, a_configure_callback)
         self.folder = a_folder
         self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
         self.is_instrument = True
-        f_osc_types = [_("Saw"), _("Square"), _("Triangle"), _("Sine"), _("Off")]
+        f_osc_types = [_("Saw"), _("Square"), _("Triangle"),
+                       _("Sine"), _("Off")]
         f_lfo_types = [_("Off"), _("Sine"), _("Triangle")]
         self.preset_manager =  pydaw_preset_manager_widget("RAYV")
         self.main_layout = QtGui.QVBoxLayout()
@@ -4050,10 +4063,12 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout0)
         self.hlayout0.addWidget(self.preset_manager.group_box)
-        self.hlayout0.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout0.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         f_logo_label =  QtGui.QLabel()
         f_pixmap = QtGui.QPixmap(
-            "{}/lib/{}/themes/default/rayv.png".format(pydaw_util.global_pydaw_install_prefix,
+            "{}/lib/{}/themes/default/rayv.png".format(
+            pydaw_util.global_pydaw_install_prefix,
             pydaw_util.global_pydaw_version_string)).scaled(
                 120, 60, transformMode=QtCore.Qt.SmoothTransformation)
         f_logo_label.setMinimumSize(90, 30)
@@ -4063,54 +4078,53 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout0.addWidget(f_logo_label)
         self.hlayout1 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout1)
-        self.osc1 =  pydaw_osc_widget(f_knob_size, pydaw_ports.RAYV_OSC1_PITCH,
-                                      pydaw_ports.RAYV_OSC1_TUNE, pydaw_ports.RAYV_OSC1_VOLUME,
-                                      pydaw_ports.RAYV_OSC1_TYPE, f_osc_types,
-                                      self.plugin_rel_callback, self.plugin_val_callback,
-                                      _("Oscillator 1"), self.port_dict,
-                                      a_preset_mgr=self.preset_manager)
+        self.osc1 =  pydaw_osc_widget(
+            f_knob_size, pydaw_ports.RAYV_OSC1_PITCH,
+            pydaw_ports.RAYV_OSC1_TUNE, pydaw_ports.RAYV_OSC1_VOLUME,
+            pydaw_ports.RAYV_OSC1_TYPE, f_osc_types,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            _("Oscillator 1"), self.port_dict,
+            a_preset_mgr=self.preset_manager)
         self.hlayout1.addWidget(self.osc1.group_box)
-        self.adsr_amp = pydaw_adsr_widget(f_knob_size, True,
-                                          pydaw_ports.RAYV_ATTACK, pydaw_ports.RAYV_DECAY,
-                                          pydaw_ports.RAYV_SUSTAIN, pydaw_ports.RAYV_RELEASE,
-                                          _("ADSR Amp"),
-                                          self.plugin_rel_callback, self.plugin_val_callback,
-                                          self.port_dict, self.preset_manager,
-                                          a_prefx_port=pydaw_ports.RAYV_ADSR_PREFX,
-                                          a_knob_type=kc_log_time)
+        self.adsr_amp = pydaw_adsr_widget(
+            f_knob_size, True, pydaw_ports.RAYV_ATTACK, pydaw_ports.RAYV_DECAY,
+            pydaw_ports.RAYV_SUSTAIN, pydaw_ports.RAYV_RELEASE,
+            _("ADSR Amp"), self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, self.preset_manager,
+            a_prefx_port=pydaw_ports.RAYV_ADSR_PREFX, a_knob_type=kc_log_time)
         self.hlayout1.addWidget(self.adsr_amp.groupbox)
         self.groupbox_distortion =  QtGui.QGroupBox(_("Distortion"))
         self.groupbox_distortion.setObjectName("plugin_groupbox")
         self.groupbox_distortion_layout = QtGui.QGridLayout(self.groupbox_distortion)
         self.hlayout1.addWidget(self.groupbox_distortion)
-        self.dist =  pydaw_knob_control(f_knob_size, _("Gain"), pydaw_ports.RAYV_DIST,
-                                        self.plugin_rel_callback, self.plugin_val_callback,
-                                        0, 48, 15, kc_integer, self.port_dict,
-                                        self.preset_manager)
+        self.dist =  pydaw_knob_control(
+            f_knob_size, _("Gain"), pydaw_ports.RAYV_DIST,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 48, 15, kc_integer, self.port_dict, self.preset_manager)
         self.dist.add_to_grid_layout(self.groupbox_distortion_layout, 0)
-        self.dist_wet =  pydaw_knob_control(f_knob_size, _("Wet"), pydaw_ports.RAYV_DIST_WET,
-                                            self.plugin_rel_callback, self.plugin_val_callback,
-                                            0, 100, 0, kc_none, self.port_dict,
-                                            self.preset_manager)
+        self.dist_wet =  pydaw_knob_control(
+            f_knob_size, _("Wet"), pydaw_ports.RAYV_DIST_WET,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 0, kc_none, self.port_dict, self.preset_manager)
         self.dist_wet.add_to_grid_layout(self.groupbox_distortion_layout, 1)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout2)
-        self.osc2 =  pydaw_osc_widget(f_knob_size, pydaw_ports.RAYV_OSC2_PITCH,
-                                      pydaw_ports.RAYV_OSC2_TUNE, pydaw_ports.RAYV_OSC2_VOLUME,
-                                      pydaw_ports.RAYV_OSC2_TYPE, f_osc_types,
-                                      self.plugin_rel_callback, self.plugin_val_callback,
-                                      _("Oscillator 2"),
-                                      self.port_dict, self.preset_manager, 4)
+        self.osc2 =  pydaw_osc_widget(
+            f_knob_size, pydaw_ports.RAYV_OSC2_PITCH,
+            pydaw_ports.RAYV_OSC2_TUNE, pydaw_ports.RAYV_OSC2_VOLUME,
+            pydaw_ports.RAYV_OSC2_TYPE, f_osc_types,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            _("Oscillator 2"), self.port_dict, self.preset_manager, 4)
         self.hlayout2.addWidget(self.osc2.group_box)
         self.sync_groupbox =  QtGui.QGroupBox(_("Sync"))
         self.sync_groupbox.setObjectName("plugin_groupbox")
         self.hlayout2.addWidget(self.sync_groupbox)
         self.sync_gridlayout = QtGui.QGridLayout(self.sync_groupbox)
         self.sync_gridlayout.setMargin(3)
-        self.hard_sync =  pydaw_checkbox_control("On", pydaw_ports.RAYV_OSC_HARD_SYNC,
-                                                 self.plugin_rel_callback,
-                                                 self.plugin_val_callback,
-                                                 self.port_dict, self.preset_manager)
+        self.hard_sync =  pydaw_checkbox_control(
+            "On", pydaw_ports.RAYV_OSC_HARD_SYNC,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, self.preset_manager)
         self.hard_sync.control.setToolTip(
             _("Setting self hard sync's Osc1 to Osc2. Usually you would want to "
             "distort and pitchbend if this is enabled."))
@@ -4120,31 +4134,27 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.noise_layout = QtGui.QGridLayout(self.groupbox_noise)
         self.noise_layout.setMargin(3)
         self.hlayout2.addWidget(self.groupbox_noise)
-        self.noise_amp =  pydaw_knob_control(f_knob_size, _("Vol"), pydaw_ports.RAYV_NOISE_AMP,
-                                             self.plugin_rel_callback, self.plugin_val_callback,
-                                             -60, 0, -30,
-                                             kc_integer, self.port_dict, self.preset_manager)
+        self.noise_amp =  pydaw_knob_control(
+            f_knob_size, _("Vol"), pydaw_ports.RAYV_NOISE_AMP,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -60, 0, -30, kc_integer, self.port_dict, self.preset_manager)
         self.noise_amp.add_to_grid_layout(self.noise_layout, 0)
-        self.adsr_filter =  pydaw_adsr_widget(f_knob_size, False, pydaw_ports.RAYV_FILTER_ATTACK,
-                                              pydaw_ports.RAYV_FILTER_DECAY,
-                                              pydaw_ports.RAYV_FILTER_SUSTAIN,
-                                              pydaw_ports.RAYV_FILTER_RELEASE, _("ADSR Filter"),
-                                              self.plugin_rel_callback, self.plugin_val_callback,
-                                              self.port_dict, self.preset_manager,
-                                              a_knob_type=kc_log_time)
+        self.adsr_filter =  pydaw_adsr_widget(
+            f_knob_size, False, pydaw_ports.RAYV_FILTER_ATTACK,
+            pydaw_ports.RAYV_FILTER_DECAY, pydaw_ports.RAYV_FILTER_SUSTAIN,
+            pydaw_ports.RAYV_FILTER_RELEASE, _("ADSR Filter"),
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, self.preset_manager, a_knob_type=kc_log_time)
         self.hlayout2.addWidget(self.adsr_filter.groupbox)
-        self.filter =  pydaw_filter_widget(f_knob_size,
-                                           self.plugin_rel_callback, self.plugin_val_callback,
-                                           self.port_dict, pydaw_ports.RAYV_TIMBRE,
-                                           pydaw_ports.RAYV_RES,
-                                           a_preset_mgr=self.preset_manager)
+        self.filter =  pydaw_filter_widget(
+            f_knob_size, self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, pydaw_ports.RAYV_TIMBRE, pydaw_ports.RAYV_RES,
+            a_preset_mgr=self.preset_manager)
         self.hlayout2.addWidget(self.filter.groupbox)
-        self.filter_env_amt =  pydaw_knob_control(f_knob_size, _("Env Amt"),
-                                                  pydaw_ports.RAYV_FILTER_ENV_AMT,
-                                                  self.plugin_rel_callback,
-                                                  self.plugin_val_callback,
-                                                  -36, 36, 0, kc_integer,
-                                                  self.port_dict, self.preset_manager)
+        self.filter_env_amt =  pydaw_knob_control(
+            f_knob_size, _("Env Amt"), pydaw_ports.RAYV_FILTER_ENV_AMT,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -36, 36, 0, kc_integer, self.port_dict, self.preset_manager)
         self.filter_env_amt.add_to_grid_layout(self.filter.layout, 2)
         self.filter_keytrk = pydaw_knob_control(
             f_knob_size, _("KeyTrk"), pydaw_ports.RAYV_FILTER_KEYTRK,
