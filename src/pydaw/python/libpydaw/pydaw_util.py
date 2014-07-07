@@ -138,7 +138,9 @@ def beat_frac_text_to_float(f_index):
 
 bar_fracs = ['1/4', '1/8', '1/12', '1/16', '1/32']
 
-bar_fracs_dict = {'1/4':0.25, '1/8':0.125, '1/12':0.083333333, '1/16':0.0625, '1/32':0.03125}
+bar_fracs_dict = {'1/4':0.25, '1/8':0.125, '1/12':0.083333333,
+                  '1/16':0.0625, '1/32':0.03125}
+
 def bar_frac_text_to_float(a_text):
     return bar_fracs_dict[str(a_text)] * 4.0
 
@@ -147,15 +149,19 @@ def pydaw_beats_to_index(a_beat, a_divisor=4.0):
     f_start = a_beat - (float(f_index) * a_divisor)
     return f_index, round(f_start, 6)
 
-int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#',
+                     'G', 'G#', 'A', 'A#', 'B']
 
 
-pydaw_rubberband_util = "{}/lib/{}/rubberband/bin/rubberband".format(global_pydaw_install_prefix,
-                                                                     global_pydaw_version_string)
-pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(global_pydaw_install_prefix,
-                                                      global_pydaw_version_string)
-pydaw_paulstretch_util = "{}/lib/{}/pydaw/python/libpydaw/pydaw_paulstretch.py".format(
+pydaw_rubberband_util = "{}/lib/{}/rubberband/bin/rubberband".format(
     global_pydaw_install_prefix, global_pydaw_version_string)
+
+pydaw_sbsms_util = "{}/lib/{}/sbsms/bin/sbsms".format(
+    global_pydaw_install_prefix, global_pydaw_version_string)
+
+pydaw_paulstretch_util = ("{}/lib/{}/pydaw/python/libpydaw/"
+    "pydaw_paulstretch.py".format(
+    global_pydaw_install_prefix, global_pydaw_version_string))
 
 def pydaw_rubberband(a_src_path, a_dest_path, a_timestretch_amt, a_pitch_shift,
                      a_crispness, a_preserve_formants=False):
@@ -272,7 +278,9 @@ def print_sorted_dict(a_dict):
             print("{} : {}".format(k, a_dict[k]))
 
 def time_quantize_round(a_input):
-    """Properly quantize time values from QDoubleSpinBoxes that measure beats"""
+    """Properly quantize time values from QDoubleSpinBoxes
+        that measure beats
+    """
     if round(a_input) == round(a_input, 2):
         return round(a_input)
     else:
@@ -371,7 +379,8 @@ def pydaw_wait_for_finished_file(a_file):
                 os.remove(a_file)
                 break
             except:
-                print("pydaw_wait_for_finished_file:  Exception when deleting {}".format(a_file))
+                print("pydaw_wait_for_finished_file:  Exception "
+                    "when deleting {}".format(a_file))
         else:
             time.sleep(0.1)
 
@@ -388,12 +397,14 @@ def pydaw_seconds_to_time_str(a_seconds, a_sections=1):
         if a_sections == 1:
             return time.strftime("%H:%M", time.gmtime(f_seconds))
         else:
-            return [time.strftime("%H:%M", time.gmtime(x * f_inc)) for x in range(a_sections)]
+            return [time.strftime("%H:%M", time.gmtime(x * f_inc))
+                for x in range(a_sections)]
     elif f_seconds > 60.0:
         if a_sections == 1:
             return time.strftime("%M:%S", time.gmtime(f_seconds))
         else:
-            return [time.strftime("%M:%S", time.gmtime(x * f_inc)) for x in range(a_sections)]
+            return [time.strftime("%M:%S", time.gmtime(x * f_inc))
+                for x in range(a_sections)]
     else:
         if a_sections == 1:
             return str(round(f_seconds, 2))
@@ -406,7 +417,9 @@ global_show_create_folder_error = False
 global_is_live_mode = False
 global_home = os.path.expanduser("~")
 global_default_project_folder = global_home
-global_pydaw_home = "{}/{}".format(os.path.expanduser("~"), global_pydaw_version_string)
+global_pydaw_home = "{}/{}".format(
+    os.path.expanduser("~"), global_pydaw_version_string)
+
 if not os.path.isdir(global_pydaw_home):
     os.mkdir(global_pydaw_home)
 
@@ -433,7 +446,8 @@ def pydaw_read_device_config():
                     break
                 if f_line.strip() != "":
                     f_line_arr = f_line.split("|", 1)
-                    global_device_val_dict[f_line_arr[0].strip()] = f_line_arr[1].strip()
+                    global_device_val_dict[
+                        f_line_arr[0].strip()] = f_line_arr[1].strip()
 
             pydaw_set_bin_path()
             global_pydaw_is_sandboxed = False
@@ -442,25 +456,30 @@ def pydaw_read_device_config():
             f_selinux = False
             try:
                 if pydaw_which("getenforce"):
-                    if subprocess.check_output("getenforce").strip().lower() == b"enforcing":
+                    if subprocess.check_output(
+                    "getenforce").strip().lower() == b"enforcing":
                         f_selinux = True
             except Exception as ex:
-                print("Exception while checking getenforce, assuming SELinux is "
-                    "enabled\n{}".format(ex))
+                print("Exception while checking getenforce, "
+                    "assuming SELinux is enabled\n{}".format(ex))
                 f_selinux = True
 
             if f_selinux:
-                print("SELinux detected, not using any setuid binaries to prevent lockups.")
+                print("SELinux detected, not using any setuid "
+                    "binaries to prevent lockups.")
 
             if global_pydaw_bin_path is not None:
                 if int(global_device_val_dict["audioEngine"]) == 0:
                     global_pydaw_bin_path += "-no-root"
                 elif int(global_device_val_dict["audioEngine"]) <= 2:
-                    if f_selinux:  #the setuid binaries will get blocked by SELinux, so don't use
+                    # The setuid binaries will get blocked by
+                    # SELinux, so don't use
+                    if f_selinux:
                         global_pydaw_bin_path += "-no-root"
                     elif int(global_device_val_dict["audioEngine"]) == 2:
-                        global_pydaw_bin_path = "{}/bin/{}".format(global_pydaw_install_prefix,
-                                                                   global_pydaw_version_string)
+                        global_pydaw_bin_path = "{}/bin/{}".format(
+                            global_pydaw_install_prefix,
+                            global_pydaw_version_string)
                         global_pydaw_is_sandboxed = True
                 elif int(global_device_val_dict["audioEngine"]) == 3:
                     global_pydaw_bin_path += "-dbg"
@@ -482,12 +501,15 @@ pydaw_read_device_config()
 
 #TODO:  Remediate at PyDAWv5
 
-global_bookmarks_file_path_old = "{}/file_browser_bookmarks.txt".format(global_pydaw_home)
-global_bookmarks_file_path = "{}/file_browser_bookmarks_v2.txt".format(global_pydaw_home)
+global_bookmarks_file_path_old = "{}/file_browser_bookmarks.txt".format(
+    global_pydaw_home)
+global_bookmarks_file_path = "{}/file_browser_bookmarks_v2.txt".format(
+    global_pydaw_home)
 
 def _convert_bookmarks_to_new_format():
     f_result = []
-    for f_line in pydaw_read_file_text(global_bookmarks_file_path_old).split("\n"):
+    for f_line in pydaw_read_file_text(
+    global_bookmarks_file_path_old).split("\n"):
         if f_line.strip() == "":
             continue
         f_result.append("{0}|||default|||{1}/{0}".format(*f_line.split("|||")))
@@ -499,7 +521,8 @@ os.path.isfile(global_bookmarks_file_path):
     try:
         _convert_bookmarks_to_new_format()
     except Exception as ex:
-        print("Error trying to convert bookmarks to new format \n{}".format(ex))
+        print("Error trying to convert bookmarks to "
+            "new format \n{}".format(ex))
 
 
 def global_get_file_bookmarks():
@@ -517,8 +540,9 @@ def global_get_file_bookmarks():
                         f_result[f_line_arr[1]] = {}
                     f_result[f_line_arr[1]][f_line_arr[0]] = f_line_arr[2]
                 else:
-                    print("Warning:  Not loading bookmark '{}' because the directory '{}'"
-                    " does not exist.".format(f_line_arr[0], f_line_arr[2]))
+                    print("Warning:  Not loading bookmark '{}' "
+                        "because the directory '{}' does not "
+                        "exist.".format(f_line_arr[0], f_line_arr[2]))
         return f_result
     except Exception as ex:
         print("Error getting bookmarks:\n".format(ex))
@@ -550,7 +574,8 @@ def global_delete_file_bookmark(a_category, a_name):
             f_dict[f_key].pop(f_name)
             global_write_file_bookmarks(f_dict)
         else:
-            print("{} was not in the bookmarks file, it may have been deleted in a different "
+            print("{} was not in the bookmarks file, it may "
+                "have been deleted in a different "
                 "file browser widget".format(f_key))
 
 class sfz_exception(Exception):
@@ -621,7 +646,8 @@ class sfz_file:
         self.samples = []
         f_samples_list = []
 
-        f_current_mode = None #None = unsupported, 0 = global, 1 = region, 2 = group
+        #None = unsupported, 0 = global, 1 = region, 2 = group
+        f_current_mode = None
 
         for f_line in f_file_text.split("\n"):
             f_line = f_line.strip()
@@ -661,13 +687,18 @@ class sfz_file:
                     f_value = string_to_note_num(f_value)
                 except Exception as ex:
                     print("ERROR:  {}".format(f_line))
-                    raise sfz_exception("Error parsing key/value pair\n{}\n{}".format(f_line, ex))
-                if f_key.lower() == "sample" and not is_audio_file(f_value.strip()):
-                    raise sfz_exception("{} not supported, only {} supported.".format(
+                    raise sfz_exception(
+                        "Error parsing key/value pair\n{}\n{}".format(
+                        f_line, ex))
+                if f_key.lower() == "sample" and \
+                not is_audio_file(f_value.strip()):
+                    raise sfz_exception(
+                        "{} not supported, only {} supported.".format(
                         f_value, AUDIO_FILE_EXTS))
                 f_current_object.dict[f_key.lower()] = f_value
                 if f_current_mode == 1:
-                    f_current_object.set_from_group([f_global_settings, f_current_group])
+                    f_current_object.set_from_group(
+                        [f_global_settings, f_current_group])
 
         for f_region in f_samples_list:
             if "sample" in f_region.dict:
@@ -681,7 +712,8 @@ class sfz_file:
         return f_result
 
 
-global_default_stylesheet_file = "{}/lib/{}/themes/default/default.pytheme".format(
+global_default_stylesheet_file = \
+    "{}/lib/{}/themes/default/default.pytheme".format(
     global_pydaw_install_prefix, global_pydaw_version_string)
 
 global_user_style_file = "{}/default-style.txt".format(global_pydaw_home)
@@ -691,13 +723,15 @@ if os.path.isfile(global_user_style_file):
     if os.path.isfile(global_stylesheet_file):
         global_stylesheet = pydaw_read_file_text(global_stylesheet_file)
     else:
-        global_stylesheet = pydaw_read_file_text(global_default_stylesheet_file)
+        global_stylesheet = pydaw_read_file_text(
+            global_default_stylesheet_file)
         global_stylesheet_file = global_default_stylesheet_file
 else:
     global_stylesheet = pydaw_read_file_text(global_default_stylesheet_file)
     global_stylesheet_file = global_default_stylesheet_file
 
-global_stylesheet = pydaw_escape_stylesheet(global_stylesheet, global_stylesheet_file)
+global_stylesheet = pydaw_escape_stylesheet(
+    global_stylesheet, global_stylesheet_file)
 
 global_stylesheet_dir = os.path.dirname(global_stylesheet_file)
 
