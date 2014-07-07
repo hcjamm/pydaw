@@ -2354,8 +2354,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.setSelected(True)
 
     def show_context_menu(self):
-        if not self.isSelected():
-            self.setSelected(True)
         global global_current_audio_item_index
         f_global_current_audio_item_index = global_current_audio_item_index
         global_current_audio_item_index = self.track_num
@@ -2880,6 +2878,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtCore.Qt.ShiftModifier):
             self.setSelected((not self.isSelected()))
             return
+
+        if not self.isSelected():
+            AUDIO_SEQ.scene.clearSelection()
+            self.setSelected(True)
 
         if a_event.button() == QtCore.Qt.RightButton:
             self.show_context_menu()
