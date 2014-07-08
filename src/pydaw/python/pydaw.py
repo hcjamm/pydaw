@@ -2416,12 +2416,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_crisp_settings = {x.audio_item.crispness
                 for x in AUDIO_SEQ.get_selected()}
             for f_crisp_mode, f_index in zip(
-                CRISPNESS_SETTINGS, range(len(CRISPNESS_SETTINGS))):
-                    f_action = f_crisp_menu.addAction(f_crisp_mode)
-                    if len(f_crisp_settings) == 1 and \
-                    f_index in f_crisp_settings:
-                        f_action.setCheckable(True)
-                        f_action.setChecked(True)
+            CRISPNESS_SETTINGS, range(len(CRISPNESS_SETTINGS))):
+                f_action = f_crisp_menu.addAction(f_crisp_mode)
+                if len(f_crisp_settings) == 1 and \
+                f_index in f_crisp_settings:
+                    f_action.setCheckable(True)
+                    f_action.setChecked(True)
 
         f_volume_action = f_properties_menu.addAction(_("Volume..."))
         f_volume_action.triggered.connect(self.volume_dialog)
@@ -4231,10 +4231,10 @@ pydaw_widgets.pydaw_abstract_file_browser_widget):
         f_region_combobox.addItems(f_regions_list)
         f_layout.addWidget(f_region_combobox, 0, 1)
         f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button, 5,0)
+        f_layout.addWidget(f_ok_button, 5, 0)
         f_ok_button.clicked.connect(ok_handler)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_layout.addWidget(f_cancel_button, 5,1)
+        f_layout.addWidget(f_cancel_button, 5, 1)
         f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
 
@@ -4877,7 +4877,7 @@ class audio_track:
         self.fx_button.setFixedWidth(24)
         self.bus_combobox = QtGui.QComboBox()
         self.bus_combobox.wheelEvent = self.wheel_event
-        self.bus_combobox.addItems(['M', '1','2','3','4'])
+        self.bus_combobox.addItems(['M', '1', '2', '3', '4'])
         self.bus_combobox.setMinimumWidth(54)
         self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
         self.hlayout3.addWidget(QtGui.QLabel(_("Bus:")))
@@ -4980,11 +4980,11 @@ def pydaw_set_piano_roll_quantize(a_index):
     elif a_index == 4:
         global_piano_roll_snap_divisor = 16.0
     elif a_index == 3:
-        global_piano_roll_snap_divisor =  12.0
+        global_piano_roll_snap_divisor = 12.0
     elif a_index == 2:
-        global_piano_roll_snap_divisor =  8.0
+        global_piano_roll_snap_divisor = 8.0
     elif a_index == 1:
-        global_piano_roll_snap_divisor =  4.0
+        global_piano_roll_snap_divisor = 4.0
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
     global_last_resize = pydaw_clip_min(
@@ -5108,9 +5108,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def mouse_is_at_end(self, a_pos):
         f_width = self.rect().width()
         if f_width >= 30.0:
-            return (a_pos.x() > (f_width - 15.0))
+            return a_pos.x() > (f_width - 15.0)
         else:
-            return (a_pos.x() > (f_width * 0.72))
+            return a_pos.x() > (f_width * 0.72)
 
     def hoverMoveEvent(self, a_event):
         #QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
@@ -5243,12 +5243,12 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_new_vel = f_val + f_item.orig_value
                 else:
                     if f_start > self.vc_mid:
-                        f_frac =  (f_start -
+                        f_frac = (f_start -
                             self.vc_mid) / (self.vc_end - self.vc_mid)
                         f_new_vel = pydaw_util.linear_interpolate(
                             f_val, 0.3 * f_val, f_frac)
                     else:
-                        f_frac =  (f_start -
+                        f_frac = (f_start -
                             self.vc_start) / (self.vc_mid - self.vc_start)
                         f_new_vel = pydaw_util.linear_interpolate(
                             0.3 * f_val, f_val, f_frac)
@@ -5371,7 +5371,7 @@ class piano_key_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.__init__(
             self, 0, 0, a_piano_width, a_note_height, a_parent)
         self.setAcceptHoverEvents(True)
-        self.hover_brush = QtGui.QColor(200,200,200)
+        self.hover_brush = QtGui.QColor(200, 200, 200)
 
     def hoverEnterEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverEnterEvent(self, a_event)
@@ -5818,13 +5818,13 @@ class piano_roll_editor(QtGui.QGraphicsView):
         if self.first_open or f_index == 0: #Major
             f_octave_brushes = [
                 f_base_brush, f_black_key_brush, f_white_key_brush,
-                f_black_key_brush , f_white_key_brush, f_white_key_brush,
+                f_black_key_brush, f_white_key_brush, f_white_key_brush,
                 f_black_key_brush, f_white_key_brush, f_black_key_brush,
                 f_white_key_brush, f_black_key_brush, f_white_key_brush]
         elif f_index == 1: #Melodic Minor
             f_octave_brushes = [
                 f_base_brush, f_black_key_brush, f_white_key_brush,
-                f_white_key_brush, f_black_key_brush , f_white_key_brush,
+                f_white_key_brush, f_black_key_brush, f_white_key_brush,
                 f_black_key_brush, f_white_key_brush, f_black_key_brush,
                 f_white_key_brush, f_black_key_brush, f_white_key_brush]
         elif f_index == 2: #Harmonic Minor
@@ -5849,7 +5849,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             f_octave_brushes = [
                 f_base_brush, f_black_key_brush, f_black_key_brush,
                 f_white_key_brush, f_black_key_brush, f_white_key_brush,
-                f_black_key_brush,f_white_key_brush, f_black_key_brush,
+                f_black_key_brush, f_white_key_brush, f_black_key_brush,
                 f_black_key_brush, f_white_key_brush, f_black_key_brush]
         elif f_index == 6: #Dorian
             f_octave_brushes = [
@@ -5906,7 +5906,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_note_bar.hoverMoveEvent = self.hover_restore_cursor_event
         f_note_bar.setBrush(f_base_brush)
         self.scene.addItem(f_note_bar)
-        f_note_bar.setPos(self.piano_width + self.padding,  self.header_height)
+        f_note_bar.setPos(self.piano_width + self.padding, self.header_height)
         for i in range(self.end_octave - self.start_octave,
                        self.start_octave - self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
@@ -6369,7 +6369,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.setBrush(global_automation_gradient)
         f_pen = QtGui.QPen()
         f_pen.setWidth(2)
-        f_pen.setColor(QtGui.QColor(170,0,0))
+        f_pen.setColor(QtGui.QColor(170, 0, 0))
         self.setPen(f_pen)
         self.cc_item = a_cc
         self.parent_view = a_view
@@ -6643,7 +6643,7 @@ class automation_viewer(QtGui.QGraphicsView):
             f_labels = [0, '127', 0, '64', 0, '0']
         else:
             f_labels = [0, '1.0', 0, '0', 0, '-1.0']
-        for i in range(1,6):
+        for i in range(1, 6):
             f_line = QtGui.QGraphicsLineItem(
                 0, 0, self.viewer_width, 0, self.y_axis)
             f_line.setPos(self.axis_size, self.viewer_height * (i - 1) / 4)
@@ -7577,8 +7577,8 @@ class item_list_editor:
             self.open_item_list()
 
     def set_midi_zoom(self, a_val):
-         global_set_midi_zoom(a_val * 0.1)
-         global_open_items()
+        global_set_midi_zoom(a_val * 0.1)
+        global_open_items()
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(
@@ -7862,7 +7862,7 @@ class seq_track:
             self.hlayout3.addWidget(self.ui_button)
             self.bus_combobox = QtGui.QComboBox()
             self.bus_combobox.wheelEvent = self.wheel_event
-            self.bus_combobox.addItems(['M', '1','2','3','4'])
+            self.bus_combobox.addItems(['M', '1', '2', '3', '4'])
             self.bus_combobox.setMinimumWidth(54)
             self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
             self.hlayout2.addWidget(QtGui.QLabel(_("Bus:")))
@@ -8122,7 +8122,7 @@ class transport_widget:
         f_layout.addWidget(f_file, 3, 2)
         f_ok_button = QtGui.QPushButton(_("Save"))
         f_ok_button.clicked.connect(ok_handler)
-        f_layout.addWidget(f_ok_button, 8,2)
+        f_layout.addWidget(f_ok_button, 8, 2)
         f_window.exec_()
 
     def on_rec(self):
@@ -8546,7 +8546,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             return
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(
-                parent=self ,caption=_('Open Project'),
+                parent=self, caption=_('Open Project'),
                 directory=global_default_project_folder,
                 filter=global_pydaw_file_type_string)
             if f_file is None:
@@ -8732,8 +8732,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_buff_size = pydaw_util.global_device_val_dict["bufferSize"]
             #f_thread_count = pydaw_util.global_device_val_dict["threads"]
 
-            # There is currently a race condition when using multiple threads to
-            # render, so just use one for now and enjoy crash-free data integrity
+            # There is currently a race condition when using
+            # multiple threads to render, so just use one for now
+            # and enjoy crash-free data integrity
             # while suffereing a little slownesss
             f_thread_count = 1
 
@@ -8770,7 +8771,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getSaveFileName(
-                    f_window,  _("Select a file name to save to..."),
+                    f_window, _("Select a file name to save to..."),
                     self.last_offline_dir))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(".wav"):
@@ -9501,7 +9502,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             if PYDAW_SUBPROCESS.poll() != None:
                 self.subprocess_timer.stop()
                 exitCode = PYDAW_SUBPROCESS.returncode
-                if (exitCode != 0):
+                if exitCode != 0:
                     QtGui.QMessageBox.warning(
                         self, _("Error"),
                         _("The audio engine died with error code {}, "
@@ -9552,9 +9553,11 @@ class pydaw_main_window(QtGui.QMainWindow):
                     global_open_inst_ui_dict[int(f_track_num)].set_control_val(
                         int(f_port), float(f_val))
             else:
-                if int(f_track_num) in global_open_fx_ui_dicts[int(f_track_type)]:
+                if int(f_track_num) in global_open_fx_ui_dicts[
+                int(f_track_type)]:
                     global_open_fx_ui_dicts[int(f_track_type)]\
-                    [int(f_track_num)].set_control_val(int(f_port), float(f_val))
+                        [int(f_track_num)].set_control_val(
+                        int(f_port), float(f_val))
 
 
     def closeEvent(self, event):
@@ -9623,7 +9626,7 @@ def pydaw_load_controller_maps():
     "Modulex":pydaw_ports.MODULEX_PORT_MAP}
     for k, v in f_portmap_dict.items():
         for k2, v2 in v.items():
-            f_map  = pydaw_controller_map_item(k2, v2)
+            f_map = pydaw_controller_map_item(k2, v2)
             global_controller_port_name_dict[k][k2] = f_map
             global_controller_port_num_dict[k][int(v2)] = f_map
             global_cc_names[k].append(k2)
@@ -9818,7 +9821,7 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(f_rayv, 5, 1)
         if x is not None:
             f_rayv.setCurrentIndex(
-                f_rayv.findText( str(self.cc_table.item(x, 4).text()) ))
+                f_rayv.findText(str(self.cc_table.item(x, 4).text())))
 
         f_wayv = QtGui.QComboBox()
         f_list = list(global_controller_port_name_dict["Way-V"].keys())
@@ -9828,10 +9831,10 @@ class pydaw_cc_map_editor:
         f_layout.addWidget(f_wayv, 6, 1)
         if x is not None:
             f_wayv.setCurrentIndex(
-                f_wayv.findText( str(self.cc_table.item(x, 5).text()) ))
+                f_wayv.findText(str(self.cc_table.item(x, 5).text())))
 
         f_ok_cancel_layout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_ok_cancel_layout, 7,1)
+        f_layout.addLayout(f_ok_cancel_layout, 7, 1)
         f_ok_button = QtGui.QPushButton(_("OK"))
         f_ok_cancel_layout.addWidget(f_ok_button)
         f_ok_button.clicked.connect(cc_ok_handler)
@@ -10274,7 +10277,7 @@ class pydaw_wave_editor_widget:
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getSaveFileName(
-                    f_window,  _("Select a file name to save to..."),
+                    f_window, _("Select a file name to save to..."),
                     self.last_offline_dir))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(".wav"):
