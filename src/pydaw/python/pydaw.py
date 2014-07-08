@@ -473,10 +473,10 @@ class song_editor:
         f_layout.addWidget(QtGui.QLabel(_("New name:")), 0, 0)
         f_layout.addWidget(f_new_lineedit, 0, 1)
         f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button, 5,0)
+        f_layout.addWidget(f_ok_button, 5, 0)
         f_ok_button.clicked.connect(ok_handler)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_layout.addWidget(f_cancel_button, 5,1)
+        f_layout.addWidget(f_cancel_button, 5, 1)
         f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
 
@@ -517,7 +517,7 @@ class song_editor:
                         f_i, f_item.text(), f_uid_dict)
                 if str(f_item.text()) == CURRENT_REGION_NAME:
                     global_current_song_index = f_i
-                    print((str(f_i)))
+                    print(str(f_i))
         PROJECT.save_song(self.song)
         self.open_song()
 
@@ -858,7 +858,8 @@ class region_list_editor:
         else:
             f_track_num = a_track_num
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
-        f_qtw_item.setBackground(pydaw_track_gradients[f_track_num]) # - self.track_offset
+        f_qtw_item.setBackground(pydaw_track_gradients[f_track_num])
+        # - self.track_offset
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
         self.table_widget.setItem(f_track_num, a_bar_num + 1, f_qtw_item)
@@ -993,7 +994,7 @@ class region_list_editor:
         def note_ok_handler():
             self.table_widget.clearSelection()
             global CURRENT_REGION
-            if (f_new_radiobutton.isChecked() and f_item_count.value() == 1):
+            if f_new_radiobutton.isChecked() and f_item_count.value() == 1:
                 f_cell_text = str(f_new_lineedit.text())
                 if PROJECT.item_exists(f_cell_text):
                     QtGui.QMessageBox.warning(self.table_widget, _("Error"),
@@ -1492,10 +1493,10 @@ class region_list_editor:
         f_layout.addWidget(QtGui.QLabel(_("New name:")), 0, 0)
         f_layout.addWidget(f_new_lineedit, 0, 1)
         f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button, 5,0)
+        f_layout.addWidget(f_ok_button, 5, 0)
         f_ok_button.clicked.connect(ok_handler)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_layout.addWidget(f_cancel_button, 5,1)
+        f_layout.addWidget(f_cancel_button, 5, 1)
         f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
 
@@ -1561,10 +1562,10 @@ class region_list_editor:
         f_layout.addWidget(QtGui.QLabel(_("New name:")), 0, 0)
         f_layout.addWidget(f_new_lineedit, 0, 1)
         f_ok_button = QtGui.QPushButton(_("OK"))
-        f_layout.addWidget(f_ok_button, 5,0)
+        f_layout.addWidget(f_ok_button, 5, 0)
         f_ok_button.clicked.connect(note_ok_handler)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
-        f_layout.addWidget(f_cancel_button, 5,1)
+        f_layout.addWidget(f_cancel_button, 5, 1)
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_window.exec_()
 

@@ -32,7 +32,8 @@ except ImportError:
                 [global_locale])
             global_language.install()
         except Exception as ex:
-            print("Exception while setting locale, falling back to English (hopefully)")
+            print("Exception while setting locale, falling back to "
+                "English (hopefully)")
             def _(a_string): return a_string
 
         app = QtGui.QApplication(sys.argv)
@@ -40,11 +41,16 @@ except ImportError:
         f_error_dialog.setStyleSheet(global_stylesheet)
         f_error_layout = QtGui.QVBoxLayout(f_error_dialog)
         f_error_label = QtGui.QLabel(_(
-            "Error, cannot import liblo.  This probably means that you installed the \nwrong "
-            "package version.  You must use the version that corresponds to your version of \n"
-            "Ubuntu (or if using Fedora or something else, it must be compiled against the \n"
-            "same version of Python3 that your OS uses).  If you are unsure, it is probably \n"
-            "best to compile PyDAW from the source code package yourself.\n\nCan't open PyDAW."))
+            "Error, cannot import liblo.  This probably means that "
+            "you installed the \nwrong "
+            "package version.  You must use the version that "
+            "corresponds to your version of \n"
+            "Ubuntu (or if using Fedora or something else, it must "
+            "be compiled against the \n"
+            "same version of Python3 that your OS uses).  "
+            "If you are unsure, it is probably \n"
+            "best to compile PyDAW from the source code "
+            "package yourself.\n\nCan't open PyDAW."))
         f_error_layout.addWidget(f_error_label)
         f_error_dialog.show()
         sys.exit(app.exec_())
@@ -81,8 +87,9 @@ class pydaw_osc:
         if self.with_osc:
             liblo.send(self.target, self.configure_path, key, value)
         else:
-            print("Running standalone UI without OSC.  Would've sent configure message: key: \""
-                  "{}\" value: \"{}\"".format(key, value))
+            print("Running standalone UI without OSC.  "
+                "Would've sent configure message: key: \""
+                "{}\" value: \"{}\"".format(key, value))
 
     #methods for sending PyDAW OSC messages
 
@@ -115,15 +122,18 @@ class pydaw_osc:
         self.send_configure("tempo", str(a_tempo))
 
     def pydaw_set_vol(self, a_track_num, a_vol, a_track_type):
-        self.send_configure("vol", "{}|{}|{}".format(a_track_num, a_vol, a_track_type))
+        self.send_configure(
+            "vol", "{}|{}|{}".format(a_track_num, a_vol, a_track_type))
 
     def pydaw_set_solo(self, a_track_num, a_bool, a_track_type):
-        self.send_configure("solo", "{}|{}|{}".format(a_track_num, bool_to_int(a_bool),
-                            a_track_type))
+        self.send_configure(
+            "solo", "{}|{}|{}".format(a_track_num, bool_to_int(a_bool),
+            a_track_type))
 
     def pydaw_set_mute(self, a_track_num, a_bool, a_track_type):
-        self.send_configure("mute", "{}|{}|{}".format(a_track_num, bool_to_int(a_bool),
-                            a_track_type))
+        self.send_configure(
+            "mute", "{}|{}|{}".format(a_track_num, bool_to_int(a_bool),
+            a_track_type))
 
     def pydaw_set_instrument_index(self, a_track_num, a_index):
         self.send_configure("ci", "{}|{}".format(a_track_num, a_index))
@@ -135,25 +145,31 @@ class pydaw_osc:
         self.send_configure("st", "")
 
     def pydaw_set_track_rec(self, a_track_type, a_track_num, a_bool):
-        self.send_configure("tr", "{}|{}|{}".format(a_track_type,
-                            a_track_num, bool_to_int(a_bool)))
+        self.send_configure(
+            "tr", "{}|{}|{}".format(a_track_type, a_track_num,
+            bool_to_int(a_bool)))
 
     def pydaw_show_fx(self, a_track_num, a_track_type):
-        self.send_configure("fx", "{}|{}".format(a_track_num, a_track_type))
+        self.send_configure(
+            "fx", "{}|{}".format(a_track_num, a_track_type))
 
     def pydaw_save_track_name(self, a_track_num, a_new_name, a_type):
-        self.send_configure("tn", "{}|{}|{}".format(a_track_num, a_new_name, a_type))
+        self.send_configure(
+            "tn", "{}|{}|{}".format(a_track_num, a_new_name, a_type))
 
     def pydaw_offline_render(self, a_start_region, a_start_bar, a_end_region,
                              a_end_bar, a_file_name):
-        self.send_configure("or", "|".join(map(str,
-            (a_start_region, a_start_bar, a_end_region, a_end_bar, a_file_name))))
+        self.send_configure(
+            "or", "|".join(map(str,
+            (a_start_region, a_start_bar, a_end_region, a_end_bar,
+             a_file_name))))
 
     def pydaw_we_export(self, a_file_name):
         self.send_configure("wex", "{}".format(a_file_name))
 
     def pydaw_set_bus(self, a_track_num, a_bus_num, a_track_type):
-        self.send_configure("bs", "|".join(map(str, (a_track_num, a_bus_num, a_track_type))))
+        self.send_configure(
+            "bs", "|".join(map(str, (a_track_num, a_bus_num, a_track_type))))
 
     def pydaw_reload_audio_items(self, a_region_uid):
         self.send_configure("ai", str(a_region_uid))
@@ -191,18 +207,22 @@ class pydaw_osc:
 
     def pydaw_rate_env(self, a_in_file, a_out_file, a_start, a_end):
         f_wait_file = pydaw_get_wait_file_path(a_out_file)
-        self.send_configure("renv", "{}\n{}\n{}|{}".format(a_in_file, a_out_file,
-                            a_start, a_end))
+        self.send_configure(
+            "renv", "{}\n{}\n{}|{}".format(a_in_file, a_out_file,
+            a_start, a_end))
         pydaw_wait_for_finished_file(f_wait_file)
 
     def pydaw_pitch_env(self, a_in_file, a_out_file, a_start, a_end):
         f_wait_file = pydaw_get_wait_file_path(a_out_file)
-        self.send_configure("penv", "{}\n{}\n{}|{}".format(a_in_file, a_out_file,
-                            a_start, a_end))
+        self.send_configure(
+            "penv", "{}\n{}\n{}|{}".format(a_in_file, a_out_file,
+            a_start, a_end))
         pydaw_wait_for_finished_file(f_wait_file)
 
-    def pydaw_audio_per_item_fx(self, a_region_uid, a_item_index, a_port_num, a_val):
-        self.send_configure("paif", "|".join(map(str,
+    def pydaw_audio_per_item_fx(self, a_region_uid, a_item_index,
+                                a_port_num, a_val):
+        self.send_configure(
+            "paif", "|".join(map(str,
              (a_region_uid, a_item_index, a_port_num, a_val))))
 
     def pydaw_audio_per_item_fx_region(self, a_region_uid):
@@ -210,13 +230,17 @@ class pydaw_osc:
 
     def pydaw_update_plugin_control(self, a_is_instrument, a_track_type,
                                     a_track_num, a_port, a_val):
-        self.send_configure("pc", "|".join(map(str,
-           (bool_to_int(a_is_instrument), a_track_type, a_track_num, a_port, a_val))))
+        self.send_configure(
+            "pc", "|".join(map(str,
+            (bool_to_int(a_is_instrument), a_track_type, a_track_num,
+            a_port, a_val))))
 
     def pydaw_configure_plugin(self, a_is_instrument, a_track_type,
                                a_track_num, a_key, a_message):
-        self.send_configure("co", "|".join(map(str,
-           (bool_to_int(a_is_instrument), a_track_type, a_track_num, a_key, a_message))))
+        self.send_configure(
+            "co", "|".join(map(str,
+            (bool_to_int(a_is_instrument), a_track_type, a_track_num,
+             a_key, a_message))))
 
     def pydaw_glue_audio(self, a_file_name, a_region_index, a_start_bar_index,
                          a_end_bar_index, a_item_indexes):

@@ -72,7 +72,8 @@ f_makefile_exit_code = os.system(f_build_cmd)
 if f_makefile_exit_code != 0:
     print("Makefile exited abnormally with exit code {}, "
           "see output for error messages.".format(f_makefile_exit_code))
-    print("If the build failed while compiling Portaudio, you should try this workaround:")
+    print("If the build failed while compiling Portaudio, you "
+        "should try this workaround:")
     print("cd pydaw/portaudio")
     print("./configure --with-jack=no --with-oss=no && make clean && make")
     print("...and then retry running deb.py")
@@ -89,7 +90,8 @@ if not "--default-version" in sys.argv:
         f_version = f_version_new.strip()
         pydaw_write_file_text(f_version_file, f_version)
 
-f_size = subprocess.getoutput('du -s "{}/pydaw-build/debian/usr"'.format(f_base_dir))
+f_size = subprocess.getoutput(
+    'du -s "{}/pydaw-build/debian/usr"'.format(f_base_dir))
 f_size = f_size.replace("\t", " ")
 f_size = f_size.split(" ")[0].strip()
 
@@ -124,22 +126,26 @@ f_debian_control_path = "{}/control".format(f_debian_dir)
 pydaw_write_file_text(f_debian_control_path, f_debian_control)
 
 os.system('chmod 755 "{}"'.format(f_debian_control_path))
-os.system("cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*'"
-          " ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums")
-os.system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums")
+os.system("cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' !"
+    " -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' "
+    "| xargs md5sum > DEBIAN/md5sums")
+os.system("chmod -R 755 pydaw-build/debian/usr ; "
+    "chmod 644 pydaw-build/debian/DEBIAN/md5sums")
 
 f_build_suffix_file = '{}/build-suffix.txt'.format(f_base_dir)
 if os.path.exists(f_build_suffix_file):
     f_build_suffix = pydaw_read_file_text(f_build_suffix_file)
 else:
-    f_build_suffix = input("""You may enter an optional build suffix.  Usually this will be the
-operating system you are compiling for on this machine, for example: ubuntu1210
+    f_build_suffix = input("""You may enter an optional build suffix.
+Usually this will be the operating system you are compiling for on this
+machine, for example: ubuntu1210
 
 Please enter a build suffix, or hit 'enter' to leave blank: """).strip()
     if f_build_suffix != "": f_build_suffix = "-" + f_build_suffix
     pydaw_write_file_text(f_build_suffix_file, f_build_suffix)
 
-f_package_name = "{}-{}-{}{}.deb".format(f_short_name, f_version, f_arch, f_build_suffix)
+f_package_name = "{}-{}-{}{}.deb".format(
+    f_short_name, f_version, f_arch, f_build_suffix)
 
 os.system('rm -f "{}"/pydaw-build/pydaw*.deb'.format(f_base_dir))
 
@@ -148,15 +154,16 @@ if os.geteuid() == 0:
         f_base_dir, global_pydaw_version_string)
     os.system('chown root {}'.format(f_eng_bin))
     os.system('chmod 4755 {}'.format(f_eng_bin))
-    os.system('cd "{}"/pydaw-build && dpkg-deb --build debian && mv debian.deb "{}"'.format(
-        f_base_dir,f_package_name))
+    os.system('cd "{}"/pydaw-build && dpkg-deb --build debian &&'
+        ' mv debian.deb "{}"'.format(f_base_dir,f_package_name))
 else:
     print("Not running as root, using fakeroot to build Debian package.")
     os.system('cd "{}"/pydaw-build && fakeroot dpkg-deb --build '
     'debian && mv debian.deb "{}"'.format(f_base_dir, f_package_name))
 
 if not "--keep" in sys.argv:
-    print("Deleting build folder, run with --keep to not delete the build folder.")
+    print("Deleting build folder, run with --keep to not "
+        "delete the build folder.")
     os.system('rm -rf "{}/pydaw-build/debian"'.format(f_base_dir))
 
 print("Finished creating {}".format(f_package_name))
