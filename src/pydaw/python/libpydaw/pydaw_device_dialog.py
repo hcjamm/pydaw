@@ -25,28 +25,31 @@ except ImportError:
 
 f_device_tooltip = _(
 """
-Normal:  Run the audio engine without elevated privileges.  This generally works
-well enough, but may require higher latency settings.
-(YOU SHOULD PROBABLY USE THIS IF YOU ARE USING THE LIVE DVD/USB OR HAVE SELINUX ENABLED,
-THE ELEVATED OPTIONS MAY NOT WORK DUE TO THE SECURITY CONFIGURATION)
+Normal:  Run the audio engine without elevated privileges.  This generally
+works well enough, but may require higher latency settings.
+(YOU SHOULD PROBABLY USE THIS IF YOU ARE USING THE LIVE DVD/USB OR HAVE
+SELINUX ENABLED, THE ELEVATED OPTIONS MAY NOT WORK DUE TO THE
+SECURITY CONFIGURATION)
 
-Elevated:  Run the audio engine with elevated privilege, this gives the best possible latency,
-but if your desktop uses GTK+ it may refuse to run it. (USE THIS OPTION IF POSSIBLE)
+Elevated:  Run the audio engine with elevated privilege, this gives the
+best possible latency, but if your desktop uses GTK+ it may refuse to run it.
+(USE THIS OPTION IF POSSIBLE)
 
-Elevated(sandbox):  Same as "Elevated", but works around GTK+'s decision to prevent executing code
-with elevated rights by using a helper program to launch the engine. (USE THIS OPTION IF POSSIBLE)
+Elevated(sandbox):  Same as "Elevated", but works around GTK+'s decision
+to prevent executing code with elevated rights by using a helper program
+to launch the engine. (USE THIS OPTION IF POSSIBLE)
 
 OPTIONS BELOW ARE DEVELOPER OPTIONS THAT NORMAL USERS SHOULD NEVER USE
 
-Debug:  Run with debug symbols and create a core dump on crashing.  This is useful for
-diagnosing the cause of a crash, but consumes much more CPU and RAM, and is not
-recommended for normal use.
+Debug:  Run with debug symbols and create a core dump on crashing.
+This is useful for diagnosing the cause of a crash, but consumes
+much more CPU and RAM, and is not recommended for normal use.
 
 GDB:  Open in the GDB debugger with no audio or external MIDI to allow setting
       breakpoints and pausing execution.
 
-Valgrind:  Open in Valgrind, with no audio or external MIDI.  VERY SLOW unless worker
-           threads is set to 1!!!
+Valgrind:  Open in Valgrind, with no audio or external MIDI.
+           VERY SLOW unless worker threads is set to 1!!!
 
 GUI Only:  Run the UI only with no audio engine
 
@@ -65,18 +68,21 @@ class pydaw_device_dialog:
             os.path.dirname(os.path.abspath(__file__)))
         ctypes.cdll.LoadLibrary(f_portaudio_so_path)
         self.pyaudio = ctypes.CDLL(f_portaudio_so_path)
-        self.pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(portaudio.PaDeviceInfo)
+        self.pyaudio.Pa_GetDeviceInfo.restype = ctypes.POINTER(
+            portaudio.PaDeviceInfo)
         self.pyaudio.Pa_GetDeviceInfo.argstype = [ctypes.c_int]
-        self.pyaudio.Pa_GetHostApiInfo.restype = ctypes.POINTER(portaudio.PaHostApiInfo)
+        self.pyaudio.Pa_GetHostApiInfo.restype = ctypes.POINTER(
+            portaudio.PaHostApiInfo)
         self.pyaudio.Pa_GetHostApiInfo.argstype = [ctypes.c_int]
-        self.pyaudio.Pa_IsFormatSupported.argstype = [ctypes.POINTER(portaudio.PaStreamParameters),
-                                                   ctypes.POINTER(portaudio.PaStreamParameters),
-                                                   ctypes.c_double]
+        self.pyaudio.Pa_IsFormatSupported.argstype = [
+            ctypes.POINTER(portaudio.PaStreamParameters),
+            ctypes.POINTER(portaudio.PaStreamParameters), ctypes.c_double]
         self.pyaudio.Pa_Initialize()
 
         ctypes.cdll.LoadLibrary("libportmidi.so")
         self.pypm = ctypes.CDLL("libportmidi.so")
-        self.pypm.Pm_GetDeviceInfo.restype = ctypes.POINTER(portmidi.PmDeviceInfo)
+        self.pypm.Pm_GetDeviceInfo.restype = ctypes.POINTER(
+            portmidi.PmDeviceInfo)
         self.pypm.Pm_Initialize()
 
     def close_devices(self):
@@ -85,10 +91,12 @@ class pydaw_device_dialog:
 
     def check_device(self):
         if not pydaw_util.global_device_val_dict:
-            self.show_device_dialog(_("No device configuration found"), a_exit_on_cancel=True)
+            self.show_device_dialog(
+                _("No device configuration found"), a_exit_on_cancel=True)
             return
         elif not "name" in pydaw_util.global_device_val_dict:
-            self.show_device_dialog(_("Invalid device configuration"), a_exit_on_cancel=True)
+            self.show_device_dialog(
+                _("Invalid device configuration"), a_exit_on_cancel=True)
             return
 
         f_device_str = pydaw_util.global_device_val_dict["name"]
@@ -116,24 +124,30 @@ class pydaw_device_dialog:
                 for f_device in f_audio_device_names:
                     if f_device.startswith(f_device_name) and \
                     f_device.endswith(f_device_num):
-                        print(_("It appears that the system switched up the ALSA hw:X number, "
-                            "fixing it all sneaky-like in the background.  (grumble, grumble...)"))
+                        print(
+                            _("It appears that the system switched up the "
+                            "ALSA hw:X number, fixing it all sneaky-like "
+                            "in the background.  (grumble, grumble...)"))
                         print(f_device)
                         pydaw_util.global_device_val_dict["name"] = f_device
-                        f_file = open(pydaw_util.global_pydaw_device_config, "w")
+                        f_file = open(
+                            pydaw_util.global_pydaw_device_config, "w")
                         for k, v in pydaw_util.global_device_val_dict.items():
                             f_file.write("{}|{}\n".format(k, v))
                         f_file.write("\\")
                         f_file.close()
                         return
-                self.show_device_dialog(_("Device not found: {}").format(f_device_str),
-                                        a_exit_on_cancel=True)
+                self.show_device_dialog(
+                    _("Device not found: {}").format(f_device_str),
+                    a_exit_on_cancel=True)
             else:
-                self.show_device_dialog(_("Device not found: {}").format(f_device_str),
-                                        a_exit_on_cancel=True)
+                self.show_device_dialog(
+                    _("Device not found: {}").format(f_device_str),
+                    a_exit_on_cancel=True)
 
 
-    def show_device_dialog(self, a_msg=None, a_notify=False, a_exit_on_cancel=False):
+    def show_device_dialog(self, a_msg=None, a_notify=False,
+                           a_exit_on_cancel=False):
         self.dialog_result = False
         self.open_devices()
         if self.is_running:
@@ -169,46 +183,61 @@ class pydaw_device_dialog:
         f_window_layout.addWidget(f_latency_label, 2, 2)
         f_window_layout.addWidget(QtGui.QLabel(_("Worker Threads:")), 3, 0)
         f_worker_threads_combobox = QtGui.QComboBox()
-        f_worker_threads_combobox.addItems([_("Auto"), "1", "2", "3", "4", "5", "6", "7", "8"])
+        f_worker_threads_combobox.addItems(
+            [_("Auto"), "1", "2", "3", "4", "5", "6", "7", "8"])
         f_worker_threads_combobox.setToolTip(_(
-        "This control sets the number of worker threads for processing plugins and effects.\n"
+        "This control sets the number of worker threads for processing "
+        "plugins and effects.\n"
          "Setting to 1 can result in the best latency.\n"
-         "If your projects require more CPU power than one CPU core can provide, "
+         "If your projects require more CPU power than one CPU "
+         "core can provide, "
          "for best latency it is\n"
-         "recommended that you only add the required number of cores, and not more than "
+         "recommended that you only add the required number of cores, "
+         "and not more than "
          "one thread per CPU core.\n"
-         "Auto attempts to pick a sane number of worker threads automatically based on your CPU,\n"
-         "if you're not sure how to use this setting, you should leave it on 'Auto'."))
+         "Auto attempts to pick a sane number of worker threads "
+         "automatically based on your CPU,\n"
+         "if you're not sure how to use this setting, you "
+         "should leave it on 'Auto'."))
         f_window_layout.addWidget(f_worker_threads_combobox, 3, 1)
         f_window_layout.addWidget(QtGui.QLabel(_("Audio Engine")), 4, 0)
         f_audio_engine_combobox = QtGui.QComboBox()
-        f_audio_engine_combobox.addItems([_("Normal"), _("Elevated"), _("Elevated(sandbox)"),
-                                          _("Debug"), _("GDB"), _("Valgrind"),
-                                          _("GUI Only"), _("No Audio")])
+        f_audio_engine_combobox.addItems(
+            [_("Normal"), _("Elevated"), _("Elevated(sandbox)"),
+             _("Debug"), _("GDB"), _("Valgrind"),
+             _("GUI Only"), _("No Audio")])
         f_audio_engine_combobox.setToolTip(f_device_tooltip)
         f_window_layout.addWidget(f_audio_engine_combobox, 4, 1)
-        f_thread_affinity_checkbox = QtGui.QCheckBox(_("Lock worker threads to own core?"))
-        f_thread_affinity_checkbox.setToolTip(_("This may give better performance with fewer "
-        "Xruns at low latency, "
-        "but may perform badly\non certain configurations.  The audio engine setting must "
-        "be set to 'Elevated' or "
-        "'Elevated(Sandbox)', otherwise this setting has no effect."))
+        f_thread_affinity_checkbox = QtGui.QCheckBox(
+            _("Lock worker threads to own core?"))
+        f_thread_affinity_checkbox.setToolTip(
+            _("This may give better performance with fewer "
+            "Xruns at low latency, "
+            "but may perform badly\non certain configurations.  "
+            "The audio engine setting must "
+            "be set to 'Elevated' or "
+            "'Elevated(Sandbox)', otherwise this setting has no effect."))
         f_window_layout.addWidget(f_thread_affinity_checkbox, 5, 1)
 
-        f_governor_checkbox = QtGui.QCheckBox(_("Force CPU governor to performance mode "
-        "when PyDAW is running?"))
-        f_governor_checkbox.setToolTip(_("This forces the CPU to use more aggressive "
-        "clockspeeds when PyDAW is "
-        "running, and reverts back to 'On Demand'\n"
-            "when PyDAW is closed.  Use this for best performance if possible.\n"
-            "The audio engine setting must be set to 'Elevated' or 'Elevated(Sandbox)', "
+        f_governor_checkbox = QtGui.QCheckBox(
+            _("Force CPU governor to performance mode when PyDAW is running?"))
+        f_governor_checkbox.setToolTip(
+            _("This forces the CPU to use more aggressive "
+            "clockspeeds when PyDAW is "
+            "running, and reverts back to 'On Demand'\n"
+            "when PyDAW is closed.  Use this for best "
+            "performance if possible.\n"
+            "The audio engine setting must be set to "
+            "'Elevated' or 'Elevated(Sandbox)', "
             "otherwise this setting has "
             "no effect.\n"
-            "Also, support for cpufreq must be compiled in, which requires different "
+            "Also, support for cpufreq must be compiled in, "
+            "which requires different "
             "dependencies in each distro, "
             "currently\n"
             "it's only default for Ubuntu.\n\n"
-            "IMPORTANT:  Enabling this usually crashes the audio engine when run "
+            "IMPORTANT:  Enabling this usually crashes the "
+            "audio engine when run "
             "from within Virtualbox or on "
             "systems with\n"
             "certain security configurations.  Disable this if PyDAW's "
@@ -248,7 +277,8 @@ class pydaw_device_dialog:
         for loop in range(self.pypm.Pm_CountDevices()):
             f_midi_device = self.pypm.Pm_GetDeviceInfo(loop)
             f_midi_device_name = f_midi_device.contents.name.decode("utf-8")
-            print("DeviceID: {} Name: '{}' Input?: {} Output?: {} Opened: {} ".format(
+            print("DeviceID: {} Name: '{}' Input?: {} "
+                "Output?: {} Opened: {} ".format(
                 loop, f_midi_device_name, f_midi_device.contents.input,
                 f_midi_device.contents.output, f_midi_device.contents.opened))
             if f_midi_device.contents.input == 1:
@@ -265,9 +295,11 @@ class pydaw_device_dialog:
 
         def combobox_changed(a_self=None, a_val=None):
             self.device_name = str(f_device_name_combobox.currentText())
-            f_samplerate = str(int(f_result_dict[self.device_name].defaultSampleRate))
+            f_samplerate = str(
+                int(f_result_dict[self.device_name].defaultSampleRate))
             if f_samplerate in self.sample_rates:
-                f_samplerate_combobox.setCurrentIndex(f_samplerate_combobox.findText(f_samplerate))
+                f_samplerate_combobox.setCurrentIndex(
+                    f_samplerate_combobox.findText(f_samplerate))
 
         def on_ok(a_self=None):
             f_buffer_size = int(str(f_buffer_size_combobox.currentText()))
@@ -292,10 +324,11 @@ class pydaw_device_dialog:
                 "name" not in pydaw_util.global_device_val_dict or \
                 pydaw_util.global_device_val_dict["name"] != self.device_name:
                     f_output = portaudio.PaStreamParameters(
-                        f_name_to_index[self.device_name], 2, portaudio.paInt16,
+                        f_name_to_index[self.device_name],
+                        2, portaudio.paInt16,
                         float(f_buffer_size)/float(f_samplerate), None)
-                    f_supported = self.pyaudio.Pa_IsFormatSupported(0, ctypes.byref(f_output),
-                                                                 f_samplerate)
+                    f_supported = self.pyaudio.Pa_IsFormatSupported(
+                        0, ctypes.byref(f_output), f_samplerate)
                     if not f_supported:
                         raise Exception()
                 f_file = open(pydaw_util.global_pydaw_device_config, "w")
@@ -324,7 +357,8 @@ class pydaw_device_dialog:
             except Exception as ex:
                 QtGui.QMessageBox.warning(f_window, _("Error"),
                     _("Couldn't open audio device\n\n{}\n\n"
-                    "This may (or may not) be because the device already open by "
+                    "This may (or may not) be because the "
+                    "device already open by "
                     "another application such as a DAW, or Jack.").format(ex))
 
         def on_cancel(a_self=None):
@@ -340,17 +374,20 @@ class pydaw_device_dialog:
         if "name" in pydaw_util.global_device_val_dict and \
         pydaw_util.global_device_val_dict["name"] in f_result_dict:
             f_device_name_combobox.setCurrentIndex(
-            f_device_name_combobox.findText(pydaw_util.global_device_val_dict["name"]))
+            f_device_name_combobox.findText(
+                pydaw_util.global_device_val_dict["name"]))
 
         if "bufferSize" in pydaw_util.global_device_val_dict and \
         pydaw_util.global_device_val_dict["bufferSize"] in self.buffer_sizes:
             f_buffer_size_combobox.setCurrentIndex(
-            f_buffer_size_combobox.findText(pydaw_util.global_device_val_dict["bufferSize"]))
+            f_buffer_size_combobox.findText(
+                pydaw_util.global_device_val_dict["bufferSize"]))
 
         if "sampleRate" in pydaw_util.global_device_val_dict and \
         pydaw_util.global_device_val_dict["sampleRate"] in self.sample_rates:
             f_samplerate_combobox.setCurrentIndex(
-            f_samplerate_combobox.findText(pydaw_util.global_device_val_dict["sampleRate"]))
+            f_samplerate_combobox.findText(
+                pydaw_util.global_device_val_dict["sampleRate"]))
 
         if "threads" in pydaw_util.global_device_val_dict:
             f_worker_threads_combobox.setCurrentIndex(
