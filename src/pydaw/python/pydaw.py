@@ -570,9 +570,9 @@ class region_settings:
                     f_region_name)
             PROJECT.save_region(
                 f_region_name, CURRENT_REGION)
-            global_audio_items.set_region_length(f_region_length)
+            AUDIO_ITEMS.set_region_length(f_region_length)
             PROJECT.save_audio_region(
-                CURRENT_REGION.uid, global_audio_items)
+                CURRENT_REGION.uid, AUDIO_ITEMS)
             self.open_region(self.region_name_lineedit.text())
             f_resave = False
             for f_item in AUDIO_SEQ.audio_items:
@@ -580,7 +580,7 @@ class region_settings:
                     f_resave = True
             if f_resave:
                 PROJECT.save_audio_region(
-                    CURRENT_REGION.uid, global_audio_items)
+                    CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(f_commit_message)
             global_update_region_time()
 
@@ -707,7 +707,7 @@ class region_settings:
             f_region_name = str(f_new_lineedit.text())
             f_new_uid = PROJECT.create_empty_region(f_region_name)
             f_midi_tuple = CURRENT_REGION.split(f_index, f_new_uid)
-            f_audio_tuple = global_audio_items.split(f_index)
+            f_audio_tuple = AUDIO_ITEMS.split(f_index)
             f_current_index = SONG_EDITOR.song.get_index_of_region(
                 CURRENT_REGION.uid)
             SONG_EDITOR.song.insert_region(f_current_index + 1, f_new_uid)
@@ -2500,8 +2500,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             if x.isSelected()]
         for f_item in f_list:
             f_item.output_track = f_index
-        PROJECT.save_audio_region(
-            CURRENT_REGION.uid, global_audio_items)
+        PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
         PROJECT.commit(_("Change output track for audio item(s)"))
         global_open_audio_items()
 
@@ -2542,8 +2541,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 TRANSPORT.tempo_spinbox.value(),
                 f_new_graph.length_in_seconds)
 
-        PROJECT.save_audio_region(
-            CURRENT_REGION.uid, global_audio_items)
+        PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
         PROJECT.commit(_("Change timestretch mode for audio item(s)"))
         global_open_audio_items()
 
@@ -2676,8 +2674,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_stretch_item[2].wait()
                 PROJECT.get_wav_uid_by_name(
                     f_stretch_item[0], a_uid=f_stretch_item[1])
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                                 global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Pitchbend audio items"))
             global_open_audio_items()
             f_dialog.close()
@@ -2709,8 +2706,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_list = AUDIO_SEQ.get_selected()
         for f_item in f_list:
             f_item.audio_item.reversed = not f_item.audio_item.reversed
-        PROJECT.save_audio_region(
-            CURRENT_REGION.uid, global_audio_items)
+        PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
         PROJECT.commit(_("Toggle audio items reversed"))
         global_open_audio_items(True)
 
@@ -2723,8 +2719,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.audio_item.clip_at_region_end(
                     f_current_region_length, f_global_tempo,
                     f_item.graph_object.length_in_seconds, False)
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                                 global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Move audio item(s) to region end"))
             global_open_audio_items(True)
 
@@ -2734,8 +2729,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in f_list:
                 f_item.audio_item.fade_in = 0.0
                 f_item.audio_item.fade_out = 999.0
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                                 global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Reset audio item fades"))
             global_open_audio_items(True)
 
@@ -2745,8 +2739,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item.audio_item.sample_end = 1000.0
             self.draw()
             self.clip_at_region_end()
-        PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                             global_audio_items)
+        PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
         PROJECT.commit(_("Reset sample end for audio item(s)"))
         global_open_audio_items()
 
@@ -2755,8 +2748,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if f_path is not None:
             self.audio_item.uid = PROJECT.get_wav_uid_by_name(
                 f_path)
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                                 global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Replace audio item"))
             global_open_audio_items(True)
 
@@ -2785,8 +2777,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_val = f_db_spinbox.value()
             for f_item in AUDIO_SEQ.get_selected():
                 f_item.audio_item.vol = f_val
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                      global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Normalize audio items"))
             global_open_audio_items(True)
             f_window.close()
@@ -2832,8 +2823,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_save = True
             f_item.normalize(f_val)
         if f_save:
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                      global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Normalize audio items"))
             global_open_audio_items(True)
 
@@ -2899,14 +2889,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item_old.fade_in = pydaw_clip_value(
                 f_item_old.fade_in, 0.0, (f_item_old.fade_out - 90.0), True)
 
-            f_index = global_audio_items.get_next_index()
+            f_index = AUDIO_ITEMS.get_next_index()
             if f_index == -1:
                 QtGui.QMessageBox.warning(self, _("Error"),
                 _("No more available audio item slots, max per region "
                 "is {}").format(pydaw_max_audio_item_count))
                 return
             else:
-                global_audio_items.add_item(f_index, f_item_old)
+                AUDIO_ITEMS.add_item(f_index, f_item_old)
                 f_per_item_fx = f_per_item_fx_dict.get_row(self.track_num)
                 if f_per_item_fx is not None:
                     f_per_item_fx_dict.set_row(f_index, f_per_item_fx)
@@ -2928,8 +2918,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item.start_bar = f_musical_pos[0]
             f_item.start_beat = f_musical_pos[1]
             f_item_old.sample_end = f_item.sample_start
-            PROJECT.save_audio_region(CURRENT_REGION.uid,
-                                      global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             if f_save_paif:
                 PROJECT.save_audio_per_item_fx_region(
                     CURRENT_REGION.uid, f_per_item_fx_dict, False)
@@ -3196,7 +3185,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         QtGui.QApplication.restoreOverrideCursor()
-        f_audio_items =  global_audio_items
+        f_audio_items =  AUDIO_ITEMS
         #Set to True when testing, set to False for better UI performance...
         f_reset_selection = True
         f_did_change = False
@@ -3469,7 +3458,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_item.audio_item.set_fade_out(f_val)
 
         if f_changed:
-            PROJECT.save_audio_region(CURRENT_REGION.uid, global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(_("Crossfade audio items"))
             global_open_audio_items(True)
 
@@ -4177,7 +4166,7 @@ pydaw_widgets.pydaw_abstract_file_browser_widget):
         f_global_tempo = float(TRANSPORT.tempo_spinbox.value())
         for f_str, f_list in self.audio_items_clipboard:
             AUDIO_SEQ.reselect_on_stop.append(f_str)
-            f_index = global_audio_items.get_next_index()
+            f_index = AUDIO_ITEMS.get_next_index()
             if f_index == -1:
                 break
             f_item = pydaw_audio_item.from_str(f_str)
@@ -4187,11 +4176,11 @@ pydaw_widgets.pydaw_abstract_file_browser_widget):
                 f_item.clip_at_region_end(
                     f_current_region_length, f_global_tempo,
                     f_graph.length_in_seconds)
-                global_audio_items.add_item(f_index, f_item)
+                AUDIO_ITEMS.add_item(f_index, f_item)
                 if f_list is not None:
                     f_per_item_fx_dict.set_row(f_index, f_list)
-        global_audio_items.deduplicate_items()
-        PROJECT.save_audio_region(CURRENT_REGION.uid, global_audio_items)
+        AUDIO_ITEMS.deduplicate_items()
+        PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
         PROJECT.save_audio_per_item_fx_region(
             CURRENT_REGION.uid, f_per_item_fx_dict, False)
         PROJECT.this_pydaw_osc.pydaw_audio_per_item_fx_region(
@@ -4684,7 +4673,7 @@ class audio_item_editor_widget:
                     f_audio_item.clip_at_region_end(
                         f_current_region_length, f_global_tempo,
                         f_graph.length_in_seconds)
-            PROJECT.save_audio_region(CURRENT_REGION.uid, global_audio_items)
+            PROJECT.save_audio_region(CURRENT_REGION.uid, AUDIO_ITEMS)
             global_open_audio_items(True)
             PROJECT.commit(_("Update audio items"))
 
@@ -4693,16 +4682,15 @@ class audio_item_editor_widget:
             "{}dB".format(self.sample_vol_slider.value()))
         self.vol_checkbox.setChecked(True)
 
-global_audio_items = None
+AUDIO_ITEMS = None
 
 def global_open_audio_items(a_update_viewer=True, a_reload=True):
-    global global_audio_items
+    global AUDIO_ITEMS
     if a_reload:
         if CURRENT_REGION:
-            global_audio_items = PROJECT.get_audio_region(
-                CURRENT_REGION.uid)
+            AUDIO_ITEMS = PROJECT.get_audio_region(CURRENT_REGION.uid)
         else:
-            global_audio_items = None
+            AUDIO_ITEMS = None
     if a_update_viewer:
         f_selected_list = []
         for f_item in AUDIO_SEQ.audio_items:
@@ -4710,8 +4698,8 @@ def global_open_audio_items(a_update_viewer=True, a_reload=True):
                 f_selected_list.append(str(f_item.audio_item))
         AUDIO_SEQ.setUpdatesEnabled(False)
         AUDIO_SEQ.clear_drawn_items()
-        if global_audio_items:
-            for k, v in global_audio_items.items.items():
+        if AUDIO_ITEMS:
+            for k, v in AUDIO_ITEMS.items.items():
                 try:
                     f_graph = PROJECT.get_sample_graph_by_uid(v.uid)
                     if f_graph is None:
@@ -4918,12 +4906,12 @@ def global_set_piano_roll_zoom():
     f_width = float(PIANO_ROLL_EDITOR.rect().width()) - \
         float(PIANO_ROLL_EDITOR.verticalScrollBar().width()) - 6.0 - \
         global_piano_keys_width
-    f_region_scale = f_width / (global_item_editing_count * 1000.0)
+    f_region_scale = f_width / (ITEM_EDITING_COUNT * 1000.0)
 
     global_piano_roll_grid_width = 1000.0 * MIDI_SCALE * f_region_scale
     pydaw_set_piano_roll_quantize(global_piano_roll_quantize_index)
 
-global_item_editing_count = 1
+ITEM_EDITING_COUNT = 1
 
 global_piano_roll_snap = False
 global_piano_roll_grid_width = 1000.0
@@ -4985,12 +4973,12 @@ def pydaw_set_piano_roll_quantize(a_index):
     global_last_resize = pydaw_clip_min(
         global_last_resize, global_piano_roll_snap_beats)
     PIANO_ROLL_EDITOR.set_grid_div(global_piano_roll_snap_divisor / 4.0)
-    global_piano_roll_snap_divisor *= global_item_editing_count
+    global_piano_roll_snap_divisor *= ITEM_EDITING_COUNT
     global_piano_roll_snap_value = \
-    (global_piano_roll_grid_width * global_item_editing_count) / \
+    (global_piano_roll_grid_width * ITEM_EDITING_COUNT) / \
     (global_piano_roll_snap_divisor)
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / \
-    (4.0 * global_item_editing_count)
+    (4.0 * ITEM_EDITING_COUNT)
 
 global_piano_roll_min_note_length = global_piano_roll_grid_width / 128.0
 
@@ -5960,15 +5948,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def draw_item(self):
         self.has_selected = False #Reset the selected-ness state...
         self.viewer_width = \
-            global_piano_roll_grid_width * global_item_editing_count
+            global_piano_roll_grid_width * ITEM_EDITING_COUNT
         self.setSceneRect(
             0.0, 0.0, self.viewer_width + global_piano_roll_grid_width,
             self.piano_height + self.header_height + 24.0)
-        self.item_length = float(4 * global_item_editing_count)
+        self.item_length = float(4 * ITEM_EDITING_COUNT)
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = \
             ((global_piano_roll_grid_width - 1.0) * \
-            global_item_editing_count) + global_piano_keys_width
+            ITEM_EDITING_COUNT) + global_piano_keys_width
         self.setUpdatesEnabled(False)
         self.clear_drawn_items()
         if ITEM_EDITOR.enabled:
@@ -6402,8 +6390,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                 f_cc_start = \
                 (((f_point.pos().x() - global_automation_min_height) /
                     self.parent_view.item_width) * 4.0)
-                if f_cc_start >= 4.0 * global_item_editing_count:
-                    f_cc_start = (4.0 * global_item_editing_count) - 0.01
+                if f_cc_start >= 4.0 * ITEM_EDITING_COUNT:
+                    f_cc_start = (4.0 * ITEM_EDITING_COUNT) - 0.01
                 elif f_cc_start < 0.0:
                     f_cc_start = 0.0
                 f_new_item_index, f_cc_start = pydaw_beats_to_index(f_cc_start)
@@ -6530,7 +6518,7 @@ class automation_viewer(QtGui.QGraphicsView):
                 self.clipboard[0][1], self.clipboard[0][0].start,
                 self.clipboard[-1][1], self.clipboard[-1][0].start)
             for f_item, f_index in self.clipboard:
-                if f_index < global_item_editing_count:
+                if f_index < ITEM_EDITING_COUNT:
                     f_item2 = f_item.clone()
                     if self.is_cc:
                         f_item2.plugin_index = self.plugin_index
@@ -6600,7 +6588,7 @@ class automation_viewer(QtGui.QGraphicsView):
             global_automation_min_height) / self.item_width) * 4.0
         f_cc_start = pydaw_clip_value(
             f_cc_start, 0.0,
-            (4.0  * global_item_editing_count) - 0.01, a_round=True)
+            (4.0  * ITEM_EDITING_COUNT) - 0.01, a_round=True)
         if self.is_cc:
             f_cc_val = int(127.0 - (((f_pos_y - global_automation_min_height) /
                 self.viewer_height) * 127.0))
@@ -6700,7 +6688,7 @@ class automation_viewer(QtGui.QGraphicsView):
         f_rect = self.rect()
         f_width = float(f_rect.width()) - self.verticalScrollBar().width() - \
             30.0 - AUTOMATION_RULER_WIDTH
-        self.region_scale = f_width / (global_item_editing_count * 690.0)
+        self.region_scale = f_width / (ITEM_EDITING_COUNT * 690.0)
         self.item_width = AUTOMATION_WIDTH * self.region_scale
         self.viewer_height = float(f_rect.height()) - \
             self.horizontalScrollBar().height() - \
@@ -6717,8 +6705,8 @@ class automation_viewer(QtGui.QGraphicsView):
     def draw_item(self):
         self.setUpdatesEnabled(False)
         self.set_scale()
-        self.viewer_width = global_item_editing_count * self.item_width
-        self.item_length = 4.0 * global_item_editing_count
+        self.viewer_width = ITEM_EDITING_COUNT * self.item_width
+        self.item_length = 4.0 * ITEM_EDITING_COUNT
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / 16.0
         self.grid_max_start_time = self.viewer_width + \
@@ -7159,11 +7147,11 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
 
     if a_items is not None:
         PIANO_ROLL_EDITOR.selected_note_strings = []
-        global global_item_editing_count
-        global_item_editing_count = len(a_items)
+        global ITEM_EDITING_COUNT
+        ITEM_EDITING_COUNT = len(a_items)
         global_set_piano_roll_zoom()
-        ITEM_EDITOR.zoom_slider.setMaximum(100 * global_item_editing_count)
-        ITEM_EDITOR.zoom_slider.setSingleStep(global_item_editing_count)
+        ITEM_EDITOR.zoom_slider.setMaximum(100 * ITEM_EDITING_COUNT)
+        ITEM_EDITOR.zoom_slider.setSingleStep(ITEM_EDITING_COUNT)
         pydaw_set_piano_roll_quantize(
             PIANO_ROLL_EDITOR_WIDGET.snap_combobox.currentIndex())
         ITEM_EDITOR.item_names = a_items
@@ -7308,7 +7296,7 @@ class item_list_editor:
                 PIANO_ROLL_EDITOR.selected_note_strings = f_clip
             else:
                 PIANO_ROLL_EDITOR.selected_note_strings = []
-            for f_i in range(global_item_editing_count):
+            for f_i in range(ITEM_EDITING_COUNT):
                 PROJECT.save_item(self.item_names[f_i], self.items[f_i])
             global_open_items()
             PROJECT.commit(_("Velocity mod item(s)"))
@@ -7954,11 +7942,11 @@ class transport_widget:
                             this_region_settings.open_region(f_item.text())
                         else:
                             global CURRENT_REGION_NAME
-                            global global_audio_items
+                            global AUDIO_ITEMS
                             global CURRENT_REGION
                             CURRENT_REGION_NAME = None
                             CURRENT_REGION = None
-                            global_audio_items = None
+                            AUDIO_ITEMS = None
                             this_region_settings.clear_items()
                             AUDIO_SEQ.update_zoom()
                             AUDIO_SEQ.clear_drawn_items()
