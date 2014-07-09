@@ -905,8 +905,8 @@ class region_list_editor:
                         a_track_num=i, a_track_text=_("Bus{}").format(i),
                         a_instrument=False)
             elif self.track_type == pydaw_track_type_enum.audio:
-                track = audio_track(a_track_num=i,
-                                    a_track_text=_("track{}").format(i + 1))
+                track = audio_track(
+                    a_track_num=i, a_track_text=_("track{}").format(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)
         self.table_widget.setColumnWidth(0, 390)
