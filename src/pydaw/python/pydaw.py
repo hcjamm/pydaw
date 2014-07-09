@@ -320,13 +320,13 @@ class song_editor:
 
         def ok_handler():
             if self.midi_file is None:
-                QtGui.QMessageBox.warning(f_window, _("Error"),
-                                          _("File name cannot be empty"))
+                QtGui.QMessageBox.warning(
+                    f_window, _("Error"), _("File name cannot be empty"))
                 return
             f_item_name_str = str(f_item_name.text())
             if f_item_name_str == "":
-                QtGui.QMessageBox.warning(f_window, _("Error"),
-                                          _("File name cannot be empty"))
+                QtGui.QMessageBox.warning(
+                    f_window, _("Error"), _("File name cannot be empty"))
                 return
             if not self.midi_file.populate_region_from_track_map(
             PROJECT, f_item_name_str, a_index):
@@ -384,9 +384,9 @@ class song_editor:
         f_layout.addWidget(f_info_label, 4, 1)
 
         f_ok_layout = QtGui.QHBoxLayout()
-        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                              QtGui.QSizePolicy.Expanding,
-                                              QtGui.QSizePolicy.Minimum))
+        f_ok_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
+            QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
@@ -446,8 +446,8 @@ class song_editor:
         def ok_handler():
             f_new_name = str(f_new_lineedit.text())
             if f_new_name == "":
-                QtGui.QMessageBox.warning(self.table_widget, _("Error"),
-                                          _("Name cannot be blank"))
+                QtGui.QMessageBox.warning(
+                    self.table_widget, _("Error"), _("Name cannot be blank"))
                 return
             PROJECT.rename_region(f_item_text, f_new_name)
             PROJECT.commit(_("Rename region"))
@@ -813,8 +813,8 @@ class region_settings:
             f_editor.table_widget.update()
         global_open_audio_items()
         global_update_hidden_rows()
-        TRANSPORT.set_time(TRANSPORT.get_region_value(),
-                                TRANSPORT.get_bar_value(), 0.0)
+        TRANSPORT.set_time(
+            TRANSPORT.get_region_value(), TRANSPORT.get_bar_value(), 0.0)
 
     def clear_items(self):
         self.region_name_lineedit.setText("")
@@ -893,16 +893,17 @@ class region_list_editor:
         self.tracks = []
         for i in range(0, self.track_count):
             if self.track_type == pydaw_track_type_enum.midi:
-                track = seq_track(a_track_num=i,
-                                  a_track_text=_("track{}").format(i + 1))
+                track = seq_track(
+                    a_track_num=i, a_track_text=_("track{}").format(i + 1))
             elif self.track_type == pydaw_track_type_enum.bus:
                 if i == 0:
-                    track = seq_track(a_track_num=i, a_track_text=_("Master"),
-                                      a_instrument=False)
+                    track = seq_track(
+                        a_track_num=i, a_track_text=_("Master"),
+                        a_instrument=False)
                 else:
-                    track = seq_track(a_track_num=i,
-                                      a_track_text=_("Bus{}").format(i),
-                                      a_instrument=False)
+                    track = seq_track(
+                        a_track_num=i, a_track_text=_("Bus{}").format(i),
+                        a_instrument=False)
             elif self.track_type == pydaw_track_type_enum.audio:
                 track = audio_track(a_track_num=i,
                                     a_track_text=_("track{}").format(i + 1))
@@ -957,9 +958,10 @@ class region_list_editor:
         return f_result
 
     def warn_no_region_selected(self):
-        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
-        _("You must create or select a region first by clicking "
-        "in the song editor above."))
+        QtGui.QMessageBox.warning(
+            MAIN_WINDOW, _("Error"),
+            _("You must create or select a region first by clicking "
+            "in the song editor above."))
 
     def cell_clicked(self, x, y):
         if y <= 0 or x < 0:
@@ -997,7 +999,8 @@ class region_list_editor:
             if f_new_radiobutton.isChecked() and f_item_count.value() == 1:
                 f_cell_text = str(f_new_lineedit.text())
                 if PROJECT.item_exists(f_cell_text):
-                    QtGui.QMessageBox.warning(self.table_widget, _("Error"),
+                    QtGui.QMessageBox.warning(
+                        self.table_widget, _("Error"),
                         _("An item named '{}' already exists.").format(
                         f_cell_text))
                     return
@@ -1204,15 +1207,15 @@ class region_list_editor:
             QtGui.QAbstractItemView.NoEditTriggers)
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
-        self.edit_group_action = QtGui.QAction(_("Edit Selected Item(s)"),
-                                               self.table_widget)
+        self.edit_group_action = QtGui.QAction(
+            _("Edit Selected Item(s)"), self.table_widget)
         self.edit_group_action.triggered.connect(self.edit_group)
         self.edit_group_action.setShortcut(
             QtGui.QKeySequence.fromString("CTRL+E"))
         self.table_widget.addAction(self.edit_group_action)
 
-        self.edit_unique_action = QtGui.QAction(_("Edit Unique Item(s)"),
-                                                self.table_widget)
+        self.edit_unique_action = QtGui.QAction(
+            _("Edit Unique Item(s)"), self.table_widget)
         self.edit_unique_action.triggered.connect(self.edit_unique)
         self.edit_unique_action.setShortcut(
             QtGui.QKeySequence.fromString("ALT+E"))
@@ -1237,8 +1240,8 @@ class region_list_editor:
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
         self.table_widget.addAction(self.paste_action)
 
-        self.paste_to_end_action = QtGui.QAction(_("Paste to Region End"),
-                                                 self.table_widget)
+        self.paste_to_end_action = QtGui.QAction(
+            _("Paste to Region End"), self.table_widget)
         self.paste_to_end_action.triggered.connect(self.paste_to_region_end)
         self.paste_to_end_action.setShortcut(
             QtGui.QKeySequence.fromString("ALT+V"))
@@ -1266,8 +1269,8 @@ class region_list_editor:
         self.separator_action3.setSeparator(True)
         self.table_widget.addAction(self.separator_action3)
 
-        self.unlink_selected_action = QtGui.QAction(_("Auto-Unlink Item(s)"),
-                                                    self.table_widget)
+        self.unlink_selected_action = QtGui.QAction(
+            _("Auto-Unlink Item(s)"), self.table_widget)
         self.unlink_selected_action.setShortcut(
             QtGui.QKeySequence.fromString("CTRL+U"))
         self.unlink_selected_action.triggered.connect(
@@ -1340,8 +1343,8 @@ class region_list_editor:
 
         f_item_list = self.get_selected_items()
         if len(f_item_list) == 0:
-            QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
-                                      _("No items selected"))
+            QtGui.QMessageBox.warning(
+                MAIN_WINDOW, _("Error"), _("No items selected"))
             return
 
         def transpose_ok_handler():
@@ -1501,7 +1504,9 @@ class region_list_editor:
         f_window.exec_()
 
     def on_unlink_item(self):
-        """ Rename a single instance of an item and make it into a new item """
+        """ Rename a single instance of an item and
+            make it into a new item
+        """
         if not self.enabled:
             self.warn_no_region_selected()
             return
@@ -1530,8 +1535,8 @@ class region_list_editor:
                     self.group_box, _("Error"),
                     _("An item with this name already exists."))
                 return
-            f_uid = PROJECT.copy_item(str(f_current_item.text()),
-                                                 str(f_new_lineedit.text()))
+            f_uid = PROJECT.copy_item(
+                str(f_current_item.text()), str(f_new_lineedit.text()))
             global_open_items([f_cell_text], a_reset_scrollbar=True)
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
@@ -1749,8 +1754,7 @@ def global_tablewidget_to_region():
         CURRENT_REGION.add_item_ref_by_name(
             f_tuple[0], f_tuple[1], f_tuple[2], f_uid_dict)
     PROJECT.save_region(
-        str(this_region_settings.region_name_lineedit.text()),
-        CURRENT_REGION)
+        str(this_region_settings.region_name_lineedit.text()), CURRENT_REGION)
     PROJECT.commit(_("Edit region"))
 
 
@@ -8940,10 +8944,9 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_open_theme(self):
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(self,
-                    _("Open a theme file"), "{}/lib/{}/themes".format(
-                        pydaw_util.global_pydaw_install_prefix,
-                        global_pydaw_version_string),
-                    "PyDAW Style(*.pytheme)")
+                _("Open a theme file"), "{}/lib/{}/themes".format(
+                pydaw_util.global_pydaw_install_prefix,
+                global_pydaw_version_string), "PyDAW Style(*.pytheme)")
             if f_file is not None and str(f_file) != "":
                 f_file = str(f_file)
                 f_style = pydaw_read_file_text(f_file)
