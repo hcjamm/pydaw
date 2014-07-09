@@ -2336,8 +2336,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item.audio_item.time_stretch_mode >= 2:
                 f_item.is_stretching = True
                 f_item.max_stretch = f_max_region_pos - f_item.pos().x()
-                f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape,
-                               False)
+                f_item.setFlag(
+                    QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
                 #for f_path in f_item.path_items:
                 #    f_path.hide()
 
@@ -2627,8 +2627,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_end = f_end_pitch.value()
             f_stretched_items = []
             f_tempo = TRANSPORT.tempo_spinbox.value()
-            f_list = [(x.audio_item, x.graph_object.length_in_seconds) for x in
-                AUDIO_SEQ.audio_items if x.isSelected()]
+            f_list = [(x.audio_item, x.graph_object.length_in_seconds)
+                for x in AUDIO_SEQ.audio_items if x.isSelected()]
             f_start_beat = 999999999.0
             f_end_beat = 0.0
 
@@ -3335,10 +3335,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             PROJECT.save_audio_region(
                 CURRENT_REGION.uid, f_audio_items)
             PROJECT.commit(_("Update audio items"))
-            global_open_audio_items(f_reset_selection)
+        global_open_audio_items(f_reset_selection)
 
-AUDIO_ITEMS_HEADER_GRADIENT = QtGui.QLinearGradient(0.0, 0.0, 0.0,
-                                                    AUDIO_RULER_HEIGHT)
+AUDIO_ITEMS_HEADER_GRADIENT = QtGui.QLinearGradient(
+    0.0, 0.0, 0.0, AUDIO_RULER_HEIGHT)
 AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(0.0, QtGui.QColor.fromRgb(61, 61, 61))
 AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(0.5, QtGui.QColor.fromRgb(50,50, 50))
 AUDIO_ITEMS_HEADER_GRADIENT.setColorAt(0.6, QtGui.QColor.fromRgb(43, 43, 43))
@@ -3398,8 +3398,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.ruler.setPos(0.0, f_point.y())
 
     def get_scene_pos(self):
-        return QtCore.QPointF(self.horizontalScrollBar().value(),
-                              self.verticalScrollBar().value())
+        return QtCore.QPointF(
+            self.horizontalScrollBar().value(),
+            self.verticalScrollBar().value())
 
     def get_selected(self):
         return [x for x in self.audio_items if x.isSelected()]
@@ -3415,8 +3416,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_items.remove_item(f_item.track_num)
             f_paif.clear_row_if_exists(f_item.track_num)
         PROJECT.save_audio_region(CURRENT_REGION.uid, f_items)
-        PROJECT.save_audio_per_item_fx_region(CURRENT_REGION.uid,
-                                                         f_paif, False)
+        PROJECT.save_audio_per_item_fx_region(
+            CURRENT_REGION.uid, f_paif, False)
         PROJECT.commit(_("Delete audio item(s)"))
         global_open_audio_items(True)
 
