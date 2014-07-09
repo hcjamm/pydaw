@@ -114,7 +114,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
               PIANO_ROLL_EDITOR, MAIN_WINDOW,
               WAVE_EDITOR, AUDIO_EDITOR_WIDGET,
               AUDIO_SEQ, TRANSPORT] + \
-              list(REGION_EDITORS) + list(global_automation_editors)
+              list(REGION_EDITORS) + list(AUTOMATION_EDITORS)
     for f_widget in f_list:
         f_widget.set_tooltips(a_enabled)
 
@@ -1474,7 +1474,7 @@ class region_list_editor:
             PROJECT.commit(_("Rename items"))
             this_region_settings.open_region_by_uid(CURRENT_REGION.uid)
             global_update_items_label()
-            if global_draw_last_items:
+            if DRAW_LAST_ITEMS:
                 global_open_items()
                 global_open_item_names = ITEM_EDITOR.item_names[:]
             f_window.close()
@@ -4887,7 +4887,7 @@ class audio_track:
         self.hlayout3.addWidget(self.mute_checkbox)
         self.hlayout3.addWidget(self.fx_button)
         self.record_radiobutton = QtGui.QRadioButton()
-        rec_button_group.addButton(self.record_radiobutton)
+        REC_BUTTON_GROUP.addButton(self.record_radiobutton)
         self.record_radiobutton.toggled.connect(self.on_rec)
         self.record_radiobutton.setObjectName("rec_arm_radiobutton")
         self.hlayout3.addWidget(self.record_radiobutton)
@@ -4912,14 +4912,14 @@ class audio_track:
 
 def global_set_piano_roll_zoom():
     global global_piano_roll_grid_width
-    global global_midi_scale
+    global MIDI_SCALE
 
     f_width = float(PIANO_ROLL_EDITOR.rect().width()) - \
         float(PIANO_ROLL_EDITOR.verticalScrollBar().width()) - 6.0 - \
         global_piano_keys_width
     f_region_scale = f_width / (global_item_editing_count * 1000.0)
 
-    global_piano_roll_grid_width = 1000.0 * global_midi_scale * f_region_scale
+    global_piano_roll_grid_width = 1000.0 * MIDI_SCALE * f_region_scale
     pydaw_set_piano_roll_quantize(global_piano_roll_quantize_index)
 
 global_item_editing_count = 1
@@ -5981,7 +5981,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     if f_note_item.get_selected_string() in \
                     self.selected_note_strings:
                         f_note_item.setSelected(True)
-            if global_draw_last_items:
+            if DRAW_LAST_ITEMS:
                 for f_i, f_uid in zip(
                 range(f_item_count), global_last_open_item_uids):
                     f_item = PROJECT.get_item_by_uid(f_uid)
@@ -6271,9 +6271,9 @@ class piano_roll_editor_widget:
             global_open_items(global_last_open_item_names)
 
     def draw_last(self):
-        global global_draw_last_items
-        global_draw_last_items = not global_draw_last_items
-        self.draw_last_action.setChecked(global_draw_last_items)
+        global DRAW_LAST_ITEMS
+        DRAW_LAST_ITEMS = not DRAW_LAST_ITEMS
+        self.draw_last_action.setChecked(DRAW_LAST_ITEMS)
         global_open_items()
 
     def vel_rand_triggered(self, a_action):
@@ -6327,16 +6327,16 @@ class piano_roll_editor_widget:
             PIANO_ROLL_EDITOR.clear_drawn_items()
 
 def global_set_automation_zoom():
-    global global_automation_width
-    global_automation_width = 690.0 * global_midi_scale
+    global AUTOMATION_WIDTH
+    AUTOMATION_WIDTH = 690.0 * MIDI_SCALE
 
 global_automation_point_diameter = 15.0
-global_automation_point_radius = global_automation_point_diameter * 0.5
-global_automation_ruler_width = 36.0
-global_automation_width = 690.0
+AUTOMATION_POINT_RADIUS = global_automation_point_diameter * 0.5
+AUTOMATION_RULER_WIDTH = 36.0
+AUTOMATION_WIDTH = 690.0
 
 global_automation_min_height = \
-    global_automation_ruler_width - global_automation_point_radius
+    AUTOMATION_RULER_WIDTH - AUTOMATION_POINT_RADIUS
 
 global_automation_gradient = QtGui.QLinearGradient(
     0, 0, global_automation_point_diameter, global_automation_point_diameter)
@@ -6358,8 +6358,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setPos(a_time - global_automation_point_radius,
-                    a_value - global_automation_point_radius)
+        self.setPos(a_time - AUTOMATION_POINT_RADIUS,
+                    a_value - AUTOMATION_POINT_RADIUS)
         self.setBrush(global_automation_gradient)
         f_pen = QtGui.QPen()
         f_pen.setWidth(2)
@@ -6440,7 +6440,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     hash((int(f_point.item_index), str(f_point.cc_item))))
         global_save_and_reload_items()
 
-global_automation_editors = []
+AUTOMATION_EDITORS = []
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_is_cc=True):
@@ -6448,14 +6448,14 @@ class automation_viewer(QtGui.QGraphicsView):
         self.is_cc = a_is_cc
         self.set_scale()
         self.item_length = 4.0
-        self.grid_max_start_time = global_automation_width + \
-            global_automation_ruler_width - global_automation_point_radius
-        self.viewer_width = global_automation_width
+        self.grid_max_start_time = AUTOMATION_WIDTH + \
+            AUTOMATION_RULER_WIDTH - AUTOMATION_POINT_RADIUS
+        self.viewer_width = AUTOMATION_WIDTH
         self.automation_points = []
         self.clipboard = []
         self.selected_str = []
 
-        self.axis_size = global_automation_ruler_width
+        self.axis_size = AUTOMATION_RULER_WIDTH
 
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / 16.0
@@ -6478,7 +6478,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.last_scale = 1.0
         self.plugin_index = 0
         self.last_x_scale = 1.0
-        global_automation_editors.append(self)
+        AUTOMATION_EDITORS.append(self)
         self.selection_enabled = True
         self.scene.selectionChanged.connect(self.selection_changed)
 
@@ -6593,8 +6593,8 @@ class automation_viewer(QtGui.QGraphicsView):
         if not ITEM_EDITOR.enabled:
             ITEM_EDITOR.show_not_enabled_warning()
             return
-        f_pos_x = a_event.scenePos().x() - global_automation_point_radius
-        f_pos_y = a_event.scenePos().y() - global_automation_point_radius
+        f_pos_x = a_event.scenePos().x() - AUTOMATION_POINT_RADIUS
+        f_pos_y = a_event.scenePos().y() - AUTOMATION_POINT_RADIUS
         f_cc_start = ((f_pos_x -
             global_automation_min_height) / self.item_width) * 4.0
         f_cc_start = pydaw_clip_value(
@@ -6698,14 +6698,14 @@ class automation_viewer(QtGui.QGraphicsView):
     def set_scale(self):
         f_rect = self.rect()
         f_width = float(f_rect.width()) - self.verticalScrollBar().width() - \
-            30.0 - global_automation_ruler_width
+            30.0 - AUTOMATION_RULER_WIDTH
         self.region_scale = f_width / (global_item_editing_count * 690.0)
-        self.item_width = global_automation_width * self.region_scale
+        self.item_width = AUTOMATION_WIDTH * self.region_scale
         self.viewer_height = float(f_rect.height()) - \
             self.horizontalScrollBar().height() - \
-            30.0 - global_automation_ruler_width
-        self.total_height = global_automation_ruler_width + \
-            self.viewer_height - global_automation_point_radius
+            30.0 - AUTOMATION_RULER_WIDTH
+        self.total_height = AUTOMATION_RULER_WIDTH + \
+            self.viewer_height - AUTOMATION_POINT_RADIUS
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -6721,7 +6721,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / 16.0
         self.grid_max_start_time = self.viewer_width + \
-            global_automation_ruler_width - global_automation_point_radius
+            AUTOMATION_RULER_WIDTH - AUTOMATION_POINT_RADIUS
         self.clear_drawn_items()
         if not ITEM_EDITOR.enabled:
             return
@@ -6740,10 +6740,10 @@ class automation_viewer(QtGui.QGraphicsView):
             for f_note in f_item.notes:
                 f_note_start = (f_item_index *
                     self.item_width) + (f_note.start * 0.25 *
-                    self.item_width) + global_automation_ruler_width
+                    self.item_width) + AUTOMATION_RULER_WIDTH
                 f_note_end = f_note_start + (f_note.length *
                     self.item_width * 0.25)
-                f_note_y = global_automation_ruler_width + ((127.0 -
+                f_note_y = AUTOMATION_RULER_WIDTH + ((127.0 -
                     (f_note.note_num)) * f_note_height)
                 f_note_item = QtGui.QGraphicsLineItem(
                     f_note_start, f_note_y, f_note_end, f_note_y)
@@ -7138,12 +7138,12 @@ def global_check_midi_items():
     else:
         return True
 
-global_draw_last_items = False
-global_midi_scale = 1.0
+DRAW_LAST_ITEMS = False
+MIDI_SCALE = 1.0
 
 def global_set_midi_zoom(a_val):
-    global global_midi_scale
-    global_midi_scale = a_val
+    global MIDI_SCALE
+    MIDI_SCALE = a_val
     global_set_piano_roll_zoom()
     global_set_automation_zoom()
 
@@ -7154,8 +7154,7 @@ def global_open_items(a_items=None, a_reset_scrollbar=False):
     """
     ITEM_EDITOR.enabled = True
     global global_open_item_names, global_open_items_uids, \
-           global_last_open_item_uids, global_last_open_item_names, \
-           global_item_zoom_index
+           global_last_open_item_uids, global_last_open_item_names
 
     if a_items is not None:
         PIANO_ROLL_EDITOR.selected_note_strings = []
@@ -7218,7 +7217,6 @@ def global_save_and_reload_items():
     global_open_items()
     PROJECT.commit(_("Edit item(s)"))
 
-global_item_zoom_index = 0
 
 class item_list_editor:
     def clear_new(self):
@@ -7660,23 +7658,23 @@ class item_list_editor:
         self.pitchbend_table_widget.resizeColumnsToContents()
 
 
-rec_button_group = QtGui.QButtonGroup()
+REC_BUTTON_GROUP = QtGui.QButtonGroup()
 
-global_last_rec_armed_track = None
+LAST_REC_ARMED_TRACK = None
 
 def global_set_record_armed_track():
-    if global_last_rec_armed_track is None:
+    if LAST_REC_ARMED_TRACK is None:
         return
-    elif global_last_rec_armed_track < pydaw_midi_track_count:
+    elif LAST_REC_ARMED_TRACK < pydaw_midi_track_count:
         this_region_editor.tracks[
-            global_last_rec_armed_track].record_radiobutton.setChecked(True)
-    elif global_last_rec_armed_track < \
+            LAST_REC_ARMED_TRACK].record_radiobutton.setChecked(True)
+    elif LAST_REC_ARMED_TRACK < \
     pydaw_midi_track_count + pydaw_bus_count:
-        this_region_bus_editor.tracks[global_last_rec_armed_track -
+        this_region_bus_editor.tracks[LAST_REC_ARMED_TRACK -
             pydaw_midi_track_count].record_radiobutton.setChecked(True)
     else:
         this_region_audio_editor.tracks[
-            global_last_rec_armed_track - pydaw_midi_track_count -
+            LAST_REC_ARMED_TRACK - pydaw_midi_track_count -
             pydaw_bus_count].record_radiobutton.setChecked(True)
 
 
@@ -7729,8 +7727,8 @@ class seq_track:
             PROJECT.this_pydaw_osc.pydaw_set_track_rec(
                 self.track_type, self.track_number,
                 self.record_radiobutton.isChecked())
-            global global_last_rec_armed_track
-            global_last_rec_armed_track = self.track_number
+            global LAST_REC_ARMED_TRACK
+            LAST_REC_ARMED_TRACK = self.track_number
 
     def on_name_changed(self):
         if self.is_instrument:
@@ -7877,7 +7875,7 @@ class seq_track:
                 QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
             self.hlayout3.addWidget(self.fx_button)
         self.record_radiobutton = QtGui.QRadioButton()
-        rec_button_group.addButton(self.record_radiobutton)
+        REC_BUTTON_GROUP.addButton(self.record_radiobutton)
         self.record_radiobutton.toggled.connect(self.on_rec)
         self.record_radiobutton.setObjectName("rec_arm_radiobutton")
         self.hlayout3.addWidget(self.record_radiobutton)
@@ -8879,9 +8877,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_debug_checkbox = QtGui.QCheckBox("Debug with GDB?")
         f_ok_layout.addWidget(f_debug_checkbox)
 
-        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10,
-                                              QtGui.QSizePolicy.Expanding,
-                                              QtGui.QSizePolicy.Minimum))
+        f_ok_layout.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding,
+            QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton(_("OK"))
         f_ok.setMinimumWidth(75)
         f_ok.pressed.connect(ok_handler)
@@ -8915,8 +8913,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setWindowTitle(_("Undo history"))
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_widget = pydaw_history_log_widget(PROJECT.history,
-                                            global_ui_refresh_callback)
+        f_widget = pydaw_history_log_widget(
+            PROJECT.history, global_ui_refresh_callback)
         f_widget.populate_table()
         f_layout.addWidget(f_widget)
         f_window.setGeometry(
