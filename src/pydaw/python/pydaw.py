@@ -1757,8 +1757,8 @@ def global_tablewidget_to_region():
 def global_update_audio_track_comboboxes(a_index=None, a_value=None):
     if not a_index is None and not a_value is None:
         AUDIO_TRACK_NAMES[int(a_index)] = str(a_value)
-    global global_suppress_audio_track_combobox_changes
-    global_suppress_audio_track_combobox_changes = True
+    global SUPPRESS_AUDIO_TRACK_COMBOBOX_CHANGES
+    SUPPRESS_AUDIO_TRACK_COMBOBOX_CHANGES = True
     for f_cbox in global_audio_track_comboboxes:
         f_current_index = f_cbox.currentIndex()
         f_cbox.clear()
@@ -1766,7 +1766,7 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         f_cbox.addItems(AUDIO_TRACK_NAMES)
         f_cbox.setCurrentIndex(f_current_index)
 
-    global_suppress_audio_track_combobox_changes = False
+    SUPPRESS_AUDIO_TRACK_COMBOBOX_CHANGES = False
 
 global_bus_track_names = [
     _('Master'), _('Bus1'), _('Bus2'), _('Bus3'), _('Bus4')]
@@ -8369,12 +8369,12 @@ class transport_widget:
             self.group_box.setToolTip("")
 
 
-global_open_fx_ui_dicts = [{}, {}, {}, {}, {}]
-global_open_inst_ui_dict = {}
+OPEN_FX_UI_DICTS = [{}, {}, {}, {}, {}]
+OPEN_INST_UI_DICT = {}
 
 def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
-    global global_open_fx_ui_dicts
-    if not a_track_num in global_open_fx_ui_dicts[a_track_type]:
+    global OPEN_FX_UI_DICTS
+    if not a_track_num in OPEN_FX_UI_DICTS[a_track_type]:
         f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(
             global_plugin_rel_callback, global_plugin_val_callback,
             a_track_num, PROJECT, a_folder, a_track_type,
@@ -8383,18 +8383,17 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
 
         pydaw_center_widget_on_screen(f_modulex.widget)
         f_modulex.show_widget()
-        global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
+        OPEN_FX_UI_DICTS[a_track_type][a_track_num] = f_modulex
     else:
-        if global_open_fx_ui_dicts[a_track_type][
+        if OPEN_FX_UI_DICTS[a_track_type][
         a_track_num].widget.isHidden():
-            global_open_fx_ui_dicts[a_track_type][a_track_num].widget.show()
-        global_open_fx_ui_dicts[a_track_type][a_track_num].widget.raise_()
+            OPEN_FX_UI_DICTS[a_track_type][a_track_num].widget.show()
+        OPEN_FX_UI_DICTS[a_track_type][a_track_num].widget.raise_()
 
 
 def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
-    global global_open_inst_ui_dict
     f_track_num = int(a_track_num)
-    if not f_track_num in global_open_inst_ui_dict:
+    if not f_track_num in OPEN_INST_UI_DICT:
         if a_plugin_type == 1:
             f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(
                 global_plugin_rel_callback, global_plugin_val_callback,
@@ -8418,46 +8417,44 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
 
         pydaw_center_widget_on_screen(f_plugin.widget)
         f_plugin.show_widget()
-        global_open_inst_ui_dict[f_track_num] = f_plugin
+        OPEN_INST_UI_DICT[f_track_num] = f_plugin
     else:
-        if global_open_inst_ui_dict[f_track_num].widget.isHidden():
-            global_open_inst_ui_dict[f_track_num].widget.show()
-        global_open_inst_ui_dict[f_track_num].widget.raise_()
+        if OPEN_INST_UI_DICT[f_track_num].widget.isHidden():
+            OPEN_INST_UI_DICT[f_track_num].widget.show()
+        OPEN_INST_UI_DICT[f_track_num].widget.raise_()
 
 
 def global_close_inst_ui(a_track_num, a_delete_file=False):
     f_track_num = int(a_track_num)
-    global global_open_inst_ui_dict
-    if f_track_num in global_open_inst_ui_dict:
+    if f_track_num in OPEN_INST_UI_DICT:
         if a_delete_file:
-            global_open_inst_ui_dict[f_track_num].delete_plugin_file()
-        global_open_inst_ui_dict[f_track_num].widget.close()
-        global_open_inst_ui_dict.pop(f_track_num)
+            OPEN_INST_UI_DICT[f_track_num].delete_plugin_file()
+        OPEN_INST_UI_DICT[f_track_num].widget.close()
+        OPEN_INST_UI_DICT.pop(f_track_num)
 
 def global_inst_set_window_title(a_track_num, a_track_name):
     f_track_num = int(a_track_num)
-    global global_open_inst_ui_dict
-    if f_track_num in global_open_inst_ui_dict:
-        global_open_inst_ui_dict[f_track_num].set_window_title(a_track_name)
+    if f_track_num in OPEN_INST_UI_DICT:
+        OPEN_INST_UI_DICT[f_track_num].set_window_title(a_track_name)
 
 def global_fx_set_window_title(a_track_type, a_track_num, a_track_name):
     f_track_num = int(a_track_num)
     f_track_type = int(a_track_type)
-    global global_open_fx_ui_dicts
-    if f_track_num in global_open_fx_ui_dicts[f_track_type]:
-        global_open_fx_ui_dicts[f_track_type][
+    global OPEN_FX_UI_DICTS
+    if f_track_num in OPEN_FX_UI_DICTS[f_track_type]:
+        OPEN_FX_UI_DICTS[f_track_type][
             f_track_num].set_window_title(a_track_name)
 
 def global_fx_closed_callback(a_track_num, a_track_type):
     pass
-    #global global_open_fx_ui_dicts
+    #global OPEN_FX_UI_DICTS
     #Not doing anymore,just hiding
-    #global_open_fx_ui_dicts[a_track_type].pop(a_track_num)
+    #OPEN_FX_UI_DICTS[a_track_type].pop(a_track_num)
 
 def global_inst_closed_callback(a_track_num, a_track_type=None):
     pass
-    #global global_open_inst_ui_dict
-    #global_open_inst_ui_dict.pop(a_track_num)  #Not doing anymore, just hiding
+    #global OPEN_INST_UI_DICT
+    #OPEN_INST_UI_DICT.pop(a_track_num)  #Not doing anymore, just hiding
 
 def global_configure_plugin_callback(a_is_instrument, a_track_type,
                                      a_track_num, a_key, a_message):
@@ -8465,22 +8462,22 @@ def global_configure_plugin_callback(a_is_instrument, a_track_type,
         a_is_instrument, a_track_type, a_track_num, a_key, a_message)
 
 def global_close_all_plugin_windows():
-    global global_open_fx_ui_dicts, global_open_inst_ui_dict
-    for f_dict in global_open_fx_ui_dicts:
+    global OPEN_FX_UI_DICTS, OPEN_INST_UI_DICT
+    for f_dict in OPEN_FX_UI_DICTS:
         for v in list(f_dict.values()):
             v.is_quitting = True
             v.widget.close()
-    for v in list(global_open_inst_ui_dict.values()):
+    for v in list(OPEN_INST_UI_DICT.values()):
         v.is_quitting = True
         v.widget.close()
-    global_open_fx_ui_dicts = [{}, {}, {}, {}, {}]
-    global_open_inst_ui_dict = {}
+    OPEN_FX_UI_DICTS = [{}, {}, {}, {}, {}]
+    OPEN_INST_UI_DICT = {}
 
 def global_save_all_plugin_state():
-    for f_dict in global_open_fx_ui_dicts:
+    for f_dict in OPEN_FX_UI_DICTS:
         for v in list(f_dict.values()):
             v.save_plugin_file()
-    for v in list(global_open_inst_ui_dict.values()):
+    for v in list(OPEN_INST_UI_DICT.values()):
         v.save_plugin_file()
 
 
@@ -9075,7 +9072,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_proc_list.append((f_proc, f_out))
                 for f_proc, f_out in f_proc_list:
                     f_status_label.setText(f_out)
-                    app.processEvents()
+                    APP.processEvents()
                     f_proc.communicate()
             else:
                 f_cmd = get_cmd(f_input_file, f_output_file)
@@ -9262,7 +9259,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         #self.setMinimumSize(1100, 600)
         self.setObjectName("mainwindow")
 
-        app.setStyleSheet(global_stylesheet)
+        APP.setStyleSheet(global_stylesheet)
         self.first_offline_render = True
         self.last_offline_dir = global_home
         self.last_ac_dir = global_home
@@ -9539,13 +9536,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         for k, f_val in f_pc_dict.items():
             f_track_type, f_is_inst, f_track_num, f_port = k
             if int_to_bool(f_is_inst):
-                if int(f_track_num) in global_open_inst_ui_dict:
-                    global_open_inst_ui_dict[int(f_track_num)].set_control_val(
+                if int(f_track_num) in OPEN_INST_UI_DICT:
+                    OPEN_INST_UI_DICT[int(f_track_num)].set_control_val(
                         int(f_port), float(f_val))
             else:
-                if int(f_track_num) in global_open_fx_ui_dicts[
+                if int(f_track_num) in OPEN_FX_UI_DICTS[
                 int(f_track_type)]:
-                    global_open_fx_ui_dicts[int(f_track_type)]\
+                    OPEN_FX_UI_DICTS[int(f_track_type)]\
                         [int(f_track_num)].set_control_val(
                         int(f_port), float(f_val))
 
@@ -9624,11 +9621,11 @@ def pydaw_load_controller_maps():
 
 def pydaw_get_cc_map(a_name):
     return pydaw_cc_map.from_str(
-        pydaw_read_file_text("{}/{}".format(global_cc_map_folder, a_name)))
+        pydaw_read_file_text("{}/{}".format(CC_MAP_FOLDER, a_name)))
 
 def pydaw_save_cc_map(a_name, a_map):
     pydaw_write_file_text(
-        "{}/{}".format(global_cc_map_folder, a_name), str(a_map))
+        "{}/{}".format(CC_MAP_FOLDER, a_name), str(a_map))
 
 class pydaw_cc_map_editor:
     def add_map(self, a_item):
@@ -9840,10 +9837,10 @@ class pydaw_cc_map_editor:
         f_local_dir = global_pydaw_home
         if not os.path.isdir(f_local_dir):
             os.mkdir(f_local_dir)
-        if not os.path.isfile("{}/default".format(global_cc_map_folder)):
+        if not os.path.isfile("{}/default".format(CC_MAP_FOLDER)):
             pydaw_save_cc_map("default", pydaw_cc_map())
         self.current_map_name = "default"
-        self.cc_maps_list = os.listdir(global_cc_map_folder)
+        self.cc_maps_list = os.listdir(CC_MAP_FOLDER)
         self.cc_maps_list.sort()
         self.groupbox = QtGui.QGroupBox(_("Controllers"))
         self.groupbox.setFixedWidth(930)
@@ -10591,12 +10588,12 @@ def global_new_project(a_project_file, a_wait=True):
 
 PROJECT = pydaw_project(global_pydaw_with_audio)
 
-app = QtGui.QApplication(sys.argv)
+APP = QtGui.QApplication(sys.argv)
 
-global_cc_map_folder = "{}/cc_maps".format(global_pydaw_home)
+CC_MAP_FOLDER = "{}/cc_maps".format(global_pydaw_home)
 
-if not os.path.isdir(global_cc_map_folder):
-    os.makedirs(global_cc_map_folder)
+if not os.path.isdir(CC_MAP_FOLDER):
+    os.makedirs(CC_MAP_FOLDER)
 
 pydaw_load_controller_maps()
 
@@ -10610,10 +10607,10 @@ CRISPNESS_SETTINGS = [_("0 (smeared)"), _("1 (piano)"), "2", "3",
 AUDIO_TRACK_NAMES = ["track{}".format(x + 1) for x in
     range(pydaw_audio_track_count)]
 
-global_suppress_audio_track_combobox_changes = False
+SUPPRESS_AUDIO_TRACK_COMBOBOX_CHANGES = False
 global_audio_track_comboboxes = []
 
-app.setWindowIcon(QtGui.QIcon("{}/share/pixmaps/{}.png".format(
+APP.setWindowIcon(QtGui.QIcon("{}/share/pixmaps/{}.png".format(
                   pydaw_util.global_pydaw_install_prefix,
                   global_pydaw_version_string)))
 
@@ -10795,10 +10792,10 @@ def open_pydaw_engine(a_project_path):
 TRANSPORT = transport_widget()
 AUDIO_SEQ_WIDGET = audio_items_viewer_widget()
 
-TOOLTIPS_ENABLED_file = "{}/tooltips.txt".format(global_pydaw_home)
+TOOLTIPS_ENABLED_FILE = "{}/tooltips.txt".format(global_pydaw_home)
 
-if os.path.isfile(TOOLTIPS_ENABLED_file):
-    if pydaw_read_file_text(TOOLTIPS_ENABLED_file) == "True":
+if os.path.isfile(TOOLTIPS_ENABLED_FILE):
+    if pydaw_read_file_text(TOOLTIPS_ENABLED_FILE) == "True":
         TOOLTIPS_ENABLED = True
 
 # Must call this after instantiating the other widgets,
@@ -10831,11 +10828,11 @@ else:
 
 if os.path.exists(default_project_file) and \
 not os.access(os.path.dirname(default_project_file), os.W_OK):
-    QtGui.QMessageBox.warning(WAVE_EDITOR.widget, _("Error"),
-                              _("You do not have read+write permissions "
-                              "to {}, please correct "
-                              "this and restart PyDAW".format(
-                              os.path.dirname(default_project_file))))
+    QtGui.QMessageBox.warning(
+        WAVE_EDITOR.widget, _("Error"),
+        _("You do not have read+write permissions to {}, please correct "
+        "this and restart PyDAW".format(
+        os.path.dirname(default_project_file))))
     exit(999)
 
 if os.path.exists(default_project_file):
@@ -10884,8 +10881,8 @@ def final_gc():
 
 def flush_events():
     for f_i in range(1, 10):
-        if app.hasPendingEvents():
-            app.processEvents()
+        if APP.hasPendingEvents():
+            APP.processEvents()
             time.sleep(0.1)
         else:
             print("Successfully processed all pending events "
@@ -10893,14 +10890,14 @@ def flush_events():
             return
     print("Could not process all events")
 
-app.lastWindowClosed.connect(app.quit)
-app.setStyle(QtGui.QStyleFactory.create("Fusion"))
-app.exec_()
+APP.lastWindowClosed.connect(APP.quit)
+APP.setStyle(QtGui.QStyleFactory.create("Fusion"))
+APP.exec_()
 time.sleep(0.6)
 flush_events()
-app.deleteLater()
+APP.deleteLater()
 time.sleep(0.6)
-app = None
+APP = None
 time.sleep(0.6)
 final_gc()
 
