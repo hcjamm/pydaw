@@ -27,8 +27,15 @@ from .libsndfile import _lib
 
 from .libsndfile import OPEN_MODES, SEEK_MODES, SF_INFO
 
-_tagencoding = 'utf8' # TODO: This is wrong, this info should be provided by the audio file
-_errorencoding = 'utf8' # ascii would be enough but utf8 is wider
+# Vorbis and Flac use utf8.
+# WAV/AIFF use ascii, but if chars beyond 127 are found,
+# we chose to interpret them as utf8. That migth be a wrong choice.
+# Same for writing, if users sets a non ASCII char in tag,
+# it will be encoded as utf8 which is a non-standard convention of us.
+_tagencoding = 'utf8'
+
+# ascii would be enough for libsndfile error messages but utf8 is wider
+_errorencoding = 'utf8'
 
 def _fsencode(filename) :
     if type(filename) == type(u'') :
@@ -77,27 +84,27 @@ class Format :
     FLOAT      = 0x0006    # 32 bit float data
     DOUBLE     = 0x0007    # 64 bit float data
 
-    ULAW       = 0x0010    # U-Law encoded.
-    ALAW       = 0x0011    # A-Law encoded.
-    IMA_ADPCM  = 0x0012    # IMA ADPCM.
-    MS_ADPCM   = 0x0013    # Microsoft ADPCM.
+    ULAW       = 0x0010    # U-Law encoded
+    ALAW       = 0x0011    # A-Law encoded
+    IMA_ADPCM  = 0x0012    # IMA ADPCM
+    MS_ADPCM   = 0x0013    # Microsoft ADPCM
 
-    GSM610     = 0x0020    # GSM 6.10 encoding.
+    GSM610     = 0x0020    # GSM 6.10 encoding
     VOX_ADPCM  = 0x0021    # OKI / Dialogix ADPCM
 
-    G721_32    = 0x0030    # 32kbs G721 ADPCM encoding.
-    G723_24    = 0x0031    # 24kbs G723 ADPCM encoding.
-    G723_40    = 0x0032    # 40kbs G723 ADPCM encoding.
+    G721_32    = 0x0030    # 32kbs G721 ADPCM encoding
+    G723_24    = 0x0031    # 24kbs G723 ADPCM encoding
+    G723_40    = 0x0032    # 40kbs G723 ADPCM encoding
 
-    DWVW_12    = 0x0040    # 12 bit Delta Width Variable Word encoding.
-    DWVW_16    = 0x0041    # 16 bit Delta Width Variable Word encoding.
-    DWVW_24    = 0x0042    # 24 bit Delta Width Variable Word encoding.
-    DWVW_N     = 0x0043    # N bit Delta Width Variable Word encoding.
+    DWVW_12    = 0x0040    # 12 bit Delta Width Variable Word encoding
+    DWVW_16    = 0x0041    # 16 bit Delta Width Variable Word encoding
+    DWVW_24    = 0x0042    # 24 bit Delta Width Variable Word encoding
+    DWVW_N     = 0x0043    # N bit Delta Width Variable Word encoding
 
     DPCM_8     = 0x0050    # 8 bit differential PCM (XI only)
     DPCM_16    = 0x0051    # 16 bit differential PCM (XI only)
 
-    VORBIS     = 0x0060    # Xiph Vorbis encoding.
+    VORBIS     = 0x0060    # Xiph Vorbis encoding
 
     # Endian-ness options.
 
@@ -110,6 +117,10 @@ class Format :
     TYPEMASK = 0x0FFF0000
     ENDMASK  = 0x30000000
 
+class Seek() :
+    SET = SEEK_MODES.SEEK_SET # Relative to the begining of the file
+    CUR = SEEK_MODES.SEEK_CUR # Relative to the last read frame
+    END = SEEK_MODES.SEEK_END # Relative to the end of the file
 
 
 class WaveMetadata(object) :
@@ -270,37 +281,38 @@ class WaveReader(object) :
             "Buffer storage be column-major order. Consider using buffer(size)"
         if data.dtype==np.float64 :
             return _lib.sf_readf_double(self._sndfile, data.ctypes.data_as(ctypes.POINTER(ctypes.c_double)), frames)
-        elif data.dtype==np.float32 :
+        if data.dtype==np.float32 :
             return _lib.sf_readf_float(self._sndfile, data.ctypes.data_as(ctypes.POINTER(ctypes.c_float)), frames)
-        elif data.dtype==np.int16 :
+        if data.dtype==np.int16 :
             return _lib.sf_readf_short(self._sndfile, data.ctypes.data_as(ctypes.POINTER(ctypes.c_short)), frames)
-        elif data.dtype==np.int32 :
+        if data.dtype==np.int32 :
             return _lib.sf_readf_int(self._sndfile, data.ctypes.data_as(ctypes.POINTER(ctypes.c_int)), frames)
-        else:
-            raise TypeError("Please choose a correct dtype")
+        raise TypeError("Please choose a correct dtype")
+
+    def seek(self, frames, whence=Seek.SET) :
+       return _lib.sf_seek(self._sndfile, frames, whence)
 
 def loadWave(filename) :
     with WaveReader(filename) as r :
         blockSize = 512
-        data = np.empty((r.frames, r.channels), dtype=np.float32)
+        data = r.buffer(r.frames)
         fullblocks = r.frames // blockSize
         lastBlockSize = r.frames % blockSize
         for i in range(fullblocks) :
-            readframes = r.read(data[i*blockSize:(i+1)*blockSize,:])
+            readframes = r.read(data[:,i*blockSize:(i+1)*blockSize])
             assert readframes == blockSize
         if lastBlockSize :
-            readframes = r.read(data[fullblocks*blockSize:,:])
+            readframes = r.read(data[:,fullblocks*blockSize:])
             assert readframes == lastBlockSize
         return r.samplerate, data
 
 def saveWave(filename, data, samplerate, verbose=False) :
     if verbose: print("Saving wave file:",filename)
     blockSize = 512
-    frames, channels = data.shape
+    channels, frames = data.shape
     fullblocks = frames // blockSize
     lastBlockSize = frames % blockSize
     with WaveWriter(filename, channels=channels, samplerate=samplerate) as w :
-        assert data.dtype == np.float32
         for i in range(fullblocks) :
             w.write(data[blockSize*i:blockSize*(i+1)])
         if lastBlockSize :
