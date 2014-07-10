@@ -23,15 +23,15 @@ from PyQt4 import QtGui, QtCore
 import numpy
 
 
-global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
-global_knob_arc_gradient.setColorAt(
+KNOB_ARC_GRADIENT = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
+KNOB_ARC_GRADIENT.setColorAt(
     0.0, QtGui.QColor.fromRgb(60, 60, 255, 255))
-global_knob_arc_gradient.setColorAt(
+KNOB_ARC_GRADIENT.setColorAt(
     0.25, QtGui.QColor.fromRgb(255, 120, 0, 255))
-global_knob_arc_gradient.setColorAt(
+KNOB_ARC_GRADIENT.setColorAt(
     0.75, QtGui.QColor.fromRgb(255, 0, 0, 255))
-global_knob_arc_pen = QtGui.QPen(
-    global_knob_arc_gradient, 5.0, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap,
+KNOB_ARC_PEN = QtGui.QPen(
+    KNOB_ARC_GRADIENT, 5.0, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap,
     QtCore.Qt.RoundJoin)
 
 class pydaw_plugin_file:
@@ -80,28 +80,28 @@ class pydaw_plugin_file:
             f_result += "{}|{}\n".format(int(k), int(v.get_value()))
         return f_result + "\\"
 
-global_pydaw_knob_pixmap = None
-global_pydaw_knob_pixmap_cache = {}
+PYDAW_KNOB_PIXMAP = None
+PYDAW_KNOB_PIXMAP_CACHE = {}
 
 def get_scaled_pixmap_knob(a_size):
-    global global_pydaw_knob_pixmap, global_pydaw_knob_pixmap_cache
-    if global_pydaw_knob_pixmap is None:
-        global_pydaw_knob_pixmap = QtGui.QPixmap(
+    global PYDAW_KNOB_PIXMAP, PYDAW_KNOB_PIXMAP_CACHE
+    if PYDAW_KNOB_PIXMAP is None:
+        PYDAW_KNOB_PIXMAP = QtGui.QPixmap(
             "{}/pydaw-knob.png".format(pydaw_util.global_stylesheet_dir))
 
-    if not a_size in global_pydaw_knob_pixmap_cache:
-        global_pydaw_knob_pixmap_cache[
-            a_size] = global_pydaw_knob_pixmap.scaled(a_size, a_size,
+    if not a_size in PYDAW_KNOB_PIXMAP_CACHE:
+        PYDAW_KNOB_PIXMAP_CACHE[
+            a_size] = PYDAW_KNOB_PIXMAP.scaled(a_size, a_size,
             QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
 
-    return global_pydaw_knob_pixmap_cache[a_size]
+    return PYDAW_KNOB_PIXMAP_CACHE[a_size]
 
-global_cc_clipboard = None
-global_tempo = 140.0
+CC_CLIPBOARD = None
+TEMPO = 140.0
 
 def set_global_tempo(a_tempo):
-    global global_tempo
-    global_tempo = a_tempo
+    global TEMPO
+    TEMPO = a_tempo
 
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val):
@@ -124,7 +124,7 @@ class pydaw_pixmap_knob(QtGui.QDial):
         f_rect.setHeight(f_rect.height() - 3)
         f_rect.setX(f_rect.x() + 3)
         f_rect.setY(f_rect.y() + 3)
-        p.setPen(global_knob_arc_pen)
+        p.setPen(KNOB_ARC_PEN)
         p.drawArc(f_rect, -136 * 16, (f_rotate_value + 1.0) * -16)
         p.setRenderHints(
             QtGui.QPainter.HighQualityAntialiasing |
@@ -188,7 +188,7 @@ kc_time_decimal = 8
 kc_hz_decimal = 9
 kc_int_pitch = 10
 
-global_last_tempo_combobox_index = 2
+LAST_TEMPO_COMBOBOX_INDEX = 2
 
 class pydaw_abstract_ui_control:
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback,
@@ -310,7 +310,7 @@ class pydaw_abstract_ui_control:
 
     def tempo_sync_dialog(self):
         def sync_button_pressed(a_self=None):
-            global global_last_tempo_combobox_index
+            global LAST_TEMPO_COMBOBOX_INDEX
             f_frac = 1.0
             f_switch = (f_beat_frac_combobox.currentIndex())
             f_dict = {0 : 0.25, 1 : 0.33333, 2 : 0.5, 3 : 0.666666, 4 : 0.75,
@@ -326,8 +326,7 @@ class pydaw_abstract_ui_control:
             f_result = pydaw_util.pydaw_clip_value(
                 f_result, self.control.minimum(), self.control.maximum())
             self.control.setValue(f_result)
-            global_last_tempo_combobox_index = \
-                f_beat_frac_combobox.currentIndex()
+            LAST_TEMPO_COMBOBOX_INDEX = f_beat_frac_combobox.currentIndex()
             f_dialog.close()
         f_dialog = QtGui.QDialog(self.control)
         f_dialog.setWindowTitle(_("Tempo Sync"))
@@ -336,13 +335,13 @@ class pydaw_abstract_ui_control:
         f_spinbox.setDecimals(1)
         f_spinbox.setRange(60, 200)
         f_spinbox.setSingleStep(0.1)
-        f_spinbox.setValue(global_tempo)
+        f_spinbox.setValue(TEMPO)
         f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16",
                         "1/4", "2/4", "4/4"]
         f_beat_frac_combobox =  QtGui.QComboBox()
         f_beat_frac_combobox.setMinimumWidth(75)
         f_beat_frac_combobox.addItems(f_beat_fracs)
-        f_beat_frac_combobox.setCurrentIndex(global_last_tempo_combobox_index)
+        f_beat_frac_combobox.setCurrentIndex(LAST_TEMPO_COMBOBOX_INDEX)
         f_sync_button =  QtGui.QPushButton(_("Sync"))
         f_sync_button.pressed.connect(sync_button_pressed)
         f_cancel_button = QtGui.QPushButton(_("Cancel"))
@@ -442,13 +441,13 @@ class pydaw_abstract_ui_control:
         f_dialog.exec_()
 
     def copy_automation(self):
-        global global_cc_clipboard
+        global CC_CLIPBOARD
         f_value = ((self.get_value() - self.control.minimum()) /
                   (self.control.maximum() - self.control.minimum())) * 127.0
-        global_cc_clipboard = pydaw_util.pydaw_clip_value(f_value, 0.0, 127.0)
+        CC_CLIPBOARD = pydaw_util.pydaw_clip_value(f_value, 0.0, 127.0)
 
     def paste_automation(self):
-        f_frac = global_cc_clipboard / 127.0
+        f_frac = CC_CLIPBOARD / 127.0
         f_frac = pydaw_util.pydaw_clip_value(f_frac, 0.0, 1.0)
         f_min = self.control.minimum()
         f_max = self.control.maximum()
@@ -464,7 +463,7 @@ class pydaw_abstract_ui_control:
         f_menu.addSeparator()
         f_copy_automation_action = f_menu.addAction(_("Copy"))
         f_copy_automation_action.triggered.connect(self.copy_automation)
-        if global_cc_clipboard:
+        if CC_CLIPBOARD:
             f_paste_automation_action = f_menu.addAction(_("Paste"))
             f_paste_automation_action.triggered.connect(self.paste_automation)
         f_menu.addSeparator()
@@ -1206,7 +1205,7 @@ class pydaw_abstract_file_browser_widget():
         f_file = QtGui.QFileDialog.getSaveFileName(
             parent=self.bookmarks_tab, caption=_('Save bookmark file...'),
             directory=pydaw_util.global_home,
-            filter=global_bm_file_dialog_string)
+            filter=BM_FILE_DIALOG_STRING)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             if not f_file.endswith(".pybm4"):
@@ -1218,7 +1217,7 @@ class pydaw_abstract_file_browser_widget():
         f_file = QtGui.QFileDialog.getOpenFileName(
             parent=self.bookmarks_tab, caption=_('Open bookmark file...'),
             directory=pydaw_util.global_home,
-            filter=global_bm_file_dialog_string)
+            filter=BM_FILE_DIALOG_STRING)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             os.system('cp "{}" "{}"'.format(
@@ -1552,10 +1551,10 @@ class pydaw_preset_browser_widget:
     def on_reload(self):
         pass
 
-global_preset_file_dialog_string = 'PyDAW Presets (*.pypresets)'
-global_bm_file_dialog_string = 'PyDAW Bookmarks (*.pybm4)'
-global_plugin_settings_clipboard = {}
-global_plugin_configure_clipboard = None
+PRESET_FILE_DIALOG_STRING = 'PyDAW Presets (*.pypresets)'
+BM_FILE_DIALOG_STRING = 'PyDAW Bookmarks (*.pybm4)'
+PLUGIN_SETTINGS_CLIPBOARD = {}
+PLUGIN_CONFIGURE_CLIPBOARD = None
 
 class pydaw_preset_manager_widget:
     def __init__(self, a_plugin_name, a_configure_dict=None,
@@ -1643,24 +1642,24 @@ class pydaw_preset_manager_widget:
         f_result = {}
         for k, v in self.controls.items():
             f_result[k] = v.get_value()
-        global_plugin_settings_clipboard[self.plugin_name] = f_result
-        global global_plugin_configure_clipboard
+        PLUGIN_SETTINGS_CLIPBOARD[self.plugin_name] = f_result
+        global PLUGIN_CONFIGURE_CLIPBOARD
         if self.configure_dict is None:
-            global_plugin_configure_clipboard = None
+            PLUGIN_CONFIGURE_CLIPBOARD = None
         else:
-            global_plugin_configure_clipboard = self.configure_dict.copy()
+            PLUGIN_CONFIGURE_CLIPBOARD = self.configure_dict.copy()
 
     def on_paste(self):
-        if not self.plugin_name in global_plugin_settings_clipboard:
+        if not self.plugin_name in PLUGIN_SETTINGS_CLIPBOARD:
             QtGui.QMessageBox.warning(self.group_box, _("Error"),
                 _("Nothing copied to clipboard for {}").format(
                 self.plugin_name))
             return
-        f_dict = global_plugin_settings_clipboard[self.plugin_name]
+        f_dict = PLUGIN_SETTINGS_CLIPBOARD[self.plugin_name]
         for k, v in f_dict.items():
             self.controls[k].set_value(v, True)
-        if global_plugin_configure_clipboard is not None:
-            self.reconfigure_callback(global_plugin_configure_clipboard)
+        if PLUGIN_CONFIGURE_CLIPBOARD is not None:
+            self.reconfigure_callback(PLUGIN_CONFIGURE_CLIPBOARD)
 
     def on_new_bank(self):
         self.on_save_as(True)
@@ -1669,7 +1668,7 @@ class pydaw_preset_manager_widget:
         f_file = QtGui.QFileDialog.getSaveFileName(
             parent=self.group_box, caption=_('Save preset bank...'),
             directory=pydaw_util.global_home,
-            filter=global_preset_file_dialog_string)
+            filter=PRESET_FILE_DIALOG_STRING)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             if not f_file.endswith(".pypresets"):
@@ -1690,7 +1689,7 @@ class pydaw_preset_manager_widget:
         f_file = QtGui.QFileDialog.getOpenFileName(
             parent=self.group_box, caption=_('Open preset bank...'),
             directory=pydaw_util.global_home,
-            filter=global_preset_file_dialog_string)
+            filter=PRESET_FILE_DIALOG_STRING)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             self.preset_path = f_file
@@ -1847,43 +1846,42 @@ class pydaw_master_widget:
             self.mono_combobox.add_to_grid_layout(self.layout, 5)
 
 
-global_eq_point_diameter = 12.0
-global_eq_point_radius = global_eq_point_diameter * 0.5
-global_eq_width = 600
-global_eq_height = 300
-global_eq_octave_px = (global_eq_width / (100.0 / 12.0))
+EQ_POINT_DIAMETER = 12.0
+EQ_POINT_RADIUS = EQ_POINT_DIAMETER * 0.5
+EQ_WIDTH = 600
+EQ_HEIGHT = 300
+EQ_OCTAVE_PX = (EQ_WIDTH / (100.0 / 12.0))
 
-global_eq_gradient = QtGui.QLinearGradient(0, 0, global_eq_point_diameter,
-                                           global_eq_point_diameter)
-global_eq_gradient.setColorAt(0, QtGui.QColor(255, 255, 255))
-global_eq_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
+EQ_GRADIENT = QtGui.QLinearGradient(0, 0, EQ_POINT_DIAMETER, EQ_POINT_DIAMETER)
+EQ_GRADIENT.setColorAt(0, QtGui.QColor(255, 255, 255))
+EQ_GRADIENT.setColorAt(1, QtGui.QColor(240, 240, 240))
 
-global_eq_fill = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_eq_height)
+EQ_FILL = QtGui.QLinearGradient(0.0, 0.0, 0.0, EQ_HEIGHT)
 
-global_eq_fill.setColorAt(0.0, QtGui.QColor(255, 0, 0, 90)) #red
-global_eq_fill.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 90)) #orange
-global_eq_fill.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 90)) #yellow
-global_eq_fill.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 90)) #green
-global_eq_fill.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 90)) #blue
-global_eq_fill.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 90)) #indigo
-global_eq_fill.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 90)) #violet
+EQ_FILL.setColorAt(0.0, QtGui.QColor(255, 0, 0, 90)) #red
+EQ_FILL.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 90)) #orange
+EQ_FILL.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 90)) #yellow
+EQ_FILL.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 90)) #green
+EQ_FILL.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 90)) #blue
+EQ_FILL.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 90)) #indigo
+EQ_FILL.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 90)) #violet
 
-global_eq_background = QtGui.QLinearGradient(0.0, 0.0, 0.0, global_eq_height)
+EQ_BACKGROUND = QtGui.QLinearGradient(0.0, 0.0, 0.0, EQ_HEIGHT)
 
-global_eq_background.setColorAt(0.0, QtGui.QColor(40, 40, 40))
-global_eq_background.setColorAt(0.1, QtGui.QColor(20, 20, 20))
-global_eq_background.setColorAt(0.9, QtGui.QColor(30, 30, 30))
-global_eq_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
+EQ_BACKGROUND.setColorAt(0.0, QtGui.QColor(40, 40, 40))
+EQ_BACKGROUND.setColorAt(0.1, QtGui.QColor(20, 20, 20))
+EQ_BACKGROUND.setColorAt(0.9, QtGui.QColor(30, 30, 30))
+EQ_BACKGROUND.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
 class eq_item(QtGui.QGraphicsEllipseItem):
     def __init__(self, a_eq, a_num, a_val_callback):
         QtGui.QGraphicsEllipseItem.__init__(
-            self, 0, 0, global_eq_point_diameter, global_eq_point_diameter)
+            self, 0, 0, EQ_POINT_DIAMETER, EQ_POINT_DIAMETER)
         self.val_callback = a_val_callback
         self.eq = a_eq
         self.num = a_num
         self.setToolTip("EQ{}".format(self.num))
-        self.setBrush(global_eq_gradient)
+        self.setBrush(EQ_GRADIENT)
         self.mapToScene(0.0, 0.0)
         self.path_item = None
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
@@ -1892,9 +1890,9 @@ class eq_item(QtGui.QGraphicsEllipseItem):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
         f_pos = self.pos()
         f_pos_x = pydaw_util.pydaw_clip_value(
-            f_pos.x(), -global_eq_point_radius, global_eq_width)
+            f_pos.x(), -EQ_POINT_RADIUS, EQ_WIDTH)
         f_pos_y = pydaw_util.pydaw_clip_value(
-            f_pos.y(), -global_eq_point_radius, global_eq_height)
+            f_pos.y(), -EQ_POINT_RADIUS, EQ_HEIGHT)
 
         if f_pos_x != f_pos.x() or f_pos_y != f_pos.y():
             self.setPos(f_pos_x, f_pos_y)
@@ -1915,18 +1913,18 @@ class eq_item(QtGui.QGraphicsEllipseItem):
         f_freq = self.eq.freq_knob.get_value()
         f_gain = self.eq.gain_knob.get_value()
         f_x = (((f_freq - 20.0) * 0.01) *
-            global_eq_width) - global_eq_point_radius
+            EQ_WIDTH) - EQ_POINT_RADIUS
         f_y = ((1.0 - ((f_gain + 24.0) / 48.0)) *
-            global_eq_height) - global_eq_point_radius
+            EQ_HEIGHT) - EQ_POINT_RADIUS
         self.setPos(f_x, f_y)
         self.draw_path_item()
 
     def get_value(self):
         f_pos = self.pos()
-        f_freq = (((f_pos.x() + global_eq_point_radius) / global_eq_width) *
+        f_freq = (((f_pos.x() + EQ_POINT_RADIUS) / EQ_WIDTH) *
             100.0) + 20.0
-        f_gain = ((1.0 - ((f_pos.y() + global_eq_point_radius) /
-            global_eq_height)) * 48.0) - 24.0
+        f_gain = ((1.0 - ((f_pos.y() + EQ_POINT_RADIUS) /
+            EQ_HEIGHT)) * 48.0) - 24.0
         return round(f_freq, 2), round(f_gain, 2)
 
     def __lt__(self, other):
@@ -1943,20 +1941,20 @@ class eq_item(QtGui.QGraphicsEllipseItem):
 
         f_pos = self.pos()
         f_bw = (f_res * 0.01)
-        f_point_x = f_pos.x() + global_eq_point_radius
-        f_point_y = f_pos.y() + global_eq_point_radius
-        f_start_x = f_point_x - ((f_bw * 0.5 * global_eq_octave_px))
-        f_end_x = f_point_x + ((f_bw * 0.5 * global_eq_octave_px))
+        f_point_x = f_pos.x() + EQ_POINT_RADIUS
+        f_point_y = f_pos.y() + EQ_POINT_RADIUS
+        f_start_x = f_point_x - ((f_bw * 0.5 * EQ_OCTAVE_PX))
+        f_end_x = f_point_x + ((f_bw * 0.5 * EQ_OCTAVE_PX))
 
-        f_path.moveTo(f_start_x, global_eq_height * 0.5)
+        f_path.moveTo(f_start_x, EQ_HEIGHT * 0.5)
 
         f_path.lineTo(f_point_x, f_point_y)
 
-        f_path.lineTo(f_end_x, global_eq_height * 0.5)
+        f_path.lineTo(f_end_x, EQ_HEIGHT * 0.5)
 
         self.path_item = QtGui.QGraphicsPathItem(f_path)
         self.path_item.setPen(f_line_pen)
-        self.path_item.setBrush(global_eq_fill)
+        self.path_item.setBrush(EQ_FILL)
         self.scene().addItem(self.path_item)
 
 
@@ -1966,7 +1964,7 @@ class eq_viewer(QtGui.QGraphicsView):
         self.val_callback = a_val_callback
         self.eq_points = []
         self.scene = QtGui.QGraphicsScene(self)
-        self.scene.setBackgroundBrush(global_eq_background)
+        self.scene.setBackgroundBrush(EQ_BACKGROUND)
         self.setScene(self.scene)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -1975,9 +1973,9 @@ class eq_viewer(QtGui.QGraphicsView):
         self.last_y_scale = 1.0
         self.eq_points = []
         self.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.setSceneRect(-global_eq_point_radius, -global_eq_point_radius,
-                          global_eq_width + global_eq_point_radius,
-                          global_eq_height + global_eq_point_diameter)
+        self.setSceneRect(-EQ_POINT_RADIUS, -EQ_POINT_RADIUS,
+                          EQ_WIDTH + EQ_POINT_RADIUS,
+                          EQ_HEIGHT + EQ_POINT_DIAMETER)
 
     def draw_eq(self, a_eq_list=[]):
         f_hline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 90), 1.0)
@@ -1989,32 +1987,32 @@ class eq_viewer(QtGui.QGraphicsView):
 
         f_y_pos = 0.0
         f_db = 24.0
-        f_inc = (global_eq_height * 0.5) * 0.25
+        f_inc = (EQ_HEIGHT * 0.5) * 0.25
 
         for i in range(4):
             self.scene.addLine(
-                0.0, f_y_pos, global_eq_width, f_y_pos, f_hline_pen)
+                0.0, f_y_pos, EQ_WIDTH, f_y_pos, f_hline_pen)
             f_label = QtGui.QGraphicsSimpleTextItem(
                 "{}".format(f_db), scene=self.scene)
-            f_label.setPos(global_eq_width - 36.0, f_y_pos + 3.0)
+            f_label.setPos(EQ_WIDTH - 36.0, f_y_pos + 3.0)
             f_label.setBrush(QtCore.Qt.white)
             f_db -= 6.0
             f_y_pos += f_inc
 
         self.scene.addLine(
-            0.0, global_eq_height * 0.5, global_eq_width,
-            global_eq_height * 0.5,
+            0.0, EQ_HEIGHT * 0.5, EQ_WIDTH,
+            EQ_HEIGHT * 0.5,
             QtGui.QPen(QtGui.QColor(255, 255, 255, 210), 2.0))
 
-        f_y_pos = global_eq_height
+        f_y_pos = EQ_HEIGHT
         f_db = -24.0
 
         for i in range(4):
             self.scene.addLine(
-                0.0, f_y_pos, global_eq_width, f_y_pos, f_hline_pen)
+                0.0, f_y_pos, EQ_WIDTH, f_y_pos, f_hline_pen)
             f_label = QtGui.QGraphicsSimpleTextItem(
                 "{}".format(f_db), scene=self.scene)
-            f_label.setPos(global_eq_width - 36.0, f_y_pos - 24.0)
+            f_label.setPos(EQ_WIDTH - 36.0, f_y_pos - 24.0)
             f_label.setBrush(QtCore.Qt.white)
             f_db += 6.0
             f_y_pos -= f_inc
@@ -2022,7 +2020,7 @@ class eq_viewer(QtGui.QGraphicsView):
         f_label_pos = 0.0
         f_pitch = 20.0
         f_pitch_inc = 17.0
-        f_label_inc = global_eq_width / (100.0 / f_pitch_inc)
+        f_label_inc = EQ_WIDTH / (100.0 / f_pitch_inc)
 
         for i in range(6):
             f_hz = int(pydaw_util.pydaw_pitch_to_hz(f_pitch))
@@ -2031,9 +2029,9 @@ class eq_viewer(QtGui.QGraphicsView):
                 f_hz = "{}khz".format(round(f_hz / 1000, 1))
             f_label = QtGui.QGraphicsSimpleTextItem(
                 "{}".format(f_hz), scene=self.scene)
-            f_label.setPos(f_label_pos + 4.0, global_eq_height - 30.0)
+            f_label.setPos(f_label_pos + 4.0, EQ_HEIGHT - 30.0)
             self.scene.addLine(
-                f_label_pos, 0.0, f_label_pos, global_eq_height, f_vline_pen)
+                f_label_pos, 0.0, f_label_pos, EQ_HEIGHT, f_vline_pen)
             f_label.setBrush(QtCore.Qt.white)
             f_label_pos += f_label_inc
             f_pitch += f_pitch_inc
@@ -2051,10 +2049,10 @@ class eq_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
         self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
         f_rect = self.rect()
-        self.last_x_scale = f_rect.width() / (global_eq_width +
-            global_eq_point_diameter + 3.0)
-        self.last_y_scale = f_rect.height() / (global_eq_height +
-            global_eq_point_diameter + 3.0)
+        self.last_x_scale = f_rect.width() / (EQ_WIDTH +
+            EQ_POINT_DIAMETER + 3.0)
+        self.last_y_scale = f_rect.height() / (EQ_HEIGHT +
+            EQ_POINT_DIAMETER + 3.0)
         self.scale(self.last_x_scale, self.last_y_scale)
 
 
@@ -2298,47 +2296,42 @@ class pydaw_abstract_custom_oscillator:
         pass
 
 
-global_additive_osc_height = 310
-global_additive_osc_inc = 10
-global_additive_max_y_pos = \
-    global_additive_osc_height - global_additive_osc_inc
-global_additive_osc_harmonic_count = 32
-global_additive_osc_bar_width = 10
-global_additive_osc_width = \
-    global_additive_osc_harmonic_count * global_additive_osc_bar_width
-global_additive_wavetable_size = 1024
-#global_additive_osc_height_div2 = global_additive_osc_height * 0.5
+ADDITIVE_OSC_HEIGHT = 310
+ADDITIVE_OSC_INC = 10
+ADDITIVE_MAX_Y_POS = ADDITIVE_OSC_HEIGHT - ADDITIVE_OSC_INC
+ADDITIVE_OSC_HARMONIC_COUNT = 32
+ADDITIVE_OSC_BAR_WIDTH = 10
+ADDITIVE_OSC_WIDTH = ADDITIVE_OSC_HARMONIC_COUNT * ADDITIVE_OSC_BAR_WIDTH
+ADDITIVE_WAVETABLE_SIZE = 1024
+#ADDITIVE_OSC_HEIGHT_div2 = ADDITIVE_OSC_HEIGHT * 0.5
 
+ADD_OSC_FILL = QtGui.QLinearGradient(0.0, 0.0, 0.0, ADDITIVE_OSC_HEIGHT)
 
-global_add_osc_fill = QtGui.QLinearGradient(
-    0.0, 0.0, 0.0, global_additive_osc_height)
+ADD_OSC_FILL.setColorAt(0.0, QtGui.QColor(255, 0, 0, 90)) #red
+ADD_OSC_FILL.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 90)) #orange
+ADD_OSC_FILL.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 90)) #yellow
+ADD_OSC_FILL.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 90)) #green
+ADD_OSC_FILL.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 90)) #blue
+ADD_OSC_FILL.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 90)) #indigo
+ADD_OSC_FILL.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 90)) #violet
 
-global_add_osc_fill.setColorAt(0.0, QtGui.QColor(255, 0, 0, 90)) #red
-global_add_osc_fill.setColorAt(0.14285, QtGui.QColor(255, 123, 0, 90)) #orange
-global_add_osc_fill.setColorAt(0.2857, QtGui.QColor(255, 255, 0, 90)) #yellow
-global_add_osc_fill.setColorAt(0.42855, QtGui.QColor(0, 255, 0, 90)) #green
-global_add_osc_fill.setColorAt(0.5714, QtGui.QColor(0, 123, 255, 90)) #blue
-global_add_osc_fill.setColorAt(0.71425, QtGui.QColor(0, 0, 255, 90)) #indigo
-global_add_osc_fill.setColorAt(0.8571, QtGui.QColor(255, 0, 255, 90)) #violet
+ADD_OSC_BACKGROUND = QtGui.QLinearGradient(0.0, 0.0, 10.0, ADDITIVE_OSC_HEIGHT)
+ADD_OSC_BACKGROUND.setColorAt(0.0, QtGui.QColor(40, 40, 40))
+ADD_OSC_BACKGROUND.setColorAt(0.2, QtGui.QColor(20, 20, 20))
+ADD_OSC_BACKGROUND.setColorAt(0.7, QtGui.QColor(30, 30, 30))
+ADD_OSC_BACKGROUND.setColorAt(1.0, QtGui.QColor(40, 40, 40))
 
-global_add_osc_background = QtGui.QLinearGradient(
-    0.0, 0.0, 10.0, global_additive_osc_height)
-global_add_osc_background.setColorAt(0.0, QtGui.QColor(40, 40, 40))
-global_add_osc_background.setColorAt(0.2, QtGui.QColor(20, 20, 20))
-global_add_osc_background.setColorAt(0.7, QtGui.QColor(30, 30, 30))
-global_add_osc_background.setColorAt(1.0, QtGui.QColor(40, 40, 40))
-
-global_add_osc_sine_cache = {}
+ADD_OSC_SINE_CACHE = {}
 
 def global_get_sine(a_size, a_phase):
     f_key = (a_size, a_phase)
-    if f_key in global_add_osc_sine_cache:
-        return numpy.copy(global_add_osc_sine_cache[f_key])
+    if f_key in ADD_OSC_SINE_CACHE:
+        return numpy.copy(ADD_OSC_SINE_CACHE[f_key])
     else:
         f_phase = a_phase * numpy.pi
         f_lin = numpy.linspace(f_phase, (2.0 * numpy.pi) + f_phase, a_size)
         f_sin = numpy.sin(f_lin)
-        global_add_osc_sine_cache[f_key] = f_sin
+        ADD_OSC_SINE_CACHE[f_key] = f_sin
         return numpy.copy(f_sin)
 
 
@@ -2346,20 +2339,18 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
     def __init__(self, a_x_pos):
         QtGui.QGraphicsRectItem.__init__(self)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
-        self.setBrush(global_add_osc_fill)
+        self.setBrush(ADD_OSC_FILL)
         self.setPen(QtGui.QPen(QtCore.Qt.white))
         self.x_pos = a_x_pos
-        self.setPos(
-            a_x_pos, global_additive_osc_height - global_additive_osc_inc)
-        self.setRect(
-            0.0, 0.0, global_additive_osc_bar_width, global_additive_osc_inc)
+        self.setPos(a_x_pos, ADDITIVE_OSC_HEIGHT - ADDITIVE_OSC_INC)
+        self.setRect(0.0, 0.0, ADDITIVE_OSC_BAR_WIDTH, ADDITIVE_OSC_INC)
         self.value = -30
         self.extend_to_bottom()
 
     def set_value(self, a_value):
         if self.value != a_value:
             self.value = a_value
-            f_y_pos = (a_value * global_additive_osc_inc * -1.0)
+            f_y_pos = (a_value * ADDITIVE_OSC_INC * -1.0)
             self.setPos(self.x_pos, f_y_pos)
             self.extend_to_bottom()
             return True
@@ -2370,11 +2361,12 @@ class pydaw_additive_osc_amp_bar(QtGui.QGraphicsRectItem):
         return self.value
 
     def extend_to_bottom(self):
-        f_pos_y = pydaw_util.pydaw_clip_value(round(self.pos().y(), -1), 10,
-                                              global_additive_max_y_pos)
+        f_pos_y = pydaw_util.pydaw_clip_value(
+            round(self.pos().y(), -1), 10, ADDITIVE_MAX_Y_POS)
         self.setPos(self.x_pos, f_pos_y)
-        self.setRect(0.0, 0.0, global_additive_osc_bar_width,
-                     global_additive_osc_height - f_pos_y - 1.0)
+        self.setRect(
+            0.0, 0.0, ADDITIVE_OSC_BAR_WIDTH,
+            ADDITIVE_OSC_HEIGHT - f_pos_y - 1.0)
 
 class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
     def __init__(self):
@@ -2384,9 +2376,9 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
         self.last_y_scale = 1.0
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
-        self.scene.setBackgroundBrush(global_add_osc_background)
-        self.setSceneRect(0.0, 0.0, global_additive_wavetable_size,
-                          global_additive_osc_height)
+        self.scene.setBackgroundBrush(ADD_OSC_BACKGROUND)
+        self.setSceneRect(
+            0.0, 0.0, ADDITIVE_WAVETABLE_SIZE, ADDITIVE_OSC_HEIGHT)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -2394,16 +2386,16 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
     def draw_array(self, a_np_array):
         self.setUpdatesEnabled(False)
         f_path = QtGui.QPainterPath(QtCore.QPointF(
-            0.0, global_additive_osc_height * 0.5))
+            0.0, ADDITIVE_OSC_HEIGHT * 0.5))
         f_x = 1.0
-        f_half = global_additive_osc_height * 0.5
+        f_half = ADDITIVE_OSC_HEIGHT * 0.5
         for f_point in a_np_array:
             f_path.lineTo(f_x, (f_point * f_half) + f_half)
             f_x += 1.0
         self.scene.clear()
         f_path_item = self.scene.addPath(
             f_path, QtGui.QPen(QtCore.Qt.white, 1.0))
-        f_path_item.setBrush(global_add_osc_fill)
+        f_path_item.setBrush(ADD_OSC_FILL)
         self.setUpdatesEnabled(True)
         self.update()
 
@@ -2411,8 +2403,8 @@ class pydaw_additive_wav_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
         self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
         f_rect = self.rect()
-        self.last_x_scale = f_rect.width() / global_additive_wavetable_size
-        self.last_y_scale = f_rect.height() / global_additive_osc_height
+        self.last_x_scale = f_rect.width() / ADDITIVE_WAVETABLE_SIZE
+        self.last_y_scale = f_rect.height() / ADDITIVE_OSC_HEIGHT
         self.scale(self.last_x_scale, self.last_y_scale)
 
 
@@ -2428,7 +2420,7 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         self.is_drawing = False
         self.edit_mode = 0
         self.setMinimumSize(
-            global_additive_osc_width, global_additive_osc_height)
+            ADDITIVE_OSC_WIDTH, ADDITIVE_OSC_HEIGHT)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scene = QtGui.QGraphicsScene()
@@ -2436,12 +2428,12 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         self.scene.mousePressEvent = self.scene_mousePressEvent
         self.scene.mouseReleaseEvent = self.scene_mouseReleaseEvent
         self.scene.mouseMoveEvent = self.scene_mouseMoveEvent
-        self.scene.setBackgroundBrush(global_add_osc_background)
+        self.scene.setBackgroundBrush(ADD_OSC_BACKGROUND)
         self.setSceneRect(
-            0.0, 0.0, global_additive_osc_width, global_additive_osc_height)
+            0.0, 0.0, ADDITIVE_OSC_WIDTH, ADDITIVE_OSC_HEIGHT)
         self.bars = []
         for f_i in range(
-        0, global_additive_osc_width, int(global_additive_osc_bar_width)):
+        0, ADDITIVE_OSC_WIDTH, int(ADDITIVE_OSC_BAR_WIDTH)):
             f_bar = pydaw_additive_osc_amp_bar(f_i)
             self.bars.append(f_bar)
             self.scene.addItem(f_bar)
@@ -2453,8 +2445,8 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
         self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
         f_rect = self.rect()
-        self.last_x_scale = f_rect.width() / global_additive_osc_width
-        self.last_y_scale = f_rect.height() / global_additive_osc_height
+        self.last_x_scale = f_rect.width() / ADDITIVE_OSC_WIDTH
+        self.last_y_scale = f_rect.height() / ADDITIVE_OSC_HEIGHT
         self.scale(self.last_x_scale, self.last_y_scale)
 
     def scene_mousePressEvent(self, a_event):
@@ -2486,13 +2478,13 @@ class pydaw_additive_osc_viewer(QtGui.QGraphicsView):
         f_pos = a_pos
         f_pos_x = f_pos.x()
         f_pos_y = f_pos.y()
-        f_db = (f_pos_y / global_additive_osc_height) * -30.0
-        f_harmonic = int((f_pos_x / global_additive_osc_width) * \
-            global_additive_osc_harmonic_count)
+        f_db = (f_pos_y / ADDITIVE_OSC_HEIGHT) * -30.0
+        f_harmonic = int((f_pos_x / ADDITIVE_OSC_WIDTH) *
+            ADDITIVE_OSC_HARMONIC_COUNT)
         if f_harmonic < 0:
             f_harmonic = 0
-        elif f_harmonic >= global_additive_osc_harmonic_count:
-            f_harmonic = global_additive_osc_harmonic_count - 1
+        elif f_harmonic >= ADDITIVE_OSC_HARMONIC_COUNT:
+            f_harmonic = ADDITIVE_OSC_HARMONIC_COUNT - 1
         if self.edit_mode == 1 and (f_harmonic % 2) != 0:
             return
         if f_db > 0:
@@ -2599,11 +2591,11 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             self.osc_index_changed(None)
 
     def get_wav(self, a_configure=False):
-        f_result = numpy.zeros(global_additive_wavetable_size)
+        f_result = numpy.zeros(ADDITIVE_WAVETABLE_SIZE)
         f_recall_list = []
         f_phase_list = []
-        for f_i in range(1, global_additive_osc_harmonic_count + 1):
-            f_size = int(global_additive_wavetable_size / f_i)
+        for f_i in range(1, ADDITIVE_OSC_HARMONIC_COUNT + 1):
+            f_size = int(ADDITIVE_WAVETABLE_SIZE / f_i)
             f_db = self.viewer.bars[f_i - 1].get_value()
             f_phase = self.phase_viewer.bars[f_i - 1].get_value()
             if a_configure:
@@ -2614,7 +2606,7 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
                 f_sin = global_get_sine(
                     f_size, f_phase) * pydaw_util.pydaw_db_to_lin(f_db)
                 for f_i2 in range(
-                int(global_additive_wavetable_size / f_size)):
+                int(ADDITIVE_WAVETABLE_SIZE / f_size)):
                     f_start = (f_i2) * f_size
                     f_end = f_start + f_size
                     f_result[f_start:f_end] += f_sin
@@ -2627,7 +2619,7 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             f_engine_list = []
             for f_float in f_result:
                 f_engine_list.append("{}".format(round(f_float, 6)))
-            f_engine_str = "{}|{}".format(global_additive_wavetable_size,
+            f_engine_str = "{}|{}".format(ADDITIVE_WAVETABLE_SIZE,
                 "|".join(f_engine_list))
             self.configure_wrapper(
                 "wayv_add_eng{}".format(self.osc_num), f_engine_str)
@@ -2685,37 +2677,28 @@ class pydaw_custom_additive_oscillator(pydaw_abstract_custom_oscillator):
             self.phase_viewer.bars[f_i].set_value(-30)
         self.get_wav(True)
 
-pydaw_audio_item_scene_height = 1200.0
-pydaw_audio_item_scene_width = 6000.0
-pydaw_audio_item_scene_width_recip = 1.0 / pydaw_audio_item_scene_width
-pydaw_audio_item_max_marker_val = 1000.0
-pydaw_audio_item_end_marker_min_val = 6.0
-pydaw_audio_item_start_marker_max_val = 994.0
-pydaw_audio_item_val_to_px = \
-    pydaw_audio_item_scene_width / pydaw_audio_item_max_marker_val
-pydaw_audio_item_px_to_val = \
-    pydaw_audio_item_max_marker_val / pydaw_audio_item_scene_width
+AUDIO_ITEM_SCENE_HEIGHT = 1200.0
+AUDIO_ITEM_SCENE_WIDTH = 6000.0
+AUDIO_ITEM_SCENE_WIDTH_RECIP = 1.0 / AUDIO_ITEM_SCENE_WIDTH
+AUDIO_ITEM_MAX_MARKER_VAL = 1000.0
+AUDIO_ITEM_END_MARKER_MIN_VAL = 6.0
+AUDIO_ITEM_START_MARKER_MAX_VAL = 994.0
+AUDIO_ITEM_VAL_TO_PX = AUDIO_ITEM_SCENE_WIDTH / AUDIO_ITEM_MAX_MARKER_VAL
+AUDIO_ITEM_PX_TO_VAL = AUDIO_ITEM_MAX_MARKER_VAL / AUDIO_ITEM_SCENE_WIDTH
 
-pydaw_audio_item_scene_rect = QtCore.QRectF(
-    0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
+START_END_GRADIENT = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
+START_END_GRADIENT.setColorAt(0.0, QtGui.QColor.fromRgb(246, 30, 30))
+START_END_GRADIENT.setColorAt(1.0, QtGui.QColor.fromRgb(226, 42, 42))
+START_END_PEN = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 12.0)
 
-pydaw_start_end_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
-pydaw_start_end_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 30, 30))
-pydaw_start_end_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 42, 42))
-pydaw_start_end_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 12.0)
+FADE_PEN = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 6.0)
 
-pydaw_fade_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 30, 30), 6.0)
+LOOP_GRADIENT = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
+LOOP_GRADIENT.setColorAt(0.0, QtGui.QColor.fromRgb(246, 180, 30))
+LOOP_GRADIENT.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
+LOOP_PEN = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30), 12.0)
 
-pydaw_audio_item_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
-pydaw_audio_item_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 246, 30))
-pydaw_audio_item_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 226, 42))
-
-pydaw_loop_gradient = QtGui.QLinearGradient(0.0, 0.0, 66.0, 66.0)
-pydaw_loop_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(246, 180, 30))
-pydaw_loop_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(226, 180, 42))
-pydaw_loop_pen = QtGui.QPen(QtGui.QColor.fromRgb(246, 180, 30), 12.0)
-
-pydaw_marker_min_diff = 1.0
+MARKER_MIN_DIFF = 1.0
 
 class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
     mode_start_end = 0
@@ -2731,14 +2714,14 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.callback = a_callback
         self.graph_object = a_graph_object
         self.line = QtGui.QGraphicsLineItem(
-            0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
+            0.0, 0.0, 0.0, AUDIO_ITEM_SCENE_HEIGHT)
         self.line.setParentItem(self)
         self.line.setPen(a_pen)
         self.marker_type = a_type
         self.marker_mode = a_marker_mode
         self.pos_x = 0.0
         self.max_x = \
-            pydaw_audio_item_scene_width - self.audio_item_marker_height
+            AUDIO_ITEM_SCENE_WIDTH - self.audio_item_marker_height
         self.value = a_val
         self.other = None
         self.fade_marker = None
@@ -2750,7 +2733,7 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         elif a_type == 1:
             self.min_x = 66.0
             self.y_pos = \
-                pydaw_audio_item_scene_height - \
+                AUDIO_ITEM_SCENE_HEIGHT - \
                 self.audio_item_marker_height - \
                 (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
@@ -2784,10 +2767,10 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
 
     def set_pos(self):
         if self.marker_type == 0:
-            f_new_val = self.value * pydaw_audio_item_val_to_px
+            f_new_val = self.value * AUDIO_ITEM_VAL_TO_PX
         elif self.marker_type == 1:
             f_new_val = (self.value *
-                pydaw_audio_item_val_to_px) - self.audio_item_marker_height
+                AUDIO_ITEM_VAL_TO_PX) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(
             f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
@@ -2809,14 +2792,14 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
             self.pos_x, self.min_x, self.max_x)
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
-            f_new_val = self.pos_x * pydaw_audio_item_px_to_val
+            f_new_val = self.pos_x * AUDIO_ITEM_PX_TO_VAL
             if self.fade_marker is not None and \
             self.fade_marker.pos().x() < self.pos_x:
                 self.fade_marker.value = f_new_val
                 self.fade_marker.set_pos()
         elif self.marker_type == 1:
             f_new_val = (self.pos_x +
-                self.audio_item_marker_height) * pydaw_audio_item_px_to_val
+                self.audio_item_marker_height) * AUDIO_ITEM_PX_TO_VAL
             if self.fade_marker is not None and \
             self.fade_marker.pos().x() > self.pos_x:
                 self.fade_marker.value = f_new_val
@@ -2825,18 +2808,18 @@ class pydaw_audio_marker_widget(QtGui.QGraphicsRectItem):
         self.value = f_new_val
         if self.other is not None:
             if self.marker_type == 0:
-                if self.value > self.other.value - pydaw_marker_min_diff:
-                    self.other.value = self.value + pydaw_marker_min_diff
+                if self.value > self.other.value - MARKER_MIN_DIFF:
+                    self.other.value = self.value + MARKER_MIN_DIFF
                     self.other.value = pydaw_util.pydaw_clip_value(
-                        self.other.value, pydaw_marker_min_diff,
+                        self.other.value, MARKER_MIN_DIFF,
                         1000.0, a_round=True)
                     self.other.set_pos()
             elif self.marker_type == 1:
-                if self.other.value > self.value - pydaw_marker_min_diff:
-                    self.other.value = self.value - pydaw_marker_min_diff
+                if self.other.value > self.value - MARKER_MIN_DIFF:
+                    self.other.value = self.value - MARKER_MIN_DIFF
                     self.other.value = pydaw_util.pydaw_clip_value(
                         self.other.value, 0.0,
-                        1000.0 - pydaw_marker_min_diff, a_round=True)
+                        1000.0 - MARKER_MIN_DIFF, a_round=True)
                     self.other.set_pos()
         if self.fade_marker is not None:
             self.fade_marker.draw_lines()
@@ -2863,13 +2846,13 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.callback = a_callback
         self.line = QtGui.QGraphicsLineItem(
-            0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
+            0.0, 0.0, 0.0, AUDIO_ITEM_SCENE_HEIGHT)
         self.line.setParentItem(self)
         self.line.setPen(a_pen)
         self.marker_type = a_type
         self.pos_x = 0.0
         self.max_x = \
-            pydaw_audio_item_scene_width - self.audio_item_marker_height
+            AUDIO_ITEM_SCENE_WIDTH - self.audio_item_marker_height
         self.value = a_val
         self.other = None
         self.start_end_marker = None
@@ -2879,7 +2862,7 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
             self.line.setPos(0.0, self.y_pos * -1.0)
         elif a_type == 1:
             self.min_x = 66.0
-            self.y_pos = pydaw_audio_item_scene_height - \
+            self.y_pos = AUDIO_ITEM_SCENE_HEIGHT - \
                 self.audio_item_marker_height - \
                 (a_offset * self.audio_item_marker_height)
             self.line.setPos(self.audio_item_marker_height, self.y_pos * -1.0)
@@ -2893,7 +2876,7 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         for f_i in range(self.graph_object.channels * 2):
             f_line = QtGui.QGraphicsLineItem()
             self.amp_lines.append(f_line)
-            f_line.setPen(pydaw_fade_pen)
+            f_line.setPen(FADE_PEN)
 
     def __str__(self):
         f_val = self.value * 0.001 * self.graph_object.length_in_seconds
@@ -2919,7 +2902,7 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         self.callback(self.value)
 
     def draw_lines(self):
-        f_inc = pydaw_audio_item_scene_height / float(len(self.amp_lines))
+        f_inc = AUDIO_ITEM_SCENE_HEIGHT / float(len(self.amp_lines))
         f_y_pos = 0
         f_x_inc = 0
         if self.marker_type == 0:
@@ -2943,10 +2926,10 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
 
     def set_pos(self):
         if self.marker_type == 0:
-            f_new_val = self.value * pydaw_audio_item_val_to_px
+            f_new_val = self.value * AUDIO_ITEM_VAL_TO_PX
         elif self.marker_type == 1:
             f_new_val = (self.value *
-                pydaw_audio_item_val_to_px) - self.audio_item_marker_height
+                AUDIO_ITEM_VAL_TO_PX) - self.audio_item_marker_height
         f_new_val = pydaw_util.pydaw_clip_value(
             f_new_val, self.min_x, self.max_x)
         self.setPos(f_new_val, self.y_pos)
@@ -2970,13 +2953,13 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
                 self.pos_x, self.other.scenePos().x())
         self.setPos(self.pos_x, self.y_pos)
         if self.marker_type == 0:
-            f_new_val = self.pos_x * pydaw_audio_item_px_to_val
+            f_new_val = self.pos_x * AUDIO_ITEM_PX_TO_VAL
             if self.pos_x < self.start_end_marker.scenePos().x():
                 self.start_end_marker.value = f_new_val
                 self.start_end_marker.set_pos()
         elif self.marker_type == 1:
             f_new_val = (self.pos_x +
-                self.audio_item_marker_height) * pydaw_audio_item_px_to_val
+                self.audio_item_marker_height) * AUDIO_ITEM_PX_TO_VAL
             if self.pos_x > self.start_end_marker.scenePos().x():
                 self.start_end_marker.value = f_new_val
                 self.start_end_marker.set_pos()
@@ -2992,12 +2975,12 @@ class pydaw_audio_fade_marker_widget(QtGui.QGraphicsRectItem):
         if self.start_end_marker is not None:
             self.start_end_marker.callback(self.start_end_marker.value)
 
-global_audio_markers_clipboard = None
+AUDIO_MARKERS_CLIPBOARD = None
 
 def global_set_audio_markers_clipboard(a_s, a_e, a_fi, a_fo,
                                        a_ls=0.0, a_le=1000.0):
-    global global_audio_markers_clipboard
-    global_audio_markers_clipboard = (a_s, a_e, a_fi, a_fo, a_ls, a_le)
+    global AUDIO_MARKERS_CLIPBOARD
+    AUDIO_MARKERS_CLIPBOARD = (a_s, a_e, a_fi, a_fo, a_ls, a_le)
 
 class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
     def __init__(self, a_start_callback, a_end_callback,
@@ -3037,8 +3020,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.waveform_brush = QtGui.QLinearGradient(
-            0.0, 0.0, pydaw_audio_item_scene_height,
-            pydaw_audio_item_scene_width)
+            0.0, 0.0, AUDIO_ITEM_SCENE_HEIGHT,
+            AUDIO_ITEM_SCENE_WIDTH)
         self.waveform_brush.setColorAt(0.0, QtGui.QColor(140, 140, 240))
         self.waveform_brush.setColorAt(0.5, QtGui.QColor(240, 190, 140))
         self.waveform_brush.setColorAt(1.0, QtGui.QColor(140, 140, 240))
@@ -3102,7 +3085,7 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         f_spinbox.setDecimals(1)
         f_spinbox.setRange(60, 200)
         f_spinbox.setSingleStep(0.1)
-        f_spinbox.setValue(global_tempo)
+        f_spinbox.setValue(TEMPO)
         f_beat_fracs = ["1/16", "1/12", "1/8", "2/12", "3/16",
                         "1/4", "2/4", "4/4", "None"]
         f_beat_frac_combobox =  QtGui.QComboBox()
@@ -3141,11 +3124,11 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def paste_markers(self):
         if self.graph_object is not None and \
-        global_audio_markers_clipboard is not None:
+        AUDIO_MARKERS_CLIPBOARD is not None:
             f_markers = (self.start_marker, self.end_marker,
                          self.fade_in_marker, self.fade_out_marker)
             for f_i in range(4):
-                f_markers[f_i].set_value(global_audio_markers_clipboard[f_i])
+                f_markers[f_i].set_value(AUDIO_MARKERS_CLIPBOARD[f_i])
 
     def clear_drawn_items(self):
         self.scene.clear()
@@ -3153,9 +3136,9 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         self.drag_end_markers = []
 
     def pos_to_marker_val(self, a_pos_x):
-        f_result = pydaw_audio_item_scene_width_recip * a_pos_x * 1000.0
+        f_result = AUDIO_ITEM_SCENE_WIDTH_RECIP * a_pos_x * 1000.0
         f_result = pydaw_util.pydaw_clip_value(
-            f_result, 0.0, pydaw_audio_item_max_marker_val)
+            f_result, 0.0, AUDIO_ITEM_MAX_MARKER_VAL)
         return f_result
 
     def scene_mousePressEvent(self, a_event):
@@ -3176,8 +3159,8 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
                     f_marker.set_pos()
                     f_marker.callback(f_marker.value)
 
-                if self.fade_out_marker.value <= f_val + pydaw_marker_min_diff:
-                    self.fade_out_marker.value = f_val + pydaw_marker_min_diff
+                if self.fade_out_marker.value <= f_val + MARKER_MIN_DIFF:
+                    self.fade_out_marker.value = f_val + MARKER_MIN_DIFF
                     self.fade_out_marker.set_pos()
                     self.fade_out_marker.callback(self.fade_out_marker.value)
 
@@ -3224,15 +3207,15 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
 
     def redraw_item(self, a_start, a_end, a_fade_in, a_fade_out):
         self.clear_drawn_items()
-        f_path_inc = pydaw_audio_item_scene_height / self.path_count
+        f_path_inc = AUDIO_ITEM_SCENE_HEIGHT / self.path_count
         f_path_y_pos = 0.0
         for f_path in self.path_list:
-            f_pixmap = QtGui.QPixmap(pydaw_audio_item_scene_width, f_path_inc)
+            f_pixmap = QtGui.QPixmap(AUDIO_ITEM_SCENE_WIDTH, f_path_inc)
             f_painter = QtGui.QPainter(f_pixmap)
             f_painter.setPen(self.waveform_pen)
             f_painter.setBrush(self.waveform_brush)
             f_painter.fillRect(
-                0, 0, pydaw_audio_item_scene_width, f_path_inc,
+                0, 0, AUDIO_ITEM_SCENE_WIDTH, f_path_inc,
                 QtCore.Qt.darkGray)
             f_painter.drawPath(f_path)
             f_painter.end()
@@ -3241,24 +3224,24 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
             f_path_item.setPos(0.0, f_path_y_pos)
             f_path_y_pos += f_path_inc
         self.start_marker = pydaw_audio_marker_widget(
-            0, a_start, pydaw_start_end_pen, pydaw_start_end_gradient,
+            0, a_start, START_END_PEN, START_END_GRADIENT,
             "S", self.graph_object, pydaw_audio_marker_widget.mode_start_end,
             1, self.start_callback)
         self.scene.addItem(self.start_marker)
         self.end_marker = pydaw_audio_marker_widget(
-            1, a_end, pydaw_start_end_pen, pydaw_start_end_gradient, "E",
+            1, a_end, START_END_PEN, START_END_GRADIENT, "E",
             self.graph_object, pydaw_audio_marker_widget.mode_start_end,
             1, self.end_callback)
         self.scene.addItem(self.end_marker)
 
         self.fade_in_marker = pydaw_audio_fade_marker_widget(
-            0, a_fade_in, pydaw_start_end_pen, pydaw_start_end_gradient,
+            0, a_fade_in, START_END_PEN, START_END_GRADIENT,
             "I", self.graph_object, 0, self.fade_in_callback)
         self.scene.addItem(self.fade_in_marker)
         for f_line in self.fade_in_marker.amp_lines:
             self.scene.addItem(f_line)
         self.fade_out_marker = pydaw_audio_fade_marker_widget(
-            1, a_fade_out, pydaw_start_end_pen, pydaw_start_end_gradient, "O",
+            1, a_fade_out, START_END_PEN, START_END_GRADIENT, "O",
             self.graph_object, 0, self.fade_out_callback)
         self.scene.addItem(self.fade_out_marker)
         for f_line in self.fade_out_marker.amp_lines:
@@ -3282,16 +3265,16 @@ class pydaw_audio_item_viewer_widget(QtGui.QGraphicsView):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
         self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
         f_rect = self.rect()
-        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / \
-            pydaw_audio_item_scene_height
+        self.last_x_scale = f_rect.width() / AUDIO_ITEM_SCENE_WIDTH
+        self.last_y_scale = (f_rect.height() -
+            self.scroll_bar_height) / AUDIO_ITEM_SCENE_HEIGHT
         self.scale(self.last_x_scale, self.last_y_scale)
 
-global_audio_loop_clipboard = None
+AUDIO_LOOP_CLIPBOARD = None
 
 def global_set_audio_loop_clipboard(a_ls, a_le):
-    global global_audio_loop_clipboard
-    global_audio_loop_clipboard = (float(a_ls), float(a_le))
+    global AUDIO_LOOP_CLIPBOARD
+    AUDIO_LOOP_CLIPBOARD = (float(a_ls), float(a_le))
 
 
 class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
@@ -3317,9 +3300,9 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
 
     def paste_loop(self):
         if self.graph_object is not None and \
-        global_audio_loop_clipboard is not None:
-            self.loop_start_marker.set_value(global_audio_loop_clipboard[0])
-            self.loop_end_marker.set_value(global_audio_loop_clipboard[1])
+        AUDIO_LOOP_CLIPBOARD is not None:
+            self.loop_start_marker.set_value(AUDIO_LOOP_CLIPBOARD[0])
+            self.loop_end_marker.set_value(AUDIO_LOOP_CLIPBOARD[1])
 
     def loop_start_callback(self, a_val):
         self.loop_start_callback_x(a_val)
@@ -3334,12 +3317,12 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
         pydaw_audio_item_viewer_widget.draw_item(
             self, a_path_list, a_start, a_end, a_fade_in, a_fade_out)
         self.loop_start_marker = pydaw_audio_marker_widget(
-            0, a_loop_start, pydaw_loop_pen, pydaw_loop_gradient, "L",
+            0, a_loop_start, LOOP_PEN, LOOP_GRADIENT, "L",
             self.graph_object, pydaw_audio_marker_widget.mode_loop,
             2, self.loop_start_callback)
         self.scene.addItem(self.loop_start_marker)
         self.loop_end_marker = pydaw_audio_marker_widget(
-            1, a_loop_end, pydaw_loop_pen, pydaw_loop_gradient, "L",
+            1, a_loop_end, LOOP_PEN, LOOP_GRADIENT, "L",
             self.graph_object, pydaw_audio_marker_widget.mode_loop,
             2, self.loop_end_callback)
         self.scene.addItem(self.loop_end_marker)
@@ -3354,7 +3337,7 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
         self.update_label()
 
 
-global_modulex_clipboard = None
+MODULEX_CLIPBOARD = None
 
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback,
@@ -3418,8 +3401,8 @@ class pydaw_modulex_single:
         f_menu.exec_(QtGui.QCursor.pos())
 
     def copy_settings(self):
-        global global_modulex_clipboard
-        global_modulex_clipboard = self.get_class()
+        global MODULEX_CLIPBOARD
+        MODULEX_CLIPBOARD = self.get_class()
 
     def paste_and_copy(self):
         """ Copy the existing setting and then paste,
@@ -3428,16 +3411,16 @@ class pydaw_modulex_single:
         self.paste_settings(True)
 
     def paste_settings(self, a_copy=False):
-        global global_modulex_clipboard
-        if global_modulex_clipboard is None:
+        global MODULEX_CLIPBOARD
+        if MODULEX_CLIPBOARD is None:
             QtGui.QMessageBox.warning(self.group_box, _("Error"),
             _("Nothing copied to clipboard"))
         else:
             f_class = self.get_class()
-            self.set_from_class(global_modulex_clipboard)
+            self.set_from_class(MODULEX_CLIPBOARD)
             self.update_all_values()
             if a_copy:
-                global_modulex_clipboard = f_class
+                MODULEX_CLIPBOARD = f_class
 
     def update_all_values(self):
         for f_knob in self.knobs:
@@ -4874,9 +4857,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         f_eng_config_keys = ["wayv_add_eng0", "wayv_add_eng1", "wayv_add_eng2"]
         f_ui_phase_keys = ["wayv_add_phase0", "wayv_add_phase1",
                            "wayv_add_phase2"]
-        f_empty_ui_val = "|".join(["-30"] * global_additive_osc_harmonic_count)
-        f_empty_eng_val = "{}|{}".format(global_additive_wavetable_size,
-            "|".join(["0.0"] * global_additive_wavetable_size))
+        f_empty_ui_val = "|".join(["-30"] * ADDITIVE_OSC_HARMONIC_COUNT)
+        f_empty_eng_val = "{}|{}".format(ADDITIVE_WAVETABLE_SIZE,
+            "|".join(["0.0"] * ADDITIVE_WAVETABLE_SIZE))
         for f_key in (f_ui_config_keys + f_ui_phase_keys):
             if f_key in a_dict:
                 self.configure_plugin(f_key, a_dict[f_key])
@@ -5929,7 +5912,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
                 f_loop_end_value = pydaw_util.pydaw_clip_value(
                     f_loop_end_value,
                     self.loop_starts[self.selected_row_index].get_value() +
-                    pydaw_marker_min_diff,
+                    MARKER_MIN_DIFF,
                     1000.0, a_round=True)
                 self.loop_ends[self.selected_row_index].set_value(
                     f_loop_end_value, True)

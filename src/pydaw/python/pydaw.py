@@ -6902,13 +6902,13 @@ class automation_viewer_widget:
         self.automation_viewer.clear_current_item()
 
     def paste_cc_point(self):
-        if pydaw_widgets.global_cc_clipboard is None:
+        if pydaw_widgets.CC_CLIPBOARD is None:
             QtGui.QMessageBox.warning(
                 self.widget, _("Error"),
                 _("Nothing copied to the clipboard.\n"
                 "Right-click->'Copy' on any knob on any plugin."))
             return
-        self.add_cc_point(pydaw_widgets.global_cc_clipboard)
+        self.add_cc_point(pydaw_widgets.CC_CLIPBOARD)
 
     def add_cc_point(self, a_value=None):
         if not ITEM_EDITOR.enabled:  #TODO:  Make this global...
@@ -10414,7 +10414,7 @@ class pydaw_wave_editor_widget:
     def set_playback_cursor(self, a_pos):
         if self.playback_cursor is not None:
             self.playback_cursor.setPos(
-                a_pos * pydaw_widgets.pydaw_audio_item_scene_width, 0.0)
+                a_pos * pydaw_widgets.AUDIO_ITEM_SCENE_WIDTH, 0.0)
         self.set_time_label(a_pos)
 
     def set_time_label(self, a_value, a_override=False):
