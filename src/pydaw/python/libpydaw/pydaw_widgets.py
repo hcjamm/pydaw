@@ -4721,9 +4721,8 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix.horizontalHeader().setResizeMode(
             QtGui.QHeaderView.Fixed)
         self.mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-        f_hlabels = []
-        [[f_hlabels.append(_("FX{}\nCtrl{}").format(x, y))
-            for y in range(1, 4)] for x in range(4)]
+        f_hlabels = ["FX{}\nCtrl{}".format(x, y)
+            for y in range(1, 4) for x in range(4)]
         self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
         self.mod_matrix.setVerticalHeaderLabels(
             [_("DAHDSR 1"), _("DAHDSR 2"), _("Ramp Env"),
@@ -5645,12 +5644,10 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
-        self.mod_matrix.setHorizontalHeaderLabels(
-            [_("FX0\nCtrl1"), _("FX0\nCtrl2"),
-            _("FX0\nCtrl3"), _("FX1\nCtrl1"), _("FX1\nCtrl2"),
-            _("FX1\nCtrl3"), _("FX2\nCtrl1"),
-            _("FX2\nCtrl2"), _("FX2\nCtrl3"), _("FX3\nCtrl1"),
-            _("FX3\nCtrl2"), _("FX3\nCtrl3")])
+        f_hlabels = ["FX{}\nCtrl{}".format(x, y)
+            for y in range(1, 4) for x in range(4)]
+        self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
+
         self.mod_matrix.setVerticalHeaderLabels(
             [_("ADSR 1"), _("ADSR 2"), _("Ramp Env"),
              _("LFO"), _("Pitch"), _("Velocity")])
