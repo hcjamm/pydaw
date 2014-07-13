@@ -170,12 +170,13 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
 
 static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
         int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num)
+        int a_track_num, fp_queue_message a_queue_func)
 {
     t_modulex *plugin_data = (t_modulex*)malloc(sizeof(t_modulex));
 
     plugin_data->fs = s_rate;
     plugin_data->track_num = a_track_num;
+    plugin_data->queue_func = a_queue_func;
     return (PYFX_Handle) plugin_data;
 }
 

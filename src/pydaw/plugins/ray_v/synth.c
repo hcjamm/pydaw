@@ -231,7 +231,8 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
 }
 
 static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
-                int a_sr, fp_get_wavpool_item_from_host a_host_wavpool_func)
+        int a_sr, fp_get_wavpool_item_from_host a_host_wavpool_func,
+        int a_track_num, fp_queue_message a_queue_func)
 {
     t_rayv *plugin_data = (t_rayv*) malloc(sizeof(t_rayv));
 

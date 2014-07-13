@@ -66,7 +66,9 @@ int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance, char *key, char *
 }
 
 
-t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpool_item_from_host a_host_wavpool_func)
+t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
+        fp_get_wavpool_item_from_host a_host_wavpool_func,
+        int a_track_num, fp_queue_message a_queue_func)
 {
     t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));  //TODO: posix_memalign instead...
 
@@ -94,7 +96,8 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
 
     int f_i = 0;
 
-    if(posix_memalign((void**)(&f_result->pluginControlIns), 16, (sizeof(float) * f_result->descriptor->PYFX_Plugin->PortCount)) != 0)
+    if(posix_memalign((void**)(&f_result->pluginControlIns), 16,
+        (sizeof(float) * f_result->descriptor->PYFX_Plugin->PortCount)) != 0)
     {
         return 0;
     }
@@ -106,7 +109,9 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index, fp_get_wavpo
         f_i++;
     }
 
-    f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate, a_host_wavpool_func);
+    f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(
+            f_result->descriptor->PYFX_Plugin, a_sample_rate,
+            a_host_wavpool_func, a_track_num, a_queue_func);
 
     for (j = 0; j < 2; j++)
     {

@@ -97,6 +97,7 @@ void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event, int a_channel, int a_
 
 
 typedef t_wav_pool_item * (*fp_get_wavpool_item_from_host)(int);
+typedef void (*fp_queue_message)(char*, char*);
 
 /*****************************************************************************/
 
@@ -201,7 +202,7 @@ typedef struct _PYFX_Descriptor {
      activate() rather than here. */
   PYFX_Handle (*instantiate)(struct _PYFX_Descriptor * Descriptor,
           int SampleRate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-          int a_track_num);
+          int a_track_num, fp_queue_message);
 
   /* This member is a function pointer that connects a port on an
      instantiated plugin to a memory location at which a block of data

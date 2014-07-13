@@ -150,6 +150,7 @@ typedef struct
     int midi_event_ports[200];
     int midi_event_count;
     int track_num;
+    fp_queue_message queue_func;
 
     float * port_table;
 } t_modulex;

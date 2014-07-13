@@ -182,6 +182,7 @@ typedef struct {
     int midi_event_ports[200];
     int midi_event_count;
     float * port_table;
+    int track_num;
 } t_euphoria __attribute__((aligned(16)));
 
 
