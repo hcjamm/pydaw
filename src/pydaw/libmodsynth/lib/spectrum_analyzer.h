@@ -78,6 +78,8 @@ t_spa_spectrum_analyzer * g_spa_spectrum_analyzer_get(int a_sample_count)
 
     f_result->plan = fftw_plan_dft_r2c_1d(f_result->samples_count,
         f_result->samples, f_result->output, 0);
+
+    return f_result;
 }
 
 static void g_spa_free(t_spa_spectrum_analyzer *a_spa)
@@ -87,7 +89,7 @@ static void g_spa_free(t_spa_spectrum_analyzer *a_spa)
     fftw_free(a_spa->samples);
 }
 
-void v_spa_compute_fft(struct t_spa_spectrum_analyzer *a_spa)
+void v_spa_compute_fft(t_spa_spectrum_analyzer *a_spa)
 {
     int f_i = 1;
 
@@ -109,12 +111,9 @@ void v_spa_compute_fft(struct t_spa_spectrum_analyzer *a_spa)
  * Check if a_spa->str_buf[0] == '\0', if not, send a configure message
  * and then set spa->str_buf[0] = '\0'
  */
-void v_spa_run(struct t_spa_spectrum_analyzer *a_spa,
+void v_spa_run(t_spa_spectrum_analyzer *a_spa,
         float * a_buf0, float * a_buf1, int a_count)
 {
-    int channels = 2;
-    float buf[channels * a_spa->samples_count];
-
     int f_i = 0;
 
     while(f_i < a_count)
