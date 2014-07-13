@@ -304,7 +304,10 @@ def pydaw_db_to_lin(a_value):
     return pow(10.0, (0.05 * float(a_value)))
 
 def pydaw_lin_to_db(a_value):
-    return log(float(a_value), 10.0) * 20.0
+    if a_value >= 0.001:
+        return log(float(a_value), 10.0) * 20.0
+    else:
+        return -120.0
 
 def musical_time_to_seconds(a_tempo, a_bar, a_beat):
     f_seconds_per_beat = 60.0 / float(a_tempo)
