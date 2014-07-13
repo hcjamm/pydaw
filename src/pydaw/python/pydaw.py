@@ -8369,7 +8369,7 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
         if OPEN_FX_UI_DICTS[a_track_type][
         a_track_num].widget.isHidden():
             OPEN_FX_UI_DICTS[a_track_type][a_track_num].widget.show()
-        OPEN_FX_UI_DICTS[a_track_type][a_track_num].widget.raise_()
+        OPEN_FX_UI_DICTS[a_track_type][a_track_num].raise_widget()
 
 
 def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
@@ -8402,7 +8402,7 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     else:
         if OPEN_INST_UI_DICT[f_track_num].widget.isHidden():
             OPEN_INST_UI_DICT[f_track_num].widget.show()
-        OPEN_INST_UI_DICT[f_track_num].widget.raise_()
+        OPEN_INST_UI_DICT[f_track_num].raise_widget()
 
 
 def global_close_inst_ui(a_track_num, a_delete_file=False):

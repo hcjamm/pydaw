@@ -3361,7 +3361,7 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
             f_hz = pydaw_util.pydaw_pitch_to_hz(f_i)
             f_pos = int((f_hz / 18000.0) * len(self.values))
             f_val = float(self.values[f_pos])
-            f_db = pydaw_util.pydaw_lin_to_db(f_val) - 24.0
+            f_db = pydaw_util.pydaw_lin_to_db(f_val) - 30.0
             f_db = pydaw_util.pydaw_clip_value(f_db, -50.0, 0.0)
             f_val = 1.0 - ((f_db + 50.0) / 50.0)
             f_x = f_width_per_point * f_i
@@ -3880,8 +3880,8 @@ class pydaw_abstract_plugin_ui:
 
     def open_plugin_file(self):
         if self.folder is not None:
-            f_file_path = "{}/{}/{}".format(self.pydaw_project.project_folder,
-                self.folder, self.file)
+            f_file_path = "{}/{}/{}".format(
+                self.pydaw_project.project_folder, self.folder, self.file)
             if os.path.isfile(f_file_path):
                 f_file = pydaw_plugin_file(f_file_path)
                 for k, v in list(f_file.port_dict.items()):
@@ -3891,6 +3891,9 @@ class pydaw_abstract_plugin_ui:
             else:
                 print("pydaw_abstract_plugin_ui.open_plugin_file():"
                     " '{}' did not exist, not loading.".format(f_file_path))
+
+    def raise_widget(self):
+        self.widget.raise_()
 
     def save_plugin_file(self):
         if self.folder is not None:
@@ -4170,6 +4173,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.plugin_val_callback(
             pydaw_ports.MODULEX_SPECTRUM_ENABLED, 0.0)
         pydaw_abstract_plugin_ui.widget_close_event(self, a_event)
+
+    def raise_widget(self):
+        pydaw_abstract_plugin_ui.raise_widget(self)
+        self.tab_changed()
 
     def tab_changed(self, a_val=None):
         if not self.spectrum_enabled:
