@@ -54,7 +54,7 @@ t_spa_spectrum_analyzer * g_spa_spectrum_analyzer_get(int a_sample_count,
 {
     t_spa_spectrum_analyzer * f_result =
             (t_spa_spectrum_analyzer*)malloc(sizeof(t_spa_spectrum_analyzer));
-    int f_i;
+    int f_i = 0;
 
     if(posix_memalign((void**)&f_result->buffer, 16,
             sizeof(float) * a_sample_count) != 0)
