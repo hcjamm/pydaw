@@ -469,7 +469,8 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 plugin_data->output0, plugin_data->output1, sample_count);
         if(plugin_data->mono_modules->spectrum_analyzer->str_buf[0] != '\0')
         {
-            // TODO:  special sauce to send a message to the UI???
+            plugin_data->queue_func("ui",
+                plugin_data->mono_modules->spectrum_analyzer->str_buf);
             plugin_data->mono_modules->spectrum_analyzer->str_buf[0] = '\0';
         }
     }

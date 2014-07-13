@@ -100,7 +100,7 @@ void v_spa_compute_fft(t_spa_spectrum_analyzer *a_spa)
 
     fftw_execute(a_spa->plan);
 
-    sprintf(a_spa->str_buf, "ui|%i|%i|spectrum|%f", a_spa->is_inst,
+    sprintf(a_spa->str_buf, "%i|%i|spectrum|%f", a_spa->is_inst,
             a_spa->track_num, cabs(a_spa->output[0]));
 
     while(f_i < a_spa->samples_count_div2)

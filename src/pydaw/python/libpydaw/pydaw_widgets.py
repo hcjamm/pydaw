@@ -1980,10 +1980,11 @@ class eq_viewer(QtGui.QGraphicsView):
 
     def set_spectrum(self, a_message):
         f_spectrum = pydaw_spectrum(
-            a_message, self.eq_viewer.width(), self.eq_viewer.height())
+            a_message, self.height(), self.width())
         if self.spectrum:
-            self.eq_viewer.scene.removeItem(self.spectrum)
-        self.eq_viewer.scene.addItem(f_spectrum)
+            self.scene.removeItem(self.spectrum)
+        self.scene.addItem(f_spectrum)
+        self.update()
         self.spectrum = f_spectrum
 
     def draw_eq(self, a_eq_list=[]):
@@ -3351,14 +3352,21 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
 
 class pydaw_spectrum(QtGui.QGraphicsPathItem):
     def __init__(self, a_message, a_height, a_width):
-        self.painter_path = QtGui.QPainterPath()
-        QtGui.QGraphicsPathItem.__init__(self, self.painter_path)
-        self.values = [1.0 - float(x) for x in a_message.split("|")]
-        self.setPen(QtCore.Qt.white)
+        self.painter_path = QtGui.QPainterPath(QtCore.QPointF(0.0, 0.0))
+        self.values = [float(x) for x in a_message.split("|")[::20]]
         f_width_per_point = float(a_width) / float(len(self.values))
         self.painter_path.moveTo(0.0, self.values[0] * a_height)
-        for f_i, f_val in zip(range(len(self.values) - 1, self.values[1:])):
-            self.painter_path.lineTo(f_width_per_point * f_i, f_val)
+#        test = []
+        for f_i, f_val in zip(range(1, len(self.values)), self.values[1:]):
+            f_x = f_width_per_point * f_i
+            f_y = f_val * a_height
+            self.painter_path.lineTo(f_x, f_y)
+#            test.append("{}|{}".format(f_x, f_y))
+        QtGui.QGraphicsPathItem.__init__(self, self.painter_path)
+        self.setPen(QtCore.Qt.white)
+#        print("\n" * 5)
+#        print(" ".join(test))
+
 
 
 MODULEX_CLIPBOARD = None
@@ -3966,6 +3974,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.presets_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.layout.addLayout(self.presets_hlayout)
+        self.spectrum_enabled = None
         self.tab_widget = QtGui.QTabWidget()
         self.tab_widget.currentChanged.connect(self.tab_changed)
         self.layout.addWidget(self.tab_widget)
@@ -4154,9 +4163,23 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.widget.setWindowTitle(
             "PyDAW Modulex - {}".format(self.track_name))
 
+    def widget_close_event(self, a_event):
+        print("Disabling spectrum")
+        self.plugin_val_callback(
+            pydaw_ports.MODULEX_SPECTRUM_ENABLED, 0.0)
+        pydaw_abstract_plugin_ui.widget_close_event(self, a_event)
+
     def tab_changed(self, a_val=None):
+        if not self.spectrum_enabled:
+            return
         if self.tab_widget.currentIndex() == 2:
-            self.configure_plugin()
+            print("Enabling spectrum")
+            self.plugin_val_callback(
+                pydaw_ports.MODULEX_SPECTRUM_ENABLED, 1.0)
+        else:
+            print("Disabling spectrum")
+            self.plugin_val_callback(
+                pydaw_ports.MODULEX_SPECTRUM_ENABLED, 0.0)
 
     def ui_message(self, a_name, a_value):
         if a_name == "spectrum":

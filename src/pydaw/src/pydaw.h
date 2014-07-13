@@ -851,11 +851,22 @@ void * v_pydaw_osc_send_thread(void* a_arg)
 {
     t_pydaw_data * a_pydaw_data = (t_pydaw_data*)a_arg;
 
+    int f_i = 0;
+
     char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
-    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][1024];
-    char f_tmp1[10000];
-    char f_tmp2[1000];
-    char f_msg[128];
+    char * osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE];
+
+    while(f_i < PYDAW_OSC_SEND_QUEUE_SIZE)
+    {
+        osc_queue_vals[f_i] = (char*)malloc(sizeof(char) * 122880);
+        f_i++;
+    }
+
+    char * f_tmp1 = (char*)malloc(sizeof(char) * 122880);
+    char * f_tmp2 = (char*)malloc(sizeof(char) * 122880);
+    char * f_msg = (char*)malloc(sizeof(char) * 122880);
+    f_tmp1[0] = '\0';
+    f_tmp2[0] = '\0';
     f_msg[0] = '\0';
 
     while(!a_pydaw_data->audio_recording_quit_notifier)
@@ -886,7 +897,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
 
         if(a_pydaw_data->osc_queue_index > 0)
         {
-            int f_i = 0;
+            f_i = 0;
 
             while(f_i < a_pydaw_data->osc_queue_index)
             {
