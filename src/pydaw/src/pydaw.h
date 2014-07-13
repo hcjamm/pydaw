@@ -149,6 +149,7 @@ typedef struct
     /*Track number for the pool of tracks it is in,
       for example: 0-15 for midi tracks*/
     int track_num;
+    int global_track_num;
     int track_type;  //0 == MIDI/plugin-instrument, 1 == Bus, 2 == Audio
     //Only for busses, the count of plugins writing to the buffer
     int bus_count;
@@ -3962,6 +3963,31 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
 
     f_result->track_num = a_track_num;
     f_result->track_type = a_track_type;
+
+    if(a_track_type == 0)
+    {
+        f_result->global_track_num = a_track_num;
+    }
+    else if(a_track_type == 1)
+    {
+        f_result->global_track_num = a_track_num + PYDAW_MIDI_TRACK_COUNT;
+    }
+    else if(a_track_type == 2)
+    {
+        f_result->global_track_num = a_track_num +
+                PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
+    }
+    else if(a_track_type == 4)
+    {
+        f_result->global_track_num = a_track_num +
+                PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT +
+                PYDAW_AUDIO_TRACK_COUNT;
+    }
+    else
+    {
+        assert(0);
+    }
+
     f_result->mute = 0;
     f_result->solo = 0;
     f_result->volume = 0.0f;
@@ -5050,7 +5076,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
     if(a_index == -1)  //bus track
     {
         f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1,
-                g_pydaw_wavpool_item_get, a_track->track_num,
+                g_pydaw_wavpool_item_get, a_track->global_track_num,
                 v_queue_osc_message);
 
         t_pydaw_plugin * f_fx = a_track->effect;
@@ -5129,10 +5155,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
     else
     {
         f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index,
-                g_pydaw_wavpool_item_get, a_track->track_num,
+                g_pydaw_wavpool_item_get, a_track->global_track_num,
                 v_queue_osc_message);
         f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1,
-                g_pydaw_wavpool_item_get, a_track->track_num,
+                g_pydaw_wavpool_item_get, a_track->global_track_num,
                 v_queue_osc_message);
 
         free(f_result_fx->pluginOutputBuffers[0]);
