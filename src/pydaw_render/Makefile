@@ -20,7 +20,8 @@ BASE_FLAGS     = -ffast-math -fprefetch-loop-arrays \
 
 
 BUILD_CFLAGS   = $(PLAT_FLAGS) $(BASE_FLAGS) $(CFLAGS)
-LINK_CFLAGS    = -ldl -lm $(shell pkg-config --libs liblo sndfile) $(LDFLAGS)
+LINK_CFLAGS    = -ldl -lm $(shell pkg-config --libs liblo sndfile fftw3) \
+$(LDFLAGS)
 
 C_OBJS   = main.o
 

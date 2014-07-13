@@ -12,7 +12,8 @@ PLAT_FLAGS     ?= -mstackrealign -msse -msse2 -msse3 -mfpmath=sse \
 
 BASE_FLAGS     = -ffast-math -fprefetch-loop-arrays \
 -floop-optimize -fsingle-precision-constant -funroll-loops -Wall \
--Isrc -Iportaudio/include -fstrength-reduce -fstrict-aliasing -finline-functions
+-Isrc -Iportaudio/include -fstrength-reduce -fstrict-aliasing \
+-finline-functions
 
 PYDAW_LIB_DIR   ?= /usr/lib
 PYDAW_LIB64_DIR ?= $(shell if [ -e "/usr/lib/x86_64-linux-gnu" ]; \
@@ -60,7 +61,7 @@ fi)
 
 LINK_CFLAGS  = $(RT_LIB_FLAG) -pthread $(LIBLO_FLAG) $(PORTMIDI_FLAG) \
 portaudio/lib/.libs/libportaudio.a \
-$(LDFLAGS) $(shell pkg-config --libs sndfile alsa) $(MATH_LIB_FLAG)
+$(LDFLAGS) $(shell pkg-config --libs sndfile alsa fftw3) $(MATH_LIB_FLAG)
 
 C_OBJS   = src/main.o
 

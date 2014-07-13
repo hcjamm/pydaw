@@ -459,6 +459,19 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         }
     }
 
+    if(plugin_data->mono_modules->spectrum_analyzer_on)
+    {
+        v_spa_run(plugin_data->mono_modules->spectrum_analyzer,
+                plugin_data->output0, plugin_data->output1, sample_count);
+        if(plugin_data->mono_modules->spectrum_analyzer->str_buf[0] != '\0')
+        {
+            // TODO:  special sauce to send a message to the UI???
+            //printf("%s", plugin_data->mono_modules->spectrum_analyzer->str_buf);
+            //printf("\n\n");
+            plugin_data->mono_modules->spectrum_analyzer->str_buf[0] = '\0';
+        }
+    }
+
 }
 
 PYFX_Descriptor *modulex_PYFX_descriptor(int index)

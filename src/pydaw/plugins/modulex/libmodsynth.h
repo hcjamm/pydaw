@@ -23,6 +23,7 @@ extern "C" {
 #include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/pitch_core.h"
+#include "../../libmodsynth/lib/spectrum_analyzer.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/modules/delay/lms_delay.h"
 #include "../../libmodsynth/modules/filter/svf.h"
@@ -55,6 +56,8 @@ typedef struct
 
     t_amp * amp_ptr;
     t_pkq_peak_eq * eqs[MODULEX_EQ_COUNT];
+    t_spa_spectrum_analyzer * spectrum_analyzer;
+    int spectrum_analyzer_on;
 }t_modulex_mono_modules;
 
 t_modulex_mono_modules * v_modulex_mono_init(float);
@@ -100,6 +103,9 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     a_mono->reverb_smoother->last_value = 0.0f;
 
     a_mono->vol_linear = 1.0f;
+
+    a_mono->spectrum_analyzer_on = 0;
+    a_mono->spectrum_analyzer = g_spa_spectrum_analyzer_get(4096);
 
     return a_mono;
 }
