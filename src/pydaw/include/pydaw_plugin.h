@@ -199,8 +199,9 @@ typedef struct _PYFX_Descriptor {
 
      Note that instance initialisation should generally occur in
      activate() rather than here. */
-  PYFX_Handle (*instantiate)(struct _PYFX_Descriptor * Descriptor, int SampleRate,
-          fp_get_wavpool_item_from_host a_host_wavpool_func);
+  PYFX_Handle (*instantiate)(struct _PYFX_Descriptor * Descriptor,
+          int SampleRate, fp_get_wavpool_item_from_host a_host_wavpool_func,
+          int a_track_num);
 
   /* This member is a function pointer that connects a port on an
      instantiated plugin to a memory location at which a block of data

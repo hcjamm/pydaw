@@ -57,14 +57,14 @@ typedef struct
     t_amp * amp_ptr;
     t_pkq_peak_eq * eqs[MODULEX_EQ_COUNT];
     t_spa_spectrum_analyzer * spectrum_analyzer;
-    int spectrum_analyzer_on;
 }t_modulex_mono_modules;
 
-t_modulex_mono_modules * v_modulex_mono_init(float);
+t_modulex_mono_modules * v_modulex_mono_init(float, int);
 
-t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
+t_modulex_mono_modules * v_modulex_mono_init(float a_sr, int a_track_num)
 {
-    t_modulex_mono_modules * a_mono = (t_modulex_mono_modules*)malloc(sizeof(t_modulex_mono_modules));
+    t_modulex_mono_modules * a_mono =
+            (t_modulex_mono_modules*)malloc(sizeof(t_modulex_mono_modules));
 
     int f_i = 0;
 
@@ -75,7 +75,8 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
         int f_i2 = 0;
         while(f_i2 < 3)
         {
-            a_mono->smoothers[f_i][f_i2] = g_sml_get_smoother_linear(a_sr, 127.0f, 0.0f, 0.1f);
+            a_mono->smoothers[f_i][f_i2] =
+                    g_sml_get_smoother_linear(a_sr, 127.0f, 0.0f, 0.1f);
             f_i2++;
         }
         f_i++;
@@ -92,20 +93,23 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     a_mono->amp_ptr = g_amp_get();
 
     a_mono->delay = g_ldl_get_delay(1, a_sr);
-    a_mono->time_smoother = g_sml_get_smoother_linear(a_sr, 100.0f, 10.0f, 0.1f);
+    a_mono->time_smoother =
+            g_sml_get_smoother_linear(a_sr, 100.0f, 10.0f, 0.1f);
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
 
     a_mono->reverb = g_rvb_reverb_get(a_sr);
 
-    a_mono->volume_smoother = g_sml_get_smoother_linear(a_sr, 0.0f, -50.0f, 0.1f);
+    a_mono->volume_smoother =
+            g_sml_get_smoother_linear(a_sr, 0.0f, -50.0f, 0.1f);
     a_mono->volume_smoother->last_value = 0.0f;
-    a_mono->reverb_smoother = g_sml_get_smoother_linear(a_sr, 100.0f, 0.0f, 0.001f);
+    a_mono->reverb_smoother =
+            g_sml_get_smoother_linear(a_sr, 100.0f, 0.0f, 0.001f);
     a_mono->reverb_smoother->last_value = 0.0f;
 
     a_mono->vol_linear = 1.0f;
 
-    a_mono->spectrum_analyzer_on = 0;
-    a_mono->spectrum_analyzer = g_spa_spectrum_analyzer_get(4096);
+    a_mono->spectrum_analyzer =
+            g_spa_spectrum_analyzer_get(4096, a_track_num, 0);
 
     return a_mono;
 }

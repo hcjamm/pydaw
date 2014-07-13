@@ -97,11 +97,12 @@ extern "C" {
 #define MODULEX_EQ6_FREQ 63
 #define MODULEX_EQ6_RES 64
 #define MODULEX_EQ6_GAIN 65
+#define MODULEX_SPECTRUM_ENABLED 66
 
-#define MODULEX_LAST_CONTROL_PORT 65
+#define MODULEX_LAST_CONTROL_PORT 66
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define MODULEX_COUNT 66
+#define MODULEX_COUNT 67
 
 typedef struct
 {
@@ -132,6 +133,7 @@ typedef struct
     PYFX_Data *eq_freq[6];
     PYFX_Data *eq_res[6];
     PYFX_Data *eq_gain[6];
+    PYFX_Data *spectrum_analyzer_on;
 
     float fs;
     t_modulex_mono_modules * mono_modules;
@@ -147,6 +149,7 @@ typedef struct
     float midi_event_values[200];
     int midi_event_ports[200];
     int midi_event_count;
+    int track_num;
 
     float * port_table;
 } t_modulex;

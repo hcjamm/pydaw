@@ -322,7 +322,7 @@ typedef struct
     int midi_learn;  //0 to disable, 1 to enable sending CC events to the UI
     int osc_queue_index;
     char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
-    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][1024];
+    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][122880];
     pthread_t osc_queue_thread;
     int f_region_length_bars;
     long f_next_current_sample;

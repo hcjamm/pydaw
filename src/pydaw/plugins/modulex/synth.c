@@ -164,16 +164,18 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
         case MODULEX_EQ4_GAIN: plugin->eq_gain[3] = data; break;
         case MODULEX_EQ5_GAIN: plugin->eq_gain[4] = data; break;
         case MODULEX_EQ6_GAIN: plugin->eq_gain[5] = data; break;
+        case MODULEX_SPECTRUM_ENABLED: plugin->spectrum_analyzer_on = data; break;
     }
 }
 
 static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
-        int s_rate,
-        fp_get_wavpool_item_from_host a_host_wavpool_func)
+        int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func,
+        int a_track_num)
 {
-    t_modulex *plugin_data = (t_modulex *) malloc(sizeof(t_modulex));
+    t_modulex *plugin_data = (t_modulex*)malloc(sizeof(t_modulex));
 
     plugin_data->fs = s_rate;
+    plugin_data->track_num = a_track_num;
     return (PYFX_Handle) plugin_data;
 }
 
@@ -183,7 +185,8 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
 
     plugin_data->port_table = a_port_table;
 
-    plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));
+    plugin_data->mono_modules =
+            v_modulex_mono_init(plugin_data->fs, plugin_data->track_num);
 
     plugin_data->i_slow_index = MODULEX_SLOW_INDEX_ITERATIONS;
     plugin_data->is_on = 0;
@@ -350,7 +353,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     v_mf3_set(plugin_data->mono_modules->multieffect[f_i],
                     plugin_data->mono_modules->smoothers[f_i][0]->last_value,
                     plugin_data->mono_modules->smoothers[f_i][1]->last_value,
-                    plugin_data->mono_modules->smoothers[f_i][2]->last_value  );
+                    plugin_data->mono_modules->smoothers[f_i][2]->last_value);
 
                     plugin_data->mono_modules->fx_func_ptr[f_i](
                         plugin_data->mono_modules->multieffect[f_i],
@@ -459,15 +462,13 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         }
     }
 
-    if(plugin_data->mono_modules->spectrum_analyzer_on)
+    if((int)(*plugin_data->spectrum_analyzer_on))
     {
         v_spa_run(plugin_data->mono_modules->spectrum_analyzer,
                 plugin_data->output0, plugin_data->output1, sample_count);
         if(plugin_data->mono_modules->spectrum_analyzer->str_buf[0] != '\0')
         {
             // TODO:  special sauce to send a message to the UI???
-            //printf("%s", plugin_data->mono_modules->spectrum_analyzer->str_buf);
-            //printf("\n\n");
             plugin_data->mono_modules->spectrum_analyzer->str_buf[0] = '\0';
         }
     }
@@ -541,6 +542,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_GAIN, 0.0f, -24.0f, 24.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_GAIN, 0.0f, -24.0f, 24.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_SPECTRUM_ENABLED, 0.0f, 0.0f, 1.0f);
 
 
     LMSLDescriptor->activate = v_modulex_activate;

@@ -9502,6 +9502,18 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_region, f_bar, f_beat = a_val.split("|")
                     TRANSPORT.set_pos_from_cursor(f_region, f_bar, f_beat)
                     AUDIO_SEQ.set_playback_pos(f_bar, f_beat)
+            elif a_key == "ui":
+                f_is_inst, f_track_num, f_name, f_val = a_val.split("|")
+                if int_to_bool(f_is_inst):
+                    if int(f_track_num) in OPEN_INST_UI_DICT:
+                        OPEN_INST_UI_DICT[int(f_track_num)].ui_message(
+                            f_name, float(f_val))
+                else:
+                    if int(f_track_num) in OPEN_FX_UI_DICTS[
+                    int(f_track_type)]:
+                        OPEN_FX_UI_DICTS[int(f_track_type)][
+                            int(f_track_num)].ui_message(
+                                int(f_port), float(f_val))
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
                 PIANO_ROLL_EDITOR.highlight_keys(f_state, f_note)
@@ -9522,9 +9534,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             else:
                 if int(f_track_num) in OPEN_FX_UI_DICTS[
                 int(f_track_type)]:
-                    OPEN_FX_UI_DICTS[int(f_track_type)]\
-                        [int(f_track_num)].set_control_val(
-                        int(f_port), float(f_val))
+                    OPEN_FX_UI_DICTS[int(f_track_type)][
+                        int(f_track_num)].set_control_val(
+                            int(f_port), float(f_val))
 
 
     def closeEvent(self, event):

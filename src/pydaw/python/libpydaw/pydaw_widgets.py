@@ -1972,10 +1972,19 @@ class eq_viewer(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.eq_points = []
+        self.spectrum = None
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setSceneRect(-EQ_POINT_RADIUS, -EQ_POINT_RADIUS,
                           EQ_WIDTH + EQ_POINT_RADIUS,
                           EQ_HEIGHT + EQ_POINT_DIAMETER)
+
+    def set_spectrum(self, a_message):
+        f_spectrum = pydaw_spectrum(
+            a_message, self.eq_viewer.width(), self.eq_viewer.height())
+        if self.spectrum:
+            self.eq_viewer.scene.removeItem(self.spectrum)
+        self.eq_viewer.scene.addItem(f_spectrum)
+        self.spectrum = f_spectrum
 
     def draw_eq(self, a_eq_list=[]):
         f_hline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 90), 1.0)
@@ -2228,6 +2237,9 @@ class eq6_widget:
             f_eq.res_knob.set_value(f_bw_adjusted, True)
             f_db_adjusted = (f_db * 0.3) + 21.0
             f_eq.gain_knob.set_value(f_db_adjusted, True)
+
+    def set_spectrum(self, a_message):
+        self.eq_viewer.set_spectrum(a_message)
 
     def on_paste(self):
         global EQ6_CLIPBOARD
@@ -3337,6 +3349,18 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
         self.update_label()
 
 
+class pydaw_spectrum(QtGui.QGraphicsPathItem):
+    def __init__(self, a_message, a_height, a_width):
+        self.painter_path = QtGui.QPainterPath()
+        QtGui.QGraphicsPathItem.__init__(self, self.painter_path)
+        self.values = [1.0 - float(x) for x in a_message.split("|")]
+        self.setPen(QtCore.Qt.white)
+        f_width_per_point = float(a_width) / float(len(self.values))
+        self.painter_path.moveTo(0.0, self.values[0] * a_height)
+        for f_i, f_val in zip(range(len(self.values) - 1, self.values[1:])):
+            self.painter_path.lineTo(f_width_per_point * f_i, f_val)
+
+
 MODULEX_CLIPBOARD = None
 
 class pydaw_modulex_single:
@@ -3912,6 +3936,12 @@ class pydaw_abstract_plugin_ui:
         """
         pass
 
+    def ui_message(self, a_name, a_value):
+        """ Override to display ephemeral data such as
+            meters/scopes/spectra using key value pairs
+        """
+        print("Unknown ui_message: {} : {}".format(a_name, a_value))
+
     def set_window_title(self, a_track_name):
         pass  #Override this function
 
@@ -3937,6 +3967,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.layout.addLayout(self.presets_hlayout)
         self.tab_widget = QtGui.QTabWidget()
+        self.tab_widget.currentChanged.connect(self.tab_changed)
         self.layout.addWidget(self.tab_widget)
         self.layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
@@ -4092,11 +4123,21 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.tab_widget.addTab(self.eq6.widget, _("EQ"))
 
+        self.spectrum_enabled = pydaw_null_control(
+            pydaw_ports.MODULEX_SPECTRUM_ENABLED,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict)
+
         self.open_plugin_file()
 
     def open_plugin_file(self):
         pydaw_abstract_plugin_ui.open_plugin_file(self)
         self.eq6.update_viewer()
+
+    def save_plugin_file(self):
+        # Don't allow the spectrum analyzer to run at startup
+        self.spectrum_enabled.set_value(0)
+        pydaw_abstract_plugin_ui.save_plugin_file(self)
 
     def bpmSyncPressed(self):
         f_frac = 1.0
@@ -4112,6 +4153,16 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.track_name = str(a_track_name)
         self.widget.setWindowTitle(
             "PyDAW Modulex - {}".format(self.track_name))
+
+    def tab_changed(self, a_val=None):
+        if self.tab_widget.currentIndex() == 2:
+            self.configure_plugin()
+
+    def ui_message(self, a_name, a_value):
+        if a_name == "spectrum":
+            self.eq6.set_spectrum(a_value)
+        else:
+            pydaw_abstract_plugin_ui.ui_message(a_name, a_value)
 
 
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
