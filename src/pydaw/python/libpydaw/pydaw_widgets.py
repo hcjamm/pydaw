@@ -3353,20 +3353,15 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
 class pydaw_spectrum(QtGui.QGraphicsPathItem):
     def __init__(self, a_message, a_height, a_width):
         self.painter_path = QtGui.QPainterPath(QtCore.QPointF(0.0, 0.0))
-        self.values = [float(x) for x in a_message.split("|")[::20]]
+        self.values = [(1.0 - float(x)) for x in a_message.split("|")[::20]]
         f_width_per_point = float(a_width) / float(len(self.values))
         self.painter_path.moveTo(0.0, self.values[0] * a_height)
-#        test = []
         for f_i, f_val in zip(range(1, len(self.values)), self.values[1:]):
             f_x = f_width_per_point * f_i
             f_y = f_val * a_height
             self.painter_path.lineTo(f_x, f_y)
-#            test.append("{}|{}".format(f_x, f_y))
         QtGui.QGraphicsPathItem.__init__(self, self.painter_path)
         self.setPen(QtCore.Qt.white)
-#        print("\n" * 5)
-#        print(" ".join(test))
-
 
 
 MODULEX_CLIPBOARD = None
