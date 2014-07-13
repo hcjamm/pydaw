@@ -4126,7 +4126,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.spectrum_enabled = pydaw_null_control(
             pydaw_ports.MODULEX_SPECTRUM_ENABLED,
             self.plugin_rel_callback, self.plugin_val_callback,
-            self.port_dict)
+            0, self.port_dict)
 
         self.open_plugin_file()
 
