@@ -1981,9 +1981,11 @@ class eq_viewer(QtGui.QGraphicsView):
     def set_spectrum(self, a_message):
         f_spectrum = pydaw_spectrum(a_message, EQ_HEIGHT, EQ_WIDTH)
         if self.spectrum:
-            self.scene.removeItem(self.spectrum)
+            try:
+                self.scene.removeItem(self.spectrum)
+            except RuntimeError as ex:
+                print(ex)
         self.scene.addItem(f_spectrum)
-        self.update()
         self.spectrum = f_spectrum
 
     def draw_eq(self, a_eq_list=[]):
@@ -1993,6 +1995,7 @@ class eq_viewer(QtGui.QGraphicsView):
         f_label_pos = 0.0
 
         self.scene.clear()
+        self.spectrum = None
 
         f_y_pos = 0.0
         f_db = 24.0
@@ -3354,12 +3357,12 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
         self.painter_path = QtGui.QPainterPath(QtCore.QPointF(0.0, 20.0))
         self.values = a_message.split("|")
         self.painter_path.moveTo(0.0, a_height)
-        f_low = int(pydaw_util.pydaw_hz_to_pitch(20.0))
-        f_high = int(pydaw_util.pydaw_hz_to_pitch(18000.0))
+        f_low = int(pydaw_util.pydaw_hz_to_pitch(51.0))
+        f_high = int(pydaw_util.pydaw_hz_to_pitch(16744.0))
         f_width_per_point = float(a_width) / float(f_high - f_low)
         for f_i in range(f_low, f_high):
             f_hz = pydaw_util.pydaw_pitch_to_hz(f_i)
-            f_pos = int((f_hz / 18000.0) * len(self.values))
+            f_pos = int((f_hz / 16744.0) * len(self.values))
             f_val = float(self.values[f_pos])
             f_db = pydaw_util.pydaw_lin_to_db(f_val) - 50.0
             f_db += ((f_i - f_low) / 12.0) * 3.0
