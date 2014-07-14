@@ -429,6 +429,9 @@ if not os.path.isdir(global_pydaw_home):
 global_device_val_dict = {}
 global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
 
+SAMPLE_RATE = None
+NYQUIST_FREQ = None
+
 def pydaw_delete_device_config():
     global global_device_val_dict
     global_device_val_dict = {}
@@ -493,6 +496,9 @@ def pydaw_read_device_config():
                 elif int(global_device_val_dict["audioEngine"]) == 6:
                     global_pydaw_with_audio = False
                     global_pydaw_bin_path = None
+            global SAMPLE_RATE, NYQUIST_FREQ
+            SAMPLE_RATE = int(global_device_val_dict["sampleRate"])
+            NYQUIST_FREQ = SAMPLE_RATE / 2
     except Exception as ex:
         print("Exception while reading device config,"
             " deleting and starting over\n{}".format(ex))
