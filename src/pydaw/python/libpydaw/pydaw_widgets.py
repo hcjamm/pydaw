@@ -3361,7 +3361,8 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
             f_hz = pydaw_util.pydaw_pitch_to_hz(f_i)
             f_pos = int((f_hz / 18000.0) * len(self.values))
             f_val = float(self.values[f_pos])
-            f_db = pydaw_util.pydaw_lin_to_db(f_val) - 30.0
+            f_db = pydaw_util.pydaw_lin_to_db(f_val) - 50.0
+            f_db += ((f_i - f_low) / 12.0) * 3.0
             f_db = pydaw_util.pydaw_clip_value(f_db, -50.0, 0.0)
             f_val = 1.0 - ((f_db + 50.0) / 50.0)
             f_x = f_width_per_point * f_i
