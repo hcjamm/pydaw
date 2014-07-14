@@ -3359,10 +3359,11 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
         self.painter_path.moveTo(0.0, a_height)
         f_low = int(pydaw_util.pydaw_hz_to_pitch(51.0))
         f_high = int(pydaw_util.pydaw_hz_to_pitch(16744.0))
-        f_width_per_point = float(a_width) / float(f_high - f_low)
+        f_width_per_point = (float(a_width) / float(f_high - f_low))
         f_fft_low = float(pydaw_util.SAMPLE_RATE) / 4096.0
         f_nyquist = float(pydaw_util.NYQUIST_FREQ)
-        for f_i in range(f_low, f_high):
+        f_i = f_low
+        while f_i < f_high:
             f_hz = pydaw_util.pydaw_pitch_to_hz(f_i) - f_fft_low
             f_pos = int((f_hz / f_nyquist) * len(self.values))
             f_val = float(self.values[f_pos])
@@ -3373,6 +3374,7 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
             f_x = f_width_per_point * (f_i - f_low)
             f_y = f_val * a_height
             self.painter_path.lineTo(f_x, f_y)
+            f_i += 0.5
         QtGui.QGraphicsPathItem.__init__(self, self.painter_path)
         self.setPen(QtCore.Qt.white)
 
