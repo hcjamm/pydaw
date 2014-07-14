@@ -3816,7 +3816,7 @@ class pydaw_per_audio_item_fx_widget:
 
 class pydaw_abstract_plugin_ui:
     def __init__(self, a_rel_callback, a_val_callback, a_track_num,
-                 a_project, a_track_type, a_stylesheet, a_close_callback,
+                 a_project, a_track_type, a_stylesheet,
                  a_configure_callback, a_can_resize=False):
         self.can_resize = a_can_resize
         self.track_num = int(a_track_num)
@@ -3843,7 +3843,6 @@ class pydaw_abstract_plugin_ui:
         self.scrollarea_widget.setLayout(self.layout)
         self.port_dict = {}
         self.effects = []
-        self.close_callback = a_close_callback
         self.configure_dict = {}
         self.save_file_on_exit = True
         self.is_quitting = False
@@ -3917,7 +3916,6 @@ class pydaw_abstract_plugin_ui:
             a_event.accept()
         else:
             self.widget.hide()
-            self.close_callback(self.track_num, self.track_type)
             a_event.ignore()
         #QtGui.QWidget.closeEvent(self.widget, a_event)
 
@@ -3969,11 +3967,10 @@ class pydaw_abstract_plugin_ui:
 class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                  a_folder, a_track_type, a_track_name, a_stylesheet,
-                 a_close_callback, a_configure_callback):
+                 a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(
-            self, a_rel_callback, a_val_callback,
-            a_track_num, a_project, a_track_type,
-            a_stylesheet, a_close_callback, a_configure_callback)
+            self, a_rel_callback, a_val_callback, a_track_num, a_project,
+            a_track_type, a_stylesheet, a_configure_callback)
         self.folder = a_folder
         self.file =  "{}.pyfx".format(self.track_num)
         self.set_window_title(a_track_name)
@@ -4206,11 +4203,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                  a_folder, a_track_type, a_track_name,
-                 a_stylesheet, a_close_callback, a_configure_callback):
+                 a_stylesheet, a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(
-            self, a_rel_callback, a_val_callback,
-            a_track_num, a_project, a_track_type,
-            a_stylesheet, a_close_callback, a_configure_callback)
+            self, a_rel_callback, a_val_callback, a_track_num, a_project,
+            a_track_type, a_stylesheet, a_configure_callback)
         self.folder = a_folder
         self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
@@ -4384,11 +4380,10 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project,
                  a_folder, a_track_type, a_track_name, a_stylesheet,
-                 a_close_callback, a_configure_callback):
+                 a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(
-            self, a_rel_callback, a_val_callback,
-            a_track_num, a_project, a_track_type,
-            a_stylesheet, a_close_callback, a_configure_callback)
+            self, a_rel_callback, a_val_callback, a_track_num, a_project,
+            a_track_type, a_stylesheet, a_configure_callback)
         self.folder = a_folder
         self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)
@@ -5032,12 +5027,11 @@ EUPHORIA_INSTRUMENT_CLIPBOARD = None
 class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num,
                  a_project, a_folder, a_track_type, a_track_name,
-                 a_stylesheet, a_close_callback, a_configure_callback):
+                 a_stylesheet, a_configure_callback):
         pydaw_abstract_plugin_ui.__init__(
             self, a_rel_callback, a_val_callback,
             a_track_num, a_project, a_track_type,
-            a_stylesheet, a_close_callback,
-            a_configure_callback, a_can_resize=True)
+            a_stylesheet, a_configure_callback, a_can_resize=True)
         self.folder = a_folder
         self.file = "{}.pyinst".format(self.track_num)
         self.set_window_title(a_track_name)

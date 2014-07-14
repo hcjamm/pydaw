@@ -8359,7 +8359,7 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
         f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(
             global_plugin_rel_callback, global_plugin_val_callback,
             a_track_num, PROJECT, a_folder, a_track_type,
-            a_title, MAIN_WINDOW.styleSheet(), global_fx_closed_callback,
+            a_title, MAIN_WINDOW.styleSheet(),
             global_configure_plugin_callback)
 
         pydaw_center_widget_on_screen(f_modulex.widget)
@@ -8380,19 +8380,19 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
                 global_plugin_rel_callback, global_plugin_val_callback,
                 f_track_num, PROJECT, pydaw_folder_instruments, 0,
                 a_title, MAIN_WINDOW.styleSheet(),
-                global_inst_closed_callback, global_configure_plugin_callback)
+                global_configure_plugin_callback)
         elif a_plugin_type == 2:
             f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(
                 global_plugin_rel_callback, global_plugin_val_callback,
                 f_track_num, PROJECT, pydaw_folder_instruments,
                 0, a_title, MAIN_WINDOW.styleSheet(),
-                global_inst_closed_callback, global_configure_plugin_callback)
+                global_configure_plugin_callback)
         elif a_plugin_type == 3:
             f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(
                 global_plugin_rel_callback, global_plugin_val_callback,
                 f_track_num, PROJECT, pydaw_folder_instruments,
                 0, a_title, MAIN_WINDOW.styleSheet(),
-                global_inst_closed_callback, global_configure_plugin_callback)
+                global_configure_plugin_callback)
         else:
             return
 
@@ -8425,17 +8425,6 @@ def global_fx_set_window_title(a_track_type, a_track_num, a_track_name):
     if f_track_num in OPEN_FX_UI_DICTS[f_track_type]:
         OPEN_FX_UI_DICTS[f_track_type][
             f_track_num].set_window_title(a_track_name)
-
-def global_fx_closed_callback(a_track_num, a_track_type):
-    pass
-    #global OPEN_FX_UI_DICTS
-    #Not doing anymore,just hiding
-    #OPEN_FX_UI_DICTS[a_track_type].pop(a_track_num)
-
-def global_inst_closed_callback(a_track_num, a_track_type=None):
-    pass
-    #global OPEN_INST_UI_DICT
-    #OPEN_INST_UI_DICT.pop(a_track_num)  #Not doing anymore, just hiding
 
 def global_configure_plugin_callback(a_is_instrument, a_track_type,
                                      a_track_num, a_key, a_message):
