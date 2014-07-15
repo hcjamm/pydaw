@@ -1972,21 +1972,13 @@ class eq_viewer(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.last_y_scale = 1.0
         self.eq_points = []
-        self.spectrum = None
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setSceneRect(-EQ_POINT_RADIUS, -EQ_POINT_RADIUS,
                           EQ_WIDTH + EQ_POINT_RADIUS,
                           EQ_HEIGHT + EQ_POINT_DIAMETER)
 
     def set_spectrum(self, a_message):
-        f_spectrum = pydaw_spectrum(a_message, EQ_HEIGHT, EQ_WIDTH)
-        if self.spectrum:
-            try:
-                self.scene.removeItem(self.spectrum)
-            except RuntimeError as ex:
-                print(ex)
-        self.scene.addItem(f_spectrum)
-        self.spectrum = f_spectrum
+        self.spectrum.set_spectrum(a_message)
 
     def draw_eq(self, a_eq_list=[]):
         f_hline_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 90), 1.0)
@@ -1995,7 +1987,8 @@ class eq_viewer(QtGui.QGraphicsView):
         f_label_pos = 0.0
 
         self.scene.clear()
-        self.spectrum = None
+        self.spectrum = pydaw_spectrum(EQ_HEIGHT, EQ_WIDTH)
+        self.scene.addItem(self.spectrum)
 
         f_y_pos = 0.0
         f_db = 24.0
@@ -3353,13 +3346,19 @@ class pydaw_sample_viewer_widget(pydaw_audio_item_viewer_widget):
 
 
 class pydaw_spectrum(QtGui.QGraphicsPathItem):
-    def __init__(self, a_message, a_height, a_width):
+    def __init__(self, a_height, a_width):
+        self.spectrum_height = float(a_height)
+        self.spectrum_width = float(a_width)
+        QtGui.QGraphicsPathItem.__init__(self)
+        self.setPen(QtCore.Qt.white)
+
+    def set_spectrum(self, a_message):
         self.painter_path = QtGui.QPainterPath(QtCore.QPointF(0.0, 20.0))
         self.values = a_message.split("|")
-        self.painter_path.moveTo(0.0, a_height)
+        self.painter_path.moveTo(0.0, self.spectrum_height)
         f_low = int(pydaw_util.pydaw_hz_to_pitch(51.0))
         f_high = int(pydaw_util.pydaw_hz_to_pitch(16744.0))
-        f_width_per_point = (float(a_width) / float(f_high - f_low))
+        f_width_per_point = (self.spectrum_width / float(f_high - f_low))
         f_fft_low = float(pydaw_util.SAMPLE_RATE) / 4096.0
         f_nyquist = float(pydaw_util.NYQUIST_FREQ)
         f_i = f_low
@@ -3372,11 +3371,10 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
             f_db = pydaw_util.pydaw_clip_value(f_db, -70.0, 0.0)
             f_val = 1.0 - ((f_db + 70.0) / 70.0)
             f_x = f_width_per_point * (f_i - f_low)
-            f_y = f_val * a_height
+            f_y = f_val * self.spectrum_height
             self.painter_path.lineTo(f_x, f_y)
             f_i += 0.5
-        QtGui.QGraphicsPathItem.__init__(self, self.painter_path)
-        self.setPen(QtCore.Qt.white)
+        self.setPath(self.painter_path)
 
 
 MODULEX_CLIPBOARD = None

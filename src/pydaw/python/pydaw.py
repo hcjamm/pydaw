@@ -9476,6 +9476,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def configure_callback(self, path, arr):
         f_pc_dict = {}
+        f_ui_dict = {}
         for f_line in arr[0].split("\n"):
             if f_line == "":
                 break
@@ -9493,16 +9494,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     AUDIO_SEQ.set_playback_pos(f_bar, f_beat)
             elif a_key == "ui":
                 f_is_inst, f_track_num, f_name, f_val = a_val.split("|", 3)
-                f_track_type, f_track_num = track_all_to_type_and_index(
-                    f_track_num)
-                if int_to_bool(f_is_inst):
-                    if int(f_track_num) in OPEN_INST_UI_DICT:
-                        OPEN_INST_UI_DICT[int(f_track_num)].ui_message(
-                            f_name, f_val)
-                else:
-                    if int(f_track_num) in OPEN_FX_UI_DICTS[int(f_track_type)]:
-                        OPEN_FX_UI_DICTS[int(f_track_type)][
-                            int(f_track_num)].ui_message(f_name, f_val)
+                f_ui_dict[(f_is_inst, f_track_num, f_name)] = f_val
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
                 PIANO_ROLL_EDITOR.highlight_keys(f_state, f_note)
@@ -9514,6 +9506,18 @@ class pydaw_main_window(QtGui.QMainWindow):
                     WAVE_EDITOR.set_playback_cursor(float(a_val))
         #This prevents multiple events from moving the same control,
         #only the last goes through
+        for k, f_val in f_ui_dict.items():
+            f_is_inst, f_track_num, f_name = k
+            f_track_type, f_track_num = track_all_to_type_and_index(
+                f_track_num)
+            if int_to_bool(f_is_inst):
+                if int(f_track_num) in OPEN_INST_UI_DICT:
+                    OPEN_INST_UI_DICT[int(f_track_num)].ui_message(
+                        f_name, f_val)
+            else:
+                if int(f_track_num) in OPEN_FX_UI_DICTS[int(f_track_type)]:
+                    OPEN_FX_UI_DICTS[int(f_track_type)][
+                        int(f_track_num)].ui_message(f_name, f_val)
         for k, f_val in f_pc_dict.items():
             f_track_type, f_is_inst, f_track_num, f_port = k
             if int_to_bool(f_is_inst):
