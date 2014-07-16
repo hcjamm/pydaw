@@ -3502,79 +3502,79 @@ class pydaw_modulex_single:
             self.knobs[1].value_label.setText("")
             self.knobs[2].value_label.setText("")
         elif a_val == 1: #LP2
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 2: #LP4
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 3: #HP2
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 4: #HP4
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 5: #BP2
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 6: #BP4
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 7: #Notch2
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 8: #Notch4
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 9: #EQ
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Q"))
             self.knobs[2].name_label.setText(_("Gain"))
             self.knobs[0].val_conversion = kc_127_pitch
@@ -3584,8 +3584,8 @@ class pydaw_modulex_single:
             self.knobs[1].value_label.setText("")
         elif a_val == 10: #Distortion
             self.knobs[0].name_label.setText(_("Gain"))
-            self.knobs[1].name_label.setText(_("Dry/Wet"))
-            self.knobs[2].name_label.setText(_("Out Gain"))
+            self.knobs[1].name_label.setText(_("D/W"))
+            self.knobs[2].name_label.setText(_("Out"))
             self.knobs[0].val_conversion = kc_127_zero_to_x
             self.knobs[0].set_127_min_max(0.0, 48.0)
             self.knobs[1].val_conversion = kc_none
@@ -3593,9 +3593,9 @@ class pydaw_modulex_single:
             self.knobs[2].val_conversion = kc_127_zero_to_x
             self.knobs[2].set_127_min_max(-30.0, 0.0)
         elif a_val == 11: #Comb Filter
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Amt"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_none
             self.knobs[1].val_conversion = kc_none
             self.knobs[2].val_conversion = kc_none
@@ -3605,7 +3605,7 @@ class pydaw_modulex_single:
         elif a_val == 12: #Amp/Panner
             self.knobs[0].name_label.setText(_("Pan"))
             self.knobs[1].name_label.setText(_("Amp"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_none
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-40.0, 24.0)
@@ -3615,8 +3615,8 @@ class pydaw_modulex_single:
             self.knobs[2].value_label.setText("")
         elif a_val == 13: #Limiter
             self.knobs[0].name_label.setText(_("Thresh"))
-            self.knobs[1].name_label.setText(_("Ceiling"))
-            self.knobs[2].name_label.setText(_("Release"))
+            self.knobs[1].name_label.setText(_("Ceil"))
+            self.knobs[2].name_label.setText(_("Rel"))
             self.knobs[0].val_conversion = kc_127_zero_to_x
             self.knobs[0].set_127_min_max(-30.0, 0.0)
             self.knobs[1].val_conversion = kc_127_zero_to_x
@@ -3624,9 +3624,9 @@ class pydaw_modulex_single:
             self.knobs[2].val_conversion = kc_127_zero_to_x_int
             self.knobs[2].set_127_min_max(50.0, 1500.0)
         elif a_val == 14: #Saturator
-            self.knobs[0].name_label.setText(_("InGain"))
-            self.knobs[1].name_label.setText(_("Amt"))
-            self.knobs[2].name_label.setText(_("OutGain"))
+            self.knobs[0].name_label.setText(_("Gain"))
+            self.knobs[1].name_label.setText(_("Wet"))
+            self.knobs[2].name_label.setText(_("Out"))
             self.knobs[0].val_conversion = kc_127_zero_to_x
             self.knobs[0].set_127_min_max(-12.0, 12.0)
             self.knobs[1].val_conversion = kc_none
@@ -3636,7 +3636,7 @@ class pydaw_modulex_single:
         elif a_val == 15: #Formant Filter
             self.knobs[0].name_label.setText(_("Vowel"))
             self.knobs[1].name_label.setText(_("Wet"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_none
             self.knobs[0].value_label.setText("")
             self.knobs[1].val_conversion = kc_none
@@ -3646,7 +3646,7 @@ class pydaw_modulex_single:
         elif a_val == 16: #Chorus
             self.knobs[0].name_label.setText(_("Rate"))
             self.knobs[1].name_label.setText(_("Wet"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_zero_to_x
             self.knobs[0].set_127_min_max(0.3, 6.0)
             self.knobs[0].value_label.setText("")
@@ -3667,7 +3667,7 @@ class pydaw_modulex_single:
         elif a_val == 18: #RingMod
             self.knobs[0].name_label.setText(_("Pitch"))
             self.knobs[1].name_label.setText(_("Wet"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_none
             self.knobs[0].value_label.setText("")
             self.knobs[1].val_conversion = kc_none
@@ -3676,8 +3676,8 @@ class pydaw_modulex_single:
             self.knobs[2].value_label.setText("")
         elif a_val == 19: #LoFi
             self.knobs[0].name_label.setText(_("Bits"))
-            self.knobs[1].name_label.setText(_("unused"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[1].name_label.setText("")
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_zero_to_x
             self.knobs[0].set_127_min_max(4.0, 16.0)
             self.knobs[1].val_conversion = kc_none
@@ -3687,7 +3687,7 @@ class pydaw_modulex_single:
         elif a_val == 20: #Sample and Hold
             self.knobs[0].name_label.setText(_("Pitch"))
             self.knobs[1].name_label.setText(_("Wet"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_none
             self.knobs[0].value_label.setText("")
             self.knobs[1].val_conversion = kc_none
@@ -3695,7 +3695,7 @@ class pydaw_modulex_single:
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 21: #LP2-Dry/Wet
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
             self.knobs[2].name_label.setText(_("Wet"))
             self.knobs[0].val_conversion = kc_127_pitch
@@ -3704,7 +3704,7 @@ class pydaw_modulex_single:
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 22: #HP2-Dry/Wet
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
             self.knobs[2].name_label.setText(_("Wet"))
             self.knobs[0].val_conversion = kc_127_pitch
@@ -3715,7 +3715,7 @@ class pydaw_modulex_single:
         elif a_val == 23: #Monofier
             self.knobs[0].name_label.setText(_("Pan"))
             self.knobs[1].name_label.setText(_("Amp"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_none
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 6.0)
@@ -3724,9 +3724,9 @@ class pydaw_modulex_single:
             self.knobs[1].value_label.setText("")
             self.knobs[2].value_label.setText("")
         elif a_val == 24: #LP<-->HP
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(("LP<->HP"))
+            self.knobs[2].name_label.setText(("LP/HP"))
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
@@ -3743,16 +3743,16 @@ class pydaw_modulex_single:
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 26: #Screech LP
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
-            self.knobs[2].name_label.setText(_("unused"))
+            self.knobs[2].name_label.setText("")
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
             self.knobs[1].set_127_min_max(-30.0, 0.0)
             self.knobs[2].val_conversion = kc_none
             self.knobs[2].value_label.setText("")
         elif a_val == 27: #Metal Comb
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Amt"))
             self.knobs[2].name_label.setText(_("Detune"))
             self.knobs[0].val_conversion = kc_none
@@ -3762,7 +3762,7 @@ class pydaw_modulex_single:
             self.knobs[1].value_label.setText("")
             self.knobs[2].value_label.setText("")
         elif a_val == 28: #Notch4-Dry/Wet
-            self.knobs[0].name_label.setText(_("Cutoff"))
+            self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Res"))
             self.knobs[2].name_label.setText(_("Wet"))
             self.knobs[0].val_conversion = kc_127_pitch
