@@ -168,10 +168,11 @@ class pydaw_project:
         return os.listdir(self.audiofx_folder)
 
     def delete_inst_file(self, a_track_num):
-        f_file_path = "{}/{}.pyinst".format(
-            self.instrument_folder, a_track_num)
-        if os.path.isfile(f_file_path):
-            os.system("rm -f '{}'".format(f_file_path))
+        for f_ext in ("pyinst", "pyfx"):
+            f_file_path = "{}/{}.{}".format(
+                self.instrument_folder, a_track_num, f_ext)
+            if os.path.isfile(f_file_path):
+                os.system("rm -f '{}'".format(f_file_path))
 
     def flush_history(self):
         for f_commit in self.history_commits:

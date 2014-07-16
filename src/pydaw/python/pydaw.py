@@ -7726,10 +7726,10 @@ class seq_track:
     def on_instrument_change(self, selected_instrument):
         if not self.suppress_osc:
             PROJECT.save_tracks(REGION_INST_EDITOR.get_tracks())
+            global_close_inst_ui(self.track_number)
             PROJECT.delete_inst_file(self.track_number)
             PROJECT.this_pydaw_osc.pydaw_set_instrument_index(
                 self.track_number, selected_instrument)
-            global_close_inst_ui(self.track_number, True)
             PROJECT.commit(
                 _("Set instrument for MIDI track {} to {}").format(
                 self.track_number, self.instrument_combobox.currentText()))
@@ -8405,13 +8405,15 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
         OPEN_INST_UI_DICT[f_track_num].raise_widget()
 
 
-def global_close_inst_ui(a_track_num, a_delete_file=False):
+def global_close_inst_ui(a_track_num):
     f_track_num = int(a_track_num)
     if f_track_num in OPEN_INST_UI_DICT:
-        if a_delete_file:
-            OPEN_INST_UI_DICT[f_track_num].delete_plugin_file()
         OPEN_INST_UI_DICT[f_track_num].widget.close()
         OPEN_INST_UI_DICT.pop(f_track_num)
+    if f_track_num in OPEN_FX_UI_DICTS[0]:
+        OPEN_FX_UI_DICTS[0][f_track_num].widget.close()
+        OPEN_FX_UI_DICTS[0].pop(f_track_num)
+
 
 def global_inst_set_window_title(a_track_num, a_track_name):
     f_track_num = int(a_track_num)
