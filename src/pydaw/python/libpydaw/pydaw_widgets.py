@@ -3575,10 +3575,11 @@ class pydaw_modulex_single:
             self.knobs[2].value_label.setText("")
         elif a_val == 9: #EQ
             self.knobs[0].name_label.setText(_("Freq"))
-            self.knobs[1].name_label.setText(_("Q"))
+            self.knobs[1].name_label.setText(_("BW"))
             self.knobs[2].name_label.setText(_("Gain"))
             self.knobs[0].val_conversion = kc_127_pitch
-            self.knobs[1].val_conversion = kc_none
+            self.knobs[1].val_conversion = kc_127_zero_to_x
+            self.knobs[1].set_127_min_max(2.5, 8.0)
             self.knobs[2].val_conversion = kc_127_zero_to_x
             self.knobs[2].set_127_min_max(-24.0, 24.0)
             self.knobs[1].value_label.setText("")
@@ -3754,7 +3755,7 @@ class pydaw_modulex_single:
         elif a_val == 27: #Metal Comb
             self.knobs[0].name_label.setText(_("Freq"))
             self.knobs[1].name_label.setText(_("Amt"))
-            self.knobs[2].name_label.setText(_("Detune"))
+            self.knobs[2].name_label.setText(_("Spread"))
             self.knobs[0].val_conversion = kc_none
             self.knobs[1].val_conversion = kc_none
             self.knobs[2].val_conversion = kc_none
