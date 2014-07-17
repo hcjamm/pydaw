@@ -380,11 +380,11 @@ inline void v_mf3_run_eq(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
     //cutoff
-    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20.0f);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638f) + 20.0f);
     //width
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.047244094) + 2.5f;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.039370079f) + 1.0f;
     //gain
-    a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756 - 24.0f;
+    a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756f - 24.0f;
 
     v_pkq_calc_coeffs(a_mf3->eq0, a_mf3->control_value[0],
             a_mf3->control_value[1], a_mf3->control_value[2]);

@@ -3579,7 +3579,7 @@ class pydaw_modulex_single:
             self.knobs[2].name_label.setText(_("Gain"))
             self.knobs[0].val_conversion = kc_127_pitch
             self.knobs[1].val_conversion = kc_127_zero_to_x
-            self.knobs[1].set_127_min_max(2.5, 8.0)
+            self.knobs[1].set_127_min_max(1.0, 6.0)
             self.knobs[2].val_conversion = kc_127_zero_to_x
             self.knobs[2].set_127_min_max(-24.0, 24.0)
             self.knobs[1].value_label.setText("")
