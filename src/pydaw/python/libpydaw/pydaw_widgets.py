@@ -1807,7 +1807,8 @@ class pydaw_master_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_vol_port,
                  a_glide_port, a_pitchbend_port, a_port_dict,
                  a_title=_("Master"), a_uni_voices_port=None,
-                 a_uni_spread_port=None, a_preset_mgr=None, a_poly_port=None):
+                 a_uni_spread_port=None, a_preset_mgr=None, a_poly_port=None,
+                 a_min_note_port=None, a_max_note_port=None):
         self.group_box = QtGui.QGroupBox()
         self.group_box.setObjectName("plugin_groupbox")
         self.group_box.setTitle(str(a_title))
@@ -1844,6 +1845,17 @@ class pydaw_master_widget:
                 ["Retrig.", "Free", "Mono", "Mono2"],
                 a_port_dict, 0, a_preset_mgr)
             self.mono_combobox.add_to_grid_layout(self.layout, 5)
+        if a_min_note_port or a_max_note_port:
+            assert(a_min_note_port and a_max_note_port)
+            self.min_note = pydaw_note_selector_widget(
+                a_min_note_port, a_rel_callback, a_val_callback, a_port_dict,
+                0, a_preset_mgr)
+            self.max_note = pydaw_note_selector_widget(
+                a_max_note_port, a_rel_callback, a_val_callback, a_port_dict,
+                120, a_preset_mgr)
+            self.layout.addWidget(QtGui.QLabel(_("Range")), 0, 9)
+            self.layout.addWidget(self.min_note.widget, 1, 9)
+            self.layout.addWidget(self.max_note.widget, 2, 9)
 
 
 EQ_POINT_DIAMETER = 12.0
@@ -4331,7 +4343,9 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
             pydaw_ports.RAYV_MASTER_PITCHBEND_AMT, self.port_dict, _("Master"),
             pydaw_ports.RAYV_MASTER_UNISON_VOICES,
             pydaw_ports.RAYV_MASTER_UNISON_SPREAD,
-            self.preset_manager, a_poly_port=pydaw_ports.RAYV_MONO_MODE)
+            self.preset_manager, a_poly_port=pydaw_ports.RAYV_MONO_MODE,
+            a_min_note_port=pydaw_ports.RAYV_MIN_NOTE,
+            a_max_note_port=pydaw_ports.RAYV_MAX_NOTE)
         self.hlayout3.addWidget(self.master.group_box)
 
         self.pitch_env =  pydaw_ramp_env_widget(
@@ -4673,7 +4687,9 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             pydaw_ports.WAYV_MASTER_GLIDE,
             pydaw_ports.WAYV_MASTER_PITCHBEND_AMT,
             self.port_dict, a_preset_mgr=self.preset_manager,
-            a_poly_port=pydaw_ports.WAYV_MONO_MODE)
+            a_poly_port=pydaw_ports.WAYV_MONO_MODE,
+            a_min_note_port=pydaw_ports.WAYV_MIN_NOTE,
+            a_max_note_port=pydaw_ports.WAYV_MAX_NOTE)
 
         self.hlayout_master.addWidget(self.master.group_box)
 
@@ -4686,30 +4702,6 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             a_prefx_port=pydaw_ports.WAYV_ADSR_PREFX,
             a_knob_type=kc_log_time, a_hold_port=pydaw_ports.WAYV_HOLD_MAIN)
         self.hlayout_master.addWidget(self.adsr_amp_main.groupbox)
-
-        self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
-        self.groupbox_noise.setObjectName("plugin_groupbox")
-        self.groupbox_noise_layout = QtGui.QGridLayout(self.groupbox_noise)
-        self.hlayout_master.addWidget(self.groupbox_noise)
-        self.noise_amp =  pydaw_knob_control(
-            f_knob_size, _("Vol"), pydaw_ports.WAYV_NOISE_AMP,
-            self.plugin_rel_callback, self.plugin_val_callback,
-            -60, 0, -30, kc_integer, self.port_dict, self.preset_manager)
-        self.noise_amp.add_to_grid_layout(self.groupbox_noise_layout, 0)
-
-        self.noise_type =  pydaw_combobox_control(
-            87, _("Type"), pydaw_ports.WAYV_NOISE_TYPE,
-            self.plugin_rel_callback, self.plugin_val_callback,
-            [_("Off"), _("White"), _("Pink")], self.port_dict,
-             a_preset_mgr=self.preset_manager)
-        self.noise_type.control.setMaximumWidth(87)
-        self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
-
-        self.noise_prefx = pydaw_checkbox_control(
-            "PreFX", pydaw_ports.WAYV_NOISE_PREFX,
-            self.plugin_rel_callback, self.plugin_val_callback,
-            self.port_dict, a_preset_mgr=self.preset_manager, a_default=1)
-        self.noise_prefx.add_to_grid_layout(self.groupbox_noise_layout, 6)
 
         self.perc_env = pydaw_perc_env_widget(
             f_knob_size, self.plugin_rel_callback, self.plugin_val_callback,
@@ -4736,6 +4728,30 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             self.port_dict, self.preset_manager)
         self.adsr_noise_on.add_to_grid_layout(self.adsr_noise.layout, 21)
+
+        self.groupbox_noise =  QtGui.QGroupBox(_("Noise"))
+        self.groupbox_noise.setObjectName("plugin_groupbox")
+        self.groupbox_noise_layout = QtGui.QGridLayout(self.groupbox_noise)
+        self.hlayout_master2.addWidget(self.groupbox_noise)
+        self.noise_amp =  pydaw_knob_control(
+            f_knob_size, _("Vol"), pydaw_ports.WAYV_NOISE_AMP,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            -60, 0, -30, kc_integer, self.port_dict, self.preset_manager)
+        self.noise_amp.add_to_grid_layout(self.groupbox_noise_layout, 0)
+
+        self.noise_type =  pydaw_combobox_control(
+            87, _("Type"), pydaw_ports.WAYV_NOISE_TYPE,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            [_("Off"), _("White"), _("Pink")], self.port_dict,
+             a_preset_mgr=self.preset_manager)
+        self.noise_type.control.setMaximumWidth(87)
+        self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
+
+        self.noise_prefx = pydaw_checkbox_control(
+            "PreFX", pydaw_ports.WAYV_NOISE_PREFX,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, a_preset_mgr=self.preset_manager, a_default=1)
+        self.noise_prefx.add_to_grid_layout(self.groupbox_noise_layout, 6)
 
         self.modulation_vlayout.addItem(
             QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
@@ -5867,7 +5883,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             pydaw_ports.EUPHORIA_MASTER_VOLUME,
             pydaw_ports.EUPHORIA_MASTER_GLIDE,
             pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT,
-            self.port_dict, _("Master"))
+            self.port_dict, _("Master"),
+            a_min_note_port=pydaw_ports.EUPHORIA_MIN_NOTE,
+            a_max_note_port=pydaw_ports.EUPHORIA_MAX_NOTE)
         self.monofx_sub_tab_fx_layout.addWidget(self.master.group_box)
         self.master.vol_knob.control.setRange(-24, 24)
 

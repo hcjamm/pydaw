@@ -227,6 +227,12 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
         case RAYV_ADSR_PREFX:
             plugin->adsr_prefx = data;
             break;
+        case RAYV_MIN_NOTE:
+            plugin->min_note = data;
+            break;
+        case RAYV_MAX_NOTE:
+            plugin->max_note = data;
+            break;
     }
 }
 
@@ -286,6 +292,9 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 
     plugin_data->voices->poly_mode = f_poly_mode;
 
+    int f_min_note = (int)*plugin_data->min_note;
+    int f_max_note = (int)*plugin_data->max_note;
+
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count;
             plugin_data->event_pos = (plugin_data->event_pos) + 1)
     {
@@ -293,6 +302,11 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
         {
             if (events[(plugin_data->event_pos)].velocity > 0)
             {
+                if(events[(plugin_data->event_pos)].note > f_max_note ||
+                    events[(plugin_data->event_pos)].note < f_min_note)
+                {
+                    continue;
+                }
                 int f_voice = i_pick_voice(plugin_data->voices,
                          events[(plugin_data->event_pos)].note,
                          plugin_data->sampleNo,
@@ -736,6 +750,8 @@ PYFX_Descriptor *rayv_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, RAYV_LFO_PHASE, 0.0f, 0.0f, 100.0f);
     pydaw_set_pyfx_port(f_result, RAYV_LFO_PITCH_FINE, 0.0f, -100.0f, 100.0f);
     pydaw_set_pyfx_port(f_result, RAYV_ADSR_PREFX, 0.0f, 0.0f, 1.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MIN_NOTE, 0.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, RAYV_MAX_NOTE, 120.0f, 0.0f, 120.0f);
 
     f_result->activate = v_rayv_activate;
     f_result->cleanup = v_cleanup_rayv;

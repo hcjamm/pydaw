@@ -442,9 +442,12 @@ extern "C" {
 #define WAVV_PFXMATRIX_GRP0DST3SRC7CTRL1 367
 #define WAVV_PFXMATRIX_GRP0DST3SRC7CTRL2 368
 
+#define WAYV_MIN_NOTE 369
+#define WAYV_MAX_NOTE 370
+
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define WAYV_COUNT 369
+#define WAYV_COUNT 371
 
 #define WAYV_POLYPHONY   16
 #define WAYV_POLYPHONY_THRESH 12
@@ -543,6 +546,9 @@ typedef struct
     PYFX_Data *amp_macro_values[2][WAYV_OSC_COUNT];
 
     PYFX_Data *mono_mode;
+
+    PYFX_Data *min_note;
+    PYFX_Data *max_note;
 
     //Corresponds to the actual knobs on the effects themselves,
     //not the mod matrix

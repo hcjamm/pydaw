@@ -63,10 +63,12 @@ extern "C" {
 #define RAYV_LFO_PHASE 40
 #define RAYV_LFO_PITCH_FINE 41
 #define RAYV_ADSR_PREFX 42
+#define RAYV_MIN_NOTE 43
+#define RAYV_MAX_NOTE 44
 
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define RAYV_COUNT 43
+#define RAYV_COUNT 45
 
 #define RAYV_POLYPHONY   16
 #define RAYV_POLYPHONY_THRESH 12
@@ -127,6 +129,8 @@ typedef struct {
     PYFX_Data *sync_hard;
     PYFX_Data *adsr_prefx;
     PYFX_Data *mono_mode;
+    PYFX_Data *min_note;
+    PYFX_Data *max_note;
 
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
     t_voc_voices * voices;

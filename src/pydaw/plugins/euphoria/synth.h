@@ -83,7 +83,8 @@ typedef struct {
     PYFX_Data *lfo_pitch;
     PYFX_Data *lfo_pitch_fine;
 
-    PYFX_Data *global_midi_octaves_offset;
+    PYFX_Data *min_note;
+    PYFX_Data *max_note;
 
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     PYFX_Data *pfx_mod_knob[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];

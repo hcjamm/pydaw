@@ -615,6 +615,9 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
         case WAVV_PFXMATRIX_GRP0DST3SRC7CTRL0: plugin->polyfx_mod_matrix[0][3][7][0] = data; break;
         case WAVV_PFXMATRIX_GRP0DST3SRC7CTRL1: plugin->polyfx_mod_matrix[0][3][7][1] = data; break;
         case WAVV_PFXMATRIX_GRP0DST3SRC7CTRL2: plugin->polyfx_mod_matrix[0][3][7][2] = data; break;
+
+        case WAYV_MIN_NOTE: plugin->min_note = data; break;
+        case WAYV_MAX_NOTE: plugin->max_note = data; break;
     }
 }
 
@@ -672,6 +675,9 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
 
     plugin_data->voices->poly_mode = f_poly_mode;
 
+    int f_min_note = (int)*plugin_data->min_note;
+    int f_max_note = (int)*plugin_data->max_note;
+
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count;
             plugin_data->event_pos = (plugin_data->event_pos) + 1)
     {
@@ -679,6 +685,12 @@ static void v_run_wayv(PYFX_Handle instance, int sample_count,
         {
             if (events[(plugin_data->event_pos)].velocity > 0)
             {
+                if(events[(plugin_data->event_pos)].note > f_max_note ||
+                    events[(plugin_data->event_pos)].note < f_min_note)
+                {
+                    continue;
+                }
+
                 int f_voice = i_pick_voice(plugin_data->voices,
                         events[(plugin_data->event_pos)].note,
                         plugin_data->sampleNo,
@@ -1775,6 +1787,8 @@ PYFX_Descriptor *wayv_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, WAYV_SUSTAIN6, 0.0f, -30.0f, 0.0f);
     pydaw_set_pyfx_port(f_result, WAYV_RELEASE6, 50.0f, 10.0f, 400.0f);
     pydaw_set_pyfx_port(f_result, WAYV_ADSR6_CHECKBOX, 0.0f, 0, 1);
+    pydaw_set_pyfx_port(f_result, WAYV_MIN_NOTE, 0.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, WAYV_MAX_NOTE, 120.0f, 0.0f, 120.0f);
 
     f_port = WAYV_FM_MACRO1_OSC1_FM5;
 

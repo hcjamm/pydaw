@@ -432,6 +432,14 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     {
         plugin->lfo_pitch_fine = data;
     }
+    else if(port == EUPHORIA_MIN_NOTE)
+    {
+        plugin->min_note = data;
+    }
+    else if(port == EUPHORIA_MAX_NOTE)
+    {
+        plugin->max_note = data;
+    }
 }
 
 static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
@@ -854,6 +862,9 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
     int f_note = 60;
 
+    int f_min_note = (int)*plugin_data->min_note;
+    int f_max_note = (int)*plugin_data->max_note;
+
     while (event_pos < event_count) // && pos >= events[event_pos].time.tick)
     {
         /*Note-on event*/
@@ -863,6 +874,12 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
             if (events[event_pos].velocity > 0)
             {
+                if(events[event_pos].note > f_max_note ||
+                    events[event_pos].note < f_min_note)
+                {
+                    event_pos++;
+                    continue;
+                }
                 int f_voice_num = i_pick_voice(plugin_data->voices, f_note, (plugin_data->sampleNo), events[event_pos].tick);
                 plugin_data->velocities[f_voice_num] = events[event_pos].velocity;
 
@@ -1679,6 +1696,9 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     }
 
     pydaw_set_pyfx_port(f_result, EUPHORIA_LFO_PITCH_FINE, 0.0f, -100.0f, 100.0f);
+
+    pydaw_set_pyfx_port(f_result, EUPHORIA_MIN_NOTE, 0.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, EUPHORIA_MAX_NOTE, 120.0f, 0.0f, 120.0f);
 
     f_result->activate = v_euphoria_activate;
     f_result->cleanup = cleanupSampler;
