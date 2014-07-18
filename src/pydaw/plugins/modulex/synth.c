@@ -416,17 +416,6 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             plugin_data->mono_modules->current_sample1 =
                     plugin_data->output1[(plugin_data->i_mono_out)];
 
-            if(f_gate_mode == 1)
-            {
-                v_modulex_run_gate(plugin_data,
-                        plugin_data->mono_modules->current_sample0,
-                        plugin_data->mono_modules->current_sample1);
-                plugin_data->mono_modules->current_sample0 =
-                        plugin_data->mono_modules->gate->output[0];
-                plugin_data->mono_modules->current_sample1 =
-                        plugin_data->mono_modules->gate->output[1];
-            }
-
             f_i = 0;
 
             while(f_i < 8)
@@ -456,6 +445,17 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                         plugin_data->mono_modules->multieffect[f_i]->output1;
                 }
                 f_i++;
+            }
+
+            if(f_gate_mode)
+            {
+                v_modulex_run_gate(plugin_data,
+                        plugin_data->mono_modules->current_sample0,
+                        plugin_data->mono_modules->current_sample1);
+                plugin_data->mono_modules->current_sample0 =
+                        plugin_data->mono_modules->gate->output[0];
+                plugin_data->mono_modules->current_sample1 =
+                        plugin_data->mono_modules->gate->output[1];
             }
 
             plugin_data->output0[(plugin_data->i_mono_out)] =
@@ -548,21 +548,6 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     (plugin_data->mono_modules->vol_linear);
             plugin_data->output1[f_i] *=
                     (plugin_data->mono_modules->vol_linear);
-            f_i++;
-        }
-    }
-
-    if(f_gate_mode == 2)
-    {
-        f_i = 0;
-        while(f_i < sample_count)
-        {
-            v_modulex_run_gate(plugin_data,
-                    plugin_data->output0[f_i], plugin_data->output1[f_i]);
-            plugin_data->output0[f_i] =
-                    plugin_data->mono_modules->gate->output[0];
-            plugin_data->output1[f_i] =
-                    plugin_data->mono_modules->gate->output[1];
             f_i++;
         }
     }

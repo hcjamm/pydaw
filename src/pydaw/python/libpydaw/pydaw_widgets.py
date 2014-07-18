@@ -4119,12 +4119,11 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.gate_groupbox.setObjectName("plugin_groupbox")
         self.reverb_hlayout.addWidget(self.gate_groupbox)
         self.gate_gridlayout = QtGui.QGridLayout(self.gate_groupbox)
-        self.gate_mode_combobox = pydaw_combobox_control(
-            100, _("Mode"), pydaw_ports.MODULEX_GATE_MODE,
+        self.gate_on_checkbox = pydaw_checkbox_control(
+            "On", pydaw_ports.MODULEX_GATE_MODE,
             self.plugin_rel_callback, self.plugin_val_callback,
-            [_("Off"), _("Pre-FX"), _("Post-FX")],
             self.port_dict, a_preset_mgr=self.preset_manager)
-        self.gate_mode_combobox.add_to_grid_layout(self.gate_gridlayout, 3)
+        self.gate_on_checkbox.add_to_grid_layout(self.gate_gridlayout, 3)
         self.gate_note_selector = pydaw_note_selector_widget(
             pydaw_ports.MODULEX_GATE_NOTE,
             self.plugin_rel_callback, self.plugin_val_callback,
