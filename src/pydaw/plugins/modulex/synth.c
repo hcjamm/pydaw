@@ -251,18 +251,13 @@ static inline void v_modulex_run_eq(t_modulex *plugin_data, int sample_count)
     }
 }
 
-static void v_modulex_run_gate(t_modulex *plugin_data)
+static void v_modulex_run_gate(t_modulex *plugin_data,
+        float a_in0, float a_in1)
 {
     v_gat_set(plugin_data->mono_modules->gate, *plugin_data->gate_pitch,
             *plugin_data->gate_wet * 0.01f);
     v_gat_run(plugin_data->mono_modules->gate,
-            plugin_data->mono_modules->gate_on,
-            plugin_data->mono_modules->current_sample0,
-            plugin_data->mono_modules->current_sample1);
-    plugin_data->mono_modules->current_sample0 =
-            plugin_data->mono_modules->gate->output[0];
-    plugin_data->mono_modules->current_sample1 =
-            plugin_data->mono_modules->gate->output[1];
+            plugin_data->mono_modules->gate_on, a_in0, a_in1);
 }
 
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
@@ -410,7 +405,13 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
             if(f_gate_mode == 1)
             {
-                v_modulex_run_gate(plugin_data);
+                v_modulex_run_gate(plugin_data,
+                        plugin_data->mono_modules->current_sample0,
+                        plugin_data->mono_modules->current_sample1);
+                plugin_data->mono_modules->current_sample0 =
+                        plugin_data->mono_modules->gate->output[0];
+                plugin_data->mono_modules->current_sample1 =
+                        plugin_data->mono_modules->gate->output[1];
             }
 
             f_i = 0;
@@ -540,15 +541,17 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
     if(f_gate_mode == 2)
     {
-        plugin_data->mono_modules->current_sample0 =
-                plugin_data->output0[f_i];
-        plugin_data->mono_modules->current_sample1 =
-                plugin_data->output1[f_i];
-        v_modulex_run_gate(plugin_data);
-        plugin_data->output0[f_i] =
-                plugin_data->mono_modules->current_sample0;
-        plugin_data->output1[f_i] =
-                plugin_data->mono_modules->current_sample1;
+        f_i = 0;
+        while(f_i < sample_count)
+        {
+            v_modulex_run_gate(plugin_data,
+                    plugin_data->output0[f_i], plugin_data->output1[f_i]);
+            plugin_data->output0[f_i] =
+                    plugin_data->mono_modules->gate->output[0];
+            plugin_data->output1[f_i] =
+                    plugin_data->mono_modules->gate->output[1];
+            f_i++;
+        }
     }
 
     if((int)(*plugin_data->spectrum_analyzer_on))

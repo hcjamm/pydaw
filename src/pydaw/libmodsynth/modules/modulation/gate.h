@@ -43,7 +43,7 @@ void v_gat_set(t_gat_gate* a_gat, float a_pitch, float a_wet)
     if(a_pitch != a_gat->last_cutoff)
     {
         a_gat->last_cutoff = a_pitch;
-        v_svf_set_cutoff_base(a_gat->svf, 66.0f);
+        v_svf_set_cutoff_base(a_gat->svf, a_pitch);
         v_svf_set_cutoff(a_gat->svf);
     }
 
