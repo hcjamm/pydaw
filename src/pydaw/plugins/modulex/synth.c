@@ -254,8 +254,10 @@ static inline void v_modulex_run_eq(t_modulex *plugin_data, int sample_count)
 static void v_modulex_run_gate(t_modulex *plugin_data,
         float a_in0, float a_in1)
 {
-    v_gat_set(plugin_data->mono_modules->gate, *plugin_data->gate_pitch,
+    v_sml_run(plugin_data->mono_modules->gate_wet_smoother,
             *plugin_data->gate_wet * 0.01f);
+    v_gat_set(plugin_data->mono_modules->gate, *plugin_data->gate_pitch,
+            plugin_data->mono_modules->gate_wet_smoother->last_value);
     v_gat_run(plugin_data->mono_modules->gate,
             plugin_data->mono_modules->gate_on, a_in0, a_in1);
 }
@@ -310,9 +312,9 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         }
         else if (events[event_pos].type == PYDAW_EVENT_NOTEON)
         {
-            if (events[event_pos].velocity > 0)
+            if(events[event_pos].note == f_gate_note)
             {
-                if(events[event_pos].note == f_gate_note)
+                if (events[event_pos].velocity > 0)
                 {
                     plugin_data->midi_event_types[
                             plugin_data->midi_event_count] =
@@ -322,6 +324,17 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                             events[event_pos].tick;
                     plugin_data->midi_event_values[
                             plugin_data->midi_event_count] = 1.0f;
+                    plugin_data->midi_event_count++;
+                }
+                else
+                {
+                    plugin_data->midi_event_types[
+                        plugin_data->midi_event_count] = PYDAW_EVENT_NOTEOFF;
+                    plugin_data->midi_event_ticks[
+                            plugin_data->midi_event_count] =
+                                events[event_pos].tick;
+                    plugin_data->midi_event_values[
+                            plugin_data->midi_event_count] = 0.0f;
                     plugin_data->midi_event_count++;
                 }
             }
