@@ -4092,43 +4092,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
         m_stereo.add_to_grid_layout(delay_gridlayout, 6)
-        self.bpm_groupbox =  QtGui.QGroupBox()
-        self.bpm_groupbox.setObjectName("plugin_groupbox")
-        self.delay_hlayout.addWidget(self.bpm_groupbox)
-        self.delay_hlayout.addItem(
-            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.bpm_groupbox.setGeometry(0, 0, 10, 10)
-        self.bpm_groupbox.setTitle(_("Tempo Sync"))
-        self.bpm_groupbox_layout =  QtGui.QGridLayout(self.bpm_groupbox)
-        self.bpm_spinbox =  QtGui.QDoubleSpinBox()
-        #self.bpm_spinbox.setGeometry((100, 130, 71, 27))
-        self.bpm_spinbox.setDecimals(1)
-        self.bpm_spinbox.setRange(60, 200)
-        self.bpm_spinbox.setSingleStep(0.1)
-        self.bpm_spinbox.setValue(140.0)
-        f_beat_fracs = ["1/4", "1/3", "1/2", "2/3", "3/4", "1"]
-        self.beat_frac_combobox =  QtGui.QComboBox()
-        self.beat_frac_combobox.setMinimumWidth(75)
-        self.beat_frac_combobox.addItems(f_beat_fracs)
-        self.beat_frac_combobox.setCurrentIndex(2)
-        self.bpm_sync_button =  QtGui.QPushButton()
-        self.bpm_sync_button.setText(_("Sync"))
-        self.bpm_sync_button.setMaximumWidth(60)
-        self.bpm_sync_button.pressed.connect(self.bpmSyncPressed)
-        f_bpm_label =  QtGui.QLabel(_("BPM"))
-        f_bpm_label.setMinimumWidth(60)
-        f_beat_label =  QtGui.QLabel(_("Beats"))
-        f_beat_label.setMinimumWidth(60)
-        self.bpm_groupbox_layout.addWidget(
-            f_bpm_label, 0, 0, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(
-            self.bpm_spinbox, 1, 0, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(
-            f_beat_label, 0, 1, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(
-            self.beat_frac_combobox, 1, 1, QtCore.Qt.AlignCenter)
-        self.bpm_groupbox_layout.addWidget(
-            self.bpm_sync_button, 2, 1, QtCore.Qt.AlignCenter)
+
         reverb_groupbox =  QtGui.QGroupBox(_("Reverb"))
         reverb_groupbox.setObjectName("plugin_groupbox")
         self.reverb_groupbox_gridlayout = QtGui.QGridLayout(reverb_groupbox)
