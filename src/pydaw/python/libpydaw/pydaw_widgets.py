@@ -944,8 +944,8 @@ class pydaw_note_selector_widget:
         self.note_combobox = QtGui.QComboBox()
         self.note_combobox.wheelEvent = self.wheel_event
         self.note_combobox.setMinimumWidth(60)
-        self.note_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#",
-                                     "G", "G#", "A", "A#", "B"])
+        self.note_combobox.addItems(
+            ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])
         self.note_combobox.contextMenuEvent = self.context_menu_event
         self.octave_spinbox = QtGui.QSpinBox()
         self.octave_spinbox.setRange(-2, 8)
@@ -1011,6 +1011,16 @@ class pydaw_note_selector_widget:
 
     def get_value(self):
         return self.selected_note
+
+    def add_to_grid_layout(self, a_layout, a_x):
+        if self.name_label is not None:
+            a_layout.addWidget(
+                self.name_label, 0, a_x, alignment=QtCore.Qt.AlignHCenter)
+        a_layout.addWidget(
+            self.widget, 1, a_x, alignment=QtCore.Qt.AlignHCenter)
+        if self.value_label is not None:
+            a_layout.addWidget(
+                self.value_label, 2, a_x, alignment=QtCore.Qt.AlignHCenter)
 
 class pydaw_file_select_widget:
     """
@@ -1853,7 +1863,9 @@ class pydaw_master_widget:
             self.max_note = pydaw_note_selector_widget(
                 a_max_note_port, a_rel_callback, a_val_callback, a_port_dict,
                 120, a_preset_mgr)
-            self.layout.addWidget(QtGui.QLabel(_("Range")), 0, 9)
+            self.layout.addWidget(
+                QtGui.QLabel(_("Range")), 0, 9,
+                alignment=QtCore.Qt.AlignHCenter)
             self.layout.addWidget(self.min_note.widget, 1, 9)
             self.layout.addWidget(self.max_note.widget, 2, 9)
 
@@ -4007,10 +4019,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.fx_hlayout = QtGui.QHBoxLayout(self.fx_tab)
         self.fx_hlayout.addLayout(self.fx_layout)
 
-        self.delay_tab = QtGui.QWidget()
-        self.tab_widget.addTab(self.delay_tab, _("Delay"))
+        self.misc_tab = QtGui.QWidget()
+        self.tab_widget.addTab(self.misc_tab, _("Misc."))
         self.delay_vlayout = QtGui.QVBoxLayout()
-        self.delay_tab.setLayout(self.delay_vlayout)
+        self.misc_tab.setLayout(self.delay_vlayout)
         self.delay_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.delay_hlayout)
 
@@ -4123,8 +4135,6 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.reverb_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.reverb_hlayout)
         self.reverb_hlayout.addWidget(reverb_groupbox)
-        self.reverb_hlayout.addItem(
-            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         m_reverb_time =  pydaw_knob_control(
             f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
             self.plugin_rel_callback, self.plugin_val_callback,
@@ -4140,6 +4150,36 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
         m_reverb_color.add_to_grid_layout(self.reverb_groupbox_gridlayout, 2)
+
+        self.gate_groupbox = QtGui.QGroupBox(_("Gate"))
+        self.gate_groupbox.setObjectName("plugin_groupbox")
+        self.reverb_hlayout.addWidget(self.gate_groupbox)
+        self.gate_gridlayout = QtGui.QGridLayout(self.gate_groupbox)
+        self.gate_mode_combobox = pydaw_combobox_control(
+            100, _("Mode"), pydaw_ports.MODULEX_GATE_MODE,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            [_("Off"), _("Pre-FX"), _("Post-FX")],
+            self.port_dict, a_preset_mgr=self.preset_manager)
+        self.gate_mode_combobox.add_to_grid_layout(self.gate_gridlayout, 3)
+        self.gate_note_selector = pydaw_note_selector_widget(
+            pydaw_ports.MODULEX_GATE_NOTE,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, 120, self.preset_manager)
+        self.gate_note_selector.add_to_grid_layout(self.gate_gridlayout, 6)
+        self.gate_wet_knob = pydaw_knob_control(
+            f_knob_size, _("Wet"), pydaw_ports.MODULEX_GATE_WET,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 0, kc_decimal, self.port_dict, self.preset_manager)
+        self.gate_wet_knob.add_to_grid_layout(self.gate_gridlayout, 9)
+
+        self.gate_pitch_knob = pydaw_knob_control(
+            f_knob_size, _("Pitch"), pydaw_ports.MODULEX_GATE_PITCH,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            20, 120, 60, kc_pitch, self.port_dict, self.preset_manager)
+        self.gate_pitch_knob.add_to_grid_layout(self.gate_gridlayout, 12)
+
+        self.reverb_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
         self.delay_spacer_layout.addItem(

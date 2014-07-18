@@ -165,6 +165,11 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
         case MODULEX_EQ5_GAIN: plugin->eq_gain[4] = data; break;
         case MODULEX_EQ6_GAIN: plugin->eq_gain[5] = data; break;
         case MODULEX_SPECTRUM_ENABLED: plugin->spectrum_analyzer_on = data; break;
+
+        case MODULEX_GATE_MODE: plugin->gate_mode = data; break;
+        case MODULEX_GATE_NOTE: plugin->gate_note = data; break;
+        case MODULEX_GATE_PITCH: plugin->gate_pitch = data; break;
+        case MODULEX_GATE_WET: plugin->gate_wet = data; break;
     }
 }
 
@@ -195,6 +200,11 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
 
 static void v_modulex_check_if_on(t_modulex *plugin_data)
 {
+    if((int)*plugin_data->gate_mode != 0)
+    {
+        plugin_data->is_on = 1;
+    }
+
     int f_i = 0;
 
     while(f_i < 8)
@@ -241,6 +251,20 @@ static inline void v_modulex_run_eq(t_modulex *plugin_data, int sample_count)
     }
 }
 
+static void v_modulex_run_gate(t_modulex *plugin_data)
+{
+    v_gat_set(plugin_data->mono_modules->gate, *plugin_data->gate_pitch,
+            *plugin_data->gate_wet * 0.01f);
+    v_gat_run(plugin_data->mono_modules->gate,
+            plugin_data->mono_modules->gate_on,
+            plugin_data->mono_modules->current_sample0,
+            plugin_data->mono_modules->current_sample1);
+    plugin_data->mono_modules->current_sample0 =
+            plugin_data->mono_modules->gate->output[0];
+    plugin_data->mono_modules->current_sample1 =
+            plugin_data->mono_modules->gate->output[1];
+}
+
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event *events, int event_count)
 {
@@ -249,6 +273,9 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
     int event_pos = 0;
     int midi_event_pos = 0;
     plugin_data->midi_event_count = 0;
+
+    int f_gate_note = (int)*plugin_data->gate_note;
+    int f_gate_mode = (int)*plugin_data->gate_mode;
 
     while (event_pos < event_count)
     {
@@ -283,6 +310,37 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     }
                 }
 
+                plugin_data->midi_event_count++;
+            }
+        }
+        else if (events[event_pos].type == PYDAW_EVENT_NOTEON)
+        {
+            if (events[event_pos].velocity > 0)
+            {
+                if(events[event_pos].note == f_gate_note)
+                {
+                    plugin_data->midi_event_types[
+                            plugin_data->midi_event_count] =
+                            PYDAW_EVENT_NOTEON;
+                    plugin_data->midi_event_ticks[
+                            plugin_data->midi_event_count] =
+                            events[event_pos].tick;
+                    plugin_data->midi_event_values[
+                            plugin_data->midi_event_count] = 1.0f;
+                    plugin_data->midi_event_count++;
+                }
+            }
+        }
+        else if (events[event_pos].type == PYDAW_EVENT_NOTEOFF)
+        {
+            if(events[event_pos].note == f_gate_note)
+            {
+                plugin_data->midi_event_types[
+                        plugin_data->midi_event_count] = PYDAW_EVENT_NOTEOFF;
+                plugin_data->midi_event_ticks[
+                        plugin_data->midi_event_count] = events[event_pos].tick;
+                plugin_data->midi_event_values[
+                        plugin_data->midi_event_count] = 0.0f;
                 plugin_data->midi_event_count++;
             }
         }
@@ -329,6 +387,18 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                             plugin_data->midi_event_ports[midi_event_pos]] =
                             plugin_data->midi_event_values[midi_event_pos];
                 }
+                else if(plugin_data->midi_event_types[midi_event_pos] ==
+                        PYDAW_EVENT_NOTEON)
+                {
+                    plugin_data->mono_modules->gate_on =
+                            plugin_data->midi_event_values[midi_event_pos];
+                }
+                else if(plugin_data->midi_event_types[midi_event_pos] ==
+                        PYDAW_EVENT_NOTEOFF)
+                {
+                    plugin_data->mono_modules->gate_on =
+                            plugin_data->midi_event_values[midi_event_pos];
+                }
 
                 midi_event_pos++;
             }
@@ -337,6 +407,11 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     plugin_data->output0[(plugin_data->i_mono_out)];
             plugin_data->mono_modules->current_sample1 =
                     plugin_data->output1[(plugin_data->i_mono_out)];
+
+            if(f_gate_mode == 1)
+            {
+                v_modulex_run_gate(plugin_data);
+            }
 
             f_i = 0;
 
@@ -463,6 +538,19 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         }
     }
 
+    if(f_gate_mode == 2)
+    {
+        plugin_data->mono_modules->current_sample0 =
+                plugin_data->output0[f_i];
+        plugin_data->mono_modules->current_sample1 =
+                plugin_data->output1[f_i];
+        v_modulex_run_gate(plugin_data);
+        plugin_data->output0[f_i] =
+                plugin_data->mono_modules->current_sample0;
+        plugin_data->output1[f_i] =
+                plugin_data->mono_modules->current_sample1;
+    }
+
     if((int)(*plugin_data->spectrum_analyzer_on))
     {
         v_spa_run(plugin_data->mono_modules->spectrum_analyzer,
@@ -545,6 +633,11 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_GAIN, 0.0f, -24.0f, 24.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_GAIN, 0.0f, -24.0f, 24.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_SPECTRUM_ENABLED, 0.0f, 0.0f, 1.0f);
+
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_NOTE, 120.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_MODE, 0.0f, 0.0f, 2.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_WET, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_PITCH, 60.0f, 20.0f, 120.0f);
 
 
     LMSLDescriptor->activate = v_modulex_activate;

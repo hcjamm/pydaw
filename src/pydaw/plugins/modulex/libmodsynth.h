@@ -30,6 +30,7 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/env_follower.h"
 #include "../../libmodsynth/modules/delay/reverb.h"
 #include "../../libmodsynth/modules/filter/peak_eq.h"
+#include "../../libmodsynth/modules/modulation/gate.h"
 
 #define MODULEX_EQ_COUNT 6
 
@@ -57,6 +58,8 @@ typedef struct
     t_amp * amp_ptr;
     t_pkq_peak_eq * eqs[MODULEX_EQ_COUNT];
     t_spa_spectrum_analyzer * spectrum_analyzer;
+    t_gat_gate * gate;
+    float gate_on;
 }t_modulex_mono_modules;
 
 t_modulex_mono_modules * v_modulex_mono_init(float, int);
@@ -110,6 +113,9 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr, int a_track_num)
 
     a_mono->spectrum_analyzer =
             g_spa_spectrum_analyzer_get(4096, a_track_num, 0);
+
+    a_mono->gate = g_gat_get(a_sr);
+    a_mono->gate_on = 0.0f;
 
     return a_mono;
 }

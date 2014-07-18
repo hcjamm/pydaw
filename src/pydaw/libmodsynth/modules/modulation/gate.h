@@ -32,7 +32,7 @@ typedef struct
 }t_gat_gate;
 
 t_gat_gate * g_gat_get(float);
-void v_gat_set(t_gat_gate*, float);
+void v_gat_set(t_gat_gate*, float, float);
 void v_gat_run(t_gat_gate*, float, float, float);
 
 /*
@@ -61,8 +61,10 @@ void v_gat_run(t_gat_gate * a_gat, float a_on, float a_in0, float a_in1)
 {
     a_gat->value = v_svf_run_2_pole_lp(a_gat->svf, a_on);
 
-    a_gat->output[0] = f_axf_run_xfade(a_in0, a_gat->value * a_in0);
-    a_gat->output[1] = f_axf_run_xfade(a_in0, a_gat->value * a_in1);
+    a_gat->output[0] = f_axf_run_xfade(
+            a_gat->xfade, a_in0, a_gat->value * a_in0);
+    a_gat->output[1] = f_axf_run_xfade(
+            a_gat->xfade, a_in1, a_gat->value * a_in1);
 }
 
 /*

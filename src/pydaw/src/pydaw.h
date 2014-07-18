@@ -217,7 +217,7 @@ typedef struct
     long current_sample;
     /*When a note_on event is fired,
      * a sample number of when to release it is stored here*/
-    long note_offs[PYDAW_MIDI_TRACK_COUNT][PYDAW_MIDI_NOTE_COUNT];
+    long note_offs[PYDAW_TRACK_COUNT_ALL][PYDAW_MIDI_NOTE_COUNT];
     lo_server_thread serverThread;
 
     char * osc_url;
@@ -1565,6 +1565,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                         f_args->pydaw_data->event_count);
             }
 
+            v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
+
             int f_i2 = 0;
 
             while(f_i2 < f_args->pydaw_data->sample_count)
@@ -1669,6 +1671,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                         f_args->pydaw_data->events,
                         f_args->pydaw_data->event_count);
             }
+
+            v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
 
             if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count)
                     == 0)
@@ -1919,10 +1923,9 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i,
                         track_current_item_event_indexes[f_i])]->start) <
                         f_track_next_period_beats))
                 {
-                    if(f_i < PYDAW_MIDI_TRACK_COUNT &&
-                            f_current_item.events[(a_pydaw_data->
-                            track_current_item_event_indexes[f_i])]->type ==
-                            PYDAW_EVENT_NOTEON)
+                    if(f_current_item.events[(a_pydaw_data->
+                        track_current_item_event_indexes[f_i])]->type ==
+                        PYDAW_EVENT_NOTEON)
                     {
                         int f_note_sample_offset = 0;
                         float f_note_start_diff =
@@ -1979,15 +1982,20 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i,
                                 * (a_pydaw_data->samples_per_beat)));
 
                     }
-                    else if(f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->type == PYDAW_EVENT_CONTROLLER)
+                    else if(f_current_item.events[
+                        (a_pydaw_data->track_current_item_event_indexes[
+                        f_i])]->type == PYDAW_EVENT_CONTROLLER)
                     {
-                        int controller = f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->port;
+                        int controller =
+                            f_current_item.events[
+                            (a_pydaw_data->track_current_item_event_indexes[f_i])]->port;
                         if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT)
                         {
                             int controlIn; // = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->port;
                             if(a_pydaw_data->track_pool_all[f_i]->instrument &&
                                     a_pydaw_data->track_pool_all[f_i]->plugin_index ==
-                                    f_current_item.events[(a_pydaw_data->track_current_item_event_indexes[f_i])]->plugin_index)
+                                    f_current_item.events[
+                                    (a_pydaw_data->track_current_item_event_indexes[f_i])]->plugin_index)
                             {
                                 controlIn = controller;
                                 if (controlIn >= 0)
@@ -2144,7 +2152,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i,
 inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i)
 {
     //TODO:  When/if effects can ever accept MIDI notes, this will actually result in hung notes...
-    if((a_pydaw_data->track_pool[f_i]->plugin_index) > 0)
+    if((a_pydaw_data->track_pool[f_i]->plugin_index) != 0)
     {
         int f_i2 = 0;
 
