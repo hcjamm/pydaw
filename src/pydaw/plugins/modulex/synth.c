@@ -35,6 +35,10 @@ GNU General Public License for more details.
 
 #include "synth.h"
 
+#define MODULEX_EVENT_GATE_ON 1001
+#define MODULEX_EVENT_GATE_OFF 1002
+#define MODULEX_EVENT_GLITCH_ON 1003
+#define MODULEX_EVENT_GLITCH_OFF 1004
 
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event * events, int EventCount);
@@ -170,6 +174,10 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
         case MODULEX_GATE_NOTE: plugin->gate_note = data; break;
         case MODULEX_GATE_PITCH: plugin->gate_pitch = data; break;
         case MODULEX_GATE_WET: plugin->gate_wet = data; break;
+
+        case MODULEX_GLITCH_ON: plugin->glitch_on = data; break;
+        case MODULEX_GLITCH_NOTE: plugin->glitch_note = data; break;
+        case MODULEX_GLITCH_TIME: plugin->glitch_time = data; break;
     }
 }
 
@@ -318,7 +326,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 {
                     plugin_data->midi_event_types[
                             plugin_data->midi_event_count] =
-                            PYDAW_EVENT_NOTEON;
+                            MODULEX_EVENT_GATE_ON;
                     plugin_data->midi_event_ticks[
                             plugin_data->midi_event_count] =
                             events[event_pos].tick;
@@ -335,7 +343,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 else
                 {
                     plugin_data->midi_event_types[
-                        plugin_data->midi_event_count] = PYDAW_EVENT_NOTEOFF;
+                        plugin_data->midi_event_count] = MODULEX_EVENT_GATE_OFF;
                     plugin_data->midi_event_ticks[
                             plugin_data->midi_event_count] =
                                 events[event_pos].tick;
@@ -350,7 +358,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             if(events[event_pos].note == f_gate_note)
             {
                 plugin_data->midi_event_types[
-                        plugin_data->midi_event_count] = PYDAW_EVENT_NOTEOFF;
+                        plugin_data->midi_event_count] = MODULEX_EVENT_GATE_OFF;
                 plugin_data->midi_event_ticks[
                         plugin_data->midi_event_count] = events[event_pos].tick;
                 plugin_data->midi_event_values[
@@ -402,13 +410,13 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                             plugin_data->midi_event_values[midi_event_pos];
                 }
                 else if(plugin_data->midi_event_types[midi_event_pos] ==
-                        PYDAW_EVENT_NOTEON)
+                        MODULEX_EVENT_GATE_ON)
                 {
                     plugin_data->mono_modules->gate_on =
                             plugin_data->midi_event_values[midi_event_pos];
                 }
                 else if(plugin_data->midi_event_types[midi_event_pos] ==
-                        PYDAW_EVENT_NOTEOFF)
+                        MODULEX_EVENT_GATE_OFF)
                 {
                     plugin_data->mono_modules->gate_on =
                             plugin_data->midi_event_values[midi_event_pos];
@@ -645,6 +653,10 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_MODE, 0.0f, 0.0f, 2.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_WET, 0.0f, 0.0f, 100.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_PITCH, 60.0f, 20.0f, 120.0f);
+
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_ON, 0.0f, 0.0f, 1.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_NOTE, 120.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_TIME, 100.0f, 1.0f, 200.0f);
 
 
     LMSLDescriptor->activate = v_modulex_activate;

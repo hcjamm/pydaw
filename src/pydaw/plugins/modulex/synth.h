@@ -102,11 +102,14 @@ extern "C" {
 #define MODULEX_GATE_MODE 68
 #define MODULEX_GATE_WET 69
 #define MODULEX_GATE_PITCH 70
+#define MODULEX_GLITCH_ON 71
+#define MODULEX_GLITCH_NOTE 72
+#define MODULEX_GLITCH_TIME 73
 
-#define MODULEX_LAST_CONTROL_PORT 70
+#define MODULEX_LAST_CONTROL_PORT 73
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define MODULEX_COUNT 71
+#define MODULEX_COUNT 74
 
 typedef struct
 {
@@ -143,6 +146,10 @@ typedef struct
     PYFX_Data *gate_mode;
     PYFX_Data *gate_wet;
     PYFX_Data *gate_pitch;
+
+    PYFX_Data *glitch_on;
+    PYFX_Data *glitch_note;
+    PYFX_Data *glitch_time;
 
     float fs;
     t_modulex_mono_modules * mono_modules;

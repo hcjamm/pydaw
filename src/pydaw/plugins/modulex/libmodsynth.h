@@ -31,6 +31,7 @@ extern "C" {
 #include "../../libmodsynth/modules/delay/reverb.h"
 #include "../../libmodsynth/modules/filter/peak_eq.h"
 #include "../../libmodsynth/modules/modulation/gate.h"
+#include "../../libmodsynth/modules/distortion/glitch_v2.h"
 
 #define MODULEX_EQ_COUNT 6
 
@@ -61,6 +62,8 @@ typedef struct
     t_spa_spectrum_analyzer * spectrum_analyzer;
     t_gat_gate * gate;
     float gate_on;
+
+    t_glc_glitch_v2 * glitch;
 }t_modulex_mono_modules;
 
 t_modulex_mono_modules * v_modulex_mono_init(float, int);
@@ -121,6 +124,8 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr, int a_track_num)
 
     a_mono->gate = g_gat_get(a_sr);
     a_mono->gate_on = 0.0f;
+
+    a_mono->glitch = g_glc_glitch_v2_get(a_sr);
 
     return a_mono;
 }
