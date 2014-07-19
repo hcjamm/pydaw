@@ -77,8 +77,8 @@ t_gat_gate * g_gat_get(float a_sr)
     f_result->value = 0.0f;
     f_result->output[0] = 0.0f;
     f_result->output[1] = 0.0f;
-    f_result->last_cutoff = 66.0f;
-    f_result->last_wet = 0.0f;
+    f_result->last_cutoff = 6699.0f;
+    f_result->last_wet = -3210.0f;
     f_result->svf = g_svf_get(a_sr);
 
     f_result->xfade = g_axf_get_audio_xfade(-3.0f);

@@ -2151,7 +2151,6 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i,
 
 inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i)
 {
-    //TODO:  When/if effects can ever accept MIDI notes, this will actually result in hung notes...
     if((a_pydaw_data->track_pool_all[f_i]->plugin_index) != 0)
     {
         int f_i2 = 0;
@@ -2888,6 +2887,8 @@ inline void v_pydaw_run_engine(t_pydaw_data * a_pydaw_data, int sample_count,
         v_pydaw_process_external_midi(a_pydaw_data, a_pydaw_data->sample_count,
                 a_pydaw_data->events, a_pydaw_data->event_count);
     }
+
+    v_pydaw_process_note_offs(pydaw_data, PYDAW_MIDI_TRACK_COUNT);
 
     v_run_plugin(a_pydaw_data->bus_pool[0]->effect, sample_count,
             a_pydaw_data->bus_pool[0]->event_buffer,
@@ -4173,7 +4174,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
             f_result->note_offs[f_i][f_i2] = -1;
             f_i2++;
         }
-        
+
         f_result->track_current_item_event_indexes[f_i] = 0;
         f_i++;
     }
