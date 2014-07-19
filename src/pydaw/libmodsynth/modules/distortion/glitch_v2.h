@@ -32,7 +32,7 @@ typedef struct
 }t_glc_glitch_v2;
 
 t_glc_glitch_v2 * g_glc_glitch_v2_get(float);
-void v_glc_glitch_v2_set(t_glc_glitch_v2*, float, float, float);
+void v_glc_glitch_v2_set(t_glc_glitch_v2*, float, float);
 void v_glc_glitch_v2_run(t_glc_glitch_v2*, float, float);
 void v_glc_glitch_v2_free(t_glc_glitch_v2*);
 
