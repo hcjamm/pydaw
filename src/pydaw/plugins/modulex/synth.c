@@ -322,8 +322,14 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     plugin_data->midi_event_ticks[
                             plugin_data->midi_event_count] =
                             events[event_pos].tick;
+                    float f_db = (0.283464567f *  // 1.0f / 127.0f
+                        ((float)events[event_pos].velocity)) -
+                        28.3464567f;
                     plugin_data->midi_event_values[
-                            plugin_data->midi_event_count] = 1.0f;
+                            plugin_data->midi_event_count] =
+                            f_db_to_linear_fast(f_db,
+                                plugin_data->mono_modules->amp_ptr);
+
                     plugin_data->midi_event_count++;
                 }
                 else
