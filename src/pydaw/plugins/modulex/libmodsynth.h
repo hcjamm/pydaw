@@ -64,6 +64,7 @@ typedef struct
     float gate_on;
 
     t_glc_glitch_v2 * glitch;
+    float glitch_on;
 }t_modulex_mono_modules;
 
 t_modulex_mono_modules * v_modulex_mono_init(float, int);
@@ -126,6 +127,7 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr, int a_track_num)
     a_mono->gate_on = 0.0f;
 
     a_mono->glitch = g_glc_glitch_v2_get(a_sr);
+    a_mono->glitch_on = 0.0f;
 
     return a_mono;
 }

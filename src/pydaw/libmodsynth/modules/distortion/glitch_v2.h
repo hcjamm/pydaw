@@ -18,21 +18,18 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#include "../signal_routing/audio_xfade.h"
-
 typedef struct
 {
     float * buffer;
     int buffer_size, read_head, write_head;
-    float last_wet, last_time;
+    float last_time;
     int sample_count;
     float sr;
-    float output0, output1;
-    t_audio_xfade * xfade;
+    float output;
 }t_glc_glitch_v2;
 
 t_glc_glitch_v2 * g_glc_glitch_v2_get(float);
-void v_glc_glitch_v2_set(t_glc_glitch_v2*, float, float);
+void v_glc_glitch_v2_set(t_glc_glitch_v2*, float);
 void v_glc_glitch_v2_run(t_glc_glitch_v2*, float, float);
 void v_glc_glitch_v2_free(t_glc_glitch_v2*);
 
@@ -54,10 +51,11 @@ t_glc_glitch_v2 * g_glc_glitch_v2_get(float a_sr)
         return 0;
     }
 
-    f_result->buffer_size = (int)(a_sr * 0.27f);
+    f_result->buffer_size = (int)(a_sr * 0.25f);
 
-    if(posix_memalign((void**)&f_result->buffer, 16, (sizeof(float) *
-            f_result->buffer_size)) != 0)
+    if(posix_memalign(
+        (void**)&f_result->buffer, 16, (sizeof(float) *
+        f_result->buffer_size)) != 0)
     {
         return 0;
     }
@@ -73,26 +71,18 @@ t_glc_glitch_v2 * g_glc_glitch_v2_get(float a_sr)
     f_result->read_head = 0;
     f_result->write_head = 0;
     f_result->last_time = 654654.89f;
-    f_result->last_wet = -1.111f;
     f_result->sample_count = 99.99f;
     f_result->sr = a_sr;
-    f_result->xfade = g_axf_get_audio_xfade(-3.0f);
 
     return f_result;
 }
 
-void v_glc_glitch_v2_set(t_glc_glitch_v2* a_glc, float a_time, float a_wet)
+void v_glc_glitch_v2_set(t_glc_glitch_v2* a_glc, float a_time)
 {
     if(a_glc->last_time != a_time)
     {
         a_glc->last_time = a_time;
         a_glc->sample_count = (int)((a_glc->sr) * a_time);
-    }
-
-    if(a_glc->last_wet != a_wet)
-    {
-        a_glc->last_wet = a_wet;
-        v_axf_set_xfade(a_glc->xfade, a_wet);
     }
 }
 
@@ -110,10 +100,7 @@ void v_glc_glitch_v2_run(t_glc_glitch_v2* a_glc, float a_input0, float a_input1)
         a_glc->write_head++;
     }
 
-    a_glc->output0 = f_axf_run_xfade(a_glc->xfade, a_input0,
-            a_glc->buffer[a_glc->read_head]);
-    a_glc->output1 = f_axf_run_xfade(a_glc->xfade, a_input1,
-            a_glc->buffer[a_glc->read_head]);
+    a_glc->output = a_glc->buffer[a_glc->read_head];
 
     a_glc->read_head++;
 

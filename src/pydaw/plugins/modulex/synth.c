@@ -213,6 +213,11 @@ static void v_modulex_check_if_on(t_modulex *plugin_data)
         plugin_data->is_on = 1;
     }
 
+    if((int)*plugin_data->glitch_on != 0)
+    {
+        plugin_data->is_on = 1;
+    }
+
     int f_i = 0;
 
     while(f_i < 8)
@@ -259,7 +264,7 @@ static inline void v_modulex_run_eq(t_modulex *plugin_data, int sample_count)
     }
 }
 
-static void v_modulex_run_gate(t_modulex *plugin_data,
+static inline void v_modulex_run_gate(t_modulex *plugin_data,
         float a_in0, float a_in1)
 {
     v_sml_run(plugin_data->mono_modules->gate_wet_smoother,
@@ -270,17 +275,27 @@ static void v_modulex_run_gate(t_modulex *plugin_data,
             plugin_data->mono_modules->gate_on, a_in0, a_in1);
 }
 
+static inline void v_modulex_run_glitch(t_modulex *plugin_data,
+        float a_in0, float a_in1)
+{
+    v_glc_glitch_v2_set(plugin_data->mono_modules->glitch,
+            *plugin_data->glitch_time * 0.01f);
+    v_glc_glitch_v2_run(plugin_data->mono_modules->glitch, a_in0, a_in1);
+}
+
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event *events, int event_count)
 {
-    t_modulex *plugin_data = (t_modulex *) instance;
+    t_modulex *plugin_data = (t_modulex*)instance;
 
     int event_pos = 0;
     int midi_event_pos = 0;
     plugin_data->midi_event_count = 0;
 
     int f_gate_note = (int)*plugin_data->gate_note;
-    int f_gate_mode = (int)*plugin_data->gate_mode;
+    int f_gate_on = (int)*plugin_data->gate_mode;
+    int f_glitch_note = (int)*plugin_data->glitch_note;
+    int f_glitch_on = (int)*plugin_data->glitch_on;
 
     while (event_pos < event_count)
     {
@@ -322,43 +337,49 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         {
             if(events[event_pos].note == f_gate_note)
             {
-                if (events[event_pos].velocity > 0)
-                {
-                    plugin_data->midi_event_types[
-                            plugin_data->midi_event_count] =
-                            MODULEX_EVENT_GATE_ON;
-                    plugin_data->midi_event_ticks[
-                            plugin_data->midi_event_count] =
-                            events[event_pos].tick;
-                    float f_db = (0.283464567f *  // 1.0f / 127.0f
-                        ((float)events[event_pos].velocity)) -
-                        28.3464567f;
-                    plugin_data->midi_event_values[
-                            plugin_data->midi_event_count] =
-                            f_db_to_linear_fast(f_db,
-                                plugin_data->mono_modules->amp_ptr);
+                plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                        MODULEX_EVENT_GATE_ON;
+                plugin_data->midi_event_ticks[plugin_data->midi_event_count] =
+                        events[event_pos].tick;
+                float f_db = (0.283464567f *  // 1.0f / 127.0f
+                    ((float)events[event_pos].velocity)) - 28.3464567f;
+                plugin_data->midi_event_values[plugin_data->midi_event_count] =
+                    f_db_to_linear_fast(f_db,
+                        plugin_data->mono_modules->amp_ptr);
 
-                    plugin_data->midi_event_count++;
-                }
-                else
-                {
-                    plugin_data->midi_event_types[
-                        plugin_data->midi_event_count] = MODULEX_EVENT_GATE_OFF;
-                    plugin_data->midi_event_ticks[
-                            plugin_data->midi_event_count] =
-                                events[event_pos].tick;
-                    plugin_data->midi_event_values[
-                            plugin_data->midi_event_count] = 0.0f;
-                    plugin_data->midi_event_count++;
-                }
+                plugin_data->midi_event_count++;
+            }
+            if(events[event_pos].note == f_glitch_note)
+            {
+                plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                        MODULEX_EVENT_GLITCH_ON;
+                plugin_data->midi_event_ticks[plugin_data->midi_event_count] =
+                        events[event_pos].tick;
+                float f_db = (0.283464567f *  // 1.0f / 127.0f
+                    ((float)events[event_pos].velocity)) - 28.3464567f;
+                plugin_data->midi_event_values[plugin_data->midi_event_count] =
+                    f_db_to_linear_fast(f_db,
+                        plugin_data->mono_modules->amp_ptr);
+
+                plugin_data->midi_event_count++;
             }
         }
         else if (events[event_pos].type == PYDAW_EVENT_NOTEOFF)
         {
             if(events[event_pos].note == f_gate_note)
             {
-                plugin_data->midi_event_types[
-                        plugin_data->midi_event_count] = MODULEX_EVENT_GATE_OFF;
+                plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                        MODULEX_EVENT_GATE_OFF;
+                plugin_data->midi_event_ticks[
+                        plugin_data->midi_event_count] = events[event_pos].tick;
+                plugin_data->midi_event_values[
+                        plugin_data->midi_event_count] = 0.0f;
+                plugin_data->midi_event_count++;
+            }
+            if(events[event_pos].note == f_glitch_note)
+            {
+                plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                        MODULEX_EVENT_GLITCH_OFF;
                 plugin_data->midi_event_ticks[
                         plugin_data->midi_event_count] = events[event_pos].tick;
                 plugin_data->midi_event_values[
@@ -421,6 +442,18 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                     plugin_data->mono_modules->gate_on =
                             plugin_data->midi_event_values[midi_event_pos];
                 }
+                else if(plugin_data->midi_event_types[midi_event_pos] ==
+                        MODULEX_EVENT_GLITCH_ON)
+                {
+                    plugin_data->mono_modules->glitch_on =
+                            plugin_data->midi_event_values[midi_event_pos];
+                }
+                else if(plugin_data->midi_event_types[midi_event_pos] ==
+                        MODULEX_EVENT_GLITCH_OFF)
+                {
+                    plugin_data->mono_modules->glitch_on =
+                            plugin_data->midi_event_values[midi_event_pos];
+                }
 
                 midi_event_pos++;
             }
@@ -461,7 +494,18 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 f_i++;
             }
 
-            if(f_gate_mode)
+            if(f_glitch_on && plugin_data->mono_modules->glitch_on > 0.0f)
+            {
+                v_modulex_run_glitch(plugin_data,
+                        plugin_data->mono_modules->current_sample0,
+                        plugin_data->mono_modules->current_sample1);
+                plugin_data->mono_modules->current_sample0 =
+                        plugin_data->mono_modules->glitch->output;
+                plugin_data->mono_modules->current_sample1 =
+                        plugin_data->mono_modules->glitch->output;
+            }
+
+            if(f_gate_on)
             {
                 v_modulex_run_gate(plugin_data,
                         plugin_data->mono_modules->current_sample0,
