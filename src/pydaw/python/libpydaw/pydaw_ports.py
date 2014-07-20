@@ -1005,7 +1005,8 @@ MODULEX_PORT_MAP = {
     "Volume Slider": "43",
     "Reverb Wet": "45",
     "Reverb Color": "46",
-    "Gate Wet": MODULEX_GATE_WET
+    "Gate Wet": MODULEX_GATE_WET,
+    "Glitch Time": MODULEX_GLITCH_TIME
 }
 
 EUPHORIA_PORT_MAP = {
