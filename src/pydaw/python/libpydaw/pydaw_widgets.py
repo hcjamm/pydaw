@@ -965,6 +965,7 @@ class pydaw_note_selector_widget:
             a_port_dict[self.port_num] = self
         self.name_label = None
         self.value_label = None
+        self.default_value = a_default_value
         if a_default_value is not None:
             self.selected_note = a_default_value
             self.set_value(a_default_value)
@@ -1011,6 +1012,10 @@ class pydaw_note_selector_widget:
 
     def get_value(self):
         return self.selected_note
+
+    def reset_default_value(self):
+        if self.default_value is not None:
+            self.set_value(self.default_value, True)
 
     def add_to_grid_layout(self, a_layout, a_x):
         if self.name_label is not None:
