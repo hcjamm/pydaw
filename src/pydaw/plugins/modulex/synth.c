@@ -278,8 +278,10 @@ static inline void v_modulex_run_gate(t_modulex *plugin_data,
 static inline void v_modulex_run_glitch(t_modulex *plugin_data,
         float a_in0, float a_in1)
 {
-    v_glc_glitch_v2_set(plugin_data->mono_modules->glitch,
+    v_sml_run(plugin_data->mono_modules->glitch_time_smoother,
             *plugin_data->glitch_time * 0.01f);
+    v_glc_glitch_v2_set(plugin_data->mono_modules->glitch,
+            plugin_data->mono_modules->glitch_time_smoother->last_value);
     v_glc_glitch_v2_run(plugin_data->mono_modules->glitch, a_in0, a_in1);
 }
 
