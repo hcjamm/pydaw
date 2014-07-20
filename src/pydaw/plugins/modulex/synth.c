@@ -656,7 +656,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_ON, 0.0f, 0.0f, 1.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_NOTE, 120.0f, 0.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_TIME, 100.0f, 1.0f, 200.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_TIME, 10.0f, 1.0f, 25.0f);
 
 
     LMSLDescriptor->activate = v_modulex_activate;

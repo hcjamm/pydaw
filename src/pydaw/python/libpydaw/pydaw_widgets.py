@@ -4143,6 +4143,32 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.reverb_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+
+        self.glitch_groupbox = QtGui.QGroupBox(_("Glitch"))
+        self.glitch_groupbox.setObjectName("plugin_groupbox")
+        self.glitch_hlayout = QtGui.QHBoxLayout()
+        self.delay_vlayout.addLayout(self.glitch_hlayout)
+        self.glitch_hlayout.addWidget(self.glitch_groupbox)
+        self.glitch_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.glitch_gridlayout = QtGui.QGridLayout(self.glitch_groupbox)
+
+        self.glitch_on_checkbox = pydaw_checkbox_control(
+            "On", pydaw_ports.MODULEX_GLITCH_ON,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, a_preset_mgr=self.preset_manager)
+        self.glitch_on_checkbox.add_to_grid_layout(self.glitch_gridlayout, 3)
+        self.glitch_note_selector = pydaw_note_selector_widget(
+            pydaw_ports.MODULEX_GLITCH_NOTE,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            self.port_dict, 119, self.preset_manager)
+        self.glitch_note_selector.add_to_grid_layout(self.glitch_gridlayout, 6)
+        self.glitch_time_knob = pydaw_knob_control(
+            f_knob_size, _("Time"), pydaw_ports.MODULEX_GLITCH_TIME,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            1, 25, 10, kc_time_decimal, self.port_dict, self.preset_manager)
+        self.glitch_time_knob.add_to_grid_layout(self.glitch_gridlayout, 9)
+
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
         self.delay_spacer_layout.addItem(
