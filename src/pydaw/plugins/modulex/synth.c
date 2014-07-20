@@ -445,6 +445,8 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 else if(plugin_data->midi_event_types[midi_event_pos] ==
                         MODULEX_EVENT_GLITCH_ON)
                 {
+                    v_glc_glitch_v2_retrigger(
+                            plugin_data->mono_modules->glitch);
                     plugin_data->mono_modules->glitch_on =
                             plugin_data->midi_event_values[midi_event_pos];
                 }
