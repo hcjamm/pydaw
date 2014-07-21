@@ -15,7 +15,9 @@ GNU General Public License for more details.
 import os
 import sys
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+orig_wd = os.path.dirname(os.path.abspath(__file__))
+
+os.chdir(orig_wd)
 os.system("./src.sh")
 
 with open("src/major-version.txt") as f_file:
@@ -233,5 +235,12 @@ os.system("rpmbuild -ba {}".format(global_spec_file))
 
 #Restore the ~/.rpmmacros file to it's original state.
 if global_macro_text is not None:
-    global_rpmmacros_file = open("{}/.rpmmacros".format(global_home), "w")
-    global_rpmmacros_file.write(global_macro_text)
+    with  open("{}/.rpmmacros".format(global_home), 
+    "w") as global_rpmmacros_file:
+        global_rpmmacros_file.write(global_macro_text)
+
+cp_cmd = "cp ~/rpmbuild/RPMS/*/{}-{}*rpm '{}'".format(
+    global_pydaw_version_string, global_pydaw_version_num, orig_wd)
+print(cp_cmd)
+os.system(cp_cmd)
+
