@@ -4104,21 +4104,33 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.reverb_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.reverb_hlayout)
         self.reverb_hlayout.addWidget(reverb_groupbox)
-        m_reverb_time =  pydaw_knob_control(
+        self.reverb_time_knob =  pydaw_knob_control(
             f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
             self.plugin_rel_callback, self.plugin_val_callback,
             0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
-        m_reverb_time.add_to_grid_layout(self.reverb_groupbox_gridlayout, 0)
-        m_reverb_wet =  pydaw_knob_control(
+        self.reverb_time_knob.add_to_grid_layout(
+            self.reverb_groupbox_gridlayout, 3)
+
+        self.reverb_dry_knob = pydaw_knob_control(
+            f_knob_size, _("Dry"), pydaw_ports.MODULEX_REVERB_DRY,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
+        self.reverb_dry_knob.add_to_grid_layout(
+            self.reverb_groupbox_gridlayout, 9)
+
+        self.reverb_wet_knob =  pydaw_knob_control(
             f_knob_size, _("Wet"), pydaw_ports.MODULEX_REVERB_WET,
             self.plugin_rel_callback, self.plugin_val_callback,
             0, 100, 0, kc_decimal, self.port_dict, self.preset_manager)
-        m_reverb_wet.add_to_grid_layout(self.reverb_groupbox_gridlayout, 1)
-        m_reverb_color =  pydaw_knob_control(
+        self.reverb_wet_knob.add_to_grid_layout(
+            self.reverb_groupbox_gridlayout, 10)
+
+        self.reverb_color_knob =  pydaw_knob_control(
             f_knob_size, _("Color"), pydaw_ports.MODULEX_REVERB_COLOR,
             self.plugin_rel_callback, self.plugin_val_callback,
             0, 100, 50, kc_decimal, self.port_dict, self.preset_manager)
-        m_reverb_color.add_to_grid_layout(self.reverb_groupbox_gridlayout, 2)
+        self.reverb_color_knob.add_to_grid_layout(
+            self.reverb_groupbox_gridlayout, 15)
 
         self.gate_groupbox = QtGui.QGroupBox(_("Gate"))
         self.gate_groupbox.setObjectName("plugin_groupbox")

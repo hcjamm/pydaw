@@ -178,6 +178,8 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
         case MODULEX_GLITCH_ON: plugin->glitch_on = data; break;
         case MODULEX_GLITCH_NOTE: plugin->glitch_note = data; break;
         case MODULEX_GLITCH_TIME: plugin->glitch_time = data; break;
+
+        case MODULEX_REVERB_DRY: plugin->reverb_dry = data; break;
     }
 }
 
@@ -570,6 +572,19 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 plugin_data->mono_modules->amp_ptr),
                 (*plugin_data->reverb_color) * 0.01f);
 
+        float f_dry_vol;
+        float f_dry_db = (*plugin_data->reverb_dry);
+
+        if(f_dry_db == 0.0f)
+        {
+            f_dry_vol = 0.0f;
+        }
+        else
+        {
+            f_dry_vol = f_db_to_linear_fast((f_dry_db * 0.4f) - 40.0f,
+                    plugin_data->mono_modules->amp_ptr);
+        }
+
         int f_i = 0;
         while(f_i < sample_count)
         {
@@ -577,9 +592,11 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 plugin_data->output0[f_i],
                 plugin_data->output1[f_i]);
 
-            plugin_data->output0[f_i] +=
+            plugin_data->output0[f_i] =
+                    (plugin_data->output0[f_i] * f_dry_vol) +
                     plugin_data->mono_modules->reverb->output;
-            plugin_data->output1[f_i] +=
+            plugin_data->output1[f_i] =
+                    (plugin_data->output1[f_i] * f_dry_vol) +
                     plugin_data->mono_modules->reverb->output;
 
             f_i++;
@@ -705,6 +722,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_ON, 0.0f, 0.0f, 1.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_NOTE, 120.0f, 0.0f, 120.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_TIME, 10.0f, 1.0f, 25.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_DRY, 100.0f, 0.0f, 100.0f);
 
 
     LMSLDescriptor->activate = v_modulex_activate;

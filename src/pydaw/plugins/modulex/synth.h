@@ -105,11 +105,12 @@ extern "C" {
 #define MODULEX_GLITCH_ON 71
 #define MODULEX_GLITCH_NOTE 72
 #define MODULEX_GLITCH_TIME 73
+#define MODULEX_REVERB_DRY 74
 
-#define MODULEX_LAST_CONTROL_PORT 73
+#define MODULEX_LAST_CONTROL_PORT 74
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define MODULEX_COUNT 74
+#define MODULEX_COUNT 75
 
 typedef struct
 {
@@ -132,6 +133,7 @@ typedef struct
     PYFX_Data *vol_slider;
 
     PYFX_Data *reverb_time;
+    PYFX_Data *reverb_dry;
     PYFX_Data *reverb_wet;
     PYFX_Data *reverb_color;
 
