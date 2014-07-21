@@ -53,6 +53,7 @@ typedef struct
 
     t_smoother_linear * volume_smoother;
     t_smoother_linear * reverb_smoother;
+    t_smoother_linear * reverb_dry_smoother;
     t_smoother_linear * gate_wet_smoother;
     t_smoother_linear * glitch_time_smoother;
 
@@ -114,6 +115,10 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr, int a_track_num)
     a_mono->reverb_smoother =
             g_sml_get_smoother_linear(a_sr, 100.0f, 0.0f, 0.001f);
     a_mono->reverb_smoother->last_value = 0.0f;
+
+    a_mono->reverb_dry_smoother =
+            g_sml_get_smoother_linear(a_sr, 100.0f, 0.0f, 0.001f);
+    a_mono->reverb_dry_smoother->last_value = 1.0f;
 
     a_mono->gate_wet_smoother =
             g_sml_get_smoother_linear(a_sr, 100.0f, 0.0f, 0.01f);

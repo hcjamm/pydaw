@@ -581,8 +581,12 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
         }
         else
         {
-            f_dry_vol = f_db_to_linear_fast((f_dry_db * 0.4f) - 40.0f,
-                    plugin_data->mono_modules->amp_ptr);
+            v_sml_run(plugin_data->mono_modules->reverb_dry_smoother,
+                (*plugin_data->reverb_dry));
+            f_dry_vol = f_db_to_linear_fast(
+                (plugin_data->mono_modules->reverb_dry_smoother->last_value
+                    * 0.4f) - 40.0f,
+                plugin_data->mono_modules->amp_ptr);
         }
 
         int f_i = 0;

@@ -1004,6 +1004,7 @@ MODULEX_PORT_MAP = {
     "Delay LP Cutoff": "41",
     "Volume Slider": "43",
     "Reverb Wet": "45",
+    "Reverb Dry": MODULEX_REVERB_DRY,
     "Reverb Color": "46",
     "Gate Wet": MODULEX_GATE_WET,
     "Glitch Time": MODULEX_GLITCH_TIME
