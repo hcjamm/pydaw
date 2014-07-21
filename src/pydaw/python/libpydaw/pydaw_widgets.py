@@ -4102,8 +4102,15 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.reverb_groupbox.setObjectName("plugin_groupbox")
         self.reverb_groupbox_gridlayout = QtGui.QGridLayout(
             self.reverb_groupbox)
-        self.reverb_hlayout = QtGui.QHBoxLayout()
-        self.delay_vlayout.addLayout(self.reverb_hlayout)
+        f_note_triggered_label = QtGui.QLabel(_("Note-Triggered Effects"))
+        f_note_triggered_label.setToolTip(
+            _("The below effects are triggered when you play their \n"
+            "selected note.  Usually you will want to change the note\n"
+            "range on any instrument plugins on the same track to not\n"
+            "include the selected note for these effects."))
+        self.delay_vlayout.addWidget(f_note_triggered_label)
+        self.note_triggered_hlayout = QtGui.QHBoxLayout()
+        self.delay_vlayout.addLayout(self.note_triggered_hlayout)
         self.delay_hlayout.addWidget(self.reverb_groupbox)
         self.reverb_time_knob =  pydaw_knob_control(
             f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
@@ -4135,7 +4142,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.gate_groupbox = QtGui.QGroupBox(_("Gate"))
         self.gate_groupbox.setObjectName("plugin_groupbox")
-        self.reverb_hlayout.addWidget(self.gate_groupbox)
+        self.note_triggered_hlayout.addWidget(self.gate_groupbox)
         self.gate_gridlayout = QtGui.QGridLayout(self.gate_groupbox)
         self.gate_on_checkbox = pydaw_checkbox_control(
             "On", pydaw_ports.MODULEX_GATE_MODE,
@@ -4161,8 +4168,8 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.glitch_groupbox = QtGui.QGroupBox(_("Glitch"))
         self.glitch_groupbox.setObjectName("plugin_groupbox")
-        self.reverb_hlayout.addWidget(self.glitch_groupbox)
-        self.reverb_hlayout.addItem(
+        self.note_triggered_hlayout.addWidget(self.glitch_groupbox)
+        self.note_triggered_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.glitch_gridlayout = QtGui.QGridLayout(self.glitch_groupbox)
 
