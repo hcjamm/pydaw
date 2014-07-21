@@ -583,6 +583,8 @@ class region_settings:
                     CURRENT_REGION.uid, AUDIO_ITEMS)
             PROJECT.commit(f_commit_message)
             global_update_region_time()
+            pydaw_set_audio_seq_zoom(AUDIO_SEQ.h_zoom, AUDIO_SEQ.v_zoom)
+            global_open_audio_items()
 
     def toggle_hide_inactive(self):
         self.hide_inactive = self.toggle_hide_action.isChecked()
