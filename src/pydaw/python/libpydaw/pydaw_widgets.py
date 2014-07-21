@@ -4067,43 +4067,44 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             10, 100, 50, kc_time_decimal, self.port_dict, self.preset_manager)
         self.delay_time_knob.add_to_grid_layout(delay_gridlayout, 0)
-        m_feedback =  pydaw_knob_control(
+        self.feedback =  pydaw_knob_control(
             f_knob_size, _("Fdbk"), pydaw_ports.MODULEX_FEEDBACK,
             self.plugin_rel_callback, self.plugin_val_callback,
             -20, 0, -12, kc_integer, self.port_dict, self.preset_manager)
-        m_feedback.add_to_grid_layout(delay_gridlayout, 1)
-        m_dry =  pydaw_knob_control(
+        self.feedback.add_to_grid_layout(delay_gridlayout, 1)
+        self.dry_knob =  pydaw_knob_control(
             f_knob_size, _("Dry"), pydaw_ports.MODULEX_DRY,
             self.plugin_rel_callback, self.plugin_val_callback,
             -30, 0, 0, kc_integer, self.port_dict, self.preset_manager)
-        m_dry.add_to_grid_layout(delay_gridlayout, 2)
-        m_wet =  pydaw_knob_control(
+        self.dry_knob.add_to_grid_layout(delay_gridlayout, 2)
+        self.wet_knob =  pydaw_knob_control(
             f_knob_size, _("Wet"), pydaw_ports.MODULEX_WET,
             self.plugin_rel_callback, self.plugin_val_callback, -30, 0, -30,
             kc_integer, self.port_dict, self.preset_manager)
-        m_wet.add_to_grid_layout(delay_gridlayout, 3)
-        m_duck =  pydaw_knob_control(
+        self.wet_knob.add_to_grid_layout(delay_gridlayout, 3)
+        self.duck_knob =  pydaw_knob_control(
             f_knob_size, _("Duck"), pydaw_ports.MODULEX_DUCK,
             self.plugin_rel_callback, self.plugin_val_callback,
             -40, 0, 0, kc_integer, self.port_dict, self.preset_manager)
-        m_duck.add_to_grid_layout(delay_gridlayout, 4)
-        m_cutoff =  pydaw_knob_control(
+        self.duck_knob.add_to_grid_layout(delay_gridlayout, 4)
+        self.cutoff_knob =  pydaw_knob_control(
             f_knob_size, _("Cutoff"), pydaw_ports.MODULEX_CUTOFF,
             self.plugin_rel_callback, self.plugin_val_callback,
             40, 118, 90, kc_pitch, self.port_dict, self.preset_manager)
-        m_cutoff.add_to_grid_layout(delay_gridlayout, 5)
-        m_stereo =  pydaw_knob_control(
+        self.cutoff_knob.add_to_grid_layout(delay_gridlayout, 5)
+        self.stereo_knob =  pydaw_knob_control(
             f_knob_size, _("Stereo"), pydaw_ports.MODULEX_STEREO,
             self.plugin_rel_callback, self.plugin_val_callback,
             0, 100, 100, kc_decimal, self.port_dict, self.preset_manager)
-        m_stereo.add_to_grid_layout(delay_gridlayout, 6)
+        self.stereo_knob.add_to_grid_layout(delay_gridlayout, 6)
 
-        reverb_groupbox =  QtGui.QGroupBox(_("Reverb"))
-        reverb_groupbox.setObjectName("plugin_groupbox")
-        self.reverb_groupbox_gridlayout = QtGui.QGridLayout(reverb_groupbox)
+        self.reverb_groupbox =  QtGui.QGroupBox(_("Reverb"))
+        self.reverb_groupbox.setObjectName("plugin_groupbox")
+        self.reverb_groupbox_gridlayout = QtGui.QGridLayout(
+            self.reverb_groupbox)
         self.reverb_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.reverb_hlayout)
-        self.reverb_hlayout.addWidget(reverb_groupbox)
+        self.delay_hlayout.addWidget(self.reverb_groupbox)
         self.reverb_time_knob =  pydaw_knob_control(
             f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
             self.plugin_rel_callback, self.plugin_val_callback,
@@ -4158,15 +4159,10 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             20, 120, 60, kc_pitch, self.port_dict, self.preset_manager)
         self.gate_pitch_knob.add_to_grid_layout(self.gate_gridlayout, 12)
 
-        self.reverb_hlayout.addItem(
-            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-
         self.glitch_groupbox = QtGui.QGroupBox(_("Glitch"))
         self.glitch_groupbox.setObjectName("plugin_groupbox")
-        self.glitch_hlayout = QtGui.QHBoxLayout()
-        self.delay_vlayout.addLayout(self.glitch_hlayout)
-        self.glitch_hlayout.addWidget(self.glitch_groupbox)
-        self.glitch_hlayout.addItem(
+        self.reverb_hlayout.addWidget(self.glitch_groupbox)
+        self.reverb_hlayout.addItem(
             QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
         self.glitch_gridlayout = QtGui.QGridLayout(self.glitch_groupbox)
 
