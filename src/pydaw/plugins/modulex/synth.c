@@ -55,6 +55,9 @@ static void v_modulex_panic(PYFX_Handle instance)
 {
     t_modulex *plugin = (t_modulex *)instance;
 
+    plugin->mono_modules->gate_on = 0.0f;
+    plugin->mono_modules->glitch_on = 0.0f;
+
     int f_i = 0;
     while(f_i < plugin->mono_modules->delay->delay0->sample_count)
     {
