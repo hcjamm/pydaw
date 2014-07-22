@@ -3408,6 +3408,14 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
 
 MODULEX_CLIPBOARD = None
 
+MODULEX_EFFECTS_LIST = [
+    "Off", "LP2", "LP4", "HP2", "HP4", "BP2", "BP4", "Notch2",
+    "Notch4", "EQ", "Distortion", "Comb Filter", "Amp/Pan",
+    "Limiter", "Saturator", "Formant", "Chorus", "Glitch",
+    "RingMod", "LoFi", "S/H", "LP-D/W", "HP-D/W",
+    "Monofier", "LP<-->HP", "Growl Filter",
+    "Screech LP", "Metal Comb", "Notch-D/W"]
+
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback,
                  a_port_dict=None, a_preset_mgr=None, a_knob_size=51):
@@ -3430,14 +3438,8 @@ class pydaw_modulex_single:
             self.knobs.append(f_knob)
         self.combobox = pydaw_combobox_control(
             132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
-               ["Off", "LP2", "LP4", "HP2", "HP4", "BP2", "BP4", "Notch2",
-               "Notch4", "EQ", "Distortion", "Comb Filter", "Amp/Pan",
-               "Limiter", "Saturator", "Formant", "Chorus", "Glitch",
-               "RingMod", "LoFi", "S/H", "LP-D/W", "HP-D/W",
-               "Monofier", "LP<-->HP", "Growl Filter",
-                "Screech LP", "Metal Comb", "Notch-D/W"],
-                a_port_dict=a_port_dict, a_preset_mgr=a_preset_mgr,
-                a_default_index=0)
+            MODULEX_EFFECTS_LIST, a_port_dict=a_port_dict,
+            a_preset_mgr=a_preset_mgr, a_default_index=0)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
         self.combobox.control.currentIndexChanged.connect(
             self.type_combobox_changed)
