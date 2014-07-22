@@ -40,6 +40,8 @@ GNU General Public License for more details.
 #define MODULEX_EVENT_GLITCH_ON 1003
 #define MODULEX_EVENT_GLITCH_OFF 1004
 
+int MODULEX_AMORITIZER = 0;
+
 static void v_modulex_run(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event * events, int EventCount);
 
@@ -207,7 +209,15 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
     plugin_data->mono_modules =
             v_modulex_mono_init(plugin_data->fs, plugin_data->track_num);
 
-    plugin_data->i_slow_index = MODULEX_SLOW_INDEX_ITERATIONS;
+    plugin_data->i_slow_index =
+            MODULEX_SLOW_INDEX_ITERATIONS + MODULEX_AMORITIZER;
+
+    MODULEX_AMORITIZER++;
+    if(MODULEX_AMORITIZER >= MODULEX_SLOW_INDEX_ITERATIONS)
+    {
+        MODULEX_AMORITIZER = 0;
+    }
+
     plugin_data->is_on = 0;
 }
 
@@ -402,7 +412,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
     if(plugin_data->i_slow_index >= MODULEX_SLOW_INDEX_ITERATIONS)
     {
-        plugin_data->i_slow_index = 0;
+        plugin_data->i_slow_index -= MODULEX_SLOW_INDEX_ITERATIONS;
         plugin_data->is_on = 0;
         v_modulex_check_if_on(plugin_data);
     }
