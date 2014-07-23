@@ -362,6 +362,7 @@ MODULEX_GLITCH_ON = 71
 MODULEX_GLITCH_NOTE = 72
 MODULEX_GLITCH_TIME = 73
 MODULEX_REVERB_DRY = 74
+MODULEX_GLITCH_PB = 75
 
 
 #Total number of LFOs, ADSRs, other envelopes, etc... Used for the PolyFX mod matrix

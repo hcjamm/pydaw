@@ -4190,6 +4190,11 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             self.plugin_rel_callback, self.plugin_val_callback,
             1, 25, 10, KC_TIME_DECIMAL, self.port_dict, self.preset_manager)
         self.glitch_time_knob.add_to_grid_layout(self.glitch_gridlayout, 9)
+        self.glitch_pb_knob = pydaw_knob_control(
+            f_knob_size, _("Pitchbend"), pydaw_ports.MODULEX_GLITCH_PB,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 36, 0, KC_INTEGER, self.port_dict, self.preset_manager)
+        self.glitch_pb_knob.add_to_grid_layout(self.glitch_gridlayout, 12)
 
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)

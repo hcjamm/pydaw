@@ -185,6 +185,7 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
         case MODULEX_GLITCH_TIME: plugin->glitch_time = data; break;
 
         case MODULEX_REVERB_DRY: plugin->reverb_dry = data; break;
+        case MODULEX_GLITCH_PB: plugin->glitch_pb = data; break;
     }
 }
 
@@ -203,6 +204,8 @@ static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
 static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
 {
     t_modulex *plugin_data = (t_modulex *) instance;
+
+    plugin_data->sv_pitch_bend_value = 0.0f;
 
     plugin_data->port_table = a_port_table;
 
@@ -296,7 +299,9 @@ static inline void v_modulex_run_glitch(t_modulex *plugin_data,
     v_sml_run(plugin_data->mono_modules->glitch_time_smoother,
             *plugin_data->glitch_time * 0.01f);
     v_glc_glitch_v2_set(plugin_data->mono_modules->glitch,
-            plugin_data->mono_modules->glitch_time_smoother->last_value);
+            plugin_data->mono_modules->glitch_time_smoother->last_value,
+            plugin_data->mono_modules->pitchbend_smoother->last_value *
+            (*plugin_data->glitch_pb));
     v_glc_glitch_v2_run(plugin_data->mono_modules->glitch, a_in0, a_in1);
 }
 
@@ -404,6 +409,16 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 plugin_data->midi_event_count++;
             }
         }
+        else if (events[event_pos].type == PYDAW_EVENT_PITCHBEND)
+        {
+            plugin_data->midi_event_types[plugin_data->midi_event_count] =
+                    PYDAW_EVENT_PITCHBEND;
+            plugin_data->midi_event_ticks[plugin_data->midi_event_count] =
+                    events[event_pos].tick;
+            plugin_data->midi_event_values[plugin_data->midi_event_count] =
+                    0.00012207 * events[event_pos].value;
+            plugin_data->midi_event_count++;
+        }
 
         event_pos++;
     }
@@ -445,6 +460,12 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 {
                     plugin_data->port_table[
                             plugin_data->midi_event_ports[midi_event_pos]] =
+                            plugin_data->midi_event_values[midi_event_pos];
+                }
+                else if(plugin_data->midi_event_types[midi_event_pos] ==
+                    PYDAW_EVENT_PITCHBEND)
+                {
+                    plugin_data->sv_pitch_bend_value =
                             plugin_data->midi_event_values[midi_event_pos];
                 }
                 else if(plugin_data->midi_event_types[midi_event_pos] ==
@@ -512,6 +533,9 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 }
                 f_i++;
             }
+
+            v_sml_run(plugin_data->mono_modules->pitchbend_smoother,
+                    (plugin_data->sv_pitch_bend_value));
 
             if(f_glitch_on && plugin_data->mono_modules->glitch_on > 0.0f)
             {
@@ -740,6 +764,7 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_NOTE, 120.0f, 0.0f, 120.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_TIME, 10.0f, 1.0f, 25.0f);
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_DRY, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_PB, 0.0f, 0.0f, 36.0f);
 
 
     LMSLDescriptor->activate = v_modulex_activate;

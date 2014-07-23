@@ -42,6 +42,7 @@ typedef struct
 
     t_lms_delay * delay;
     t_smoother_linear * time_smoother;
+    t_smoother_linear * pitchbend_smoother;
     t_enf_env_follower * env_follower;
 
     t_rvb_reverb * reverb;
@@ -105,6 +106,8 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr, int a_track_num)
     a_mono->delay = g_ldl_get_delay(1, a_sr);
     a_mono->time_smoother =
             g_sml_get_smoother_linear(a_sr, 100.0f, 10.0f, 0.1f);
+    a_mono->pitchbend_smoother =
+            g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.1f);
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
 
     a_mono->reverb = g_rvb_reverb_get(a_sr);
