@@ -4831,17 +4831,17 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
             a_pydaw_data->playback_mode = a_mode;
             //Send zero pitchbend messages so the plugins pitch isn't off
             //next time playback starts
-            while(f_i < PYDAW_MIDI_TRACK_COUNT)
+            while(f_i < PYDAW_TRACK_COUNT_ALL)
             {
-                if(a_pydaw_data->track_pool[f_i]->plugin_index > 0)
+                if(a_pydaw_data->track_pool_all[f_i]->plugin_index > 0)
                 {
-                    v_pydaw_ev_clear(&a_pydaw_data->track_pool[f_i]->
-                            event_buffer[(a_pydaw_data->track_pool[f_i]->
+                    v_pydaw_ev_clear(&a_pydaw_data->track_pool_all[f_i]->
+                            event_buffer[(a_pydaw_data->track_pool_all[f_i]->
                             current_period_event_index)]);
                     v_pydaw_ev_set_pitchbend(
-                            &a_pydaw_data->track_pool[f_i]->event_buffer[0],
+                            &a_pydaw_data->track_pool_all[f_i]->event_buffer[0],
                             0, 0);
-                    a_pydaw_data->track_pool[f_i]->
+                    a_pydaw_data->track_pool_all[f_i]->
                             current_period_event_index = 1;
                 }
                 f_i++;
@@ -4890,8 +4890,8 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                 }
             }
             f_i = 0;
-            long early_noteoff = (a_pydaw_data->current_sample) + 20000;
-            while(f_i < PYDAW_MIDI_TRACK_COUNT)
+            long early_noteoff = (a_pydaw_data->current_sample) + 10000;
+            while(f_i < PYDAW_TRACK_COUNT_ALL)
             {
                 int f_i2 = 0;
                 while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
