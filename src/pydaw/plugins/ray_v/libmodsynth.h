@@ -48,7 +48,7 @@ typedef struct
     t_osc_simple_unison * osc_unison1;
     t_osc_simple_unison * osc_unison2;
 
-    float osc1_pitch_adjust, osc2_pitch_adjust;  //Added from pitch/tune controls at note on
+    float osc1_pitch_adjust, osc2_pitch_adjust;
 
     t_state_variable_filter * svf_filter;
     fp_svf_run_filter svf_function;
@@ -67,16 +67,17 @@ typedef struct
     t_ramp_env * glide_env;
 
     t_ramp_env * pitch_env;
-
-    float last_pitch;  //For simplicity, this is used whether glide is turned on or not
-
-    float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations
+    //For glide
+    float last_pitch;
+      //base pitch for all oscillators, to avoid redundant calculations
+    float base_pitch;
 
     float target_pitch;
 
     float filter_output;  //For assigning the filter output to
-
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    // This corresponds to the current sample being processed on this voice.
+    // += this to the output buffer when finished.
+    float current_sample;
 
     t_lfs_lfo * lfo1;
 
@@ -104,9 +105,8 @@ t_rayv_poly_voice * g_rayv_poly_init(float);
 
 t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
 {
-    t_rayv_poly_voice * f_voice = (t_rayv_poly_voice*)malloc(sizeof(t_rayv_poly_voice));
-
-    /*TODO:  Remove some of the set values, they were from the early days and aren't needed anymore*/
+    t_rayv_poly_voice * f_voice =
+            (t_rayv_poly_voice*)malloc(sizeof(t_rayv_poly_voice));
 
     f_voice->osc_unison1 = g_osc_get_osc_simple_unison(a_sr);
     f_voice->osc_unison2 = g_osc_get_osc_simple_unison(a_sr);
@@ -186,11 +186,16 @@ t_rayv_mono_modules * v_rayv_mono_init(float);
 /*Initialize any modules that will be run monophonically*/
 t_rayv_mono_modules * v_rayv_mono_init(float a_sr)
 {
-    t_rayv_mono_modules * a_mono = (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));
-    a_mono->filter_smoother = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.2f);
-    a_mono->lfo_smoother = g_sml_get_smoother_linear(a_sr, 1600.0f, 10.0f, 0.2f);
-    a_mono->filter_smoother->last_value = 100.0f;  //To prevent low volume and brightness at the first note-on(s)
-    a_mono->pitchbend_smoother = g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.1f);
+    t_rayv_mono_modules * a_mono =
+            (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));
+    a_mono->filter_smoother =
+            g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.2f);
+    a_mono->lfo_smoother =
+            g_sml_get_smoother_linear(a_sr, 1600.0f, 10.0f, 0.2f);
+    //To prevent low volume and brightness at the first note-on(s)
+    a_mono->filter_smoother->last_value = 100.0f;
+    a_mono->pitchbend_smoother =
+            g_sml_get_smoother_linear(a_sr, 1.0f, -1.0f, 0.1f);
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
 }
