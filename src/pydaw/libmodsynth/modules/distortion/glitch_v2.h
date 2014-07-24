@@ -157,6 +157,8 @@ void v_glc_glitch_v2_run(t_glc_glitch_v2* a_glc, float a_input0, float a_input1)
         a_glc->write_head++;
     }
 
+    v_adsr_run(a_glc->adsr);
+
     if(a_glc->first_run)
     {
         a_glc->output0 = a_input0;
@@ -181,7 +183,6 @@ void v_glc_glitch_v2_run(t_glc_glitch_v2* a_glc, float a_input0, float a_input1)
                 a_glc->buffer, a_glc->sample_count, a_glc->read_head,
                 a_glc->cubic);
 
-        v_adsr_run(a_glc->adsr);
         v_axf_set_xfade(a_glc->xfade, a_glc->adsr->output);
 
         a_glc->output0 = f_axf_run_xfade(a_glc->xfade, a_input0, f_output);
