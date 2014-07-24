@@ -8303,8 +8303,19 @@ class transport_widget:
         self.panic_button = QtGui.QPushButton(_("Panic"))
         self.panic_button.pressed.connect(self.on_panic)
         self.grid_layout1.addWidget(self.panic_button, 0, 50)
+        self.master_vol_knob = pydaw_widgets.pydaw_pixmap_knob(60, -300, 0)
+        self.master_vol_knob.setValue(0)
+        self.hlayout1.addWidget(self.master_vol_knob)
+        self.master_vol_knob.valueChanged.connect(self.master_vol_changed)
         self.last_region_num = -99
         self.suppress_osc = False
+
+    def master_vol_changed(self, a_val):
+        if a_val == 0:
+            f_result = 1.0
+        else:
+            f_result = pydaw_util.pydaw_db_to_lin(float(a_val) * 0.1)
+        PROJECT.this_pydaw_osc.pydaw_master_vol(f_result)
 
     def reset(self):
         self.loop_mode_combobox.setCurrentIndex(0)

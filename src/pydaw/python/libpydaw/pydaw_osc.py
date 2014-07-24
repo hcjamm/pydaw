@@ -260,3 +260,6 @@ class pydaw_osc:
     def pydaw_reload_wavpool_item(self, a_uid):
         self.send_configure("wr", str(a_uid))
 
+    def pydaw_master_vol(self, a_vol):
+        self.send_configure("mvol", str(a_vol))
+

@@ -168,6 +168,8 @@ typedef struct
     int track_type;
 }t_pydaw_work_queue_item;
 
+float MASTER_VOL = 1.0f; __attribute__((aligned(16)))
+
 typedef struct
 {
     //set from the audio device buffer size every time the main loop is called.
@@ -3008,6 +3010,17 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     break;
                 }
             }
+            f_i++;
+        }
+    }
+
+    if(!a_pydaw_data->is_offline_rendering && MASTER_VOL != 1.0f)
+    {
+        int f_i = 0;
+        while(f_i < sample_count)
+        {
+            output0[f_i] *= MASTER_VOL;
+            output1[f_i] *= MASTER_VOL;
             f_i++;
         }
     }
