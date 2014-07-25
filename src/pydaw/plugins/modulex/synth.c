@@ -483,17 +483,16 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
                 else if(plugin_data->midi_event_types[midi_event_pos] ==
                         MODULEX_EVENT_GLITCH_ON)
                 {
-                    plugin_data->mono_modules->glitch_on =
-                            plugin_data->midi_event_values[midi_event_pos];
                     v_glc_glitch_v2_retrigger(
                             plugin_data->mono_modules->glitch);
+                    plugin_data->mono_modules->glitch_on =
+                            plugin_data->midi_event_values[midi_event_pos];
                 }
                 else if(plugin_data->midi_event_types[midi_event_pos] ==
                         MODULEX_EVENT_GLITCH_OFF)
                 {
                     plugin_data->mono_modules->glitch_on =
                             plugin_data->midi_event_values[midi_event_pos];
-                    v_glc_glitch_v2_release(plugin_data->mono_modules->glitch);
                 }
 
                 midi_event_pos++;
@@ -538,16 +537,15 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             v_sml_run(plugin_data->mono_modules->pitchbend_smoother,
                     (plugin_data->sv_pitch_bend_value));
 
-            if(f_glitch_on &&
-            plugin_data->mono_modules->glitch->adsr->stage != ADSR_STAGE_OFF)
+            if(f_glitch_on && plugin_data->mono_modules->glitch_on > 0.0f)
             {
                 v_modulex_run_glitch(plugin_data,
                         plugin_data->mono_modules->current_sample0,
                         plugin_data->mono_modules->current_sample1);
                 plugin_data->mono_modules->current_sample0 =
-                        plugin_data->mono_modules->glitch->output0;
+                        plugin_data->mono_modules->glitch->output;
                 plugin_data->mono_modules->current_sample1 =
-                        plugin_data->mono_modules->glitch->output1;
+                        plugin_data->mono_modules->glitch->output;
             }
 
             if(f_gate_on)
