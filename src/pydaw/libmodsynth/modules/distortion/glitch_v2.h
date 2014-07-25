@@ -82,7 +82,7 @@ t_glc_glitch_v2 * g_glc_glitch_v2_get(float a_sr)
     f_result->adsr = g_adsr_get_adsr(a_sr);
     f_result->xfade = g_axf_get_audio_xfade(-3.0f);
 
-    v_adsr_set_adsr(f_result->adsr, 0.0f, 0.05f, 1.0f, 0.01f);
+    v_adsr_set_adsr(f_result->adsr, 0.0f, 0.05f, 1.0f, 0.05f);
 
     int f_i = 0;
 
