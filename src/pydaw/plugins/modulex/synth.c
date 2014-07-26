@@ -60,6 +60,8 @@ static void v_modulex_panic(PYFX_Handle instance)
     plugin->mono_modules->gate_on = 0.0f;
     plugin->mono_modules->glitch_on = 0.0f;
 
+    v_adsr_kill(plugin->mono_modules->glitch->adsr);
+
     int f_i = 0;
     while(f_i < plugin->mono_modules->delay->delay0->sample_count)
     {
