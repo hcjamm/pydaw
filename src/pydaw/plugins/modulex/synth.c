@@ -55,7 +55,7 @@ static void v_modulex_cleanup(PYFX_Handle instance)
 
 static void v_modulex_panic(PYFX_Handle instance)
 {
-    t_modulex *plugin = (t_modulex *)instance;
+    t_modulex *plugin = (t_modulex*)instance;
 
     plugin->mono_modules->gate_on = 0.0f;
     plugin->mono_modules->glitch_on = 0.0f;
@@ -69,6 +69,16 @@ static void v_modulex_panic(PYFX_Handle instance)
         plugin->mono_modules->delay->delay1->buffer[f_i] = 0.0f;
         f_i++;
     }
+}
+
+static void v_modulex_on_stop(PYFX_Handle instance)
+{
+    t_modulex *plugin = (t_modulex*)instance;
+
+    plugin->mono_modules->gate_on = 0.0f;
+    plugin->mono_modules->glitch_on = 0.0f;
+
+    v_adsr_release(plugin->mono_modules->glitch->adsr);
 }
 
 static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index,
@@ -794,6 +804,7 @@ PYINST_Descriptor *modulex_PYINST_descriptor(int index)
 	LMSDDescriptor->PYFX_Plugin = modulex_PYFX_descriptor(0);
 	LMSDDescriptor->configure = NULL;
 	LMSDDescriptor->run_synth = v_modulex_run;
+        LMSDDescriptor->on_stop = v_modulex_on_stop;
     }
 
     return LMSDDescriptor;

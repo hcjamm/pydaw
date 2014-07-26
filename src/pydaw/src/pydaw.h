@@ -4910,17 +4910,28 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                 pthread_mutex_lock(&a_pydaw_data->main_mutex);
             }
 
-            long early_noteoff = (a_pydaw_data->current_sample) + 3000;
-
             while(f_i < PYDAW_TRACK_COUNT_ALL)
             {
+                if(a_pydaw_data->track_pool_all[f_i]->instrument)
+                {
+                    a_pydaw_data->track_pool_all[f_i
+                        ]->instrument->descriptor->on_stop(
+                        a_pydaw_data->track_pool_all[
+                            f_i]->instrument->PYFX_handle);
+                }
+
+                if(a_pydaw_data->track_pool_all[f_i]->effect)
+                {
+                    a_pydaw_data->track_pool_all[f_i
+                        ]->effect->descriptor->on_stop(
+                        a_pydaw_data->track_pool_all[
+                            f_i]->effect->PYFX_handle);
+                }
+
                 int f_i2 = 0;
                 while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
                 {
-                    if((a_pydaw_data->note_offs[f_i][f_i2]) > early_noteoff)
-                    {
-                        a_pydaw_data->note_offs[f_i][f_i2] = early_noteoff;
-                    }
+                    a_pydaw_data->note_offs[f_i][f_i2] = -1;
                     f_i2++;
                 }
                 f_i++;

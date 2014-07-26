@@ -74,6 +74,17 @@ static void rayvPanic(PYFX_Handle instance)
     }
 }
 
+static void v_rayv_on_stop(PYFX_Handle instance)
+{
+    t_rayv *plugin = (t_rayv *)instance;
+    int f_i = 0;
+    while(f_i < RAYV_POLYPHONY)
+    {
+        v_rayv_poly_note_off(plugin->data[f_i], 0);
+        f_i++;
+    }
+}
+
 static void v_rayv_connect_buffer(PYFX_Handle instance, int a_index,
         float * DataLocation)
 {
@@ -776,6 +787,7 @@ PYINST_Descriptor *rayv_PYINST_descriptor(int index)
 	LMSDDescriptor->configure = NULL;
 	LMSDDescriptor->run_synth = v_run_rayv;
         LMSDDescriptor->offline_render_prep = v_rayv_or_prep;
+        LMSDDescriptor->on_stop = v_rayv_on_stop;
     }
 
     return LMSDDescriptor;

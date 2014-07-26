@@ -439,6 +439,11 @@ typedef struct _PYINST_Descriptor {
      */
     void (*offline_render_prep)(PYFX_Handle Instance);
 
+    /* Force any notes to off, etc...  and anything else you may want to
+     * do when the transport stops
+     */
+    void (*on_stop)(PYFX_Handle Instance);
+
 } PYINST_Descriptor;
 
 /**

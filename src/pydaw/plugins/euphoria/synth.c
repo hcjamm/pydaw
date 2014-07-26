@@ -58,6 +58,17 @@ static void euphoriaPanic(PYFX_Handle instance)
     }
 }
 
+static void v_euphoria_on_stop(PYFX_Handle instance)
+{
+    t_euphoria *plugin = (t_euphoria *)instance;
+    int f_i = 0;
+    while(f_i < EUPHORIA_POLYPHONY)
+    {
+        v_euphoria_poly_note_off(plugin->data[f_i], 0);
+        f_i++;
+    }
+}
+
 static void euphoriaConnectBuffer(PYFX_Handle instance, int a_index,
         float * DataLocation)
 {
@@ -1722,6 +1733,7 @@ PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
     euphoriaDDescriptor->configure = c_euphoria_configure;
     euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
     euphoriaDDescriptor->offline_render_prep = NULL;
+    euphoriaDDescriptor->on_stop = v_euphoria_on_stop;
 
     return euphoriaDDescriptor;
 }

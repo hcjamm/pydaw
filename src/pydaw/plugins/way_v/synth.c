@@ -99,6 +99,17 @@ static void wayvPanic(PYFX_Handle instance)
     }
 }
 
+static void v_wayv_on_stop(PYFX_Handle instance)
+{
+    t_wayv *plugin = (t_wayv *)instance;
+    int f_i = 0;
+    while(f_i < WAYV_POLYPHONY)
+    {
+        v_wayv_poly_note_off(plugin->data[f_i], 0);
+        f_i++;
+    }
+}
+
 static void v_wayv_connect_buffer(PYFX_Handle instance, int a_index,
         float * DataLocation)
 {
@@ -1857,6 +1868,7 @@ PYINST_Descriptor *wayv_PYINST_descriptor(int index)
 	LMSDDescriptor->configure = c_wayv_configure;
 	LMSDDescriptor->run_synth = v_run_wayv;
         LMSDDescriptor->offline_render_prep = v_wayv_or_prep;
+        LMSDDescriptor->on_stop = v_wayv_on_stop;
     }
 
     return LMSDDescriptor;
