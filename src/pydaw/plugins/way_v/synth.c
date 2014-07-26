@@ -108,6 +108,8 @@ static void v_wayv_on_stop(PYFX_Handle instance)
         v_wayv_poly_note_off(plugin->data[f_i], 0);
         f_i++;
     }
+
+    plugin->sv_pitch_bend_value = 0.0f;
 }
 
 static void v_wayv_connect_buffer(PYFX_Handle instance, int a_index,

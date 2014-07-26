@@ -77,8 +77,8 @@ static void v_modulex_on_stop(PYFX_Handle instance)
 
     plugin->mono_modules->gate_on = 0.0f;
     plugin->mono_modules->glitch_on = 0.0f;
-
-    v_adsr_release(plugin->mono_modules->glitch->adsr);
+    v_glc_glitch_v2_release(plugin->mono_modules->glitch);
+    plugin->sv_pitch_bend_value = 0.0f;
 }
 
 static void v_modulex_connect_buffer(PYFX_Handle instance, int a_index,

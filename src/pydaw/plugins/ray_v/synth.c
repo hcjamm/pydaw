@@ -83,6 +83,7 @@ static void v_rayv_on_stop(PYFX_Handle instance)
         v_rayv_poly_note_off(plugin->data[f_i], 0);
         f_i++;
     }
+    plugin->sv_pitch_bend_value = 0.0f;
 }
 
 static void v_rayv_connect_buffer(PYFX_Handle instance, int a_index,

@@ -67,6 +67,7 @@ static void v_euphoria_on_stop(PYFX_Handle instance)
         v_euphoria_poly_note_off(plugin->data[f_i], 0);
         f_i++;
     }
+    plugin->sv_pitch_bend_value = 0.0f;
 }
 
 static void euphoriaConnectBuffer(PYFX_Handle instance, int a_index,

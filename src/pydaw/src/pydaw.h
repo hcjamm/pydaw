@@ -4842,24 +4842,6 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             a_pydaw_data->suppress_new_audio_items = 0;
             a_pydaw_data->playback_mode = a_mode;
-            //Send zero pitchbend messages so the plugins pitch isn't off
-            //next time playback starts
-            while(f_i < PYDAW_TRACK_COUNT_ALL)
-            {
-                if(a_pydaw_data->track_pool_all[f_i]->plugin_index != 0)
-                {
-                    v_pydaw_ev_clear(&a_pydaw_data->track_pool_all[f_i]->
-                            event_buffer[(a_pydaw_data->track_pool_all[f_i]->
-                            current_period_event_index)]);
-                    v_pydaw_ev_set_pitchbend(
-                            &a_pydaw_data->track_pool_all[f_i]->event_buffer[0],
-                            0, 0);
-                    // WTF was this for????
-                    a_pydaw_data->track_pool_all[f_i]->
-                            current_period_event_index = 0;
-                }
-                f_i++;
-            }
 
             if(a_lock)
             {
