@@ -16,6 +16,8 @@ GNU General Public License for more details.
 
 #include "../../lib/interpolate-cubic.h"
 #include "../../lib/pitch_core.h"
+#include "../modulation/adsr.h"
+#include "../signal_routing/audio_xfade.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -30,10 +32,12 @@ typedef struct
     int sample_count;
     float sr, sample_count_f;
     float rate;
-    float output;
+    float output0, output1;
     t_cubic_interpolater * cubic;
     t_pit_pitch_core * pitch_core;
     t_pit_ratio * pitch_ratio;
+    t_audio_xfade * xfade;
+    t_adsr * adsr;
 }t_glc_glitch_v2;
 
 t_glc_glitch_v2 * g_glc_glitch_v2_get(float);
@@ -46,6 +50,10 @@ void v_glc_glitch_v2_free(t_glc_glitch_v2 * a_glc)
     if(a_glc)
     {
         free(a_glc->buffer);
+        free(a_glc->pitch_core);
+        free(a_glc->pitch_ratio);
+        free(a_glc->cubic);
+        free(a_glc->adsr);
         free(a_glc);
     }
 }
@@ -71,6 +79,10 @@ t_glc_glitch_v2 * g_glc_glitch_v2_get(float a_sr)
     f_result->cubic = g_cubic_get();
     f_result->pitch_core = g_pit_get();
     f_result->pitch_ratio = g_pit_ratio();
+    f_result->adsr = g_adsr_get_adsr(a_sr);
+    f_result->xfade = g_axf_get_audio_xfade(-3.0f);
+
+    v_adsr_set_adsr(f_result->adsr, 0.0f, 0.05f, 1.0f, 0.05f);
 
     int f_i = 0;
 
@@ -129,6 +141,12 @@ inline void v_glc_glitch_v2_retrigger(t_glc_glitch_v2* a_glc)
     a_glc->read_head_int = 0;
     a_glc->write_head = 0;
     a_glc->first_run = 1;
+    v_adsr_retrigger(a_glc->adsr);
+}
+
+inline void v_glc_glitch_v2_release(t_glc_glitch_v2* a_glc)
+{
+    v_adsr_release(a_glc->adsr);
 }
 
 void v_glc_glitch_v2_run(t_glc_glitch_v2* a_glc, float a_input0, float a_input1)
@@ -141,7 +159,9 @@ void v_glc_glitch_v2_run(t_glc_glitch_v2* a_glc, float a_input0, float a_input1)
 
     if(a_glc->first_run)
     {
-        a_glc->output = a_glc->buffer[a_glc->read_head_int];
+        a_glc->output0 = a_input0;
+        a_glc->output1 = a_input1;
+
         a_glc->read_head_int++;
         if(a_glc->read_head_int >= a_glc->sample_count)
         {
@@ -157,9 +177,15 @@ void v_glc_glitch_v2_run(t_glc_glitch_v2* a_glc, float a_input0, float a_input1)
             f_pos = (float)a_glc->write_head;
         }
 
-        a_glc->output = f_cubic_interpolate_ptr_wrap(
+        float f_output = f_cubic_interpolate_ptr_wrap(
                 a_glc->buffer, a_glc->sample_count, a_glc->read_head,
                 a_glc->cubic);
+
+        v_adsr_run(a_glc->adsr);
+        v_axf_set_xfade(a_glc->xfade, a_glc->adsr->output);
+
+        a_glc->output0 = f_axf_run_xfade(a_glc->xfade, a_input0, f_output);
+        a_glc->output1 = f_axf_run_xfade(a_glc->xfade, a_input1, f_output);
 
         a_glc->read_head += a_glc->rate;
         if(a_glc->read_head >= a_glc->sample_count_f)
