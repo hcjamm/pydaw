@@ -8066,6 +8066,7 @@ class transport_widget:
         WAVE_EDITOR.on_stop()
         self.menu_button.setEnabled(True)
         AUDIO_SEQ.stop_playback(self.last_bar)
+        time.sleep(0.3)
 
     def show_save_items_dialog(self):
         def ok_handler():

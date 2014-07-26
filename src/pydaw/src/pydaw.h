@@ -4904,7 +4904,14 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                 }
             }
             f_i = 0;
-            long early_noteoff = (a_pydaw_data->current_sample) + 10000;
+
+            if(a_lock)
+            {
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            }
+
+            long early_noteoff = (a_pydaw_data->current_sample) + 3000;
+
             while(f_i < PYDAW_TRACK_COUNT_ALL)
             {
                 int f_i2 = 0;
@@ -4917,6 +4924,11 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                     f_i2++;
                 }
                 f_i++;
+            }
+
+            if(a_lock)
+            {
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             }
             //Initiate some sort of mixer fadeout?
         }
