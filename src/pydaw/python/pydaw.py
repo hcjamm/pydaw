@@ -1426,8 +1426,6 @@ class region_list_editor:
         if f_result:
             global_open_items(f_result, a_reset_scrollbar=True)
             MAIN_WINDOW.main_tabwidget.setCurrentIndex(1)
-            if self.track_type != pydaw_track_type_enum.midi:
-                ITEM_EDITOR.tab_widget.setCurrentIndex(1)
             f_track_nums = list(f_track_nums.keys())
             if len(f_track_nums) == 1:
                 self.auto_arm(f_track_nums[0])
@@ -1448,7 +1446,6 @@ class region_list_editor:
                         global_plugin_indexes[f_track_index])
         else:
             CC_EDITOR_WIDGET.plugin_combobox.setCurrentIndex(f_end)
-            ITEM_EDITOR.tab_widget.setCurrentIndex(1)
 
     def on_rename_items(self):
         f_result = []
