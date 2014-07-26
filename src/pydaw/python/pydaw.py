@@ -8305,7 +8305,7 @@ class transport_widget:
         self.panic_button.pressed.connect(self.on_panic)
         self.grid_layout1.addWidget(self.panic_button, 0, 50)
         self.master_vol_file = "{}/master_vol.txt".format(global_pydaw_home)
-        self.master_vol_knob = pydaw_widgets.pydaw_pixmap_knob(60, -300, 0)
+        self.master_vol_knob = pydaw_widgets.pydaw_pixmap_knob(60, -480, 0)
         self.hlayout1.addWidget(self.master_vol_knob)
         self.master_vol_knob.valueChanged.connect(self.master_vol_changed)
         self.master_vol_knob.sliderReleased.connect(self.master_vol_released)
