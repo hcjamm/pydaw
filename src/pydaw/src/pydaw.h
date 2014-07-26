@@ -4856,7 +4856,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                             0, 0);
                     // WTF was this for????
                     a_pydaw_data->track_pool_all[f_i]->
-                            current_period_event_index = 1;
+                            current_period_event_index = 0;
                 }
                 f_i++;
             }
