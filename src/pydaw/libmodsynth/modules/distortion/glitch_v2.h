@@ -112,6 +112,11 @@ void v_glc_glitch_v2_set(t_glc_glitch_v2* a_glc, float a_time, float a_pitch)
         a_glc->last_time = a_time;
         a_glc->sample_count_f = ((a_glc->sr) * a_time);
         a_glc->sample_count = (int)a_glc->sample_count_f;
+
+        if(a_glc->read_head >= a_glc->sample_count_f)
+        {
+            a_glc->read_head = 0.0f;
+        }
     }
 
     if(a_glc->last_pitch != a_pitch)
