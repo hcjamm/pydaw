@@ -8007,6 +8007,7 @@ class transport_widget:
         WAVE_EDITOR.on_play()
         self.menu_button.setEnabled(False)
         AUDIO_SEQ.set_playback_clipboard()
+        self.master_vol_changed(self.master_vol_knob.value())
         PROJECT.this_pydaw_osc.pydaw_play(
             a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
 
