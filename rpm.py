@@ -239,8 +239,14 @@ if global_macro_text is not None:
     "w") as global_rpmmacros_file:
         global_rpmmacros_file.write(global_macro_text)
 
-cp_cmd = "cp ~/rpmbuild/RPMS/*/{}-{}*rpm '{}'".format(
-    global_pydaw_version_string, global_pydaw_version_num, orig_wd)
+pkg_name = "{}-{}*rpm".format(
+    global_pydaw_version_string, global_pydaw_version_num)
+
+cp_cmd = "cp ~/rpmbuild/RPMS/*/{} '{}'".format(pkg_name, orig_wd)
 print(cp_cmd)
 os.system(cp_cmd)
+
+if "--install" in sys.argv:
+    os.system("sudo rpm -e {}".format(global_pydaw_version_string))
+    os.system("sudo rpm -ivh {}".format(pkg_name))
 
