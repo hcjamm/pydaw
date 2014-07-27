@@ -55,8 +55,8 @@ def proj_file_str(a_val):
         f_val = round(a_val, 6)
     return str(f_val)
 
-pydaw_max_audio_item_count = 256
-pydaw_max_region_length = 256 #bars
+MAX_AUDIO_ITEM_COUNT = 256
+MAX_REGION_LENGTH = 256 #bars
 
 pydaw_folder_audio = "audio"
 pydaw_folder_audiofx = "audiofx"
@@ -2191,7 +2191,7 @@ class pydaw_audio_region:
 
     """ Return the next available index, or -1 if none are available """
     def get_next_index(self):
-        for i in range(pydaw_max_audio_item_count):
+        for i in range(MAX_AUDIO_ITEM_COUNT):
             if not i in self.items:
                 return i
         return -1
@@ -2965,8 +2965,8 @@ class pydaw_midi_file_to_items:
         f_song.add_region_ref_by_uid(a_index, f_region_uid)
         a_project.save_song(f_song)
 
-        if self.bar_count > pydaw_max_region_length:
-            f_result_region.region_length_bars = pydaw_max_region_length
+        if self.bar_count > MAX_REGION_LENGTH:
+            f_result_region.region_length_bars = MAX_REGION_LENGTH
         else:
             f_result_region.region_length_bars = self.bar_count
             for f_channel, f_bar_dict in list(self.track_map.items()):
@@ -2981,7 +2981,7 @@ class pydaw_midi_file_to_items:
                     a_project.save_item_by_uid(f_item_uid, f_item)
                     f_result_region.add_item_ref_by_uid(
                         f_actual_track_num, f_bar, f_item_uid)
-                    if f_bar >= pydaw_max_region_length:
+                    if f_bar >= MAX_REGION_LENGTH:
                         break
                 f_actual_track_num += 1
                 if f_actual_track_num >= pydaw_midi_track_count:

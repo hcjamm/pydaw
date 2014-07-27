@@ -51,8 +51,7 @@ def pydaw_get_region_length(a_index):
     if not a_index in f_song.regions:
         return 8
     else:
-        f_region = PROJECT.get_region_by_uid(
-            f_song.regions[a_index])
+        f_region = PROJECT.get_region_by_uid(f_song.regions[a_index])
         f_result = f_region.region_length_bars
         if f_result == 0:
             return 8
@@ -88,8 +87,8 @@ def global_get_audio_file_from_clipboard():
     f_clipboard = QtGui.QApplication.clipboard()
     f_path = f_clipboard.text()
     if f_path is None:
-        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
-                                  _("No text in the system clipboard"))
+        QtGui.QMessageBox.warning(
+            MAIN_WINDOW, _("Error"), _("No text in the system clipboard"))
     else:
         f_path = str(f_path)
         if os.path.isfile(f_path):
@@ -119,18 +118,19 @@ def pydaw_set_tooltips_enabled(a_enabled):
         f_widget.set_tooltips(a_enabled)
 
     if a_enabled:
-        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home),
-                              "True")
+        pydaw_write_file_text(
+            "{}/tooltips.txt".format(global_pydaw_home), "True")
     else:
-        pydaw_write_file_text("{}/tooltips.txt".format(global_pydaw_home),
-                              "False")
+        pydaw_write_file_text(
+            "{}/tooltips.txt".format(global_pydaw_home), "False")
 
 
 def pydaw_current_region_is_none():
     if CURRENT_REGION is None:
-        QtGui.QMessageBox.warning(MAIN_WINDOW, _("Error"),
-        _("You must create or select a region first by clicking "
-        "in the song editor above."))
+        QtGui.QMessageBox.warning(
+            MAIN_WINDOW, _("Error"),
+            _("You must create or select a region first by clicking "
+            "in the song editor above."))
         return True
     return False
 
@@ -218,8 +218,8 @@ class song_editor:
                 f_window.close()
 
             def on_name_changed():
-                f_new_lineedit.setText(pydaw_remove_bad_chars(
-                    f_new_lineedit.text()))
+                f_new_lineedit.setText(
+                    pydaw_remove_bad_chars(f_new_lineedit.text()))
 
             def on_current_index_changed(a_index):
                 f_copy_radiobutton.setChecked(True)
@@ -626,8 +626,8 @@ class region_settings:
         self.unmute_action.triggered.connect(self.unmute_all)
         self.unmute_action.setShortcut(QtGui.QKeySequence.fromString("CTRL+M"))
 
-        self.hlayout0.addItem(QtGui.QSpacerItem(
-            10, 10, QtGui.QSizePolicy.Expanding))
+        self.hlayout0.addItem(
+            QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         self.hlayout0.addWidget(QtGui.QLabel(_("Region Length:")))
         self.length_default_radiobutton = QtGui.QRadioButton(_("default"))
         self.length_default_radiobutton.setChecked(True)
@@ -640,7 +640,7 @@ class region_settings:
         self.hlayout0.addWidget(self.length_alternate_radiobutton)
         self.length_alternate_spinbox = QtGui.QSpinBox()
         self.length_alternate_spinbox.setKeyboardTracking(False)
-        self.length_alternate_spinbox.setRange(1, pydaw_max_region_length)
+        self.length_alternate_spinbox.setRange(1, MAX_REGION_LENGTH)
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(
             self.update_region_length)
@@ -648,13 +648,11 @@ class region_settings:
 
 
     def unsolo_all(self):
-        for f_track in REGION_INST_EDITOR.tracks + \
-        REGION_AUDIO_EDITOR.tracks:
+        for f_track in REGION_INST_EDITOR.tracks + REGION_AUDIO_EDITOR.tracks:
             f_track.solo_checkbox.setChecked(False)
 
     def unmute_all(self):
-        for f_track in REGION_INST_EDITOR.tracks + \
-        REGION_AUDIO_EDITOR.tracks:
+        for f_track in REGION_INST_EDITOR.tracks + REGION_AUDIO_EDITOR.tracks:
             f_track.mute_checkbox.setChecked(False)
 
 
@@ -726,8 +724,10 @@ class region_settings:
             SONG_EDITOR.open_song()
             global_update_region_time()
             f_window.close()
+
         def split_cancel_handler():
             f_window.close()
+
         def on_name_changed():
             f_new_lineedit.setText(
                 pydaw_remove_bad_chars(f_new_lineedit.text()))
@@ -795,7 +795,8 @@ class region_settings:
         f_items_dict = PROJECT.get_items_dict()
         for f_item in CURRENT_REGION.items:
             if f_item.bar_num < CURRENT_REGION.region_length_bars or \
-            (CURRENT_REGION.region_length_bars == 0 and f_item.bar_num < 8):
+            (CURRENT_REGION.region_length_bars == 0 and
+            f_item.bar_num < 8):
                 f_item_name = f_items_dict.get_name_by_uid(f_item.item_uid)
                 if f_item.track_num < pydaw_midi_track_count:
                     REGION_INST_EDITOR.add_qtablewidgetitem(
@@ -939,7 +940,8 @@ class region_list_editor:
                 self.table_widget.setItem(i, i2, f_empty_item)
         for i in range(self.table_widget.rowCount()):
             f_item = QtGui.QTableWidgetItem()
-            f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable &
+            f_item.setFlags(
+                f_item.flags() & ~QtCore.Qt.ItemIsEditable &
                 ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled)
             self.table_widget.setItem(i, 0, f_item)
         self.enabled = False
@@ -1063,9 +1065,10 @@ class region_list_editor:
             PROJECT.save_region(
                 str(REGION_SETTINGS.region_name_lineedit.text()),
                 CURRENT_REGION)
-            PROJECT.commit(_("Add reference(s) to item "
-                "(group) '{}' in region '{}'").format(
-                f_cell_text, REGION_SETTINGS.region_name_lineedit.text()))
+            PROJECT.commit(
+                _("Add reference(s) to item (group) '{}' in region "
+                "'{}'").format(f_cell_text,
+                REGION_SETTINGS.region_name_lineedit.text()))
             self.last_item_copied = f_cell_text
 
             f_window.close()
@@ -1526,8 +1529,10 @@ class region_list_editor:
         def note_ok_handler():
             f_cell_text = str(f_new_lineedit.text())
             if f_cell_text == f_current_item_text:
-                QtGui.QMessageBox.warning(self.group_box, _("Error"),
-                _("You must choose a different name than the original item"))
+                QtGui.QMessageBox.warning(
+                    self.group_box, _("Error"),
+                    _("You must choose a different name than the "
+                    "original item"))
                 return
             if PROJECT.item_exists(f_cell_text):
                 QtGui.QMessageBox.warning(
@@ -2890,9 +2895,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
             f_index = AUDIO_ITEMS.get_next_index()
             if f_index == -1:
-                QtGui.QMessageBox.warning(self, _("Error"),
-                _("No more available audio item slots, max per region "
-                "is {}").format(pydaw_max_audio_item_count))
+                QtGui.QMessageBox.warning(
+                    self, _("Error"),
+                    _("No more available audio item slots, max per region "
+                    "is {}").format(MAX_AUDIO_ITEM_COUNT))
                 return
             else:
                 AUDIO_ITEMS.add_item(f_index, f_item_old)
@@ -3270,7 +3276,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     if f_index == -1:
                         QtGui.QMessageBox.warning(self, _("Error"),
                         _("No more available audio item slots, max per "
-                        "region is {}").format(pydaw_max_audio_item_count))
+                        "region is {}").format(MAX_AUDIO_ITEM_COUNT))
                         break
                     else:
                         f_audio_items.add_item(f_index, f_item_old)
@@ -3691,7 +3697,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 if f_index == -1:
                     QtGui.QMessageBox.warning(self, _("Error"),
                     _("No more available audio item slots, "
-                    "max per region is {}").format(pydaw_max_audio_item_count))
+                    "max per region is {}").format(MAX_AUDIO_ITEM_COUNT))
                     break
                 else:
                     f_uid = PROJECT.get_wav_uid_by_name(f_file_name_str)
