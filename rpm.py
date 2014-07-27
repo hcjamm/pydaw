@@ -248,5 +248,5 @@ os.system(cp_cmd)
 
 if "--install" in sys.argv:
     os.system("sudo rpm -e {}".format(global_pydaw_version_string))
-    os.system("sudo rpm -ivh {}".format(pkg_name))
+    os.system("sudo rpm -ivh {}/{}".format(orig_wd, pkg_name))
 
