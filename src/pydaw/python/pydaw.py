@@ -10360,6 +10360,8 @@ class pydaw_wave_editor_widget:
         PROJECT.this_pydaw_osc.pydaw_stop_preview()
 
     def on_file_open(self):
+        if IS_PLAYING:
+            return
         f_file = self.file_browser.files_selected()
         if not f_file:
             return
