@@ -4862,7 +4862,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             QtGui.QHeaderView.Fixed)
         self.mod_matrix.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         f_hlabels = ["FX{}\nCtrl{}".format(x, y)
-            for y in range(1, 4) for x in range(4)]
+            for x in range(4) for y in range(1, 4)]
         self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
         self.mod_matrix.setVerticalHeaderLabels(
             [_("DAHDSR 1"), _("DAHDSR 2"), _("Ramp Env"),
@@ -5778,13 +5778,13 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mod_matrix = QtGui.QTableWidget()
         self.mod_matrix.setRowCount(6)
         self.mod_matrix.setColumnCount(12)
-        self.mod_matrix.setFixedHeight(222)
+        self.mod_matrix.setFixedHeight(228)
         self.mod_matrix.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
         self.mod_matrix.setVerticalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
         f_hlabels = ["FX{}\nCtrl{}".format(x, y)
-            for y in range(1, 4) for x in range(4)]
+            for x in range(4) for y in range(1, 4)]
         self.mod_matrix.setHorizontalHeaderLabels(f_hlabels)
 
         self.mod_matrix.setVerticalHeaderLabels(
@@ -5978,7 +5978,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.eq6.update_viewer()
 
     def set_default_size(self):
-        self.widget.resize(1100, 690)
+        self.widget.resize(1100, 693)
 
     def monofx0_callback(self, a_port, a_val):
         self.monofx_all_callback(
