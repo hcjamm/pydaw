@@ -10006,6 +10006,12 @@ class pydaw_wave_editor_widget:
         self.fx_button = QtGui.QPushButton(_("Effects"))
         self.fx_button.pressed.connect(self.on_show_fx)
         self.file_hlayout.addWidget(self.fx_button)
+
+        self.menu_info = QtGui.QMenu()
+        self.menu_info_button = QtGui.QPushButton(_("Info"))
+        self.menu_info_button.setMenu(self.menu_info)
+        self.file_hlayout.addWidget(self.menu_info_button)
+
         self.file_lineedit = QtGui.QLineEdit()
         self.file_lineedit.setReadOnly(True)
         self.file_hlayout.addWidget(self.file_lineedit)
@@ -10039,10 +10045,13 @@ class pydaw_wave_editor_widget:
         self.sample_graph = pydaw_audio_item_viewer_widget(
             self.marker_callback, self.marker_callback,
             self.marker_callback, self.marker_callback)
+        self.vlayout.addWidget(self.sample_graph)
+
         self.label_action = QtGui.QWidgetAction(self.menu_button)
         self.label_action.setDefaultWidget(self.sample_graph.label)
-        self.menu.addAction(self.label_action)
-        self.vlayout.addWidget(self.sample_graph)
+        self.menu_info.addAction(self.label_action)
+        self.sample_graph.label.setFixedSize(210, 123)
+
         self.orig_pos = 0
         self.duration = None
         self.sixty_recip = 1.0 / 60.0
