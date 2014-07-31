@@ -4920,7 +4920,7 @@ PIANO_ROLL_SNAP = False
 PIANO_ROLL_GRID_WIDTH = 1000.0
 PIANO_KEYS_WIDTH = 34  #Width of the piano keys in px
 PIANO_ROLL_GRID_MAX_START_TIME = 999.0 + PIANO_KEYS_WIDTH
-PIANO_ROLL_NOTE_HEIGHT = 21
+PIANO_ROLL_NOTE_HEIGHT = pydaw_util.get_file_setting("PIANO_VZOOM", int, 21)
 PIANO_ROLL_SNAP_DIVISOR = 16.0
 PIANO_ROLL_SNAP_BEATS = 4.0 / PIANO_ROLL_SNAP_DIVISOR
 PIANO_ROLL_SNAP_VALUE = PIANO_ROLL_GRID_WIDTH / PIANO_ROLL_SNAP_DIVISOR
@@ -7542,9 +7542,9 @@ class item_list_editor:
         self.zoom_hlayout.addWidget(self.vzoom_slider)
         self.vzoom_slider.setObjectName("zoom_slider")
         self.vzoom_slider.setRange(9, 24)
-        self.vzoom_slider.setSingleStep(3)
-        self.vzoom_slider.setValue(21)
+        self.vzoom_slider.setValue(PIANO_ROLL_NOTE_HEIGHT)
         self.vzoom_slider.valueChanged.connect(self.set_midi_vzoom)
+        self.vzoom_slider.sliderReleased.connect(self.save_vzoom)
 
         self.zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.zoom_hlayout.addWidget(self.zoom_slider)
@@ -7576,6 +7576,9 @@ class item_list_editor:
         global PIANO_ROLL_NOTE_HEIGHT
         PIANO_ROLL_NOTE_HEIGHT = a_val
         global_open_items()
+
+    def save_vzoom(self):
+        pydaw_util.set_file_setting("PIANO_VZOOM", self.vzoom_slider.value())
 
     def set_midi_zoom(self, a_val):
         global_set_midi_zoom(a_val * 0.1)

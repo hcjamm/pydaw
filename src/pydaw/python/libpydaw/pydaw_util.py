@@ -426,6 +426,22 @@ global_pydaw_home = "{}/{}".format(
 if not os.path.isdir(global_pydaw_home):
     os.mkdir(global_pydaw_home)
 
+def get_file_setting(a_name, a_type, a_default):
+    f_file_name = "{}/{}.txt".format(global_pydaw_home, a_name)
+    if os.path.exists(f_file_name):
+        try:
+            with open(f_file_name) as f_file:
+                return a_type(f_file.read())
+        except Exception as ex:
+            print("Error in get_file_setting {}".format(ex))
+            os.system("rm -f '{}'".format(f_file_name))
+    return a_default
+
+def set_file_setting(a_name, a_val):
+    f_file_name = "{}/{}.txt".format(global_pydaw_home, a_name)
+    with open(f_file_name, "w") as f_file:
+        f_file.write(str(a_val))
+
 global_device_val_dict = {}
 global_pydaw_device_config = "{}/device.txt".format(global_pydaw_home)
 
