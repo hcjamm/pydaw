@@ -8338,7 +8338,6 @@ class transport_widget:
         self.panic_button = QtGui.QPushButton(_("Panic"))
         self.panic_button.pressed.connect(self.on_panic)
         self.grid_layout1.addWidget(self.panic_button, 0, 50)
-        self.master_vol_file = "{}/master_vol.txt".format(global_pydaw_home)
         self.master_vol_knob = pydaw_widgets.pydaw_pixmap_knob(60, -480, 0)
         self.hlayout1.addWidget(self.master_vol_knob)
         self.master_vol_knob.valueChanged.connect(self.master_vol_changed)
@@ -8347,18 +8346,12 @@ class transport_widget:
         self.suppress_osc = False
 
     def master_vol_released(self):
-        with open(self.master_vol_file, "w") as f_file:
-            f_file.write(str(self.master_vol_knob.value()))
+        pydaw_util.set_file_setting(
+            "master_vol", self.master_vol_knob.value())
 
     def load_master_vol(self):
-        f_val = 0
-        if os.path.isfile(self.master_vol_file):
-            try:
-                with open(self.master_vol_file) as f_file:
-                    f_val = int(f_file.read())
-            except Exception as ex:
-                print("Error loading master vol: {}".format(ex))
-        self.master_vol_knob.setValue(f_val)
+        self.master_vol_knob.setValue(
+            pydaw_util.get_file_setting("master_vol", int, 0))
 
     def master_vol_changed(self, a_val):
         if a_val == 0:
