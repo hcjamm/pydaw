@@ -4207,7 +4207,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             self.port_dict, a_preset_mgr=self.preset_manager,
             a_size=f_knob_size)
 
-        self.tab_widget.addTab(self.eq6.widget, _("EQ"))
+        self.tab_widget.addTab(self.eq6.widget, _("EQ/Spectrum"))
 
         self.spectrum_enabled = pydaw_null_control(
             pydaw_ports.MODULEX_SPECTRUM_ENABLED,
