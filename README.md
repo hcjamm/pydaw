@@ -10,7 +10,7 @@ make deps
 
 make deb
 
-cd pydaw-build
+cd ../pydaw-build
 
 sudo dpkg -i pydaw[your_version].deb
 
