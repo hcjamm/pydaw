@@ -4683,7 +4683,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
             f_fm_macro_matrix.setRowCount(7)
             f_fm_macro_matrix.setColumnCount(6)
             f_fm_macro_matrix.setFixedHeight(264)
-            f_fm_macro_matrix.setFixedWidth(465)
+            f_fm_macro_matrix.setFixedWidth(474)
             f_fm_src_matrix_labels = ["From Osc{}".format(x)
                 for x in range(1, 7)] + ["Vol"]
             f_fm_dest_matrix_labels = ["To\nOsc{}".format(x)
