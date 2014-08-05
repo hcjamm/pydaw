@@ -203,20 +203,15 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
 
 static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
         int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num, fp_queue_message a_queue_func)
+        int a_track_num, fp_queue_message a_queue_func,
+        float * a_port_table)
 {
     t_modulex *plugin_data = (t_modulex*)malloc(sizeof(t_modulex));
 
     plugin_data->fs = s_rate;
     plugin_data->track_num = a_track_num;
     plugin_data->queue_func = a_queue_func;
-    return (PYFX_Handle) plugin_data;
-}
-
-static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
-{
-    t_modulex *plugin_data = (t_modulex *) instance;
-
+    
     plugin_data->sv_pitch_bend_value = 0.0f;
 
     plugin_data->port_table = a_port_table;
@@ -234,7 +229,10 @@ static void v_modulex_activate(PYFX_Handle instance, float * a_port_table)
     }
 
     plugin_data->is_on = 0;
+    
+    return (PYFX_Handle) plugin_data;
 }
+
 
 static void v_modulex_check_if_on(t_modulex *plugin_data)
 {
@@ -781,11 +779,9 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_PB, 0.0f, 0.0f, 36.0f);
 
 
-    LMSLDescriptor->activate = v_modulex_activate;
     LMSLDescriptor->cleanup = v_modulex_cleanup;
     LMSLDescriptor->connect_port = v_modulex_connect_port;
-    LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;
-    LMSLDescriptor->deactivate = NULL;
+    LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;    
     LMSLDescriptor->instantiate = g_modulex_instantiate;
     LMSLDescriptor->panic = v_modulex_panic;
 

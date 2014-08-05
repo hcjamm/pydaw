@@ -250,7 +250,8 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
 
 static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
         int a_sr, fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num, fp_queue_message a_queue_func)
+        int a_track_num, fp_queue_message a_queue_func,
+        float * a_port_table)
 {
     t_rayv *plugin_data = (t_rayv*) malloc(sizeof(t_rayv));
 
@@ -275,16 +276,12 @@ static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
 
     //initialize all monophonic modules
     plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);
+    
+    plugin_data->port_table = a_port_table;
 
     return (PYFX_Handle) plugin_data;
 }
 
-static void v_rayv_activate(PYFX_Handle instance, float * a_port_table)
-{
-    t_rayv *plugin_data = (t_rayv *) instance;
-
-    plugin_data->port_table = a_port_table;
-}
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event *events, int event_count)
@@ -765,11 +762,10 @@ PYFX_Descriptor *rayv_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, RAYV_MIN_NOTE, 0.0f, 0.0f, 120.0f);
     pydaw_set_pyfx_port(f_result, RAYV_MAX_NOTE, 120.0f, 0.0f, 120.0f);
 
-    f_result->activate = v_rayv_activate;
+    
     f_result->cleanup = v_cleanup_rayv;
     f_result->connect_port = v_rayv_connect_port;
-    f_result->connect_buffer = v_rayv_connect_buffer;
-    f_result->deactivate = NULL;
+    f_result->connect_buffer = v_rayv_connect_buffer;    
     f_result->instantiate = g_rayv_instantiate;
     f_result->panic = rayvPanic;
 

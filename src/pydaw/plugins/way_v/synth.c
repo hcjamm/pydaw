@@ -636,18 +636,12 @@ static void v_wayv_connect_port(PYFX_Handle instance, int port,
 
 static PYFX_Handle g_wayv_instantiate(PYFX_Descriptor * descriptor,
             int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-            int a_track_num, fp_queue_message a_queue_func)
+            int a_track_num, fp_queue_message a_queue_func,
+            float * a_port_table)
 {
     t_wayv *plugin_data = (t_wayv *) malloc(sizeof(t_wayv));
     plugin_data->fs = s_rate;
-
-    return (PYFX_Handle) plugin_data;
-}
-
-static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
-{
-    t_wayv *plugin_data = (t_wayv *) instance;
-
+    
     plugin_data->mono_modules = v_wayv_mono_init(plugin_data->fs);
     plugin_data->port_table = a_port_table;
 
@@ -667,6 +661,8 @@ static void v_wayv_activate(PYFX_Handle instance, float * a_port_table)
     //plugin_data->pitch = 1.0f;
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = -1.0f;  //For glide
+
+    return (PYFX_Handle) plugin_data;
 }
 
 static void v_run_wayv(PYFX_Handle instance, int sample_count,
@@ -1844,12 +1840,10 @@ PYFX_Descriptor *wayv_PYFX_descriptor(int index)
         pydaw_set_pyfx_port(f_result, f_port,  0.0f, -100.0f, 100.0f);
         f_port++;
     }
-
-    f_result->activate = v_wayv_activate;
+    
     f_result->cleanup = v_cleanup_wayv;
     f_result->connect_port = v_wayv_connect_port;
-    f_result->connect_buffer = v_wayv_connect_buffer;
-    f_result->deactivate = NULL;
+    f_result->connect_buffer = v_wayv_connect_buffer;    
     f_result->instantiate = g_wayv_instantiate;
     f_result->panic = wayvPanic;
 

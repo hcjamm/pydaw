@@ -457,7 +457,8 @@ static void connectPortSampler(PYFX_Handle instance, int port,
 static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
         int s_rate,
         fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num, fp_queue_message a_queue_func)
+        int a_track_num, fp_queue_message a_queue_func,
+        float * a_port_table)
 {
     wavpool_get_func = a_host_wavpool_func;
     t_euphoria *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
@@ -480,7 +481,7 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
     plugin_data->cubic_interpolator = g_cubic_get();
     plugin_data->linear_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
-    plugin_data->i_slow_index = 0;
+    plugin_data->i_slow_index = EUPHORIA_SLOW_INDEX_COUNT;
 
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
@@ -530,25 +531,20 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
     plugin_data->amp_ptr = g_amp_get();
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);
     plugin_data->fs = s_rate;
-
-    return (PYFX_Handle) plugin_data;
-}
-
-static void v_euphoria_activate(PYFX_Handle instance, float * a_port_table)
-{
-    t_euphoria *plugin_data = (t_euphoria *) instance;
-
+    
     plugin_data->port_table = a_port_table;
-    int i;
+    f_i = 0;
 
     plugin_data->sampleNo = 0;
 
-    for (i = 0; i < EUPHORIA_POLYPHONY; i++)
+    while (f_i < EUPHORIA_POLYPHONY)
     {
-	plugin_data->velocities[i] = 0;
+	plugin_data->velocities[f_i] = 0;
+        f_i++;
     }
 
-    v_euphoria_slow_index(plugin_data);
+
+    return (PYFX_Handle) plugin_data;
 }
 
 
@@ -1712,11 +1708,9 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, EUPHORIA_MIN_NOTE, 0.0f, 0.0f, 120.0f);
     pydaw_set_pyfx_port(f_result, EUPHORIA_MAX_NOTE, 120.0f, 0.0f, 120.0f);
 
-    f_result->activate = v_euphoria_activate;
     f_result->cleanup = cleanupSampler;
     f_result->connect_port = connectPortSampler;
-    f_result->connect_buffer = euphoriaConnectBuffer;
-    f_result->deactivate = NULL;
+    f_result->connect_buffer = euphoriaConnectBuffer;    
     f_result->instantiate = instantiateSampler;
     f_result->panic = euphoriaPanic;
 

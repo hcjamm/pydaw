@@ -202,7 +202,7 @@ typedef struct _PYFX_Descriptor {
      activate() rather than here. */
   PYFX_Handle (*instantiate)(struct _PYFX_Descriptor * Descriptor,
           int SampleRate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-          int a_track_num, fp_queue_message);
+          int a_track_num, fp_queue_message, float * a_port_table);
 
   /* This member is a function pointer that connects a port on an
      instantiated plugin to a memory location at which a block of data
@@ -235,42 +235,6 @@ typedef struct _PYFX_Descriptor {
    /* Assign the audio buffer at DataLocation to index a_index
     */
    void (*connect_buffer)(PYFX_Handle Instance, int a_index, float * DataLocation);
-
-  /* This member is a function pointer that initialises a plugin
-     instance and activates it for use. This is separated from
-     instantiate() to aid real-time support and so that hosts can
-     reinitialise a plugin instance by calling deactivate() and then
-     activate(). In this case the plugin instance must reset all state
-     information dependent on the history of the plugin instance
-     except for any data locations provided by connect_port() and any
-     gain set by set_run_adding_gain(). If there is nothing for
-     activate() to do then the plugin writer may provide a NULL rather
-     than an empty function.
-
-     When present, hosts must call this function once before run() (or
-     run_adding()) is called for the first time. This call should be
-     made as close to the run() call as possible and indicates to
-     real-time plugins that they are now live. Plugins should not rely
-     on a prompt call to run() after activate(). activate() may not be
-     called again unless deactivate() is called first. Note that
-     connect_port() may be called before or after a call to
-     activate(). */
-  void (*activate)(PYFX_Handle Instance, float * a_port_table);
-
-  /* This is the counterpart to activate() (see above). If there is
-     nothing for deactivate() to do then the plugin writer may provide
-     a NULL rather than an empty function.
-
-     Hosts must deactivate all activated units after they have been
-     run() (or run_adding()) for the last time. This call should be
-     made as close to the last run() call as possible and indicates to
-     real-time plugins that they are no longer live. Plugins should
-     not rely on prompt deactivation. Note that connect_port() may be
-     called before or after a call to deactivate().
-
-     Deactivation is not similar to pausing as the plugin instance
-     will be reinitialised when activate() is called to reuse it. */
-  void (*deactivate)(PYFX_Handle Instance);
 
   /* Once an instance of a plugin has been finished with it can be
      deleted using the following function. The instance handle passed
