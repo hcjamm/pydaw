@@ -32,7 +32,8 @@ GNU General Public License for more details.
 static PYFX_Descriptor *LMSLDescriptor = NULL;
 static PYINST_Descriptor *LMSDDescriptor = NULL;
 
-void v_pydaw_run(PYFX_Handle instance, int sample_count, t_pydaw_seq_event *events, int event_count);
+void v_pydaw_run(PYFX_Handle instance, int sample_count, 
+        t_pydaw_seq_event *events, int event_count);
 
 
 __attribute__ ((visibility("default")))
@@ -125,16 +126,17 @@ void v_pydaw_run(PYFX_Handle instance, int sample_count,
     //ie:  offline rendering of a project, has locked it
     if(f_lock_result == 0)
     {
-        pthread_mutex_lock(&pydaw_data->main_mutex);
+        pthread_spin_lock(&pydaw_data->main_lock);
         pydaw_data->input_buffers_active = 1;
         long f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
-        v_pydaw_run_main_loop(pydaw_data, sample_count, events, event_count, f_next_current_sample,
+        v_pydaw_run_main_loop(
+                pydaw_data, sample_count, events, event_count, 
+                f_next_current_sample,
                 plugin_data->output0, plugin_data->output1, plugin_data->input_arr);
-        /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
-
+        
         pydaw_data->current_sample = f_next_current_sample;
 
-        pthread_mutex_unlock(&pydaw_data->main_mutex);
+        pthread_spin_unlock(&pydaw_data->main_lock);
         pthread_mutex_unlock(&pydaw_data->offline_mutex);
     }
     else

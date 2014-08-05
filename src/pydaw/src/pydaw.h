@@ -175,7 +175,7 @@ typedef struct
     //set from the audio device buffer size every time the main loop is called.
     int sample_count;
     float tempo;
-    pthread_mutex_t main_mutex;
+    pthread_spinlock_t main_lock;
     t_pysong * pysong;
     t_pytrack * track_pool[PYDAW_MIDI_TRACK_COUNT];
     t_pytrack * record_armed_track;
@@ -744,9 +744,9 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid,
     {
         t_pydaw_per_audio_item_fx_region * f_region = g_paif_region_get();
 
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_spin_lock(&a_pydaw_data->main_lock);
         a_pydaw_data->pysong->per_audio_item_fx[f_song_index] = f_region;
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
     }
 
     if(!a_pydaw_data->pysong->
@@ -759,7 +759,7 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid,
             f_items[f_i] = g_paif_item_get(a_pydaw_data);
             f_i++;
         }
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_spin_lock(&a_pydaw_data->main_lock);
         f_i = 0;
         while(f_i < 8)
         {
@@ -769,10 +769,10 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid,
         }
         a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->
                 loaded[a_item_index] = 1;
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
     }
 
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    pthread_spin_lock(&a_pydaw_data->main_lock);
 
     if(f_control_index == 3)
     {
@@ -808,7 +808,7 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid,
                 items[a_item_index][f_effect_index]->a_knobs[2]);
     }
 
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
 
 }
 
@@ -909,8 +909,8 @@ void * v_pydaw_osc_send_thread(void* a_arg)
                 f_i++;
             }
 
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
-
+            pthread_spin_lock(&a_pydaw_data->main_lock);
+            
             //Now grab any that may have been written since the previous copy
 
             while(f_i < a_pydaw_data->osc_queue_index)
@@ -923,7 +923,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
             int f_index = a_pydaw_data->osc_queue_index;
             a_pydaw_data->osc_queue_index = 0;
 
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            pthread_spin_unlock(&a_pydaw_data->main_lock);
 
             f_i = 0;
 
@@ -3500,14 +3500,14 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data, int a_lock)
 
     if(a_lock)
     {
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_spin_lock(&a_pydaw_data->main_lock);
     }
 
     a_pydaw_data->pysong = f_result;
 
     if(a_lock)
     {
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
     }
 
     if(f_old)
@@ -4050,7 +4050,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
 
-    pthread_mutex_init(&f_result->main_mutex, NULL);
+    pthread_spin_init(&f_result->main_lock, 0);
     pthread_mutex_init(&f_result->offline_mutex, NULL);
     pthread_mutex_init(&f_result->audio_inputs_mutex, NULL);
 
@@ -4358,7 +4358,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
                 char * message =
                     f_instance->descriptor->configure(f_instance->PYFX_handle,
-                    f_config_key, f_value, 0); //&a_pydaw_data->main_mutex);
+                    f_config_key, f_value, 0); //&a_pydaw_data->main_lock);
 
                 if (message)
                 {
@@ -4649,7 +4649,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
     clock_t f_start = clock();
 
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    pthread_spin_lock(&a_pydaw_data->main_lock);
 
     sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);
     sprintf(a_pydaw_data->item_folder, "%sitems/",
@@ -4782,7 +4782,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
     v_pydaw_schedule_work(a_pydaw_data);
 
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
 
     v_pydaw_print_benchmark("v_open_project", f_start);
 }
@@ -4808,7 +4808,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+                pthread_spin_lock(&a_pydaw_data->main_lock);
             }
 
             a_pydaw_data->suppress_new_audio_items = 1;
@@ -4829,7 +4829,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+                pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
 
             f_i = 0;
@@ -4837,7 +4837,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+                pthread_spin_lock(&a_pydaw_data->main_lock);
             }
 
             a_pydaw_data->suppress_new_audio_items = 0;
@@ -4845,7 +4845,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+                pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
 
             //Things must be saved in the order of:  items|regions|song,
@@ -4889,7 +4889,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+                pthread_spin_lock(&a_pydaw_data->main_lock);
             }
 
             while(f_i < PYDAW_TRACK_COUNT_ALL)
@@ -4921,7 +4921,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+                pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
             //Initiate some sort of mixer fadeout?
         }
@@ -4930,7 +4930,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
         {
             if(a_lock)
             {
-                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+                pthread_spin_lock(&a_pydaw_data->main_lock);
             }
             a_pydaw_data->playback_mode = a_mode;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
@@ -4949,7 +4949,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+                pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
 
             break;
@@ -4961,7 +4961,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
             }
             if(a_lock)
             {
-                pthread_mutex_lock(&a_pydaw_data->main_mutex);
+                pthread_spin_lock(&a_pydaw_data->main_lock);
             }
             a_pydaw_data->is_ab_ing = 0;
             a_pydaw_data->recording_first_item = -1;
@@ -4973,7 +4973,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+                pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
             break;
     }
@@ -5119,7 +5119,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
         if(a_lock)
         {
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            pthread_spin_lock(&a_pydaw_data->main_lock);
         }
 
         a_track->instrument = 0;
@@ -5136,7 +5136,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
         if(a_lock)
         {
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            pthread_spin_unlock(&a_pydaw_data->main_lock);
         }
 
         if(f_fx)
@@ -5160,7 +5160,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
         if(a_lock)
         {
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            pthread_spin_lock(&a_pydaw_data->main_lock);
         }
 
         a_track->instrument = NULL;
@@ -5175,7 +5175,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
         if(a_lock)
         {
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            pthread_spin_unlock(&a_pydaw_data->main_lock);
         }
 
         if(f_inst)
@@ -5224,7 +5224,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
         if(a_lock)
         {
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            pthread_spin_lock(&a_pydaw_data->main_lock);
         }
 
         a_track->instrument = f_result;
@@ -5241,7 +5241,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
         if(a_lock)
         {
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            pthread_spin_unlock(&a_pydaw_data->main_lock);
         }
 
         if(f_inst)
@@ -5391,7 +5391,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     sleep(1);
-    //pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    //pthread_spin_lock(&a_pydaw_data->main_lock);
 
     a_pydaw_data->is_offline_rendering = 1;
     a_pydaw_data->input_buffers_active = 0;
@@ -5533,7 +5533,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
     a_pydaw_data->is_offline_rendering = 0;
     a_pydaw_data->ab_mode = f_ab_old;
 
-    //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    //pthread_spin_unlock(&a_pydaw_data->main_lock);
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 } __attribute__((optimize("-O0")))
 
@@ -5541,7 +5541,7 @@ void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     sleep(1);
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    pthread_spin_lock(&a_pydaw_data->main_lock);
 
     a_pydaw_data->is_offline_rendering = 1;
     a_pydaw_data->input_buffers_active = 0;
@@ -5626,13 +5626,13 @@ void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
 
     a_pydaw_data->ab_mode = f_old_ab_mode;
 
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 
 void v_pydaw_set_ab_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    pthread_spin_lock(&a_pydaw_data->main_lock);
 
     a_pydaw_data->ab_mode = a_mode;
 
@@ -5641,7 +5641,7 @@ void v_pydaw_set_ab_mode(t_pydaw_data * a_pydaw_data, int a_mode)
         a_pydaw_data->is_ab_ing = 0;
     }
 
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
 }
 
 void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file)
@@ -5651,7 +5651,7 @@ void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file)
 
     if(i_wav_pool_item_load(f_result))
     {
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_spin_lock(&a_pydaw_data->main_lock);
 
         t_wav_pool_item * f_old = a_pydaw_data->ab_wav_item;
         a_pydaw_data->ab_wav_item = f_result;
@@ -5664,7 +5664,7 @@ void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file)
         a_pydaw_data->ab_audio_item->ratio =
                 a_pydaw_data->ab_wav_item->ratio_orig;
 
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
 
         if(f_old)
         {
@@ -5688,9 +5688,9 @@ void v_pydaw_set_wave_editor_item(t_pydaw_data * a_pydaw_data,
             a_pydaw_data->sample_rate, f_current_string, 0, 0,
             a_pydaw_data->ab_wav_item);
 
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    pthread_spin_lock(&a_pydaw_data->main_lock);
     a_pydaw_data->ab_audio_item = f_result;
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
 
     g_free_2d_char_array(f_current_string);
     if(f_old)
@@ -5710,7 +5710,7 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
         {
             t_wav_pool_item * f_old = a_pydaw_data->preview_wav_item;
 
-            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            pthread_spin_lock(&a_pydaw_data->main_lock);
 
             a_pydaw_data->preview_wav_item = f_result;
 
@@ -5723,7 +5723,7 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
                     PYDAW_AUDIO_ITEM_PADDING_DIV2);
             v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
 
-            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            pthread_spin_unlock(&a_pydaw_data->main_lock);
 
             if(f_old)
             {
