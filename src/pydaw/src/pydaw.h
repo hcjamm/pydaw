@@ -910,7 +910,7 @@ void * v_pydaw_osc_send_thread(void* a_arg)
             }
 
             pthread_spin_lock(&a_pydaw_data->main_lock);
-            
+
             //Now grab any that may have been written since the previous copy
 
             while(f_i < a_pydaw_data->osc_queue_index)
@@ -4827,26 +4827,49 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                 }
             }
 
-            if(a_lock)
-            {
-                pthread_spin_unlock(&a_pydaw_data->main_lock);
-            }
-
             f_i = 0;
-            usleep(60000);
-
-            if(a_lock)
-            {
-                pthread_spin_lock(&a_pydaw_data->main_lock);
-            }
 
             a_pydaw_data->suppress_new_audio_items = 0;
             a_pydaw_data->playback_mode = a_mode;
 
+            f_i = 0;
+
+            while(f_i < PYDAW_TRACK_COUNT_ALL)
+            {
+                if(a_pydaw_data->track_pool_all[f_i]->instrument)
+                {
+                    a_pydaw_data->track_pool_all[f_i
+                        ]->instrument->descriptor->on_stop(
+                        a_pydaw_data->track_pool_all[
+                            f_i]->instrument->PYFX_handle);
+                }
+
+                if(a_pydaw_data->track_pool_all[f_i]->effect)
+                {
+                    a_pydaw_data->track_pool_all[f_i
+                        ]->effect->descriptor->on_stop(
+                        a_pydaw_data->track_pool_all[
+                            f_i]->effect->PYFX_handle);
+                }
+
+                int f_i2 = 0;
+                while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
+                {
+                    a_pydaw_data->note_offs[f_i][f_i2] = -1;
+                    f_i2++;
+                }
+                f_i++;
+            }
+
             if(a_lock)
             {
+                if(f_was_recording)
+                {
+                    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+                }
                 pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
+
 
             //Things must be saved in the order of:  items|regions|song,
             //otherwise it will SEGFAULT from not having a name yet...
@@ -4884,46 +4907,9 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                     }
                     f_i++;
                 }
+
+                pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
             }
-            f_i = 0;
-
-            if(a_lock)
-            {
-                pthread_spin_lock(&a_pydaw_data->main_lock);
-            }
-
-            while(f_i < PYDAW_TRACK_COUNT_ALL)
-            {
-                if(a_pydaw_data->track_pool_all[f_i]->instrument)
-                {
-                    a_pydaw_data->track_pool_all[f_i
-                        ]->instrument->descriptor->on_stop(
-                        a_pydaw_data->track_pool_all[
-                            f_i]->instrument->PYFX_handle);
-                }
-
-                if(a_pydaw_data->track_pool_all[f_i]->effect)
-                {
-                    a_pydaw_data->track_pool_all[f_i
-                        ]->effect->descriptor->on_stop(
-                        a_pydaw_data->track_pool_all[
-                            f_i]->effect->PYFX_handle);
-                }
-
-                int f_i2 = 0;
-                while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
-                {
-                    a_pydaw_data->note_offs[f_i][f_i2] = -1;
-                    f_i2++;
-                }
-                f_i++;
-            }
-
-            if(a_lock)
-            {
-                pthread_spin_unlock(&a_pydaw_data->main_lock);
-            }
-            //Initiate some sort of mixer fadeout?
         }
             break;
         case 1:  //play
