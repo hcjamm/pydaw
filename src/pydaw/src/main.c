@@ -62,7 +62,7 @@ GNU General Public License for more details.
 #include <cpufreq.h>
 #endif
 
-#include <sched.h>
+#include <linux/sched.h>
 
 #include "main.h"
 #include "synth.c"
@@ -664,7 +664,15 @@ int main(int argc, char **argv)
 
     int f_current_proc_sched = sched_getscheduler(0);
 
-    if(f_current_proc_sched == SCHED_FIFO)
+#ifdef SCHED_DEADLINE
+    int rt_sched = SCHED_DEADLINE;
+    printf("Using SCHED_DEADLINE\n");
+#else
+    int rt_sched = SCHED_FIFO;
+    printf("Using SCHED_FIFO\n");
+#endif
+    
+    if(f_current_proc_sched == rt_sched)
     {
         printf("Process scheduler already set to real-time.");
     }
@@ -674,9 +682,9 @@ int main(int argc, char **argv)
                 "real-time scheduler.", f_current_proc_sched);
         //Attempt to set the process priority to real-time
         const struct sched_param f_proc_param =
-                {sched_get_priority_max(SCHED_FIFO)};
+                {sched_get_priority_max(rt_sched)};
         printf("Attempting to set scheduler for process\n");
-        sched_setscheduler(0, SCHED_FIFO, &f_proc_param);
+        sched_setscheduler(0, rt_sched, &f_proc_param);
         printf("Process scheduler is now %i\n\n", sched_getscheduler(0));
     }
 
