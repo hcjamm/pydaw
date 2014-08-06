@@ -9558,6 +9558,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_ui_dict[(f_is_inst, f_track_num, f_name)] = f_val
             elif a_key == "mrec":
                 print(a_val)
+                MREC_EVENTS.append(a_val)
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")
                 PIANO_ROLL_EDITOR.highlight_keys(f_state, f_note)
