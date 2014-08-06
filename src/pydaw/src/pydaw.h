@@ -2196,56 +2196,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
             a_pydaw_data->record_armed_track->current_period_event_index = 0;
         }
 
-        if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
-        {
-            if(!a_pydaw_data->recording_in_current_bar)
-            {
-                a_pydaw_data->recording_in_current_bar = 1;
-                if(!a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
-                {
-                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)] =
-                            g_pyregion_get_new(a_pydaw_data);
-                }
-
-                if(a_pydaw_data->overdub_mode)
-                {
-                    int f_item_index =
-                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[
-                        a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar];
-                    if(f_item_index == -1)
-                    {
-                        a_pydaw_data->recording_current_item_pool_index =
-                                g_pyitem_get_new(a_pydaw_data);
-                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->
-                                item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
-                                a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;
-                    }
-                    else
-                    {
-                        a_pydaw_data->recording_current_item_pool_index = g_pyitem_clone(a_pydaw_data, f_item_index);
-                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->
-                                item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
-                                a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;
-                    }
-                }
-                else
-                {
-                    a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
-                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->
-                            record_armed_track_index_all][a_pydaw_data->current_bar] =
-                            a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;
-                }
-                if((a_pydaw_data->recording_first_item) == -1)
-                {
-                    a_pydaw_data->recording_first_item = (a_pydaw_data->recording_current_item_pool_index);
-                }
-                a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->
-                        record_armed_track_index_all][a_pydaw_data->current_bar] =
-                        (a_pydaw_data->recording_current_item_pool_index);
-                a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->not_yet_saved = 1;
-            }
-        }
-
         while(f_i2 < event_count)
         {
             if(events[f_i2].tick >= sample_count)
@@ -2265,13 +2215,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
-                    a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note] = (a_pydaw_data->recorded_note_current_beat);
-                    a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note] = (a_pydaw_data->recording_current_item_pool_index);
-                    a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note] =
-                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick)) / ((float)sample_count))
-                            * (a_pydaw_data->playback_inc))) * 4.0f;
-                    a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = events[f_i2].velocity;
-
                     float f_beat = a_pydaw_data->ml_current_period_beats +
                         f_pydaw_samples_to_beat_count(events[f_i2].tick,
                             a_pydaw_data->tempo, a_pydaw_data->sample_rate);
@@ -2300,22 +2243,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
-                    float f_length = ((float)((a_pydaw_data->recorded_note_current_beat) - (a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note])))
-                            +  ((((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count))
-                            * (a_pydaw_data->playback_inc))) * 4.0f) - (a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note]));
-
-                    int f_index = (a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note]);
-                    a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
-                            g_pynote_get(events[f_i2].note,
-                            a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note],
-                            a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note],
-                            f_length);
-                    a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count)  + 1;
-                    /*Reset to -1 to invalidate the events*/
-                    a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note] = -1;
-                    a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note] = -1;
-                    a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = -1;
-
                     float f_beat = a_pydaw_data->ml_current_period_beats +
                         f_pydaw_samples_to_beat_count(events[f_i2].tick,
                             a_pydaw_data->tempo, a_pydaw_data->sample_rate);
@@ -2341,14 +2268,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
-                    int f_index = (a_pydaw_data->recording_current_item_pool_index);
-                    float f_start =
-                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count))
-                            * (a_pydaw_data->playback_inc))) * 4.0f;
-                    a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
-                            g_pypitchbend_get(f_start, (float)events[f_i2].value);
-                    a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
-
                     float f_beat = a_pydaw_data->ml_current_period_beats +
                         f_pydaw_samples_to_beat_count(events[f_i2].tick,
                             a_pydaw_data->tempo, a_pydaw_data->sample_rate);
@@ -2374,7 +2293,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                 if(a_pydaw_data->cc_map[controller])
                 {
-                    int f_index = (a_pydaw_data->recording_current_item_pool_index);
                     float f_start =
                             ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count))
                             * (a_pydaw_data->playback_inc))) * 4.0f;
@@ -2421,11 +2339,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
-                                a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
-                                        g_pycc_get(a_pydaw_data->record_armed_track->plugin_index, f_port,
-                                        (float)events[f_i2].value, f_start);
-                                a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
-
                                 float f_beat = a_pydaw_data->ml_current_period_beats +
                                     f_pydaw_samples_to_beat_count(events[f_i2].tick,
                                         a_pydaw_data->tempo, a_pydaw_data->sample_rate);
@@ -2466,14 +2379,10 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
-                                a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
-                                        g_pycc_get(-1, controlIn, (float)events[f_i2].value, f_start);
-                                a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
-
                                 float f_beat = a_pydaw_data->ml_current_period_beats +
                                     f_pydaw_samples_to_beat_count(events[f_i2].tick,
                                         a_pydaw_data->tempo, a_pydaw_data->sample_rate);
-                                
+
                                 sprintf(
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
                                     "cc|%i|%f|%i|%i|%f", controlIn,
@@ -3750,156 +3659,6 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, int a_uid)
     return f_result;
 }
 
-void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data)
-{
-    int f_i = 0;
-
-    char f_temp[256];
-    char f_result[PYDAW_LARGE_STRING];
-    f_result[0] = '\0';
-
-    while(f_i < PYDAW_MAX_REGION_COUNT)
-    {
-        if(a_pydaw_data->pysong->regions[f_i])
-        {
-            sprintf(f_temp, "%i|%i\n", f_i,
-                    a_pydaw_data->pysong->regions[f_i]->uid);
-            strcat(f_result, f_temp);
-        }
-        f_i++;
-    }
-
-    strcat(f_result, "\\");
-
-    sprintf(f_temp, "%sdefault.pysong", a_pydaw_data->project_folder);
-
-    v_pydaw_write_to_file(f_temp, f_result);
-}
-
-/*Mimics the UI's Python __str__ method that creates/saves items...*/
-void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
-{
-    char * f_result = (char*)malloc(sizeof(char) * PYDAW_MEDIUM_STRING);
-    f_result[0] = '\0';
-    int f_i = 0;
-    char f_temp[PYDAW_TINY_STRING];
-
-    t_pyitem * f_pyitem = a_pydaw_data->item_pool[a_index];
-
-    /*Sort the item first, otherwise they can be out of order due to
-     * note_release being the trigger for writing an event, rather than
-     * start time*/
-
-    while(1)
-    {
-        int f_no_changes = 1;
-        f_i = 0;
-        /*Use the Bubble Sort algorithm.  It's generally complete garbage,
-         * but in this instance, where the list is going to be
-         pseudo-sorted to begin with, it's actually very efficient,
-         * likely only making 3 passes at most, 1 or 2 passes typically*/
-        while(f_i < (f_pyitem->rec_event_count - 1))
-        {
-            if((f_pyitem->events[f_i]->start) >
-                    (f_pyitem->events[f_i + 1]->start))
-            {
-                t_pydaw_seq_event * f_greater = f_pyitem->events[f_i];
-                t_pydaw_seq_event * f_lesser = f_pyitem->events[f_i + 1];
-                f_pyitem->events[f_i] = f_lesser;
-                f_pyitem->events[f_i + 1] = f_greater;
-                f_no_changes = 0;
-            }
-
-            f_i++;
-        }
-
-        if(f_no_changes)
-        {
-            break;
-        }
-    }
-
-    f_i = 0;
-
-    while(f_i < (f_pyitem->rec_event_count))
-    {
-        if(f_pyitem->events[f_i]->type == PYDAW_EVENT_NOTEON)
-        {
-            sprintf(f_temp, "n|%f|%f|%i|%i\n", f_pyitem->events[f_i]->start,
-                    f_pyitem->events[f_i]->length,
-                f_pyitem->events[f_i]->note, f_pyitem->events[f_i]->velocity);
-        }
-        else if(f_pyitem->events[f_i]->type == PYDAW_EVENT_CONTROLLER)
-        {
-            sprintf(f_temp, "c|%f|%i|%i|%f\n", f_pyitem->events[f_i]->start,
-                    f_pyitem->events[f_i]->plugin_index,
-                    f_pyitem->events[f_i]->port, f_pyitem->events[f_i]->value);
-        }
-        else if(f_pyitem->events[f_i]->type == PYDAW_EVENT_PITCHBEND)
-        {
-            sprintf(f_temp, "p|%f|%f\n", f_pyitem->events[f_i]->start,
-                    (((float)(f_pyitem->events[f_i]->value)) * 0.00012207f));
-        }
-
-        strcat(f_result, f_temp);
-        f_i++;
-    }
-
-
-    strcat(f_result, "\\");
-    sprintf(f_temp, "%s%i", a_pydaw_data->item_folder, f_pyitem->uid);
-    v_pydaw_write_to_file(f_temp, f_result);
-    sprintf(f_temp, "%i\n", f_pyitem->uid);
-    v_pydaw_append_to_file(a_pydaw_data->recorded_items_file, f_temp);
-}
-
-/* Items must be saved before regions to prevent a SEGFAULT at the line that
- * references item name...*/
-void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
-{
-    int f_i = 0;
-    int f_i2 = 0;
-
-    char * f_result = (char*)malloc(sizeof(char) * PYDAW_LARGE_STRING);
-    strcpy(f_result, "");
-
-    char f_temp[PYDAW_TINY_STRING];
-
-    while(f_i < PYDAW_TRACK_COUNT_ALL)
-    {
-        f_i2 = 0;
-        while(f_i2 < PYDAW_MAX_REGION_SIZE)
-        {
-            if(a_pydaw_data->pysong->regions[a_region_num]->
-                    item_indexes[f_i][f_i2]  != -1)
-            {
-                sprintf(f_temp, "%i|%i|%i\n", f_i, f_i2,
-                        a_pydaw_data->item_pool[(a_pydaw_data->pysong->regions[
-                        a_region_num]->item_indexes[f_i][f_i2])]->uid);
-                strcat(f_result, f_temp);
-            }
-            f_i2++;
-        }
-        f_i++;
-    }
-
-    strcat(f_result, "\\");
-    sprintf(f_temp, "%s%i", a_pydaw_data->region_folder, a_pydaw_data->pysong->
-            regions[a_region_num]->uid);
-    v_pydaw_write_to_file(f_temp, f_result);
-    sprintf(f_temp, "%i\n", a_pydaw_data->pysong->regions[a_region_num]->uid);
-    v_pydaw_append_to_file(a_pydaw_data->recorded_regions_file, f_temp);
-
-    //Create the region audio file if it does not exist
-    sprintf(f_temp, "%s%i", a_pydaw_data->region_audio_folder, a_pydaw_data->
-            pysong->regions[a_region_num]->uid);
-
-    if(!i_pydaw_file_exists(f_temp))
-    {
-        v_pydaw_write_to_file(f_temp, "\\");
-    }
-}
-
 /*Get an empty pyitem, used for recording.  Returns the item number in the
  * item pool*/
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data)
@@ -4857,11 +4616,6 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
         case 0: //stop
         {
             int f_i = 0;
-            int f_was_recording = 0;
-            if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
-            {
-                f_was_recording = 1;
-            }
 
             if(a_lock)
             {
@@ -4919,53 +4673,9 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
 
             if(a_lock)
             {
-                if(f_was_recording)
-                {
-                    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
-                }
                 pthread_spin_unlock(&a_pydaw_data->main_lock);
             }
 
-
-            //Things must be saved in the order of:  items|regions|song,
-            //otherwise it will SEGFAULT from not having a name yet...
-            if(f_was_recording)
-            {
-                //Don't do it if we never recorded an item...
-                if(a_pydaw_data->recording_current_item_pool_index != -1)
-                {
-                    f_i = (a_pydaw_data->recording_first_item);
-                    while(f_i < (a_pydaw_data->item_count))
-                    {
-                        v_save_pyitem_to_disk(a_pydaw_data, f_i);
-                        f_i++;
-                    }
-                }
-                f_i = 0;
-                while(f_i < PYDAW_MAX_REGION_COUNT)
-                {
-                    if((a_pydaw_data->pysong->regions[f_i]) &&
-                            (a_pydaw_data->pysong->regions[f_i]->not_yet_saved))
-                    {
-                        v_save_pyregion_to_disk(a_pydaw_data, f_i);
-                    }
-                    f_i++;
-                }
-
-                v_save_pysong_to_disk(a_pydaw_data);
-
-                f_i = 0;
-                while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
-                {
-                    if(a_pydaw_data->audio_inputs[f_i]->rec)
-                    {
-                        a_pydaw_data->audio_inputs[f_i]->recording_stopped = 1;
-                    }
-                    f_i++;
-                }
-
-                pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
-            }
         }
             break;
         case 1:  //play

@@ -7919,6 +7919,8 @@ class seq_track:
                 self.volume_slider.value(),
                 self.record_radiobutton.isChecked(), self.track_number)
 
+MREC_EVENTS = []
+
 class transport_widget:
     def set_time(self, a_region, a_bar, a_beat):
         f_seconds = REGION_TIME[a_region]
@@ -8077,8 +8079,6 @@ class transport_widget:
             # As the history will be referenced when the
             # recorded items are added to history
             PROJECT.flush_history()
-            #Give it some time to flush the recorded items to disk...
-            time.sleep(2)
             self.show_save_items_dialog()
             if CURRENT_REGION is not None and \
             REGION_SETTINGS.enabled:
@@ -8136,6 +8136,8 @@ class transport_widget:
         if self.is_playing:
             self.play_button.setChecked(True)
             return
+        if self.is_recording:
+            return
         if self.overdub_checkbox.isChecked() and \
         self.loop_mode_combobox.currentIndex() > 0:
             QtGui.QMessageBox.warning(
@@ -8156,8 +8158,9 @@ class transport_widget:
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
         self.overdub_checkbox.setEnabled(False)
-        global IS_PLAYING
+        global IS_PLAYING, MREC_EVENTS
         IS_PLAYING = True
+        MREC_EVENTS = []
         self.is_recording = True
         self.init_playback_cursor()
         self.last_region_num = self.get_region_value()
