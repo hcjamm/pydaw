@@ -2221,9 +2221,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                     sprintf(
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                        "on|%i|%i|%i|%i|%f", events[f_i2].note,
-                        events[f_i2].velocity, a_pydaw_data->current_region,
-                        a_pydaw_data->current_bar, f_beat);
+                        "on|%i|%i|%f|%i|%i", a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat, events[f_i2].note,
+                        events[f_i2].velocity);
                     v_queue_osc_message("mrec",
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
@@ -2249,9 +2249,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                     sprintf(
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                        "off|%i|%i|%i|%f", events[f_i2].note,
-                        a_pydaw_data->current_region,
-                        a_pydaw_data->current_bar, f_beat);
+                        "off|%i|%i|%f|%i", a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat, events[f_i2].note);
                     v_queue_osc_message("mrec",
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
@@ -2274,9 +2273,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                     sprintf(
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                        "pb|%f|%i|%i|%f", events[f_i2].value,
-                        a_pydaw_data->current_region,
-                        a_pydaw_data->current_bar, f_beat);
+                        "pb|%i|%i|%f|%f", a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat, events[f_i2].value);
                     v_queue_osc_message("mrec",
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
@@ -2345,9 +2343,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                                 sprintf(
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                                    "cc|%i|%f|%i|%i|%f", controlIn,
-                                    events[f_i2].value, a_pydaw_data->current_region,
-                                    a_pydaw_data->current_bar, f_beat);
+                                    "cc|%i|%i|%f|%i|%f", a_pydaw_data->current_region,
+                                    a_pydaw_data->current_bar, f_beat, controlIn,
+                                    events[f_i2].value);
                                 v_queue_osc_message("mrec",
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                             }
@@ -2385,9 +2383,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                                 sprintf(
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                                    "cc|%i|%f|%i|%i|%f", controlIn,
-                                    events[f_i2].value, a_pydaw_data->current_region,
-                                    a_pydaw_data->current_bar, f_beat);
+                                    "cc|%i|%i|%f|%i|%f", a_pydaw_data->current_region,
+                                    a_pydaw_data->current_bar, f_beat, controlIn,
+                                    events[f_i2].value);
                                 v_queue_osc_message("mrec",
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                             }

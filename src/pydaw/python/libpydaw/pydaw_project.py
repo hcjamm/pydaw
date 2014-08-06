@@ -720,85 +720,44 @@ class pydaw_project:
             return a_uid
 
     def check_for_recorded_items(self, a_item_name, a_mrec_list, a_overdub):
-        self.check_for_recorded_regions()
-        f_item_name = "{}-".format(a_item_name)
-        f_rec_items_file = "{}/recorded_items".format(self.project_folder)
-        if os.path.isfile(f_rec_items_file):
-            f_str_list = pydaw_read_file_text(f_rec_items_file).split("\n")
-            os.remove(f_rec_items_file)
-        else:
-            return
-        f_int_list = []
-        for f_str in f_str_list:
-            if f_str == "":
-                break
-            f_int = int(f_str)
-            if not f_int in  f_int_list:
-                f_int_list.append(f_int)
-        f_int_list.sort()
+        f_mrec_items = [x.split("|") for x in a_mrec_list]
         f_suffix = 1
         f_items_dict = self.get_items_dict()
+        f_song = self.get_song()
+        f_current_region = None
+        f_current_item = None
+        f_note_tracker = {}
+        f_take_num = 0
+        f_items_to_save = {}
+        f_regions_to_save = {}
+
+        for f_item in f_mrec_items:
+            f_type, f_region, f_bar, f_beat = f_item[:4]
+            if f_type == "on":
+                pass
+            elif f_type == "off":
+                pass
+            elif f_type == "cc":
+                pass
+            elif f_type == "pb":
+                pass
+
+        for f_item in f_items_to_save:
+            f_item.fix_overlaps()
+
+        for f_region in f_regions_to_save:
+            self.save_region()
+
         for f_int in f_int_list:
             f_item = self.get_item_by_uid(f_int)
             f_item.fix_overlaps()
             self.save_item_by_uid(f_int, f_item, a_new_item=True)
-            while "{}{}".format(
+            while "{}-{}".format(
             f_item_name, f_suffix) in f_items_dict.uid_lookup:
                 f_suffix += 1
             f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
             f_suffix += 1
         self.save_items_dict(f_items_dict)
-
-    def check_for_recorded_regions(self):
-        f_rec_items_file = "{}/recorded_regions".format(self.project_folder)
-        if os.path.isfile(f_rec_items_file):
-            f_str_list = pydaw_read_file_text(f_rec_items_file).split("\n")
-            os.remove(f_rec_items_file)
-        else:
-            return
-        f_int_list = []
-        for f_str in f_str_list:
-            if f_str == "":
-                break
-            f_int = int(f_str)
-            if not f_int in  f_int_list:
-                f_int_list.append(f_int)
-        f_int_list.sort()
-        f_suffix = 1
-        f_regions_dict = self.get_regions_dict()
-        for f_int in f_int_list:
-            if not f_int in f_regions_dict.name_lookup:
-                self.save_file(
-                    pydaw_folder_regions_audio, f_int, pydaw_terminating_char)
-                while "recorded-{}".format(
-                f_suffix) in f_regions_dict.uid_lookup:
-                    f_suffix += 1
-                f_regions_dict.add_item(f_int, "recorded-{}".format(f_suffix))
-                f_suffix += 1
-                f_old_text = ""
-                f_existed = 0
-            else:
-                f_old_text = self.history.get_latest_version_of_file(
-                    pydaw_folder_regions, f_int)
-                f_existed = 1
-            self.history_files.append(
-                pydaw_history.pydaw_history_file(
-                    pydaw_folder_regions, str(f_int),
-                    pydaw_read_file_text(
-                        "{}/{}".format(self.regions_folder, f_int)),
-                        f_old_text, f_existed))
-
-        self.save_regions_dict(f_regions_dict)
-        f_old_text = self.history.get_latest_version_of_file(
-            "", pydaw_file_pysong)
-        f_new_text = pydaw_read_file_text(
-            "{}/{}".format(self.project_folder, pydaw_file_pysong))
-        if f_old_text is not None and f_new_text != f_old_text:
-            print("Appending history file for pysong")
-            self.history_files.append(pydaw_history.pydaw_history_file(
-                "", pydaw_file_pysong, f_new_text, f_old_text, 1))
-        else:
-            print("f_old_text: {}".format(f_old_text))
 
     def get_tracks_string(self):
         try:
