@@ -719,7 +719,7 @@ class pydaw_project:
                 "\n####\n####\n".format(a_uid))
             return a_uid
 
-    def check_for_recorded_items(self, a_item_name):
+    def check_for_recorded_items(self, a_item_name, a_mrec_list, a_overdub):
         self.check_for_recorded_regions()
         f_item_name = "{}-".format(a_item_name)
         f_rec_items_file = "{}/recorded_items".format(self.project_folder)
