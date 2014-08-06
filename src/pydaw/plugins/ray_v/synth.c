@@ -38,7 +38,6 @@ static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice,
         t_rayv_poly_voice *d, PYFX_Data *out0, PYFX_Data *out1, int a_i);
 
 PYFX_Descriptor *rayv_PYFX_descriptor(int index);
-PYINST_Descriptor *rayv_PYINST_descriptor(int index);
 
 static void v_cleanup_rayv(PYFX_Handle instance)
 {
@@ -768,26 +767,13 @@ PYFX_Descriptor *rayv_PYFX_descriptor(int index)
     f_result->connect_buffer = v_rayv_connect_buffer;    
     f_result->instantiate = g_rayv_instantiate;
     f_result->panic = rayvPanic;
+    
+    f_result->PYINST_API_Version = 1;    
+    f_result->configure = NULL;
+    f_result->run_synth = v_run_rayv;
+    f_result->offline_render_prep = v_rayv_or_prep;
+    f_result->on_stop = v_rayv_on_stop;
 
     return f_result;
 }
-
-
-PYINST_Descriptor *rayv_PYINST_descriptor(int index)
-{
-    PYINST_Descriptor *LMSDDescriptor = NULL;
-
-    LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-    if (LMSDDescriptor) {
-	LMSDDescriptor->PYINST_API_Version = 1;
-	LMSDDescriptor->PYFX_Plugin = rayv_PYFX_descriptor(0);
-	LMSDDescriptor->configure = NULL;
-	LMSDDescriptor->run_synth = v_run_rayv;
-        LMSDDescriptor->offline_render_prep = v_rayv_or_prep;
-        LMSDDescriptor->on_stop = v_rayv_on_stop;
-    }
-
-    return LMSDDescriptor;
-}
-
 

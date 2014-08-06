@@ -30,29 +30,15 @@ GNU General Public License for more details.
 
 
 static PYFX_Descriptor *LMSLDescriptor = NULL;
-static PYINST_Descriptor *LMSDDescriptor = NULL;
 
 void v_pydaw_run(PYFX_Handle instance, int sample_count, 
         t_pydaw_seq_event *events, int event_count);
 
-
-__attribute__ ((visibility("default")))
 PYFX_Descriptor *PYFX_descriptor(int index)
 {
     switch (index) {
     case 0:
 	return LMSLDescriptor;
-    default:
-	return NULL;
-    }
-}
-
-__attribute__ ((visibility("default")))
-PYINST_Descriptor *PYINST_descriptor(int index)
-{
-    switch (index) {
-    case 0:
-	return LMSDDescriptor;
     default:
 	return NULL;
     }
@@ -84,8 +70,7 @@ static void v_pydaw_connect_port(PYFX_Handle instance, int port,
     }
 }
 
-static PYFX_Handle g_pydaw_instantiate(PYFX_Descriptor * descriptor,
-        int s_rate)
+static PYFX_Handle g_pydaw_instantiate(PYFX_Descriptor * descriptor, int s_rate)
 {
     t_pydaw_engine *plugin_data =
             (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
@@ -186,13 +171,7 @@ void v_pydaw_constructor()
             port_descriptors[f_i] = 1;
             //port_range_hints[f_i].HintDescriptor = 0;
         }
-    }
-
-    LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-    if (LMSDDescriptor)
-    {
-	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
-    }
+    }    
 }
 
 
@@ -253,8 +232,5 @@ void v_pydaw_destructor()
 	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((PYFX_PortRangeHint *) LMSLDescriptor->PortRangeHints);
 	free(LMSLDescriptor);
-    }
-    if (LMSDDescriptor) {
-	free(LMSDDescriptor);
-    }
+    }    
 }

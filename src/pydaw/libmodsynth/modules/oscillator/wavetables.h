@@ -1863,22 +1863,22 @@ typedef struct
 
 
 void v_wt_set_wavetable(t_wt_wavetables* a_wt, int a_index, float * a_arr,
-        int a_count, pthread_mutex_t * a_mutex, int * a_reset_var)
+        int a_count, pthread_spinlock_t * a_spinlock, int * a_reset_var)
 {
     float * f_old = a_wt->tables[a_index]->wavetable;
 
-    if(a_mutex)
+    if(a_spinlock)
     {
-        pthread_mutex_lock(a_mutex);
+        pthread_spin_lock(a_spinlock);
     }
 
     a_wt->tables[a_index]->wavetable = a_arr;
     a_wt->tables[a_index]->length = a_count;
     *a_reset_var = 1;
 
-    if(a_mutex)
+    if(a_spinlock)
     {
-        pthread_mutex_unlock(a_mutex);
+        pthread_spin_unlock(a_spinlock);
     }
 
     if(f_old)

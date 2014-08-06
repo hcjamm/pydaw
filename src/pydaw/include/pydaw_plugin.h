@@ -250,47 +250,7 @@ typedef struct _PYFX_Descriptor {
    notes. */
   void (*panic)(PYFX_Handle Instance);
 
-} PYFX_Descriptor;
-
-/**********************************************************************/
-
-/* Accessing a Plugin: */
-
-/* The exact mechanism by which plugins are loaded is host-dependent,
-   however all most hosts will need to know is the name of shared
-   object file containing the plugin types. To allow multiple hosts to
-   share plugin types, hosts may wish to check for environment
-   variable PYFX_PATH. If present, this should contain a
-   colon-separated path indicating directories that should be searched
-   (in order) when loading plugin types.
-
-   A plugin programmer must include a function called
-   "ladspa_descriptor" with the following function prototype within
-   the shared object file. This function will have C-style linkage (if
-   you are using C++ this is taken care of by the `extern "C"' clause
-   at the top of the file).
-
-   A host will find the plugin shared object file by one means or
-   another, find the ladspa_descriptor() function, call it, and
-   proceed from there.
-
-   Plugin types are accessed by index (not ID) using values from 0
-   upwards. Out of range indexes must result in this function
-   returning NULL, so the plugin count can be determined by checking
-   for the least index that results in NULL being returned. */
-
-PYFX_Descriptor * ladspa_descriptor(int Index);
-
-/* Datatype corresponding to the ladspa_descriptor() function. */
-typedef PYFX_Descriptor *
-(*PYFX_Descriptor_Function)(int Index);
-
-/**********************************************************************/
-
-
-typedef struct _PYINST_Descriptor {
-
-    /**
+  /**
      * PYINST_API_Version
      *
      * This member indicates the DSSI API level used by this plugin.
@@ -298,24 +258,6 @@ typedef struct _PYINST_Descriptor {
      * must set it to 1.
      */
     int PYINST_API_Version;
-
-    /**
-     * PYFX_Plugin
-     *
-     * A DSSI synth plugin consists of a LADSPA plugin plus an
-     * additional framework for controlling program settings and
-     * transmitting MIDI events.  A plugin must fully implement the
-     * LADSPA descriptor fields as well as the required LADSPA
-     * functions including instantiate() and (de)activate().  It
-     * should also implement run(), with the same behaviour as if
-     * run_synth() (below) were called with no synth events.
-     *
-     * In order to instantiate a synth the host calls the LADSPA
-     * instantiate function, passing in this PYFX_Descriptor
-     * pointer.  The returned PYFX_Handle is used as the argument
-     * for the DSSI functions below as well as for the LADSPA ones.
-     */
-    PYFX_Descriptor *PYFX_Plugin;
 
     /**
      * configure()
@@ -351,7 +293,7 @@ typedef struct _PYINST_Descriptor {
     char *(*configure)(PYFX_Handle Instance,
 		       char *Key,
 		       char *Value,
-                       pthread_mutex_t * a_mutex);
+                       pthread_spinlock_t * a_spinlock);
 
     /**
      * run_synth()
@@ -408,31 +350,40 @@ typedef struct _PYINST_Descriptor {
      */
     void (*on_stop)(PYFX_Handle Instance);
 
-} PYINST_Descriptor;
+} PYFX_Descriptor;
 
-/**
- * DSSI supports a plugin discovery method similar to that of LADSPA:
- *
- * - DSSI hosts may wish to locate DSSI plugin shared object files by
- *    searching the paths contained in the PYINST_PATH and PYFX_PATH
- *    environment variables, if they are present.  Both are expected
- *    to be colon-separated lists of directories to be searched (in
- *    order), and PYINST_PATH should be searched first if both variables
- *    are set.
- *
- * - Each shared object file containing DSSI plugins must include a
- *   function dssi_descriptor(), with the following function prototype
- *   and C-style linkage.  Hosts may enumerate the plugin types
- *   available in the shared object file by repeatedly calling
- *   this function with successive Index values (beginning from 0),
- *   until a return value of NULL indicates no more plugin types are
- *   available.  Each non-NULL return is the PYINST_Descriptor
- *   of a distinct plugin type.
- */
+/**********************************************************************/
 
-PYINST_Descriptor *dssi_descriptor(int Index);
+/* Accessing a Plugin: */
 
-typedef PYINST_Descriptor *(*PYINST_Descriptor_Function)(int Index);
+/* The exact mechanism by which plugins are loaded is host-dependent,
+   however all most hosts will need to know is the name of shared
+   object file containing the plugin types. To allow multiple hosts to
+   share plugin types, hosts may wish to check for environment
+   variable PYFX_PATH. If present, this should contain a
+   colon-separated path indicating directories that should be searched
+   (in order) when loading plugin types.
+
+   A plugin programmer must include a function called
+   "ladspa_descriptor" with the following function prototype within
+   the shared object file. This function will have C-style linkage (if
+   you are using C++ this is taken care of by the `extern "C"' clause
+   at the top of the file).
+
+   A host will find the plugin shared object file by one means or
+   another, find the ladspa_descriptor() function, call it, and
+   proceed from there.
+
+   Plugin types are accessed by index (not ID) using values from 0
+   upwards. Out of range indexes must result in this function
+   returning NULL, so the plugin count can be determined by checking
+   for the least index that results in NULL being returned. */
+
+PYFX_Descriptor * ladspa_descriptor(int Index);
+
+/* Datatype corresponding to the ladspa_descriptor() function. */
+typedef PYFX_Descriptor * (*PYFX_Descriptor_Function)(int Index);
+
 
 PYFX_Descriptor * pydaw_get_pyfx_descriptor(int a_uid, char * a_name,
         int a_port_count)

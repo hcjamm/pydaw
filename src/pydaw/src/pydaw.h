@@ -539,19 +539,17 @@ void v_pydaw_panic(t_pydaw_data * a_pydaw_data)
                 a_pydaw_data->track_pool[f_i]->instrument)
         {
             if(a_pydaw_data->track_pool[f_i]->instrument->
-                    descriptor->PYFX_Plugin->panic)
+                    descriptor->panic)
             {
-                a_pydaw_data->track_pool[f_i]->instrument->
-                descriptor->PYFX_Plugin->panic(
-                        a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
+                a_pydaw_data->track_pool[f_i]->instrument->descriptor->panic(
+                    a_pydaw_data->track_pool[f_i]->instrument->PYFX_handle);
             }
 
             if(a_pydaw_data->track_pool[f_i]->effect->
-                    descriptor->PYFX_Plugin->panic)
+                    descriptor->panic)
             {
-                a_pydaw_data->track_pool[f_i]->effect->
-                descriptor->PYFX_Plugin->panic(
-                        a_pydaw_data->track_pool[f_i]->effect->PYFX_handle);
+                a_pydaw_data->track_pool[f_i]->effect->descriptor->panic(
+                    a_pydaw_data->track_pool[f_i]->effect->PYFX_handle);
             }
         }
         f_i++;
@@ -561,12 +559,10 @@ void v_pydaw_panic(t_pydaw_data * a_pydaw_data)
 
     while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
-        if(a_pydaw_data->track_pool_all[f_i]->effect->
-                descriptor->PYFX_Plugin->panic)
+        if(a_pydaw_data->track_pool_all[f_i]->effect->descriptor->panic)
         {
-            a_pydaw_data->track_pool_all[f_i]->effect->
-            descriptor->PYFX_Plugin->panic(
-                    a_pydaw_data->track_pool_all[f_i]->effect->PYFX_handle);
+            a_pydaw_data->track_pool_all[f_i]->effect->descriptor->panic(
+                a_pydaw_data->track_pool_all[f_i]->effect->PYFX_handle);
         }
         f_i++;
     }
@@ -1235,9 +1231,9 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn,
         t_pydaw_seq_event *event, t_pydaw_data * a_pydaw_data,
         int a_is_inst, int a_track_num)
 {
-    float f_lb = instance->descriptor->PYFX_Plugin->
+    float f_lb = instance->descriptor->
         PortRangeHints[controlIn].LowerBound;
-    float f_ub = instance->descriptor->PYFX_Plugin->
+    float f_ub = instance->descriptor->
         PortRangeHints[controlIn].UpperBound;
     float f_diff = f_ub - f_lb;
     event->value = (event->value * 0.0078125f * f_diff) + f_lb;
@@ -4376,7 +4372,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
 
                 assert(f_port_key >= 0);
                 assert(f_port_key <=
-                        (f_instance->descriptor->PYFX_Plugin->PortCount));
+                        (f_instance->descriptor->PortCount));
 
                 f_instance->pluginControlIns[f_port_key] = f_port_value;
             }
@@ -5188,9 +5184,9 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
         f_result_fx->pluginOutputBuffers[0] = f_result->pluginOutputBuffers[0];
         f_result_fx->pluginOutputBuffers[1] = f_result->pluginOutputBuffers[1];
 
-        f_result_fx->descriptor->PYFX_Plugin->connect_buffer(
+        f_result_fx->descriptor->connect_buffer(
             f_result_fx->PYFX_handle, 0, f_result->pluginOutputBuffers[0]);
-        f_result_fx->descriptor->PYFX_Plugin->connect_buffer(
+        f_result_fx->descriptor->connect_buffer(
             f_result_fx->PYFX_handle, 1, f_result->pluginOutputBuffers[1]);
 
         /* If switching from a different plugin(but not from no plugin),

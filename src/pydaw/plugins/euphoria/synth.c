@@ -39,7 +39,6 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 static inline void v_euphoria_slow_index(t_euphoria*);
 
 PYFX_Descriptor *euphoria_PYFX_descriptor(int index);
-PYINST_Descriptor *euphoria_PYINST_descriptor(int index);
 
 static void cleanupSampler(PYFX_Handle instance)
 {
@@ -467,8 +466,6 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
     {
         return NULL;
     }
-
-    //pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
     plugin_data->voices = g_voc_get_voices(EUPHORIA_POLYPHONY,
             EUPHORIA_POLYPHONY_THRESH);
@@ -1303,13 +1300,10 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
         plugin_data->sampleNo++;
     }
-
-    //plugin_data->sampleNo += sample_count;
-    //pthread_mutex_unlock(&plugin_data->mutex);
 }
 
 static char *c_euphoria_load_all(t_euphoria *plugin_data, char *paths,
-        pthread_mutex_t * a_mutex)
+        pthread_spinlock_t * a_spinlock)
 {
     int f_index = 0;
     int f_samples_loaded_count = 0;
@@ -1367,9 +1361,9 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, char *paths,
 
     free(f_result_string);
 
-    if(a_mutex)
+    if(a_spinlock)
     {
-        pthread_mutex_lock(a_mutex);
+        pthread_spin_lock(a_spinlock);
     }
 
     f_i = 0;
@@ -1393,22 +1387,22 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, char *paths,
     //Force a re-index before the next sample period
     plugin_data->i_slow_index = EUPHORIA_SLOW_INDEX_COUNT;
 
-    if(a_mutex)
+    if(a_spinlock)
     {
-        pthread_mutex_unlock(a_mutex);
+        pthread_spin_unlock(a_spinlock);
     }
 
     return NULL;
 }
 
 char *c_euphoria_configure(PYFX_Handle instance, char *key,
-        char *value, pthread_mutex_t * a_mutex)
+        char *value, pthread_spinlock_t * a_spinlock)
 {
     t_euphoria *plugin_data = (t_euphoria *)instance;
 
     if (!strcmp(key, "load"))
     {
-        return c_euphoria_load_all(plugin_data, value, a_mutex);
+        return c_euphoria_load_all(plugin_data, value, a_spinlock);
     }
 
     return strdup("error: unrecognized configure key");
@@ -1713,22 +1707,14 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     f_result->connect_buffer = euphoriaConnectBuffer;    
     f_result->instantiate = instantiateSampler;
     f_result->panic = euphoriaPanic;
+    
+    f_result->PYINST_API_Version = 1;
+    f_result->configure = c_euphoria_configure;
+    f_result->run_synth = v_run_lms_euphoria;
+    f_result->offline_render_prep = NULL;
+    f_result->on_stop = v_euphoria_on_stop;
 
     return f_result;
 }
 
-PYINST_Descriptor *euphoria_PYINST_descriptor(int index)
-{
-    PYINST_Descriptor *euphoriaDDescriptor = NULL;
 
-    euphoriaDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-
-    euphoriaDDescriptor->PYINST_API_Version = 1;
-    euphoriaDDescriptor->PYFX_Plugin = euphoria_PYFX_descriptor(0);
-    euphoriaDDescriptor->configure = c_euphoria_configure;
-    euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
-    euphoriaDDescriptor->offline_render_prep = NULL;
-    euphoriaDDescriptor->on_stop = v_euphoria_on_stop;
-
-    return euphoriaDDescriptor;
-}

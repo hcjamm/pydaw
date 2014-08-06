@@ -705,10 +705,10 @@ int main(int argc, char **argv)
     plugin->label = "pydaw";
     dll = (d3h_dll_t *)calloc(1, sizeof(d3h_dll_t));
     dll->name = "pydaw";
-    dll->descfn = (PYINST_Descriptor_Function)PYINST_descriptor;
+    dll->descfn = (PYFX_Descriptor_Function)PYFX_descriptor;
     j = 0;
 
-    plugin->descriptor = PYINST_descriptor(0);
+    plugin->descriptor = PYFX_descriptor(0);
 
     plugin->dll = dll;
 
@@ -1059,8 +1059,7 @@ int main(int argc, char **argv)
     /* Instantiate plugins */
 
     plugin = this_instance->plugin;
-    instanceHandles = g_pydaw_instantiate(plugin->descriptor->PYFX_Plugin,
-            sample_rate);
+    instanceHandles = g_pydaw_instantiate(plugin->descriptor, sample_rate);
     if (!instanceHandles)
     {
         printf("\nError: Failed to instantiate PyDAW\n");

@@ -46,7 +46,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event * events, int EventCount);
 
 PYFX_Descriptor *modulex_PYFX_descriptor(int index);
-PYINST_Descriptor *modulex_PYINST_descriptor(int index);
+
 
 static void v_modulex_cleanup(PYFX_Handle instance)
 {
@@ -700,121 +700,110 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
 PYFX_Descriptor *modulex_PYFX_descriptor(int index)
 {
-    PYFX_Descriptor *LMSLDescriptor =
+    PYFX_Descriptor *f_result =
             pydaw_get_pyfx_descriptor(123456, "Modulex", MODULEX_COUNT);
 
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX0_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX1_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX2_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX3_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX4_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX5_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX6_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_KNOB0, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_KNOB1, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_KNOB2, 64.0f, 0.0f, 127.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FX7_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_DELAY_TIME, 50.0f, 10.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_FEEDBACK, -12.0f, -15.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_DRY, 0.0f, -30.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_WET, -30.0f, -30.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_DUCK, -20.0f, -40.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_CUTOFF, 90.0f, 40.0f, 118.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_STEREO, 100.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_VOL_SLIDER, 0.0f, -50.0f, 0.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_TIME, 50.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_WET, 0.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_COLOR, 50.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ_ON, 0.0f, 0.0f, 2.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ1_FREQ, 24.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ2_FREQ, 42.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ3_FREQ, 60.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_FREQ, 78.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_FREQ, 96.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_FREQ, 114.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ1_RES, 300.0f, 100.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ2_RES, 300.0f, 100.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ3_RES, 300.0f, 100.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_RES, 300.0f, 100.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_RES, 300.0f, 100.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_RES, 300.0f, 100.0f, 600.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ1_GAIN, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ2_GAIN, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ3_GAIN, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ4_GAIN, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ5_GAIN, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_EQ6_GAIN, 0.0f, -24.0f, 24.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_SPECTRUM_ENABLED, 0.0f, 0.0f, 1.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX0_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX0_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX0_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX0_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX1_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX1_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX1_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX1_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX2_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX2_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX2_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX2_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX3_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX3_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX3_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX3_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX4_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX4_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX4_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX4_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX5_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX5_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX5_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX5_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX6_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX6_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX6_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX6_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX7_KNOB0, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX7_KNOB1, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX7_KNOB2, 64.0f, 0.0f, 127.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FX7_COMBOBOX, 0.0f, 0.0f, MULTIFX3KNOB_MAX_INDEX);
+    pydaw_set_pyfx_port(f_result, MODULEX_DELAY_TIME, 50.0f, 10.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_FEEDBACK, -12.0f, -15.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_DRY, 0.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_WET, -30.0f, -30.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_DUCK, -20.0f, -40.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_CUTOFF, 90.0f, 40.0f, 118.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_STEREO, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_VOL_SLIDER, 0.0f, -50.0f, 0.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_REVERB_TIME, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_REVERB_WET, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_REVERB_COLOR, 50.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ_ON, 0.0f, 0.0f, 2.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ1_FREQ, 24.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ2_FREQ, 42.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ3_FREQ, 60.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ4_FREQ, 78.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ5_FREQ, 96.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ6_FREQ, 114.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ1_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ2_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ3_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ4_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ5_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ6_RES, 300.0f, 100.0f, 600.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ1_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ2_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ3_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ4_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ5_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ6_GAIN, 0.0f, -24.0f, 24.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_SPECTRUM_ENABLED, 0.0f, 0.0f, 1.0f);
 
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_NOTE, 120.0f, 0.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_MODE, 0.0f, 0.0f, 2.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_WET, 0.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GATE_PITCH, 60.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GATE_NOTE, 120.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GATE_MODE, 0.0f, 0.0f, 2.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GATE_WET, 0.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GATE_PITCH, 60.0f, 20.0f, 120.0f);
 
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_ON, 0.0f, 0.0f, 1.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_NOTE, 120.0f, 0.0f, 120.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_TIME, 10.0f, 1.0f, 25.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_REVERB_DRY, 100.0f, 0.0f, 100.0f);
-    pydaw_set_pyfx_port(LMSLDescriptor, MODULEX_GLITCH_PB, 0.0f, 0.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GLITCH_ON, 0.0f, 0.0f, 1.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GLITCH_NOTE, 120.0f, 0.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GLITCH_TIME, 10.0f, 1.0f, 25.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_REVERB_DRY, 100.0f, 0.0f, 100.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_GLITCH_PB, 0.0f, 0.0f, 36.0f);
 
 
-    LMSLDescriptor->cleanup = v_modulex_cleanup;
-    LMSLDescriptor->connect_port = v_modulex_connect_port;
-    LMSLDescriptor->connect_buffer = v_modulex_connect_buffer;    
-    LMSLDescriptor->instantiate = g_modulex_instantiate;
-    LMSLDescriptor->panic = v_modulex_panic;
+    f_result->cleanup = v_modulex_cleanup;
+    f_result->connect_port = v_modulex_connect_port;
+    f_result->connect_buffer = v_modulex_connect_buffer;    
+    f_result->instantiate = g_modulex_instantiate;
+    f_result->panic = v_modulex_panic;
+    
+    f_result->PYINST_API_Version = 1;    
+    f_result->configure = NULL;
+    f_result->run_synth = v_modulex_run;
+    f_result->on_stop = v_modulex_on_stop;
 
-    return LMSLDescriptor;
+    return f_result;
 }
 
 
-PYINST_Descriptor *modulex_PYINST_descriptor(int index)
-{
-    PYINST_Descriptor *LMSDDescriptor = NULL;
-
-    LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-    if (LMSDDescriptor)
-    {
-	LMSDDescriptor->PYINST_API_Version = 1;
-	LMSDDescriptor->PYFX_Plugin = modulex_PYFX_descriptor(0);
-	LMSDDescriptor->configure = NULL;
-	LMSDDescriptor->run_synth = v_modulex_run;
-        LMSDDescriptor->on_stop = v_modulex_on_stop;
-    }
-
-    return LMSDDescriptor;
-}
 
 
 /*
 void v_modulex_destructor()
 {
-    if (LMSLDescriptor) {
-	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);
-	free((char **) LMSLDescriptor->PortNames);
-	free((PYFX_PortRangeHint *) LMSLDescriptor->PortRangeHints);
-	free(LMSLDescriptor);
+    if (f_result) {
+	free((PYFX_PortDescriptor *) f_result->PortDescriptors);
+	free((char **) f_result->PortNames);
+	free((PYFX_PortRangeHint *) f_result->PortRangeHints);
+	free(f_result);
     }
     if (LMSDDescriptor) {
 	free(LMSDDescriptor);

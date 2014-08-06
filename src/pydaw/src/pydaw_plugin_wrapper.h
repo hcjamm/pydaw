@@ -40,24 +40,24 @@ PYFX_Data g_pydaw_get_port_default(PYFX_Descriptor *plugin, int port)
 typedef struct st_pydaw_plugin
 {
     //void * lib_handle;
-    PYINST_Descriptor_Function descfn;
     PYFX_Handle PYFX_handle;
+    PYFX_Descriptor_Function descfn;
 
-    PYINST_Descriptor *descriptor;
+    PYFX_Descriptor *descriptor;
     float **pluginOutputBuffers;
     float *pluginControlIns;
 }t_pydaw_plugin;
 
 
 int v_pydaw_plugin_configure_handler(t_pydaw_plugin *instance,
-        char *key, char *value, pthread_mutex_t * a_mutex)
+        char *key, char *value, pthread_spinlock_t * a_spinlock)
 {
     char * message = 0;
 
     if (instance->descriptor->configure)
     {
         message = instance->descriptor->configure(
-                instance->PYFX_handle, key, value, a_mutex);
+                instance->PYFX_handle, key, value, a_spinlock);
         if (message)
         {
             printf("PyDAW: on configure '%s' '%s', "
@@ -81,19 +81,19 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
     {
         case -1:
             f_result->descfn =
-                    (PYINST_Descriptor_Function)modulex_PYINST_descriptor;
+                    (PYFX_Descriptor_Function)modulex_PYFX_descriptor;
             break;
         case 1:
             f_result->descfn =
-                    (PYINST_Descriptor_Function)euphoria_PYINST_descriptor;
+                    (PYFX_Descriptor_Function)euphoria_PYFX_descriptor;
             break;
         case 2:
             f_result->descfn =
-                    (PYINST_Descriptor_Function)rayv_PYINST_descriptor;
+                    (PYFX_Descriptor_Function)rayv_PYFX_descriptor;
             break;
         case 3:
             f_result->descfn =
-                    (PYINST_Descriptor_Function)wayv_PYINST_descriptor;
+                    (PYFX_Descriptor_Function)wayv_PYFX_descriptor;
             break;
     }
 
@@ -106,20 +106,20 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
     int f_i = 0;
 
     if(posix_memalign((void**)(&f_result->pluginControlIns), 16,
-        (sizeof(float) * f_result->descriptor->PYFX_Plugin->PortCount)) != 0)
+        (sizeof(float) * f_result->descriptor->PortCount)) != 0)
     {
         return 0;
     }
 
     f_i = 0;
-    while(f_i < f_result->descriptor->PYFX_Plugin->PortCount)
+    while(f_i < f_result->descriptor->PortCount)
     {
         f_result->pluginControlIns[f_i] = 0.0f;
         f_i++;
     }
 
-    f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(
-            f_result->descriptor->PYFX_Plugin, a_sample_rate,
+    f_result->PYFX_handle = f_result->descriptor->instantiate(
+            f_result->descriptor, a_sample_rate,
             a_host_wavpool_func, a_track_num, a_queue_func,
             f_result->pluginControlIns);
 
@@ -139,22 +139,21 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
             f_i++;
         }
 
-        f_result->descriptor->PYFX_Plugin->connect_buffer(
+        f_result->descriptor->connect_buffer(
             f_result->PYFX_handle, j, f_result->pluginOutputBuffers[j]);
     }
 
-    for (j = 0; j < f_result->descriptor->PYFX_Plugin->PortCount; j++)
+    for (j = 0; j < f_result->descriptor->PortCount; j++)
     {
         PYFX_PortDescriptor pod =
-                f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
+                f_result->descriptor->PortDescriptors[j];
 
         if(pod)
         {
             f_result->pluginControlIns[j] =
-                    g_pydaw_get_port_default(
-                    f_result->descriptor->PYFX_Plugin, j);
+                    g_pydaw_get_port_default(f_result->descriptor, j);
 
-            f_result->descriptor->PYFX_Plugin->connect_port(
+            f_result->descriptor->connect_port(
                 f_result->PYFX_handle, j, &f_result->pluginControlIns[j]);
         }
     }
@@ -166,9 +165,9 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 {
     if(a_plugin)
     {
-        if (a_plugin->descriptor->PYFX_Plugin->cleanup)
+        if (a_plugin->descriptor->cleanup)
         {
-            a_plugin->descriptor->PYFX_Plugin->cleanup(a_plugin->PYFX_handle);
+            a_plugin->descriptor->cleanup(a_plugin->PYFX_handle);
         }
 
         free(a_plugin);

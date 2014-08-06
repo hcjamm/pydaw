@@ -28,9 +28,9 @@ typedef struct _d3h_dll_t d3h_dll_t;
 
 struct _d3h_dll_t {
     d3h_dll_t               *next;
-    char                    *name;    
+    char                    *name;
     int                      is_PYINST_dll;
-    PYINST_Descriptor_Function descfn;      /* if is_PYINST_dll is false, this is a PYFX_Descriptor_Function */
+    PYFX_Descriptor_Function descfn;
 };
 
 typedef struct _d3h_plugin_t d3h_plugin_t;
@@ -39,22 +39,22 @@ struct _d3h_plugin_t {
     d3h_dll_t             *dll;
     char                  *label;
     int                    is_first_in_dll;
-    const PYINST_Descriptor *descriptor;
+    PYFX_Descriptor *descriptor;
     int                    ins;
     int                    outs;
     int                    controlIns;
-    int                    controlOuts;    
+    int                    controlOuts;
 };
 
 typedef struct _d3h_instance_t d3h_instance_t;
 
 #define MIDI_CONTROLLER_COUNT 128
 
-struct _d3h_instance_t 
+struct _d3h_instance_t
 {
-    d3h_plugin_t    *plugin;    
+    d3h_plugin_t    *plugin;
     char            *friendly_name;
-    char            *ui_osc_configure_path;    
+    char            *ui_osc_configure_path;
 };
 
 #endif /* _PYDAW_MAIN_H */

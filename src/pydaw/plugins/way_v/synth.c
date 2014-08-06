@@ -36,8 +36,6 @@ static void v_run_wayv_voice(t_wayv *, t_voc_single_voice, t_wayv_poly_voice *,
 		      PYFX_Data *, PYFX_Data *, int, int );
 
 PYFX_Descriptor *wayv_PYFX_descriptor(int index);
-PYINST_Descriptor *wayv_PYINST_descriptor(int index);
-
 
 static void v_cleanup_wayv(PYFX_Handle instance)
 {
@@ -1536,7 +1534,7 @@ float * f_char_to_wavetable(char * a_char)
 }
 
 char *c_wayv_configure(PYFX_Handle instance, char *key,
-        char *value, pthread_mutex_t * a_mutex)
+        char *value, pthread_spinlock_t * a_spinlock)
 {
     t_wayv *plugin_data = (t_wayv*)instance;
 
@@ -1544,19 +1542,19 @@ char *c_wayv_configure(PYFX_Handle instance, char *key,
     {
         float * f_table = f_char_to_wavetable(value);
         v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 17, f_table,
-                1024, a_mutex, &plugin_data->mono_modules->reset_wavetables);
+                1024, a_spinlock, &plugin_data->mono_modules->reset_wavetables);
     }
     else if (!strcmp(key, "wayv_add_eng1"))
     {
         float * f_table = f_char_to_wavetable(value);
         v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 18, f_table,
-                1024, a_mutex, &plugin_data->mono_modules->reset_wavetables);
+                1024, a_spinlock, &plugin_data->mono_modules->reset_wavetables);
     }
     else if (!strcmp(key, "wayv_add_eng2"))
     {
         float * f_table = f_char_to_wavetable(value);
         v_wt_set_wavetable(plugin_data->mono_modules->wavetables, 19, f_table,
-                1024, a_mutex, &plugin_data->mono_modules->reset_wavetables);
+                1024, a_spinlock, &plugin_data->mono_modules->reset_wavetables);
     }
     else
     {
@@ -1847,25 +1845,13 @@ PYFX_Descriptor *wayv_PYFX_descriptor(int index)
     f_result->instantiate = g_wayv_instantiate;
     f_result->panic = wayvPanic;
 
+    f_result->PYINST_API_Version = 1;
+    f_result->configure = c_wayv_configure;
+    f_result->run_synth = v_run_wayv;
+    f_result->offline_render_prep = v_wayv_or_prep;
+    f_result->on_stop = v_wayv_on_stop;
 
     return f_result;
 }
 
-PYINST_Descriptor *wayv_PYINST_descriptor(int index)
-{
-    PYINST_Descriptor *LMSDDescriptor = NULL;
 
-    LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
-
-    if (LMSDDescriptor)
-    {
-	LMSDDescriptor->PYINST_API_Version = 1;
-	LMSDDescriptor->PYFX_Plugin = wayv_PYFX_descriptor(0);
-	LMSDDescriptor->configure = c_wayv_configure;
-	LMSDDescriptor->run_synth = v_run_wayv;
-        LMSDDescriptor->offline_render_prep = v_wayv_or_prep;
-        LMSDDescriptor->on_stop = v_wayv_on_stop;
-    }
-
-    return LMSDDescriptor;
-}
