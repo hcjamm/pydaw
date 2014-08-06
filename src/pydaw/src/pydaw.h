@@ -75,6 +75,7 @@ extern "C" {
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
 #include "pydaw_audio_util.h"
+#include "synth.h"
 #include <lo/lo.h>
 
 typedef struct
@@ -2267,9 +2268,21 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
                     a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note] = (a_pydaw_data->recorded_note_current_beat);
                     a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note] = (a_pydaw_data->recording_current_item_pool_index);
                     a_pydaw_data->recorded_notes_start_tracker[events[f_i2].note] =
-                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick))/((float)sample_count))
+                            ((a_pydaw_data->playback_cursor) + ((((float)(events[f_i2].tick)) / ((float)sample_count))
                             * (a_pydaw_data->playback_inc))) * 4.0f;
                     a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = events[f_i2].velocity;
+
+                    float f_beat = a_pydaw_data->ml_current_period_beats +
+                        f_pydaw_samples_to_beat_count(events[f_i2].tick,
+                            a_pydaw_data->tempo, a_pydaw_data->sample_rate);
+
+                    sprintf(
+                        a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
+                        "on|%i|%i|%i|%i|%f", events[f_i2].note,
+                        events[f_i2].velocity, a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat);
+                    v_queue_osc_message("mrec",
+                        a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
 
                 sprintf(a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all], "1|%i", events[f_i2].note);
@@ -2302,6 +2315,18 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
                     a_pydaw_data->recorded_notes_item_tracker[events[f_i2].note] = -1;
                     a_pydaw_data->recorded_notes_beat_tracker[events[f_i2].note] = -1;
                     a_pydaw_data->recorded_notes_velocity_tracker[events[f_i2].note] = -1;
+
+                    float f_beat = a_pydaw_data->ml_current_period_beats +
+                        f_pydaw_samples_to_beat_count(events[f_i2].tick,
+                            a_pydaw_data->tempo, a_pydaw_data->sample_rate);
+
+                    sprintf(
+                        a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
+                        "off|%i|%i|%i|%f", events[f_i2].note,
+                        a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat);
+                    v_queue_osc_message("mrec",
+                        a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
 
                 sprintf(a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all], "0|%i", events[f_i2].note);
@@ -2323,6 +2348,18 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
                     a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
                             g_pypitchbend_get(f_start, (float)events[f_i2].value);
                     a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
+
+                    float f_beat = a_pydaw_data->ml_current_period_beats +
+                        f_pydaw_samples_to_beat_count(events[f_i2].tick,
+                            a_pydaw_data->tempo, a_pydaw_data->sample_rate);
+
+                    sprintf(
+                        a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
+                        "pb|%f|%i|%i|%f", events[f_i2].value,
+                        a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat);
+                    v_queue_osc_message("mrec",
+                        a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
             }
             else if(events[f_i2].type == PYDAW_EVENT_CONTROLLER)
@@ -2388,6 +2425,18 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
                                         g_pycc_get(a_pydaw_data->record_armed_track->plugin_index, f_port,
                                         (float)events[f_i2].value, f_start);
                                 a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
+
+                                float f_beat = a_pydaw_data->ml_current_period_beats +
+                                    f_pydaw_samples_to_beat_count(events[f_i2].tick,
+                                        a_pydaw_data->tempo, a_pydaw_data->sample_rate);
+
+                                sprintf(
+                                    a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
+                                    "cc|%i|%f|%i|%i|%f", controlIn,
+                                    events[f_i2].value, a_pydaw_data->current_region,
+                                    a_pydaw_data->current_bar, f_beat);
+                                v_queue_osc_message("mrec",
+                                    a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                             }
                         }
                     }
@@ -2420,6 +2469,18 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
                                 a_pydaw_data->item_pool[f_index]->events[(a_pydaw_data->item_pool[f_index]->rec_event_count)] =
                                         g_pycc_get(-1, controlIn, (float)events[f_i2].value, f_start);
                                 a_pydaw_data->item_pool[f_index]->rec_event_count = (a_pydaw_data->item_pool[f_index]->rec_event_count) + 1;
+
+                                float f_beat = a_pydaw_data->ml_current_period_beats +
+                                    f_pydaw_samples_to_beat_count(events[f_i2].tick,
+                                        a_pydaw_data->tempo, a_pydaw_data->sample_rate);
+                                
+                                sprintf(
+                                    a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
+                                    "cc|%i|%f|%i|%i|%f", controlIn,
+                                    events[f_i2].value, a_pydaw_data->current_region,
+                                    a_pydaw_data->current_bar, f_beat);
+                                v_queue_osc_message("mrec",
+                                    a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                             }
                         }
                     }
@@ -4835,17 +4896,16 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode,
                 if(a_pydaw_data->track_pool_all[f_i]->instrument)
                 {
                     a_pydaw_data->track_pool_all[f_i
-                        ]->instrument->descriptor->on_stop(
+                    ]->instrument->descriptor->on_stop(
                         a_pydaw_data->track_pool_all[
-                            f_i]->instrument->PYFX_handle);
+                        f_i]->instrument->PYFX_handle);
                 }
 
                 if(a_pydaw_data->track_pool_all[f_i]->effect)
                 {
                     a_pydaw_data->track_pool_all[f_i
-                        ]->effect->descriptor->on_stop(
-                        a_pydaw_data->track_pool_all[
-                            f_i]->effect->PYFX_handle);
+                    ]->effect->descriptor->on_stop(
+                        a_pydaw_data->track_pool_all[f_i]->effect->PYFX_handle);
                 }
 
                 int f_i2 = 0;
