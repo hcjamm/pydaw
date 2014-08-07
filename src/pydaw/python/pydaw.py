@@ -8113,14 +8113,13 @@ class transport_widget:
                 f_file_name, MREC_EVENTS, self.overdub_checkbox.isChecked(),
                 LAST_REC_ARMED_TRACK, self.tempo_spinbox.value(),
                 pydaw_util.SAMPLE_RATE)
+            global_ui_refresh_callback()
             f_window.close()
 
         def text_edit_handler(a_val=None):
             f_file.setText(pydaw_remove_bad_chars(f_file.text()))
 
-        f_window = QtGui.QDialog(
-            MAIN_WINDOW,
-            QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
+        f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setMinimumWidth(330)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)

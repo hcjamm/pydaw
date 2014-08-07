@@ -733,6 +733,7 @@ class pydaw_project:
         f_current_item = None
         f_current_region = None
         f_beats_per_second = 60.0 / float(a_tempo)
+        f_item_name = str(a_item_name)
         # TODO:  Send a tick event with note on/off and calculate from that
         #   instead.....
         # TODO:  Add an mrec|loop event to help detect when to grab a new item
@@ -808,10 +809,14 @@ class pydaw_project:
             self.save_item_by_uid(f_uid, f_item, a_new_item=True)
             f_name = self.get_next_default_item_name(f_item_name)
 
-        for f_region in f_regions_to_save:
-            self.save_region(f_region)
+        f_region_dict = self.get_regions_dict()
+
+        for f_region in f_regions_to_save.values():
+            f_name = f_region_dict.get_name_by_uid(f_region.uid)
+            self.save_region(f_name, f_region)
 
         self.save_song(f_song)
+        self.commit("Record MIDI")
 
     def get_tracks_string(self):
         try:
