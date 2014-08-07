@@ -721,37 +721,71 @@ class pydaw_project:
 
     def check_for_recorded_items(self, a_item_name, a_mrec_list, a_overdub):
         f_mrec_items = [x.split("|") for x in a_mrec_list]
-        f_suffix = 1
         f_items_dict = self.get_items_dict()
         f_song = self.get_song()
-        f_current_region = None
-        f_current_item = None
         f_note_tracker = {}
-        f_take_num = 0
         f_items_to_save = {}
         f_regions_to_save = {}
+        f_last_bar = -1
+        f_last_region = -1
+        f_current_item = None
 
-        for f_item in f_mrec_items:
-            f_type, f_region, f_bar, f_beat = f_item[:4]
+        for f_event in f_mrec_items:
+            f_type, f_region, f_bar, f_beat = f_event[:4]
+            if f_region in f_song.regions:
+                if f_region not in f_regions_to_save:
+                    f_regions_to_save[f_region] = self.get_region_by_uid(
+                        f_song.regions[f_region])
+            else:
+                f_name = self.get_next_default_region_name(f_item_name)
+                f_uid = self.create_empty_region(f_name)
+                f_regions_to_save[f_region] = self.get_region_by_uid(f_uid)
+                f_song.add_region_ref_by_uid(f_region, f_uid)
+
+            if f_last_region != f_region or f_last_bar != f_bar:
+                if f_bar < f_last_bar:
+                    if f_region > f_last_region:
+                        pass
+                    else: # looping
+                        pass
+                else:
+                    pass
+                f_last_region = f_region
+                f_last_bar = f_bar
+
+            f_region_length = 8
+            if pydaw_region.region_length_bars:
+                f_region_length = pydaw_region.region_length_bars
+
             if f_type == "on":
-                pass
+                f_note_num, f_velocity = f_event[4:]
+                f_note = pydaw_note(f_beat, 1.0, f_note_num, f_velocity)
+                f_note.start_region_length = f_region_length
+                f_note.start_bar = f_bar
+                f_note_tracker[f_note_num] = f_note
             elif f_type == "off":
-                pass
+                f_note_num = f_event[4]
+                if f_note_num in f_note_tracker:
+                    pass
+                else:
+                    print("Error:  note event not in note tracker")
             elif f_type == "cc":
                 pass
             elif f_type == "pb":
                 pass
 
-        for f_item in f_items_to_save:
+        for f_uid, f_item in f_items_to_save.items():
             f_item.fix_overlaps()
+            self.save_item_by_uid(f_uid, f_item, a_new_item=True)
+            f_name = self.get_next_default_item_name(f_item_name)
 
         for f_region in f_regions_to_save:
-            self.save_region()
+            self.save_region(f_region)
 
         for f_int in f_int_list:
             f_item = self.get_item_by_uid(f_int)
             f_item.fix_overlaps()
-            self.save_item_by_uid(f_int, f_item, a_new_item=True)
+
             while "{}-{}".format(
             f_item_name, f_suffix) in f_items_dict.uid_lookup:
                 f_suffix += 1
