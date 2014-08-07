@@ -719,7 +719,10 @@ class pydaw_project:
                 "\n####\n####\n".format(a_uid))
             return a_uid
 
-    def check_for_recorded_items(self, a_item_name, a_mrec_list, a_overdub):
+    def check_for_recorded_items(self, a_item_name, a_mrec_list,
+                                 a_overdub, a_track_num, a_cc_map):
+        # TODO:  Ensure that the user can't switch MIDI device/track during
+        # recording, but can during playback...
         f_mrec_items = [x.split("|") for x in a_mrec_list]
         f_items_dict = self.get_items_dict()
         f_song = self.get_song()
@@ -729,6 +732,7 @@ class pydaw_project:
         f_last_bar = -1
         f_last_region = -1
         f_current_item = None
+        f_current_region = None
 
         for f_event in f_mrec_items:
             f_type, f_region, f_bar, f_beat = f_event[:4]
@@ -742,13 +746,24 @@ class pydaw_project:
                 f_regions_to_save[f_region] = self.get_region_by_uid(f_uid)
                 f_song.add_region_ref_by_uid(f_region, f_uid)
 
+            f_current_region = f_regions_to_save[f_region]
+
+            pydaw_region.get_item(a_track_num, f_bar)
+
+            def truncate_notes(a_dict=f_note_tracker):
+                for f_note_num, f_note in a_dict.items():
+                    pass
+
             if f_last_region != f_region or f_last_bar != f_bar:
+                # Do current item assignment in here, since it's not
+                # as easy to track as the regions and may require
+                # creating many new items if in loop mode
                 if f_bar < f_last_bar:
                     if f_region > f_last_region:
                         pass
                     else: # looping
                         pass
-                else:
+                elif f_bar > f_last_bar:  # or length == 1 ?
                     pass
                 f_last_region = f_region
                 f_last_bar = f_bar
@@ -782,15 +797,6 @@ class pydaw_project:
         for f_region in f_regions_to_save:
             self.save_region(f_region)
 
-        for f_int in f_int_list:
-            f_item = self.get_item_by_uid(f_int)
-            f_item.fix_overlaps()
-
-            while "{}-{}".format(
-            f_item_name, f_suffix) in f_items_dict.uid_lookup:
-                f_suffix += 1
-            f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
-            f_suffix += 1
         self.save_items_dict(f_items_dict)
 
     def get_tracks_string(self):
@@ -1398,6 +1404,13 @@ class pydaw_region:
         f_region0.region_length_bars = a_index
         f_region1.region_length_bars = f_length - a_index
         return f_region0, f_region1
+
+    def get_item(self, a_track_num, a_bar_num):
+        for f_item in self.items:
+            if f_item.bar_num == int(a_bar_num) and \
+            f_item.track_num == a_track_num:
+                return f_item.item_uid
+        return None
 
     def add_item_ref_by_name(self, a_track_num, a_bar_num,
                              a_item_name, a_uid_dict):
