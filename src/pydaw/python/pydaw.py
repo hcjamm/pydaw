@@ -8109,7 +8109,10 @@ class transport_widget:
                     f_window, _("Error"),
                     _("You must select a name for the item"))
                 return
-            PROJECT.check_for_recorded_items(f_file_name)
+            PROJECT.check_for_recorded_items(
+                f_file_name, MREC_EVENTS, self.overdub_checkbox.isChecked(),
+                LAST_REC_ARMED_TRACK, self.tempo_spinbox.value(),
+                pydaw_util.SAMPLE_RATE)
             f_window.close()
 
         def text_edit_handler(a_val=None):
@@ -8137,6 +8140,12 @@ class transport_widget:
             self.play_button.setChecked(True)
             return
         if self.is_recording:
+            return
+        if LAST_REC_ARMED_TRACK is None:
+            QtGui.QMessageBox.warning(
+                self.group_box, _("Error"),
+                _("No track record-armed"))
+            self.stop_button.setChecked(True)
             return
         if self.overdub_checkbox.isChecked() and \
         self.loop_mode_combobox.currentIndex() > 0:

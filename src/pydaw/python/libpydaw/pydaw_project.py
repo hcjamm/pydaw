@@ -720,11 +720,10 @@ class pydaw_project:
             return a_uid
 
     def check_for_recorded_items(self, a_item_name, a_mrec_list,
-                                 a_overdub, a_track_num, a_cc_map):
+                                 a_overdub, a_track_num, a_tempo, a_sr):
         # TODO:  Ensure that the user can't switch MIDI device/track during
         # recording, but can during playback...
         f_mrec_items = [x.split("|") for x in a_mrec_list]
-        f_items_dict = self.get_items_dict()
         f_song = self.get_song()
         f_note_tracker = {}
         f_items_to_save = {}
@@ -733,6 +732,14 @@ class pydaw_project:
         f_last_region = -1
         f_current_item = None
         f_current_region = None
+        f_beats_per_second = 60.0 / float(a_tempo)
+        # TODO:  Send a tick event with note on/off and calculate from that
+        #   instead.....
+        # TODO:  Add an mrec|loop event to help detect when to grab a new item
+
+        def truncate_notes(a_dict=f_note_tracker):
+            for f_note_num, f_note in a_dict.items():
+                pass
 
         for f_event in f_mrec_items:
             f_type, f_region, f_bar, f_beat = f_event[:4]
@@ -748,46 +755,53 @@ class pydaw_project:
 
             f_current_region = f_regions_to_save[f_region]
 
-            pydaw_region.get_item(a_track_num, f_bar)
-
-            def truncate_notes(a_dict=f_note_tracker):
-                for f_note_num, f_note in a_dict.items():
-                    pass
-
             if f_last_region != f_region or f_last_bar != f_bar:
                 # Do current item assignment in here, since it's not
                 # as easy to track as the regions and may require
                 # creating many new items if in loop mode
-                if f_bar < f_last_bar:
-                    if f_region > f_last_region:
-                        pass
-                    else: # looping
-                        pass
-                elif f_bar > f_last_bar:  # or length == 1 ?
-                    pass
+                if f_bar != f_last_bar:
+                    f_current_item = f_current_region.get_item(
+                        a_track_num, f_bar)
+                    if f_current_item is None:
+                        f_name = self.get_next_default_item_name(f_item_name)
+                        f_uid = self.create_empty_item(f_name)
+                        f_current_item = self.get_item_by_uid(f_uid)
+                        f_items_to_save[f_uid] = f_current_item
                 f_last_region = f_region
                 f_last_bar = f_bar
 
-            f_region_length = 8
-            if pydaw_region.region_length_bars:
-                f_region_length = pydaw_region.region_length_bars
-
             if f_type == "on":
-                f_note_num, f_velocity = f_event[4:]
+                f_note_num, f_velocity, f_tick = (int(x) for x in f_event[4:])
                 f_note = pydaw_note(f_beat, 1.0, f_note_num, f_velocity)
-                f_note.start_region_length = f_region_length
-                f_note.start_bar = f_bar
-                f_note_tracker[f_note_num] = f_note
-            elif f_type == "off":
-                f_note_num = f_event[4]
+                f_note.start_sample = f_tick
+                # TODO:  Make a function
                 if f_note_num in f_note_tracker:
-                    pass
+                    f_note = f_note_tracker[f_note_num]
+                    f_sample_count = f_tick - f_note.start_sample
+                    f_seconds = float(f_sample_count) / float(a_sr)
+                    f_note.length = f_seconds * f_beats_per_second
+                    f_note_tracker.pop(f_note_num)
+                f_note_tracker[f_note_num] = f_note
+                f_current_item.add_note(f_note)
+            elif f_type == "off":
+                f_note_num, f_tick = (int(x) for x in f_event[4:])
+                if f_note_num in f_note_tracker:
+                    f_note = f_note_tracker[f_note_num]
+                    f_sample_count = f_tick - f_note.start_sample
+                    f_seconds = float(f_sample_count) / float(a_sr)
+                    f_note.length = f_seconds * f_beats_per_second
+                    f_note_tracker.pop(f_note_num)
                 else:
                     print("Error:  note event not in note tracker")
             elif f_type == "cc":
-                pass
+                f_plugin_id, f_port, f_val = (int(x) for x in f_event[4:])
+                f_cc = pydaw_cc(f_beat, f_plugin_id, f_port, f_val)
+                f_current_item.add_cc(f_cc)
             elif f_type == "pb":
-                pass
+                f_pb = pydaw_pitchbend(f_beat, float(f_event[4]) / 8192.0)
+                f_current_item.add_pb(f_pb)
+
+        # deal with un-ended notes, or leave at default length?
 
         for f_uid, f_item in f_items_to_save.items():
             f_item.fix_overlaps()
@@ -797,7 +811,7 @@ class pydaw_project:
         for f_region in f_regions_to_save:
             self.save_region(f_region)
 
-        self.save_items_dict(f_items_dict)
+        self.save_song(f_song)
 
     def get_tracks_string(self):
         try:

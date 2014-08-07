@@ -2221,9 +2221,10 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                     sprintf(
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                        "on|%i|%i|%f|%i|%i", a_pydaw_data->current_region,
+                        "on|%i|%i|%f|%i|%i|%ld", a_pydaw_data->current_region,
                         a_pydaw_data->current_bar, f_beat, events[f_i2].note,
-                        events[f_i2].velocity);
+                        events[f_i2].velocity,
+                        a_pydaw_data->current_sample + events[f_i2].tick);
                     v_queue_osc_message("mrec",
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
@@ -2249,8 +2250,9 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                     sprintf(
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                        "off|%i|%i|%f|%i", a_pydaw_data->current_region,
-                        a_pydaw_data->current_bar, f_beat, events[f_i2].note);
+                        "off|%i|%i|%f|%i|%ld", a_pydaw_data->current_region,
+                        a_pydaw_data->current_bar, f_beat, events[f_i2].note,
+                        a_pydaw_data->current_sample + events[f_i2].tick);
                     v_queue_osc_message("mrec",
                         a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                 }
@@ -2343,9 +2345,10 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                                 sprintf(
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                                    "cc|%i|%i|%f|%i|%f", a_pydaw_data->current_region,
-                                    a_pydaw_data->current_bar, f_beat, controlIn,
-                                    events[f_i2].value);
+                                    "cc|%i|%i|%f|%i|%i|%f", a_pydaw_data->current_region,
+                                    a_pydaw_data->current_bar, f_beat,
+                                    a_pydaw_data->record_armed_track->plugin_index,
+                                    controlIn, events[f_i2].value);
                                 v_queue_osc_message("mrec",
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all]);
                             }
@@ -2383,7 +2386,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                                 sprintf(
                                     a_pydaw_data->osc_cursor_message[a_pydaw_data->record_armed_track_index_all],
-                                    "cc|%i|%i|%f|%i|%f", a_pydaw_data->current_region,
+                                    "cc|%i|%i|%f|-1|%i|%f", a_pydaw_data->current_region,
                                     a_pydaw_data->current_bar, f_beat, controlIn,
                                     events[f_i2].value);
                                 v_queue_osc_message("mrec",
