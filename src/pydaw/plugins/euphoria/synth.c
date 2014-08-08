@@ -528,7 +528,7 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
     plugin_data->amp_ptr = g_amp_get();
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);
     plugin_data->fs = s_rate;
-    
+
     plugin_data->port_table = a_port_table;
     f_i = 0;
 
@@ -1257,16 +1257,23 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1] = 0.0f;
         }
 
+        int f_is_active = 0;
+
         for (i2 = 0; i2 < EUPHORIA_POLYPHONY; ++i2)
         {
             if(((plugin_data->data[i2]->adsr_amp->stage) != ADSR_STAGE_OFF) &&
                     ((plugin_data->sample_indexes_count[i2]) > 0))
             {
                 add_sample_lms_euphoria(plugin_data, i2);
+                f_is_active = 1;
             }
         }
 
-
+        if(!f_is_active)
+        {
+            plugin_data->output[0][i] = 0.0f;
+            plugin_data->output[1][i] = 0.0f;
+        }
 
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
         {
@@ -1704,10 +1711,10 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
 
     f_result->cleanup = cleanupSampler;
     f_result->connect_port = connectPortSampler;
-    f_result->connect_buffer = euphoriaConnectBuffer;    
+    f_result->connect_buffer = euphoriaConnectBuffer;
     f_result->instantiate = instantiateSampler;
     f_result->panic = euphoriaPanic;
-    
+
     f_result->PYINST_API_Version = 1;
     f_result->configure = c_euphoria_configure;
     f_result->run_synth = v_run_lms_euphoria;
