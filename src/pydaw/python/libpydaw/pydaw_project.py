@@ -783,7 +783,6 @@ class pydaw_project:
                 print("New note: {} {} {}".format(f_bar, f_beat, f_note_num))
                 f_note = pydaw_note(f_beat, 1.0, f_note_num, f_velocity)
                 f_note.start_sample = f_tick
-                # TODO:  Make a function
                 if f_note_num in f_note_tracker:
                     set_note_length(f_note_num)
                 f_note_tracker[f_note_num] = f_note
@@ -804,8 +803,6 @@ class pydaw_project:
             elif f_type == "pb":
                 f_pb = pydaw_pitchbend(f_beat, float(f_event[4]) / 8192.0)
                 f_current_item.add_pb(f_pb)
-
-        # deal with un-ended notes, or leave at default length?
 
         for f_uid, f_item in f_items_to_save.items():
             f_item.fix_overlaps()
