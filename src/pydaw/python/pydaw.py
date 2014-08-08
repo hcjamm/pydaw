@@ -7538,6 +7538,7 @@ class item_list_editor:
         self.zoom_hlayout.setMargin(0)
         self.zoom_hlayout.setSpacing(0)
 
+        self.zoom_hlayout.addWidget(QtGui.QLabel("V"))
         self.vzoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.zoom_hlayout.addWidget(self.vzoom_slider)
         self.vzoom_slider.setObjectName("zoom_slider")
@@ -7546,6 +7547,7 @@ class item_list_editor:
         self.vzoom_slider.valueChanged.connect(self.set_midi_vzoom)
         self.vzoom_slider.sliderReleased.connect(self.save_vzoom)
 
+        self.zoom_hlayout.addWidget(QtGui.QLabel("H"))
         self.zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.zoom_hlayout.addWidget(self.zoom_slider)
         self.zoom_slider.setObjectName("zoom_slider")
