@@ -732,7 +732,7 @@ class pydaw_project:
         f_last_region = -1
         f_current_item = None
         f_current_region = None
-        f_beats_per_second = 60.0 / float(a_tempo)
+        f_beats_per_second = float(a_tempo) / 60.0
         f_item_name = str(a_item_name)
         # TODO:  Send a tick event with note on/off and calculate from that
         #   instead.....
@@ -744,6 +744,9 @@ class pydaw_project:
 
         for f_event in f_mrec_items:
             f_type, f_region, f_bar, f_beat = f_event[:4]
+            f_region = int(f_region)
+            f_bar = int(f_bar)
+            f_beat = float(f_beat)
             if f_region in f_song.regions:
                 if f_region not in f_regions_to_save:
                     f_regions_to_save[f_region] = self.get_region_by_uid(
@@ -768,6 +771,8 @@ class pydaw_project:
                         f_uid = self.create_empty_item(f_name)
                         f_current_item = self.get_item_by_uid(f_uid)
                         f_items_to_save[f_uid] = f_current_item
+                        f_current_region.add_item_ref_by_uid(
+                            a_track_num, f_bar, f_uid)
                 f_last_region = f_region
                 f_last_bar = f_bar
 
