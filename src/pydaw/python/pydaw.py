@@ -8109,7 +8109,7 @@ class transport_widget:
                     f_window, _("Error"),
                     _("You must select a name for the item"))
                 return
-            PROJECT.check_for_recorded_items(
+            PROJECT.save_recorded_items(
                 f_file_name, MREC_EVENTS, self.overdub_checkbox.isChecked(),
                 LAST_REC_ARMED_TRACK, self.tempo_spinbox.value(),
                 pydaw_util.SAMPLE_RATE)
@@ -9570,7 +9570,6 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_is_inst, f_track_num, f_name, f_val = a_val.split("|", 3)
                 f_ui_dict[(f_is_inst, f_track_num, f_name)] = f_val
             elif a_key == "mrec":
-                print(a_val)
                 MREC_EVENTS.append(a_val)
             elif a_key == "ne":
                 f_state, f_note = a_val.split("|")

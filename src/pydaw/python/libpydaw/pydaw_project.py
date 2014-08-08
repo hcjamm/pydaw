@@ -719,7 +719,7 @@ class pydaw_project:
                 "\n####\n####\n".format(a_uid))
             return a_uid
 
-    def check_for_recorded_items(self, a_item_name, a_mrec_list,
+    def save_recorded_items(self, a_item_name, a_mrec_list,
                                  a_overdub, a_track_num, a_tempo, a_sr):
         # TODO:  Ensure that the user can't switch MIDI device/track during
         # recording, but can during playback...
@@ -734,13 +734,15 @@ class pydaw_project:
         f_current_region = None
         f_beats_per_second = float(a_tempo) / 60.0
         f_item_name = str(a_item_name)
-        # TODO:  Send a tick event with note on/off and calculate from that
-        #   instead.....
-        # TODO:  Add an mrec|loop event to help detect when to grab a new item
+        # TODO:  Add an mrec|loop event to help detect when to grab
+        # a new item, and make a copy of the original items in a region
 
-        def truncate_notes(a_dict=f_note_tracker):
-            for f_note_num, f_note in a_dict.items():
-                pass
+        def set_note_length(f_note_num):
+            f_note = f_note_tracker[f_note_num]
+            f_sample_count = f_tick - f_note.start_sample
+            f_seconds = float(f_sample_count) / float(a_sr)
+            f_note.length = f_seconds * f_beats_per_second
+            print(f_note_tracker.pop(f_note_num))
 
         for f_event in f_mrec_items:
             f_type, f_region, f_bar, f_beat = f_event[:4]
@@ -778,29 +780,25 @@ class pydaw_project:
 
             if f_type == "on":
                 f_note_num, f_velocity, f_tick = (int(x) for x in f_event[4:])
+                print("New note: {} {} {}".format(f_bar, f_beat, f_note_num))
                 f_note = pydaw_note(f_beat, 1.0, f_note_num, f_velocity)
                 f_note.start_sample = f_tick
                 # TODO:  Make a function
                 if f_note_num in f_note_tracker:
-                    f_note = f_note_tracker[f_note_num]
-                    f_sample_count = f_tick - f_note.start_sample
-                    f_seconds = float(f_sample_count) / float(a_sr)
-                    f_note.length = f_seconds * f_beats_per_second
-                    f_note_tracker.pop(f_note_num)
+                    set_note_length(f_note_num)
                 f_note_tracker[f_note_num] = f_note
-                f_current_item.add_note(f_note)
+                f_current_item.add_note(f_note, a_check=False)
             elif f_type == "off":
                 f_note_num, f_tick = (int(x) for x in f_event[4:])
                 if f_note_num in f_note_tracker:
-                    f_note = f_note_tracker[f_note_num]
-                    f_sample_count = f_tick - f_note.start_sample
-                    f_seconds = float(f_sample_count) / float(a_sr)
-                    f_note.length = f_seconds * f_beats_per_second
-                    f_note_tracker.pop(f_note_num)
+                    set_note_length(f_note_num)
                 else:
                     print("Error:  note event not in note tracker")
             elif f_type == "cc":
-                f_plugin_id, f_port, f_val = (int(x) for x in f_event[4:])
+                f_plugin_id, f_port, f_val = f_event[4:]
+                f_plugin_id = int(f_plugin_id)
+                f_port = int(f_port)
+                f_val = float(f_val)
                 f_cc = pydaw_cc(f_beat, f_plugin_id, f_port, f_val)
                 f_current_item.add_cc(f_cc)
             elif f_type == "pb":
@@ -822,6 +820,7 @@ class pydaw_project:
 
         self.save_song(f_song)
         self.commit("Record MIDI")
+        print("\n".join(a_mrec_list))
 
     def get_tracks_string(self):
         try:
