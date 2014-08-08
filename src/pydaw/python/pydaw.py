@@ -8131,7 +8131,12 @@ class transport_widget:
         f_layout.addWidget(f_file, 3, 2)
         f_ok_button = QtGui.QPushButton(_("Save"))
         f_ok_button.clicked.connect(ok_handler)
-        f_layout.addWidget(f_ok_button, 8, 2)
+        f_cancel_button = QtGui.QPushButton(_("Discard"))
+        f_cancel_button.clicked.connect(f_window.close)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addWidget(f_ok_button)
+        f_ok_cancel_layout.addWidget(f_cancel_button)
+        f_layout.addLayout(f_ok_cancel_layout, 8, 2)
         f_window.exec_()
 
     def on_rec(self):
