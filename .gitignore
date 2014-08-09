@@ -1,3 +1,4 @@
+tags
 *.rpm
 pydaw-build/pydaw_os/*zip
 pydaw-build/pydaw_os/VirtualBox*
