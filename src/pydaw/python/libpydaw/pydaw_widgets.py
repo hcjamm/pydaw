@@ -4104,6 +4104,12 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.reverb_groupbox.setObjectName("plugin_groupbox")
         self.reverb_groupbox_gridlayout = QtGui.QGridLayout(
             self.reverb_groupbox)
+        self.reverb_hlayout = QtGui.QHBoxLayout()
+        self.delay_vlayout.addLayout(self.reverb_hlayout)
+        self.reverb_hlayout.addWidget(self.reverb_groupbox)
+        self.reverb_hlayout.addItem(
+            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+
         f_note_triggered_label = QtGui.QLabel(_("Note-Triggered Effects"))
         f_note_triggered_label.setToolTip(
             _("The below effects are triggered when you play their \n"
@@ -4113,7 +4119,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_vlayout.addWidget(f_note_triggered_label)
         self.note_triggered_hlayout = QtGui.QHBoxLayout()
         self.delay_vlayout.addLayout(self.note_triggered_hlayout)
-        self.delay_hlayout.addWidget(self.reverb_groupbox)
+
         self.reverb_time_knob = pydaw_knob_control(
             f_knob_size, _("Time"), pydaw_ports.MODULEX_REVERB_TIME,
             self.plugin_rel_callback, self.plugin_val_callback,
@@ -4141,6 +4147,13 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
             0, 100, 50, KC_DECIMAL, self.port_dict, self.preset_manager)
         self.reverb_color_knob.add_to_grid_layout(
             self.reverb_groupbox_gridlayout, 15)
+
+        self.reverb_predelay_knob = pydaw_knob_control(
+            f_knob_size, _("PreDelay"), pydaw_ports.MODULEX_REVERB_PRE_DELAY,
+            self.plugin_rel_callback, self.plugin_val_callback,
+            0, 100, 1, KC_TIME_DECIMAL, self.port_dict, self.preset_manager)
+        self.reverb_predelay_knob.add_to_grid_layout(
+            self.reverb_groupbox_gridlayout, 21)
 
         self.gate_groupbox = QtGui.QGroupBox(_("Gate"))
         self.gate_groupbox.setObjectName("plugin_groupbox")

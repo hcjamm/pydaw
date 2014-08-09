@@ -45,11 +45,13 @@ typedef struct
     float allpass_tunings[PYDAW_REVERB_DIFFUSER_COUNT];
     int predelay_counter;
     int predelay_size;
+    float last_predelay;
     float * predelay_buffer;
+    float sr;
 } t_rvb_reverb;
 
 t_rvb_reverb * g_rvb_reverb_get(float);
-void v_rvb_reverb_set(t_rvb_reverb *, float, float, float);
+void v_rvb_reverb_set(t_rvb_reverb *, float, float, float, float);
 inline void v_rvb_reverb_run(t_rvb_reverb *, float, float);
 
 /* void v_rvb_reverb_set(t_rvb_reverb * a_reverb,
@@ -59,7 +61,7 @@ inline void v_rvb_reverb_run(t_rvb_reverb *, float, float);
  * float a_color) //0 to 1, I may change the meaning later...
  */
 void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet,
-        float a_color)
+        float a_color, float a_predelay)
 {
     if(a_time != (a_reverb->time))
     {
@@ -91,6 +93,16 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet,
 
         v_svf_set_cutoff_base(a_reverb->lp, f_cutoff);
         v_svf_set_cutoff(a_reverb->lp);
+    }
+
+    if(a_reverb->last_predelay != a_predelay)
+    {
+        a_reverb->last_predelay = a_predelay;
+        a_reverb->predelay_size = (int)(a_reverb->sr * a_predelay);
+        if(a_reverb->predelay_counter >= a_reverb->predelay_size)
+        {
+            a_reverb->predelay_counter = 0;
+        }
     }
 }
 
@@ -151,6 +163,8 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->wet = 0.0f;
     f_result->wet_linear = 0.0f;
 
+    f_result->sr = a_sr;
+
     f_result->amp = g_amp_get();
     f_result->pitch_core = g_pit_get();
 
@@ -201,22 +215,23 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     }
 
     f_result->predelay_counter = 0;
+    f_result->last_predelay = -1234.0f;
     f_result->predelay_size = (int)(a_sr * 0.01f);
 
-    if(posix_memalign((void**)&f_result->predelay_buffer, 16, (sizeof(float) *
-            f_result->predelay_size)) != 0)
+    if(posix_memalign((void**)&f_result->predelay_buffer, 16,
+        (sizeof(float) * (a_sr + 5000))) != 0)
     {
         return 0;
     }
 
     f_i2 = 0;
-    while(f_i2 < (f_result->predelay_size))
+    while(f_i2 < (a_sr + 5000))
     {
         f_result->predelay_buffer[f_i2] = 0.0f;
         f_i2++;
     }
 
-    v_rvb_reverb_set(f_result, 0.5f, 0.0f, 0.5f);
+    v_rvb_reverb_set(f_result, 0.5f, 0.0f, 0.5f, 0.01f);
 
     return f_result;
 }

@@ -198,6 +198,7 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
 
         case MODULEX_REVERB_DRY: plugin->reverb_dry = data; break;
         case MODULEX_GLITCH_PB: plugin->glitch_pb = data; break;
+        case MODULEX_REVERB_PRE_DELAY: plugin->reverb_predelay = data; break;
     }
 }
 
@@ -211,7 +212,7 @@ static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     plugin_data->track_num = a_track_num;
     plugin_data->queue_func = a_queue_func;
-    
+
     plugin_data->sv_pitch_bend_value = 0.0f;
 
     plugin_data->port_table = a_port_table;
@@ -229,7 +230,7 @@ static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
     }
 
     plugin_data->is_on = 0;
-    
+
     return (PYFX_Handle) plugin_data;
 }
 
@@ -616,10 +617,12 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
     {
         v_rvb_reverb_set(plugin_data->mono_modules->reverb,
                 (*plugin_data->reverb_time) * 0.01f,
-                f_db_to_linear_fast(((plugin_data->mono_modules->
-                reverb_smoother->last_value) * 0.4f) - 40.0f,
+                f_db_to_linear_fast((
+                (plugin_data->mono_modules->reverb_smoother->last_value)
+                * 0.4f) - 40.0f,
                 plugin_data->mono_modules->amp_ptr),
-                (*plugin_data->reverb_color) * 0.01f);
+                (*plugin_data->reverb_color) * 0.01f,
+                (*plugin_data->reverb_predelay) * 0.01f);
 
         float f_dry_vol;
         float f_dry_db = (*plugin_data->reverb_dry);
@@ -777,15 +780,16 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, MODULEX_GLITCH_TIME, 10.0f, 1.0f, 25.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_REVERB_DRY, 100.0f, 0.0f, 100.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_GLITCH_PB, 0.0f, 0.0f, 36.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_REVERB_PRE_DELAY, 1.0f, 0.0f, 100.0f);
 
 
     f_result->cleanup = v_modulex_cleanup;
     f_result->connect_port = v_modulex_connect_port;
-    f_result->connect_buffer = v_modulex_connect_buffer;    
+    f_result->connect_buffer = v_modulex_connect_buffer;
     f_result->instantiate = g_modulex_instantiate;
     f_result->panic = v_modulex_panic;
-    
-    f_result->PYINST_API_Version = 1;    
+
+    f_result->PYINST_API_Version = 1;
     f_result->configure = NULL;
     f_result->run_synth = v_modulex_run;
     f_result->on_stop = v_modulex_on_stop;

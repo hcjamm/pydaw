@@ -107,11 +107,12 @@ extern "C" {
 #define MODULEX_GLITCH_TIME 73
 #define MODULEX_REVERB_DRY 74
 #define MODULEX_GLITCH_PB 75
+#define MODULEX_REVERB_PRE_DELAY 76
 
-#define MODULEX_LAST_CONTROL_PORT 75
+#define MODULEX_LAST_CONTROL_PORT 76
 /* must be 1 + highest value above
  * CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-#define MODULEX_COUNT 76
+#define MODULEX_COUNT 77
 
 typedef struct
 {
@@ -137,6 +138,7 @@ typedef struct
     PYFX_Data *reverb_dry;
     PYFX_Data *reverb_wet;
     PYFX_Data *reverb_color;
+    PYFX_Data *reverb_predelay;
 
     PYFX_Data *eq_on;
 
