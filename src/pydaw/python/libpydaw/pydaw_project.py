@@ -736,6 +736,7 @@ class pydaw_project:
         f_item_name = str(a_item_name)
         f_items_dict = self.get_items_dict()
         f_orig_items = {}
+        self.rec_take = None
 
         def get_item(a_region, a_track_num, a_bar_num):
             if a_region in f_orig_items:
@@ -745,13 +746,38 @@ class pydaw_project:
                         return f_item.item_uid
             return None
 
+        def new_take():
+            self.rec_take = []
+            f_length = f_current_region.get_length()
+            for f_i in range(f_length):
+                if a_overdub:
+                    copy_item(f_i)
+                else:
+                    new_item(f_i)
+
         def new_item(a_bar):
             f_name = self.get_next_default_item_name(f_item_name)
             f_uid = self.create_empty_item(f_name)
-            self.rec_item = self.get_item_by_uid(f_uid)
-            f_items_to_save[f_uid] = self.rec_item
+            f_item = self.get_item_by_uid(f_uid)
+            f_items_to_save[f_uid] = f_item
+            self.rec_take.append(f_item)
             f_current_region.add_item_ref_by_uid(
                 a_track_num, a_bar, f_uid)
+
+        def copy_item(a_bar):
+            f_uid = get_item(a_track_num, a_bar)
+            if f_uid is not None:
+                f_old_name = f_items_dict.get_name_by_uid(f_uid)
+                f_name = self.get_next_default_item_name(
+                    f_item_name)
+                f_uid = self.copy_item(f_old_name, f_name)
+                f_item = self.get_item_by_uid(f_uid)
+                f_items_to_save[f_uid] = f_item
+                self.rec_take.append(f_item)
+                f_current_region.add_item_ref_by_uid(
+                    a_track_num, a_bar, f_uid)
+            else:
+                new_item(a_bar)
 
         def set_note_length(f_note_num):
             f_note = f_note_tracker[f_note_num]
@@ -784,22 +810,9 @@ class pydaw_project:
             if f_is_looping or \
             f_last_region != f_region or \
             f_last_bar != f_bar:
-                if f_is_looping or f_bar != f_last_bar:
-                    if a_overdub:
-                        f_uid = get_item(a_track_num, f_bar)
-                        if f_uid is not None:
-                            f_old_name = f_items_dict.get_name_by_uid(f_uid)
-                            f_name = self.get_next_default_item_name(
-                                f_item_name)
-                            f_uid = self.copy_item(f_old_name, f_name)
-                            self.rec_item = self.get_item_by_uid(f_uid)
-                            f_items_to_save[f_uid] = self.rec_item
-                            f_current_region.add_item_ref_by_uid(
-                                a_track_num, f_bar, f_uid)
-                        else:
-                            new_item(f_bar)
-                    else:
-                        new_item(f_bar)
+                if f_is_looping or f_region != f_last_region:
+                    new_take()
+                self.rec_item = self.rec_take[f_bar]
                 f_last_region = f_region
                 f_last_bar = f_bar
 
@@ -1470,6 +1483,12 @@ class pydaw_region:
                 self.items.remove(f_item)
                 print("remove_item_ref removed bar: {}, track: {}".format(
                     f_item.bar_num, f_item.track_num))
+
+    def get_length(self):
+        if self.region_length_bars != 0:
+            return self.region_length_bars
+        else:
+            return 8
 
     def __str__(self):
         f_result = ""
