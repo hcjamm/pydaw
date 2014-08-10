@@ -13,6 +13,7 @@ GNU General Public License for more details.
 """
 
 import os
+import re
 import random
 import traceback
 import subprocess
@@ -1213,15 +1214,26 @@ class pydaw_project:
         else:
             return False
 
-    def get_next_default_item_name(self, a_item_name="item"):
+    def get_next_default_item_name(self, a_item_name="item",
+                                   a_items_dict=None):
         f_item_name = str(a_item_name)
+        f_end_number = re.search(r"[0-9]+$", f_item_name)
         if f_item_name == "item":
             f_start = self.last_item_number
         else:
-            f_start = 1
-        f_items_dict = self.get_items_dict()
+            if f_end_number:
+                f_num_str = f_end_number.group()
+                f_start = int(f_num_str)
+                f_item_name = f_item_name[:-len(f_num_str)]
+                f_item_name = f_item_name.strip('-')
+            else:
+                f_start = 1
+        if a_items_dict:
+            f_items_dict = a_items_dict
+        else:
+            f_items_dict = self.get_items_dict()
         for i in range(f_start, 10000):
-            f_result = f_item_name + "-" + str(i)
+            f_result = "{}-{}".format(f_item_name, i)
             if not f_result in f_items_dict.uid_lookup:
                 if f_item_name == "item":
                     self.last_item_number = i
@@ -1422,6 +1434,20 @@ class pydaw_name_uid_dict:
 
     def name_exists(self, a_name):
         return str(a_name) in self.uid_lookup
+
+    def get_takes(self):
+        f_result = {}
+        for k in self.uid_lookup:
+            f_regex = re.search("[0-9]+$", k)
+            if f_regex:
+                f_int = f_regex.group()
+                f_str = k[:f_regex.start()]
+                if f_str in f_result:
+                    f_result[f_str].append(f_int)
+                else:
+                    f_result[f_str] = [f_int]
+        return {k:sorted(v, key=lambda x: int(x))
+            for k, v in f_result.items() if len(v) > 1}
 
     @staticmethod
     def from_str(a_str):

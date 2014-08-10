@@ -1046,8 +1046,7 @@ class region_list_editor:
                 f_cell_text = str(f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 CURRENT_REGION.add_item_ref_by_name(
-                    x + self.track_offset, y - 1, f_cell_text,
-                    PROJECT.get_items_dict())
+                    x + self.track_offset, y - 1, f_cell_text, f_item_dict)
             elif f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 f_copy_from_text = str(f_copy_combobox.currentText())
@@ -1062,6 +1061,20 @@ class region_list_editor:
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 CURRENT_REGION.add_item_ref_by_uid(
                     x + self.track_offset, y - 1, f_uid)
+            elif f_take_radiobutton.isChecked():
+                f_cell_text = str(f_take_name_combobox.currentText())
+                f_start = f_take_dict[f_cell_text].index(
+                    str(f_take_start_combobox.currentText()))
+                f_end = f_take_dict[f_cell_text].index(
+                    str(f_take_end_combobox.currentText()))
+                f_step = 1 if f_start <= f_end else -1
+                f_range = f_take_dict[f_cell_text][f_start:f_end:f_step]
+                for f_suffix, f_pos in zip(
+                f_range, range(y - 1, pydaw_get_current_region_length())):
+                    f_name = "".join(f_cell_text, f_suffix)
+                    self.add_qtablewidgetitem(f_name, x, f_pos, True)
+                    CURRENT_REGION.add_item_ref_by_name(
+                        x + self.track_offset, f_pos, f_name, f_item_dict)
             PROJECT.save_region(
                 str(REGION_SETTINGS.region_name_lineedit.text()),
                 CURRENT_REGION)
@@ -1096,6 +1109,13 @@ class region_list_editor:
 
         def goto_end():
             f_item_count.setValue(f_item_count.maximum())
+
+        def take_changed(a_val=None):
+            f_take_start_combobox.clear()
+            f_take_end_combobox.clear()
+            f_key = str(f_take_name_combobox.currentText())
+            f_take_start_combobox.addItems(f_take_dict[f_key])
+            f_take_end_combobox.addItems(f_take_dict[f_key])
 
         f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Add item reference to region..."))
@@ -1156,8 +1176,26 @@ class region_list_editor:
             f_layout.addWidget(f_paste_to_end_button, 7, 2)
             f_paste_to_end_button.pressed.connect(paste_to_end_button_pressed)
 
+        f_item_dict = PROJECT.get_items_dict()
+        f_take_dict = f_item_dict.get_takes()
+
+        if f_take_dict:
+            f_take_radiobutton = QtGui.QRadioButton()
+            f_layout.addWidget(f_take_radiobutton, 12, 0)
+            f_layout.addWidget(QtGui.QLabel(_("Take:")), 12, 1)
+            f_take_name_combobox = QtGui.QComboBox()
+            f_layout.addWidget(f_take_name_combobox, 12, 2)
+            f_take_start_combobox = QtGui.QComboBox()
+            f_take_start_combobox.setMinimumWidth(60)
+            f_layout.addWidget(f_take_start_combobox, 12, 3)
+            f_take_end_combobox = QtGui.QComboBox()
+            f_take_end_combobox.setMinimumWidth(60)
+            f_layout.addWidget(f_take_end_combobox, 12, 4)
+            f_take_name_combobox.currentIndexChanged.connect(take_changed)
+            f_take_name_combobox.addItems(sorted(f_take_dict))
+
         f_ok_cancel_layout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_ok_cancel_layout, 9, 2)
+        f_layout.addLayout(f_ok_cancel_layout, 24, 2)
         f_ok_button = QtGui.QPushButton(_("OK"))
         f_ok_cancel_layout.addWidget(f_ok_button)
         f_ok_button.clicked.connect(note_ok_handler)
