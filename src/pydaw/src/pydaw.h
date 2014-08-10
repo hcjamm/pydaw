@@ -2666,6 +2666,17 @@ inline void v_pydaw_finish_time_params(t_pydaw_data * a_pydaw_data,
                     a_pydaw_data->current_region = 0;
                 }
             }
+            else if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+            {
+                float f_beat = a_pydaw_data->ml_current_period_beats;
+
+                sprintf(
+                    a_pydaw_data->osc_cursor_message[0],
+                    "loop|%i|%i|%f", a_pydaw_data->current_region,
+                    a_pydaw_data->current_bar, f_beat);
+                v_queue_osc_message("mrec",
+                    a_pydaw_data->osc_cursor_message[0]);
+            }
         }
     }
 }

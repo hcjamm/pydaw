@@ -720,7 +720,7 @@ class pydaw_project:
             return a_uid
 
     def save_recorded_items(self, a_item_name, a_mrec_list,
-                                 a_overdub, a_track_num, a_tempo, a_sr):
+                            a_overdub, a_track_num, a_tempo, a_sr):
         # TODO:  Ensure that the user can't switch MIDI device/track during
         # recording, but can during playback...
         f_mrec_items = [x.split("|") for x in a_mrec_list]
@@ -730,12 +730,28 @@ class pydaw_project:
         f_regions_to_save = {}
         f_last_bar = -1
         f_last_region = -1
-        f_current_item = None
+        self.rec_item = None
         f_current_region = None
         f_beats_per_second = float(a_tempo) / 60.0
         f_item_name = str(a_item_name)
-        # TODO:  Add an mrec|loop event to help detect when to grab
-        # a new item, and make a copy of the original items in a region
+        f_items_dict = self.get_items_dict()
+        f_orig_items = {}
+
+        def get_item(a_region, a_track_num, a_bar_num):
+            if a_region in f_orig_items:
+                for f_item in f_orig_items[a_region]:
+                    if f_item.bar_num == int(a_bar_num) and \
+                    f_item.track_num == int(a_track_num):
+                        return f_item.item_uid
+            return None
+
+        def new_item(a_bar):
+            f_name = self.get_next_default_item_name(f_item_name)
+            f_uid = self.create_empty_item(f_name)
+            self.rec_item = self.get_item_by_uid(f_uid)
+            f_items_to_save[f_uid] = self.rec_item
+            f_current_region.add_item_ref_by_uid(
+                a_track_num, a_bar, f_uid)
 
         def set_note_length(f_note_num):
             f_note = f_note_tracker[f_note_num]
@@ -753,6 +769,8 @@ class pydaw_project:
                 if f_region not in f_regions_to_save:
                     f_regions_to_save[f_region] = self.get_region_by_uid(
                         f_song.regions[f_region])
+                    f_orig_items[f_region] = f_regions_to_save[
+                        f_region].items[:]
             else:
                 f_name = self.get_next_default_region_name(f_item_name)
                 f_uid = self.create_empty_region(f_name)
@@ -761,20 +779,27 @@ class pydaw_project:
 
             f_current_region = f_regions_to_save[f_region]
 
-            if f_last_region != f_region or f_last_bar != f_bar:
-                # Do current item assignment in here, since it's not
-                # as easy to track as the regions and may require
-                # creating many new items if in loop mode
-                if f_bar != f_last_bar:
-                    f_current_item = f_current_region.get_item(
-                        a_track_num, f_bar)
-                    if f_current_item is None:
-                        f_name = self.get_next_default_item_name(f_item_name)
-                        f_uid = self.create_empty_item(f_name)
-                        f_current_item = self.get_item_by_uid(f_uid)
-                        f_items_to_save[f_uid] = f_current_item
-                        f_current_region.add_item_ref_by_uid(
-                            a_track_num, f_bar, f_uid)
+            f_is_looping = f_type == "loop"
+
+            if f_is_looping or \
+            f_last_region != f_region or \
+            f_last_bar != f_bar:
+                if f_is_looping or f_bar != f_last_bar:
+                    if a_overdub:
+                        f_uid = get_item(a_track_num, f_bar)
+                        if f_uid is not None:
+                            f_old_name = f_items_dict.get_name_by_uid(f_uid)
+                            f_name = self.get_next_default_item_name(
+                                f_item_name)
+                            f_uid = self.copy_item(f_old_name, f_name)
+                            self.rec_item = self.get_item_by_uid(f_uid)
+                            f_items_to_save[f_uid] = self.rec_item
+                            f_current_region.add_item_ref_by_uid(
+                                a_track_num, f_bar, f_uid)
+                        else:
+                            new_item(f_bar)
+                    else:
+                        new_item(f_bar)
                 f_last_region = f_region
                 f_last_bar = f_bar
 
@@ -786,7 +811,7 @@ class pydaw_project:
                 if f_note_num in f_note_tracker:
                     set_note_length(f_note_num)
                 f_note_tracker[f_note_num] = f_note
-                f_current_item.add_note(f_note, a_check=False)
+                self.rec_item.add_note(f_note, a_check=False)
             elif f_type == "off":
                 f_note_num, f_tick = (int(x) for x in f_event[4:])
                 if f_note_num in f_note_tracker:
@@ -799,10 +824,14 @@ class pydaw_project:
                 f_port = int(f_port)
                 f_val = float(f_val)
                 f_cc = pydaw_cc(f_beat, f_plugin_id, f_port, f_val)
-                f_current_item.add_cc(f_cc)
+                self.rec_item.add_cc(f_cc)
             elif f_type == "pb":
                 f_pb = pydaw_pitchbend(f_beat, float(f_event[4]) / 8192.0)
-                f_current_item.add_pb(f_pb)
+                self.rec_item.add_pb(f_pb)
+            elif f_type == "loop":
+                print("Loop event")
+            else:
+                print("Invalid mrec event type {}".format(f_type))
 
         for f_uid, f_item in f_items_to_save.items():
             f_item.fix_overlaps()
@@ -1424,13 +1453,6 @@ class pydaw_region:
         f_region0.region_length_bars = a_index
         f_region1.region_length_bars = f_length - a_index
         return f_region0, f_region1
-
-    def get_item(self, a_track_num, a_bar_num):
-        for f_item in self.items:
-            if f_item.bar_num == int(a_bar_num) and \
-            f_item.track_num == a_track_num:
-                return f_item.item_uid
-        return None
 
     def add_item_ref_by_name(self, a_track_num, a_bar_num,
                              a_item_name, a_uid_dict):
