@@ -4964,7 +4964,7 @@ PIANO_ROLL_SNAP_BEATS = 4.0 / PIANO_ROLL_SNAP_DIVISOR
 PIANO_ROLL_SNAP_VALUE = PIANO_ROLL_GRID_WIDTH / PIANO_ROLL_SNAP_DIVISOR
 PIANO_ROLL_SNAP_DIVISOR_BEATS = PIANO_ROLL_SNAP_DIVISOR / 4.0
 PIANO_ROLL_NOTE_COUNT = 120
-PIANO_ROLL_HEADER_HEIGHT = 20
+PIANO_ROLL_HEADER_HEIGHT = 45
 #gets updated by the piano roll to it's real value:
 PIANO_ROLL_TOTAL_HEIGHT = 1000
 PIANO_ROLL_QUANTIZE_INDEX = 4
@@ -5031,6 +5031,13 @@ PIANO_ROLL_DELETE_MODE = False
 PIANO_ROLL_DELETED_NOTES = []
 
 LAST_NOTE_RESIZE = 0.25
+
+PIANO_ROLL_HEADER_GRADIENT = QtGui.QLinearGradient(
+    0.0, 0.0, 0.0, PIANO_ROLL_HEADER_HEIGHT)
+PIANO_ROLL_HEADER_GRADIENT.setColorAt(0.0, QtGui.QColor.fromRgb(61, 61, 61))
+PIANO_ROLL_HEADER_GRADIENT.setColorAt(0.5, QtGui.QColor.fromRgb(50,50, 50))
+PIANO_ROLL_HEADER_GRADIENT.setColorAt(0.6, QtGui.QColor.fromRgb(43, 43, 43))
+PIANO_ROLL_HEADER_GRADIENT.setColorAt(1.0, QtGui.QColor.fromRgb(65, 65, 65))
 
 def piano_roll_set_delete_mode(a_enabled):
     global PIANO_ROLL_DELETE_MODE, PIANO_ROLL_DELETED_NOTES
@@ -5771,7 +5778,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.header = QtGui.QGraphicsRectItem(
             0, 0, self.viewer_width, PIANO_ROLL_HEADER_HEIGHT)
         self.header.hoverEnterEvent = self.hover_restore_cursor_event
-        self.header.setBrush(AUDIO_ITEMS_HEADER_GRADIENT)
+        self.header.setBrush(PIANO_ROLL_HEADER_GRADIENT)
         self.scene.addItem(self.header)
         #self.header.mapToScene(self.piano_width + self.padding, 0.0)
         self.beat_width = self.viewer_width / self.item_length
@@ -5962,7 +5969,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     str(f_beat_number + 1), self.header)
                 f_number.setFlag(
                     QtGui.QGraphicsItem.ItemIgnoresTransformations)
-                f_number.setPos(self.beat_width * i + 5, 2)
+                f_number.setPos((self.beat_width * i), 24)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
                     f_x = (self.beat_width * i) + (self.value_width *
@@ -6015,12 +6022,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     for f_note in f_item.notes:
                         f_note_item = self.draw_note(f_note, f_i, False)
             self.scrollContentsBy(0, 0)
-            for f_name, f_i in zip(ITEM_EDITOR.item_names,
-                                   range(len(ITEM_EDITOR.item_names))):
+            for f_name, f_i in zip(
+            ITEM_EDITOR.item_names, range(len(ITEM_EDITOR.item_names))):
                 f_text = QtGui.QGraphicsSimpleTextItem(f_name, self.header)
                 f_text.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_text.setBrush(QtCore.Qt.yellow)
-                f_text.setPos((f_i * PIANO_ROLL_GRID_WIDTH) + 48.0, 2.0)
+                f_text.setPos((f_i * PIANO_ROLL_GRID_WIDTH), 2.0)
         self.setUpdatesEnabled(True)
         self.update()
 
