@@ -264,8 +264,7 @@ typedef struct
     int track_worker_thread_count;
     int * track_thread_quit_notifier;
     int * track_thread_is_finished;
-    //used to prevent the main loop from processing during certain events...
-    pthread_mutex_t offline_mutex;
+
     /*Used to artificially inject sleep into the loop to
      * prevent a race condition*/
     int is_offline_rendering;
@@ -502,7 +501,6 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data,
 }
 
 /* void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
- * The offline_mutex should be held while calling this.
  */
 void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
 {
@@ -528,7 +526,6 @@ void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
 
 /* void v_pydaw_panic(t_pydaw_data * a_pydaw_data)
  *
- * The offline_mutex should be held while calling
  */
 void v_pydaw_panic(t_pydaw_data * a_pydaw_data)
 {
@@ -3879,7 +3876,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
 
     pthread_spin_init(&f_result->main_lock, 0);
-    pthread_mutex_init(&f_result->offline_mutex, NULL);
     pthread_mutex_init(&f_result->audio_inputs_mutex, NULL);
 
     pthread_spin_init(&f_result->ui_spinlock, 0);
@@ -4476,9 +4472,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
 {
     clock_t f_start = clock();
 
-    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
-    pthread_spin_lock(&a_pydaw_data->main_lock);
-
     sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);
     sprintf(a_pydaw_data->item_folder, "%sitems/",
             a_pydaw_data->project_folder);
@@ -4608,9 +4601,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder,
     v_pydaw_set_is_soloed(a_pydaw_data);
 
     v_pydaw_schedule_work(a_pydaw_data);
-
-    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
-    pthread_spin_unlock(&a_pydaw_data->main_lock);
 
     v_pydaw_print_benchmark("v_open_project", f_start);
 }
@@ -5153,11 +5143,10 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
         int a_start_bar, int a_end_region,
         int a_end_bar, char * a_file_out, int a_is_audio_glue)
 {
-    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
-    sleep(1);
-    //pthread_spin_lock(&a_pydaw_data->main_lock);
-
+    pthread_spin_lock(&a_pydaw_data->main_lock);
     a_pydaw_data->is_offline_rendering = 1;
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
+
     a_pydaw_data->input_buffers_active = 0;
     int f_ab_old = a_pydaw_data->ab_mode;
     a_pydaw_data->ab_mode = 0;
@@ -5294,20 +5283,19 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region,
 
     v_pydaw_panic(a_pydaw_data);  //ensure all notes are off before returning
 
+    pthread_spin_lock(&a_pydaw_data->main_lock);
     a_pydaw_data->is_offline_rendering = 0;
-    a_pydaw_data->ab_mode = f_ab_old;
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
 
-    //pthread_spin_unlock(&a_pydaw_data->main_lock);
-    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
+    a_pydaw_data->ab_mode = f_ab_old;
 } __attribute__((optimize("-O0")))
 
 void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
 {
-    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
-    sleep(1);
     pthread_spin_lock(&a_pydaw_data->main_lock);
-
     a_pydaw_data->is_offline_rendering = 1;
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
+
     a_pydaw_data->input_buffers_active = 0;
 
     long f_size = 0;
@@ -5386,12 +5374,11 @@ void v_pydaw_we_export(t_pydaw_data * a_pydaw_data, const char * a_file_out)
 
     v_pydaw_write_to_file(f_tmp_finished, "finished");
 
+    pthread_spin_lock(&a_pydaw_data->main_lock);
     a_pydaw_data->is_offline_rendering = 0;
+    pthread_spin_unlock(&a_pydaw_data->main_lock);
 
     a_pydaw_data->ab_mode = f_old_ab_mode;
-
-    pthread_spin_unlock(&a_pydaw_data->main_lock);
-    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 
 void v_pydaw_set_ab_mode(t_pydaw_data * a_pydaw_data, int a_mode)

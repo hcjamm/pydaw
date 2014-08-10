@@ -671,7 +671,7 @@ int main(int argc, char **argv)
     int rt_sched = SCHED_FIFO;
     printf("Using SCHED_FIFO\n");
 #endif
-    
+
     if(f_current_proc_sched == rt_sched)
     {
         printf("Process scheduler already set to real-time.");
@@ -789,6 +789,84 @@ int main(int argc, char **argv)
     f_device_name[0] = '\0';
 
     f_frame_count = DEFAULT_FRAMES_PER_BUFFER;
+
+
+        in = 0;
+    out = 0;
+
+    for (j = 0; j < this_instance->plugin->ins; ++j)
+    {
+        //Port naming code was here
+        if(posix_memalign((void**)(&pluginInputBuffers[in]), 16,
+                (sizeof(float) * f_frame_count)) != 0)
+        {
+            return 0;
+        }
+
+        int f_i = 0;
+        while(f_i < f_frame_count)
+        {
+            pluginInputBuffers[in][f_i] = 0.0f;
+            f_i++;
+        }
+        ++in;
+    }
+    for (j = 0; j < this_instance->plugin->outs; ++j)
+    {
+        //Port naming code was here
+        if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16,
+                (sizeof(float) * f_frame_count)) != 0)
+        {
+            return 0;
+        }
+
+        int f_i = 0;
+        while(f_i < f_frame_count)
+        {
+            pluginOutputBuffers[out][f_i] = 0.0f;
+            f_i++;
+        }
+
+        ++out;
+    }
+
+
+    /* Instantiate plugins */
+
+    plugin = this_instance->plugin;
+    instanceHandles = g_pydaw_instantiate(plugin->descriptor, sample_rate);
+    if (!instanceHandles)
+    {
+        printf("\nError: Failed to instantiate PyDAW\n");
+        return 1;
+    }
+
+    /* Create OSC thread */
+
+    serverThread = lo_server_thread_new("19271", osc_error);
+    lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler,
+            NULL);
+    lo_server_thread_start(serverThread);
+
+    /* Connect and activate plugins */
+
+    in = out = controlIn = controlOut = 0;
+
+    plugin = this_instance->plugin;
+
+    for (j = 0; j < 2; j++)
+    {
+        v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
+    }
+
+    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity,
+            argv[2]);
+
+    assert(in == insTotal);
+    assert(out == outsTotal);
+    assert(controlIn == controlInsTotal);
+    assert(controlOut == controlOutsTotal);
+
 
     while(1)
     {
@@ -1015,82 +1093,6 @@ int main(int argc, char **argv)
 #endif
         break;
     }
-
-    in = 0;
-    out = 0;
-
-    for (j = 0; j < this_instance->plugin->ins; ++j)
-    {
-        //Port naming code was here
-        if(posix_memalign((void**)(&pluginInputBuffers[in]), 16,
-                (sizeof(float) * f_frame_count)) != 0)
-        {
-            return 0;
-        }
-
-        int f_i = 0;
-        while(f_i < f_frame_count)
-        {
-            pluginInputBuffers[in][f_i] = 0.0f;
-            f_i++;
-        }
-        ++in;
-    }
-    for (j = 0; j < this_instance->plugin->outs; ++j)
-    {
-        //Port naming code was here
-        if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16,
-                (sizeof(float) * f_frame_count)) != 0)
-        {
-            return 0;
-        }
-
-        int f_i = 0;
-        while(f_i < f_frame_count)
-        {
-            pluginOutputBuffers[out][f_i] = 0.0f;
-            f_i++;
-        }
-
-        ++out;
-    }
-
-
-    /* Instantiate plugins */
-
-    plugin = this_instance->plugin;
-    instanceHandles = g_pydaw_instantiate(plugin->descriptor, sample_rate);
-    if (!instanceHandles)
-    {
-        printf("\nError: Failed to instantiate PyDAW\n");
-        return 1;
-    }
-
-    /* Create OSC thread */
-
-    serverThread = lo_server_thread_new("19271", osc_error);
-    lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler,
-            NULL);
-    lo_server_thread_start(serverThread);
-
-    /* Connect and activate plugins */
-
-    in = out = controlIn = controlOut = 0;
-
-    plugin = this_instance->plugin;
-
-    for (j = 0; j < 2; j++)
-    {
-        v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
-    }
-
-    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity,
-            argv[2]);
-
-    assert(in == insTotal);
-    assert(out == outsTotal);
-    assert(controlIn == controlInsTotal);
-    assert(controlOut == controlOutsTotal);
 
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
@@ -1750,11 +1752,16 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PANIC))
     {
-        pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+        pthread_spin_lock(&a_pydaw_data->main_lock);
+        a_pydaw_data->is_offline_rendering = 1;
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
 
         v_pydaw_panic(a_pydaw_data);
 
-        pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
+        pthread_spin_lock(&a_pydaw_data->main_lock);
+        a_pydaw_data->is_offline_rendering = 1;
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
+
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RATE_ENV))
     {
