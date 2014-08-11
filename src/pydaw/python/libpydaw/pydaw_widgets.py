@@ -1566,6 +1566,53 @@ class pydaw_preset_browser_widget:
     def on_reload(self):
         pass
 
+PEAK_GRADIENT_CACHE = {}
+
+def peak_meter_gradient(a_height):
+    if a_height in PEAK_GRADIENT_CACHE:
+        return PEAK_GRADIENT_CACHE[a_height]
+    else:
+        f_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, a_height)
+        f_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(255, 0, 0))
+        f_gradient.setColorAt(0.1, QtGui.QColor.fromRgb(255, 0, 0))
+        f_gradient.setColorAt(0.11, QtGui.QColor.fromRgb(90, 255, 0))
+        f_gradient.setColorAt(0.5, QtGui.QColor.fromRgb(0, 255, 0))
+        PEAK_GRADIENT_CACHE[a_height] = f_gradient
+
+class peak_meter:
+    def __init__(self):
+        self.widget = QtGui.QWidget()
+        self.widget.paintEvent = self.paint_event
+
+    def set_value(self, a_vals):
+        self.values = [float(x) for x in a_vals]
+        self.width_recip = 1.0 / float(len(self.values))
+
+    def paint_event(self, a_ev):
+        p = QtGui.QPainter(self.widget)
+        p.setBackground(QtCore.Qt.black)
+        p.setPen(KNOB_ARC_PEN)
+        f_height = self.widget.height()
+        p.setBrush(peak_meter_gradient(f_height))
+        p.setRenderHints(QtGui.QPainter.HighQualityAntialiasing)
+
+        f_rect = QtCore.QRectF(self.widget.rect())
+        f_rect.setWidth(self.widget.width() * self.width_recip)
+        for f_val, f_i in zip(self.values, range(len(self.values))):
+            if f_val is None:
+                continue
+            elif f_val > 1.0:
+                f_rect.setHeight(f_height)
+                f_rect.setY(0.0)
+            else:
+                f_db = pydaw_util.pydaw_lin_to_db(f_val)
+                f_db = pydaw_util.pydaw_clip_min(f_db, -29.0)
+                f_y_pos = f_height * (f_db / -30.0)
+                f_rect.setY(f_y_pos)
+                f_rect.setHeight(f_height - f_y_pos)
+            f_rect.setX(f_i * self.width_recip)
+            p.drawRect(f_rect)
+
 PRESET_FILE_DIALOG_STRING = 'PyDAW Presets (*.pypresets)'
 BM_FILE_DIALOG_STRING = 'PyDAW Bookmarks (*.pybm4)'
 PLUGIN_SETTINGS_CLIPBOARD = {}
