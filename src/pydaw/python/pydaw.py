@@ -1067,11 +1067,15 @@ class region_list_editor:
                     str(f_take_start_combobox.currentText()))
                 f_end = f_take_dict[f_cell_text].index(
                     str(f_take_end_combobox.currentText()))
+                if f_end > f_start:
+                    f_end += 1
+                elif f_end < f_start:
+                    f_end -= 1
                 f_step = 1 if f_start <= f_end else -1
                 f_range = f_take_dict[f_cell_text][f_start:f_end:f_step]
                 for f_suffix, f_pos in zip(
                 f_range, range(y - 1, pydaw_get_current_region_length())):
-                    f_name = "".join(f_cell_text, f_suffix)
+                    f_name = "".join((f_cell_text, f_suffix))
                     self.add_qtablewidgetitem(f_name, x, f_pos, True)
                     CURRENT_REGION.add_item_ref_by_name(
                         x + self.track_offset, f_pos, f_name, f_item_dict)
@@ -1110,12 +1114,14 @@ class region_list_editor:
         def goto_end():
             f_item_count.setValue(f_item_count.maximum())
 
-        def take_changed(a_val=None):
+        def take_changed(a_val=None, a_check=True):
             f_take_start_combobox.clear()
             f_take_end_combobox.clear()
             f_key = str(f_take_name_combobox.currentText())
             f_take_start_combobox.addItems(f_take_dict[f_key])
             f_take_end_combobox.addItems(f_take_dict[f_key])
+            if a_check:
+                f_take_radiobutton.setChecked(True)
 
         f_window = QtGui.QDialog(MAIN_WINDOW)
         f_window.setWindowTitle(_("Add item reference to region..."))
@@ -1191,8 +1197,9 @@ class region_list_editor:
             f_take_end_combobox = QtGui.QComboBox()
             f_take_end_combobox.setMinimumWidth(60)
             f_layout.addWidget(f_take_end_combobox, 12, 4)
-            f_take_name_combobox.currentIndexChanged.connect(take_changed)
             f_take_name_combobox.addItems(sorted(f_take_dict))
+            take_changed(a_check=False)
+            f_take_name_combobox.currentIndexChanged.connect(take_changed)
 
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_ok_cancel_layout, 24, 2)
