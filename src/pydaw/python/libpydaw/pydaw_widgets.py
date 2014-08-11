@@ -1569,19 +1569,21 @@ class pydaw_preset_browser_widget:
 PEAK_GRADIENT_CACHE = {}
 
 def peak_meter_gradient(a_height):
-    if a_height in PEAK_GRADIENT_CACHE:
-        return PEAK_GRADIENT_CACHE[a_height]
-    else:
+    if a_height not in PEAK_GRADIENT_CACHE:
         f_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, a_height)
         f_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(255, 0, 0))
         f_gradient.setColorAt(0.1, QtGui.QColor.fromRgb(255, 0, 0))
         f_gradient.setColorAt(0.11, QtGui.QColor.fromRgb(90, 255, 0))
         f_gradient.setColorAt(0.5, QtGui.QColor.fromRgb(0, 255, 0))
         PEAK_GRADIENT_CACHE[a_height] = f_gradient
+    return PEAK_GRADIENT_CACHE[a_height]
 
 class peak_meter:
-    def __init__(self):
+    def __init__(self, a_width=20):
         self.widget = QtGui.QWidget()
+        self.widget.setFixedWidth(a_width)
+        self.set_value([0.0, 0.0])
+        #self.widget.setStyleSheet("background-color:black;")
         self.widget.paintEvent = self.paint_event
 
     def set_value(self, a_vals):
@@ -1595,7 +1597,6 @@ class peak_meter:
         f_height = self.widget.height()
         p.setBrush(peak_meter_gradient(f_height))
         p.setRenderHints(QtGui.QPainter.HighQualityAntialiasing)
-
         f_rect = QtCore.QRectF(self.widget.rect())
         f_rect.setWidth(self.widget.width() * self.width_recip)
         for f_val, f_i in zip(self.values, range(len(self.values))):
