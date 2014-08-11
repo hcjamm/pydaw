@@ -1100,6 +1100,8 @@ int main(int argc, char **argv)
     signal(SIGQUIT, signalHandler);
     pthread_sigmask(SIG_UNBLOCK, &_signals, 0);
 
+    v_queue_osc_message("ready", "");
+
     exiting = 0;
 #ifndef PYDAW_NO_HARDWARE
     err = Pa_StartStream( stream );

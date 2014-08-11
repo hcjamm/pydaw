@@ -8098,9 +8098,11 @@ class transport_widget:
         WAVE_EDITOR.on_play()
         self.menu_button.setEnabled(False)
         AUDIO_SEQ.set_playback_clipboard()
-        self.master_vol_changed(self.master_vol_knob.value())
         PROJECT.this_pydaw_osc.pydaw_play(
             a_region_num=self.get_region_value(), a_bar=self.get_bar_value())
+
+    def on_ready(self):
+        self.master_vol_changed(self.master_vol_knob.value())
 
     def trigger_audio_playback(self):
         if not self.follow_checkbox.isChecked():
@@ -9634,6 +9636,9 @@ class pydaw_main_window(QtGui.QMainWindow):
             elif a_key == "wec":
                 if IS_PLAYING:
                     WAVE_EDITOR.set_playback_cursor(float(a_val))
+            elif a_key == "ready":
+                for f_widget in (TRANSPORT,):
+                    f_widget.on_ready()
         #This prevents multiple events from moving the same control,
         #only the last goes through
         for k, f_val in f_ui_dict.items():
