@@ -1579,7 +1579,7 @@ def peak_meter_gradient(a_height):
     return PEAK_GRADIENT_CACHE[a_height]
 
 class peak_meter:
-    def __init__(self, a_width=20):
+    def __init__(self, a_width=16):
         self.widget = QtGui.QWidget()
         self.widget.setFixedWidth(a_width)
         self.set_value([0.0, 0.0])
