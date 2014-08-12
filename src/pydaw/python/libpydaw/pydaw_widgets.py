@@ -1596,7 +1596,6 @@ class peak_meter:
         p.setPen(QtCore.Qt.NoPen)
         f_height = self.widget.height()
         p.setBrush(peak_meter_gradient(f_height))
-        p.setRenderHints(QtGui.QPainter.HighQualityAntialiasing)
         f_rect_width = self.widget.width() * 0.5
 
         for f_val, f_i in zip(self.values, range(2)):
