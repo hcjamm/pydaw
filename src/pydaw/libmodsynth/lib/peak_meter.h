@@ -76,7 +76,7 @@ void v_pkm_run(t_pkm_peak_meter * self,
     while(self->buffer_pos < a_count)
     {
         self->value[0] = f_pkm_compare(a_in0[self->buffer_pos], self->value[0]);
-        self->value[1] = f_pkm_compare(a_in0[self->buffer_pos], self->value[1]);
+        self->value[1] = f_pkm_compare(a_in1[self->buffer_pos], self->value[1]);
         self->buffer_pos += PEAK_STEP_SIZE;
     }
 }
