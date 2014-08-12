@@ -1579,7 +1579,7 @@ def peak_meter_gradient(a_height):
     return PEAK_GRADIENT_CACHE[a_height]
 
 class peak_meter:
-    def __init__(self, a_width=16):
+    def __init__(self, a_width=14):
         self.widget = QtGui.QWidget()
         self.widget.setFixedWidth(a_width)
         self.set_value([0.0, 0.0])
@@ -1599,9 +1599,7 @@ class peak_meter:
         f_rect_width = self.widget.width() * 0.5
 
         for f_val, f_i in zip(self.values, range(2)):
-
-            f_rect_x = f_i * f_rect_width
-            if f_val is None:
+            if f_val == 0.0:
                 continue
             elif f_val > 1.0:
                 f_rect_y = 0.0
@@ -1611,6 +1609,7 @@ class peak_meter:
                 f_db = pydaw_util.pydaw_clip_min(f_db, -29.0)
                 f_rect_y = f_height * f_db * -0.033333333 #/ -30.0
                 f_rect_height = f_height - f_rect_y
+            f_rect_x = f_i * f_rect_width
             f_rect = QtCore.QRectF(
                 f_rect_x, f_rect_y, f_rect_width, f_rect_height)
             p.drawRect(f_rect)
