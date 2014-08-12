@@ -18,7 +18,7 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-#define PEAK_STEP_SIZE 1
+#define PEAK_STEP_SIZE 4
 
 typedef struct {
     float value[2];
