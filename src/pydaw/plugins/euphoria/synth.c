@@ -1257,22 +1257,13 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
             plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1] = 0.0f;
         }
 
-        int f_is_active = 0;
-
         for (i2 = 0; i2 < EUPHORIA_POLYPHONY; ++i2)
         {
             if(((plugin_data->data[i2]->adsr_amp->stage) != ADSR_STAGE_OFF) &&
                     ((plugin_data->sample_indexes_count[i2]) > 0))
             {
                 add_sample_lms_euphoria(plugin_data, i2);
-                f_is_active = 1;
             }
-        }
-
-        if(!f_is_active)
-        {
-            plugin_data->output[0][i] = 0.0f;
-            plugin_data->output[1][i] = 0.0f;
         }
 
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
