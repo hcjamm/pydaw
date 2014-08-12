@@ -431,6 +431,7 @@ inline void v_pydaw_process_note_offs(t_pydaw_data * a_pydaw_data, int f_i);
 inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data,
         int f_i, int sample_count);
 void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data);
+inline void v_pydaw_zero_buffer(float**, int);
 void v_pydaw_panic(t_pydaw_data * a_pydaw_data);
 inline void v_queue_osc_message(char * a_key, char * a_val);
 
@@ -521,17 +522,23 @@ void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
     {
         if(a_pydaw_data->track_pool_all[f_i]->effect)
         {
-            int f_i2 = 0;
             float ** f_buff = a_pydaw_data->track_pool_all[
                 f_i]->effect->pluginOutputBuffers;
-            while(f_i2 < 8192)
-            {
-                f_buff[0][f_i2] = 0.0f;
-                f_buff[1][f_i2] = 0.0f;
-                f_i2++;
-            }
+            v_pydaw_zero_buffer(f_buff, 8192);
         }
         f_i++;
+    }
+}
+
+inline void v_pydaw_zero_buffer(float ** a_buffers, int a_count)
+{
+    int f_i2 = 0;
+
+    while(f_i2 < a_count)
+    {
+        a_buffers[0][f_i2] = 0.0f;
+        a_buffers[1][f_i2] = 0.0f;
+        f_i2++;
     }
 }
 
@@ -1559,6 +1566,9 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
 
+            v_pydaw_zero_buffer(f_track->effect->pluginOutputBuffers,
+                f_args->pydaw_data->sample_count);
+
             v_run_plugin(f_track->instrument,
                     (f_args->pydaw_data->sample_count),
                     f_track->event_buffer,
@@ -1598,14 +1608,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_global_track_num);
 
-            int f_i2 = 0;
-
-            while(f_i2 < f_args->pydaw_data->sample_count)
-            {
-                f_track->effect->pluginOutputBuffers[0][f_i2] = 0.0f;
-                f_track->effect->pluginOutputBuffers[1][f_i2] = 0.0f;
-                f_i2++;
-            }
+            v_pydaw_zero_buffer(f_track->effect->pluginOutputBuffers,
+                f_args->pydaw_data->sample_count);
 
             if(((!f_track->mute) &&
                 (!f_args->pydaw_data->is_soloed))
