@@ -2199,6 +2199,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
             a_pydaw_data->record_armed_track->current_period_event_index = 0;
         }
 
+        t_pydaw_seq_event * f_event;
+
         while(f_i2 < event_count)
         {
             if(events[f_i2].tick >= sample_count)
@@ -2206,12 +2208,15 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
                 events[f_i2].tick = sample_count - 1;  //Otherwise the event will be missed
             }
 
+            f_event = &a_pydaw_data->record_armed_track->event_buffer[
+                (a_pydaw_data->record_armed_track->current_period_event_index)];
+
             if(events[f_i2].type == PYDAW_EVENT_NOTEON)
             {
-                v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
-                v_pydaw_ev_set_noteon(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0,
+                v_pydaw_ev_clear(f_event);
+                v_pydaw_ev_set_noteon(f_event, 0,
                             events[f_i2].note, events[f_i2].velocity);
-                a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick =
+                f_event->tick =
                         (events[f_i2].tick);
                 a_pydaw_data->record_armed_track->current_period_event_index =
                         (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
@@ -2238,12 +2243,12 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
             }
             else if(events[f_i2].type == PYDAW_EVENT_NOTEOFF)
             {
-                v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
-                v_pydaw_ev_set_noteoff(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0, events[f_i2].note, 0);
-                a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick =
+                v_pydaw_ev_clear(f_event);
+                v_pydaw_ev_set_noteoff(f_event, 0, events[f_i2].note, 0);
+                f_event->tick =
                         (events[f_i2].tick);
 
-                a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+                a_pydaw_data->record_armed_track->current_period_event_index += 1;
 
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
@@ -2265,10 +2270,10 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
             }
             else if(events[f_i2].type == PYDAW_EVENT_PITCHBEND)
             {
-                v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
-                v_pydaw_ev_set_pitchbend(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)],
+                v_pydaw_ev_clear(f_event);
+                v_pydaw_ev_set_pitchbend(f_event,
                         0, events[f_i2].value);
-                a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+                a_pydaw_data->record_armed_track->current_period_event_index += 1;
 
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
@@ -2322,23 +2327,22 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                         if (controlIn > 0)
                         {
-                            v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                            v_pydaw_ev_clear(f_event);
                             v_pydaw_ev_set_controller(
-                                    &a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)],
-                                    0, 0, events[f_i2].value);
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].start = f_start;
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].port = f_port;
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick =
-                                    (events[f_i2].tick);
+                                    f_event, 0, 0, events[f_i2].value);
+                            f_event->start = f_start;
+                            f_event->port = f_port;
+                            f_event->tick = (events[f_i2].tick);
 
-                            v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->instrument, controlIn,
-                                    &a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)],
-                                    a_pydaw_data, 1, a_pydaw_data->record_armed_track_index_all);
+                            v_pydaw_set_control_from_cc(
+                                a_pydaw_data->record_armed_track->instrument,
+                                    controlIn, f_event, a_pydaw_data, 1,
+                                    a_pydaw_data->record_armed_track_index_all);
 
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].plugin_index =
+                            f_event->plugin_index =
                                 a_pydaw_data->record_armed_track->plugin_index;
 
-                            a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+                            a_pydaw_data->record_armed_track->current_period_event_index += 1;
 
                             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
@@ -2363,23 +2367,22 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data,
 
                         if (controlIn > 0)
                         {
-                            v_pydaw_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                            v_pydaw_ev_clear(f_event);
                             v_pydaw_ev_set_controller(
-                                    &a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)],
-                                    0, 0, events[f_i2].value);
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].start = f_start;
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].port = controlIn;
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].tick =
+                                f_event, 0, 0, events[f_i2].value);
+                            f_event->start = f_start;
+                            f_event->port = controlIn;
+                            f_event->tick =
                                     (events[f_i2].tick);
 
-                            v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->effect, controlIn,
-                                    &a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)],
-                                    a_pydaw_data, 0, a_pydaw_data->record_armed_track_index_all);
+                            v_pydaw_set_control_from_cc(
+                                    a_pydaw_data->record_armed_track->effect,
+                                    controlIn, f_event, a_pydaw_data, 0,
+                                    a_pydaw_data->record_armed_track_index_all);
 
-                            a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].plugin_index =
-                                    -1;
+                            f_event->plugin_index = -1;
 
-                            a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+                            a_pydaw_data->record_armed_track->current_period_event_index += 1;
 
                             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
