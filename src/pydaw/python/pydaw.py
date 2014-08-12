@@ -912,7 +912,7 @@ class region_list_editor:
                     a_track_num=i, a_track_text=_("track{}").format(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)
-        self.table_widget.setColumnWidth(0, 390)
+        self.table_widget.setColumnWidth(0, 410)
         self.set_region_length()
 
     def set_region_length(self, a_length=8):
@@ -4872,8 +4872,13 @@ class audio_track:
         self.group_box.contextMenuEvent = self.context_menu_event
         self.group_box.setObjectName("track_panel")
         self.group_box.setMinimumWidth(330)
+        self.main_hlayout = QtGui.QHBoxLayout()
+        self.main_hlayout.setContentsMargins(2, 2, 2, 2)
         self.main_vlayout = QtGui.QVBoxLayout()
-        self.group_box.setLayout(self.main_vlayout)
+        self.main_hlayout.addLayout(self.main_vlayout)
+        self.peak_meter = pydaw_widgets.peak_meter()
+        self.main_hlayout.addWidget(self.peak_meter.widget)
+        self.group_box.setLayout(self.main_hlayout)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout2)
         self.volume_slider = QtGui.QSlider()
@@ -7870,8 +7875,13 @@ class seq_track:
         self.group_box = QtGui.QWidget()
         self.group_box.contextMenuEvent = self.context_menu_event
         self.group_box.setObjectName("track_panel")
+        self.main_hlayout = QtGui.QHBoxLayout()
+        self.main_hlayout.setContentsMargins(2, 2, 2, 2)
         self.main_vlayout = QtGui.QVBoxLayout()
-        self.group_box.setLayout(self.main_vlayout)
+        self.main_hlayout.addLayout(self.main_vlayout)
+        self.peak_meter = pydaw_widgets.peak_meter()
+        self.main_hlayout.addWidget(self.peak_meter.widget)
+        self.group_box.setLayout(self.main_hlayout)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout2)
         self.volume_slider = QtGui.QSlider()
@@ -9622,6 +9632,8 @@ class pydaw_main_window(QtGui.QMainWindow):
                     f_region, f_bar, f_beat = a_val.split("|")
                     TRANSPORT.set_pos_from_cursor(f_region, f_bar, f_beat)
                     AUDIO_SEQ.set_playback_pos(f_bar, f_beat)
+            elif a_key == "peak":
+                global_update_peak_meters(a_val)
             elif a_key == "ui":
                 f_is_inst, f_track_num, f_name, f_val = a_val.split("|", 3)
                 f_ui_dict[(f_is_inst, f_track_num, f_name)] = f_val
@@ -9710,6 +9722,15 @@ class pydaw_main_window(QtGui.QMainWindow):
         else:
             event.accept()
 
+def global_update_peak_meters(a_val):
+    ALL_PEAK_METERS = [x.peak_meter for x in
+        REGION_INST_EDITOR.tracks + REGION_BUS_EDITOR.tracks +
+        REGION_AUDIO_EDITOR.tracks]
+    for f_val in a_val.split("|"):
+        f_list = f_val.split(":")
+        f_index = int(f_list[0])
+        if f_index < len(ALL_PEAK_METERS):
+            ALL_PEAK_METERS[f_index].set_value(f_list[1:])
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
 global_plugin_numbers = [1, 3, 2, -1]

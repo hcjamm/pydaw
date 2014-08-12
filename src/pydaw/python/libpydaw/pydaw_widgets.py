@@ -1583,35 +1583,37 @@ class peak_meter:
         self.widget = QtGui.QWidget()
         self.widget.setFixedWidth(a_width)
         self.set_value([0.0, 0.0])
-        #self.widget.setStyleSheet("background-color:black;")
+        self.widget.setStyleSheet("background-color: black;")
         self.widget.paintEvent = self.paint_event
 
     def set_value(self, a_vals):
         self.values = [float(x) for x in a_vals]
-        self.width_recip = 1.0 / float(len(self.values))
+        self.widget.update()
 
     def paint_event(self, a_ev):
         p = QtGui.QPainter(self.widget)
         p.setBackground(QtCore.Qt.black)
-        p.setPen(KNOB_ARC_PEN)
+        p.setPen(QtCore.Qt.NoPen)
         f_height = self.widget.height()
         p.setBrush(peak_meter_gradient(f_height))
         p.setRenderHints(QtGui.QPainter.HighQualityAntialiasing)
-        f_rect = QtCore.QRectF(self.widget.rect())
-        f_rect.setWidth(self.widget.width() * self.width_recip)
-        for f_val, f_i in zip(self.values, range(len(self.values))):
+        f_rect_width = self.widget.width() * 0.5
+
+        for f_val, f_i in zip(self.values, range(2)):
+
+            f_rect_x = f_i * f_rect_width
             if f_val is None:
                 continue
             elif f_val > 1.0:
-                f_rect.setHeight(f_height)
-                f_rect.setY(0.0)
+                f_rect_y = 0.0
+                f_rect_height = f_height
             else:
                 f_db = pydaw_util.pydaw_lin_to_db(f_val)
                 f_db = pydaw_util.pydaw_clip_min(f_db, -29.0)
-                f_y_pos = f_height * (f_db / -30.0)
-                f_rect.setY(f_y_pos)
-                f_rect.setHeight(f_height - f_y_pos)
-            f_rect.setX(f_i * self.width_recip)
+                f_rect_y = f_height * f_db * -0.033333333 #/ -30.0
+                f_rect_height = f_height - f_rect_y
+            f_rect = QtCore.QRectF(
+                f_rect_x, f_rect_y, f_rect_width, f_rect_height)
             p.drawRect(f_rect)
 
 PRESET_FILE_DIALOG_STRING = 'PyDAW Presets (*.pypresets)'
