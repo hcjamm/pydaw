@@ -57,6 +57,16 @@ extern "C" {
 
 #define PYDAW_OSC_SEND_QUEUE_SIZE 64
 
+#ifdef SCHED_DEADLINE
+
+#define RT_SCHED SCHED_DEADLINE
+
+#else
+
+#define RT_SCHED SCHED_FIFO
+
+#endif
+
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -1134,17 +1144,17 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data,
 
     pthread_attr_t threadAttr;
     struct sched_param param;
-    param.__sched_priority = sched_get_priority_max(SCHED_FIFO); //90;
+    param.__sched_priority = sched_get_priority_max(RT_SCHED); //90;
     printf(" Attempting to set .__sched_priority = %i\n",
             param.__sched_priority);
     pthread_attr_init(&threadAttr);
     pthread_attr_setschedparam(&threadAttr, &param);
     pthread_attr_setstacksize(&threadAttr, 8388608); //16777216);
     pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
-    pthread_attr_setschedpolicy(&threadAttr, SCHED_FIFO);
+    pthread_attr_setschedpolicy(&threadAttr, RT_SCHED);
 
     pthread_t f_self = pthread_self();
-    pthread_setschedparam(f_self, SCHED_FIFO, &param);
+    pthread_setschedparam(f_self, RT_SCHED, &param);
 
     int f_cpu_core = 0;
 
@@ -1211,7 +1221,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data,
     int f_applied_policy = 0;
     pthread_getschedparam(f_self, &f_applied_policy, &param);
 
-    if(f_applied_policy == SCHED_FIFO)
+    if(f_applied_policy == RT_SCHED)
     {
         printf("Scheduling successfully applied with priority %i\n ",
                 param.__sched_priority);
