@@ -2760,7 +2760,7 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
     }
 
     float ** f_buff = f_track->effect->pluginOutputBuffers;
-    
+
     f_i = 0;
     while(f_i < sample_count)
     {
@@ -2773,7 +2773,7 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         f_track->event_buffer, f_track->current_period_event_index);
 
     f_i = 0;
-        
+
     while(f_i < sample_count)
     {
         output0[f_i] = f_buff[0][f_i];
