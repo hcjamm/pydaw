@@ -1550,9 +1550,6 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
 
-            v_pydaw_zero_buffer(f_track->buffers,
-                f_args->pydaw_data->sample_count);
-
             v_run_plugin(f_track->instrument,
                     (f_args->pydaw_data->sample_count),
                     f_track->event_buffer,
@@ -1591,9 +1588,6 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
             }
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_global_track_num);
-
-            v_pydaw_zero_buffer(f_track->buffers,
-                f_args->pydaw_data->sample_count);
 
             if(((!f_track->mute) &&
                 (!f_args->pydaw_data->is_soloed))
@@ -1650,8 +1644,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
         }
         else if(f_item.track_type == 1)  //Bus track
         {
-            f_global_track_num = f_item.track_number +
-                PYDAW_MIDI_TRACK_COUNT;
+            f_global_track_num = f_item.track_number + PYDAW_MIDI_TRACK_COUNT;
 
             f_track = f_args->pydaw_data->bus_pool[f_item.track_number];
 
@@ -1672,14 +1665,11 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_global_track_num);
 
-            v_pydaw_zero_buffer(f_track->buffers,
-                f_args->pydaw_data->sample_count);
-
             if((f_track->bus_count) == 0)
             {
                 pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[0]);
 
-                f_track->bus_counter = (f_track->bus_counter) - 1;
+                f_args->pydaw_data->bus_pool[0]->bus_counter -= 1;
 
                 pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[0]);
             }
@@ -1717,6 +1707,9 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
         v_pkm_run(f_track->peak_meter,
             f_track->buffers[0],
             f_track->buffers[1],
+            f_args->pydaw_data->sample_count);
+
+        v_pydaw_zero_buffer(f_track->buffers,
             f_args->pydaw_data->sample_count);
 
         f_i++;
@@ -1938,10 +1931,8 @@ inline void v_pydaw_process_midi(t_pydaw_data * a_pydaw_data, int f_i,
                              * this one, process it immediately to avoid
                              * hung notes*/
                             f_buff_ev =
-                                &a_pydaw_data->track_pool_all[
-                                    f_i]->event_buffer[(a_pydaw_data->
-                                    track_pool_all[f_i]->
-                                    current_period_event_index)];
+                                &f_track->event_buffer[
+                                    f_track->current_period_event_index];
                             v_pydaw_ev_clear(f_buff_ev);
 
                             v_pydaw_ev_set_noteoff(f_buff_ev, 0,
@@ -2880,12 +2871,16 @@ inline void v_pydaw_run_engine(t_pydaw_data * a_pydaw_data, int sample_count,
             (f_master_track->volume_linear);
         output1[f_i2] = (f_master_buff[1][f_i2]) *
             (f_master_track->volume_linear);
-        f_master_buff[0][f_i2] = 0.0f;
-        f_master_buff[1][f_i2] = 0.0f;
         f_i2++;
     }
 
     f_master_track->bus_counter = (f_master_track->bus_count);
+
+    v_pkm_run(f_master_track->peak_meter,
+        f_master_buff[0], f_master_buff[1], sample_count);
+
+
+    v_pydaw_zero_buffer(f_master_buff, sample_count);
 
     if((a_pydaw_data->playback_mode) > 0)
     {
