@@ -1573,8 +1573,8 @@ def peak_meter_gradient(a_height):
         f_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, a_height)
         f_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(255, 0, 0))
         f_gradient.setColorAt(0.1, QtGui.QColor.fromRgb(255, 0, 0))
-        f_gradient.setColorAt(0.11, QtGui.QColor.fromRgb(90, 255, 0))
-        f_gradient.setColorAt(0.5, QtGui.QColor.fromRgb(0, 255, 0))
+        f_gradient.setColorAt(0.11, QtGui.QColor.fromRgb(180, 255, 0))
+        f_gradient.setColorAt(0.7, QtGui.QColor.fromRgb(0, 255, 0))
         PEAK_GRADIENT_CACHE[a_height] = f_gradient
     return PEAK_GRADIENT_CACHE[a_height]
 
