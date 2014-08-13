@@ -1293,39 +1293,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);
+
+        f_track_num = i_get_global_track_num(f_track_type, f_track_num);
+
         int f_port = atoi(f_val_arr->array[3]);
         float f_value = atof(f_val_arr->array[4]);
 
         t_pydaw_plugin * f_instance;
         pthread_spin_lock(&a_pydaw_data->main_lock);
-        //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        switch(f_track_type)
+
+        if(f_is_inst)
         {
-            case 0:  //MIDI track
-                if(f_is_inst)
-                {
-                    f_instance =
-                            a_pydaw_data->track_pool[f_track_num]->instrument;
-                }
-                else
-                {
-                    f_instance = a_pydaw_data->track_pool[f_track_num]->effect;
-                }
-                break;
-            case 1:  //Bus track
-                f_instance = a_pydaw_data->bus_pool[f_track_num]->effect;
-                break;
-            case 2:  //Audio track
-                f_instance =
-                        a_pydaw_data->audio_track_pool[f_track_num]->effect;
-                break;
-            case 4:  //Wave editor track
-                f_instance =
-                        a_pydaw_data->we_track_pool[f_track_num]->effect;
-                break;
-            default:
-                assert(0);
-                break;
+            f_instance = a_pydaw_data->track_pool_all[f_track_num]->instrument;
+        }
+        else
+        {
+            f_instance = a_pydaw_data->track_pool_all[f_track_num]->effect;
         }
 
         if(f_instance)
@@ -1347,36 +1330,21 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_is_inst = atoi(f_val_arr->array[0]);
         int f_track_type = atoi(f_val_arr->array[1]);
         int f_track_num = atoi(f_val_arr->array[2]);
+
+        f_track_num = i_get_global_track_num(f_track_type, f_track_num);
+
         char * f_key = f_val_arr->array[3];
         char * f_message = f_val_arr->array[4];
 
         t_pydaw_plugin * f_instance;
-        //pthread_spin_lock(&a_pydaw_data->main_lock);
-        //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        switch(f_track_type)
+
+        if(f_is_inst)
         {
-            case 0:  //MIDI track
-                if(f_is_inst)
-                {
-                    f_instance =
-                            a_pydaw_data->track_pool[f_track_num]->instrument;
-                }
-                else
-                {
-                    f_instance = a_pydaw_data->track_pool[f_track_num]->effect;
-                }
-                break;
-            case 1:  //Bus track
-                f_instance = a_pydaw_data->bus_pool[f_track_num]->effect;
-                break;
-            case 2:  //Audio track
-                f_instance =
-                        a_pydaw_data->audio_track_pool[f_track_num]->effect;
-                break;
-            case 4:  //Wave editor track
-                f_instance =
-                        a_pydaw_data->we_track_pool[f_track_num]->effect;
-                break;
+            f_instance = a_pydaw_data->track_pool_all[f_track_num]->instrument;
+        }
+        else
+        {
+            f_instance = a_pydaw_data->track_pool_all[f_track_num]->effect;
         }
 
         v_pydaw_plugin_configure_handler(f_instance, f_key, f_message,
@@ -1393,32 +1361,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
+
+        f_track_num = i_get_global_track_num(f_track_type, f_track_num);
+
         pthread_spin_lock(&a_pydaw_data->main_lock);
 
-        switch(f_track_type)
-        {
-            case 0:  //MIDI track
-                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->
-                        track_pool[f_track_num], f_track_vol);
-                break;
-            case 1:  //Bus track
-                v_pydaw_set_track_volume(a_pydaw_data,
-                        a_pydaw_data->bus_pool[f_track_num], f_track_vol);
-                break;
-            case 2:  //Audio track
-                v_pydaw_set_track_volume(a_pydaw_data,
-                        a_pydaw_data->audio_track_pool[f_track_num],
-                        f_track_vol);
-                break;
-            case 3:  //Audio Input
-                a_pydaw_data->audio_inputs[f_track_num]->vol = f_track_vol;
-                a_pydaw_data->audio_inputs[f_track_num]->vol_linear =
-                        f_db_to_linear_fast(f_track_vol, a_pydaw_data->amp_ptr);
-                break;
-            default:
-                assert(0);
-                break;
-        }
+        v_pydaw_set_track_volume(a_pydaw_data,
+            a_pydaw_data->track_pool_all[f_track_num], f_track_vol);
 
         pthread_spin_unlock(&a_pydaw_data->main_lock);
         g_free_1d_char_array(f_val_arr);
@@ -1564,23 +1513,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
         int f_track_type = atoi(f_val_arr->array[2]);
+
+        f_track_num = i_get_global_track_num(f_track_type, f_track_num);
+
         pthread_spin_lock(&a_pydaw_data->main_lock);
-        switch(f_track_type)
-        {
-            case 0:  //MIDI
-                a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
-                a_pydaw_data->track_pool[f_track_num]->
-                        current_period_event_index = 0;
-                break;
-            case 2:  //Audio
-                a_pydaw_data->audio_track_pool[f_track_num]->solo = f_mode;
-                a_pydaw_data->audio_track_pool[f_track_num]->
-                        current_period_event_index = 0;
-                break;
-            default:
-                assert(0);
-                break;
-        }
+
+        a_pydaw_data->track_pool_all[f_track_num]->solo = f_mode;
+        a_pydaw_data->track_pool_all[
+            f_track_num]->current_period_event_index = 0;
+
         v_pydaw_set_is_soloed(a_pydaw_data);
 
         pthread_spin_unlock(&a_pydaw_data->main_lock);
@@ -1595,22 +1536,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         assert(f_mode == 0 || f_mode == 1);
         int f_track_type = atoi(f_val_arr->array[2]);
         pthread_spin_lock(&a_pydaw_data->main_lock);
-        switch(f_track_type)
-        {
-            case 0:  //MIDI
-                a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
-                a_pydaw_data->track_pool[f_track_num]->
-                        current_period_event_index = 0;
-                break;
-            case 2:  //Audio
-                a_pydaw_data->audio_track_pool[f_track_num]->mute = f_mode;
-                a_pydaw_data->audio_track_pool[f_track_num]->
-                        current_period_event_index = 0;
-                break;
-            default:
-                assert(0);
-                break;
-        }
+
+        f_track_num = i_get_global_track_num(f_track_type, f_track_num);
+
+        a_pydaw_data->track_pool_all[f_track_num]->mute = f_mode;
+        a_pydaw_data->track_pool_all[
+            f_track_num]->current_period_event_index = 0;
+
         pthread_spin_unlock(&a_pydaw_data->main_lock);
         g_free_1d_char_array(f_val_arr);
     }
@@ -1622,30 +1554,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_track_num = atoi(f_val_arr->array[1]);
         int f_mode = atoi(f_val_arr->array[2]);
         assert(f_mode == 0 || f_mode == 1);
+
+        int f_global_track_num = i_get_global_track_num(f_type, f_track_num);
+
         pthread_spin_lock(&a_pydaw_data->main_lock);
         if(f_mode)
         {
-            switch(f_type)
-            {
-                case 0:  //MIDI/plugin
-                    a_pydaw_data->record_armed_track =
-                            a_pydaw_data->track_pool[f_track_num];
-                    a_pydaw_data->record_armed_track_index_all = f_track_num;
-                    break;
-                case 1: //Bus
-                    a_pydaw_data->record_armed_track =
-                            a_pydaw_data->bus_pool[f_track_num];
-                    a_pydaw_data->record_armed_track_index_all =
-                            f_track_num + PYDAW_MIDI_TRACK_COUNT;
-                    break;
-                case 2: //audio track
-                    a_pydaw_data->record_armed_track =
-                            a_pydaw_data->audio_track_pool[f_track_num];
-                    a_pydaw_data->record_armed_track_index_all =
-                            f_track_num + PYDAW_MIDI_TRACK_COUNT +
-                            PYDAW_BUS_TRACK_COUNT;
-                    break;
-            }
+            a_pydaw_data->record_armed_track =
+                a_pydaw_data->track_pool_all[f_global_track_num];
+            a_pydaw_data->record_armed_track_index_all = f_global_track_num;
         }
         else
         {
@@ -1669,8 +1586,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
                 PYDAW_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_plugin_index = atoi(f_val_arr->array[1]);
-        v_set_plugin_index(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num],
-                f_plugin_index, 1, 1);
+        v_set_plugin_index(a_pydaw_data,
+            a_pydaw_data->track_pool_all[f_track_num], f_plugin_index, 1, 1);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE))
@@ -1699,30 +1616,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_bus_num = atoi(f_val_arr->array[1]);
         int f_track_type = atoi(f_val_arr->array[2]);
 
-        switch(f_track_type)
-        {
-            case 0:  //MIDI track
-                pthread_spin_lock(&a_pydaw_data->main_lock);
-                a_pydaw_data->track_pool[f_track_num]->bus_num = f_bus_num;
-                v_pydaw_schedule_work(a_pydaw_data);
-                //v_pydaw_set_bus_counters(a_pydaw_data);
-                pthread_spin_unlock(&a_pydaw_data->main_lock);
-                break;
-            case 2:  //Audio track
-                pthread_spin_lock(&a_pydaw_data->main_lock);
-                a_pydaw_data->audio_track_pool[f_track_num]->bus_num =
-                        f_bus_num;
-                v_pydaw_schedule_work(a_pydaw_data);
-                //v_pydaw_set_bus_counters(a_pydaw_data);
-                pthread_spin_unlock(&a_pydaw_data->main_lock);
-                break;
-            default:
-                printf("PYDAW_CONFIGURE_KEY_SET_TRACK_BUS:  "
-                        "Invalid track type %i\n\n", f_track_type);
-                assert(0);
-                break;
-        }
+        int f_global_track_num =
+            i_get_global_track_num(f_track_type, f_track_num);
 
+        pthread_spin_lock(&a_pydaw_data->main_lock);
+
+        a_pydaw_data->track_pool_all[f_global_track_num]->bus_num = f_bus_num;
+        v_pydaw_schedule_work(a_pydaw_data);
+
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE))

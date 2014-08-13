@@ -337,6 +337,8 @@ t_wav_pool_item * g_wav_pool_get_item_by_uid(t_wav_pool* a_wav_pool, int a_uid)
 typedef struct
 {
     t_pydaw_audio_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
+    int indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_AUDIO_ITEM_COUNT];
+    int index_counts[PYDAW_TRACK_COUNT_ALL];
     int sample_rate;
     t_cubic_interpolater * cubic_interpolator;
     int uid;
@@ -421,6 +423,19 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
         f_i++;
     }
 
+    f_i = 0;
+
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
+    {
+        f_result->index_counts[f_i] = 0;
+        int f_i2 = 0;
+        while(f_i2 < PYDAW_MAX_AUDIO_ITEM_COUNT)
+        {
+            f_result->indexes[f_i][f_i2] = 0;
+            f_i2++;
+        }
+        f_i++;
+    }
     return f_result;
 }
 
