@@ -2693,6 +2693,7 @@ inline void v_pydaw_finish_time_params(t_pydaw_data * a_pydaw_data,
 inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         int sample_count, PYFX_Data *output0, PYFX_Data *output1)
 {
+    t_pytrack * f_track = a_pydaw_data->we_track_pool[0];
     int f_i = 0;
 
     while(f_i < sample_count)
@@ -2758,31 +2759,30 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         f_i++;
     }
 
+    float ** f_buff = f_track->effect->pluginOutputBuffers;
+    
     f_i = 0;
     while(f_i < sample_count)
     {
-        a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[0][f_i]
-                = output0[f_i];
-        a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[1][f_i]
-                = output1[f_i];
+        f_buff[0][f_i] = output0[f_i];
+        f_buff[1][f_i] = output1[f_i];
         f_i++;
     }
 
-    v_run_plugin(a_pydaw_data->we_track_pool[0]->effect,
-                 sample_count,
-                 a_pydaw_data->we_track_pool[0]->event_buffer,
-                 a_pydaw_data->we_track_pool[0]->current_period_event_index);
+    v_run_plugin(f_track->effect, sample_count,
+        f_track->event_buffer, f_track->current_period_event_index);
 
     f_i = 0;
+        
     while(f_i < sample_count)
     {
-        output0[f_i] =
-            a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[0][f_i];
-        output1[f_i] =
-            a_pydaw_data->we_track_pool[0]->effect->pluginOutputBuffers[1][f_i];
+        output0[f_i] = f_buff[0][f_i];
+        output1[f_i] = f_buff[1][f_i];
         f_i++;
     }
 
+    v_pkm_run(f_track->peak_meter, f_buff[0], f_buff[1],
+        a_pydaw_data->sample_count);
 }
 
 
