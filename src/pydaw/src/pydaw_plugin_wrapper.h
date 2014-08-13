@@ -44,7 +44,6 @@ typedef struct st_pydaw_plugin
     PYFX_Descriptor_Function descfn;
 
     PYFX_Descriptor *descriptor;
-    float **pluginOutputBuffers;
     float *pluginControlIns;
 }t_pydaw_plugin;
 
@@ -101,8 +100,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
 
     int j;
 
-    f_result->pluginOutputBuffers = (float**)malloc(2 * sizeof(float*));
-
     int f_i = 0;
 
     if(posix_memalign((void**)(&f_result->pluginControlIns), 16,
@@ -122,26 +119,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
             f_result->descriptor, a_sample_rate,
             a_host_wavpool_func, a_track_num, a_queue_func,
             f_result->pluginControlIns);
-
-    for (j = 0; j < 2; j++)
-    {
-        if(posix_memalign((void**)(&f_result->pluginOutputBuffers[j]),
-                16, (sizeof(float) * 8192)) != 0)
-        {
-            return 0;
-        }
-
-        f_i = 0;
-
-        while(f_i < 8192)
-        {
-            f_result->pluginOutputBuffers[j][f_i] = 0.0f;
-            f_i++;
-        }
-
-        f_result->descriptor->connect_buffer(
-            f_result->PYFX_handle, j, f_result->pluginOutputBuffers[j]);
-    }
 
     for (j = 0; j < f_result->descriptor->PortCount; j++)
     {

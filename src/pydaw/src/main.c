@@ -737,7 +737,6 @@ int main(int argc, char **argv)
     instanceEventBuffers = (t_pydaw_seq_event *)malloc(
             EVENT_BUFFER_SIZE * sizeof(t_pydaw_seq_event));
 
-    int f_frame_count = 8192; //FRAMES_PER_BUFFER;
     sample_rate = 44100.0f;
 
 #ifndef PYDAW_NO_HARDWARE
@@ -786,7 +785,7 @@ int main(int argc, char **argv)
     char f_device_name[1024];
     f_device_name[0] = '\0';
 
-    f_frame_count = DEFAULT_FRAMES_PER_BUFFER;
+    int f_frame_count = DEFAULT_FRAMES_PER_BUFFER;
 
 
         in = 0;
@@ -1117,9 +1116,10 @@ int main(int argc, char **argv)
     else
     {
 #ifdef PYDAW_NO_HARDWARE
-        float * f_portaudio_input_buffer = (float*)malloc(sizeof(float) * 8192);
-        float * f_portaudio_output_buffer = (float*)malloc(sizeof(float) *
-                8192);
+        float * f_portaudio_input_buffer =
+            (float*)malloc(sizeof(float) * FRAMES_PER_BUFFER);
+        float * f_portaudio_output_buffer =
+            (float*)malloc(sizeof(float) * FRAMES_PER_BUFFER);
 #else
         if(f_with_midi)
         {

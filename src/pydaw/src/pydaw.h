@@ -67,6 +67,8 @@ extern "C" {
 
 #endif
 
+#define FRAMES_PER_BUFFER 4096
+
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -171,6 +173,8 @@ typedef struct
     //0 = Not ready, 1 = being cleared, 2 = ready
     int bus_buffer_state __attribute__((aligned(16)));
     t_pkm_peak_meter * peak_meter;
+    float ** buffers;
+    int channels;
 }t_pytrack;
 
 typedef struct
@@ -522,9 +526,8 @@ void v_pydaw_zero_all_buffers(t_pydaw_data * a_pydaw_data)
     {
         if(a_pydaw_data->track_pool_all[f_i]->effect)
         {
-            float ** f_buff = a_pydaw_data->track_pool_all[
-                f_i]->effect->pluginOutputBuffers;
-            v_pydaw_zero_buffer(f_buff, 8192);
+            float ** f_buff = a_pydaw_data->track_pool_all[f_i]->buffers;
+            v_pydaw_zero_buffer(f_buff, FRAMES_PER_BUFFER);
         }
         f_i++;
     }
@@ -1363,7 +1366,7 @@ inline void v_pydaw_run_pre_effect_vol(t_pydaw_data * a_pydaw_data,
     }
 
     int f_i = 0;
-    float ** f_buff = a_track->effect->pluginOutputBuffers;
+    float ** f_buff = a_track->buffers;
 
     while(f_i < (a_pydaw_data->sample_count))
     {
@@ -1376,9 +1379,8 @@ inline void v_pydaw_run_pre_effect_vol(t_pydaw_data * a_pydaw_data,
 inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data,
         t_pytrack * a_track, int bus_num)
 {
-    float ** f_buff = a_pydaw_data->bus_pool[
-        bus_num]->effect->pluginOutputBuffers;
-    float ** f_track_buff = a_track->effect->pluginOutputBuffers;
+    float ** f_buff = a_pydaw_data->bus_pool[bus_num]->buffers;
+    float ** f_track_buff = a_track->buffers;
 
     pthread_spin_lock(&a_pydaw_data->bus_spinlocks[bus_num]);
 
@@ -1566,7 +1568,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
 
-            v_pydaw_zero_buffer(f_track->effect->pluginOutputBuffers,
+            v_pydaw_zero_buffer(f_track->buffers,
                 f_args->pydaw_data->sample_count);
 
             v_run_plugin(f_track->instrument,
@@ -1608,7 +1610,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             v_pydaw_process_note_offs(f_args->pydaw_data, f_global_track_num);
 
-            v_pydaw_zero_buffer(f_track->effect->pluginOutputBuffers,
+            v_pydaw_zero_buffer(f_track->buffers,
                 f_args->pydaw_data->sample_count);
 
             if(((!f_track->mute) &&
@@ -1619,8 +1621,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
                 int f_audio_items_result =
                     v_pydaw_audio_items_run(f_args->pydaw_data,
                         (f_args->pydaw_data->sample_count),
-                        f_track->effect->pluginOutputBuffers[0],
-                        f_track->effect->pluginOutputBuffers[1],
+                        f_track->buffers[0],
+                        f_track->buffers[1],
                         f_item.track_number, 0);
 
                 if(f_audio_items_result)
@@ -1729,8 +1731,8 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
         }
 
         v_pkm_run(f_track->peak_meter,
-            f_track->effect->pluginOutputBuffers[0],
-            f_track->effect->pluginOutputBuffers[1],
+            f_track->buffers[0],
+            f_track->buffers[1],
             f_args->pydaw_data->sample_count);
 
         f_i++;
@@ -2759,7 +2761,7 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * a_pydaw_data,
         f_i++;
     }
 
-    float ** f_buff = f_track->effect->pluginOutputBuffers;
+    float ** f_buff = f_track->buffers;
 
     f_i = 0;
     while(f_i < sample_count)
@@ -2886,7 +2888,7 @@ inline void v_pydaw_run_engine(t_pydaw_data * a_pydaw_data, int sample_count,
 
     int f_i2 = 0;
 
-    float ** f_master_buff = f_master_track->effect->pluginOutputBuffers;
+    float ** f_master_buff = f_master_track->buffers;
 
     while(f_i2 < sample_count)
     {
@@ -3815,10 +3817,31 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, int a_uid)
 
 t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
 {
+    int f_i = 0;
+
     t_pytrack * f_result = (t_pytrack*)malloc(sizeof(t_pytrack));
 
     f_result->track_num = a_track_num;
     f_result->track_type = a_track_type;
+    f_result->channels = 2;
+
+    if(posix_memalign((void**)(&f_result->buffers),
+        16, (sizeof(float*) * f_result->channels)) != 0)
+    {
+        return 0;
+    }
+
+    while(f_i < f_result->channels)
+    {
+        if(posix_memalign((void**)(&f_result->buffers[f_i]),
+            16, (sizeof(float) * FRAMES_PER_BUFFER)) != 0)
+        {
+            return 0;
+        }
+        f_i++;
+    }
+
+    v_pydaw_zero_buffer(f_result->buffers, FRAMES_PER_BUFFER);
 
     if(a_track_type == 0)
     {
@@ -3857,7 +3880,7 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
     f_result->bus_count = 0;
     f_result->bus_counter = 0;
 
-    int f_i = 0;
+    f_i = 0;
 
     while(f_i < PYDAW_MAX_EVENT_BUFFER_SIZE)
     {
@@ -4887,6 +4910,11 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
             pthread_spin_lock(&a_pydaw_data->main_lock);
         }
 
+        f_result_fx->descriptor->connect_buffer(
+            f_result_fx->PYFX_handle, 0, a_track->buffers[0]);
+        f_result_fx->descriptor->connect_buffer(
+            f_result_fx->PYFX_handle, 1, a_track->buffers[1]);
+
         a_track->instrument = 0;
         a_track->effect = f_result_fx;
         a_track->plugin_index = a_index;
@@ -4958,19 +4986,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
         f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index,
                 g_pydaw_wavpool_item_get, a_track->global_track_num,
                 v_queue_osc_message);
+
         f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1,
                 g_pydaw_wavpool_item_get, a_track->global_track_num,
                 v_queue_osc_message);
-
-        free(f_result_fx->pluginOutputBuffers[0]);
-        free(f_result_fx->pluginOutputBuffers[1]);
-        f_result_fx->pluginOutputBuffers[0] = f_result->pluginOutputBuffers[0];
-        f_result_fx->pluginOutputBuffers[1] = f_result->pluginOutputBuffers[1];
-
-        f_result_fx->descriptor->connect_buffer(
-            f_result_fx->PYFX_handle, 0, f_result->pluginOutputBuffers[0]);
-        f_result_fx->descriptor->connect_buffer(
-            f_result_fx->PYFX_handle, 1, f_result->pluginOutputBuffers[1]);
 
         /* If switching from a different plugin(but not from no plugin),
          * delete the preset file */
@@ -4991,6 +5010,16 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track,
         {
             pthread_spin_lock(&a_pydaw_data->main_lock);
         }
+
+        f_result->descriptor->connect_buffer(
+            f_result->PYFX_handle, 0, a_track->buffers[0]);
+        f_result->descriptor->connect_buffer(
+            f_result->PYFX_handle, 1, a_track->buffers[1]);
+
+        f_result_fx->descriptor->connect_buffer(
+            f_result_fx->PYFX_handle, 0, a_track->buffers[0]);
+        f_result_fx->descriptor->connect_buffer(
+            f_result_fx->PYFX_handle, 1, a_track->buffers[1]);
 
         a_track->instrument = f_result;
         a_track->effect = f_result_fx;
