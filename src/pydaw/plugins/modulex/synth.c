@@ -750,12 +750,12 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, MODULEX_REVERB_WET, 0.0f, 0.0f, 100.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_REVERB_COLOR, 50.0f, 0.0f, 100.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_EQ_ON, 0.0f, 0.0f, 2.0f);
-    pydaw_set_pyfx_port(f_result, MODULEX_EQ1_FREQ, 24.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(f_result, MODULEX_EQ2_FREQ, 42.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(f_result, MODULEX_EQ3_FREQ, 60.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(f_result, MODULEX_EQ4_FREQ, 78.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(f_result, MODULEX_EQ5_FREQ, 96.0f, 20.0f, 120.0f);
-    pydaw_set_pyfx_port(f_result, MODULEX_EQ6_FREQ, 114.0f, 20.0f, 120.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ1_FREQ, 24.0f, 4.0f, 123.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ2_FREQ, 42.0f, 4.0f, 123.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ3_FREQ, 60.0f, 4.0f, 123.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ4_FREQ, 78.0f, 4.0f, 123.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ5_FREQ, 96.0f, 4.0f, 123.0f);
+    pydaw_set_pyfx_port(f_result, MODULEX_EQ6_FREQ, 114.0f, 4.0f, 123.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_EQ1_RES, 300.0f, 100.0f, 600.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_EQ2_RES, 300.0f, 100.0f, 600.0f);
     pydaw_set_pyfx_port(f_result, MODULEX_EQ3_RES, 300.0f, 100.0f, 600.0f);

@@ -1929,6 +1929,9 @@ EQ_WIDTH = 600
 EQ_HEIGHT = 300
 EQ_OCTAVE_PX = (EQ_WIDTH / (100.0 / 12.0))
 
+EQ_LOW_PITCH = 4
+EQ_HIGH_PITCH = 123
+
 EQ_GRADIENT = QtGui.QLinearGradient(0, 0, EQ_POINT_DIAMETER, EQ_POINT_DIAMETER)
 EQ_GRADIENT.setColorAt(0, QtGui.QColor(255, 255, 255))
 EQ_GRADIENT.setColorAt(1, QtGui.QColor(240, 240, 240))
@@ -1989,7 +1992,7 @@ class eq_item(QtGui.QGraphicsEllipseItem):
     def set_pos(self):
         f_freq = self.eq.freq_knob.get_value()
         f_gain = self.eq.gain_knob.get_value()
-        f_x = (((f_freq - 20.0) * 0.01) *
+        f_x = (((f_freq - EQ_LOW_PITCH) / EQ_HIGH_PITCH) *
             EQ_WIDTH) - EQ_POINT_RADIUS
         f_y = ((1.0 - ((f_gain + 24.0) / 48.0)) *
             EQ_HEIGHT) - EQ_POINT_RADIUS
@@ -1999,7 +2002,7 @@ class eq_item(QtGui.QGraphicsEllipseItem):
     def get_value(self):
         f_pos = self.pos()
         f_freq = (((f_pos.x() + EQ_POINT_RADIUS) / EQ_WIDTH) *
-            100.0) + 20.0
+            EQ_HIGH_PITCH) + EQ_LOW_PITCH
         f_gain = ((1.0 - ((f_pos.y() + EQ_POINT_RADIUS) /
             EQ_HEIGHT)) * 48.0) - 24.0
         return round(f_freq, 2), round(f_gain, 2)
@@ -2100,11 +2103,11 @@ class eq_viewer(QtGui.QGraphicsView):
             f_y_pos -= f_inc
 
         f_label_pos = 0.0
-        f_pitch = 20.0
+        f_pitch = EQ_LOW_PITCH
         f_pitch_inc = 17.0
-        f_label_inc = EQ_WIDTH / (100.0 / f_pitch_inc)
+        f_label_inc = EQ_WIDTH / (EQ_HIGH_PITCH / f_pitch_inc)
 
-        for i in range(6):
+        for i in range(7):
             f_hz = int(pydaw_util.pydaw_pitch_to_hz(f_pitch))
             if f_hz > 950:
                 f_hz = round(f_hz, -1)
@@ -2150,7 +2153,7 @@ class eq_widget:
 
         self.freq_knob = pydaw_knob_control(
             a_size, "Freq", a_freq_port, a_rel_callback,
-            a_val_callback, 20.0, 120.0, a_default_value,
+            a_val_callback, EQ_LOW_PITCH, EQ_HIGH_PITCH, a_default_value,
             KC_PITCH, a_port_dict, a_preset_mgr)
         self.freq_knob.add_to_grid_layout(self.layout, 0)
 
@@ -3433,8 +3436,8 @@ class pydaw_spectrum(QtGui.QGraphicsPathItem):
         self.painter_path = QtGui.QPainterPath(QtCore.QPointF(0.0, 20.0))
         self.values = a_message.split("|")
         self.painter_path.moveTo(0.0, self.spectrum_height)
-        f_low = int(pydaw_util.pydaw_hz_to_pitch(51.0))
-        f_high = int(pydaw_util.pydaw_hz_to_pitch(16744.0))
+        f_low = EQ_LOW_PITCH
+        f_high = EQ_HIGH_PITCH
         f_width_per_point = (self.spectrum_width / float(f_high - f_low))
         f_fft_low = float(pydaw_util.SAMPLE_RATE) / 4096.0
         f_nyquist = float(pydaw_util.NYQUIST_FREQ)
