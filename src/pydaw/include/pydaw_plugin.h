@@ -36,7 +36,8 @@ typedef struct
         int channel;		/**< channel number */
 	int note;		/**< note */
 	int velocity;		/**< velocity */
-	int duration;		/**< duration until note-off; only for #PYDAW_EVENT_NOTEON */
+	int duration;		/**< duration until note-off;
+                                 * only for #PYDAW_EVENT_NOTEON */
 	int param;		/**< control parameter */
         float value;
         float start;
@@ -64,14 +65,16 @@ void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
     a_event->tick = 0;
 }
 
-void v_pydaw_ev_set_pitchbend(t_pydaw_seq_event* a_event, int a_channel, int a_value)
+void v_pydaw_ev_set_pitchbend(t_pydaw_seq_event* a_event,
+        int a_channel, int a_value)
 {
     a_event->type = PYDAW_EVENT_PITCHBEND;
     a_event->channel = a_channel;
     a_event->value = a_value;
 }
 
-void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event, int a_channel, int a_note, int a_velocity)
+void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event,
+        int a_channel, int a_note, int a_velocity)
 {
     a_event->type = PYDAW_EVENT_NOTEOFF;
     a_event->channel = a_channel;
@@ -79,7 +82,8 @@ void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event, int a_channel, int a_not
     a_event->velocity = a_velocity;
 }
 
-void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event, int a_channel, int a_note, int a_velocity)
+void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event,
+        int a_channel, int a_note, int a_velocity)
 {
     a_event->type = PYDAW_EVENT_NOTEON;
     a_event->channel = a_channel;
@@ -87,7 +91,8 @@ void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event, int a_channel, int a_note
     a_event->velocity = a_velocity;
 }
 
-void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event, int a_channel, int a_cc_num, int a_value)
+void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event,
+        int a_channel, int a_cc_num, int a_value)
 {
     a_event->type = PYDAW_EVENT_CONTROLLER;
     a_event->channel = a_channel;
@@ -230,11 +235,13 @@ typedef struct _PYFX_Descriptor {
      for both input and output (see PYFX_PROPERTY_INPLACE_BROKEN).
      However, overlapped buffers or use of a single buffer for both
      audio and control data may result in unexpected behaviour. */
-   void (*connect_port)(PYFX_Handle Instance, int Port, PYFX_Data * DataLocation);
+   void (*connect_port)(PYFX_Handle Instance, int Port,
+           PYFX_Data * DataLocation);
 
    /* Assign the audio buffer at DataLocation to index a_index
     */
-   void (*connect_buffer)(PYFX_Handle Instance, int a_index, float * DataLocation);
+   void (*connect_buffer)(PYFX_Handle Instance, int a_index,
+           float * DataLocation);
 
   /* Once an instance of a plugin has been finished with it can be
      deleted using the following function. The instance handle passed
