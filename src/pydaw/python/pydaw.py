@@ -9635,6 +9635,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             elif a_key == "peak":
                 global_update_peak_meters(a_val)
             elif a_key == "ui":
+                print(a_val)
                 f_is_inst, f_track_num, f_name, f_val = a_val.split("|", 3)
                 f_ui_dict[(f_is_inst, f_track_num, f_name)] = f_val
             elif a_key == "mrec":

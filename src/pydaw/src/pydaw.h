@@ -96,18 +96,22 @@ int i_get_global_track_num(int a_track_type, int a_track_num)
 {
     if(a_track_type == 0)
     {
+        assert(a_track_num < PYDAW_MIDI_TRACK_COUNT);
         return a_track_num;
     }
     else if(a_track_type == 1)
     {
+        assert(a_track_num < PYDAW_BUS_TRACK_COUNT);
         return a_track_num + PYDAW_MIDI_TRACK_COUNT;
     }
     else if(a_track_type == 2)
     {
+        assert(a_track_num < PYDAW_AUDIO_TRACK_COUNT);
         return a_track_num + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
     }
     else if(a_track_type == 4)
     {
+        assert(a_track_num < PYDAW_WE_TRACK_COUNT);
         return PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT +
             PYDAW_AUDIO_TRACK_COUNT;
     }
@@ -3997,14 +4001,11 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     }
 
     f_i = 0;
-    int f_global_track_num;
 
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
         pthread_spin_init(&f_result->bus_spinlocks[f_i], 0);
-        f_global_track_num = i_get_global_track_num(1, f_i);
-        f_result->track_pool_all[f_track_total] =
-            g_pytrack_get(f_global_track_num, 1);
+        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 1);
         f_i++;
         f_track_total++;
     }
@@ -4013,9 +4014,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
     {
-        f_global_track_num = i_get_global_track_num(2, f_i);
-        f_result->track_pool_all[f_track_total] =
-            g_pytrack_get(f_global_track_num, 2);
+        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 2);
         f_i++;
         f_track_total++;
     }
