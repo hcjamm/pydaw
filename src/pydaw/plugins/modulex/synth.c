@@ -613,7 +613,7 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
 
             v_ldl_run_delay(plugin_data->mono_modules->delay,
                     (plugin_data->output0[(plugin_data->i_mono_out)]),
-                    (plugin_data->output0[(plugin_data->i_mono_out)]));
+                    (plugin_data->output1[(plugin_data->i_mono_out)]));
 
             plugin_data->output0[(plugin_data->i_mono_out)] =
                     (plugin_data->mono_modules->delay->output0);
