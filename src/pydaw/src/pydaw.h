@@ -2855,17 +2855,16 @@ inline void v_pydaw_run_engine(t_pydaw_data * self, int sample_count,
         f_master_track->event_buffer,
         f_master_track->current_period_event_index);
 
-    int f_i2 = 0;
+    f_i = 0;
 
+    v_pydaw_run_pre_effect_vol(self, f_master_track);
     float ** f_master_buff = f_master_track->buffers;
 
-    while(f_i2 < sample_count)
+    while(f_i < sample_count)
     {
-        output0[f_i2] = (f_master_buff[0][f_i2]) *
-            (f_master_track->volume_linear);
-        output1[f_i2] = (f_master_buff[1][f_i2]) *
-            (f_master_track->volume_linear);
-        f_i2++;
+        output0[f_i] = f_master_buff[0][f_i];
+        output1[f_i] = f_master_buff[1][f_i];
+        f_i++;
     }
 
     f_master_track->bus_counter = (f_master_track->bus_count);
