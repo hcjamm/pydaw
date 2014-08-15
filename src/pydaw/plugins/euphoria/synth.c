@@ -1244,9 +1244,6 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
     for(i = 0; i < sample_count; i++)
     {
-	plugin_data->output[0][i] = 0.0f;
-        plugin_data->output[1][i] = 0.0f;
-
         while(midi_event_pos < plugin_data->midi_event_count &&
                 plugin_data->midi_event_ticks[midi_event_pos] == i)
         {

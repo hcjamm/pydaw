@@ -534,9 +534,6 @@ static void v_run_rayv(PYFX_Handle instance, int sample_count,
 
     while((plugin_data->i_iterator) < sample_count)
     {
-        plugin_data->output0[(plugin_data->i_iterator)] = 0.0f;
-        plugin_data->output1[(plugin_data->i_iterator)] = 0.0f;
-
         while(midi_event_pos < plugin_data->midi_event_count &&
             plugin_data->midi_event_ticks[midi_event_pos] ==
                 plugin_data->i_iterator)
