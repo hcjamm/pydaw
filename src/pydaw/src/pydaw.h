@@ -1567,25 +1567,25 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
         t_pytrack * f_bus =
             f_args->pydaw_data->track_pool_all[f_global_bus_num];
 
-        if(f_args->pydaw_data->playback_mode > 0)
-        {
-            v_pydaw_process_midi(f_args->pydaw_data, f_item.track_number,
-                    f_args->pydaw_data->sample_count);
-        }
-
-        if(f_args->pydaw_data->record_armed_track_index_all ==
-                f_item.track_number)
-        {
-            v_pydaw_process_external_midi(f_args->pydaw_data,
-                    f_args->pydaw_data->sample_count,
-                    f_args->pydaw_data->events,
-                    f_args->pydaw_data->event_count);
-        }
-
-        v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
-
         if(f_item.track_type == 0)  //MIDI/plugin-instrument
         {
+            if(f_args->pydaw_data->playback_mode > 0)
+            {
+                v_pydaw_process_midi(f_args->pydaw_data, f_item.track_number,
+                        f_args->pydaw_data->sample_count);
+            }
+
+            if(f_args->pydaw_data->record_armed_track_index_all ==
+                    f_item.track_number)
+            {
+                v_pydaw_process_external_midi(f_args->pydaw_data,
+                        f_args->pydaw_data->sample_count,
+                        f_args->pydaw_data->events,
+                        f_args->pydaw_data->event_count);
+            }
+
+            v_pydaw_process_note_offs(f_args->pydaw_data, f_item.track_number);
+
             v_run_plugin(f_track->instrument,
                     (f_args->pydaw_data->sample_count),
                     f_track->event_buffer,
@@ -1603,6 +1603,23 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
         }
         else if(f_item.track_type == 2)  //Audio track
         {
+            if(f_args->pydaw_data->playback_mode > 0)
+            {
+                v_pydaw_process_midi(f_args->pydaw_data, f_global_track_num,
+                        f_args->pydaw_data->sample_count);
+            }
+
+            if(f_args->pydaw_data->record_armed_track_index_all ==
+                    f_global_track_num)
+            {
+                v_pydaw_process_external_midi(f_args->pydaw_data,
+                        f_args->pydaw_data->sample_count,
+                        f_args->pydaw_data->events,
+                        f_args->pydaw_data->event_count);
+            }
+
+            v_pydaw_process_note_offs(f_args->pydaw_data, f_global_track_num);
+
             if(((!f_track->mute) &&
                 (!f_args->pydaw_data->is_soloed))
                 ||
@@ -1652,6 +1669,23 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
         }
         else if(f_item.track_type == 1)  //Bus track
         {
+            if(f_args->pydaw_data->playback_mode > 0)
+            {
+                v_pydaw_process_midi(f_args->pydaw_data, f_global_track_num,
+                        f_args->pydaw_data->sample_count);
+            }
+
+            if(f_args->pydaw_data->record_armed_track_index_all ==
+                    f_global_track_num)
+            {
+                v_pydaw_process_external_midi(f_args->pydaw_data,
+                        f_args->pydaw_data->sample_count,
+                        f_args->pydaw_data->events,
+                        f_args->pydaw_data->event_count);
+            }
+
+            v_pydaw_process_note_offs(f_args->pydaw_data, f_global_track_num);
+
             if((f_track->bus_count) == 0)
             {
                 pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[0]);
