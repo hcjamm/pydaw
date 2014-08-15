@@ -249,8 +249,7 @@ static void v_rayv_connect_port(PYFX_Handle instance, int port,
 
 static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
         int a_sr, fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num, fp_queue_message a_queue_func,
-        float * a_port_table)
+        int a_track_num, fp_queue_message a_queue_func)
 {
     t_rayv *plugin_data = (t_rayv*) malloc(sizeof(t_rayv));
 
@@ -275,12 +274,28 @@ static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
 
     //initialize all monophonic modules
     plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);
-    
-    plugin_data->port_table = a_port_table;
+
+    plugin_data->port_table = g_pydaw_get_port_table(
+        (PYFX_Handle) plugin_data, descriptor);
 
     return (PYFX_Handle) plugin_data;
 }
 
+
+static void v_rayv_load(PYFX_Handle instance,
+        PYFX_Descriptor * Descriptor, char * a_file_path)
+{
+    t_rayv *plugin_data = (t_rayv*)instance;
+    pydaw_generic_file_loader(instance, Descriptor,
+        a_file_path, plugin_data->port_table);
+}
+
+static void v_rayv_set_port_value(PYFX_Handle Instance,
+        int a_port, float a_value)
+{
+    t_rayv *plugin_data = (t_rayv*)Instance;
+    plugin_data->port_table[a_port] = a_value;
+}
 
 static void v_run_rayv(PYFX_Handle instance, int sample_count,
 		  t_pydaw_seq_event *events, int event_count)
@@ -761,14 +776,16 @@ PYFX_Descriptor *rayv_PYFX_descriptor(int index)
     pydaw_set_pyfx_port(f_result, RAYV_MIN_NOTE, 0.0f, 0.0f, 120.0f);
     pydaw_set_pyfx_port(f_result, RAYV_MAX_NOTE, 120.0f, 0.0f, 120.0f);
 
-    
+
     f_result->cleanup = v_cleanup_rayv;
     f_result->connect_port = v_rayv_connect_port;
-    f_result->connect_buffer = v_rayv_connect_buffer;    
+    f_result->connect_buffer = v_rayv_connect_buffer;
     f_result->instantiate = g_rayv_instantiate;
     f_result->panic = rayvPanic;
-    
-    f_result->PYINST_API_Version = 1;    
+    f_result->load = v_rayv_load;
+    f_result->set_port_value = v_rayv_set_port_value;
+
+    f_result->PYINST_API_Version = 1;
     f_result->configure = NULL;
     f_result->run_synth = v_run_rayv;
     f_result->offline_render_prep = v_rayv_or_prep;

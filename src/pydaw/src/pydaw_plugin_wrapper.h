@@ -29,22 +29,11 @@ extern "C" {
 #include "../plugins/ray_v/synth.c"
 
 
-PYFX_Data g_pydaw_get_port_default(PYFX_Descriptor *plugin, int port)
+typedef struct
 {
-    PYFX_PortRangeHint hint = plugin->PortRangeHints[port];
-    assert(hint.DefaultValue <= hint.UpperBound &&
-            hint.DefaultValue >= hint.LowerBound );
-    return hint.DefaultValue;
-}
-
-typedef struct st_pydaw_plugin
-{
-    //void * lib_handle;
     PYFX_Handle PYFX_handle;
     PYFX_Descriptor_Function descfn;
-
     PYFX_Descriptor *descriptor;
-    float *pluginControlIns;
 }t_pydaw_plugin;
 
 
@@ -98,42 +87,9 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
 
     f_result->descriptor = f_result->descfn(0);
 
-    int j;
-
-    int f_i = 0;
-
-    if(posix_memalign((void**)(&f_result->pluginControlIns), 16,
-        (sizeof(float) * f_result->descriptor->PortCount)) != 0)
-    {
-        return 0;
-    }
-
-    f_i = 0;
-    while(f_i < f_result->descriptor->PortCount)
-    {
-        f_result->pluginControlIns[f_i] = 0.0f;
-        f_i++;
-    }
-
     f_result->PYFX_handle = f_result->descriptor->instantiate(
             f_result->descriptor, a_sample_rate,
-            a_host_wavpool_func, a_track_num, a_queue_func,
-            f_result->pluginControlIns);
-
-    for (j = 0; j < f_result->descriptor->PortCount; j++)
-    {
-        PYFX_PortDescriptor pod =
-                f_result->descriptor->PortDescriptors[j];
-
-        if(pod)
-        {
-            f_result->pluginControlIns[j] =
-                    g_pydaw_get_port_default(f_result->descriptor, j);
-
-            f_result->descriptor->connect_port(
-                f_result->PYFX_handle, j, &f_result->pluginControlIns[j]);
-        }
-    }
+            a_host_wavpool_func, a_track_num, a_queue_func);
 
     return f_result;
 }

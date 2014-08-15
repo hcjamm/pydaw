@@ -204,8 +204,7 @@ static void v_modulex_connect_port(PYFX_Handle instance, int port,
 
 static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
         int s_rate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num, fp_queue_message a_queue_func,
-        float * a_port_table)
+        int a_track_num, fp_queue_message a_queue_func)
 {
     t_modulex *plugin_data = (t_modulex*)malloc(sizeof(t_modulex));
 
@@ -214,8 +213,6 @@ static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
     plugin_data->queue_func = a_queue_func;
 
     plugin_data->sv_pitch_bend_value = 0.0f;
-
-    plugin_data->port_table = a_port_table;
 
     plugin_data->mono_modules =
             v_modulex_mono_init(plugin_data->fs, plugin_data->track_num);
@@ -231,9 +228,26 @@ static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
 
     plugin_data->is_on = 0;
 
+    plugin_data->port_table = g_pydaw_get_port_table(
+        (PYFX_Handle) plugin_data, descriptor);
+
     return (PYFX_Handle) plugin_data;
 }
 
+static void v_modulex_load(PYFX_Handle instance,
+        PYFX_Descriptor * Descriptor, char * a_file_path)
+{
+    t_modulex *plugin_data = (t_modulex*)instance;
+    pydaw_generic_file_loader(instance, Descriptor,
+        a_file_path, plugin_data->port_table);
+}
+
+static void v_modulex_set_port_value(PYFX_Handle Instance,
+        int a_port, float a_value)
+{
+    t_modulex *plugin_data = (t_modulex*)Instance;
+    plugin_data->port_table[a_port] = a_value;
+}
 
 static void v_modulex_check_if_on(t_modulex *plugin_data)
 {
@@ -788,6 +802,8 @@ PYFX_Descriptor *modulex_PYFX_descriptor(int index)
     f_result->connect_buffer = v_modulex_connect_buffer;
     f_result->instantiate = g_modulex_instantiate;
     f_result->panic = v_modulex_panic;
+    f_result->load = v_modulex_load;
+    f_result->set_port_value = v_modulex_set_port_value;
 
     f_result->PYINST_API_Version = 1;
     f_result->configure = NULL;

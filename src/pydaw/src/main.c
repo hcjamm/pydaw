@@ -1313,7 +1313,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
 
         if(f_instance)
         {
-            f_instance->pluginControlIns[f_port] = f_value;
+            f_instance->descriptor->set_port_value(
+                f_instance->PYFX_handle, f_port, f_value);
         }
         else
         {

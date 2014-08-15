@@ -16,6 +16,7 @@ GNU General Public License for more details.
 
 #include <pthread.h>
 #include <assert.h>
+#include "../src/pydaw_files.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -126,22 +127,9 @@ typedef int PYFX_PortDescriptor;
 
 
 typedef struct _PYFX_PortRangeHint {
-
-  /* Hints about the port. */
-  //PYFX_PortRangeHintDescriptor HintDescriptor;
-
   PYFX_Data DefaultValue;
-
-  /* Meaningful when hint PYFX_HINT_BOUNDED_BELOW is active. When
-     PYFX_HINT_SAMPLE_RATE is also active then this value should be
-     multiplied by the relevant sample rate. */
   PYFX_Data LowerBound;
-
-  /* Meaningful when hint PYFX_HINT_BOUNDED_ABOVE is active. When
-     PYFX_HINT_SAMPLE_RATE is also active then this value should be
-     multiplied by the relevant sample rate. */
   PYFX_Data UpperBound;
-
 } PYFX_PortRangeHint;
 
 /*****************************************************************************/
@@ -207,7 +195,7 @@ typedef struct _PYFX_Descriptor {
      activate() rather than here. */
   PYFX_Handle (*instantiate)(struct _PYFX_Descriptor * Descriptor,
           int SampleRate, fp_get_wavpool_item_from_host a_host_wavpool_func,
-          int a_track_num, fp_queue_message, float * a_port_table);
+          int a_track_num, fp_queue_message);
 
   /* This member is a function pointer that connects a port on an
      instantiated plugin to a memory location at which a block of data
@@ -252,6 +240,12 @@ typedef struct _PYFX_Descriptor {
      is called. */
   void (*cleanup)(PYFX_Handle Instance);
 
+  /* Load the plugin state file at a_file_path
+   */
+  void (*load)(PYFX_Handle Instance, struct _PYFX_Descriptor * Descriptor,
+          char * a_file_path);
+
+void (*set_port_value)(PYFX_Handle Instance, int a_port, float a_value);
 
   /* When a panic message is sent, do whatever it takes to fix any stuck
    notes. */
@@ -341,10 +335,8 @@ typedef struct _PYFX_Descriptor {
      * cases where an external MIDI source has sent it zero-velocity
      * NOTE_ONs.
      */
-    void (*run_synth)(PYFX_Handle    Instance,
-		      int    SampleCount,
-		      t_pydaw_seq_event *Events,
-		      int    EventCount);
+    void (*run_synth)(PYFX_Handle Instance, int SampleCount,
+		      t_pydaw_seq_event *Events, int EventCount);
 
     /* Do anything like warming up oscillators, etc...  in preparation
      * for offline rendering.  This must be called after loading
@@ -428,6 +420,104 @@ void pydaw_set_pyfx_port(PYFX_Descriptor * a_desc, int a_port,
     a_desc->PortRangeHints[a_port].LowerBound = a_min;
     a_desc->PortRangeHints[a_port].UpperBound = a_max;
 }
+
+
+
+PYFX_Data g_pydaw_get_port_default(PYFX_Descriptor *plugin, int port)
+{
+    PYFX_PortRangeHint hint = plugin->PortRangeHints[port];
+    assert(hint.DefaultValue <= hint.UpperBound &&
+            hint.DefaultValue >= hint.LowerBound );
+    return hint.DefaultValue;
+}
+
+float * g_pydaw_get_port_table(PYFX_Handle * handle, PYFX_Descriptor * descriptor)
+{
+    float * pluginControlIns;
+    int j;
+
+    int f_i = 0;
+
+    if(posix_memalign((void**)(&pluginControlIns), 16,
+        (sizeof(float) * descriptor->PortCount)) != 0)
+    {
+        return 0;
+    }
+
+    f_i = 0;
+    while(f_i < descriptor->PortCount)
+    {
+        pluginControlIns[f_i] = 0.0f;
+        f_i++;
+    }
+
+    for (j = 0; j < descriptor->PortCount; j++)
+    {
+        PYFX_PortDescriptor pod = descriptor->PortDescriptors[j];
+
+        if(pod)
+        {
+            pluginControlIns[j] = g_pydaw_get_port_default(descriptor, j);
+
+            descriptor->connect_port(handle, j, &pluginControlIns[j]);
+        }
+    }
+
+    return pluginControlIns;
+}
+
+void pydaw_generic_file_loader(PYFX_Handle Instance,
+        PYFX_Descriptor * Descriptor, char * a_path, float * a_table)
+{
+    t_2d_char_array * f_2d_array = g_get_2d_array_from_file(a_path,
+                PYDAW_LARGE_STRING);
+
+    while(1)
+    {
+        char * f_key = c_iterate_2d_char_array(f_2d_array);
+
+        if(f_2d_array->eof)
+        {
+            free(f_key);
+            break;
+        }
+
+        assert(strcmp(f_key, ""));
+
+        if(f_key[0] == 'c')
+        {
+            char * f_config_key = c_iterate_2d_char_array(f_2d_array);
+            char * f_value =
+                c_iterate_2d_char_array_to_next_line(f_2d_array);
+
+            char * message =
+                Descriptor->configure(Instance, f_config_key, f_value, 0);
+
+            if (message)
+            {
+                //TODO:  delete this
+                free(message);
+            }
+
+        }
+        else
+        {
+            char * f_value =
+                c_iterate_2d_char_array_to_next_line(f_2d_array);
+            int f_port_key = atoi(f_key);
+            float f_port_value = atof(f_value);
+
+            assert(f_port_key >= 0);
+            assert(f_port_key <= Descriptor->PortCount);
+
+            a_table[f_port_key] = f_port_value;
+        }
+    }
+
+    g_free_2d_char_array(f_2d_array);
+
+}
+
 
 #ifdef __cplusplus
 }

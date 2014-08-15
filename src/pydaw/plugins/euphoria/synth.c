@@ -453,14 +453,28 @@ static void connectPortSampler(PYFX_Handle instance, int port,
     }
 }
 
+static void v_euphoria_load(PYFX_Handle instance,
+        PYFX_Descriptor * Descriptor, char * a_file_path)
+{
+    t_euphoria *plugin_data = (t_euphoria*)instance;
+    pydaw_generic_file_loader(instance, Descriptor,
+        a_file_path, plugin_data->port_table);
+}
+
+static void v_euphoria_set_port_value(PYFX_Handle Instance,
+        int a_port, float a_value)
+{
+    t_euphoria *plugin_data = (t_euphoria*)Instance;
+    plugin_data->port_table[a_port] = a_value;
+}
+
 static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
         int s_rate,
         fp_get_wavpool_item_from_host a_host_wavpool_func,
-        int a_track_num, fp_queue_message a_queue_func,
-        float * a_port_table)
+        int a_track_num, fp_queue_message a_queue_func)
 {
     wavpool_get_func = a_host_wavpool_func;
-    t_euphoria *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
+    t_euphoria *plugin_data;
 
     if(posix_memalign((void**)&plugin_data, 16, sizeof(t_euphoria)) != 0)
     {
@@ -529,7 +543,6 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);
     plugin_data->fs = s_rate;
 
-    plugin_data->port_table = a_port_table;
     f_i = 0;
 
     plugin_data->sampleNo = 0;
@@ -540,6 +553,8 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
         f_i++;
     }
 
+    plugin_data->port_table = g_pydaw_get_port_table(
+            (PYFX_Handle) plugin_data, descriptor);
 
     return (PYFX_Handle) plugin_data;
 }
@@ -1705,6 +1720,8 @@ PYFX_Descriptor *euphoria_PYFX_descriptor(int index)
     f_result->connect_buffer = euphoriaConnectBuffer;
     f_result->instantiate = instantiateSampler;
     f_result->panic = euphoriaPanic;
+    f_result->load = v_euphoria_load;
+    f_result->set_port_value = v_euphoria_set_port_value;
 
     f_result->PYINST_API_Version = 1;
     f_result->configure = c_euphoria_configure;
