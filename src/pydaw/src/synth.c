@@ -146,6 +146,7 @@ void v_pydaw_constructor()
     LMSLDescriptor =
 	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
+        LMSLDescriptor->PortCount = PYDAW_COUNT;
 	port_descriptors = (PYFX_PortDescriptor *)
 				calloc(LMSLDescriptor->PortCount, sizeof
 						(PYFX_PortDescriptor));
