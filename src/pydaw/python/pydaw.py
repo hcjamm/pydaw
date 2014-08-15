@@ -8123,6 +8123,7 @@ class transport_widget:
     def on_stop(self):
         if not self.is_playing and not self.is_recording:
             return
+        PROJECT.this_pydaw_osc.pydaw_stop()
         global IS_PLAYING
         IS_PLAYING = False
         SONG_EDITOR.table_widget.setEnabled(True)
@@ -8137,8 +8138,7 @@ class transport_widget:
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
         self.overdub_checkbox.setEnabled(True)
-        PROJECT.this_pydaw_osc.pydaw_stop()
-        time.sleep(0.1)
+
         self.set_region_value(self.start_region)
         if self.is_recording:
             self.is_recording = False
@@ -8165,7 +8165,7 @@ class transport_widget:
         WAVE_EDITOR.on_stop()
         self.menu_button.setEnabled(True)
         AUDIO_SEQ.stop_playback(self.last_bar)
-        time.sleep(0.2)
+        time.sleep(0.1)
 
     def show_save_items_dialog(self):
         def ok_handler():
