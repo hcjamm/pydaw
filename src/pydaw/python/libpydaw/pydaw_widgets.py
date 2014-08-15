@@ -1572,9 +1572,12 @@ def peak_meter_gradient(a_height):
     if a_height not in PEAK_GRADIENT_CACHE:
         f_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, a_height)
         f_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(255, 0, 0))
-        f_gradient.setColorAt(0.1, QtGui.QColor.fromRgb(255, 0, 0))
-        f_gradient.setColorAt(0.11, QtGui.QColor.fromRgb(180, 255, 0))
+        f_gradient.setColorAt(0.0333, QtGui.QColor.fromRgb(255, 0, 0))
+        f_gradient.setColorAt(0.05, QtGui.QColor.fromRgb(150, 255, 0))
+        f_gradient.setColorAt(0.2, QtGui.QColor.fromRgb(90, 255, 0))
+        f_gradient.setColorAt(0.4, QtGui.QColor.fromRgb(0, 255, 0))
         f_gradient.setColorAt(0.7, QtGui.QColor.fromRgb(0, 255, 0))
+        f_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(0, 210, 180))
         PEAK_GRADIENT_CACHE[a_height] = f_gradient
     return PEAK_GRADIENT_CACHE[a_height]
 
