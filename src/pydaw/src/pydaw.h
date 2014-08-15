@@ -203,6 +203,7 @@ typedef struct
     t_pkm_peak_meter * peak_meter;
     float ** buffers;
     int channels;
+    pthread_spinlock_t lock;
 }t_pytrack;
 
 typedef struct
@@ -224,7 +225,6 @@ typedef struct
     t_pysong * pysong;
     t_pytrack * record_armed_track;
     int record_armed_track_index_all;  //index within track_pool_all
-    pthread_spinlock_t bus_spinlocks[PYDAW_BUS_TRACK_COUNT];
     //contains a reference to all track types, in order:  MIDI, Bus, Audio
     t_pytrack * track_pool_all[PYDAW_TRACK_COUNT_ALL];
     t_pyaudio_input * audio_inputs[PYDAW_AUDIO_INPUT_TRACK_COUNT];
@@ -1402,7 +1402,7 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data,
     float ** f_buff = f_bus->buffers;
     float ** f_track_buff = a_track->buffers;
 
-    pthread_spin_lock(&a_pydaw_data->bus_spinlocks[bus_num]);
+    pthread_spin_lock(&f_bus->lock);
 
     int f_i2 = 0;
 
@@ -1415,7 +1415,7 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data,
 
     f_bus->bus_counter -= 1;
 
-    pthread_spin_unlock(&a_pydaw_data->bus_spinlocks[bus_num]);
+    pthread_spin_unlock(&f_bus->lock);
 }
 
 void * v_pydaw_audio_recording_thread(void* a_arg)
@@ -1647,24 +1647,20 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
                 if(!f_audio_items_result)
                 {
-                    pthread_spin_lock(
-                        &f_args->pydaw_data->bus_spinlocks[(f_track->bus_num)]);
+                    pthread_spin_lock(&f_bus->lock);
 
                     f_bus->bus_counter -= 1;
 
-                    pthread_spin_unlock(
-                        &f_args->pydaw_data->bus_spinlocks[(f_track->bus_num)]);
+                    pthread_spin_unlock(&f_bus->lock);
                 }
             }
             else
             {
-                pthread_spin_lock(
-                    &f_args->pydaw_data->bus_spinlocks[(f_track->bus_num)]);
+                pthread_spin_lock(&f_bus->lock);
 
                 f_bus->bus_counter -= 1;
 
-                pthread_spin_unlock(
-                    &f_args->pydaw_data->bus_spinlocks[(f_track->bus_num)]);
+                pthread_spin_unlock(&f_bus->lock);
             }
         }
         else if(f_item.track_type == 1)  //Bus track
@@ -1688,26 +1684,24 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
             if((f_track->bus_count) == 0)
             {
-                pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[0]);
+                pthread_spin_lock(&f_bus->lock);
 
                 f_bus->bus_counter -= 1;
 
-                pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[0]);
+                pthread_spin_unlock(&f_bus->lock);
             }
             else
             {
                 while(1)
                 {
-                    pthread_spin_lock(&f_args->pydaw_data->bus_spinlocks[
-                            f_item.track_number]);
+                    pthread_spin_lock(&f_track->lock);
 
                     if((f_track->bus_counter) <= 0)
                     {
                         break;
                     }
 
-                    pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[
-                            f_item.track_number]);
+                    pthread_spin_unlock(&f_track->lock);
                 }
 
                 v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_track);
@@ -1721,8 +1715,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
             }
 
             f_track->bus_counter = (f_track->bus_count);
-            pthread_spin_unlock(
-                &f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
+            pthread_spin_unlock(&f_track->lock);
         }
 
         v_pkm_run(f_track->peak_meter,
@@ -3833,6 +3826,8 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
     f_result->track_type = a_track_type;
     f_result->channels = 2;
 
+    pthread_spin_init(&f_result->lock, 0);
+
     if(posix_memalign((void**)(&f_result->buffers),
         16, (sizeof(float*) * f_result->channels)) != 0)
     {
@@ -4038,7 +4033,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
-        pthread_spin_init(&f_result->bus_spinlocks[f_i], 0);
         f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 1);
         f_i++;
         f_track_total++;
