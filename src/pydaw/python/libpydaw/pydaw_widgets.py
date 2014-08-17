@@ -1589,10 +1589,25 @@ class peak_meter:
         self.set_value([0.0, 0.0])
         self.widget.setStyleSheet("background-color: black;")
         self.widget.paintEvent = self.paint_event
+        self.high = 0.0
+        self.set_tooltip()
+        self.widget.mousePressEvent = self.reset_high
 
     def set_value(self, a_vals):
         self.values = [float(x) for x in a_vals]
         self.widget.update()
+
+    def reset_high(self, a_val=None):
+        self.high = 0.0
+        self.set_tooltip()
+
+    def set_tooltip(self):
+        if self.high == 0:
+            f_val = -100.0
+        else:
+            f_val = round(pydaw_util.pydaw_lin_to_db(self.high), 1)
+        self.widget.setToolTip(
+            _("Peak {}dB\nClick with mouse to reset").format(f_val))
 
     def paint_event(self, a_ev):
         p = QtGui.QPainter(self.widget)
@@ -1613,6 +1628,9 @@ class peak_meter:
                 f_db = pydaw_util.pydaw_clip_min(f_db, -29.0)
                 f_rect_y = f_height * f_db * -0.033333333 # / -30.0
                 f_rect_height = f_height - f_rect_y
+            if f_val > self.high:
+                self.high = f_val
+                self.set_tooltip()
             f_rect_x = f_i * f_rect_width
             f_rect = QtCore.QRectF(
                 f_rect_x, f_rect_y, f_rect_width, f_rect_height)
