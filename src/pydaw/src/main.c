@@ -416,7 +416,7 @@ static int portaudioCallback( const void *inputBuffer,
     if(framesPerBuffer > FRAMES_PER_BUFFER)
     {
         printf("WARNING:  Audio device requested buffer size %i, "
-            "truncating to max buffer size:  %i",
+            "truncating to max buffer size:  %i\n",
             (int)framesPerBuffer, FRAMES_PER_BUFFER);
         framesPerBuffer = FRAMES_PER_BUFFER;
     }
