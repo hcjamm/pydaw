@@ -1404,13 +1404,20 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
 
     pthread_spin_lock(&f_bus->lock);
 
-    int f_i2 = 0;
-
-    while(f_i2 < self->sample_count)
+    if((a_track->track_type == 1)  //bus track
+        ||
+        ((!a_track->mute) && (!self->is_soloed))
+        ||
+        ((self->is_soloed) && (a_track->solo)))
     {
-        f_buff[0][f_i2] += f_track_buff[0][f_i2];
-        f_buff[1][f_i2] += f_track_buff[1][f_i2];
-        f_i2++;
+        int f_i2 = 0;
+
+        while(f_i2 < self->sample_count)
+        {
+            f_buff[0][f_i2] += f_track_buff[0][f_i2];
+            f_buff[1][f_i2] += f_track_buff[1][f_i2];
+            f_i2++;
+        }
     }
 
     f_bus->bus_counter -= 1;
@@ -1595,43 +1602,16 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
         v_pydaw_process_note_offs(self, a_global_track_num);
 
-        if(((!f_track->mute) &&
-            (!self->is_soloed))
-            ||
-            ((self->is_soloed) && (f_track->solo)))
-        {
-            int f_audio_items_result =
-                v_pydaw_audio_items_run(self, self->sample_count,
-                    f_track->buffers[0], f_track->buffers[1],
-                    f_track->track_num, 0);
+        v_pydaw_audio_items_run(self, self->sample_count,
+            f_track->buffers[0], f_track->buffers[1],
+            f_track->track_num, 0);
 
-            if(f_audio_items_result)
-            {
-                v_pydaw_run_pre_effect_vol(self, f_track);
-            }
+        v_pydaw_run_pre_effect_vol(self, f_track);
 
-            v_run_plugin(f_track->effect, self->sample_count,
-                f_track->event_buffer, f_track->current_period_event_index);
+        v_run_plugin(f_track->effect, self->sample_count,
+            f_track->event_buffer, f_track->current_period_event_index);
 
-            v_pydaw_sum_track_outputs(self, f_track, f_track->bus_num);
-
-            if(!f_audio_items_result)
-            {
-                pthread_spin_lock(&f_bus->lock);
-
-                f_bus->bus_counter -= 1;
-
-                pthread_spin_unlock(&f_bus->lock);
-            }
-        }
-        else
-        {
-            pthread_spin_lock(&f_bus->lock);
-
-            f_bus->bus_counter -= 1;
-
-            pthread_spin_unlock(&f_bus->lock);
-        }
+        v_pydaw_sum_track_outputs(self, f_track, f_track->bus_num);
     }
     else if(f_track->track_type == 1)  //Bus track
     {
@@ -1823,15 +1803,6 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
 {
     t_pytrack * f_track = self->track_pool_all[f_i];
     f_track->current_period_event_index = 0;
-
-    /* Situations where the track is effectively muted*/
-    if((f_track->plugin_index == 0) ||
-        (f_track->mute) ||
-        ((self->is_soloed) &&
-            (!f_track->solo)) )
-    {
-        return;
-    }
 
     int f_current_track_region = self->current_region;
     int f_current_track_bar = self->current_bar;
