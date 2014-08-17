@@ -693,7 +693,7 @@ t_pydaw_per_audio_item_fx_region * g_paif_region_open(
     t_pydaw_per_audio_item_fx_region * f_result = g_paif_region_get();
 
     int f_i = 0;
-    char f_temp[256];
+    char f_temp[1024];
     sprintf(f_temp, "%s%i", self->per_audio_item_fx_folder,
             a_region_uid);
     if(i_pydaw_file_exists(f_temp))
@@ -1504,7 +1504,7 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
 void * v_pydaw_audio_recording_thread(void* a_arg)
 {
     t_pydaw_data * self = (t_pydaw_data*)(a_arg);
-    char f_file_name[256];
+    char f_file_name[1024];
 
     sleep(3);
 
@@ -1826,7 +1826,7 @@ void v_pydaw_load_cc_map(t_pydaw_data * self, const char * a_name)
         }
         f_i++;
     }
-    char f_temp[256];
+    char f_temp[1024];
     char * f_home = getenv("HOME");
     sprintf(f_temp, "%s/%s/cc_maps/%s", f_home, PYDAW_VERSION, a_name);
     if(i_pydaw_file_exists(f_temp))
@@ -3932,20 +3932,20 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
 
     f_result->overdub_mode = 0;
     f_result->loop_mode = 0;
-    f_result->item_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->instruments_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->project_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->region_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->busfx_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->audio_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->audio_tmp_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->samples_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->recorded_items_file = (char*)malloc(sizeof(char) * 256);
-    f_result->recorded_regions_file = (char*)malloc(sizeof(char) * 256);
-    f_result->wav_pool_file = (char*)malloc(sizeof(char) * 256);
-    f_result->region_audio_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->per_audio_item_fx_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->item_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->instruments_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->project_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->region_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->busfx_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->audio_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->audio_tmp_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->audiofx_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->samples_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->recorded_items_file = (char*)malloc(sizeof(char) * 1024);
+    f_result->recorded_regions_file = (char*)malloc(sizeof(char) * 1024);
+    f_result->wav_pool_file = (char*)malloc(sizeof(char) * 1024);
+    f_result->region_audio_folder = (char*)malloc(sizeof(char) * 1024);
+    f_result->per_audio_item_fx_folder = (char*)malloc(sizeof(char) * 1024);
 
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
@@ -4200,7 +4200,7 @@ void v_pydaw_open_plugin(t_pydaw_data * self, t_pytrack * a_track,
 
 void v_pydaw_open_tracks(t_pydaw_data * self)
 {
-    char f_file_name[256];
+    char f_file_name[1024];
     sprintf(f_file_name, "%sdefault.pytracks", self->project_folder);
 
     self->record_armed_track = 0;
@@ -4538,7 +4538,7 @@ void v_open_project(t_pydaw_data* self, const char* a_project_folder,
     }
 
     //TODO:  This should be moved to a separate function
-    char f_transport_file[256];
+    char f_transport_file[1024];
     sprintf(f_transport_file, "%sdefault.pytransport",
             self->project_folder);
 
@@ -4738,7 +4738,7 @@ t_pydaw_audio_items * v_audio_items_load_all(t_pydaw_data * self,
 {
     t_pydaw_audio_items * f_result =
             g_pydaw_audio_items_get(self->sample_rate);
-    char f_file[256] = "\0";
+    char f_file[1024] = "\0";
     sprintf(f_file, "%s%i", self->region_audio_folder, a_region_uid);
 
     if(i_pydaw_file_exists(f_file))
@@ -5027,7 +5027,7 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
 
 void v_pydaw_update_audio_inputs(t_pydaw_data * self)
 {
-    char f_inputs_file[256];
+    char f_inputs_file[1024];
     sprintf(f_inputs_file, "%sdefault.pyinput", self->project_folder);
 
     if(i_pydaw_file_exists(f_inputs_file))
