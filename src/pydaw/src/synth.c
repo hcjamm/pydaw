@@ -94,13 +94,6 @@ void v_pydaw_activate(PYFX_Handle instance, int a_thread_count,
     v_open_project(pydaw_data, a_project_path, 1);
 }
 
-/*
-static void runLMSWrapper(PYFX_Handle instance, int sample_count)
-{
-    run_lms_pydaw(instance, sample_count, NULL, 0);
-}
-*/
-
 void v_pydaw_run(PYFX_Handle instance, int sample_count,
         t_pydaw_seq_event *events, int event_count)
 {
