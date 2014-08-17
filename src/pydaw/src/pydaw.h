@@ -66,7 +66,8 @@ extern "C" {
 
 #define PYDAW_VERSION "pydaw4"
 
-#define PYDAW_OSC_SEND_QUEUE_SIZE 64
+#define PYDAW_OSC_SEND_QUEUE_SIZE 256
+#define PYDAW_OSC_MAX_MESSAGE_SIZE 65536
 
 #ifdef SCHED_DEADLINE
 
@@ -378,7 +379,7 @@ typedef struct
     int midi_learn;  //0 to disable, 1 to enable sending CC events to the UI
     int osc_queue_index;
     char osc_queue_keys[PYDAW_OSC_SEND_QUEUE_SIZE][12];
-    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][122880];
+    char osc_queue_vals[PYDAW_OSC_SEND_QUEUE_SIZE][PYDAW_OSC_MAX_MESSAGE_SIZE];
     pthread_t osc_queue_thread;
     int f_region_length_bars;
     long f_next_current_sample;
@@ -903,13 +904,14 @@ void * v_pydaw_osc_send_thread(void* a_arg)
 
     while(f_i < PYDAW_OSC_SEND_QUEUE_SIZE)
     {
-        osc_queue_vals[f_i] = (char*)malloc(sizeof(char) * 122880);
+        osc_queue_vals[f_i] =
+            (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
         f_i++;
     }
 
-    char * f_tmp1 = (char*)malloc(sizeof(char) * 122880);
-    char * f_tmp2 = (char*)malloc(sizeof(char) * 122880);
-    char * f_msg = (char*)malloc(sizeof(char) * 122880);
+    char * f_tmp1 = (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+    char * f_tmp2 = (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+    char * f_msg = (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
     f_tmp1[0] = '\0';
     f_tmp2[0] = '\0';
     f_msg[0] = '\0';
