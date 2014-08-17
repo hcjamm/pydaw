@@ -69,16 +69,6 @@ extern "C" {
 #define PYDAW_OSC_SEND_QUEUE_SIZE 256
 #define PYDAW_OSC_MAX_MESSAGE_SIZE 65536
 
-#ifdef SCHED_DEADLINE
-
-#define RT_SCHED SCHED_DEADLINE
-
-#else
-
-#define RT_SCHED SCHED_FIFO
-
-#endif
-
 #define FRAMES_PER_BUFFER 4096
 
 #include <string.h>
@@ -103,6 +93,16 @@ extern "C" {
 #include "pydaw_audio_util.h"
 #include "synth.h"
 #include <lo/lo.h>
+
+#ifdef SCHED_DEADLINE
+
+#define RT_SCHED SCHED_DEADLINE
+
+#else
+
+#define RT_SCHED SCHED_FIFO
+
+#endif
 
 /* Interim until PyDAWv5 */
 int i_get_global_track_num(int a_track_type, int a_track_num)
