@@ -46,6 +46,9 @@ extern "C" {
 #define TRACK_TYPE_AUDIO_IN 3
 #define TRACK_TYPE_WAVE 4
 
+#define MAX_INST_COUNT 5
+#define MAX_FX_COUNT 10
+
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 1024
@@ -201,8 +204,8 @@ typedef struct
     int bus_num;
     t_pydaw_seq_event * event_buffer;
     int current_period_event_index;
-    t_pydaw_plugin * instrument;
-    t_pydaw_plugin * effect;
+    t_pydaw_plugin * instruments[MAX_INST_COUNT];
+    t_pydaw_plugin * effects[MAX_FX_COUNT];
     /*Track number for the pool of tracks it is in,
       for example: 0-15 for midi tracks*/
     int track_num;
@@ -561,11 +564,8 @@ void v_pydaw_zero_all_buffers(t_pydaw_data * self)
     int f_i = 0;
     while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
-        if(self->track_pool_all[f_i]->effect)
-        {
-            float ** f_buff = self->track_pool_all[f_i]->buffers;
-            v_pydaw_zero_buffer(f_buff, FRAMES_PER_BUFFER);
-        }
+        float ** f_buff = self->track_pool_all[f_i]->buffers;
+        v_pydaw_zero_buffer(f_buff, FRAMES_PER_BUFFER);
         f_i++;
     }
 }
@@ -591,18 +591,18 @@ void v_pydaw_panic(t_pydaw_data * self)
 
     while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
-        if(self->track_pool_all[f_i]->instrument &&
-            self->track_pool_all[f_i]->instrument->descriptor->panic)
+        if(self->track_pool_all[f_i]->instruments[0] &&
+            self->track_pool_all[f_i]->instruments[0]->descriptor->panic)
         {
-            self->track_pool_all[f_i]->instrument->descriptor->panic(
-                self->track_pool_all[f_i]->instrument->PYFX_handle);
+            self->track_pool_all[f_i]->instruments[0]->descriptor->panic(
+                self->track_pool_all[f_i]->instruments[0]->PYFX_handle);
         }
 
-        if(self->track_pool_all[f_i]->effect &&
-            self->track_pool_all[f_i]->effect->descriptor->panic)
+        if(self->track_pool_all[f_i]->effects[0] &&
+            self->track_pool_all[f_i]->effects[0]->descriptor->panic)
         {
-            self->track_pool_all[f_i]->effect->descriptor->panic(
-                self->track_pool_all[f_i]->effect->PYFX_handle);
+            self->track_pool_all[f_i]->effects[0]->descriptor->panic(
+                self->track_pool_all[f_i]->effects[0]->PYFX_handle);
         }
 
         f_i++;
@@ -1653,12 +1653,12 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
         v_pydaw_process_note_offs(self, a_global_track_num);
 
-        v_run_plugin(f_track->instrument, self->sample_count,
+        v_run_plugin(f_track->instruments[0], self->sample_count,
             f_track->event_buffer, f_track->current_period_event_index);
 
         v_pydaw_run_pre_effect_vol(self, f_track);
 
-        v_run_plugin(f_track->effect, self->sample_count,
+        v_run_plugin(f_track->effects[0], self->sample_count,
             f_track->event_buffer, f_track->current_period_event_index);
 
         v_pydaw_sum_track_outputs(self, f_track, f_track->bus_num);
@@ -1684,7 +1684,7 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
         v_pydaw_run_pre_effect_vol(self, f_track);
 
-        v_run_plugin(f_track->effect, self->sample_count,
+        v_run_plugin(f_track->effects[0], self->sample_count,
             f_track->event_buffer, f_track->current_period_event_index);
 
         v_pydaw_sum_track_outputs(self, f_track, f_track->bus_num);
@@ -1728,7 +1728,7 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
             v_pydaw_run_pre_effect_vol(self, f_track);
 
-            v_run_plugin(f_track->effect, self->sample_count,
+            v_run_plugin(f_track->effects[0], self->sample_count,
                 f_track->event_buffer, f_track->current_period_event_index);
 
             v_pydaw_sum_track_outputs(self, f_track, 0);
@@ -2002,7 +2002,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
                         if (controller > 0)
                         {
                             int controlIn;
-                            if(f_track->instrument &&
+                            if(f_track->instruments[0] &&
                                f_track->plugin_index ==
                                f_event->plugin_index)
                             {
@@ -2038,7 +2038,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
                                         f_event->plugin_index;
 
                                     v_pydaw_set_control_from_cc(
-                                        f_track->instrument, controlIn,
+                                        f_track->instruments[0], controlIn,
                                         f_buff_ev, self, 1, f_i);
 
                                     f_track->current_period_event_index += 1;
@@ -2078,7 +2078,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
                                     f_buff_ev->plugin_index = -1;
 
                                     v_pydaw_set_control_from_cc(
-                                        f_track->effect, controlIn,
+                                        f_track->effects[0], controlIn,
                                         f_buff_ev, self, 0, f_i);
 
                                     f_track->current_period_event_index += 1;
@@ -2344,7 +2344,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * self,
                             f_event->tick = (events[f_i2].tick);
 
                             v_pydaw_set_control_from_cc(
-                                f_track->instrument,
+                                f_track->instruments[0],
                                     controlIn, f_event, self, 1,
                                     self->
                                         record_armed_track_index_all);
@@ -2391,7 +2391,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * self,
                                     (events[f_i2].tick);
 
                             v_pydaw_set_control_from_cc(
-                                    f_track->effect,
+                                    f_track->effects[0],
                                     controlIn, f_event, self, 0,
                                     self->record_armed_track_index_all);
 
@@ -2786,7 +2786,7 @@ inline void v_pydaw_run_wave_editor(t_pydaw_data * self,
         f_i++;
     }
 
-    v_run_plugin(f_track->effect, sample_count,
+    v_run_plugin(f_track->effects[0], sample_count,
         f_track->event_buffer, f_track->current_period_event_index);
 
     f_i = 0;
@@ -2898,7 +2898,7 @@ inline void v_pydaw_run_engine(t_pydaw_data * self, int sample_count,
     t_pytrack * f_master_track =
         self->track_pool_all[PYDAW_MIDI_TRACK_COUNT];
 
-    v_run_plugin(f_master_track->effect, sample_count,
+    v_run_plugin(f_master_track->effects[0], sample_count,
         f_master_track->event_buffer,
         f_master_track->current_period_event_index);
 
@@ -3890,8 +3890,19 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type, float a_sr)
         f_i++;
     }
 
-    f_result->instrument = NULL;
-    f_result->effect = NULL;
+    f_i = 0;
+    while(f_i < MAX_INST_COUNT)
+    {
+        f_result->instruments[f_i] = 0;
+        f_i++;
+    }
+
+    f_i = 0;
+    while(f_i < MAX_FX_COUNT)
+    {
+        f_result->effects[f_i] = 0;
+        f_i++;
+    }
 
     f_result->current_period_event_index = 0;
 
@@ -4186,11 +4197,11 @@ void v_pydaw_open_plugin(t_pydaw_data * self, t_pytrack * a_track,
 
         if(a_is_fx)
         {
-            f_instance = a_track->effect;
+            f_instance = a_track->effects[0];
         }
         else
         {
-            f_instance = a_track->instrument;
+            f_instance = a_track->instruments[0];
         }
 
         f_instance->descriptor->load(
@@ -4646,19 +4657,19 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
 
             while(f_i < PYDAW_TRACK_COUNT_ALL)
             {
-                if(self->track_pool_all[f_i]->instrument)
+                if(self->track_pool_all[f_i]->instruments[0])
                 {
                     self->track_pool_all[f_i
-                    ]->instrument->descriptor->on_stop(
+                    ]->instruments[0]->descriptor->on_stop(
                         self->track_pool_all[
-                        f_i]->instrument->PYFX_handle);
+                        f_i]->instruments[0]->PYFX_handle);
                 }
 
-                if(self->track_pool_all[f_i]->effect)
+                if(self->track_pool_all[f_i]->effects[0])
                 {
                     self->track_pool_all[f_i
-                    ]->effect->descriptor->on_stop(
-                        self->track_pool_all[f_i]->effect->PYFX_handle);
+                    ]->effects[0]->descriptor->on_stop(
+                        self->track_pool_all[f_i]->effects[0]->PYFX_handle);
                 }
 
                 int f_i2 = 0;
@@ -4864,11 +4875,11 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
     t_pydaw_plugin * f_result;
     t_pydaw_plugin * f_result_fx;
 
-    char f_file_name[512];
+    char f_file_name[1024];
     sprintf(f_file_name, "%s%i.pyinst", self->instruments_folder,
             a_track->track_num);
 
-    char f_file_name_fx[512];
+    char f_file_name_fx[1024];
     sprintf(f_file_name_fx, "%s%i.pyfx", self->instruments_folder,
             a_track->track_num);
 
@@ -4878,7 +4889,7 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
                 g_pydaw_wavpool_item_get, a_track->global_track_num,
                 v_queue_osc_message);
 
-        t_pydaw_plugin * f_fx = a_track->effect;
+        t_pydaw_plugin * f_fx = a_track->effects[0];
 
         if(a_lock)
         {
@@ -4890,8 +4901,8 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
         f_result_fx->descriptor->connect_buffer(
             f_result_fx->PYFX_handle, 1, a_track->buffers[1]);
 
-        a_track->instrument = 0;
-        a_track->effect = f_result_fx;
+        a_track->instruments[0] = 0;
+        a_track->effects[0] = f_result_fx;
         a_track->plugin_index = a_index;
         a_track->current_period_event_index = 0;
         //Opens the .inst file if exists
@@ -4914,8 +4925,8 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
     }
     else if(a_index == 0)  //empty
     {
-        t_pydaw_plugin * f_inst = a_track->instrument;
-        t_pydaw_plugin * f_fx = a_track->effect;
+        t_pydaw_plugin * f_inst = a_track->instruments[0];
+        t_pydaw_plugin * f_fx = a_track->effects[0];
 
         if(i_pydaw_file_exists(f_file_name))
         {
@@ -4931,8 +4942,8 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
             pthread_spin_lock(&self->main_lock);
         }
 
-        a_track->instrument = NULL;
-        a_track->effect = NULL;
+        a_track->instruments[0] = NULL;
+        a_track->effects[0] = NULL;
         a_track->plugin_index = a_index;
         a_track->current_period_event_index = 0;
 
@@ -4978,8 +4989,8 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
             remove(f_file_name_fx);
         }
 
-        t_pydaw_plugin * f_inst = a_track->instrument;
-        t_pydaw_plugin * f_fx = a_track->effect;
+        t_pydaw_plugin * f_inst = a_track->instruments[0];
+        t_pydaw_plugin * f_fx = a_track->effects[0];
 
         if(a_lock)
         {
@@ -4996,8 +5007,8 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
         f_result_fx->descriptor->connect_buffer(
             f_result_fx->PYFX_handle, 1, a_track->buffers[1]);
 
-        a_track->instrument = f_result;
-        a_track->effect = f_result_fx;
+        a_track->instruments[0] = f_result;
+        a_track->effects[0] = f_result_fx;
         a_track->plugin_index = a_index;
         a_track->current_period_event_index = 0;
         //Opens the .inst file if exists
@@ -5143,10 +5154,10 @@ void v_pydaw_offline_render_prep(t_pydaw_data * self)
         t_pytrack * f_track = self->track_pool_all[f_i];
         if(f_track->plugin_index > 0)
         {
-            if(f_track->instrument->descriptor->offline_render_prep)
+            if(f_track->instruments[0]->descriptor->offline_render_prep)
             {
-                f_track->instrument->descriptor->offline_render_prep(
-                        f_track->instrument->PYFX_handle);
+                f_track->instruments[0]->descriptor->offline_render_prep(
+                    f_track->instruments[0]->PYFX_handle);
             }
         }
         f_i++;

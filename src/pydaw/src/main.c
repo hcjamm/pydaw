@@ -1312,11 +1312,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
 
         if(f_is_inst)
         {
-            f_instance = a_pydaw_data->track_pool_all[f_track_num]->instrument;
+            f_instance =
+                a_pydaw_data->track_pool_all[f_track_num]->instruments[0];
         }
         else
         {
-            f_instance = a_pydaw_data->track_pool_all[f_track_num]->effect;
+            f_instance = a_pydaw_data->track_pool_all[f_track_num]->effects[0];
         }
 
         if(f_instance)
@@ -1349,11 +1350,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
 
         if(f_is_inst)
         {
-            f_instance = a_pydaw_data->track_pool_all[f_track_num]->instrument;
+            f_instance =
+                a_pydaw_data->track_pool_all[f_track_num]->instruments[0];
         }
         else
         {
-            f_instance = a_pydaw_data->track_pool_all[f_track_num]->effect;
+            f_instance = a_pydaw_data->track_pool_all[f_track_num]->effects[0];
         }
 
         v_pydaw_plugin_configure_handler(f_instance, f_key, f_message,
