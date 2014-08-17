@@ -35,6 +35,11 @@ extern "C" {
 #define PYDAW_PLAYBACK_MODE_PLAY 1
 #define PYDAW_PLAYBACK_MODE_REC 2
 
+#define FADE_STATE_OFF 0
+#define FADE_STATE_FADING 1
+#define FADE_STATE_FADED 2
+#define FADE_STATE_RETURNING 3
+
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 1024
@@ -84,6 +89,7 @@ extern "C" {
 #include "../libmodsynth/lib/amp.h"
 #include "../libmodsynth/lib/peak_meter.h"
 #include "../libmodsynth/modules/multifx/multifx3knob.h"
+#include "../libmodsynth/modules/modulation/ramp_env.h"
 #include "pydaw_audio_tracks.h"
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
@@ -204,6 +210,8 @@ typedef struct
     float ** buffers;
     int channels;
     pthread_spinlock_t lock;
+    t_ramp_env * fade_env;
+    int fade_state;
 }t_pytrack;
 
 typedef struct
@@ -384,7 +392,7 @@ typedef struct
 }t_pydaw_thread_args;
 
 void g_pysong_get(t_pydaw_data*, int);
-t_pytrack * g_pytrack_get(int, int);
+t_pytrack * g_pytrack_get(int, int, float);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const int);
 void g_pyitem_get(t_pydaw_data*, int);
 int g_pyitem_clone(t_pydaw_data * self, int a_item_index);
@@ -1394,6 +1402,7 @@ inline void v_pydaw_run_pre_effect_vol(t_pydaw_data * self,
     }
 }
 
+
 inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
         t_pytrack * a_track, int bus_num)
 {
@@ -1410,13 +1419,74 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
         ||
         ((self->is_soloed) && (a_track->solo)))
     {
-        int f_i2 = 0;
+        if(a_track->fade_state == FADE_STATE_FADED)
+        {
+            a_track->fade_state = FADE_STATE_RETURNING;
+            v_rmp_retrigger(a_track->fade_env, 0.1f, 1.0f);
+        }
+        else if(a_track->fade_state == FADE_STATE_FADING)
+        {
+            a_track->fade_env->output = 1.0f - a_track->fade_env->output;
+            a_track->fade_state = FADE_STATE_RETURNING;
+        }
+    }
+    else
+    {
+        if(a_track->fade_state == FADE_STATE_OFF)
+        {
+            a_track->fade_state = FADE_STATE_FADING;
+            v_rmp_retrigger(a_track->fade_env, 0.1f, 1.0f);
+        }
+        else if(a_track->fade_state == FADE_STATE_RETURNING)
+        {
+            a_track->fade_env->output = 1.0f - a_track->fade_env->output;
+            a_track->fade_state = FADE_STATE_FADING;
+        }
+    }
 
+    int f_i2 = 0;
+
+    if(a_track->fade_state == FADE_STATE_OFF)
+    {
         while(f_i2 < self->sample_count)
         {
             f_buff[0][f_i2] += f_track_buff[0][f_i2];
             f_buff[1][f_i2] += f_track_buff[1][f_i2];
             f_i2++;
+        }
+    }
+    else if(a_track->fade_state == FADE_STATE_FADING)
+    {
+        while(f_i2 < self->sample_count)
+        {
+            f_rmp_run_ramp(a_track->fade_env);
+            f_buff[0][f_i2] +=
+                f_track_buff[0][f_i2] * (1.0f - a_track->fade_env->output);
+            f_buff[1][f_i2] +=
+                f_track_buff[1][f_i2] * (1.0f - a_track->fade_env->output);
+            f_i2++;
+        }
+
+        if(a_track->fade_env->output >= 1.0f)
+        {
+            a_track->fade_state = FADE_STATE_FADED;
+        }
+    }
+    else if(a_track->fade_state == FADE_STATE_RETURNING)
+    {
+        while(f_i2 < self->sample_count)
+        {
+            f_rmp_run_ramp(a_track->fade_env);
+            f_buff[0][f_i2] +=
+                f_track_buff[0][f_i2] * a_track->fade_env->output;
+            f_buff[1][f_i2] +=
+                f_track_buff[1][f_i2] * a_track->fade_env->output;
+            f_i2++;
+        }
+
+        if(a_track->fade_env->output >= 1.0f)
+        {
+            a_track->fade_state = FADE_STATE_OFF;
         }
     }
 
@@ -3762,7 +3832,7 @@ void g_pyitem_get(t_pydaw_data* self, int a_uid)
     }
 }
 
-t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
+t_pytrack * g_pytrack_get(int a_track_num, int a_track_type, float a_sr)
 {
     int f_i = 0;
 
@@ -3821,6 +3891,10 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
 
     f_result->peak_meter = g_pkm_get();
 
+    f_result->fade_env = g_rmp_get_ramp_env(a_sr);
+    v_rmp_set_time(f_result->fade_env, 0.03f);
+    f_result->fade_state = 0;
+
     return f_result;
 }
 
@@ -3831,7 +3905,7 @@ void pydaw_osc_error(int num, const char *msg, const char *path)
 	    num, path, msg);
 }
 
-t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
+t_pydaw_data * g_pydaw_data_get(float a_sr)
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
 
@@ -3841,7 +3915,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     pthread_spin_init(&f_result->ui_spinlock, 0);
 
     f_result->midi_learn = 0;
-    f_result->sample_rate = a_sample_rate;
+    f_result->sample_rate = a_sr;
     f_result->current_sample = 0;
     f_result->current_bar = 0;
     f_result->current_region = 0;
@@ -3906,7 +3980,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->record_armed_track = 0;
     f_result->record_armed_track_index_all = -1;
 
-    f_result->wav_pool = g_wav_pool_get(a_sample_rate);
+    f_result->wav_pool = g_wav_pool_get(a_sr);
     f_result->ab_wav_item = 0;
     f_result->ab_audio_item = g_pydaw_audio_item_get(f_result->sample_rate);
     f_result->ab_mode = 0;
@@ -3918,7 +3992,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->preview_start = 0.0f;
     f_result->preview_amp_lin = 1.0f;
     f_result->is_previewing = 0;
-    f_result->preview_max_sample_count = ((int)(a_sample_rate)) * 30;
+    f_result->preview_max_sample_count = ((int)(a_sr)) * 30;
 
     int f_i = 0;
 
@@ -3935,7 +4009,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
     {
-        f_result->audio_inputs[f_i] = g_pyaudio_input_get(a_sample_rate);
+        f_result->audio_inputs[f_i] = g_pyaudio_input_get(a_sr);
         f_result->audio_inputs[f_i]->input_port[0] = f_i * 2;
         f_result->audio_inputs[f_i]->input_port[1] = (f_i * 2) + 1;
         f_i++;
@@ -3945,7 +4019,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 0);
+        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 0, a_sr);
 
         int f_i2 = 0;
 
@@ -3979,7 +4053,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
-        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 1);
+        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 1, a_sr);
         f_i++;
         f_track_total++;
     }
@@ -3988,7 +4062,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
     {
-        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 2);
+        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 2, a_sr);
         f_i++;
         f_track_total++;
     }
@@ -3997,7 +4071,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 
     while(f_i < PYDAW_WE_TRACK_COUNT)
     {
-        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 4);
+        f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 4, a_sr);
         f_i++;
         f_track_total++;
     }
