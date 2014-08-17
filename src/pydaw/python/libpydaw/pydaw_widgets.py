@@ -1582,7 +1582,8 @@ def peak_meter_gradient(a_height):
     return PEAK_GRADIENT_CACHE[a_height]
 
 class peak_meter:
-    def __init__(self, a_width=14):
+    def __init__(self, a_width=14, a_text=False):
+        self.text = a_text
         self.widget = QtGui.QWidget()
         self.widget.setFixedWidth(a_width)
         self.set_value([0.0, 0.0])
@@ -1610,12 +1611,19 @@ class peak_meter:
             else:
                 f_db = pydaw_util.pydaw_lin_to_db(f_val)
                 f_db = pydaw_util.pydaw_clip_min(f_db, -29.0)
-                f_rect_y = f_height * f_db * -0.033333333 #/ -30.0
+                f_rect_y = f_height * f_db * -0.033333333 # / -30.0
                 f_rect_height = f_height - f_rect_y
             f_rect_x = f_i * f_rect_width
             f_rect = QtCore.QRectF(
                 f_rect_x, f_rect_y, f_rect_width, f_rect_height)
             p.drawRect(f_rect)
+
+        if self.text:
+            p.setPen(QtGui.QPen(QtCore.Qt.white))
+            for f_y, f_db in zip(
+            range(0, int(f_height), int(f_height / 5.0)),
+            range(0, -30, -6)):
+                p.drawText(3, f_y, str(f_db))
 
 PRESET_FILE_DIALOG_STRING = 'PyDAW Presets (*.pypresets)'
 BM_FILE_DIALOG_STRING = 'PyDAW Bookmarks (*.pybm4)'

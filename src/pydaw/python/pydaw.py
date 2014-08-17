@@ -10154,7 +10154,7 @@ class pydaw_wave_editor_widget:
         self.vol_label = QtGui.QLabel("0db")
         self.vol_label.setMinimumWidth(51)
         self.vol_layout.addWidget(self.vol_label)
-        self.peak_meter = pydaw_widgets.peak_meter(28)
+        self.peak_meter = pydaw_widgets.peak_meter(28, a_text=True)
         self.edit_hlayout.addWidget(self.peak_meter.widget)
         self.ctrl_vlayout = QtGui.QVBoxLayout()
         self.edit_hlayout.addLayout(self.ctrl_vlayout)
