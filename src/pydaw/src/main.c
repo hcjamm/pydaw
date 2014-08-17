@@ -413,6 +413,14 @@ static int portaudioCallback( const void *inputBuffer,
 
     float *out = (float*)outputBuffer;
 
+    if(framesPerBuffer > FRAMES_PER_BUFFER)
+    {
+        printf("WARNING:  Audio device requested buffer size %i, "
+            "truncating to max buffer size:  %i",
+            (int)framesPerBuffer, FRAMES_PER_BUFFER);
+        framesPerBuffer = FRAMES_PER_BUFFER;
+    }
+
     (void) inputBuffer; //Prevent unused variable warning.
 
     gettimeofday(&tv, NULL);
