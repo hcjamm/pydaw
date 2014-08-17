@@ -1626,9 +1626,6 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 {
     t_pytrack * f_track = self->track_pool_all[a_global_track_num];
 
-    int f_global_bus_num = i_get_global_track_num(1, f_track->bus_num);
-    t_pytrack * f_bus = self->track_pool_all[f_global_bus_num];
-
     if(self->playback_mode > 0)
     {
         v_pydaw_process_midi(self, a_global_track_num, self->sample_count);
@@ -1642,33 +1639,21 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
     v_pydaw_process_note_offs(self, a_global_track_num);
 
-    if(f_track->track_type == TRACK_TYPE_BUS)
+    if((f_track->bus_count) != 0)
     {
-        if((f_track->bus_count) == 0)
+        while(1)
         {
-            pthread_spin_lock(&f_bus->lock);
+            pthread_spin_lock(&f_track->lock);
 
-            f_bus->bus_counter -= 1;
-
-            pthread_spin_unlock(&f_bus->lock);
-        }
-        else
-        {
-            while(1)
+            if((f_track->bus_counter) <= 0)
             {
-                pthread_spin_lock(&f_track->lock);
-
-                if((f_track->bus_counter) <= 0)
-                {
-                    break;
-                }
-
                 pthread_spin_unlock(&f_track->lock);
+                break;
             }
-        }
 
+            pthread_spin_unlock(&f_track->lock);
+        }
         f_track->bus_counter = (f_track->bus_count);
-        pthread_spin_unlock(&f_track->lock);
     }
 
     v_pydaw_audio_items_run(self, self->sample_count,
