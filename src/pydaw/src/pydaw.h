@@ -40,6 +40,12 @@ extern "C" {
 #define FADE_STATE_FADED 2
 #define FADE_STATE_RETURNING 3
 
+#define TRACK_TYPE_INST 0
+#define TRACK_TYPE_BUS 1
+#define TRACK_TYPE_AUDIO 2
+#define TRACK_TYPE_AUDIO_IN 3
+#define TRACK_TYPE_WAVE 4
+
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 1024
@@ -100,22 +106,22 @@ extern "C" {
 /* Interim until PyDAWv5 */
 int i_get_global_track_num(int a_track_type, int a_track_num)
 {
-    if(a_track_type == 0)
+    if(a_track_type == TRACK_TYPE_INST)
     {
         assert(a_track_num < PYDAW_MIDI_TRACK_COUNT);
         return a_track_num;
     }
-    else if(a_track_type == 1)
+    else if(a_track_type == TRACK_TYPE_BUS)
     {
         assert(a_track_num < PYDAW_BUS_TRACK_COUNT);
         return a_track_num + PYDAW_MIDI_TRACK_COUNT;
     }
-    else if(a_track_type == 2)
+    else if(a_track_type == TRACK_TYPE_AUDIO)
     {
         assert(a_track_num < PYDAW_AUDIO_TRACK_COUNT);
         return a_track_num + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
     }
-    else if(a_track_type == 4)
+    else if(a_track_type == TRACK_TYPE_WAVE)
     {
         assert(a_track_num < PYDAW_WE_TRACK_COUNT);
         return PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT +
@@ -200,7 +206,7 @@ typedef struct
       for example: 0-15 for midi tracks*/
     int track_num;
     int global_track_num;
-    int track_type;  //0 == MIDI/plugin-instrument, 1 == Bus, 2 == Audio
+    int track_type;
     //Only for busses, the count of plugins writing to the buffer
     int bus_count;
     /*This is reset to bus_count each cycle and the
@@ -217,8 +223,6 @@ typedef struct
 typedef struct
 {
     int track_number;
-    /*Valid types:  0 == MIDI, 2 == Audio
-     * (1==Bus is not valid for this purpose)*/
     int track_type;
 }t_pydaw_work_queue_item;
 
@@ -1413,7 +1417,7 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
 
     pthread_spin_lock(&f_bus->lock);
 
-    if((a_track->track_type == 1)  //bus track
+    if((a_track->track_type == TRACK_TYPE_BUS)
         ||
         ((!a_track->mute) && (!self->is_soloed))
         ||
@@ -1620,7 +1624,7 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
     int f_global_bus_num;
 
-    if(f_track->track_type == 1)
+    if(f_track->track_type == TRACK_TYPE_BUS)
     {
         f_global_bus_num = i_get_global_track_num(1, 0);
     }
@@ -1631,7 +1635,7 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
     t_pytrack * f_bus = self->track_pool_all[f_global_bus_num];
 
-    if(f_track->track_type == 0)  //MIDI/plugin-instrument
+    if(f_track->track_type == TRACK_TYPE_INST)
     {
         if(self->playback_mode > 0)
         {
@@ -1657,7 +1661,7 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
         v_pydaw_sum_track_outputs(self, f_track, f_track->bus_num);
     }
-    else if(f_track->track_type == 2)  //Audio track
+    else if(f_track->track_type == TRACK_TYPE_AUDIO)
     {
         if(self->playback_mode > 0)
         {
@@ -1683,7 +1687,7 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 
         v_pydaw_sum_track_outputs(self, f_track, f_track->bus_num);
     }
-    else if(f_track->track_type == 1)  //Bus track
+    else if(f_track->track_type == TRACK_TYPE_BUS)
     {
         if(self->playback_mode > 0)
         {
@@ -2477,7 +2481,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * self)
                     f_thread_index]].track_number = f_i;
             self->track_work_queues[f_thread_index][
                     self->track_work_queue_counts[
-                    f_thread_index]].track_type = 0;
+                    f_thread_index]].track_type = TRACK_TYPE_INST;
             self->track_work_queue_counts[f_thread_index] =
                     (self->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
@@ -2502,7 +2506,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * self)
                     f_thread_index]].track_number = f_i;
             self->track_work_queues[f_thread_index][
                     self->track_work_queue_counts[
-                    f_thread_index]].track_type = 0;
+                    f_thread_index]].track_type = TRACK_TYPE_INST;
             self->track_work_queue_counts[f_thread_index] =
                     (self->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
@@ -2526,7 +2530,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * self)
                     f_thread_index]].track_number = f_i;
             self->track_work_queues[f_thread_index][
                     self->track_work_queue_counts[
-                    f_thread_index]].track_type = 0;
+                    f_thread_index]].track_type = TRACK_TYPE_INST;
             self->track_work_queue_counts[f_thread_index] =
                     (self->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
@@ -2547,7 +2551,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * self)
                 f_thread_index]].track_number = f_i;
         self->track_work_queues[f_thread_index][
                 self->track_work_queue_counts[
-                f_thread_index]].track_type = 2;
+                f_thread_index]].track_type = TRACK_TYPE_AUDIO;
         self->track_work_queue_counts[f_thread_index] =
                 (self->track_work_queue_counts[f_thread_index]) + 1;
         f_thread_index++;
@@ -2573,7 +2577,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * self)
                     f_thread_index]].track_number = f_i;
             self->track_work_queues[f_thread_index][
                     self->track_work_queue_counts[
-                    f_thread_index]].track_type = 1;
+                    f_thread_index]].track_type = TRACK_TYPE_BUS;
             self->track_work_queue_counts[f_thread_index] =
                     (self->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
@@ -4145,21 +4149,21 @@ void v_pydaw_open_track(t_pydaw_data * self, t_pytrack * a_track)
 void v_pydaw_open_plugin(t_pydaw_data * self, t_pytrack * a_track,
         int a_is_fx)
 {
-    char f_file_name[512];
+    char f_file_name[1024];
 
     if(a_is_fx)
     {
         switch(a_track->track_type)
         {
-            case 0:  //MIDI
+            case TRACK_TYPE_INST:
                 sprintf(f_file_name, "%s%i.pyfx",
                         self->instruments_folder, a_track->track_num);
                 break;
-            case 1:  //Bus
+            case TRACK_TYPE_BUS:
                 sprintf(f_file_name, "%s%i.pyfx", self->busfx_folder,
                         a_track->track_num);
                 break;
-            case 2:  //Audio
+            case TRACK_TYPE_AUDIO:
                 sprintf(f_file_name, "%s%i.pyfx", self->audiofx_folder,
                         a_track->track_num);
                 break;
@@ -4171,7 +4175,8 @@ void v_pydaw_open_plugin(t_pydaw_data * self, t_pytrack * a_track,
                 a_track->track_num);
     }
 
-    if(a_track->track_type != 4 && i_pydaw_file_exists(f_file_name))
+    if(a_track->track_type != TRACK_TYPE_WAVE &&
+        i_pydaw_file_exists(f_file_name))
     {
         printf("v_pydaw_open_track:  Track exists %s , loading\n", f_file_name);
 
