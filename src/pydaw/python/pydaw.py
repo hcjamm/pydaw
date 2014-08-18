@@ -10964,7 +10964,8 @@ if os.path.isfile(TOOLTIPS_ENABLED_FILE):
 # as it relies on them existing
 MAIN_WINDOW = pydaw_main_window()
 MAIN_WINDOW.setWindowState(QtCore.Qt.WindowMaximized)
-PIANO_ROLL_EDITOR.verticalScrollBar().setSliderPosition(700)
+PIANO_ROLL_EDITOR.verticalScrollBar().setSliderPosition(
+    PIANO_ROLL_EDITOR.scene.height() * 0.4)
 PIANO_ROLL_EDITOR_WIDGET.snap_combobox.setCurrentIndex(4)
 
 if TOOLTIPS_ENABLED:
