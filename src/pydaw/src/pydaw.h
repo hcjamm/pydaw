@@ -2989,12 +2989,13 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * self,
         int a_sample_count, float* a_output0,
         float* a_output1, int a_audio_track_num, int a_is_audio_glue)
 {
-    if((!self->pysong->audio_items[self->current_region] ||
-        !self->pysong->audio_items[
-            self->current_region]->index_counts[a_audio_track_num])
+    if(!a_is_audio_glue &&
+      (!self->pysong->audio_items[self->current_region] ||
+      !self->pysong->audio_items[
+        self->current_region]->index_counts[a_audio_track_num])
       && (!self->pysong->audio_items[self->ml_next_region] ||
         !self->pysong->audio_items[
-            self->ml_next_region]->index_counts[a_audio_track_num]))
+          self->ml_next_region]->index_counts[a_audio_track_num]))
     {
         return 0;
     }
@@ -3096,10 +3097,21 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * self,
         int f_i = 0;
         int f_index_pos = 0;
 
-        while(f_index_pos < f_region->index_counts[a_audio_track_num])
+        while(a_is_audio_glue || 
+            f_index_pos < f_region->index_counts[a_audio_track_num])
         {
-            f_i = f_region->indexes[a_audio_track_num][f_index_pos];
-            f_index_pos++;
+            if(!a_is_audio_glue)
+            {
+                f_i = f_region->indexes[a_audio_track_num][f_index_pos];
+                f_index_pos++;
+            }
+            else
+            {
+                if(f_i >= PYDAW_MAX_AUDIO_ITEM_COUNT)
+                {
+                    break;
+                }
+            }
 
             if(f_region->items[f_i] == 0)
             {
