@@ -446,7 +446,7 @@ void v_pydaw_offline_render(t_pydaw_data * self, int a_start_region,
 inline void v_pydaw_schedule_work(t_pydaw_data * self);
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 void v_pydaw_init_busses(t_pydaw_data * self);
-inline int v_pydaw_audio_items_run(t_pydaw_data * self,
+inline void v_pydaw_audio_items_run(t_pydaw_data * self,
         int a_sample_count, float* a_output0,
         float* a_output1, int a_audio_track_num, int a_is_audio_glue);
 void v_pydaw_update_audio_inputs(t_pydaw_data * self);
@@ -2985,7 +2985,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * self, int sample_count,
 
 
 
-inline int v_pydaw_audio_items_run(t_pydaw_data * self,
+inline void v_pydaw_audio_items_run(t_pydaw_data * self,
         int a_sample_count, float* a_output0,
         float* a_output1, int a_audio_track_num, int a_is_audio_glue)
 {
@@ -2997,10 +2997,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * self,
         !self->pysong->audio_items[
           self->ml_next_region]->index_counts[a_audio_track_num]))
     {
-        return 0;
+        return;
     }
-
-    int f_return_value = 0;
 
     int f_i6 = 0;
     int f_region_count = 1;
@@ -3097,7 +3095,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * self,
         int f_i = 0;
         int f_index_pos = 0;
 
-        while(a_is_audio_glue || 
+        while(a_is_audio_glue ||
             f_index_pos < f_region->index_counts[a_audio_track_num])
         {
             if(!a_is_audio_glue)
@@ -3145,8 +3143,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * self,
             (i_get_global_track_num(2, f_audio_item->audio_track_output) ==
              a_audio_track_num))
             {
-                f_return_value = 1;
-
                 if((f_audio_item->adjusted_start_beat) >=
                         f_adjusted_next_song_pos_beats)
                 {
@@ -3364,7 +3360,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * self,
         } //while < audio item count
         f_i6++;
     } //region count loop
-    return f_return_value;
+    return;
 }
 
 
