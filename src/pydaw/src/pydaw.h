@@ -4740,17 +4740,13 @@ t_pydaw_audio_items * v_audio_items_load_all(t_pydaw_data * self,
             }
 
             // TODO:  Remove at PyDAWv5
-            int f_global_index = f_new->audio_track_output +
-                PYDAW_BUS_TRACK_COUNT + PYDAW_MIDI_TRACK_COUNT;
+            int f_global_index = i_get_global_track_num(
+                TRACK_TYPE_AUDIO, f_new->audio_track_output);
 
             f_result->indexes[f_global_index][
-                f_result->index_counts[f_global_index]] = f_i;
+                f_result->index_counts[f_global_index]] = f_new->index;
             f_result->index_counts[f_global_index] += 1;
-
-            t_pydaw_audio_item * f_old = f_result->items[f_new->index];
             f_result->items[f_new->index] = f_new;
-            v_pydaw_audio_item_free(f_old);  //TODO:  Why???
-
             f_i++;
         }
 
