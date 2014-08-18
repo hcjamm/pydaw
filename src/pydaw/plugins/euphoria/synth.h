@@ -160,7 +160,7 @@ typedef struct {
     t_euphoria_poly_voice * data[EUPHORIA_POLYPHONY];
 
     //These are used for storing the mono FX buffers from the polyphonic voices.
-    float mono_fx_buffers[EUPHORIA_MONO_FX_GROUPS_COUNT][2];
+    float mono_fx_buffers[2][EUPHORIA_MONO_FX_GROUPS_COUNT];
 
     int i_slow_index;  //For indexing operations that don't need to track realtime events closely
 

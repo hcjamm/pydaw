@@ -809,14 +809,18 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n)
                 (f_voice->modulex_current_sample[0]),
                 (f_voice->modulex_current_sample[1]));
 
-        f_voice->modulex_current_sample[0] = f_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output0;
-        f_voice->modulex_current_sample[1] = f_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output1;
+        f_voice->modulex_current_sample[0] =
+            f_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output0;
+        f_voice->modulex_current_sample[1] =
+            f_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output1;
     }
 
-    plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0] +=
+    plugin_data->mono_fx_buffers[0][
+        (plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])] +=
             (f_voice->modulex_current_sample[0]) * (f_voice->adsr_amp->output) *
             (plugin_data->amp);
-    plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1] +=
+    plugin_data->mono_fx_buffers[1][
+            (plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])] +=
             (f_voice->modulex_current_sample[1]) * (f_voice->adsr_amp->output) *
             (plugin_data->amp);
 }
@@ -1265,8 +1269,10 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 
         for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
         {
-            plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0] = 0.0f;
-            plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1] = 0.0f;
+            plugin_data->mono_fx_buffers[0][
+                (plugin_data->monofx_channel_index[i2])] = 0.0f;
+            plugin_data->mono_fx_buffers[1][
+                (plugin_data->monofx_channel_index[i2])] = 0.0f;
         }
 
         for (i2 = 0; i2 < EUPHORIA_POLYPHONY; ++i2)
@@ -1282,8 +1288,8 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
         {
             f_monofx_index = (plugin_data->monofx_channel_index[i2]);
 
-            f_temp_sample0 = (plugin_data->mono_fx_buffers[f_monofx_index][0]);
-            f_temp_sample1 = (plugin_data->mono_fx_buffers[f_monofx_index][1]);
+            f_temp_sample0 = (plugin_data->mono_fx_buffers[0][f_monofx_index]);
+            f_temp_sample1 = (plugin_data->mono_fx_buffers[1][f_monofx_index]);
 
             for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
             {
@@ -1295,8 +1301,12 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                     plugin_data->mono_modules->multieffect[f_monofx_index][i3],
                     f_temp_sample0, f_temp_sample1);
 
-                f_temp_sample0 = (plugin_data->mono_modules->multieffect[f_monofx_index][i3]->output0);
-                f_temp_sample1 = (plugin_data->mono_modules->multieffect[f_monofx_index][i3]->output1);
+                f_temp_sample0 =
+                    (plugin_data->mono_modules->multieffect[
+                        f_monofx_index][i3]->output0);
+                f_temp_sample1 =
+                    (plugin_data->mono_modules->multieffect[
+                        f_monofx_index][i3]->output1);
             }
 
             v_eq6_run(plugin_data->mono_modules->eqs[f_monofx_index],
@@ -1335,7 +1345,8 @@ static char *c_euphoria_load_all(t_euphoria *plugin_data, char *paths,
 
     while (f_samples_loaded_count < EUPHORIA_MAX_SAMPLE_COUNT)
     {
-        if(paths[f_index] == EUPHORIA_FILES_STRING_DELIMITER || paths[f_index] == '\0')
+        if(paths[f_index] == EUPHORIA_FILES_STRING_DELIMITER ||
+            paths[f_index] == '\0')
         {
             f_result_string[f_current_string_index] = '\0';
 
