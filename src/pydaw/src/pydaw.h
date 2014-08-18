@@ -4775,7 +4775,7 @@ void v_set_playback_cursor(t_pydaw_data * self, int a_region, int a_bar)
 
     int f_i = 0;
 
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
         self->track_current_item_event_indexes[f_i] = 0;
         f_i++;
@@ -4787,7 +4787,7 @@ void v_pydaw_set_is_soloed(t_pydaw_data * self)
     int f_i = 0;
     self->is_soloed = 0;
 
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
         if(self->track_pool_all[f_i]->solo)
         {
@@ -4795,23 +4795,6 @@ void v_pydaw_set_is_soloed(t_pydaw_data * self)
             break;
         }
         f_i++;
-    }
-
-    int f_global_track_num;
-
-    if(self->is_soloed == 0)
-    {
-        f_i = 0;
-        while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-        {
-            f_global_track_num = i_get_global_track_num(2, f_i);
-            if(self->track_pool_all[f_global_track_num]->solo)
-            {
-                self->is_soloed = 1;
-                break;
-            }
-            f_i++;
-        }
     }
 }
 
