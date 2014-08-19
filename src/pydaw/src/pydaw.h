@@ -4674,7 +4674,7 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
             {
                 pthread_spin_lock(&self->main_lock);
             }
-            self->playback_mode = a_mode;
+
             v_set_playback_cursor(self, a_region, a_bar);
             if(self->ab_wav_item)
             {
@@ -4688,6 +4688,8 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
                     v_svf_reset(self->ab_audio_item->lp_filter);
                 }
             }
+
+            self->playback_mode = a_mode;
 
             if(a_lock)
             {
@@ -4708,10 +4710,11 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
             self->is_ab_ing = 0;
             self->recording_first_item = -1;
             self->recorded_note_current_beat = 0;
-            self->playback_mode = a_mode;
             self->recording_in_current_bar = 0;
             self->recording_current_item_pool_index = -1;
             v_set_playback_cursor(self, a_region, a_bar);
+
+            self->playback_mode = a_mode;
 
             if(a_lock)
             {
