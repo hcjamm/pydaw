@@ -290,28 +290,7 @@ typedef struct
 
     int item_count;
     int is_soloed;
-    /*Records which beat since recording started,
-     * combined with start forms the exact time*/
-    int recorded_notes_beat_tracker[PYDAW_MIDI_NOTE_COUNT];
-    /*This refers to item index in the item pool*/
-    int recorded_notes_item_tracker[PYDAW_MIDI_NOTE_COUNT];
-    /*Counts the number of beats elapsed since record was pressed.*/
-    int recorded_note_current_beat;
-    /*The position of the note_on in the bar it was first pressed, in beats*/
-    float recorded_notes_start_tracker[PYDAW_MIDI_NOTE_COUNT];
-    int recorded_notes_velocity_tracker[PYDAW_MIDI_NOTE_COUNT];
-    /*Boolean for whether the current bar has been added to the item pool*/
-    int recording_in_current_bar;
-    /*Then index of the item currently being recorded to*/
-    int recording_current_item_pool_index;
-    /*Used for suffixing file names when recording...
-     * TODO:  A better system, like the GUI sending a
-     * 'track0-blah..' name for more uniqueness*/
-    int record_name_index_items;
-    int record_name_index_regions;
-    /*item_pool_index of the first item recorded
-     * during the current record session*/
-    int recording_first_item;
+
     t_amp * amp_ptr;
     //For broadcasting to the threads that it's time to process the tracks
     pthread_cond_t * track_cond;
@@ -358,8 +337,7 @@ typedef struct
 
     pthread_t audio_recording_thread;
     int audio_recording_quit_notifier __attribute__((aligned(16)));
-    int rec_region_current_uid;
-    int rec_item_current_uid;
+
     /*used to prevent new audio items from playing while
      * the existing are being faded out.*/
     int suppress_new_audio_items;
@@ -405,7 +383,7 @@ void g_pysong_get(t_pydaw_data*, int);
 t_pytrack * g_pytrack_get(int, int, float);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const int);
 void g_pyitem_get(t_pydaw_data*, int);
-int g_pyitem_clone(t_pydaw_data * self, int a_item_index);
+
 t_pydaw_seq_event * g_pycc_get(int, int, float, float);
 t_pydaw_seq_event * g_pypitchbend_get(float a_start, float a_value);
 t_pydaw_seq_event * g_pynote_get(int a_note, int a_vel, float a_start,
@@ -428,8 +406,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * self, int a_index);
 void v_save_pyregion_to_disk(t_pydaw_data * self, int a_region_num);
 void v_pydaw_open_plugin(t_pydaw_data * self, t_pytrack * a_track,
                          int a_is_fx);
-int g_pyitem_get_new(t_pydaw_data* self);
-t_pyregion * g_pyregion_get_new(t_pydaw_data* self);
+
 void v_pydaw_set_track_volume(t_pydaw_data * self,
                               t_pytrack * a_track, float a_vol);
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
@@ -2623,10 +2600,6 @@ inline void v_pydaw_finish_time_params(t_pydaw_data * self,
 
     if((self->playback_cursor) >= 1.0f)
     {
-        self->recording_in_current_bar = 0;
-        self->recorded_note_current_beat =
-                (self->recorded_note_current_beat) + 4;
-
         self->playback_cursor = (self->playback_cursor) - 1.0f;
 
         self->current_bar = (self->current_bar) + 1;
@@ -3529,48 +3502,10 @@ int i_get_song_index_from_region_uid(t_pydaw_data* self, int a_uid)
     return -1;
 }
 
-/*For getting a new empty region during recording
- *
- * TODO:  Delete this, no longer needed
- */
-t_pyregion *  g_pyregion_get_new(t_pydaw_data* self)
-{
-    t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
-    f_result->alternate_tempo = 0;
-    f_result->tempo = 128.0f;
-    f_result->region_length_bars = 0;
-    f_result->region_length_beats = 0;
-    f_result->bar_length = 0;
-    f_result->not_yet_saved = 1;
-    f_result->uid = (self->rec_region_current_uid);
-    self->rec_region_current_uid =
-        (self->rec_region_current_uid) + 1;
-
-    int f_i = 0;
-    int f_i2 = 0;
-
-    while(f_i < PYDAW_TRACK_COUNT_ALL)
-    {
-        f_i2 = 0;
-        while(f_i2 < PYDAW_MAX_REGION_SIZE)
-        {
-            f_result->item_indexes[f_i][f_i2] = -1;
-            f_i2++;
-        }
-        f_i++;
-    }
-
-    return f_result;
-}
-
 t_pyregion * g_pyregion_get(t_pydaw_data* self, int a_uid)
 {
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
-    if (a_uid >= self->rec_region_current_uid)
-    {
-        self->rec_region_current_uid =
-            (self->rec_region_current_uid) + 1;
-    }
+
     f_result->alternate_tempo = 0;
     f_result->tempo = 128.0f;
     f_result->region_length_bars = 0;
@@ -3676,52 +3611,10 @@ t_pyregion * g_pyregion_get(t_pydaw_data* self, int a_uid)
     return f_result;
 }
 
-/*Get an empty pyitem, used for recording.  Returns the item number in the
- * item pool*/
-int g_pyitem_get_new(t_pydaw_data* self)
-{
-    t_pyitem * f_item = (t_pyitem*)malloc(sizeof(t_pyitem));
-    f_item->event_count = 0;
-    f_item->rec_event_count = 0;
-    f_item->uid = (self->rec_item_current_uid);
-    self->rec_item_current_uid = (self->rec_item_current_uid)
-            + 1;
-    self->item_pool[(self->item_count)] = f_item;
-    int f_result = (self->item_count);
-    self->item_count = (self->item_count) + 1;
-    return f_result;
-}
-
-int g_pyitem_clone(t_pydaw_data * self, int a_item_index)
-{
-    int f_result = g_pyitem_get_new(self);
-    self->item_pool[f_result]->event_count = self->item_pool[
-            a_item_index]->event_count;
-    self->item_pool[f_result]->rec_event_count = self->
-            item_pool[a_item_index]->rec_event_count;
-
-    int f_i = 0;
-    while(f_i < self->item_pool[a_item_index]->event_count)
-    {
-        self->item_pool[f_result]->events[f_i] = g_pynote_get(
-                self->item_pool[a_item_index]->events[f_i]->note,
-                self->item_pool[a_item_index]->events[f_i]->velocity,
-                self->item_pool[a_item_index]->events[f_i]->start,
-                self->item_pool[a_item_index]->events[f_i]->length);
-        f_i++;
-    }
-
-    return f_result;
-}
 
 void g_pyitem_get(t_pydaw_data* self, int a_uid)
 {
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
-    if (a_uid >= self->rec_item_current_uid)
-    {
-        self->rec_item_current_uid =
-                (self->rec_item_current_uid) + 1;
-    }
 
     f_result->event_count = 0;
     f_result->uid = a_uid;
@@ -3949,13 +3842,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
     f_result->pysong = NULL;
     f_result->item_count = 0;
     f_result->is_soloed = 0;
-    f_result->recording_in_current_bar = 0;
-    f_result->record_name_index_items = 0;
-    f_result->record_name_index_regions = 0;
-    f_result->recorded_note_current_beat = 0;
     f_result->suppress_new_audio_items = 0;
-    f_result->recording_current_item_pool_index = -1;
-    f_result->recording_first_item = -1;
 
     f_result->ml_current_period_beats = 0.0f;
     f_result->ml_next_period_beats = 0.0f;
@@ -3969,9 +3856,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
     f_result->ml_next_beat = 0.0;
     f_result->ml_starting_new_bar = 0;
     f_result->ml_is_looping = 0;
-
-    f_result->rec_region_current_uid = 10000000;
-    f_result->rec_item_current_uid = 10000000;
 
     f_result->amp_ptr = g_amp_get();
     f_result->is_offline_rendering = 0;
@@ -4053,18 +3937,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
         f_result->track_pool_all[f_track_total] = g_pytrack_get(f_i, 4, a_sr);
         f_i++;
         f_track_total++;
-    }
-
-    f_i = 0;
-
-    while(f_i < PYDAW_MIDI_NOTE_COUNT)
-    {
-        f_result->recorded_notes_item_tracker[f_i] = -1;
-        f_result->recorded_notes_beat_tracker[f_i] = -1;
-        f_result->recorded_notes_start_tracker[f_i] = 0.0f;
-        f_result->recorded_notes_velocity_tracker[f_i] = -1;
-
-        f_i++;
     }
 
     f_i = 0;
@@ -4690,11 +4562,7 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
             {
                 pthread_spin_lock(&self->main_lock);
             }
-            self->is_ab_ing = 0;
-            self->recording_first_item = -1;
-            self->recorded_note_current_beat = 0;
-            self->recording_in_current_bar = 0;
-            self->recording_current_item_pool_index = -1;
+
             v_set_playback_cursor(self, a_region, a_bar);
 
             self->playback_mode = a_mode;
