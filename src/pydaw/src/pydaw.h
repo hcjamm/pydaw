@@ -1724,17 +1724,20 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 void * v_pydaw_worker_thread(void* a_arg)
 {
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
+    t_pydaw_data * a_pydaw_data = f_args->pydaw_data;
+    int f_thread_num = f_args->thread_num;
+    pthread_cond_t * f_track_cond = &a_pydaw_data->track_cond[f_thread_num];
+    pthread_mutex_t * f_track_block_mutex =
+        &a_pydaw_data->track_block_mutexes[f_thread_num];
 
     while(1)
     {
-        pthread_cond_wait(&f_args->pydaw_data->track_cond[f_args->thread_num],
-                &f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
+        pthread_cond_wait(f_track_cond, f_track_block_mutex);
 
-        if(f_args->pydaw_data->track_thread_quit_notifier[f_args->thread_num])
+        if(a_pydaw_data->track_thread_quit_notifier[f_thread_num])
         {
-            f_args->pydaw_data->track_thread_quit_notifier[
-                    f_args->thread_num] = 2;
-            printf("worker thread %i exiting...\n", f_args->thread_num);
+            a_pydaw_data->track_thread_quit_notifier[f_thread_num] = 2;
+            printf("Worker thread %i exiting...\n", f_thread_num);
             break;
         }
 
@@ -1853,16 +1856,16 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
         while(1)
         {
             if((self->pysong->regions[f_current_track_region]) &&
-                (self->pysong->regions[f_current_track_region]->
-                    item_indexes[f_i][f_current_track_bar] != -1))
+                (self->pysong->regions[
+                    f_current_track_region]->item_indexes[
+                        f_i][f_current_track_bar] != -1))
             {
                 t_pyitem f_current_item =
-                        *(self->item_pool[(self->pysong->
-                        regions[f_current_track_region]->
-                        item_indexes[f_i][f_current_track_bar])]);
+                    *(self->item_pool[(self->pysong->regions[
+                        f_current_track_region]->item_indexes[
+                            f_i][f_current_track_bar])]);
 
-                if((f_track->item_event_index) >=
-                        (f_current_item.event_count))
+                if((f_track->item_event_index) >= (f_current_item.event_count))
                 {
                     if(f_track_next_period_beats >= 4.0f)
                     {
@@ -1922,9 +1925,8 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
                             /*There's already a note_off scheduled ahead of
                              * this one, process it immediately to avoid
                              * hung notes*/
-                            f_buff_ev =
-                                &f_track->event_buffer[
-                                    f_track->period_event_index];
+                            f_buff_ev = &f_track->event_buffer[
+                                f_track->period_event_index];
                             v_pydaw_ev_clear(f_buff_ev);
 
                             v_pydaw_ev_set_noteoff(f_buff_ev, 0,
@@ -1934,7 +1936,8 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
                             f_track->period_event_index += 1;
                         }
 
-                        t_pydaw_seq_event * f_buff_ev = &f_track->event_buffer[
+                        t_pydaw_seq_event * f_buff_ev =
+                            &f_track->event_buffer[
                                 (f_track->period_event_index)];
 
                         v_pydaw_ev_clear(f_buff_ev);
@@ -1963,7 +1966,7 @@ inline void v_pydaw_process_midi(t_pydaw_data * self, int f_i,
                             {
                                 t_pydaw_seq_event * f_buff_ev =
                                     &f_track->event_buffer[
-                                    f_track->period_event_index];
+                                        f_track->period_event_index];
                                 controlIn = controller;
                                 if (controlIn >= 0)
                                 {
@@ -2123,13 +2126,12 @@ inline void v_pydaw_process_note_offs(t_pydaw_data * self, int f_i)
                 self->f_next_current_sample)
             {
                 t_pydaw_seq_event * f_event =
-                    &f_track->event_buffer[
-                        f_track->period_event_index];
+                    &f_track->event_buffer[f_track->period_event_index];
                 v_pydaw_ev_clear(f_event);
 
                 v_pydaw_ev_set_noteoff(f_event, 0, f_i2, 0);
-                f_event->tick = (f_track->note_offs[f_i2]) -
-                    (self->current_sample);
+                f_event->tick =
+                    (f_track->note_offs[f_i2]) - (self->current_sample);
 
                 f_track->period_event_index += 1;
                 f_track->note_offs[f_i2] = -1;
@@ -2229,8 +2231,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * self,
             else if(events[f_i2].type == PYDAW_EVENT_PITCHBEND)
             {
                 v_pydaw_ev_clear(f_event);
-                v_pydaw_ev_set_pitchbend(f_event,
-                        0, events[f_i2].value);
+                v_pydaw_ev_set_pitchbend(f_event, 0, events[f_i2].value);
                 f_track->period_event_index += 1;
 
                 if(self->playback_mode == PYDAW_PLAYBACK_MODE_REC)
