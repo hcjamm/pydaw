@@ -9047,6 +9047,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_dialog = pydaw_device_dialog.pydaw_device_dialog(True)
         f_dialog.show_device_dialog(a_notify=True)
 
+    def on_kill_engine(self):
+        PROJECT.this_pydaw_osc.pydaw_kill_engine()
+
     def on_open_theme(self):
         try:
             f_file = QtGui.QFileDialog.getOpenFileName(self,
@@ -9429,6 +9432,11 @@ class pydaw_main_window(QtGui.QMainWindow):
             _("Hardware Settings..."))
         self.audio_device_action.triggered.connect(
             self.on_change_audio_settings)
+        self.menu_file.addSeparator()
+
+        self.kill_engine_action = self.menu_file.addAction(
+            _("Kill Audio Engine"))
+        self.kill_engine_action.triggered.connect(self.on_kill_engine)
         self.menu_file.addSeparator()
 
         self.quit_action = self.menu_file.addAction(_("Quit"))

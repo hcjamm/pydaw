@@ -115,6 +115,7 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_MIDI_LEARN "ml"
 #define PYDAW_CONFIGURE_KEY_WAVPOOL_ITEM_RELOAD "wr"
 #define PYDAW_CONFIGURE_KEY_MASTER_VOL "mvol"
+#define PYDAW_CONFIGURE_KEY_KILL_ENGINE "abort"
 
 //low-level MIDI stuff
 #define MIDI_NOTE_OFF       0x80
@@ -1810,6 +1811,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
             v_adsr_release(a_pydaw_data->preview_audio_item->adsr);
             pthread_spin_unlock(&a_pydaw_data->main_lock);
         }
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_KILL_ENGINE))
+    {
+        assert(0);
     }
     else
     {

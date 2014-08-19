@@ -262,3 +262,6 @@ class pydaw_osc:
     def pydaw_master_vol(self, a_vol):
         self.send_configure("mvol", str(a_vol))
 
+    def pydaw_kill_engine(self):
+        self.send_configure("abort", "")
+
