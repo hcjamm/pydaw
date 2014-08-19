@@ -2,7 +2,14 @@ PYDAW_VERSION=$(cat ../major-version.txt)
 BIN=$PYDAW_VERSION"_render-dbg"
 PROJECT=$HOME/$PYDAW_VERSION/default-project
 
-make clean && make debug && \
-valgrind --alignment=16 --track-origins=yes \
-./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512 1
+make clean && \
+make debug || \
+exit $?
+
+if [ -z $@ ]; then
+    valgrind --alignment=16 --track-origins=yes \
+        ./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512 1
+else
+    valgrind $@ ./$BIN $PROJECT "test.wav" 0 0 3 3 44100 512 1
+fi
 
