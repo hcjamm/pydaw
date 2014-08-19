@@ -228,6 +228,7 @@ typedef struct
      * a sample number of when to release it is stored here*/
     long note_offs[PYDAW_MIDI_NOTE_COUNT];
     int item_event_index;
+    char * osc_cursor_message;
 }t_pytrack;
 
 typedef struct
@@ -356,7 +357,7 @@ typedef struct
     int preview_max_sample_count;
     char * per_audio_item_fx_folder;
     lo_address uiTarget;
-    char * osc_cursor_message[PYDAW_TRACK_COUNT_ALL];
+    char * osc_cursor_message;
     void * main_thread_args;
     int audio_glue_indexes[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int midi_learn;  //0 to disable, 1 to enable sending CC events to the UI
@@ -1304,6 +1305,7 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn,
         t_pydaw_seq_event *event, t_pydaw_data * self,
         int a_is_inst, int a_track_num)
 {
+    t_pytrack * f_track = self->track_pool_all[a_track_num];
     float f_lb = instance->descriptor->
         PortRangeHints[controlIn].LowerBound;
     float f_ub = instance->descriptor->
@@ -1314,10 +1316,9 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn,
     event->port = controlIn;
     if(!self->is_offline_rendering)
     {
-        sprintf(self->osc_cursor_message[a_track_num], "%i|%i|%i|%f",
+        sprintf(f_track->osc_cursor_message, "%i|%i|%i|%f",
                 a_is_inst, a_track_num, controlIn, event->value);
-        v_queue_osc_message("pc",
-                self->osc_cursor_message[a_track_num]);
+        v_queue_osc_message("pc", f_track->osc_cursor_message);
     }
 }
 
@@ -2135,9 +2136,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * self,
         }
 
         t_pydaw_seq_event * f_event;
-        char * f_osc_msg =
-            self->osc_cursor_message[
-            self->record_armed_track_index_all];
+        char * f_osc_msg = f_track->osc_cursor_message;
 
         while(f_i2 < event_count)
         {
@@ -2623,12 +2622,9 @@ inline void v_pydaw_finish_time_params(t_pydaw_data * self,
             {
                 float f_beat = self->ml_current_period_beats;
 
-                sprintf(
-                    self->osc_cursor_message[0],
-                    "loop|%i|%i|%f", self->current_region,
-                    self->current_bar, f_beat);
-                v_queue_osc_message("mrec",
-                    self->osc_cursor_message[0]);
+                sprintf(self->osc_cursor_message, "loop|%i|%i|%f",
+                    self->current_region, self->current_bar, f_beat);
+                v_queue_osc_message("mrec", self->osc_cursor_message);
             }
         }
     }
@@ -3792,6 +3788,8 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type, float a_sr)
     v_rmp_set_time(f_result->fade_env, 0.03f);
     f_result->fade_state = 0;
 
+    f_result->osc_cursor_message = (char*)malloc(sizeof(char) * 1024);
+
     return f_result;
 }
 
@@ -3837,6 +3835,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
     f_result->wav_pool_file = (char*)malloc(sizeof(char) * 1024);
     f_result->region_audio_folder = (char*)malloc(sizeof(char) * 1024);
     f_result->per_audio_item_fx_folder = (char*)malloc(sizeof(char) * 1024);
+
+    f_result->osc_cursor_message = (char*)malloc(sizeof(char) * 1024);
 
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
@@ -3961,14 +3961,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
     free(tmp);
 
     f_result->uiTarget = lo_address_new_from_url("osc.udp://localhost:30321/");
-
-    f_i = 0;
-
-    while(f_i < PYDAW_TRACK_COUNT_ALL)
-    {
-        f_result->osc_cursor_message[f_i] = (char*)malloc(sizeof(char) * 1024);
-        f_i++;
-    }
 
     return f_result;
 }
