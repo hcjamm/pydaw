@@ -100,7 +100,7 @@ f_debian_control = \
 "Priority: extra\n"
 "Section: sound\n"
 "Installed-Size: {}\n"
-"Maintainer: PyDAW Team <pydawteam@users.sf.net>\n"
+"Maintainer: PyDAW Team <pydaw@pydaw.org>\n"
 "Architecture: {}\n"
 "Version: {}\n"
 "Depends: libasound2-dev, liblo-dev, libsndfile1-dev, "
