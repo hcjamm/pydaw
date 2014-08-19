@@ -1531,8 +1531,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         pthread_spin_lock(&a_pydaw_data->main_lock);
 
         a_pydaw_data->track_pool_all[f_track_num]->solo = f_mode;
-        a_pydaw_data->track_pool_all[
-            f_track_num]->current_period_event_index = 0;
+        //a_pydaw_data->track_pool_all[f_track_num]->period_event_index = 0;
 
         v_pydaw_set_is_soloed(a_pydaw_data);
 
@@ -1552,8 +1551,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         f_track_num = i_get_global_track_num(f_track_type, f_track_num);
 
         a_pydaw_data->track_pool_all[f_track_num]->mute = f_mode;
-        a_pydaw_data->track_pool_all[
-            f_track_num]->current_period_event_index = 0;
+        //a_pydaw_data->track_pool_all[f_track_num]->period_event_index = 0;
 
         pthread_spin_unlock(&a_pydaw_data->main_lock);
         g_free_1d_char_array(f_val_arr);
