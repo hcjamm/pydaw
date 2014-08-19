@@ -53,7 +53,6 @@ static void euphoriaPanic(PYFX_Handle instance)
     while(f_i < EUPHORIA_POLYPHONY)
     {
         v_adsr_kill(plugin->data[f_i]->adsr_amp);
-        plugin->voices->voices[f_i].n_state = note_state_off;
         f_i++;
     }
 }
