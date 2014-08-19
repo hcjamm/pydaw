@@ -8150,9 +8150,8 @@ class transport_widget:
             REGION_SETTINGS.enabled:
                 REGION_SETTINGS.open_region_by_uid(CURRENT_REGION.uid)
             SONG_EDITOR.open_song()
-            PROJECT.commit(_("Recording"))
-        self.init_playback_cursor(a_start=False)
         self.is_playing = False
+        self.init_playback_cursor(a_start=False)
         self.set_bar_value(self.last_bar)
         f_song_table_item = SONG_EDITOR.table_widget.item(
             0, self.get_region_value())
@@ -8240,8 +8239,8 @@ class transport_widget:
         global IS_PLAYING, MREC_EVENTS
         IS_PLAYING = True
         MREC_EVENTS = []
-        self.is_recording = True
         self.init_playback_cursor()
+        self.is_recording = True
         self.last_region_num = self.get_region_value()
         self.start_region = self.get_region_value()
         self.last_bar = self.get_bar_value()
@@ -8274,19 +8273,21 @@ class transport_widget:
         self.loop_mode_combobox.setCurrentIndex(f_index)
 
     def on_bar_changed(self, a_bar):
-        self.transport.bar = a_bar
         if not self.suppress_osc and \
         not self.is_playing and \
         not self.is_recording:
             AUDIO_SEQ.set_playback_pos(self.get_bar_value())
+            PROJECT.this_pydaw_osc.pydaw_set_pos(
+                self.get_region_value(), self.get_bar_value())
         self.set_time(self.get_region_value(), self.get_bar_value(), 0.0)
 
     def on_region_changed(self, a_region):
         #self.bar_spinbox.setRange(1, pydaw_get_region_length(a_region - 1))
         self.bar_spinbox.setRange(1, pydaw_get_current_region_length())
-        self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             AUDIO_SEQ.set_playback_pos(self.get_bar_value())
+            PROJECT.this_pydaw_osc.pydaw_set_pos(
+                self.get_region_value(), self.get_bar_value())
         self.set_time(self.get_region_value(), self.get_bar_value(), 0.0)
 
     def on_follow_cursor_check_changed(self):

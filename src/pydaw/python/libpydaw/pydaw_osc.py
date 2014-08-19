@@ -265,3 +265,5 @@ class pydaw_osc:
     def pydaw_kill_engine(self):
         self.send_configure("abort", "")
 
+    def pydaw_set_pos(self, a_region, a_bar):
+        self.send_configure("pos", "|".join(str(x) for x in (a_region, a_bar)))

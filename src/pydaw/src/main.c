@@ -116,6 +116,7 @@ GNU General Public License for more details.
 #define PYDAW_CONFIGURE_KEY_WAVPOOL_ITEM_RELOAD "wr"
 #define PYDAW_CONFIGURE_KEY_MASTER_VOL "mvol"
 #define PYDAW_CONFIGURE_KEY_KILL_ENGINE "abort"
+#define PYDAW_CONFIGURE_KEY_SET_POS "pos"
 
 //low-level MIDI stuff
 #define MIDI_NOTE_OFF       0x80
@@ -1674,6 +1675,23 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         a_pydaw_data->is_offline_rendering = 0;
         pthread_spin_unlock(&a_pydaw_data->main_lock);
 
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_POS))
+    {
+        if(a_pydaw_data->playback_mode != 0)
+        {
+            return;
+        }
+        t_1d_char_array * f_val_arr =
+            c_split_str(a_value, '|', 2, PYDAW_TINY_STRING);
+        int f_region = atoi(f_val_arr->array[0]);
+        int f_bar = atoi(f_val_arr->array[1]);
+
+        pthread_spin_lock(&a_pydaw_data->main_lock);
+        v_set_playback_cursor(a_pydaw_data, f_region, f_bar);
+        pthread_spin_unlock(&a_pydaw_data->main_lock);
+
+        g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RATE_ENV))
     {
