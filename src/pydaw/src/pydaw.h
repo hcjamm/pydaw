@@ -4637,6 +4637,9 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
             {
                 int f_i2 = 0;
                 f_track = self->track_pool_all[f_i];
+
+                f_track->current_period_event_index = 0;
+
                 while(f_i2 < f_track->instrument_count)
                 {
                     f_track->instruments[f_i2]->descriptor->on_stop(
@@ -4650,13 +4653,6 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
                 {
                     f_track->effects[f_i2]->descriptor->on_stop(
                             f_track->effects[f_i2]->PYFX_handle);
-                    f_i2++;
-                }
-
-                f_i2 = 0;
-                while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
-                {
-                    self->note_offs[f_i][f_i2] = -1;
                     f_i2++;
                 }
 
