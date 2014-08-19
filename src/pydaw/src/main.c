@@ -1672,7 +1672,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         v_pydaw_panic(a_pydaw_data);
 
         pthread_spin_lock(&a_pydaw_data->main_lock);
-        a_pydaw_data->is_offline_rendering = 1;
+        a_pydaw_data->is_offline_rendering = 0;
         pthread_spin_unlock(&a_pydaw_data->main_lock);
 
     }
