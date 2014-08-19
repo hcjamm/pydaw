@@ -881,15 +881,15 @@ class region_list_editor:
         self.reset_tracks()
         if self.track_type == pydaw_track_type_enum.midi:
             f_tracks = PROJECT.get_tracks()
-            for key, f_track in list(f_tracks.tracks.items()):
+            for key, f_track in f_tracks.tracks.items():
                 self.tracks[key].open_track(f_track)
         elif self.track_type == pydaw_track_type_enum.bus:
             f_tracks = PROJECT.get_bus_tracks()
-            for key, f_track in list(f_tracks.busses.items()):
+            for key, f_track in f_tracks.busses.items():
                 self.tracks[key].open_track(f_track)
         elif self.track_type == pydaw_track_type_enum.audio:
             f_tracks = PROJECT.get_audio_tracks()
-            for key, f_track in list(f_tracks.tracks.items()):
+            for key, f_track in f_tracks.tracks.items():
                 self.tracks[key].open_track(f_track)
 
     def reset_tracks(self):
@@ -8023,6 +8023,7 @@ class transport_widget:
                     f_bar += 1
                     for f_editor in REGION_EDITORS:
                         f_editor.table_widget.selectColumn(f_bar)
+                        f_editor.open_tracks()
                     if f_region != self.last_region_num:
                         self.last_region_num = f_region
                         f_item = SONG_EDITOR.table_widget.item(0, f_region)
