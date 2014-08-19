@@ -564,9 +564,10 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * self,
 void v_pydaw_zero_all_buffers(t_pydaw_data * self)
 {
     int f_i = 0;
+    float ** f_buff;
     while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
-        float ** f_buff = self->track_pool_all[f_i]->buffers;
+        f_buff = self->track_pool_all[f_i]->buffers;
         v_pydaw_zero_buffer(f_buff, FRAMES_PER_BUFFER);
         f_i++;
     }
@@ -590,21 +591,34 @@ inline void v_pydaw_zero_buffer(float ** a_buffers, int a_count)
 void v_pydaw_panic(t_pydaw_data * self)
 {
     int f_i = 0;
+    int f_i2 = 0;
+    t_pytrack * f_track;
+    t_pydaw_plugin * f_plugin;
 
     while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
-        if(self->track_pool_all[f_i]->instruments[0] &&
-            self->track_pool_all[f_i]->instruments[0]->descriptor->panic)
+        f_track = self->track_pool_all[f_i];
+
+        f_i2 = 0;
+        while(f_i2 < f_track->instrument_count)
         {
-            self->track_pool_all[f_i]->instruments[0]->descriptor->panic(
-                self->track_pool_all[f_i]->instruments[0]->PYFX_handle);
+            f_plugin = f_track->instruments[f_i2];
+            if(f_plugin->descriptor->panic)
+            {
+                f_plugin->descriptor->panic(f_plugin->PYFX_handle);
+            }
+            f_i2++;
         }
 
-        if(self->track_pool_all[f_i]->effects[0] &&
-            self->track_pool_all[f_i]->effects[0]->descriptor->panic)
+        f_i2 = 0;
+        while(f_i2 < f_track->effect_count)
         {
-            self->track_pool_all[f_i]->effects[0]->descriptor->panic(
-                self->track_pool_all[f_i]->effects[0]->PYFX_handle);
+            f_plugin = f_track->effects[f_i2];
+            if(f_plugin->descriptor->panic)
+            {
+                f_plugin->descriptor->panic(f_plugin->PYFX_handle);
+            }
+            f_i2++;
         }
 
         f_i++;
