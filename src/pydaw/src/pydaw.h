@@ -4591,6 +4591,7 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
         case 0: //stop
         {
             int f_i = 0;
+            t_pytrack * f_track;
 
             if(a_lock)
             {
@@ -4613,8 +4614,6 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
                 }
             }
 
-            f_i = 0;
-
             self->suppress_new_audio_items = 0;
             self->playback_mode = a_mode;
 
@@ -4623,23 +4622,20 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
             while(f_i < PYDAW_TRACK_COUNT_ALL)
             {
                 int f_i2 = 0;
-                while(f_i2 < self->track_pool_all[f_i]->instrument_count)
+                f_track = self->track_pool_all[f_i];
+                while(f_i2 < f_track->instrument_count)
                 {
-                    self->track_pool_all[f_i]->instruments[f_i2
-                        ]->descriptor->on_stop(self->track_pool_all[
-                            f_i]->instruments[f_i2]->PYFX_handle);
+                    f_track->instruments[f_i2]->descriptor->on_stop(
+                        f_track->instruments[f_i2]->PYFX_handle);
 
                     f_i2++;
                 }
 
                 f_i2 = 0;
-                while(f_i2 < self->track_pool_all[f_i]->effect_count)
+                while(f_i2 < f_track->effect_count)
                 {
-
-                    self->track_pool_all[f_i]->effects[
-                        f_i2]->descriptor->on_stop(
-                            self->track_pool_all[f_i]->effects[
-                                f_i2]->PYFX_handle);
+                    f_track->effects[f_i2]->descriptor->on_stop(
+                            f_track->effects[f_i2]->PYFX_handle);
                     f_i2++;
                 }
 
@@ -4649,6 +4645,9 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
                     self->note_offs[f_i][f_i2] = -1;
                     f_i2++;
                 }
+
+                self->track_current_item_event_indexes[f_i] = 0;
+
                 f_i++;
             }
 
@@ -4673,8 +4672,8 @@ void v_set_playback_mode(t_pydaw_data * self, int a_mode,
                 if(self->is_ab_ing)
                 {
                     v_ifh_retrigger(
-                            self->ab_audio_item->sample_read_head,
-                            self->ab_audio_item->sample_start_offset);
+                        self->ab_audio_item->sample_read_head,
+                        self->ab_audio_item->sample_start_offset);
                     v_adsr_retrigger(self->ab_audio_item->adsr);
                     v_svf_reset(self->ab_audio_item->lp_filter);
                 }
