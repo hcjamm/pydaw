@@ -40,6 +40,10 @@ extern "C" {
 #define FADE_STATE_FADED 2
 #define FADE_STATE_RETURNING 3
 
+#define STATUS_NOT_PROCESSED 0
+#define STATUS_PROCESSING 1
+#define STATUS_PROCESSED 2
+
 #define TRACK_TYPE_INST 0
 #define TRACK_TYPE_BUS 1
 #define TRACK_TYPE_AUDIO 2
@@ -229,13 +233,8 @@ typedef struct
     long note_offs[PYDAW_MIDI_NOTE_COUNT];
     int item_event_index;
     char * osc_cursor_message;
+    int status;
 }t_pytrack;
-
-typedef struct
-{
-    int track_number;
-    int track_type;
-}t_pydaw_work_queue_item;
 
 float MASTER_VOL = 1.0f; __attribute__((aligned(16)))
 
@@ -250,6 +249,8 @@ typedef struct
     int record_armed_track_index_all;  //index within track_pool_all
     //contains a reference to all track types, in order:  MIDI, Bus, Audio
     t_pytrack * track_pool_all[PYDAW_TRACK_COUNT_ALL];
+    t_pytrack * track_pool_sorted[PYDAW_TRACK_COUNT_ALL];
+    int track_pool_sorted_count;
     t_pyaudio_input * audio_inputs[PYDAW_AUDIO_INPUT_TRACK_COUNT];
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
@@ -298,8 +299,6 @@ typedef struct
     //For preventing the main thread from continuing until the workers finish
     pthread_mutex_t * track_block_mutexes;
     pthread_t * track_worker_threads;
-    t_pydaw_work_queue_item ** track_work_queues;
-    int * track_work_queue_counts;
     int track_worker_thread_count;
     int * track_thread_quit_notifier;
     int * track_thread_is_finished;
@@ -399,7 +398,7 @@ void v_set_playback_cursor(t_pydaw_data * self, int a_region,
                            int a_bar);
 int i_pydaw_get_item_index_from_uid(t_pydaw_data *, int);
 void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
-                        int a_index, int a_schedule_threads, int a_lock);
+                        int a_index, int a_lock);
 void v_pydaw_assert_memory_integrity(t_pydaw_data* self);
 int i_get_song_index_from_region_uid(t_pydaw_data*, int);
 void v_save_pysong_to_disk(t_pydaw_data * self);
@@ -421,7 +420,6 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count,
 void v_pydaw_offline_render(t_pydaw_data * self, int a_start_region,
         int a_start_bar, int a_end_region, int a_end_bar, char * a_file_out,
         int a_is_audio_glue);
-inline void v_pydaw_schedule_work(t_pydaw_data * self);
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 void v_pydaw_init_busses(t_pydaw_data * self);
 inline void v_pydaw_audio_items_run(t_pydaw_data * self,
@@ -853,8 +851,7 @@ void v_pydaw_init_busses(t_pydaw_data * self)
     {
         f_global_track_num = i_get_global_track_num(1, f_i);
         v_set_plugin_index(self,
-            self->track_pool_all[f_global_track_num],
-            -1, 0, 0);
+            self->track_pool_all[f_global_track_num], -1, 0);
         f_i++;
     }
 
@@ -864,7 +861,7 @@ void v_pydaw_init_busses(t_pydaw_data * self)
     {
         f_global_track_num = i_get_global_track_num(2, f_i);
         v_set_plugin_index(self,
-            self->track_pool_all[f_global_track_num], -1, 0, 0);
+            self->track_pool_all[f_global_track_num], -1, 0);
         f_i++;
     }
 
@@ -874,7 +871,7 @@ void v_pydaw_init_busses(t_pydaw_data * self)
     {
         f_global_track_num = i_get_global_track_num(4, f_i);
         v_set_plugin_index(self,
-            self->track_pool_all[f_global_track_num], -1, 0, 0);
+            self->track_pool_all[f_global_track_num], -1, 0);
         f_i++;
     }
 }
@@ -1181,12 +1178,6 @@ void v_pydaw_init_worker_threads(t_pydaw_data * self,
     self->track_worker_threads =
             (pthread_t*)malloc(sizeof(pthread_t) *
                 (self->track_worker_thread_count));
-    self->track_work_queues =
-            (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*)
-                * (self->track_worker_thread_count));
-    self->track_work_queue_counts =
-            (int*)malloc(sizeof(int) *
-                (self->track_worker_thread_count));
 
     posix_memalign((void**)&self->track_thread_quit_notifier, 16,
             (sizeof(int) * (self->track_worker_thread_count)));
@@ -1229,11 +1220,6 @@ void v_pydaw_init_worker_threads(t_pydaw_data * self,
 
     while(f_i < (self->track_worker_thread_count))
     {
-        self->track_work_queues[f_i] =
-                (t_pydaw_work_queue_item*)malloc(
-                    sizeof(t_pydaw_work_queue_item) *
-                        PYDAW_MAX_WORK_ITEMS_PER_THREAD);
-        self->track_work_queue_counts[f_i] = 0;
         self->track_thread_is_finished[f_i] = 0;
         self->track_thread_quit_notifier[f_i] = 0;
         t_pydaw_thread_args * f_args =
@@ -1698,42 +1684,96 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
     v_pydaw_zero_buffer(f_track->buffers, self->sample_count);
 }
 
-inline void v_pydaw_process(t_pydaw_thread_args * f_args)
+void v_sort_tracks(t_pydaw_data * self)
 {
     int f_i = 0;
-    while(f_i < f_args->pydaw_data->track_work_queue_counts[f_args->thread_num])
+    int f_track = 0;
+    int f_global_track;
+
+    while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        t_pydaw_work_queue_item f_item =
-            f_args->pydaw_data->track_work_queues[f_args->thread_num][f_i];
+        f_global_track = i_get_global_track_num(TRACK_TYPE_INST, f_i);
+        self->track_pool_sorted[f_track] = self->track_pool_all[f_global_track];
+        f_track++;
+        f_i++;
+    }
 
-        int f_global_track_num = i_get_global_track_num(
-            f_item.track_type, f_item.track_number);
+    f_i = 0;
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {
+        f_global_track = i_get_global_track_num(TRACK_TYPE_AUDIO, f_i);
+        self->track_pool_sorted[f_track] = self->track_pool_all[f_global_track];
+        f_track++;
+        f_i++;
+    }
 
-        v_pydaw_process_track(f_args->pydaw_data, f_global_track_num);
+    f_i = 1;
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        f_global_track = i_get_global_track_num(TRACK_TYPE_BUS, f_i);
+        self->track_pool_sorted[f_track] = self->track_pool_all[f_global_track];
+        f_track++;
+        f_i++;
+    }
+
+    self->track_pool_sorted_count = f_track;
+}
+
+inline void v_pydaw_process(t_pydaw_thread_args * f_args)
+{
+    t_pytrack * f_track;
+    t_pydaw_data * self = f_args->pydaw_data;
+    int f_i = 0;
+    while(f_i < self->track_pool_sorted_count)
+    {
+        f_track = self->track_pool_sorted[f_i];
+
+        pthread_spin_lock(&f_track->lock);
+
+        if(f_track->status == STATUS_NOT_PROCESSED)
+        {
+            f_track->status = STATUS_PROCESSING;
+        }
+        else
+        {
+            pthread_spin_unlock(&f_track->lock);
+            f_i++;
+            continue;
+        }
+
+        pthread_spin_unlock(&f_track->lock);
+
+        v_pydaw_process_track(self, f_track->global_track_num);
+
+        pthread_spin_lock(&f_track->lock);
+
+        f_track->status = STATUS_PROCESSED;
+
+        pthread_spin_unlock(&f_track->lock);
 
         f_i++;
     }
 
-    f_args->pydaw_data->track_thread_is_finished[f_args->thread_num] = 1;
+    self->track_thread_is_finished[f_args->thread_num] = 1;
 }
 
 
 void * v_pydaw_worker_thread(void* a_arg)
 {
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
-    t_pydaw_data * a_pydaw_data = f_args->pydaw_data;
+    t_pydaw_data * self = f_args->pydaw_data;
     int f_thread_num = f_args->thread_num;
-    pthread_cond_t * f_track_cond = &a_pydaw_data->track_cond[f_thread_num];
+    pthread_cond_t * f_track_cond = &self->track_cond[f_thread_num];
     pthread_mutex_t * f_track_block_mutex =
-        &a_pydaw_data->track_block_mutexes[f_thread_num];
+        &self->track_block_mutexes[f_thread_num];
 
     while(1)
     {
         pthread_cond_wait(f_track_cond, f_track_block_mutex);
 
-        if(a_pydaw_data->track_thread_quit_notifier[f_thread_num])
+        if(self->track_thread_quit_notifier[f_thread_num])
         {
-            a_pydaw_data->track_thread_quit_notifier[f_thread_num] = 2;
+            self->track_thread_quit_notifier[f_thread_num] = 2;
             printf("Worker thread %i exiting...\n", f_thread_num);
             break;
         }
@@ -2408,142 +2448,6 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * self,
     }
 }
 
-inline void v_pydaw_schedule_work(t_pydaw_data * self)
-{
-    int f_i = 0;
-
-    v_pydaw_set_bus_counters(self);
-
-    while(f_i < (self->track_worker_thread_count))
-    {
-        self->track_work_queue_counts[f_i] = 0;
-        f_i++;
-    }
-
-    f_i = 0;
-    int f_thread_index = 0;
-
-    /*Schedule all Euphoria instances on their own core if possible
-     * because it can use more CPU than Ray-V or Way-V*/
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
-    {
-        if(self->track_pool_all[f_i]->plugin_index == 1)
-        {
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_number = f_i;
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_type = TRACK_TYPE_INST;
-            self->track_work_queue_counts[f_thread_index] =
-                    (self->track_work_queue_counts[f_thread_index]) + 1;
-            f_thread_index++;
-            if(f_thread_index >= self->track_worker_thread_count)
-            {
-                f_thread_index = 0;
-            }
-        }
-        f_i++;
-    }
-
-    f_i = 0;
-
-    /*Schedule all Way-V instances on their own core if possible
-     * because it can use more CPU than Ray-V*/
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
-    {
-        if(self->track_pool_all[f_i]->plugin_index == 3)
-        {
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_number = f_i;
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_type = TRACK_TYPE_INST;
-            self->track_work_queue_counts[f_thread_index] =
-                    (self->track_work_queue_counts[f_thread_index]) + 1;
-            f_thread_index++;
-            if(f_thread_index >= self->track_worker_thread_count)
-            {
-                f_thread_index = 0;
-            }
-        }
-        f_i++;
-    }
-
-    f_i = 0;
-
-    /*Now schedule all Ray-V tracks*/
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
-    {
-        if(self->track_pool_all[f_i]->plugin_index == 2)
-        {
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_number = f_i;
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_type = TRACK_TYPE_INST;
-            self->track_work_queue_counts[f_thread_index] =
-                    (self->track_work_queue_counts[f_thread_index]) + 1;
-            f_thread_index++;
-            if(f_thread_index >= self->track_worker_thread_count)
-            {
-                f_thread_index = 0;
-            }
-        }
-        f_i++;
-    }
-
-    f_i = 0;
-    /*Now schedule the audio tracks*/
-    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-    {
-        self->track_work_queues[f_thread_index][
-                self->track_work_queue_counts[
-                f_thread_index]].track_number = f_i;
-        self->track_work_queues[f_thread_index][
-                self->track_work_queue_counts[
-                f_thread_index]].track_type = TRACK_TYPE_AUDIO;
-        self->track_work_queue_counts[f_thread_index] =
-                (self->track_work_queue_counts[f_thread_index]) + 1;
-        f_thread_index++;
-
-        if(f_thread_index >= self->track_worker_thread_count)
-        {
-            f_thread_index = 0;
-        }
-
-        f_i++;
-    }
-
-    f_i = 1;
-    int f_global_track_num;
-    /*Schedule bus tracks last, because they must be processed last*/
-    while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {
-        f_global_track_num = i_get_global_track_num(1, f_i);
-        if(self->track_pool_all[f_global_track_num]->bus_count > 0)
-        {
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_number = f_i;
-            self->track_work_queues[f_thread_index][
-                    self->track_work_queue_counts[
-                    f_thread_index]].track_type = TRACK_TYPE_BUS;
-            self->track_work_queue_counts[f_thread_index] =
-                    (self->track_work_queue_counts[f_thread_index]) + 1;
-            f_thread_index++;
-
-            if(f_thread_index >= self->track_worker_thread_count)
-            {
-                f_thread_index = 0;
-            }
-        }
-
-        f_i++;
-    }
-}
 
 inline void v_pydaw_set_time_params(t_pydaw_data * self,
         int sample_count)
@@ -2802,8 +2706,14 @@ inline void v_pydaw_run_engine(t_pydaw_data * self, int sample_count,
         }
     }
 
+    int f_i = 0;
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
+    {
+        self->track_pool_all[f_i]->status = STATUS_NOT_PROCESSED;
+        f_i++;
+    }
     //notify the worker threads
-    int f_i = 1;
+    f_i = 1;
     while(f_i < self->track_worker_thread_count)
     {
         self->track_thread_is_finished[f_i] = 0;
@@ -3809,6 +3719,8 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type, float a_sr)
 
     f_result->osc_cursor_message = (char*)malloc(sizeof(char) * 1024);
 
+    f_result->status = STATUS_NOT_PROCESSED;
+
     return f_result;
 }
 
@@ -3966,6 +3878,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sr)
         f_i++;
     }
 
+    f_result->track_pool_sorted_count = PYDAW_TRACK_COUNT_ALL - 1;
+    v_sort_tracks(f_result);
 
     /* Create OSC thread */
     char *tmp;
@@ -4122,8 +4036,7 @@ void v_pydaw_open_tracks(t_pydaw_data * self)
                 //being deleted
                 self->track_pool_all[f_track_index]->plugin_index = 0;
                 v_set_plugin_index(self,
-                    self->track_pool_all[f_track_index],
-                    f_plugin_index, 0, 0);
+                    self->track_pool_all[f_track_index], f_plugin_index, 0);
             }
             else
             {
@@ -4151,8 +4064,7 @@ void v_pydaw_open_tracks(t_pydaw_data * self)
             //Must set it to zero to prevent the state file from being deleted
             self->track_pool_all[f_i]->plugin_index = 0;
 
-            v_set_plugin_index(self, self->track_pool_all[f_i],
-                    0, 0, 0);
+            v_set_plugin_index(self, self->track_pool_all[f_i], 0, 0);
 
             self->track_pool_all[f_i]->solo = 0;
             self->track_pool_all[f_i]->mute = 0;
@@ -4218,7 +4130,7 @@ void v_pydaw_open_tracks(t_pydaw_data * self)
             self->track_pool_all[f_global_track_num]->plugin_index = 0;
 
             v_set_plugin_index(self,
-                self->track_pool_all[f_global_track_num], 0, 0, 0);
+                self->track_pool_all[f_global_track_num], 0, 0);
 
             self->track_pool_all[f_global_track_num]->solo = 0;
             self->track_pool_all[f_global_track_num]->mute = 0;
@@ -4307,7 +4219,7 @@ void v_pydaw_open_tracks(t_pydaw_data * self)
             //Must set it to zero to prevent the state file from being deleted
             //self->audio_track_pool[f_i]->plugin_index = 0;
             v_set_plugin_index(self,
-                    self->track_pool_all[f_global_track_num], 0, 0, 0);
+                    self->track_pool_all[f_global_track_num], 0, 0);
             self->track_pool_all[f_global_track_num]->solo = 0;
             self->track_pool_all[f_global_track_num]->mute = 0;
             v_pydaw_set_track_volume(self,
@@ -4452,8 +4364,6 @@ void v_open_project(t_pydaw_data* self, const char* a_project_folder,
     //v_pydaw_update_audio_inputs(self);
 
     v_pydaw_set_is_soloed(self);
-
-    v_pydaw_schedule_work(self);
 
     v_pydaw_print_benchmark("v_open_project", f_start);
 }
@@ -4694,7 +4604,7 @@ void v_pydaw_set_track_volume(t_pydaw_data * self,
 }
 
 void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
-        int a_index, int a_schedule_threads, int a_lock)
+        int a_index, int a_lock)
 {
     t_pydaw_plugin * f_result;
     t_pydaw_plugin * f_result_fx;
@@ -4734,11 +4644,6 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
         //Opens the .inst file if exists
         v_pydaw_open_track(self, a_track);
 
-        if(a_schedule_threads)
-        {
-            v_pydaw_schedule_work(self);
-        }
-
         if(a_lock)
         {
             pthread_spin_unlock(&self->main_lock);
@@ -4774,11 +4679,6 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
         a_track->effect_count = 0;
         a_track->plugin_index = a_index;
         a_track->period_event_index = 0;
-
-        if(a_schedule_threads)
-        {
-            v_pydaw_schedule_work(self);
-        }
 
         if(a_lock)
         {
@@ -4843,11 +4743,6 @@ void v_set_plugin_index(t_pydaw_data * self, t_pytrack * a_track,
         a_track->period_event_index = 0;
         //Opens the .inst file if exists
         v_pydaw_open_track(self, a_track);
-
-        if(a_schedule_threads)
-        {
-            v_pydaw_schedule_work(self);
-        }
 
         if(a_lock)
         {

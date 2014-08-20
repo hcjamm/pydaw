@@ -1611,7 +1611,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_plugin_index = atoi(f_val_arr->array[1]);
         v_set_plugin_index(a_pydaw_data,
-            a_pydaw_data->track_pool_all[f_track_num], f_plugin_index, 1, 1);
+            a_pydaw_data->track_pool_all[f_track_num], f_plugin_index, 1);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE))
@@ -1646,7 +1646,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data,
         pthread_spin_lock(&a_pydaw_data->main_lock);
 
         a_pydaw_data->track_pool_all[f_global_track_num]->bus_num = f_bus_num;
-        v_pydaw_schedule_work(a_pydaw_data);
 
         pthread_spin_unlock(&a_pydaw_data->main_lock);
         g_free_1d_char_array(f_val_arr);
