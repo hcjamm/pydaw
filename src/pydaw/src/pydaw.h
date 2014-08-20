@@ -2264,7 +2264,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * self,
 
                     if(!self->cc_map[controller]->effects_only)
                     {
-                        int f_port;
+                        int f_port = -9999;
                         int f_index = f_track->plugin_index;
 
                         if(f_index == 1)  //Euphoria

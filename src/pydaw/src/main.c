@@ -157,11 +157,11 @@ int exiting = 0;
 #define EVENT_BUFFER_SIZE 1024
 static t_pydaw_seq_event midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
 
-#ifndef PYDAW_NO_HARDWARE
+int PYDAW_NO_HARDWARE = 0;
+
 PmStream *f_midi_stream;
 PmError f_midi_err;
 static PmEvent portMidiBuffer[EVENT_BUFFER_SIZE];
-#endif
 
 static int midiEventReadIndex __attribute__((aligned(16))) = 0;
 static int midiEventWriteIndex __attribute__((aligned(16))) = 0;
@@ -301,7 +301,6 @@ void midiReceive(unsigned char status, unsigned char control, char value)
     }
 }
 
-#ifndef PYDAW_NO_HARDWARE
 static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 {
     int f_poll_result;
@@ -398,7 +397,6 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
         } //else if(numEvents > 0)
     } //else if(f_poll_result > 0)
 }
-#endif
 
 int THREAD_AFFINITY = 0;
 int THREAD_AFFINITY_SET = 0;
@@ -654,14 +652,14 @@ int main(int argc, char **argv)
         j++;
     }
 
-#ifndef PYDAW_NO_HARDWARE
+
     timer_t timerid;
     struct sigevent sev;
     struct itimerspec its;
     long long freq_nanosecs;
     sigset_t mask;
     struct sigaction sa;
-#else
+
     int f_usleep = 0;
 
     if(argc >= 5)
@@ -680,7 +678,6 @@ int main(int argc, char **argv)
             j++;
         }
     }
-#endif
 
     int f_current_proc_sched = sched_getscheduler(0);
 
@@ -759,7 +756,7 @@ int main(int argc, char **argv)
 
     sample_rate = 44100.0f;
 
-#ifndef PYDAW_NO_HARDWARE
+
     /*Initialize Portaudio*/
     PaStreamParameters inputParameters, outputParameters;
     PaStream *stream;
@@ -773,7 +770,7 @@ int main(int argc, char **argv)
     f_midi_err = Pm_Initialize();
     int f_with_midi = 0;
     PmDeviceID f_device_id = pmNoDevice;
-#endif
+
 
     char f_midi_device_name[1024];
     sprintf(f_midi_device_name, "None");
@@ -876,11 +873,6 @@ int main(int argc, char **argv)
         v_pydaw_connect_port(instanceHandles, j, pluginOutputBuffers[out++]);
     }
 
-    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity,
-            argv[2]);
-
-    THREAD_AFFINITY = f_thread_affinity;
-
     assert(in == insTotal);
     assert(out == outsTotal);
     assert(controlIn == controlInsTotal);
@@ -927,6 +919,19 @@ int main(int argc, char **argv)
                     f_frame_count = atoi(f_value_char);
                     printf("bufferSize: %i\n", f_frame_count);
                 }
+                else if(!strcmp(f_key_char, "audioEngine"))
+                {
+                    int f_engine = atoi(f_value_char);
+                    printf("audioEngine: %i\n", f_engine);
+                    if(f_engine == 4 || f_engine == 5 || f_engine == 7)
+                    {
+                        PYDAW_NO_HARDWARE = 1;
+                    }
+                    else
+                    {
+                        PYDAW_NO_HARDWARE = 0;
+                    }
+                }
                 else if(!strcmp(f_key_char, "sampleRate"))
                 {
                     sample_rate = atof(f_value_char);
@@ -948,7 +953,7 @@ int main(int argc, char **argv)
                 else if(!strcmp(f_key_char, "threadAffinity"))
                 {
                     f_thread_affinity = atoi(f_value_char);
-
+                    THREAD_AFFINITY = f_thread_affinity;
                     printf("threadAffinity: %i\n", f_thread_affinity);
                 }
                 else if(!strcmp(f_key_char, "performance"))
@@ -971,7 +976,7 @@ int main(int argc, char **argv)
 
             g_free_2d_char_array(f_current_string);
 
-#ifndef PYDAW_NO_HARDWARE
+
             if(strcmp(f_midi_device_name, "None"))
             {
                 f_device_id = pmNoDevice;
@@ -1014,11 +1019,9 @@ int main(int argc, char **argv)
 
                 f_with_midi = 1;
             }
-#endif
         }
         else
         {
-#ifndef PYDAW_NO_HARDWARE
             f_failure_count++;
             printf("%s does not exist, running %s\n", f_device_file_path,
                     f_show_dialog_cmd);
@@ -1034,9 +1037,9 @@ int main(int argc, char **argv)
                         "dialog without choosing a device, exiting.");
                 exit(9998);
             }
-#endif
+
         }
-#ifndef PYDAW_NO_HARDWARE
+
         if (inputParameters.device == paNoDevice)
         {
           sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
@@ -1109,7 +1112,6 @@ int main(int argc, char **argv)
             system(f_cmd_buffer);
             continue;
         }
-#endif
         break;
     }
 
@@ -1119,114 +1121,102 @@ int main(int argc, char **argv)
     signal(SIGQUIT, signalHandler);
     pthread_sigmask(SIG_UNBLOCK, &_signals, 0);
 
+    v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity,
+            argv[2]);
+
     v_queue_osc_message("ready", "");
 
+    // only for no-hardware mode
+    float * f_portaudio_input_buffer;
+    float * f_portaudio_output_buffer;
+
     exiting = 0;
-#ifndef PYDAW_NO_HARDWARE
-    err = Pa_StartStream( stream );
-    if( err != paNoError )
+    if(!PYDAW_NO_HARDWARE)
     {
-        sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
-                "Error: Unknown error while starting device.  Please "
-                "re-configure your device and try starting PyDAW again.");
-        system(f_cmd_buffer);
+        err = Pa_StartStream(stream);
+        if(err != paNoError)
+        {
+            sprintf(f_cmd_buffer, "%s \"%s\"", f_show_dialog_cmd,
+                    "Error: Unknown error while starting device.  Please "
+                    "re-configure your device and try starting PyDAW again.");
+            system(f_cmd_buffer);
+            exiting = 1;
+        }
     }
-#else
-    if(0)
-    {}
-#endif
     else
     {
-#ifdef PYDAW_NO_HARDWARE
-        float * f_portaudio_input_buffer =
+        f_portaudio_input_buffer =
             (float*)malloc(sizeof(float) * FRAMES_PER_BUFFER);
-        float * f_portaudio_output_buffer =
+        f_portaudio_output_buffer =
             (float*)malloc(sizeof(float) * FRAMES_PER_BUFFER);
-#else
-        if(f_with_midi)
+    }
+
+    if(f_with_midi)
+    {
+        /* Establish handler for timer signal */
+
+       sa.sa_flags = SA_SIGINFO;
+       sa.sa_sigaction = midiTimerCallback;
+       sigemptyset(&sa.sa_mask);
+       if (sigaction(SIG, &sa, NULL) == -1)
+       {
+           //errExit("sigaction");
+       }
+
+       /* Block timer signal temporarily */
+
+       sigemptyset(&mask);
+       sigaddset(&mask, SIG);
+       if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
+       {
+           //errExit("sigprocmask");
+       }
+
+       /* Create the timer */
+
+       sev.sigev_notify = SIGEV_SIGNAL;
+       sev.sigev_signo = SIG;
+       sev.sigev_value.sival_ptr = &timerid;
+       if (timer_create(CLOCKID, &sev, &timerid) == -1)
+       {
+           //errExit("timer_create");
+       }
+
+       /* Start the timer */
+
+       freq_nanosecs = 5000000;
+       its.it_value.tv_sec = 0;  //freq_nanosecs / 1000000000;
+       its.it_value.tv_nsec = freq_nanosecs;  // % 1000000000;
+       its.it_interval.tv_sec = its.it_value.tv_sec;
+       its.it_interval.tv_nsec = its.it_value.tv_nsec;
+
+       if (timer_settime(timerid, 0, &its, NULL) == -1)
+       {
+           //errExit("timer_settime");
+       }
+
+    } //if(f_with_midi)
+
+
+    while(!exiting)
+    {
+        if(PYDAW_NO_HARDWARE)
         {
-            /* Establish handler for timer signal */
-
-           sa.sa_flags = SA_SIGINFO;
-           sa.sa_sigaction = midiTimerCallback;
-           sigemptyset(&sa.sa_mask);
-           if (sigaction(SIG, &sa, NULL) == -1)
-           {
-               //errExit("sigaction");
-           }
-
-           /* Block timer signal temporarily */
-
-           sigemptyset(&mask);
-           sigaddset(&mask, SIG);
-           if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
-           {
-               //errExit("sigprocmask");
-           }
-
-           /* Create the timer */
-
-           sev.sigev_notify = SIGEV_SIGNAL;
-           sev.sigev_signo = SIG;
-           sev.sigev_value.sival_ptr = &timerid;
-           if (timer_create(CLOCKID, &sev, &timerid) == -1)
-           {
-               //errExit("timer_create");
-           }
-
-           /* Start the timer */
-
-           freq_nanosecs = 5000000;
-           its.it_value.tv_sec = 0;  //freq_nanosecs / 1000000000;
-           its.it_value.tv_nsec = freq_nanosecs;  // % 1000000000;
-           its.it_interval.tv_sec = its.it_value.tv_sec;
-           its.it_interval.tv_nsec = its.it_value.tv_nsec;
-
-           if (timer_settime(timerid, 0, &its, NULL) == -1)
-           {
-               //errExit("timer_settime");
-           }
-
-        } //if(f_with_midi)
-
-#endif
-
-#ifdef PYDAW_CPUFREQ
-        if(f_performance)
-        {
-            v_pydaw_set_cpu_governor();
-        }
-#else
-        printf("PyDAW not compiled with cpufreq support, "
-                "cannot set CPU governor.\n");
-#endif
-
-        while(!exiting)
-        {
-#ifdef PYDAW_NO_HARDWARE
             portaudioCallback(f_portaudio_input_buffer,
-                    f_portaudio_output_buffer, 128, NULL, NULL, NULL);
+                    f_portaudio_output_buffer, 128, NULL,
+                    (PaStreamCallbackFlags)NULL, NULL);
 
             if(f_usleep)
             {
                 usleep(1000);
             }
-#else
-            sleep(1);
-#endif
         }
-
-#ifdef PYDAW_CPUFREQ
-        if(f_performance)
+        else
         {
-            v_pydaw_restore_cpu_governor();
+            sleep(1);
         }
-#endif
 
     }
-#ifndef PYDAW_NO_HARDWARE
-    err = Pa_CloseStream( stream );
-    Pa_Terminate();
 
     if(f_with_midi)
     {
@@ -1234,12 +1224,23 @@ int main(int argc, char **argv)
         f_midi_err = Pm_Close(f_midi_stream);
     }
 
-    Pm_Terminate();
-
-#endif
+    if(!PYDAW_NO_HARDWARE)
+    {
+        err = Pa_CloseStream( stream );
+        Pa_Terminate();
+        Pm_Terminate();
+    }
     v_pydaw_cleanup(instanceHandles);
 
     v_pydaw_destructor();
+
+
+#ifdef PYDAW_CPUFREQ
+    if(f_performance)
+    {
+        v_pydaw_restore_cpu_governor();
+    }
+#endif
 
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);

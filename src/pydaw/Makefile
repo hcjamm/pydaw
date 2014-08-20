@@ -69,18 +69,12 @@ C_OBJS   = src/main.o
 
 all:
 	make dbg
-	make nohw
 	make eng
 
 dbg:
 	rm src/*.o $(PYDAW_VERSION)-engine  $(PYDAW_VERSION)-engine-dbg ; echo
 	make CFLAGS+=" -O0 -g -gdwarf-3 " $(PYDAW_VERSION)-engine
 	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-dbg
-
-nohw:
-	rm -f $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-no-hw src/*.o ; echo
-	make CFLAGS+=" -O0 -g -gdwarf-3 -DPYDAW_NO_HARDWARE " $(PYDAW_VERSION)-engine
-	mv $(PYDAW_VERSION)-engine $(PYDAW_VERSION)-engine-no-hw
 
 eng:
 	rm src/*.o $(PYDAW_VERSION)-engine ; echo
@@ -108,7 +102,6 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/pydaw
 	install -m 755 $(PYDAW_VERSION)-project-recover $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(PYDAW_VERSION)-engine-dbg $(DESTDIR)$(PREFIX)/bin
-	install -m 755 $(PYDAW_VERSION)-engine-no-hw $(DESTDIR)$(PREFIX)/bin
 	install -s -m 4755 $(PYDAW_VERSION)-engine $(DESTDIR)$(PREFIX)/bin
 	install -s -m 755 $(PYDAW_VERSION)-engine \
 	$(DESTDIR)$(PREFIX)/bin/$(PYDAW_VERSION)-engine-no-root

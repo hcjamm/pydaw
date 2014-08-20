@@ -503,12 +503,11 @@ def pydaw_read_device_config():
                             global_pydaw_install_prefix,
                             global_pydaw_version_string)
                         global_pydaw_is_sandboxed = True
-                elif int(global_device_val_dict["audioEngine"]) == 3:
+                elif int(global_device_val_dict["audioEngine"]) == 3 or \
+                int(global_device_val_dict["audioEngine"]) == 4 or \
+                int(global_device_val_dict["audioEngine"]) == 5 or \
+                int(global_device_val_dict["audioEngine"]) == 7:
                     global_pydaw_bin_path += "-dbg"
-                elif int(global_device_val_dict["audioEngine"]) == 4 or \
-                     int(global_device_val_dict["audioEngine"]) == 5 or \
-                     int(global_device_val_dict["audioEngine"]) == 7:
-                    global_pydaw_bin_path += "-no-hw"
                 elif int(global_device_val_dict["audioEngine"]) == 6:
                     global_pydaw_with_audio = False
                     global_pydaw_bin_path = None

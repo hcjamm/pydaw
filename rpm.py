@@ -109,7 +109,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755, root, root) /usr/bin/{0}_render
 %attr(755, root, root) /usr/bin/{0}_render-dbg
 %attr(755, root, root) /usr/bin/{0}-engine-dbg
-%attr(755, root, root) /usr/bin/{0}-engine-no-hw
 %attr(755, root, root) /usr/bin/{0}-engine-no-root
 %attr(755, root, root) /usr/bin/{0}-project-recover
 %attr(755, root, root) /usr/lib/{0}/pydaw/python/libpydaw/pydaw_paulstretch.py
