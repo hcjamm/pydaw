@@ -400,6 +400,9 @@ static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 }
 #endif
 
+int THREAD_AFFINITY = 0;
+int THREAD_AFFINITY_SET = 0;
+
 static int portaudioCallback( const void *inputBuffer,
                               void *outputBuffer,
                               unsigned long framesPerBuffer,
@@ -424,6 +427,13 @@ static int portaudioCallback( const void *inputBuffer,
     }
 
     (void) inputBuffer; //Prevent unused variable warning.
+
+    // Try one time to set thread affinity
+    if(THREAD_AFFINITY && !THREAD_AFFINITY_SET)
+    {
+        v_self_set_thread_affinity();
+        THREAD_AFFINITY_SET = 1;
+    }
 
     gettimeofday(&tv, NULL);
 
@@ -868,6 +878,8 @@ int main(int argc, char **argv)
 
     v_pydaw_activate(instanceHandles, f_thread_count, f_thread_affinity,
             argv[2]);
+
+    THREAD_AFFINITY = f_thread_affinity;
 
     assert(in == insTotal);
     assert(out == outsTotal);

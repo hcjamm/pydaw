@@ -1092,6 +1092,29 @@ int i_cpu_has_hyperthreading()
 }
 #endif
 
+void v_self_set_thread_affinity()
+{
+    pthread_attr_t threadAttr;
+    struct sched_param param;
+    param.__sched_priority = sched_get_priority_max(RT_SCHED);
+    printf(" Attempting to set pthread_self to .__sched_priority = %i\n",
+            param.__sched_priority);
+    pthread_attr_init(&threadAttr);
+    pthread_attr_setschedparam(&threadAttr, &param);
+    pthread_attr_setstacksize(&threadAttr, 8388608);
+    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+    pthread_attr_setschedpolicy(&threadAttr, RT_SCHED);
+
+    pthread_t f_self = pthread_self();
+    pthread_setschedparam(f_self, RT_SCHED, &param);
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(0, &cpuset);
+    pthread_setaffinity_np(f_self, sizeof(cpu_set_t), &cpuset);
+
+    pthread_attr_destroy(&threadAttr);
+}
+
 void v_pydaw_init_worker_threads(t_pydaw_data * self,
         int a_thread_count, int a_set_thread_affinity)
 {
@@ -1185,19 +1208,13 @@ void v_pydaw_init_worker_threads(t_pydaw_data * self,
     pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
     pthread_attr_setschedpolicy(&threadAttr, RT_SCHED);
 
-    pthread_t f_self = pthread_self();
-    pthread_setschedparam(f_self, RT_SCHED, &param);
+    //pthread_t f_self = pthread_self();
+    //pthread_setschedparam(f_self, RT_SCHED, &param);
 
     int f_cpu_core = 0;
 
     if(a_set_thread_affinity)
     {
-        printf("Attempting to set thread affinity...\n");
-
-        cpu_set_t cpuset;
-        CPU_ZERO(&cpuset);
-        CPU_SET(f_cpu_core, &cpuset);
-        pthread_setaffinity_np(f_self, sizeof(cpu_set_t), &cpuset);
         f_cpu_core += f_cpu_core_inc;
 
         if(f_cpu_core >= f_cpu_count)
@@ -1242,25 +1259,27 @@ void v_pydaw_init_worker_threads(t_pydaw_data * self,
                 //sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
                 f_cpu_core += f_cpu_core_inc;
             }
+
+            struct sched_param param2;
+            int f_applied_policy = 0;
+            pthread_getschedparam(self->track_worker_threads[f_i],
+                &f_applied_policy, &param2);
+
+            if(f_applied_policy == RT_SCHED)
+            {
+                printf("Scheduling successfully applied with priority %i\n ",
+                        param2.__sched_priority);
+            }
+            else
+            {
+                printf("Scheduling was not successfully applied\n");
+            }
         }
         else
         {
             self->main_thread_args = (void*)f_args;
         }
         f_i++;
-    }
-
-    int f_applied_policy = 0;
-    pthread_getschedparam(f_self, &f_applied_policy, &param);
-
-    if(f_applied_policy == RT_SCHED)
-    {
-        printf("Scheduling successfully applied with priority %i\n ",
-                param.__sched_priority);
-    }
-    else
-    {
-        printf("Scheduling was not successfully applied\n");
     }
 
     pthread_attr_destroy(&threadAttr);
