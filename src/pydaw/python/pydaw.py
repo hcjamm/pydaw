@@ -8023,7 +8023,7 @@ class transport_widget:
                     f_bar += 1
                     for f_editor in REGION_EDITORS:
                         f_editor.table_widget.selectColumn(f_bar)
-                        f_editor.open_tracks()
+                        #f_editor.open_tracks()
                     if f_region != self.last_region_num:
                         self.last_region_num = f_region
                         f_item = SONG_EDITOR.table_widget.item(0, f_region)
