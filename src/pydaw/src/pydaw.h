@@ -233,10 +233,10 @@ typedef struct
     long note_offs[PYDAW_MIDI_NOTE_COUNT];
     int item_event_index;
     char * osc_cursor_message;
-    int status;
+    int status __attribute__((aligned(16)));
 }t_pytrack;
 
-float MASTER_VOL = 1.0f; __attribute__((aligned(16)))
+float MASTER_VOL __attribute__((aligned(16))) = 1.0f;
 
 typedef struct
 {
@@ -1727,6 +1727,12 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
     while(f_i < self->track_pool_sorted_count)
     {
         f_track = self->track_pool_sorted[f_i];
+
+        if(f_track->status != STATUS_NOT_PROCESSED)
+        {
+            f_i++;
+            continue;
+        }
 
         pthread_spin_lock(&f_track->lock);
 
