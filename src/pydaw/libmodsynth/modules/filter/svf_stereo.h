@@ -20,6 +20,7 @@ extern "C" {
 
 #include "../../lib/pitch_core.h"
 #include "../../lib/amp.h"
+#include "../../lib/lmalloc.h"
 #include "../../lib/interpolate-linear.h"
 #include "../../constants.h"
 #include "../../lib/smoother-linear.h"
@@ -142,10 +143,7 @@ t_svf2_kernel * g_svf2_get_filter_kernel()
 {
     t_svf2_kernel * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_svf2_kernel))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_svf2_kernel));
 
     f_result->bp = 0.0f;
     f_result->hp = 0.0f;
@@ -458,10 +456,7 @@ t_svf2_filter * g_svf2_get(float a_sample_rate)
 {
     t_svf2_filter * f_svf;
 
-    if(posix_memalign((void**)&f_svf, 16, (sizeof(t_svf2_filter))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_svf, sizeof(t_svf2_filter));
 
     f_svf->sr = a_sample_rate * ((float)(SVF_OVERSAMPLE_MULTIPLIER));
     f_svf->pi2_div_sr = (PI2 / (f_svf->sr));

@@ -13,12 +13,13 @@ GNU General Public License for more details.
 #ifndef SAMPLE_AND_HOLD_H
 #define	SAMPLE_AND_HOLD_H
 
+#include "../../lib/pitch_core.h"
+#include "../../lib/lmalloc.h"
+#include "../signal_routing/audio_xfade.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#include "../../lib/pitch_core.h"
-#include "../signal_routing/audio_xfade.h"
 
 typedef struct
 {
@@ -45,11 +46,7 @@ t_sah_sample_and_hold * g_sah_sample_and_hold_get(float a_sr)
 {
     t_sah_sample_and_hold * f_result;
 
-    if(posix_memalign((void**)&f_result, 16,
-            (sizeof(t_sah_sample_and_hold))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_sah_sample_and_hold));
 
     f_result->hold_count = 1;
     f_result->hold_counter = 0;

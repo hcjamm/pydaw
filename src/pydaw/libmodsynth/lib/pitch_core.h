@@ -14,15 +14,16 @@ GNU General Public License for more details.
 #ifndef PITCH_CORE_H
 #define	PITCH_CORE_H
 
+#include <math.h>
+#include "../constants.h"
+#include "interpolate-linear.h"
+#include "lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include <math.h>
-#include "../constants.h"
-#include "interpolate-linear.h"
-
-typedef struct st_pit_pitch_core
+typedef struct
 {
     t_lin_interpolater * linear;
     float arr_index;
@@ -31,14 +32,30 @@ typedef struct st_pit_pitch_core
 inline t_pit_pitch_core * g_pit_get();
 void v_pit_free(t_pit_pitch_core *);
 
+typedef struct st_pit_ratio
+{
+    float pitch, hz, hz_recip;
+}t_pit_ratio;
+
+t_pit_ratio * g_pit_ratio();
+
+
+inline float f_pit_midi_note_to_hz(float);
+inline float f_pit_hz_to_midi_note(float);
+inline float f_pit_midi_note_to_samples(float, float, t_pit_pitch_core*);
+inline float f_pit_midi_note_to_hz_fast(float,t_pit_pitch_core*);
+inline float f_pit_midi_note_to_ratio_fast(float, float,
+        t_pit_pitch_core*, t_pit_ratio *);
+
+#ifdef	__cplusplus
+}
+#endif
+
 inline t_pit_pitch_core * g_pit_get()
 {
     t_pit_pitch_core * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_pit_pitch_core))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_pit_pitch_core));
 
     f_result->linear = g_lin_get();
     f_result->arr_index = 0;
@@ -52,12 +69,6 @@ void v_pit_free(t_pit_pitch_core * a_pit)
     free(a_pit);
 }
 
-typedef struct st_pit_ratio
-{
-    float pitch, hz, hz_recip;
-}t_pit_ratio;
-
-t_pit_ratio * g_pit_ratio();
 
 t_pit_ratio * g_pit_ratio()
 {
@@ -70,14 +81,6 @@ t_pit_ratio * g_pit_ratio()
 
     return f_result;
 }
-
-inline float f_pit_midi_note_to_hz(float);
-inline float f_pit_hz_to_midi_note(float);
-inline float f_pit_midi_note_to_samples(float,float,t_pit_pitch_core*);
-/*TODO:  inline float f_pit_midi_note_to_samples_fast(float);*/
-inline float f_pit_midi_note_to_hz_fast(float,t_pit_pitch_core*);
-inline float f_pit_midi_note_to_ratio_fast(float, float,
-        t_pit_pitch_core*, t_pit_ratio *);
 
 /*Functions*/
 
@@ -124,7 +127,7 @@ inline float f_pit_midi_note_to_samples(float a_midi_note_number,
 #define arr_pit_p2f_count 2521
 #define arr_pit_p2f_count_m1 2520
 
-float arr_pit_p2f [arr_pit_p2f_count] = {
+float arr_pit_p2f [arr_pit_p2f_count] __attribute__((aligned(16))) = {
 16.351620, 16.398912, 16.446342, 16.493912, 16.541616, 16.589458, 16.637440, 16.685560, 16.733822, 16.782221, 16.830759, 16.879436, 16.928257, 16.977221, 17.026323, 17.075567, 17.124954, 17.174484, 17.224159, 17.273975,
 17.323936, 17.374043, 17.424292, 17.474691, 17.525232, 17.575920, 17.626753, 17.677734, 17.728867, 17.780142, 17.831566, 17.883141, 17.934862, 17.986738, 18.038761, 18.090933, 18.143255, 18.195730, 18.248362, 18.301140,
 18.354071, 18.407156, 18.460394, 18.513790, 18.567337, 18.621037, 18.674894, 18.728907, 18.783079, 18.837404, 18.891886, 18.946526, 19.001324, 19.056286, 19.111401, 19.166676, 19.222111, 19.277704, 19.333466, 19.389381,
@@ -300,9 +303,6 @@ inline float f_pit_midi_note_to_ratio_fast(float a_base_pitch,
             f_pit_midi_note_to_hz_fast(a_transposed_pitch, a_pit);
 }
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PITCH_CORE_H */
 

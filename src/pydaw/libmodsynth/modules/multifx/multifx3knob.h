@@ -14,10 +14,6 @@ GNU General Public License for more details.
 #ifndef MULTIFX3KNOB_H
 #define	MULTIFX3KNOB_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 /*This is actually count, not index TODO:  Rename*/
 #define MULTIFX3KNOB_MAX_INDEX 29
 #define MULTIFX3KNOB_KNOB_COUNT 3
@@ -38,9 +34,13 @@ extern "C" {
 #include "../distortion/lofi.h"
 #include "../distortion/sample_and_hold.h"
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /*BIG TODO:  Add a function to modify for the modulation sources*/
 
-typedef struct st_mf3_multi
+typedef struct
 {
     int effect_index;
     int channels;  //Currently only 1 or 2 are supported
@@ -739,10 +739,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
 {
     t_mf3_multi * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_mf3_multi))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_mf3_multi));
 
     f_result->effect_index = 0;
     f_result->channels = 2;

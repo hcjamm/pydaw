@@ -14,16 +14,17 @@ GNU General Public License for more details.
 #ifndef FORMANT_FILTER_H
 #define	FORMANT_FILTER_H
 
+#include "svf.h"
+#include "../../lib/interpolate-linear.h"
+#include "../../lib/lmalloc.h"
+#include "../signal_routing/audio_xfade.h"
+#include "svf_stereo.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include "svf.h"
-#include "../../lib/interpolate-linear.h"
-#include "../signal_routing/audio_xfade.h"
-#include "svf_stereo.h"
-
-static float f_formant_pitches[3][10] =
+static float f_formant_pitches[3][10] __attribute__((aligned(16))) =
 {
     {65.7647152829, 64.0195500087, 60.2218660311, 48.5454706023, 54.9116472027, 58.8633387057, 61.4815007463, 50.3695077237, 59.892097194, 57.0},
     {72.7050324737, 80.6019976328, 81.769564049, 85.5572660335, 83.1263160229, 76.408607741, 68.1946296497, 68.8021425265, 74.224633736, 71.55592468},
@@ -91,10 +92,7 @@ t_for_formant_filter * g_for_formant_filter_get(float a_sr)
 {
     t_for_formant_filter * f_result;
     
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_for_formant_filter))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_for_formant_filter));
     
     int f_i = 0;
     while(f_i < 3)    
@@ -221,10 +219,7 @@ t_grw_growl_filter * g_grw_growl_filter_get(float a_sr)
 {
     t_grw_growl_filter * f_result;
     
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_grw_growl_filter))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_grw_growl_filter));
     
     int f_i = 0;
     while(f_i < 5)

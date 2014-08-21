@@ -16,7 +16,6 @@ GNU General Public License for more details.
 
 #include "interpolate-linear.h"
 
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -27,6 +26,12 @@ inline float f_lms_min(float,float);
 inline float f_lms_floor(float,float);
 inline float f_lms_ceiling(float,float);
 inline float f_lms_sqrt(float, t_lin_interpolater*);
+
+#ifdef	__cplusplus
+}
+#endif
+
+
 /* inline float f_lms_abs(float a_input)
  *
  * Return the absolute value of a float.  Use this instead of fabs from
@@ -190,9 +195,6 @@ inline float f_lms_sqrt(float a_input, t_lin_interpolater* a_lin)
 }
 
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* LMS_MATH_H */
 

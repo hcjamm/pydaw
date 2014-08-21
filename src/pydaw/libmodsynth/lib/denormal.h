@@ -20,6 +20,10 @@ extern "C" {
 
 inline float f_remove_denormal(float);
 
+#ifdef	__cplusplus
+}
+#endif
+
 /* inline float f_remove_denormal(float a_input)
  *
  * Prevent recursive modules like filters and feedback delays from
@@ -33,12 +37,6 @@ inline float f_remove_denormal(float a_input)
         return a_input;
 
 }
-
-
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* DENORMAL_H */
 

@@ -14,26 +14,30 @@ GNU General Public License for more details.
 #ifndef PEAK_METER_H
 #define	PEAK_METER_H
 
+#define PEAK_STEP_SIZE 4
+
+#include "lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#define PEAK_STEP_SIZE 4
-
-typedef struct {
+typedef struct
+{
     float value[2];
     int buffer_pos;
 }t_pkm_peak_meter;
+
+
+#ifdef	__cplusplus
+}
+#endif
 
 t_pkm_peak_meter * g_pkm_get()
 {
     t_pkm_peak_meter * f_result;
 
-    if(posix_memalign((void**)(&f_result), 16,
-            (sizeof(t_pkm_peak_meter))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)(&f_result), sizeof(t_pkm_peak_meter));
 
     f_result->value[0] = 0.0f;
     f_result->value[1] = 0.0f;
@@ -80,10 +84,6 @@ void v_pkm_run(t_pkm_peak_meter * self,
         self->buffer_pos += PEAK_STEP_SIZE;
     }
 }
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PEAK_METER_H */
 

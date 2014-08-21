@@ -62,7 +62,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index,
         fp_get_wavpool_item_from_host a_host_wavpool_func,
         int a_track_num, fp_queue_message a_queue_func)
 {
-     //TODO: posix_memalign instead...
     t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));
 
     switch(a_index)

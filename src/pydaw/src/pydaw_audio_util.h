@@ -14,10 +14,6 @@ GNU General Public License for more details.
 #ifndef PYDAW_AUDIO_UTIL_H
 #define	PYDAW_AUDIO_UTIL_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #include <sndfile.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,10 +22,20 @@ extern "C" {
 #include "../libmodsynth/lib/interpolate-cubic.h"
 #include "../libmodsynth/lib/pitch_core.h"
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+
+#ifdef	__cplusplus
+}
+#endif
+
 
 /*For time(affecting pitch) time stretching...  Since this is done
  offline anyways, it's not super optimized... */
-void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_rate, float a_end_rate)
+void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out,
+        float a_start_rate, float a_end_rate)
 {
     SF_INFO info;
     SNDFILE *file;
@@ -73,7 +79,7 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
     long f_size = 0;
     long f_block_size = 5000;
 
-    float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2)); //f_sample_count_long);
+    float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2));
 
     float * f_buffer0 = 0;
     float * f_buffer1 = 0;
@@ -101,8 +107,8 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
     }
     else
     {
-        printf("\n\nDamn, I really didn't anticipate people loading wav files with");
-        printf("more than 2 channels, I'll consider fixing it when somebody complains, barfing for now...\n\n");
+        printf("\nMore than 2 channels not yet supported, "
+                "you should remind me to do it\n");
         assert(0);
     }
 
@@ -116,14 +122,20 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
         {
             if(info.channels == 1)
             {
-                f_output[f_size] = f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames, f_sample_pos, f_cubic);
+                f_output[f_size] =
+                    f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames,
+                        f_sample_pos, f_cubic);
                 f_size++;
             }
             else if(info.channels == 2)
             {
-                f_output[f_size] = f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames, f_sample_pos, f_cubic);
+                f_output[f_size] =
+                    f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames,
+                        f_sample_pos, f_cubic);
                 f_size++;
-                f_output[f_size] = f_cubic_interpolate_ptr_wrap(f_buffer1, info.frames, f_sample_pos, f_cubic);
+                f_output[f_size] =
+                    f_cubic_interpolate_ptr_wrap(f_buffer1, info.frames,
+                        f_sample_pos, f_cubic);
                 f_size++;
             }
 
@@ -170,7 +182,8 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
 
 /*For pitch(affecting time) pitch shifting...  Since this is done
  offline anyways, it's not super optimized... */
-void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_pitch, float a_end_pitch)
+void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out,
+        float a_start_pitch, float a_end_pitch)
 {
     SF_INFO info;
     SNDFILE *file;
@@ -214,7 +227,7 @@ void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_p
     long f_size = 0;
     long f_block_size = 10000;
 
-    float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2)); //f_sample_count_long);
+    float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2));
 
     float * f_buffer0 = 0;
     float * f_buffer1 = 0;
@@ -245,8 +258,8 @@ void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_p
     }
     else
     {
-        printf("\n\nDamn, I really didn't anticipate people loading wav files with");
-        printf("more than 2 channels, I'll consider fixing it when somebody complains, barfing for now...\n\n");
+        printf("\nMore than 2 channels not yet supported, "
+                "you should remind me to do it\n");
         assert(0);
     }
 
@@ -261,21 +274,28 @@ void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_p
         {
             if(info.channels == 1)
             {
-                f_output[f_size] = f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames, f_sample_pos, f_cubic);
+                f_output[f_size] =
+                    f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames,
+                        f_sample_pos, f_cubic);
                 f_size++;
             }
             else if(info.channels == 2)
             {
-                f_output[f_size] = f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames, f_sample_pos, f_cubic);
+                f_output[f_size] =
+                    f_cubic_interpolate_ptr_wrap(f_buffer0, info.frames,
+                        f_sample_pos, f_cubic);
                 f_size++;
-                f_output[f_size] = f_cubic_interpolate_ptr_wrap(f_buffer1, info.frames, f_sample_pos, f_cubic);
+                f_output[f_size] =
+                    f_cubic_interpolate_ptr_wrap(f_buffer1, info.frames,
+                        f_sample_pos, f_cubic);
                 f_size++;
             }
 
             double f_rate = (((double)(a_end_pitch - a_start_pitch)) *
                 (f_sample_pos / ((double)(info.frames)))) + a_start_pitch;
 
-            float f_inc = f_pit_midi_note_to_ratio_fast(60.0f, f_rate + 60.0f, f_pit_core, f_pit_ratio);
+            float f_inc = f_pit_midi_note_to_ratio_fast(
+                60.0f, f_rate + 60.0f, f_pit_core, f_pit_ratio);
 
             f_sample_pos += f_inc;
 
@@ -315,12 +335,6 @@ void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_p
     free(f_pit_ratio);
 }
 
-
-
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PYDAW_AUDIO_UTIL_H */
 

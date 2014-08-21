@@ -14,15 +14,14 @@ GNU General Public License for more details.
 #ifndef OSC_CORE_H
 #define	OSC_CORE_H
 
+#include "pitch_core.h"
+#include <stdlib.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include "pitch_core.h"
-#include <stdlib.h>
-
-
-typedef struct st_osc_core
+typedef struct
 {
     float output;   //range:  0 to 1
     t_lin_interpolater * linear;
@@ -32,6 +31,10 @@ typedef struct st_osc_core
 void v_run_osc(t_osc_core *, float);
 t_osc_core * g_get_osc_core();
 void v_osc_core_free(t_osc_core *);
+
+#ifdef	__cplusplus
+}
+#endif
 
 
 t_osc_core * g_get_osc_core()
@@ -78,11 +81,6 @@ int v_run_osc_sync(t_osc_core *a_core, float a_inc)
         return 0;
     }
 }
-
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* OSC_CORE_H */
 

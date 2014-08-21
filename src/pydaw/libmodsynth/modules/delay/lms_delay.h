@@ -21,6 +21,7 @@ extern "C" {
 
 #include "delay.h"
 #include "../../lib/amp.h"
+#include "../../lib/lmalloc.h"
 #include "../signal_routing/dry_wet.h"
 #include "../../lib/denormal.h"
 #include "../signal_routing/audio_xfade.h"
@@ -74,7 +75,8 @@ inline void v_ldl_run_delay(t_lms_delay*,float,float);
  */
 t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
 {
-    t_lms_delay* f_result = (t_lms_delay*)malloc(sizeof(t_lms_delay));
+    t_lms_delay* f_result;
+    lmalloc((void**)&f_result, sizeof(t_lms_delay));
 
     f_result->delay0 = g_dly_get_delay(a_seconds, a_sr);
     f_result->delay1 = g_dly_get_delay(a_seconds, a_sr);

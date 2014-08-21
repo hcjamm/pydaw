@@ -15,10 +15,6 @@ GNU General Public License for more details.
 #ifndef PYDAW_H
 #define	PYDAW_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 //Required for sched.h
 #ifndef __USE_GNU
 #define __USE_GNU
@@ -96,7 +92,6 @@ extern "C" {
 #include "../libmodsynth/modules/multifx/multifx3knob.h"
 #include "../libmodsynth/modules/modulation/ramp_env.h"
 #include "pydaw_audio_tracks.h"
-#include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
 #include "pydaw_audio_util.h"
 #include "synth.h"
@@ -141,6 +136,10 @@ int i_get_global_track_num(int a_track_type, int a_track_num)
         assert(0);
     }
 }
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -458,7 +457,11 @@ inline void v_pydaw_zero_buffer(float**, int);
 void v_pydaw_panic(t_pydaw_data * self);
 inline void v_queue_osc_message(char * a_key, char * a_val);
 
-/*End declarations.  Begin implementations.*/
+
+#ifdef	__cplusplus
+}
+#endif
+
 
 t_pydaw_data * pydaw_data;
 
@@ -5251,11 +5254,6 @@ void v_pydaw_set_preview_file(t_pydaw_data * self, const char * a_file)
     }
 }
 
-
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PYDAW_H */
 

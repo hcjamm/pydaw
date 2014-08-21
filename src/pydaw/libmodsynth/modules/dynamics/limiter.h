@@ -20,7 +20,8 @@ extern "C" {
 
 #include "../../lib/lms_math.h"
 #include "../../lib/amp.h"
-    #include "../../lib/pitch_core.h"
+#include "../../lib/lmalloc.h"
+#include "../../lib/pitch_core.h"
 #include "../filter/svf.h"
 #include <math.h>
 #include <assert.h>
@@ -164,27 +165,18 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
 t_lim_limiter * g_lim_get(float a_sr)
 {
     t_lim_limiter * f_result;
-    if(posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_lim_limiter));
 
     f_result->holdtime = ((int)(a_sr / LMS_HOLD_TIME_DIVISOR));
 
     f_result->buffer_size = (f_result->holdtime); // (int)(a_sr*0.003f);
     f_result->buffer_index = 0;
 
-    if(posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) *
-            (f_result->buffer_size))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->buffer0, sizeof(float) *
+        (f_result->buffer_size));
 
-    if(posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) *
-            (f_result->buffer_size))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->buffer1, sizeof(float) *
+        (f_result->buffer_size));
 
     f_result->amp_ptr = g_amp_get();
 

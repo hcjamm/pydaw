@@ -12,13 +12,8 @@ GNU General Public License for more details.
 */
 
 #ifndef PYDAW_SYNTH_H
+
 #define	PYDAW_SYNTH_H
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-#include "../include/pydaw_plugin.h"
 
 #define PYDAW_INPUT_COUNT 0
 
@@ -32,6 +27,12 @@ extern "C" {
 
 #define PYDAW_LAST_CONTROL_PORT (PYDAW_FIRST_CONTROL_PORT)
 #define PYDAW_COUNT  (PYDAW_LAST_CONTROL_PORT)
+
+#include "../include/pydaw_plugin.h"
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     PYFX_Data **input_arr;

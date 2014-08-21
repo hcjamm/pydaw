@@ -22,7 +22,7 @@ extern "C" {
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
 #include "../../lib/fast_sine.h"
-
+#include "../../lib/lmalloc.h"
 
 #define OSC_UNISON_MAX_VOICES 7
 
@@ -289,11 +289,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
 {
     t_osc_simple_unison * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_osc_simple_unison)))
-            != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_osc_simple_unison));
 
     v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);
     f_result->osc_type = f_get_saw;
@@ -349,11 +345,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_single(float a_sample_rate)
 {
     t_osc_simple_unison * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_osc_simple_unison)))
-            != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_osc_simple_unison));
 
     v_osc_set_uni_voice_count(f_result, 1);
     f_result->osc_type = f_get_saw;

@@ -14,10 +14,6 @@ GNU General Public License for more details.
 #ifndef PYDAW_FILES_H
 #define	PYDAW_FILES_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,8 +21,7 @@ extern "C" {
 #include <sys/stat.h>
 #include <assert.h>
 
-/*Standard string sizes.  When in doubt, pick a really big one, it's better to
- * waste memory than to SEGFAULT...*/
+/*Standard string sizes*/
 #define PYDAW_LARGE_STRING  65536 //1048576
 #define PYDAW_MEDIUM_STRING  32768 //262144 //8192
 #define PYDAW_SMALL_STRING  16384 //65536 //512
@@ -36,6 +31,22 @@ extern "C" {
 
 #include <stdio.h>
 #include <time.h>
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+/*No pointers internally, call free() directly on an instance*/
+typedef struct
+{
+    int key_len, val_len;
+    char key[256];
+    char value[5000];
+}t_key_value_pair;
+
+#ifdef	__cplusplus
+}
+#endif
 
 /*
 void pydaw_write_log(char * a_string)
@@ -209,14 +220,6 @@ t_1d_char_array * c_split_str_remainder(const char * a_input, char a_delim,
     return f_result;
 }
 
-
-/*No pointers internally, call free() directly on an instance*/
-typedef struct
-{
-    int key_len, val_len;
-    char key[256];
-    char value[5000];
-}t_key_value_pair;
 
 /* Specialized function, split a char* on the first index of a '|' char */
 t_key_value_pair * g_kvp_get(const char * a_input)
@@ -536,9 +539,6 @@ int i_pydaw_file_exists(char * f_file_name)
     }
 }
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PYDAW_FILES_H */
 

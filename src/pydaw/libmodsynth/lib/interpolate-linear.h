@@ -14,34 +14,18 @@ GNU General Public License for more details.
 #ifndef INTERPOLATE_LINEAR_H
 #define	INTERPOLATE_LINEAR_H
 
+#include "lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-typedef struct st_lin_interpolater
+typedef struct
 {
     int int_pos;
     int int_pos_plus_1;
     float pos;
 }t_lin_interpolater;
-
-t_lin_interpolater * g_lin_get();
-
-t_lin_interpolater * g_lin_get()
-{
-    t_lin_interpolater * f_result;
-
-    if(posix_memalign((void**)&f_result, 16, sizeof(t_lin_interpolater)) != 0)
-    {
-        return 0;
-    }
-
-    f_result->int_pos = 0;
-    f_result->int_pos_plus_1 = 1;
-    f_result->pos = 0.0f;
-
-    return f_result;
-}
 
 inline float f_linear_interpolate(float, float, float);
 inline float f_linear_interpolate_arr(float[],float, t_lin_interpolater*);
@@ -52,6 +36,27 @@ inline float f_linear_interpolate_ptr_wrap(float*,int,float,
 inline float f_linear_interpolate_ptr(float*, float, t_lin_interpolater*);
 inline float f_linear_interpolate_ptr_ifh(float * a_table, int a_whole_number,
         float a_frac, t_lin_interpolater * a_lin);
+
+#ifdef	__cplusplus
+}
+#endif
+
+
+t_lin_interpolater * g_lin_get();
+
+t_lin_interpolater * g_lin_get()
+{
+    t_lin_interpolater * f_result;
+
+    lmalloc((void**)&f_result, sizeof(t_lin_interpolater));
+
+    f_result->int_pos = 0;
+    f_result->int_pos_plus_1 = 1;
+    f_result->pos = 0.0f;
+
+    return f_result;
+}
+
 
 /* inline float f_linear_interpolate(
  * float a_a, //item 0
@@ -193,10 +198,6 @@ inline float f_linear_interpolate_ptr_ifh(float * a_table, int a_whole_number,
     return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) *
             (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
 }
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* INTERPOLATE_LINEAR_H */
 

@@ -16,31 +16,39 @@ GNU General Public License for more details.
 
 #include <math.h>
 #include "interpolate-linear.h"
+#include "lmalloc.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-typedef struct st_amp
+
+typedef struct
 {
     float result;
     t_lin_interpolater * linear;
 }t_amp;
 
+
+inline float f_db_to_linear(float,t_amp*);
+inline float f_linear_to_db(float,t_amp*);
+inline float f_db_to_linear_fast(float,t_amp*);
+inline float f_linear_to_db_fast(float,t_amp*);
+inline float f_linear_to_db_linear(float,t_amp*);
 t_amp * g_amp_get();
+
+#ifdef	__cplusplus
+}
+#endif
 
 t_amp * g_amp_get()
 {
     t_amp * f_result;
-    
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_amp))) != 0)
-    {
-        return 0;
-    }
-    
+
+    lmalloc((void**)&f_result, sizeof(t_amp));
+
     f_result->linear = g_lin_get();
     f_result->result = 0.0f;
-    
+
     return f_result;
 }
 
@@ -51,14 +59,8 @@ void v_amp_free(t_amp* a_amp)
     free(a_amp);
 }
 
-inline float f_db_to_linear(float,t_amp*);
-inline float f_linear_to_db(float,t_amp*); 
-inline float f_db_to_linear_fast(float,t_amp*);
-inline float f_linear_to_db_fast(float,t_amp*);
-inline float f_linear_to_db_linear(float,t_amp*);
-
 /* inline float f_db_to_linear(float a_db)
- * 
+ *
  * Convert decibels to linear amplitude
  */
 inline float f_db_to_linear(float a_db,t_amp *__restrict a_amp)
@@ -68,7 +70,7 @@ inline float f_db_to_linear(float a_db,t_amp *__restrict a_amp)
 }
 
 /* inline float f_linear_to_db(float a_linear)
- * 
+ *
  * Convert linear amplitude to decibels
  */
 inline float f_linear_to_db(float a_linear,t_amp *__restrict a_amp)
@@ -83,7 +85,7 @@ inline float f_linear_to_db(float a_linear,t_amp *__restrict a_amp)
 #define arr_amp_db2a_count 545
 #define arr_amp_db2a_count_m1_f 544.0f
 
-float arr_amp_db2a [arr_amp_db2a_count] = {
+float arr_amp_db2a [arr_amp_db2a_count] __attribute__((aligned(16))) = {
 0.000010, 0.000010, 0.000011, 0.000011, 0.000011, 0.000012, 0.000012, 0.000012, 0.000013, 0.000013, 0.000013, 0.000014, 0.000014,
 0.000015, 0.000015, 0.000015, 0.000016, 0.000016, 0.000017, 0.000017, 0.000018, 0.000018, 0.000019, 0.000019, 0.000020, 0.000021,
 0.000021, 0.000022, 0.000022, 0.000023, 0.000024, 0.000024, 0.000025, 0.000026, 0.000027, 0.000027, 0.000028, 0.000029, 0.000030,
@@ -113,7 +115,7 @@ float arr_amp_db2a [arr_amp_db2a_count] = {
 0.167880, 0.172783, 0.177828, 0.183021, 0.188365, 0.193865, 0.199526, 0.205353, 0.211349, 0.217520, 0.223872, 0.230409, 0.237137,
 0.244062, 0.251189, 0.258523, 0.266073, 0.273842, 0.281838, 0.290068, 0.298538, 0.307256, 0.316228, 0.325462, 0.334965, 0.344747,
 0.354813,  0.365174, 0.375837, 0.386812, 0.398107, 0.409732, 0.421697, 0.434010, 0.446684, 0.459727, 0.473151, 0.486968, 0.501187,
-0.515822, 0.530884, 0.546387, 0.562341, 0.578762, 0.595662, 0.613056, 0.630957, 0.649382, 0.668344, 0.687860, 0.707946, 0.728618, 
+0.515822, 0.530884, 0.546387, 0.562341, 0.578762, 0.595662, 0.613056, 0.630957, 0.649382, 0.668344, 0.687860, 0.707946, 0.728618,
 0.749894, 0.771792, 0.794328, 0.817523, 0.841395, 0.865964, 0.891251, 0.917276, 0.944061, 0.971628, 1.000000, 1.029201, 1.059254,
 1.090184, 1.122018, 1.154782, 1.188502, 1.223207, 1.258925,  1.295687, 1.333521, 1.372461, 1.412538, 1.453784, 1.496236, 1.539927,
 1.584893, 1.631173, 1.678804, 1.727826, 1.778279, 1.830206, 1.883649, 1.938653, 1.995262, 2.053525, 2.113489, 2.175204, 2.238721,
@@ -124,34 +126,34 @@ float arr_amp_db2a [arr_amp_db2a_count] = {
 10.292006, 10.592537, 10.901845, 11.220184, 11.547820, 11.885022, 12.232071, 12.589254, 12.956867, 13.335215, 13.724609, 14.125376,
 14.537844, 14.962357, 15.399265, 15.848932, 16.311729, 16.788040, 17.278259, 17.782795, 18.302061, 18.836491, 19.386526, 19.952623,
 20.535250,  21.134890, 21.752041, 22.387211, 23.040930, 23.713737, 24.406191, 25.118864, 25.852348, 26.607250, 27.384197, 28.183830,
-29.006811,  29.853827, 30.725574, 31.622776, 32.546177, 33.496544, 34.474659, 35.481339, 36.517414, 37.583740, 38.681206, 39.810719, 
+29.006811,  29.853827, 30.725574, 31.622776, 32.546177, 33.496544, 34.474659, 35.481339, 36.517414, 37.583740, 38.681206, 39.810719,
 40.973209, 42.169651, 43.401028, 44.668358, 45.972698, 47.315125, 48.696751, 50.118725, 51.582218, 53.088444, 54.638657, 56.234131,
-57.876198, 59.566216, 61.305580, 63.095734}; 
+57.876198, 59.566216, 61.305580, 63.095734};
 
 
 /* inline float f_db_to_linear_fast(float a_db)
- * 
+ *
  * Convert decibels to linear using an approximated table lookup
- * 
+ *
  * Input range:  -100 to 36
- * 
+ *
  * Use the regular version if you may require more range, otherwise the values
  * will be clipped
  */
 inline float f_db_to_linear_fast(float a_db, t_amp *__restrict a_amp)
 {
     a_amp->result = ((a_db + 100.0f) * 4.0f) - 1.0f;
-            
+
     if((a_amp->result) > arr_amp_db2a_count_m1_f)
     {
         a_amp->result = arr_amp_db2a_count_m1_f;
     }
-    
+
     if((a_amp->result) < 0.0f)
     {
         a_amp->result = 0.0f;
     }
-    
+
     return f_linear_interpolate_arr(arr_amp_db2a, (a_amp->result), a_amp->linear);
 }
 
@@ -160,7 +162,7 @@ inline float f_db_to_linear_fast(float a_db, t_amp *__restrict a_amp)
 #define arr_amp_a2db_count_float 400.0f
 #define arr_amp_a2db_count_float_m1 399.0f
 
-float arr_amp_a2db [arr_amp_a2db_count] = {
+float arr_amp_a2db [arr_amp_a2db_count] __attribute__((aligned(16))) = {
 -100 ,-40.000000,-33.979401,-30.457575,-27.958801,-26.020601,-24.436975, -23.098040,-21.938202,-20.915152,-20.000002,-19.172148,-18.416376,
 -17.721134,-17.077440,-16.478176,-15.917601,-15.391022,-14.894549, -14.424928,-13.979400,-13.555614,-13.151546,-12.765442,-12.395774,
 -12.041199,-11.700532,-11.372725,-11.056839,-10.752040,-10.457576, -10.172767,-9.897001,-9.629723,-9.370423,-9.118641,-8.873952,
@@ -199,42 +201,40 @@ float arr_amp_a2db [arr_amp_a2db_count] = {
 /*inline float f_linear_to_db_fast(
  * float a_input  //Linear amplitude.  Typically 0 to 1
  * )
- * 
- * A fast, table-lookup based linear to decibels converter.  
+ *
+ * A fast, table-lookup based linear to decibels converter.
  * The range is 0 to 4, above 4 will clip at 4.
  */
 inline float f_linear_to_db_fast(float a_input, t_amp *__restrict a_amp)
 {
     a_amp->result = (a_input  * 100.0f);
-            
+
     if((a_amp->result) >= arr_amp_a2db_count_float)
     {
         a_amp->result = arr_amp_a2db_count_float_m1;
     }
-    
+
     if((a_amp->result) < 0.0f)
     {
         a_amp->result = 0.0f;
     }
-    
+
     return f_linear_interpolate_arr(arr_amp_a2db, (a_amp->result), a_amp->linear);
 }
 
 
 /* inline float f_linear_to_db_linear(float a_input)
- * 
+ *
  * This takes a 0 to 1 signal and approximates it to a useful range with a logarithmic decibel curve
  * Typical use would be on an envelope that controls the amplitude of an audio signal
  */
 inline float f_linear_to_db_linear(float a_input, t_amp *__restrict a_amp)
 {
     a_amp->result = ((a_input) * 30.0f) - 30.0f;
-    
+
     return f_db_to_linear_fast((a_amp->result), a_amp);
 }
-#ifdef	__cplusplus
-}
-#endif
+
 
 #endif	/* AMP_H */
 

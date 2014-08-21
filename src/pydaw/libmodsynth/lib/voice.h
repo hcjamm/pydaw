@@ -15,12 +15,11 @@ GNU General Public License for more details.
 #define	VOICE_H
 
 #define VOICES_MAX_MIDI_NOTE_NUMBER 128
+#define MIDI_NOTES  128
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#define MIDI_NOTES  128
 
 typedef enum
 {
@@ -33,7 +32,7 @@ typedef enum
     note_state_killed
 } note_state;
 
-typedef struct st_voc_voice
+typedef struct
 {
     int voice_number;
     int note;
@@ -42,7 +41,22 @@ typedef struct st_voc_voice
     long off;
 }t_voc_single_voice;
 
+typedef struct
+{
+    t_voc_single_voice * voices;
+    int count;
+    int thresh;  //when to start agressively killing voices
+    int poly_mode;  //0 = retrigger, 1 = free, 2 = mono, 3 = mono_v2
+    int iterator;
+}t_voc_voices;
+
 t_voc_single_voice g_voc_get_single_voice(int);
+t_voc_voices * g_voc_get_voices(int, int);
+
+#ifdef	__cplusplus
+}
+#endif
+
 
 t_voc_single_voice g_voc_get_single_voice(int a_voice_number)
 {
@@ -56,17 +70,6 @@ t_voc_single_voice g_voc_get_single_voice(int a_voice_number)
     f_result->off = -1;
     return *f_result;
 }
-
-typedef struct st_voc_voices
-{
-    t_voc_single_voice * voices;
-    int count;
-    int thresh;  //when to start agressively killing voices
-    int poly_mode;  //0 = retrigger, 1 = free, 2 = mono, 3 = mono_v2
-    int iterator;
-}t_voc_voices;
-
-t_voc_voices * g_voc_get_voices(int, int);
 
 t_voc_voices * g_voc_get_voices(int a_count, int a_thresh)
 {
@@ -290,10 +293,6 @@ void v_voc_note_off(t_voc_voices * a_voc, int a_note,
         }
     }
 }
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* VOICE_H */
 

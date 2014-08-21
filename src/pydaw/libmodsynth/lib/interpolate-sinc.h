@@ -17,13 +17,13 @@ GNU General Public License for more details.
 #include <math.h>
 #include <stdlib.h>
 #include "interpolate-linear.h"
+#include "lmalloc.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-
-typedef struct st_sinc_interpolator
+typedef struct
 {
     float * sinc_table;
     int table_size;
@@ -39,9 +39,29 @@ typedef struct st_sinc_interpolator
     t_lin_interpolater * linear_interpolate;
 }t_sinc_interpolator;
 
-float f_sinc_interpolate(t_sinc_interpolator*,float*,float);
 
+typedef struct
+{
+    float last_increment;
+    float float_increment;
+    int int_increment;
+    float fraction;
+    int whole_number;
+}t_int_frac_read_head;
+
+float f_sinc_interpolate(t_sinc_interpolator*,float*,float);
 float f_sinc_interpolate2(t_sinc_interpolator*,float*,int,float);
+t_sinc_interpolator * g_sinc_get(int, int, double, double, float);
+
+t_int_frac_read_head * g_ifh_get();
+void v_ifh_run(t_int_frac_read_head*, float);
+void v_ifh_run_reverse(t_int_frac_read_head*, float);
+void v_ifh_retrigger(t_int_frac_read_head*, int);
+
+#ifdef	__cplusplus
+}
+#endif
+
 
 //float f_sinc_interpolate(t_sinc_interpolator*,float,int);
 
@@ -106,8 +126,6 @@ float f_sinc_interpolate2(t_sinc_interpolator *__restrict a_sinc,
 
 }
 
-t_sinc_interpolator * g_sinc_get(int, int, double, double, float);
-
 /* t_sinc_interpolator * g_sinc_get(
  * int a_points, //The number of points to use
  * int a_samples_per_point, //how many array elements per a_point
@@ -122,11 +140,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point,
 
     t_sinc_interpolator * f_result;
 
-    if(posix_memalign(((void**)&f_result), 16,
-            sizeof(t_sinc_interpolator)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_sinc_interpolator));
 
     if (a_points % 2)
     {
@@ -139,11 +153,8 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point,
 
     int f_array_size = ((f_result->points_div2) * a_samples_per_point);
 
-    if(posix_memalign(((void**)&(f_result->sinc_table)), 16,
-            ((sizeof(float) * (f_array_size)) + (sizeof(float) * 16))) != 0)
-    {
-        return 0;
-    }
+    lmalloc(((void**)&(f_result->sinc_table)),
+        (sizeof(float) * (f_array_size)) + (sizeof(float) * 16));
 
     f_result->points = a_points;
     f_result->samples_per_point = a_samples_per_point;
@@ -207,19 +218,6 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point,
 
 }
 
-typedef struct st_int_frac_read_head
-{
-    float last_increment;
-    float float_increment;
-    int int_increment;
-    float fraction;
-    int whole_number;
-}t_int_frac_read_head;
-
-t_int_frac_read_head * g_ifh_get();
-void v_ifh_run(t_int_frac_read_head*, float);
-void v_ifh_run_reverse(t_int_frac_read_head*, float);
-void v_ifh_retrigger(t_int_frac_read_head*, int);
 
 void v_ifh_run(t_int_frac_read_head* a_ifh, float a_ratio)
 {
@@ -276,11 +274,7 @@ t_int_frac_read_head * g_ifh_get()
 {
     t_int_frac_read_head * f_result;
 
-    if(posix_memalign((void**)&f_result, 16,
-            (sizeof(t_int_frac_read_head))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_int_frac_read_head));
 
     f_result->float_increment = 0.0f;
     f_result->fraction = 0.0f;
@@ -292,9 +286,6 @@ t_int_frac_read_head * g_ifh_get()
     return f_result;
 }
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* INTERPOLATE_SINC_H */
 

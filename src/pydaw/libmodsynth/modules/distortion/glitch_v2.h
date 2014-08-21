@@ -16,6 +16,7 @@ GNU General Public License for more details.
 
 #include "../../lib/interpolate-cubic.h"
 #include "../../lib/pitch_core.h"
+#include "../../lib/lmalloc.h"
 #include "../modulation/adsr.h"
 #include "../signal_routing/audio_xfade.h"
 
@@ -62,19 +63,12 @@ t_glc_glitch_v2 * g_glc_glitch_v2_get(float a_sr)
 {
     t_glc_glitch_v2 * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_glc_glitch_v2))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_glc_glitch_v2));
 
     f_result->buffer_size = (int)(a_sr * 0.25f);
 
-    if(posix_memalign(
-        (void**)&f_result->buffer, 16, sizeof(float) *
-        (f_result->buffer_size + 100)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->buffer,
+        sizeof(float) * (f_result->buffer_size + 100));
 
     f_result->cubic = g_cubic_get();
     f_result->pitch_core = g_pit_get();

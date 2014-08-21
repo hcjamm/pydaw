@@ -14,17 +14,18 @@ GNU General Public License for more details.
 #ifndef PEAK_EQ_H
 #define	PEAK_EQ_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #include "../../lib/pitch_core.h"
 #include "../../lib/amp.h"
 #include "../../constants.h"
 #include "../../lib/denormal.h"
+#include "../../lib/lmalloc.h"
 #include <math.h>
 
-typedef struct st_pkq_peak_eq
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+typedef struct
 {
     float BW, dB, pitch, exp_value, exp_db, d, B, d_times_B,
             w, w2, wQ, y2_0, y2_1, FIR_out_0, FIR_out_1, w2p1,
@@ -147,10 +148,7 @@ t_pkq_peak_eq * g_pkq_get(float a_sample_rate)
 {
     t_pkq_peak_eq * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_pkq_peak_eq))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_pkq_peak_eq));
 
     f_result->B = 0.0f;
     f_result->FIR_out_0 = 0.0f;

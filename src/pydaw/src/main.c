@@ -54,6 +54,7 @@ GNU General Public License for more details.
 
 #include <lo/lo.h>
 
+#include "../libmodsynth/lib/lmalloc.h"
 //  If you define this, you must also link to cpufreq appropriately with
 //    LDFLAGS+="-lcpufreq"  //or whatever flag
 //  #define PYDAW_CPUFREQ
@@ -810,12 +811,8 @@ int main(int argc, char **argv)
 
     for (j = 0; j < this_instance->plugin->ins; ++j)
     {
-        //Port naming code was here
-        if(posix_memalign((void**)(&pluginInputBuffers[in]), 16,
-                (sizeof(float) * f_frame_count)) != 0)
-        {
-            return 0;
-        }
+        lmalloc((void**)(&pluginInputBuffers[in]),
+            (sizeof(float) * f_frame_count));
 
         int f_i = 0;
         while(f_i < f_frame_count)
@@ -827,12 +824,8 @@ int main(int argc, char **argv)
     }
     for (j = 0; j < this_instance->plugin->outs; ++j)
     {
-        //Port naming code was here
-        if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16,
-                (sizeof(float) * f_frame_count)) != 0)
-        {
-            return 0;
-        }
+        lmalloc((void**)(&pluginOutputBuffers[out]),
+            (sizeof(float) * f_frame_count));
 
         int f_i = 0;
         while(f_i < f_frame_count)

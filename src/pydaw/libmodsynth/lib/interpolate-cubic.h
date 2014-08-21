@@ -14,6 +14,8 @@ GNU General Public License for more details.
 #ifndef INTERPOLATE_CUBIC_H
 #define	INTERPOLATE_CUBIC_H
 
+#include "lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -24,16 +26,22 @@ typedef struct
     int int_pos, int_pos_plus1, int_pos_minus1, int_pos_minus2;
 }t_cubic_interpolater;
 
+inline float f_cubic_interpolate_ptr_wrap(float*, int, float,
+        t_cubic_interpolater*);
+inline float f_cubic_interpolate_ptr(float*, float, t_cubic_interpolater*);
+
 t_cubic_interpolater * g_cubic_get();
+
+#ifdef	__cplusplus
+}
+#endif
+
 
 t_cubic_interpolater * g_cubic_get()
 {
     t_cubic_interpolater * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, sizeof(t_cubic_interpolater)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_cubic_interpolater));
 
     f_result->a0 = 0.0f;
     f_result->a1 = 0.0f;
@@ -50,10 +58,6 @@ t_cubic_interpolater * g_cubic_get()
     return f_result;
 }
 
-//inline float f_cubic_interpolate(float, float, float);
-inline float f_cubic_interpolate_ptr_wrap(float*,int,float,
-        t_cubic_interpolater*);
-inline float f_cubic_interpolate_ptr(float*, float, t_cubic_interpolater*);
 
 /* inline float f_cubic_interpolate(
  * float a_a, //item 0
@@ -205,10 +209,6 @@ inline float f_cubic_interpolate_ptr_ifh(float * a_table, int a_whole_number,
     return (a_cubic->a0 * a_cubic->mu * a_cubic->mu2 + a_cubic->a1 *
             a_cubic->mu2 + a_cubic->a2 * a_cubic->mu + a_cubic->a3);
 }
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* INTERPOLATE_CUBIC_H */
 

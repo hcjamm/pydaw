@@ -14,19 +14,27 @@ GNU General Public License for more details.
 #ifndef SMOOTHER_IIR_H
 #define	SMOOTHER_IIR_H
 
+
+#include "denormal.h"
+#include "lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include "../lib/denormal.h"
-
-typedef struct s_smoother_iir
+typedef struct
 {
     float output;
 }t_smoother_iir;
 
 inline void v_smr_iir_run(t_smoother_iir*, float);
 inline void v_smr_iir_run_fast(t_smoother_iir*, float);
+
+#ifdef	__cplusplus
+}
+#endif
+
+
 
 /* inline void v_smr_iir_run(
  * t_smoother_iir *
@@ -58,18 +66,12 @@ t_smoother_iir * g_smr_iir_get_smoother()
 {
     t_smoother_iir * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, sizeof(t_smoother_iir)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_smoother_iir));
 
     f_result->output = 0.0f;
     return f_result;
 }
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* SMOOTHER_IIR_H */
 

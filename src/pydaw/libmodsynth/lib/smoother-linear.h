@@ -15,11 +15,16 @@ GNU General Public License for more details.
 #define	SMOOTHER_LINEAR_H
 
 #include "math.h"
+#include "lmalloc.h"
 
 /*Comment this out when compiling for a release, as it will waste a lot of CPU*/
 //#define SML_DEBUG_MODE
 
-typedef struct st_smoother_linear
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+typedef struct
 {
     float rate;
     float last_value;
@@ -33,6 +38,10 @@ typedef struct st_smoother_linear
 
 t_smoother_linear * g_sml_get_smoother_linear(float, float, float, float);
 inline void v_sml_run(t_smoother_linear * a_smoother, float);
+
+#ifdef	__cplusplus
+}
+#endif
 
 /* t_smoother_linear * g_sml_get_smoother_linear(
  * float a_sample_rate,
@@ -49,13 +58,10 @@ t_smoother_linear * g_sml_get_smoother_linear(float a_sample_rate,
         float a_high, float a_low, float a_time_in_seconds)
 {
     assert(a_high > a_low);
-    
+
     t_smoother_linear * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_smoother_linear))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_smoother_linear));
 
     /*Start in the middle, the user can manually set the value if
      * this isn't acceptable*/

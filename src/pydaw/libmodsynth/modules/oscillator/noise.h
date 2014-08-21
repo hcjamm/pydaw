@@ -18,6 +18,7 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
+#include "../../lib/lmalloc.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -66,12 +67,8 @@ t_white_noise * g_get_white_noise(float a_sample_rate)
 
     f_result->read_head = 0;
 
-    if(posix_memalign((void**)&f_result->sample_array, 16,
-            (sizeof(float) * f_result->array_count)) != 0)
-    {
-        printf("Failed to allocate memory in g_get_white_noise()");
-        return 0;
-    }
+    lmalloc((void**)&f_result->sample_array,
+        sizeof(float) * f_result->array_count);
 
     f_result->b0 = f_result->b1 = f_result->b2 = f_result->b3 =
             f_result->b4 = f_result->b5 = f_result->b6 = 0.0f;

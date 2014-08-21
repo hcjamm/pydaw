@@ -14,12 +14,13 @@ GNU General Public License for more details.
 #ifndef RING_MOD_H
 #define	RING_MOD_H
 
+#include "../oscillator/osc_simple.h"
+#include "../signal_routing/audio_xfade.h"
+#include "../../lib/lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#include "../oscillator/osc_simple.h"
-#include "../signal_routing/audio_xfade.h"
 
 typedef struct
 {
@@ -52,10 +53,7 @@ t_rmd_ring_mod * g_rmd_ring_mod_get(float a_sr)
 {
     t_rmd_ring_mod * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_rmd_ring_mod))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_rmd_ring_mod));
 
     f_result->osc = g_osc_get_osc_simple_single(a_sr);
     v_osc_set_simple_osc_unison_type(f_result->osc, 3);

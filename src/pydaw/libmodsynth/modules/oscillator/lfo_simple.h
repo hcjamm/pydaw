@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 #include "osc_simple.h"
+#include "../../lib/lmalloc.h"
 #include "../../lib/osc_core.h"
 
 typedef struct st_lfs_lfo
@@ -88,10 +89,7 @@ t_lfs_lfo * g_lfs_get(float a_sr)
 {
     t_lfs_lfo * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_lfs_lfo))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_lfs_lfo));
 
     f_result->inc = 0.0f;
     f_result->osc_core = g_get_osc_core();

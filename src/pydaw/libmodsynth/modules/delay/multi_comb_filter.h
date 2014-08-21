@@ -20,6 +20,7 @@ extern "C" {
 #endif
 
 #include "../../lib/amp.h"
+#include "../../lib/lmalloc.h"
 #include "../../lib/pitch_core.h"
 #include "../../lib/interpolate-linear.h"
 #include "../../lib/smoother-linear.h"
@@ -154,19 +155,13 @@ t_mcm_multicomb * g_mcm_get(int a_comb_count, float a_sr)
 {
     t_mcm_multicomb * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_mcm_multicomb))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_mcm_multicomb));
 
     //Allocate enough memory to accomodate 20hz filter frequency
     f_result->buffer_size = (int)((a_sr / 20.0f) + 300);
 
-    if(posix_memalign((void**)(&(f_result->input_buffer)), 16, (sizeof(float) *
-            (f_result->buffer_size))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)(&(f_result->input_buffer)), 
+        sizeof(float) * (f_result->buffer_size));
 
     int f_i = 0;
 
@@ -186,11 +181,7 @@ t_mcm_multicomb * g_mcm_get(int a_comb_count, float a_sr)
 
     f_result->volume_recip = 1.0f/(float)a_comb_count;
 
-    if(posix_memalign((void**)(&(f_result->delay_samples)), 16,
-            (sizeof(float) * a_comb_count)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->delay_samples, sizeof(float) * a_comb_count);
 
     f_i = 0;
     while(f_i < a_comb_count)

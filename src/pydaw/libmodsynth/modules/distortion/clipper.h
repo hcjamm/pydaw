@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 #include "../../lib/amp.h"
+#include "../../lib/lmalloc.h"
 
 //#define CLP_DEBUG_MODE
 
@@ -82,10 +83,7 @@ t_clipper * g_clp_get_clipper()
 {
     t_clipper * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_clipper))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_clipper));
 
     f_result->clip_high = 1.0f;
     f_result->clip_low = -1.0f;

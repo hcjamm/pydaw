@@ -25,6 +25,7 @@ extern "C" {
 #include "../../lib/interpolate-linear.h"
 #include "../../lib/smoother-linear.h"
 #include "../../lib/denormal.h"
+#include "../../lib/lmalloc.h"
 
 #define MC_CMB_COUNT 4
 
@@ -200,19 +201,14 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
 {
     t_comb_filter * f_result;// = (t_comb_filter*)malloc(sizeof(t_comb_filter));
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_comb_filter))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_comb_filter));
 
     int f_i = 0;
 
     f_result->buffer_size = (int)((a_sr / 20.0f) + 300);  //Allocate enough memory to accomodate 20hz filter frequency
 
-    if(posix_memalign((void**)(&(f_result->input_buffer)), 16, (sizeof(float) * (f_result->buffer_size))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)(&(f_result->input_buffer)), 
+        sizeof(float) * (f_result->buffer_size));
 
     while(f_i < (f_result->buffer_size))
     {

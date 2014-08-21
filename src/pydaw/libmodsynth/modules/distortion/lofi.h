@@ -14,12 +14,13 @@ GNU General Public License for more details.
 #ifndef PYDAW_LOFI_H
 #define	PYDAW_LOFI_H
 
+#include <math.h>
+#include "../../lib/lmalloc.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include <math.h>
-    
 typedef struct 
 {
     float bits, multiplier, recip;
@@ -35,10 +36,7 @@ t_lfi_lofi * g_lfi_lofi_get()
 {
     t_lfi_lofi * f_result;
     
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_lfi_lofi))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_lfi_lofi));
     
     f_result->output0 = 0.0f;
     f_result->output1 = 0.0f;

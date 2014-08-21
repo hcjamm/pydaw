@@ -14,13 +14,14 @@ GNU General Public License for more details.
 #ifndef DRY_WET_H
 #define	DRY_WET_H
 
+#include "../../lib/lmalloc.h"
+#include "../../lib/amp.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-#include "../../lib/amp.h"
 
-typedef struct st_dw_dry_wet
+typedef struct
 {
     float wet_db;
     float wet_linear;
@@ -66,12 +67,9 @@ inline void v_dw_run_dry_wet(t_dw_dry_wet* a_dw, float a_dry, float a_wet)
 
 t_dw_dry_wet* g_dw_get_dry_wet()
 {
-    t_dw_dry_wet* f_result;// = (t_dw_dry_wet*)malloc(sizeof(t_dw_dry_wet));
+    t_dw_dry_wet* f_result;
     
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_dw_dry_wet))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_dw_dry_wet));
     
     f_result->wet_db = -50.0f;
     f_result->wet_linear = 0.0f;

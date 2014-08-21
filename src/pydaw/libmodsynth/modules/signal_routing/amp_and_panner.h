@@ -17,6 +17,7 @@ GNU General Public License for more details.
 #include "../../lib/amp.h"
 #include "../../lib/lms_math.h"
 #include "../../lib/fast_sine.h"
+#include "../../lib/lmalloc.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -69,10 +70,7 @@ t_amp_and_panner * g_app_get()
 {
     t_amp_and_panner * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_amp_and_panner))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_amp_and_panner));
 
     f_result->amp_db = 0.0f;
     f_result->pan = 0.0f;

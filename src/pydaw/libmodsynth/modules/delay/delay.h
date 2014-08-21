@@ -20,6 +20,7 @@ extern "C" {
 
 #include "../../lib/interpolate-linear.h"
 #include "../../lib/pitch_core.h"
+#include "../../lib/lmalloc.h"
 
 //#define DLY_DEBUG_MODE
 
@@ -296,7 +297,8 @@ inline void v_dly_run_tap_lin(t_delay_simple* a_dly,t_delay_tap* a_tap)
  */
 t_delay_simple * g_dly_get_delay(float a_max_size, float a_sr)
 {
-    t_delay_simple * f_result = (t_delay_simple*)malloc(sizeof(t_delay_simple));
+    t_delay_simple * f_result;
+    lmalloc((void**)&f_result, sizeof(t_delay_simple));
 
     f_result->write_head = 0;
     f_result->sample_rate = a_sr;
@@ -304,7 +306,8 @@ t_delay_simple * g_dly_get_delay(float a_max_size, float a_sr)
     f_result->tempo_recip = 999;
     //add 2400 samples to ensure we don't overrun our buffer
     f_result->sample_count = (int)((a_max_size * a_sr) + 2400);
-    f_result->buffer = (float*)malloc(sizeof(float) * (f_result->sample_count));
+    lmalloc((void**)&f_result->buffer, 
+        sizeof(float) * (f_result->sample_count));
 
     int f_i = 0;
 
@@ -326,8 +329,8 @@ t_delay_simple * g_dly_get_delay(float a_max_size, float a_sr)
 t_delay_simple * g_dly_get_delay_tempo(float a_tempo, float a_max_size,
         float a_sr)
 {
-    t_delay_simple * f_result = (t_delay_simple*)malloc(sizeof(t_delay_simple));
-
+    t_delay_simple * f_result;
+    lmalloc((void**)&f_result, sizeof(t_delay_simple));
 
     f_result->write_head = 0;
     f_result->sample_rate = a_sr;
@@ -337,14 +340,16 @@ t_delay_simple * g_dly_get_delay_tempo(float a_tempo, float a_max_size,
     //add 2400 samples to ensure we don't overrun our buffer
     f_result->sample_count = (int)((a_max_size *
             (f_result->tempo_recip) * a_sr) + 2400);
-    f_result->buffer = (float*)malloc(sizeof(float) * (f_result->sample_count));
+    lmalloc((void**)&f_result->buffer,
+        sizeof(float) * (f_result->sample_count));
 
     return f_result;
 }
 
 t_delay_tap * g_dly_get_tap()
 {
-    t_delay_tap * f_result = (t_delay_tap*)malloc(sizeof(t_delay_tap));
+    t_delay_tap * f_result;
+    lmalloc((void**)&f_result, sizeof(t_delay_tap));
 
     f_result->read_head = 0;
     f_result->delay_samples = 0;

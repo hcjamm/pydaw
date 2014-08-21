@@ -17,14 +17,16 @@ GNU General Public License for more details.
 #define PYDAW_REVERB_DIFFUSER_COUNT 4
 #define PYDAW_REVERB_TAP_COUNT 8
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 #include "../../lib/amp.h"
+#include "../../lib/lmalloc.h"
 #include "../../lib/pitch_core.h"
 #include "../filter/comb_filter.h"
 #include "../filter/svf.h"
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
 
 typedef struct
 {
@@ -152,10 +154,7 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
 {
     t_rvb_reverb * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_rvb_reverb))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_rvb_reverb));
 
     f_result->color = 1.0f;
     f_result->iter1 = 0;
@@ -218,11 +217,7 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->last_predelay = -1234.0f;
     f_result->predelay_size = (int)(a_sr * 0.01f);
 
-    if(posix_memalign((void**)&f_result->predelay_buffer, 16,
-        (sizeof(float) * (a_sr + 5000))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->predelay_buffer, sizeof(float) * (a_sr + 5000));
 
     f_i2 = 0;
     while(f_i2 < (a_sr + 5000))

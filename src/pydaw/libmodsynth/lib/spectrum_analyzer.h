@@ -14,9 +14,6 @@ GNU General Public License for more details.
 #ifndef SPECTRUM_ANALYZER_H
 #define	SPECTRUM_ANALYZER_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 #include <math.h>
 #include <stdio.h>
@@ -31,7 +28,11 @@ extern "C" {
 #include <complex.h>
 #include <fftw3.h>
 
+#include "lmalloc.h"
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     int track_num;
@@ -48,6 +49,9 @@ typedef struct {
     char str_tmp[128];
 } t_spa_spectrum_analyzer;
 
+#ifdef	__cplusplus
+}
+#endif
 
 t_spa_spectrum_analyzer * g_spa_spectrum_analyzer_get(int a_sample_count,
         int a_track_num, int a_is_inst)
@@ -56,11 +60,7 @@ t_spa_spectrum_analyzer * g_spa_spectrum_analyzer_get(int a_sample_count,
             (t_spa_spectrum_analyzer*)malloc(sizeof(t_spa_spectrum_analyzer));
     int f_i = 0;
 
-    if(posix_memalign((void**)&f_result->buffer, 16,
-            sizeof(float) * a_sample_count) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->buffer, sizeof(float) * a_sample_count);
 
     f_result->is_inst = a_is_inst;
     f_result->track_num = a_track_num;
@@ -136,9 +136,6 @@ void v_spa_run(t_spa_spectrum_analyzer *a_spa,
     }
 }
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* SPECTRUM_ANALYZER_H */
 

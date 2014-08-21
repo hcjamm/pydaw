@@ -14,16 +14,13 @@ GNU General Public License for more details.
 #ifndef PYDAW_AUDIO_TRACKS_H
 #define	PYDAW_AUDIO_TRACKS_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #include <sndfile.h>
 #include "../libmodsynth/lib/amp.h"
 #include "../libmodsynth/lib/pitch_core.h"
 #include "../libmodsynth/lib/interpolate-cubic.h"
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../libmodsynth/lib/interpolate-sinc.h"
+#include "../libmodsynth/lib/lmalloc.h"
 #include "../libmodsynth/modules/modulation/adsr.h"
 #include "../libmodsynth/modules/filter/svf.h"
 #include "../include/pydaw_plugin.h"
@@ -37,14 +34,88 @@ extern "C" {
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT 32.0f
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+typedef struct
+{
+    t_wav_pool_item * wav_pool_item;  //pointer assigned when playing
+    int wav_pool_uid;
+    float ratio;
+    int uid;
+    int start_bar;
+    float start_beat;
+    float adjusted_start_beat;
+    int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
+    float pitch_shift;
+    float sample_start;
+    float sample_end;
+    int sample_start_offset;
+    float sample_start_offset_float;
+    int sample_end_offset;
+    //The audio track whose Modulex instance to write the samples to
+    int audio_track_output;
+    t_int_frac_read_head * sample_read_head;
+    t_adsr * adsr;
+    int index;
+    float vol;
+    float vol_linear;
+
+    float timestretch_amt;
+    float sample_fade_in;
+    float sample_fade_out;
+    int sample_fade_in_end;
+    int sample_fade_out_start;
+    float sample_fade_in_divisor;
+    float sample_fade_out_divisor;
+    float fade_vol;
+
+    t_amp * amp_ptr;
+    t_pit_pitch_core * pitch_core_ptr;
+    t_pit_ratio * pitch_ratio_ptr;
+    t_state_variable_filter * lp_filter;  //fade smoothing
+
+    float pitch_shift_end;
+    float timestretch_amt_end;
+    int is_reversed;
+    float fadein_vol;
+    float fadeout_vol;
+    int paif_automation_uid;  //placeholder for future functionality
+} t_pydaw_audio_item __attribute__((aligned(16)));
+
+typedef struct
+{
+    float sample_rate;
+    int count;
+    t_wav_pool_item * items[PYDAW_MAX_WAV_POOL_ITEM_COUNT];
+    char samples_folder[2048];  //This must be set when opening a project
+}t_wav_pool;
+
+typedef struct
+{
+    t_pydaw_audio_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
+    int indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_AUDIO_ITEM_COUNT];
+    int index_counts[PYDAW_TRACK_COUNT_ALL];
+    int sample_rate;
+    t_cubic_interpolater * cubic_interpolator;
+    int uid;
+} t_pydaw_audio_items;
+
+
+t_pydaw_audio_item * g_pydaw_audio_item_get(float);
+t_pydaw_audio_items * g_pydaw_audio_items_get(int);
+void v_pydaw_audio_item_free(t_pydaw_audio_item *);
+
+#ifdef	__cplusplus
+}
+#endif
+
 t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
 {
     t_wav_pool_item *f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_wav_pool_item))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_wav_pool_item));
 
     f_result->uid = a_uid;
     f_result->is_loaded = 0;
@@ -102,24 +173,16 @@ int i_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item)
     }
 
     int f_actual_array_size = (samples + PYDAW_AUDIO_ITEM_PADDING);
+    int f_i = 0;
 
-    if(posix_memalign((void**)(&(tmpSamples[0])), 16,
-            ((f_actual_array_size) * sizeof(float))) != 0)
+    while(f_i < f_adjusted_channel_count)
     {
-        printf("Call to posix_memalign failed for tmpSamples[0]\n");
-        return 0;
-    }
-    if(f_adjusted_channel_count > 1)
-    {
-        if(posix_memalign((void**)(&(tmpSamples[1])), 16,
-                ((f_actual_array_size) * sizeof(float))) != 0)
-        {
-            printf("Call to posix_memalign failed for tmpSamples[1]\n");
-            return 0;
-        }
+        lmalloc((void**)(&(tmpSamples[f_i])),
+            f_actual_array_size * sizeof(float));
+        f_i++;
     }
 
-    int f_i, j;
+    int j;
 
     //For performing a 5ms fadeout of the sample, for preventing clicks
     float f_fade_out_dec = (1.0f/(float)(info.samplerate))/(0.005);
@@ -211,60 +274,6 @@ void v_wav_pool_item_free(t_wav_pool_item *a_wav_pool_item)
     free(a_wav_pool_item);
 }
 
-typedef struct
-{
-    t_wav_pool_item * wav_pool_item;  //pointer assigned when playing
-    int wav_pool_uid;
-    float ratio;
-    int uid;
-    int start_bar;
-    float start_beat;
-    float adjusted_start_beat;
-    int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
-    float pitch_shift;
-    float sample_start;
-    float sample_end;
-    int sample_start_offset;
-    float sample_start_offset_float;
-    int sample_end_offset;
-    //The audio track whose Modulex instance to write the samples to
-    int audio_track_output;
-    t_int_frac_read_head * sample_read_head;
-    t_adsr * adsr;
-    int index;
-    float vol;
-    float vol_linear;
-
-    float timestretch_amt;
-    float sample_fade_in;
-    float sample_fade_out;
-    int sample_fade_in_end;
-    int sample_fade_out_start;
-    float sample_fade_in_divisor;
-    float sample_fade_out_divisor;
-    float fade_vol;
-
-    t_amp * amp_ptr;
-    t_pit_pitch_core * pitch_core_ptr;
-    t_pit_ratio * pitch_ratio_ptr;
-    t_state_variable_filter * lp_filter;  //fade smoothing
-
-    float pitch_shift_end;
-    float timestretch_amt_end;
-    int is_reversed;
-    float fadein_vol;
-    float fadeout_vol;
-    int paif_automation_uid;  //placeholder for future functionality
-} t_pydaw_audio_item __attribute__((aligned(16)));
-
-typedef struct
-{
-    float sample_rate;
-    int count;
-    t_wav_pool_item * items[PYDAW_MAX_WAV_POOL_ITEM_COUNT];
-    char samples_folder[2048];  //This must be set when opening a project
-}t_wav_pool;
-
 t_wav_pool * g_wav_pool_get(float a_sr)
 {
     t_wav_pool * f_result = (t_wav_pool*)malloc(sizeof(t_wav_pool));
@@ -334,22 +343,6 @@ t_wav_pool_item * g_wav_pool_get_item_by_uid(t_wav_pool* a_wav_pool, int a_uid)
     return 0;
 }
 
-typedef struct
-{
-    t_pydaw_audio_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
-    int indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_AUDIO_ITEM_COUNT];
-    int index_counts[PYDAW_TRACK_COUNT_ALL];
-    int sample_rate;
-    t_cubic_interpolater * cubic_interpolator;
-    int uid;
-} t_pydaw_audio_items;
-
-
-t_pydaw_audio_item * g_pydaw_audio_item_get(float);
-t_pydaw_audio_items * g_pydaw_audio_items_get(int);
-void v_pydaw_audio_item_free(t_pydaw_audio_item *);
-//void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path,
-//      float a_sr, int a_uid);
 
 void v_pydaw_audio_item_free(t_pydaw_audio_item* a_audio_item)
 {
@@ -378,10 +371,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
 {
     t_pydaw_audio_item * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, sizeof(t_pydaw_audio_item)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_pydaw_audio_item));
 
     f_result->ratio = 1.0f;
     f_result->uid = -1;
@@ -407,10 +397,7 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
 {
     t_pydaw_audio_items * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, sizeof(t_pydaw_audio_items)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_pydaw_audio_items));
 
     f_result->sample_rate = a_sr;
     f_result->cubic_interpolator = g_cubic_get();
@@ -863,9 +850,6 @@ void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
 }
 
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PYDAW_AUDIO_TRACKS_H */
 

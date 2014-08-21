@@ -151,20 +151,17 @@ t_svf_kernel * g_svf_get_filter_kernel()
 {
     t_svf_kernel * f_result;
 
-    if(posix_memalign((void**)&f_result, 16, (sizeof(t_svf_kernel))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result, sizeof(t_svf_kernel));
 
-        f_result->bp = 0.0f;
-        f_result->hp = 0.0f;
-        f_result->lp = 0.0f;
-        f_result->lp_m1 = 0.0f;
-        f_result->filter_input = 0.0f;
-        f_result->filter_last_input = 0.0f;
-        f_result->bp_m1 = 0.0f;
+    f_result->bp = 0.0f;
+    f_result->hp = 0.0f;
+    f_result->lp = 0.0f;
+    f_result->lp_m1 = 0.0f;
+    f_result->filter_input = 0.0f;
+    f_result->filter_last_input = 0.0f;
+    f_result->bp_m1 = 0.0f;
 
-        return f_result;
+    return f_result;
 }
 
 /* inline fp_svf_run_filter svf_get_run_filter_ptr(
@@ -478,11 +475,7 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
 {
     t_state_variable_filter * f_svf;
 
-    if(posix_memalign((void**)&f_svf, 16,
-            (sizeof(t_state_variable_filter))) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_svf, sizeof(t_state_variable_filter));
 
     f_svf->sr = a_sample_rate * ((float)(SVF_OVERSAMPLE_MULTIPLIER));
     f_svf->pi2_div_sr = (PI2 / (f_svf->sr));

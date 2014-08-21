@@ -16,12 +16,10 @@ GNU General Public License for more details.
 
 #include <malloc.h>
 #include <stdlib.h>
-#include <hugetlbfs.h>
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
 
 void lmalloc(void**, size_t);
 
