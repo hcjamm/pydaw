@@ -896,14 +896,18 @@ void * v_pydaw_osc_send_thread(void* a_arg)
 
     while(f_i < PYDAW_OSC_SEND_QUEUE_SIZE)
     {
-        osc_queue_vals[f_i] =
-            (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+        lmalloc((void**)&osc_queue_vals[f_i],
+            sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
         f_i++;
     }
 
-    char * f_tmp1 = (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
-    char * f_tmp2 = (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
-    char * f_msg = (char*)malloc(sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+    char * f_tmp1 = NULL;
+    lmalloc((void**)&f_tmp1, sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+    char * f_tmp2 = NULL;
+    lmalloc((void**)&f_tmp2, sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+    char * f_msg = NULL;
+    lmalloc((void**)&f_msg, sizeof(char) * PYDAW_OSC_MAX_MESSAGE_SIZE);
+
     f_tmp1[0] = '\0';
     f_tmp2[0] = '\0';
     f_msg[0] = '\0';
