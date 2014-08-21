@@ -229,7 +229,7 @@ static PYFX_Handle g_modulex_instantiate(PYFX_Descriptor * descriptor,
     plugin_data->is_on = 0;
 
     plugin_data->port_table = g_pydaw_get_port_table(
-        (PYFX_Handle) plugin_data, descriptor);
+        (void**)plugin_data, descriptor);
 
     return (PYFX_Handle) plugin_data;
 }

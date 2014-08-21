@@ -276,7 +276,7 @@ static PYFX_Handle g_rayv_instantiate(PYFX_Descriptor * descriptor,
     plugin_data->mono_modules = v_rayv_mono_init(plugin_data->fs);
 
     plugin_data->port_table = g_pydaw_get_port_table(
-        (PYFX_Handle) plugin_data, descriptor);
+        (void**)plugin_data, descriptor);
 
     return (PYFX_Handle) plugin_data;
 }

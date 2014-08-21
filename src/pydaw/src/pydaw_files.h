@@ -486,7 +486,8 @@ t_dir_list * g_get_dir_list(char * a_dir)
           {
               f_current_max += f_resize_factor;
               f_result->dir_list =
-                    realloc(f_result->dir_list, sizeof(char*) * f_current_max);
+                  (char**)realloc(f_result->dir_list,
+                      sizeof(char*) * f_current_max);
           }
       }
       closedir (dir);

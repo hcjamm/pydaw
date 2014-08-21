@@ -554,7 +554,7 @@ static PYFX_Handle instantiateSampler(PYFX_Descriptor * descriptor,
     }
 
     plugin_data->port_table = g_pydaw_get_port_table(
-            (PYFX_Handle) plugin_data, descriptor);
+            (void**)plugin_data, descriptor);
 
     return (PYFX_Handle) plugin_data;
 }

@@ -18,14 +18,29 @@ GNU General Public License for more details.
 #include <assert.h>
 #include "../src/pydaw_files.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define PYDAW_EVENT_NOTEON     0
 #define PYDAW_EVENT_NOTEOFF    1
 #define PYDAW_EVENT_PITCHBEND  2
 #define PYDAW_EVENT_CONTROLLER 3
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef void (*fp_queue_message)(char*, char*);
+
+typedef float PYFX_Data;
+
+typedef int PYFX_PortDescriptor;
+
+
+typedef struct _PYFX_PortRangeHint {
+  PYFX_Data DefaultValue;
+  PYFX_Data LowerBound;
+  PYFX_Data UpperBound;
+} PYFX_PortRangeHint;
+
+typedef void * PYFX_Handle;
 
 // MIDI event
 typedef struct
@@ -60,62 +75,7 @@ typedef struct
     float host_sr;  //host sample-rate, cached here for easy access
 }t_wav_pool_item;
 
-void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
-{
-    a_event->type = -1;
-    a_event->tick = 0;
-}
-
-void v_pydaw_ev_set_pitchbend(t_pydaw_seq_event* a_event,
-        int a_channel, int a_value)
-{
-    a_event->type = PYDAW_EVENT_PITCHBEND;
-    a_event->channel = a_channel;
-    a_event->value = a_value;
-}
-
-void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event,
-        int a_channel, int a_note, int a_velocity)
-{
-    a_event->type = PYDAW_EVENT_NOTEOFF;
-    a_event->channel = a_channel;
-    a_event->note = a_note;
-    a_event->velocity = a_velocity;
-}
-
-void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event,
-        int a_channel, int a_note, int a_velocity)
-{
-    a_event->type = PYDAW_EVENT_NOTEON;
-    a_event->channel = a_channel;
-    a_event->note = a_note;
-    a_event->velocity = a_velocity;
-}
-
-void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event,
-        int a_channel, int a_cc_num, int a_value)
-{
-    a_event->type = PYDAW_EVENT_CONTROLLER;
-    a_event->channel = a_channel;
-    a_event->param = a_cc_num;
-    a_event->value = a_value;
-}
-
 typedef t_wav_pool_item * (*fp_get_wavpool_item_from_host)(int);
-typedef void (*fp_queue_message)(char*, char*);
-
-typedef float PYFX_Data;
-
-typedef int PYFX_PortDescriptor;
-
-
-typedef struct _PYFX_PortRangeHint {
-  PYFX_Data DefaultValue;
-  PYFX_Data LowerBound;
-  PYFX_Data UpperBound;
-} PYFX_PortRangeHint;
-
-typedef void * PYFX_Handle;
 
 /* Descriptor for a Type of Plugin:
 
@@ -195,6 +155,51 @@ void (*set_port_value)(PYFX_Handle Instance, int a_port, float a_value);
 } PYFX_Descriptor;
 
 typedef PYFX_Descriptor * (*PYFX_Descriptor_Function)(int Index);
+
+#ifdef __cplusplus
+}
+#endif
+
+void v_pydaw_ev_clear(t_pydaw_seq_event* a_event)
+{
+    a_event->type = -1;
+    a_event->tick = 0;
+}
+
+void v_pydaw_ev_set_pitchbend(t_pydaw_seq_event* a_event,
+        int a_channel, int a_value)
+{
+    a_event->type = PYDAW_EVENT_PITCHBEND;
+    a_event->channel = a_channel;
+    a_event->value = a_value;
+}
+
+void v_pydaw_ev_set_noteoff(t_pydaw_seq_event* a_event,
+        int a_channel, int a_note, int a_velocity)
+{
+    a_event->type = PYDAW_EVENT_NOTEOFF;
+    a_event->channel = a_channel;
+    a_event->note = a_note;
+    a_event->velocity = a_velocity;
+}
+
+void v_pydaw_ev_set_noteon(t_pydaw_seq_event* a_event,
+        int a_channel, int a_note, int a_velocity)
+{
+    a_event->type = PYDAW_EVENT_NOTEON;
+    a_event->channel = a_channel;
+    a_event->note = a_note;
+    a_event->velocity = a_velocity;
+}
+
+void v_pydaw_ev_set_controller(t_pydaw_seq_event* a_event,
+        int a_channel, int a_cc_num, int a_value)
+{
+    a_event->type = PYDAW_EVENT_CONTROLLER;
+    a_event->channel = a_channel;
+    a_event->param = a_cc_num;
+    a_event->value = a_value;
+}
 
 PYFX_Descriptor * pydaw_get_pyfx_descriptor(int a_uid, char * a_name,
         int a_port_count)
@@ -331,8 +336,4 @@ void pydaw_generic_file_loader(PYFX_Handle Instance,
 }
 
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* PYDAW_PLUGIN_INCLUDED */
+#endif /* PYDAW_PLUGIN_HEADER_INCLUDED */

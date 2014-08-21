@@ -659,7 +659,7 @@ static PYFX_Handle g_wayv_instantiate(PYFX_Descriptor * descriptor,
     plugin_data->sv_last_note = -1.0f;  //For glide
 
     plugin_data->port_table = g_pydaw_get_port_table(
-            (PYFX_Handle) plugin_data, descriptor);
+            (void**)plugin_data, descriptor);
 
     return (PYFX_Handle) plugin_data;
 }
