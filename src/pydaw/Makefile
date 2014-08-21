@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 CC  ?= gcc
-CXX ?= g++
 
 PREFIX ?= /usr
 PYDAW_VERSION = $(shell cat ../major-version.txt)
