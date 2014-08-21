@@ -304,7 +304,7 @@ void midiReceive(unsigned char status, unsigned char control, char value)
 
 static void midiTimerCallback(int sig, siginfo_t *si, void *uc)
 {
-    int f_poll_result;
+    PmError f_poll_result;
     int f_bInSysex = 0;
     unsigned char status;
     //int f_cReceiveMsg_index = 0;
@@ -409,7 +409,7 @@ static int portaudioCallback( const void *inputBuffer,
                               PaStreamCallbackFlags statusFlags,
                               void *userData )
 {
-    int i;
+    unsigned int i;
     int outCount;
     //int inCount;
     struct timeval tv, evtv, diff;
@@ -549,7 +549,7 @@ static int portaudioCallback( const void *inputBuffer,
 
     assert(instanceEventCounts < EVENT_BUFFER_SIZE);
 
-    v_pydaw_run(instanceHandles,  framesPerBuffer, instanceEventBuffers,
+    v_pydaw_run(instanceHandles, framesPerBuffer, instanceEventBuffers,
             instanceEventCounts);
 
     for( i=0; i < framesPerBuffer; i++ )
@@ -1267,7 +1267,7 @@ int osc_debug_handler(const char *path, const char *types, lo_arg **argv,
     printf("got unhandled OSC message:\npath: <%s>\n", path);
     for (i=0; i<argc; i++) {
         printf("arg %d '%c' ", i, types[i]);
-        lo_arg_pp(types[i], argv[i]);
+        lo_arg_pp((lo_type)types[i], argv[i]);
         printf("\n");
     }
 
