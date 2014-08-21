@@ -91,6 +91,7 @@ extern "C" {
 #include <sndfile.h>
 #include <time.h>
 #include "../libmodsynth/lib/amp.h"
+#include "../libmodsynth/lib/lmalloc.h"
 #include "../libmodsynth/lib/peak_meter.h"
 #include "../libmodsynth/modules/multifx/multifx3knob.h"
 #include "../libmodsynth/modules/modulation/ramp_env.h"
@@ -1179,9 +1180,9 @@ void v_pydaw_init_worker_threads(t_pydaw_data * self,
             (pthread_t*)malloc(sizeof(pthread_t) *
                 (self->track_worker_thread_count));
 
-    posix_memalign((void**)&self->track_thread_quit_notifier, 16,
+    lmalloc((void**)&self->track_thread_quit_notifier,
             (sizeof(int) * (self->track_worker_thread_count)));
-    posix_memalign((void**)&self->track_thread_is_finished, 16,
+    lmalloc((void**)&self->track_thread_is_finished,
             (sizeof(int) * (self->track_worker_thread_count)));
 
     self->track_cond =
@@ -1195,7 +1196,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * self,
             param.__sched_priority);
     pthread_attr_init(&threadAttr);
     pthread_attr_setschedparam(&threadAttr, &param);
-    pthread_attr_setstacksize(&threadAttr, 8388608); //16777216);
+    pthread_attr_setstacksize(&threadAttr, 8388608);
     pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
     pthread_attr_setschedpolicy(&threadAttr, RT_SCHED);
 
@@ -3650,19 +3651,11 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type, float a_sr)
 
     pthread_spin_init(&f_result->lock, 0);
 
-    if(posix_memalign((void**)(&f_result->buffers),
-        16, (sizeof(float*) * f_result->channels)) != 0)
-    {
-        return 0;
-    }
+    lmalloc((void**)&f_result->buffers, (sizeof(float*) * f_result->channels));
 
     while(f_i < f_result->channels)
     {
-        if(posix_memalign((void**)(&f_result->buffers[f_i]),
-            16, (sizeof(float) * FRAMES_PER_BUFFER)) != 0)
-        {
-            return 0;
-        }
+        lmalloc((void**)&f_result->buffers[f_i], (sizeof(float) * FRAMES_PER_BUFFER));
         f_i++;
     }
 
