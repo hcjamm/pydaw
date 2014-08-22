@@ -133,7 +133,7 @@ GNU General Public License for more details.
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 #define PA_SAMPLE_TYPE paFloat32
-#define DEFAULT_FRAMES_PER_BUFFER (512)
+#define DEFAULT_FRAMES_PER_BUFFER 512
 
 static float sample_rate;
 
@@ -812,10 +812,10 @@ int main(int argc, char **argv)
     for (j = 0; j < this_instance->plugin->ins; ++j)
     {
         lmalloc((void**)(&pluginInputBuffers[in]),
-            (sizeof(float) * f_frame_count));
+            (sizeof(float) * FRAMES_PER_BUFFER));
 
         int f_i = 0;
-        while(f_i < f_frame_count)
+        while(f_i < FRAMES_PER_BUFFER)
         {
             pluginInputBuffers[in][f_i] = 0.0f;
             f_i++;
@@ -825,10 +825,10 @@ int main(int argc, char **argv)
     for (j = 0; j < this_instance->plugin->outs; ++j)
     {
         lmalloc((void**)(&pluginOutputBuffers[out]),
-            (sizeof(float) * f_frame_count));
+            (sizeof(float) * FRAMES_PER_BUFFER));
 
         int f_i = 0;
-        while(f_i < f_frame_count)
+        while(f_i < FRAMES_PER_BUFFER)
         {
             pluginOutputBuffers[out][f_i] = 0.0f;
             f_i++;
