@@ -41,18 +41,26 @@ class wire_canvas:
         """
         raise NotImplementedError()
 
-ROUTING_PROTOTYPE_STRUCT = {
+class mk_track_route:
+    def __init__(self, a_in_count, a_out_count, a_out_connections=None):
+        """ a_out_connections =
+            {
+                out_port_num:[(track_num, channel_num), ...],
+                out_port_num:[(track_num, channel_num), ...]
+            }
+        """
+        self.out_count = a_out_count
+        self.in_count = a_in_count
+        self.out_connections = a_out_connections
+
+ROUTING_STRUCT_PROTOTYPE = {
     0:{ # level
-        1:{ # track
-            0:[ #channel
-                (0, 0)], # output track, channel
-            1:[ #channel
-                (0, 1)] # output track, channel
-          }
-      },
-   1:{ # level
-       0:{}  # master track, no outs
-   }
+        2: mk_track_route(0, 4),  # master in, not connected
+        2: mk_track_route(0, 2, {0:[(0, 0)], 1:[(0, 1)]})
+    },
+    1:{ # level
+       0: mk_track_route(2, 0)  # master out
+    }
 }
 
 if __name__ == "__main__":
