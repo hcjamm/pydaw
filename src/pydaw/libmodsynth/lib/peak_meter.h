@@ -26,6 +26,7 @@ typedef struct
 {
     float value[2];
     int buffer_pos;
+    int dirty;
 }t_pkm_peak_meter;
 
 
@@ -42,6 +43,7 @@ t_pkm_peak_meter * g_pkm_get()
     f_result->value[0] = 0.0f;
     f_result->value[1] = 0.0f;
     f_result->buffer_pos = 0;
+    f_result->dirty = 0;
 
     return f_result;
 }
@@ -69,13 +71,18 @@ static inline float f_pkm_compare(float a_audio, float a_peak)
  */
 void v_pkm_reset(t_pkm_peak_meter * self)
 {
-    self->value[0] = 0.0f;
-    self->value[1] = 0.0f;
+    self->dirty = 1;
 }
 
 void v_pkm_run(t_pkm_peak_meter * self,
         float * a_in0, float * a_in1, int a_count)
 {
+    if(self->dirty)
+    {
+        self->dirty = 0;
+        self->value[0] = 0.0f;
+        self->value[1] = 0.0f;
+    }
     self->buffer_pos = 0;
     while(self->buffer_pos < a_count)
     {
