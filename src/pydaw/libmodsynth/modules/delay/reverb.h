@@ -217,7 +217,8 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->last_predelay = -1234.0f;
     f_result->predelay_size = (int)(a_sr * 0.01f);
 
-    lmalloc((void**)&f_result->predelay_buffer, sizeof(float) * (a_sr + 5000));
+    buffer_alloc((void**)&f_result->predelay_buffer,
+        sizeof(float) * (a_sr + 5000));
 
     f_i2 = 0;
     while(f_i2 < (a_sr + 5000))

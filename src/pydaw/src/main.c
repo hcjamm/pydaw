@@ -824,7 +824,7 @@ int main(int argc, char **argv)
     }
     for (j = 0; j < this_instance->plugin->outs; ++j)
     {
-        lmalloc((void**)(&pluginOutputBuffers[out]),
+        buffer_alloc((void**)(&pluginOutputBuffers[out]),
             (sizeof(float) * FRAMES_PER_BUFFER));
 
         int f_i = 0;

@@ -1843,7 +1843,7 @@ t_wavetable * g_wavetable_get()
     t_wavetable * f_result;
     lmalloc((void**)&f_result, (sizeof(t_wavetable)));
 
-    lmalloc((void**)&f_result->wavetable, 
+    buffer_alloc((void**)&f_result->wavetable,
         (sizeof(float) * WT_FRAMES_PER_CYCLE));
 
     f_result->length = WT_FRAMES_PER_CYCLE;
@@ -1891,7 +1891,7 @@ t_wt_wavetables * g_wt_wavetables_get()
     t_wt_wavetables * f_result;
     lmalloc((void**)&f_result, (sizeof(t_wt_wavetables)));
     f_result->f_count = WT_TOTAL_WAVETABLE_COUNT;
-    lmalloc((void**)&f_result->tables, 
+    lmalloc((void**)&f_result->tables,
         sizeof(t_wavetable) * WT_TOTAL_WAVETABLE_COUNT);
     f_result->tables[0] = g_wavetable_get();
     f_i = 0;

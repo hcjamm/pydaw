@@ -160,7 +160,7 @@ t_mcm_multicomb * g_mcm_get(int a_comb_count, float a_sr)
     //Allocate enough memory to accomodate 20hz filter frequency
     f_result->buffer_size = (int)((a_sr / 20.0f) + 300);
 
-    lmalloc((void**)(&(f_result->input_buffer)), 
+    buffer_alloc((void**)(&(f_result->input_buffer)),
         sizeof(float) * (f_result->buffer_size));
 
     int f_i = 0;

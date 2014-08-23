@@ -67,7 +67,7 @@ t_white_noise * g_get_white_noise(float a_sample_rate)
 
     f_result->read_head = 0;
 
-    lmalloc((void**)&f_result->sample_array,
+    buffer_alloc((void**)&f_result->sample_array,
         sizeof(float) * f_result->array_count);
 
     f_result->b0 = f_result->b1 = f_result->b2 = f_result->b3 =

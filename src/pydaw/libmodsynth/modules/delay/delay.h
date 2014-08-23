@@ -306,7 +306,7 @@ t_delay_simple * g_dly_get_delay(float a_max_size, float a_sr)
     f_result->tempo_recip = 999;
     //add 2400 samples to ensure we don't overrun our buffer
     f_result->sample_count = (int)((a_max_size * a_sr) + 2400);
-    lmalloc((void**)&f_result->buffer, 
+    buffer_alloc((void**)&f_result->buffer,
         sizeof(float) * (f_result->sample_count));
 
     int f_i = 0;
@@ -340,7 +340,7 @@ t_delay_simple * g_dly_get_delay_tempo(float a_tempo, float a_max_size,
     //add 2400 samples to ensure we don't overrun our buffer
     f_result->sample_count = (int)((a_max_size *
             (f_result->tempo_recip) * a_sr) + 2400);
-    lmalloc((void**)&f_result->buffer,
+    buffer_alloc((void**)&f_result->buffer,
         sizeof(float) * (f_result->sample_count));
 
     return f_result;

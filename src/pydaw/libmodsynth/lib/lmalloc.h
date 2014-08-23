@@ -27,13 +27,22 @@ void lmalloc(void**, size_t);
 }
 #endif
 
-/* void * lmalloc(size_t a_size)
+/* void lmalloc(void ** a_ptr, size_t a_size)
  *
  * Custom memory allocator
  */
 void lmalloc(void ** a_ptr, size_t a_size)
 {
     assert(posix_memalign(a_ptr, 16, a_size) == 0);
+}
+
+/* void buffer_alloc(void ** a_ptr, size_t a_size)
+ *
+ * Custom memory allocator for audio buffers
+ */
+void buffer_alloc(void ** a_ptr, size_t a_size)
+{
+    assert(posix_memalign(a_ptr, 64, a_size) == 0);
 }
 
 #endif	/* LMALLOC_H */

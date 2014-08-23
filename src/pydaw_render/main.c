@@ -25,6 +25,7 @@ GNU General Public License for more details.
 
 #include "../pydaw/src/synth.c"
 #include "../pydaw/include/pydaw_plugin.h"
+#include "../pydaw/libmodsynth/lib/lmalloc.h"
 #include <unistd.h>
 
 
@@ -61,8 +62,8 @@ int main(int argc, char** argv)
     v_pydaw_activate(f_handle, f_thread_count, 0, f_project_dir);
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
 
-    f_engine->output0 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * f_buffer_size);
-    f_engine->output1 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * f_buffer_size);
+    buffer_alloc((void**)&f_engine->output0, sizeof(float) * f_buffer_size);
+    buffer_alloc((void**)&f_engine->output1, sizeof(float) * f_buffer_size);
 
     int f_i = 0;
     while(f_i < f_buffer_size)
