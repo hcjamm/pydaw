@@ -38,7 +38,8 @@ _tagencoding = 'utf8'
 _errorencoding = 'utf8'
 
 def _fsencode(filename) :
-    if sys.version_info >= (3, 0) and type(filename) == str :
+    if (sys.version_info >= (3, 0) and type(filename) == str) or \
+    (sys.version_info < (3, 0) and type(filename) == unicode) :
         return filename.encode(sys.getfilesystemencoding())
     return filename # bytes (py3) or str (py2), means already encoded
 
