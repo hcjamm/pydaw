@@ -1631,6 +1631,17 @@ inline void v_pydaw_process_track(t_pydaw_data * self, int a_global_track_num)
 {
     t_pytrack * f_track = self->track_pool_all[a_global_track_num];
 
+    //TODO:  Remove at PyDAWv5
+    if(f_track->track_type == TRACK_TYPE_INST &&
+       f_track->plugin_index == 0)
+    {
+        int f_bus_index =
+            i_get_global_track_num(TRACK_TYPE_BUS, f_track->bus_num);
+        t_pytrack * f_bus = self->track_pool_all[f_bus_index];
+        f_bus->bus_counter -= 1;
+        return;
+    }
+
     if(self->playback_mode > 0)
     {
         v_pydaw_process_midi(self, a_global_track_num, self->sample_count);
@@ -1731,7 +1742,7 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 {
     t_pytrack * f_track;
     t_pydaw_data * self = f_args->pydaw_data;
-    int f_i = 0;
+    int f_i = f_args->thread_num;
     while(f_i < self->track_pool_sorted_count)
     {
         f_track = self->track_pool_sorted[f_i];
