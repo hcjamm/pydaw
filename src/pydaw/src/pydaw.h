@@ -1424,8 +1424,6 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
     float ** f_buff = f_bus->buffers;
     float ** f_track_buff = a_track->buffers;
 
-    pthread_spin_lock(&f_bus->lock);
-
     if((a_track->track_type == TRACK_TYPE_BUS)
         ||
         ((!a_track->mute) && (!self->is_soloed))
@@ -1458,6 +1456,8 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * self,
     }
 
     int f_i2 = 0;
+
+    pthread_spin_lock(&f_bus->lock);
 
     if(a_track->fade_state == FADE_STATE_OFF)
     {
@@ -1759,11 +1759,11 @@ inline void v_pydaw_process(t_pydaw_thread_args * f_args)
 
         v_pydaw_process_track(self, f_track->global_track_num);
 
-        pthread_spin_lock(&f_track->lock);
+        //pthread_spin_lock(&f_track->lock);
 
         f_track->status = STATUS_PROCESSED;
 
-        pthread_spin_unlock(&f_track->lock);
+        //pthread_spin_unlock(&f_track->lock);
 
         f_i++;
     }
