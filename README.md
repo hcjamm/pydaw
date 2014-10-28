@@ -1,3 +1,11 @@
+#Deprecation notice
+
+PyDAW is being superceded by my new project here:
+
+https://github.com/j3ffhubb/musikernel
+
+The new project is still under heavy development and not yet recommended for any use other than evaluation.
+
 #How to build:
 
 #Ubuntu/Debian distros:
